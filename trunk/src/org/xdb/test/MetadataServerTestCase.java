@@ -10,6 +10,14 @@ public class MetadataServerTestCase extends TestCase {
 	@Override
 	public void setUp() {
 		assertNoError(MetadataServer.delete());
-		assertNoError(MetadataServer.start());
+		
+		MetadataServer server = new MetadataServer();
+		MetadataServer.startServer(server);
+		assertNoError(server.getError());
+	}
+	
+	@Override
+	public void tearDown(){
+		MetadataServer.stopServer();
 	}
 }

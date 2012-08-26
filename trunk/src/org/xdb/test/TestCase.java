@@ -10,17 +10,10 @@ import junit.framework.Assert;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.statement.AbstractStatement;
-import org.xdb.server.MetadataServer;
 
 public abstract class TestCase extends junit.framework.TestCase {
 	public TestCase() {
 		super();
-	}
-
-	@Override
-	protected void setUp(){
-		assertNoError(MetadataServer.delete());
-		assertNoError(MetadataServer.start());
 	}
 	
 	/**

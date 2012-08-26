@@ -49,7 +49,7 @@ public class ComputeClient {
 			server.close();
 			
 		} catch (Exception e) {
-			err = createComputeError(e);
+			err = createClientError(e);
 		}
 
 		return err;
@@ -81,7 +81,7 @@ public class ComputeClient {
 			server.close();
 			
 		} catch (Exception e) {
-			err = createComputeError(e);
+			err = createClientError(e);
 		}
 		
 		return err;
@@ -114,7 +114,7 @@ public class ComputeClient {
 			server.close();
 			
 		} catch (Exception e) {
-			err = createComputeError(e);
+			err = createClientError(e);
 		}
 		
 		return err;
@@ -147,7 +147,7 @@ public class ComputeClient {
 			
 			consumerSocket.close();
 		} catch (Exception e) {
-			err = createComputeError(e);
+			err = createClientError(e);
 		}
 		
 		return err;
@@ -178,7 +178,7 @@ public class ComputeClient {
 			
 			sourceSocket.close();
 		} catch (Exception e) {
-			err = createComputeError(e);
+			err = createClientError(e);
 		}
 		
 		return err;
@@ -189,11 +189,11 @@ public class ComputeClient {
 	 * @param e
 	 * @return
 	 */
-	private Error createComputeError(Exception e) {
+	private Error createClientError(Exception e) {
 		e.printStackTrace();
 		
 		String[] args = { e.toString() };
-		Error err = new Error(EnumError.COMPUTE_ERROR, args);
+		Error err = new Error(EnumError.CLIENT_ERROR, args);
 		logger.log(Level.SEVERE, err.toString());
 		return err;
 	}

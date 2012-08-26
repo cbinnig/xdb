@@ -11,10 +11,10 @@ public class OperatorDesc implements Serializable {
 	
 	private static final long serialVersionUID = -7230252328170776355L;
 	
-	//consumer operator ID
+	//operator ID
 	private Integer operatorID;
 	
-	//consumer URL
+	//operator URL
 	private String operatorNode;
 	
 	//constructors

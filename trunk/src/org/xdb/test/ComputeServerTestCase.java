@@ -9,7 +9,9 @@ public class ComputeServerTestCase extends TestCase {
 	
 	@Override
 	public void setUp(){
-		ComputeServer.startServer();
+		ComputeServer server = new ComputeServer();
+		ComputeServer.startServer(server);
+		assertNoError(server.getError());
 	}
 	
 	@Override

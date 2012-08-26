@@ -1,19 +1,25 @@
 package org.xdb.server;
 
-public class ComputeServerThread extends Thread {
+public class ServerThread extends Thread {
 	private boolean running = false;
-	private ComputeServer server;
+	private AbstractServer server;
+	
+	protected ServerThread(AbstractServer server){
+		this.server = server;
+	}
+	
 	@Override
 	public void run() {
 		try {
-			this.server = new ComputeServer();
-			this.server.execute(this);
+			this.server.executeServer(this);
 		} catch (Exception ex) {
+			
 		} finally {
 			running = false;
 		}
 	}
 
+	//getters and setters
 	public void setRunning() {
 		this.running=true;
 	}
@@ -26,7 +32,10 @@ public class ComputeServerThread extends Thread {
 		return running;
 	}
 	
-	public void close(){
-		this.server.close();
+	/**
+	 * Close server socket
+	 */
+	public void closeSocket(){
+		this.server.closeSocket();
 	}
 }

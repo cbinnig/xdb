@@ -29,7 +29,7 @@ public class ComputeNode {
 
 	// Map of operatorId -> operator
 	private Map<Integer, AbstractOperator> operators;
-	
+
 	// Map of consumer -> sources which are ready
 	private Map<Integer, HashSet<Integer>> readySignals;
 	private final Lock readySignalsLock = new ReentrantLock();
@@ -40,8 +40,10 @@ public class ComputeNode {
 
 	// constructors
 	public ComputeNode() {
-		this.operators = Collections.synchronizedMap(new HashMap<Integer, AbstractOperator>());
-		this.readySignals = Collections.synchronizedMap(new HashMap<Integer, HashSet<Integer>>());
+		this.operators = Collections
+				.synchronizedMap(new HashMap<Integer, AbstractOperator>());
+		this.readySignals = Collections
+				.synchronizedMap(new HashMap<Integer, HashSet<Integer>>());
 
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 		this.client = new ComputeClient();
@@ -88,10 +90,11 @@ public class ComputeNode {
 		// Get node
 		AbstractOperator op = null;
 		op = this.operators.get(consumer);
-		
-		logger.log(Level.INFO, "Received READY_SIGNAL for operator: "+op.getOperatorId()+" from source: " + source);
-		
-		
+
+		logger.log(Level.INFO,
+				"Received READY_SIGNAL for operator: " + op.getOperatorId()
+						+ " from source: " + source);
+
 		// Add source to sources
 		boolean execute = false;
 		this.readySignalsLock.lock();
@@ -105,7 +108,8 @@ public class ComputeNode {
 		sources.add(source);
 
 		if (sources.containsAll(op.getSourceIds())) {
-			logger.log(Level.INFO, "All signals recevied to execute operator: "+op.getOperatorId());
+			logger.log(Level.INFO, "All signals recieved to execute operator: "
+					+ op.getOperatorId());
 			execute = true;
 		}
 		this.readySignalsLock.unlock();
@@ -129,14 +133,13 @@ public class ComputeNode {
 
 		// execute operator
 		AbstractOperator op = this.operators.get(signal.getSource());
-		if(op!=null){
+		if (op != null) {
 			err = op.close();
-			logger.log(Level.INFO, "Closed operator: "+op.getOperatorId());
-			
+			logger.log(Level.INFO, "Closed operator: " + op.getOperatorId());
 
 			removeOperator(op);
 		}
-		
+
 		return err;
 	}
 
@@ -155,22 +158,32 @@ public class ComputeNode {
 			return err;
 
 		// send signal to consumer
-		OperatorDesc consumer = op.getConsumer();
-		if (consumer != null) {
-			logger.log(Level.INFO, "Send READY_SIGNAL from operator "+op.getOperatorId()+" to consumer: " + consumer);
-			
-			err = client.sendReadySignal(op, consumer);
+		Set<OperatorDesc> consumers = op.getConsumers();
+		for (OperatorDesc consumer : consumers) {
+			if (consumer != null) {
+				logger.log(Level.INFO,
+						"Send READY_SIGNAL from operator " + op.getOperatorId()
+								+ " to consumer: " + consumer);
+
+				err = client.sendReadySignal(op, consumer);
+				if (err.isError())
+					return err;
+
+			}
 		}
 
 		// send signal to sources
 		Set<OperatorDesc> sources = op.getSources();
 		for (OperatorDesc source : sources) {
 			// COMPUTE_NOOP_ID is used to trigger execution => do not send
+			// response
 			if (source.getOperatorID() == Config.COMPUTE_NOOP_ID)
 				continue;
 
-			logger.log(Level.INFO, "Send CLOSE_SIGNAL from operator "+op.getOperatorId()+" to source: " + source);
-			
+			logger.log(Level.INFO,
+					"Send CLOSE_SIGNAL from operator " + op.getOperatorId()
+							+ " to source: " + source);
+
 			this.client.sendCloseSignal(source);
 		}
 		return err;
