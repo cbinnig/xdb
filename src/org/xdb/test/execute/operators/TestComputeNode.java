@@ -70,7 +70,7 @@ public class TestComputeNode extends ComputeServerTestCase {
 		OperatorDesc source = new OperatorDesc(op1.getOperatorId(), this.nodes[0]);
 		op2.addSource(source);
 		OperatorDesc consumer = new OperatorDesc(op2.getOperatorId(), this.nodes[1]);
-		op1.setConsumer(consumer);
+		op1.addConsumer(consumer);
 		
 		// run plan with client
 		ComputeClient client = new ComputeClient();

@@ -8,7 +8,8 @@ package org.xdb.error;
 public enum EnumError {
 	NO_ERROR,
 	MYSQL_ERROR,
-	COMPUTE_ERROR,
+	SERVER_ERROR,
+	CLIENT_ERROR,
 	COMPUTE_CMD_INVALID,
 	COMPILER_UNDEFINED_ERROR,
 	CATALOG_NOT_AVAILABLE,
@@ -32,8 +33,11 @@ public enum EnumError {
 		case MYSQL_ERROR:
 			msg =  "MySQL error: \"<arg0>\"";
 			break;
-		case COMPUTE_ERROR:
-			msg =  "Compute error: \"<arg0>\"";
+		case SERVER_ERROR:
+			msg =  "Server error: \"<arg0>\"";
+			break;
+		case CLIENT_ERROR:
+			msg =  "Client error: \"<arg0>\"";
 			break;
 		case COMPUTE_CMD_INVALID:
 			msg =  "Compute cmd not valid: \"<arg0>\"";

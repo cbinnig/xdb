@@ -9,7 +9,6 @@ import java.util.Vector;
 import org.xdb.Config;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
-import org.xdb.execute.OperatorDesc;
 
 public class MySQLOperator extends AbstractOperator {
 	private static final long serialVersionUID = -6945734207336600373L;
@@ -27,16 +26,13 @@ public class MySQLOperator extends AbstractOperator {
 
 	// constructor
 	public MySQLOperator(Integer operatorId) {
-		super(operatorId, null);
-	}
-	
-	public MySQLOperator(Integer operatorId, OperatorDesc consumer) {
-		super(operatorId, consumer);
+		super(operatorId);
 	}
 
-	public MySQLOperator(Integer operatorId, OperatorDesc consumer, String dbname,
+
+	public MySQLOperator(Integer operatorId, String dbname,
 			String dbuser, String dbpasswd) {
-		this(operatorId, consumer);
+		this(operatorId);
 
 		this.dbname = dbname;
 		this.dbuser = dbuser;

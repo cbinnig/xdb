@@ -19,7 +19,7 @@ public abstract class AbstractOperator implements Serializable {
 	protected Integer operatorId; //unique op id
 	protected HashSet<Integer> sourceIds  = new HashSet<Integer>();
 	protected HashSet<OperatorDesc> sources  = new HashSet<OperatorDesc>();
-	protected OperatorDesc consumer;
+	protected HashSet<OperatorDesc> consumers = new HashSet<OperatorDesc>();
 	
 	//DDL statements to set up node
 	protected Vector<String> prepareSQLs = new Vector<String>();
@@ -35,10 +35,9 @@ public abstract class AbstractOperator implements Serializable {
 	protected Error err = Error.NO_ERROR;
 
 	//constructors
-	public AbstractOperator(Integer nodeId, OperatorDesc consumer) {
+	public AbstractOperator(Integer nodeId) {
 		super();
 		this.operatorId = nodeId;
-		this.consumer = consumer;
 	}
 
 	//getters and setters
@@ -46,12 +45,12 @@ public abstract class AbstractOperator implements Serializable {
 		return operatorId;
 	}
 	
-	public void setConsumer(OperatorDesc consumer){
-		this.consumer = consumer;
+	public void addConsumer(OperatorDesc consumer){
+		this.consumers.add(consumer);
 	}
 	
-	public OperatorDesc getConsumer() {
-		return consumer;
+	public Set<OperatorDesc> getConsumers() {
+		return this.consumers;
 	}
 
 	public void addPrepareSQL(String ddl){
