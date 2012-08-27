@@ -15,7 +15,7 @@ public class TokenTable extends AbstractToken{
 	}
 	
 	public TokenTable(){
-		this.schema = new TokenSchema(Config.DEFAULT_SCHEMA);
+		this.schema = new TokenSchema(Config.XDB_DEFAULT_SCHEMA);
 	}
 	
 	//getters and setters

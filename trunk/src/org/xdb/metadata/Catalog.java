@@ -35,7 +35,7 @@ public class Catalog {
 		try {
 			Class.forName(Config.METADATA_DRIVER_CLASS);
 			Catalog.conn = DriverManager.getConnection(
-					Config.METADATA_DATABASE_URL, Config.METADATA_USER,
+					Config.METADATA_DB_URL, Config.METADATA_USER,
 					Config.METADATA_PASSWORD);
 
 			Error lastError = Error.NO_ERROR;
@@ -79,7 +79,7 @@ public class Catalog {
 		try {
 			Class.forName(Config.METADATA_DRIVER_CLASS);
 			Catalog.conn = DriverManager.getConnection(
-					Config.METADATA_DATABASE_URL, Config.METADATA_USER,
+					Config.METADATA_DB_URL, Config.METADATA_USER,
 					Config.METADATA_PASSWORD);
 
 			Catalog.initConnections();
@@ -161,8 +161,8 @@ public class Catalog {
 	}
 
 	private static synchronized Error checkCatalog() {
-		if (Catalog.getSchema(Config.DEFAULT_SCHEMA) == null) {
-			return Catalog.createObjectNotExistsErr(Config.DEFAULT_SCHEMA,
+		if (Catalog.getSchema(Config.XDB_DEFAULT_SCHEMA) == null) {
+			return Catalog.createObjectNotExistsErr(Config.XDB_DEFAULT_SCHEMA,
 					EnumDatabaseObject.SCHEMA);
 		}
 		return Error.NO_ERROR;

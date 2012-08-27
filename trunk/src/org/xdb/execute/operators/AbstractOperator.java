@@ -22,7 +22,7 @@ public abstract class AbstractOperator implements Serializable {
 	protected HashSet<OperatorDesc> consumers = new HashSet<OperatorDesc>();
 	
 	//DDL statements to set up node
-	protected Vector<String> prepareSQLs = new Vector<String>();
+	protected Vector<String> openSQLs = new Vector<String>();
 	
 	//DML statements for execution
 	protected Vector<String> executeSQLs = new Vector<String>();
@@ -53,8 +53,8 @@ public abstract class AbstractOperator implements Serializable {
 		return this.consumers;
 	}
 
-	public void addPrepareSQL(String ddl){
-		this.prepareSQLs.add(ddl);
+	public void addOpenSQL(String ddl){
+		this.openSQLs.add(ddl);
 	}
 
 	public void addExecuteSQL(String dml){
@@ -90,12 +90,7 @@ public abstract class AbstractOperator implements Serializable {
 	public abstract Error open();
 	
 	/**
-	 * Execute prepare DDL statements
-	 */
-	public abstract Error prepare();
-	
-	/**
-	 * Execute DML statements
+	 * Execute Node
 	 */
 	public abstract Error execute();
 	

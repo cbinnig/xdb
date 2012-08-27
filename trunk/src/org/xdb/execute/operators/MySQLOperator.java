@@ -15,7 +15,7 @@ public class MySQLOperator extends AbstractOperator {
 
 	// attributes for actual execution on node
 	private transient Connection conn;
-	private transient Vector<PreparedStatement> prepareStmts;
+	private transient Vector<PreparedStatement> openStmts;
 	private transient Vector<PreparedStatement> executeStmts;
 	private transient Vector<PreparedStatement> closeStmts;
 
@@ -40,20 +40,6 @@ public class MySQLOperator extends AbstractOperator {
 	}
 
 	// methods
-	@Override
-	/**
-	 * Execute prepared DDL statements
-	 */
-	public Error prepare() {
-		try {
-			for (PreparedStatement stmt : this.prepareStmts) {
-				stmt.execute();
-			}
-		} catch (SQLException e) {
-			this.err = createMySQLError(e);
-		}
-		return this.err;
-	}
 
 	@Override
 	/**
@@ -76,18 +62,19 @@ public class MySQLOperator extends AbstractOperator {
 	 */
 	public Error open() {
 
-		this.prepareStmts = new Vector<PreparedStatement>();
+		this.openStmts = new Vector<PreparedStatement>();
 		this.executeStmts = new Vector<PreparedStatement>();
 		this.closeStmts = new Vector<PreparedStatement>();
 				
+		//compile statements
 		try {
 
 			Class.forName(Config.COMPUTE_DRIVER_CLASS);
 			this.conn = DriverManager.getConnection(this.dburl+this.dbname, this.dbuser,
 					this.dbpasswd);
 			
-			for (String ddl : this.prepareSQLs) {
-				this.prepareStmts.add(this.conn.prepareStatement(ddl));
+			for (String ddl : this.openSQLs) {
+				this.openStmts.add(this.conn.prepareStatement(ddl));
 			}
 
 			for (String dml : this.executeSQLs) {
@@ -104,9 +91,28 @@ public class MySQLOperator extends AbstractOperator {
 			this.err = createMySQLError(e);
 		}
 
+		//execute openStmts 
+		if(!err.isError()){
+			this.err = prepare();
+		}
+		
 		return this.err;
 	}
 
+	/**
+	 * Execute open DDL statements
+	 */
+	private Error prepare() {
+		try {
+			for (PreparedStatement stmt : this.openStmts) {
+				stmt.execute();
+			}
+		} catch (SQLException e) {
+			this.err = createMySQLError(e);
+		}
+		return this.err;
+	}
+	
 	@Override
 	/**
 	 * Close connection and remove prepared statements 
@@ -125,7 +131,7 @@ public class MySQLOperator extends AbstractOperator {
 		
 		try {
 			this.conn.close();
-			this.prepareStmts.clear();
+			this.openStmts.clear();
 			this.executeStmts.clear();
 			this.closeStmts.clear();
 		} catch (Exception e) {
