@@ -63,14 +63,6 @@ public class ComputeNode {
 		// open operator
 		logger.log(Level.INFO, "Open operator: " + op.getOperatorId());
 		err = op.open();
-		if (err.isError())
-			return err;
-
-		// prepare operator
-		logger.log(Level.INFO, "Prepare operator: " + op.getOperatorId());
-		err = op.prepare();
-		if (err.isError())
-			return err;
 
 		return err;
 	}
