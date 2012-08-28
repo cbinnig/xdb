@@ -6,7 +6,8 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.execute.OperatorDesc;
+import org.xdb.execute.operators.OperatorDesc;
+import org.xdb.utils.Identifier;
 
 /**
  * Executes SQL statements on computing nodes
@@ -16,16 +17,20 @@ import org.xdb.execute.OperatorDesc;
 public abstract class AbstractOperator implements Serializable {
 	private static final long serialVersionUID = -3874534068048724293L;
 	
-	protected Integer operatorId; //unique op id
-	protected HashSet<Integer> sourceIds  = new HashSet<Integer>();
+	//unique op id
+	protected Identifier operatorId; 
+	
+	//sourceIDs
+	protected HashSet<String> sourceIds  = new HashSet<String>();
+	
+	//Source Descriptions
 	protected HashSet<OperatorDesc> sources  = new HashSet<OperatorDesc>();
+	
+	//Consumer Descriptions
 	protected HashSet<OperatorDesc> consumers = new HashSet<OperatorDesc>();
 	
 	//DDL statements to set up node
 	protected Vector<String> openSQLs = new Vector<String>();
-	
-	//DML statements for execution
-	protected Vector<String> executeSQLs = new Vector<String>();
 	
 	//DDL statements for execution
 	protected Vector<String> closeSQLs = new Vector<String>();
@@ -35,13 +40,13 @@ public abstract class AbstractOperator implements Serializable {
 	protected Error err = Error.NO_ERROR;
 
 	//constructors
-	public AbstractOperator(Integer nodeId) {
+	public AbstractOperator(Identifier nodeId) {
 		super();
 		this.operatorId = nodeId;
 	}
 
 	//getters and setters
-	public Integer getOperatorId() {
+	public Identifier getOperatorId() {
 		return operatorId;
 	}
 	
@@ -56,16 +61,12 @@ public abstract class AbstractOperator implements Serializable {
 	public void addOpenSQL(String ddl){
 		this.openSQLs.add(ddl);
 	}
-
-	public void addExecuteSQL(String dml){
-		this.executeSQLs.add(dml);
-	}
 	
 	public void addCloseSQL(String ddl){
 		this.closeSQLs.add(ddl);
 	}
 	
-	public Set<Integer> getSourceIds(){
+	public Set<String> getSourceIds(){
 		return this.sourceIds;
 	}
 	
@@ -74,7 +75,7 @@ public abstract class AbstractOperator implements Serializable {
 	}
 	
 	public void addSource(OperatorDesc source){
-		this.sourceIds.add(source.getOperatorID());
+		this.sourceIds.add(source.getOperatorID().toString());
 		this.sources.add(source);
 	}
 	
@@ -91,6 +92,7 @@ public abstract class AbstractOperator implements Serializable {
 	
 	/**
 	 * Execute Node
+	 * @return
 	 */
 	public abstract Error execute();
 	

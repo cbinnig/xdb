@@ -4,9 +4,9 @@ import org.junit.Test;
 import org.xdb.funsql.statement.AbstractStatement;
 import org.xdb.funsql.statement.CreateSchemaStmt;
 import org.xdb.funsql.statement.DropSchemaStmt;
-import org.xdb.test.MetadataServerTestCase;
+import org.xdb.test.CompileServerTestCase;
 
-public class TestCreateSchemaStmt extends MetadataServerTestCase {
+public class TestCreateSchemaStmt extends CompileServerTestCase {
 	@Test
 	public void testDuplicateCreate() {
 		String schemaName = "TestSchema";

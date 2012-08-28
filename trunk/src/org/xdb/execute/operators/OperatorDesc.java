@@ -1,6 +1,8 @@
-package org.xdb.execute;
+package org.xdb.execute.operators;
 
 import java.io.Serializable;
+
+import org.xdb.utils.Identifier;
 
 /**
  * Consumer specification with URL for consumer node and operator ID
@@ -12,20 +14,20 @@ public class OperatorDesc implements Serializable {
 	private static final long serialVersionUID = -7230252328170776355L;
 	
 	//operator ID
-	private Integer operatorID;
+	private Identifier operatorID;
 	
 	//operator URL
 	private String operatorNode;
 	
 	//constructors
-	public OperatorDesc(Integer operatorID, String operatorNode) {
+	public OperatorDesc(Identifier operatorID, String operatorNode) {
 		super();
 		this.operatorID = operatorID;
 		this.operatorNode = operatorNode;
 	}
 
 	//getter and setters
-	public Integer getOperatorID() {
+	public Identifier getOperatorID() {
 		return operatorID;
 	}
 
@@ -36,7 +38,7 @@ public class OperatorDesc implements Serializable {
 	//methods
 	@Override
 	public int hashCode(){
-		return this.operatorID;
+		return this.operatorID.hashCode();
 	}
 	
 	@Override

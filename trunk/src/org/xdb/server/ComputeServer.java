@@ -5,12 +5,12 @@ import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNode;
 import org.xdb.execute.operators.AbstractOperator;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
-import org.xdb.logging.XDBLog;
 
 /**
  * Server which accepts compute commands and calls handler (separate thread)
@@ -44,9 +44,8 @@ public class ComputeServer extends AbstractServer {
 			ObjectInputStream in = new ObjectInputStream(
 					this.client.getInputStream());
 
-			logger.log(Level.INFO, "Read command from client");
 			int cmd = in.readInt();
-			logger.log(Level.INFO, "Read command:" + cmd);
+			logger.log(Level.INFO, "Read command from client:" + cmd);
 			try {
 
 				switch (cmd) {
@@ -85,7 +84,9 @@ public class ComputeServer extends AbstractServer {
 
 	// constructors
 	public ComputeServer() {
-		this.logger = XDBLog.getLogger(this.getClass().getName());
+		super();
+		
+		this.port = Config.COMPUTE_PORT;
 		this.compute = new ComputeNode();
 	}
 

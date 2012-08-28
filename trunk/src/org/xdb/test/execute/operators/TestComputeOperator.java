@@ -6,12 +6,13 @@ import org.junit.Test;
 import org.xdb.execute.operators.AbstractOperator;
 import org.xdb.execute.operators.MySQLOperator;
 import org.xdb.test.TestCase;
+import org.xdb.utils.Identifier;
 
 public class TestComputeOperator extends TestCase {
 	@Test
 	public void test1Op() throws Exception {
 		//operator
-		MySQLOperator op = new MySQLOperator(1);
+		MySQLOperator op = new MySQLOperator(new Identifier("1"));
 		op.addOpenSQL("CREATE TEMPORARY TABLE REGION ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) " +
 				"ENGINE=FEDERATED CONNECTION='mysql://root@127.0.0.1/tpch_s01/region';");
 		
@@ -35,7 +36,7 @@ public class TestComputeOperator extends TestCase {
 	@Test
 	public void test2Ops() throws Exception {
 		//first op
-		MySQLOperator op1 = new MySQLOperator(1);
+		MySQLOperator op1 = new MySQLOperator(new Identifier("1"));
 		
 		op1.addOpenSQL("CREATE TEMPORARY TABLE REGION ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) " +
 				"ENGINE=FEDERATED CONNECTION='mysql://root@127.0.0.1/tpch_s01/region';");
@@ -51,7 +52,7 @@ public class TestComputeOperator extends TestCase {
 		this.assertResultSize(rs, 3);
 		
 		//second op
-		MySQLOperator op2 = new MySQLOperator(1);
+		MySQLOperator op2 = new MySQLOperator(new Identifier("2"));
 		
 		op2.addOpenSQL("CREATE TEMPORARY TABLE R2 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) " +
 				"ENGINE=FEDERATED CONNECTION='mysql://root@127.0.0.1/stratusdb/r1';");

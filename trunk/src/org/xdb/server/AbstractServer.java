@@ -6,9 +6,9 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.xdb.Config;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
+import org.xdb.logging.XDBLog;
 
 /**
  * Abstract server 
@@ -18,11 +18,17 @@ import org.xdb.error.Error;
 public abstract class AbstractServer {
 	
 	protected static ServerThread serverThread = null;
+	protected int port = -1;
 	
 	protected ServerSocket serverSocket = null;
 	protected Logger logger;
 	protected Error err = Error.NO_ERROR;
 
+	//Constructors
+	public AbstractServer(){
+		this.logger = XDBLog.getLogger(this.getClass().getName());
+	}
+	
 	// getters and setters
 	public Error getError() {
 		return err;
@@ -76,7 +82,7 @@ public abstract class AbstractServer {
 		try {
 			this.logger.log(Level.INFO, "Server ("+this.getClass().getSimpleName()+") started ... ");
 
-			this.serverSocket = new ServerSocket(Config.COMPUTE_PORT);
+			this.serverSocket = new ServerSocket(this.port);
 
 			thread.setRunning();
 

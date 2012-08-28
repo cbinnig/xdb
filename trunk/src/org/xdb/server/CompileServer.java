@@ -3,19 +3,21 @@ package org.xdb.server;
 import java.net.Socket;
 import java.util.logging.Level;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
-import org.xdb.logging.XDBLog;
 import org.xdb.metadata.Catalog;
 
 /**
  * 
  * @author cbinnig
  */
-public class MetadataServer extends AbstractServer {
+public class CompileServer extends AbstractServer {
 
 	// constructors
-	public MetadataServer() {
-		this.logger = XDBLog.getLogger(this.getClass().getName());
+	public CompileServer() {
+		super();
+		this.port = Config.METADATA_PORT;
+		
 		this.err = Catalog.load();
 		this.logger.log(Level.INFO, "Catalog loaded ... ");
 	}
@@ -43,6 +45,6 @@ public class MetadataServer extends AbstractServer {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		startServer(new MetadataServer());
+		startServer(new CompileServer());
 	}
 }
