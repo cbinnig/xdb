@@ -40,15 +40,26 @@ public abstract class AbstractOperator implements Serializable {
 
 	// unique operator id
 	protected Identifier operatorId;
+	
+	//Is root operator
+	protected boolean isRoot = false;
 
 	// constructors
-	public AbstractOperator(Identifier nodeId, Integer outParts) {
+	public AbstractOperator(Integer outParts) {
 		super();
-		this.operatorId = nodeId;
+		this.operatorId = Config.COMPUTE_NOOP_ID;
 		this.outParts = outParts;
 	}
 
 	// getters and setters
+	public void setIsRoot(boolean isRoot){
+		this.isRoot = isRoot;
+	}
+	
+	public boolean isRoot(){
+		return this.isRoot;
+	}
+	
 	public void setOutParts(int outParts) {
 		this.outParts = outParts;
 	}
@@ -59,12 +70,16 @@ public abstract class AbstractOperator implements Serializable {
 		this.partAtt.put(tableName, partAtt);
 	}
 
-	public void addOutnTables(String tableName, StringTemplate tableDDL,
+	public void addOutTables(String tableName, StringTemplate tableDDL,
 			String partAtt) {
 		this.outTables.put(tableName, tableDDL);
 		this.partAtt.put(tableName, partAtt);
 	}
 
+	public void setOperatorId(Identifier operatorId) {
+		this.operatorId = operatorId;
+	}
+	
 	public Identifier getOperatorId() {
 		return operatorId;
 	}

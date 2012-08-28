@@ -84,6 +84,8 @@ public class ComputeNode {
 		// Get node
 		AbstractOperator op = null;
 		op = this.operators.get(consumer);
+		if(op==null)
+			return err;
 
 		logger.log(Level.INFO,
 				"Received READY_SIGNAL for operator: " + op.getOperatorId()

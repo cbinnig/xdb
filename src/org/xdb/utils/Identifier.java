@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class Identifier implements Serializable, Cloneable{
 
 	private static final long serialVersionUID = -7793679328045299666L;
-	private static final String SEPARATOR = ".";
+	private static final String SEPARATOR = "_";
 	
 	private String id;
 	

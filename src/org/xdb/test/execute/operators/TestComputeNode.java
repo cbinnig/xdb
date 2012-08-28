@@ -33,7 +33,7 @@ public class TestComputeNode extends ComputeServerTestCase {
 		ComputeClient client = new ComputeClient();
 
 		this.assertNoError(client.prepareOperator(this.nodes[0], op));
-		this.assertNoError(client.executeOperator(this.nodes[0], op));
+		this.assertNoError(client.executeOperator(this.nodes[0], op.getOperatorId()));
 
 		// check results
 		ResultSet rs = this.execute("SELECT COUNT(*) AS CNT FROM R1;");
@@ -60,7 +60,7 @@ public class TestComputeNode extends ComputeServerTestCase {
 		MySQLOperator op2 = new MySQLOperator(new Identifier("2"));
 
 		op2.addOpenSQL("CREATE TEMPORARY TABLE R2 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) "
-				+ "ENGINE=FEDERATED CONNECTION='mysql://"+Config.COMPUTE_DB_USER+":"+Config.COMPUTE_DB_PASSWD+"@"+this.nodes[0]+"/stratusdb/r1';");
+				+ "ENGINE=FEDERATED CONNECTION='mysql://"+Config.COMPUTE_DB_USER+":"+Config.COMPUTE_DB_PASSWD+"@"+this.nodes[0]+"/"+Config.COMPUTE_DB_NAME+"/r1';");
 
 		op2.addOpenSQL("CREATE TABLE R3 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) ENGINE=MEMORY;");
 
@@ -79,7 +79,7 @@ public class TestComputeNode extends ComputeServerTestCase {
 		this.assertNoError(client.prepareOperator(this.nodes[0], op1));
 		this.assertNoError(client.prepareOperator(this.nodes[1], op2));
 		
-		this.assertNoError(client.executeOperator(this.nodes[0], op1));
+		this.assertNoError(client.executeOperator(this.nodes[0], op1.getOperatorId()));
 		
 		// clean up
 		this.assertNoError(client.closeOperator(this.nodes[0], op1.getOperatorId()));

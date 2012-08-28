@@ -3,6 +3,7 @@ package org.xdb.test.execute.operators;
 import java.sql.ResultSet;
 
 import org.junit.Test;
+import org.xdb.Config;
 import org.xdb.execute.operators.AbstractOperator;
 import org.xdb.execute.operators.MySQLOperator;
 import org.xdb.test.TestCase;
@@ -55,7 +56,7 @@ public class TestComputeOperator extends TestCase {
 		MySQLOperator op2 = new MySQLOperator(new Identifier("2"));
 		
 		op2.addOpenSQL("CREATE TEMPORARY TABLE R2 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) " +
-				"ENGINE=FEDERATED CONNECTION='mysql://root@127.0.0.1/stratusdb/r1';");
+				"ENGINE=FEDERATED CONNECTION='mysql://root@127.0.0.1/"+Config.COMPUTE_DB_NAME+"/r1';");
 		
 		op2.addOpenSQL("CREATE TABLE R3 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) ENGINE=MEMORY;");
 		

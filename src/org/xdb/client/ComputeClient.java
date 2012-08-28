@@ -62,9 +62,9 @@ public class ComputeClient {
 	 * @param op
 	 * @return
 	 */
-	public Error executeOperator(String node, AbstractOperator op) {
+	public Error executeOperator(String node, Identifier operatorId) {
 		Error err = Error.NO_ERROR;
-		ReadySignal signal = new ReadySignal(Config.COMPUTE_NOOP_ID, op.getOperatorId());
+		ReadySignal signal = new ReadySignal(Config.COMPUTE_NOOP_ID, operatorId);
 		
 		try {
 			Socket server = new Socket(node, Config.COMPUTE_PORT);

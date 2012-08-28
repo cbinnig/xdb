@@ -15,9 +15,9 @@ public class TestCreateTableSQL extends CompileServerTestCase {
 		//create connection -> no error
 		String createConnSql = 
 				"CREATE CONNECTION \"testConnection\" " +
-				"URL 'jdbc:postgresql://127.0.0.1/stratusdb' " +
-				"USER 'stratusdb' " +
-				"PASSWORD 'stratusdb' " +
+				"URL 'jdbc:postgresql://127.0.0.1/xdb_tmp' " +
+				"USER 'xroot' " +
+				"PASSWORD 'xroot' " +
 				"STORE 'POSTGRES' ";
 		
 		AbstractStatement stmt = compiler.compile(createConnSql);
