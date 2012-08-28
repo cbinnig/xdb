@@ -1,7 +1,10 @@
-CREATE DATABASE  IF NOT EXISTS stratusdb;
-CREATE USER 'stratusroot'@'localhost' IDENTIFIED BY 'stratusroot';
-GRANT ALL ON *.* TO 'stratusroot'@'localhost' IDENTIFIED BY 'stratusroot';
-CREATE USER 'stratusroot'@'%' IDENTIFIED BY 'stratusroot';
-GRANT ALL ON *.* TO 'stratusroot'@'%' IDENTIFIED BY 'stratusroot';
--- CREATE USER 'stratusroot'@'<localip>' IDENTIFIED BY 'stratusroot';
--- GRANT ALL ON *.* TO 'stratusroot'@'<localip>' IDENTIFIED BY 'stratusroot';
+CREATE DATABASE IF NOT EXISTS xdb_schema;
+CREATE DATABASE IF NOT EXISTS xdb_tmp;
+
+CREATE USER 'xroot'@'localhost' IDENTIFIED BY 'xroot';
+GRANT ALL ON *.* TO 'xroot'@'localhost' IDENTIFIED BY 'xroot';
+CREATE USER 'xroot'@'%' IDENTIFIED BY 'xroot';
+GRANT ALL ON *.* TO 'xroot'@'%' IDENTIFIED BY 'xroot';
+
+-- CREATE USER 'xroot'@'<localip>' IDENTIFIED BY 'xroot';
+-- GRANT ALL ON *.* TO 'xroot'@'<localip>' IDENTIFIED BY 'xroot';

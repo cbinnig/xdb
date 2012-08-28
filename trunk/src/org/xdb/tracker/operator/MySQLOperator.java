@@ -13,8 +13,8 @@ public class MySQLOperator extends AbstractOperator {
 	private Vector<StringTemplate> executeSQLs = new Vector<StringTemplate>();
 
 	// constructors
-	public MySQLOperator(Identifier nodeId, Integer outParts) {
-		super(nodeId, outParts);
+	public MySQLOperator(Integer outParts) {
+		super(outParts);
 	}
 
 	// getters and setters
@@ -59,8 +59,10 @@ public class MySQLOperator extends AbstractOperator {
 			deployOper.addCloseSQL(genDropDeployTableDDL(tableName, operDesc));
 		}
 
-		for (String tableName : this.outTables.keySet()) {
-			deployOper.addCloseSQL(genDropDeployTableDDL(tableName, operDesc));
+		if(!this.isRoot){
+			for (String tableName : this.outTables.keySet()) {
+				deployOper.addCloseSQL(genDropDeployTableDDL(tableName, operDesc));
+			}
 		}
 
 		return deployOper;

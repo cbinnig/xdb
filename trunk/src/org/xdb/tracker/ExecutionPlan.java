@@ -18,7 +18,8 @@ public class ExecutionPlan implements Serializable {
 	private static final long serialVersionUID = -5521482252707107847L;
 
 	// deployment operator id
-	private Integer lastExecOperId = 1;
+	private Integer lastDeployOperId = 1;
+	private Integer lastPlanOperId = 1;
 
 	// unique operator id
 	private Identifier planId;
@@ -52,25 +53,66 @@ public class ExecutionPlan implements Serializable {
 		return this.planId;
 	}
 
-	public void addOperator(AbstractOperator operator, Set<Identifier> sources,
+	/**
+	 * Adds operator to plan and generates a plan operator id: PLAN_ID+"_"+PLAN_OPER_ID
+	 * @param operator
+	 * @param sources
+	 * @param consumers
+	 * @return
+	 */
+	public Identifier addOperator(AbstractOperator operator, Set<Identifier> sources,
 			Set<Identifier> consumers) {
-		Identifier operId = operator.getOperatorId();
-
+		Identifier operId = this.planId.clone();
+		operId.append(this.lastPlanOperId++);
+		operator.setOperatorId(operId);
+		
 		this.operators.put(operId, operator);
 		this.sources.put(operId, sources);
 		this.consumers.put(operId, consumers);
 
-		if (sources == null || sources.isEmpty()) {
+		if ( sources.isEmpty()) {
 			this.leaves.add(operator.getOperatorId());
 		}
 
-		if (consumers == null || consumers.isEmpty()) {
+		if ( consumers.isEmpty()) {
 			this.roots.add(operator.getOperatorId());
+			operator.setIsRoot(true);
 		}
+		
+		return operId;
 	}
 
 	// methods
-	public Error deployPlan() {
+	
+	/**
+	 * Executes a plan using a given deployment description
+	 * @param currentDeployment
+	 */
+	public void executePlan(Map<Identifier, OperatorDesc> currentDeployment) {
+		if (err.isError())
+			return;
+
+		//execute operators
+		for (Identifier leaveId : this.leaves) {
+			OperatorDesc leaveDesc = currentDeployment.get(leaveId);
+			this.err = this.computeClient.executeOperator(leaveDesc.getOperatorNode(),
+					leaveDesc.getOperatorID());
+			
+			if(this.err.isError())
+				break;
+		}
+		
+		//close operators
+		for(OperatorDesc operDesc: currentDeployment.values()){
+			this.computeClient.closeOperator(operDesc.getOperatorNode(), operDesc.getOperatorID());
+		}
+	}
+
+	/**
+	 * Deploys the given plan and creates a deployment description
+	 * @return
+	 */
+	public Map<Identifier, OperatorDesc> deployPlan() {
 		HashMap<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
 
 		// prepare deployment
@@ -90,13 +132,17 @@ public class ExecutionPlan implements Serializable {
 				this.computeClient.closeOperator(
 						deployOperDesc.getOperatorNode(), operId);
 			}
+			currentDeployment.clear();
 		}
 
-		return this.err;
+		return currentDeployment;
 	}
 
+	/**
+	 * Deploys plan using a given deployment description
+	 * @param currentDeployment
+	 */
 	private void deployPlan(Map<Identifier, OperatorDesc> currentDeployment) {
-		// deploy current deployment
 		for (Entry<Identifier, OperatorDesc> entry : currentDeployment
 				.entrySet()) {
 			Identifier operId = entry.getKey();
@@ -106,17 +152,17 @@ public class ExecutionPlan implements Serializable {
 			// create executable operator and set consumers / sources
 			org.xdb.execute.operators.AbstractOperator deployOper = oper
 					.genDeployOperator(deployOperDesc);
-			
-			for(Identifier consumerId: this.consumers.get(operId)){
+
+			for (Identifier consumerId : this.consumers.get(operId)) {
 				OperatorDesc consumerDesc = currentDeployment.get(consumerId);
 				deployOper.addConsumer(consumerDesc);
 			}
-			
-			for(Identifier sourceId: this.sources.get(operId)){
+
+			for (Identifier sourceId : this.sources.get(operId)) {
 				OperatorDesc sourceDesc = currentDeployment.get(sourceId);
 				deployOper.addConsumer(sourceDesc);
 			}
-			
+
 			// deploy operator
 			this.err = computeClient.prepareOperator(
 					deployOperDesc.getOperatorNode(), deployOper);
@@ -134,28 +180,29 @@ public class ExecutionPlan implements Serializable {
 	}
 
 	/**
-	 * prepares deployment for a given operator in plan
+	 * Prepares deployment for a given operator in plan
 	 * 
 	 * @param operId
 	 * @param currentDeployment
 	 */
 	private void prepareDeployment(Identifier operId,
 			Map<Identifier, OperatorDesc> currentDeployment) {
+		
 		// operator already deployed
 		if (currentDeployment.containsKey(operId))
 			return;
 
-		// Generate deployment operator
+		// generate deployment description from plan operator
 		Identifier deployOperId = operId.clone();
-		deployOperId.append(this.lastExecOperId++);
+		deployOperId.append(this.lastDeployOperId++);
 		OperatorDesc deployOperDesc = new OperatorDesc(deployOperId,
 				tracker.getFreeNode());
 
-		// add to current deployment info
+		// add to current deployment description
 		currentDeployment.put(operId, deployOperDesc);
-		
-		// deploy consumers
-		for(Identifier consumerId: this.consumers.get(operId)){
+
+		// prepare deployment of consumers
+		for (Identifier consumerId : this.consumers.get(operId)) {
 			prepareDeployment(consumerId, currentDeployment);
 		}
 	}
