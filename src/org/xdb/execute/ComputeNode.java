@@ -14,9 +14,11 @@ import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractOperator;
+import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
 import org.xdb.logging.XDBLog;
+import org.xdb.utils.Identifier;
 
 /**
  * Responsible to keep track of operators: - installs new operators - executes
@@ -28,10 +30,10 @@ import org.xdb.logging.XDBLog;
 public class ComputeNode {
 
 	// Map of operatorId -> operator
-	private Map<Integer, AbstractOperator> operators;
+	private Map<Identifier, AbstractOperator> operators;
 
 	// Map of consumer -> sources which are ready
-	private Map<Integer, HashSet<Integer>> readySignals;
+	private Map<Identifier, HashSet<Identifier>> readySignals;
 	private final Lock readySignalsLock = new ReentrantLock();
 
 	// Helpers
@@ -41,9 +43,9 @@ public class ComputeNode {
 	// constructors
 	public ComputeNode() {
 		this.operators = Collections
-				.synchronizedMap(new HashMap<Integer, AbstractOperator>());
+				.synchronizedMap(new HashMap<Identifier, AbstractOperator>());
 		this.readySignals = Collections
-				.synchronizedMap(new HashMap<Integer, HashSet<Integer>>());
+				.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());
 
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 		this.client = new ComputeClient();
@@ -76,8 +78,8 @@ public class ComputeNode {
 	 */
 	public Error signalOperator(ReadySignal signal) {
 		Error err = Error.NO_ERROR;
-		Integer source = signal.getSource();
-		Integer consumer = signal.getConsumer();
+		Identifier source = signal.getSource();
+		Identifier consumer = signal.getConsumer();
 
 		// Get node
 		AbstractOperator op = null;
@@ -90,16 +92,16 @@ public class ComputeNode {
 		// Add source to sources
 		boolean execute = false;
 		this.readySignalsLock.lock();
-		HashSet<Integer> sources = null;
+		HashSet<Identifier> sourceIds = null;
 		if (!this.readySignals.containsKey(consumer)) {
-			sources = new HashSet<Integer>();
-			this.readySignals.put(source, sources);
+			sourceIds = new HashSet<Identifier>();
+			this.readySignals.put(source, sourceIds);
 		} else {
-			sources = this.readySignals.get(source);
+			sourceIds = this.readySignals.get(source);
 		}
-		sources.add(source);
+		sourceIds.add(source);
 
-		if (sources.containsAll(op.getSourceIds())) {
+		if (sourceIds.containsAll(op.getSourceIds())) {
 			logger.log(Level.INFO, "All signals recieved to execute operator: "
 					+ op.getOperatorId());
 			execute = true;

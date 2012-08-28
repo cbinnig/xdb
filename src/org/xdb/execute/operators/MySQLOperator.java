@@ -9,6 +9,7 @@ import java.util.Vector;
 import org.xdb.Config;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
+import org.xdb.utils.Identifier;
 
 public class MySQLOperator extends AbstractOperator {
 	private static final long serialVersionUID = -6945734207336600373L;
@@ -19,18 +20,21 @@ public class MySQLOperator extends AbstractOperator {
 	private transient Vector<PreparedStatement> executeStmts;
 	private transient Vector<PreparedStatement> closeStmts;
 
+	//DML statements for execution
+	protected Vector<String> executeSQLs = new Vector<String>();
+		
 	protected String dburl = Config.COMPUTE_DB_URL;
 	protected String dbname = Config.COMPUTE_DB_NAME;
 	protected String dbuser = Config.COMPUTE_DB_USER;
 	protected String dbpasswd = Config.COMPUTE_DB_PASSWD;
 
 	// constructor
-	public MySQLOperator(Integer operatorId) {
+	public MySQLOperator(Identifier operatorId) {
 		super(operatorId);
 	}
 
 
-	public MySQLOperator(Integer operatorId, String dbname,
+	public MySQLOperator(Identifier operatorId, String dbname,
 			String dbuser, String dbpasswd) {
 		this(operatorId);
 
@@ -39,6 +43,12 @@ public class MySQLOperator extends AbstractOperator {
 		this.dbpasswd = dbpasswd;
 	}
 
+	// getters and setters
+	
+	public void addExecuteSQL(String dml){
+		this.executeSQLs.add(dml);
+	}
+	
 	// methods
 
 	@Override

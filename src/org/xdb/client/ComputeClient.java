@@ -9,12 +9,13 @@ import java.util.logging.Logger;
 import org.xdb.Config;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
-import org.xdb.execute.OperatorDesc;
+import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.operators.AbstractOperator;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.ComputeServer;
+import org.xdb.utils.Identifier;
 
 public class ComputeClient {
 	// Helpers
@@ -94,9 +95,9 @@ public class ComputeClient {
 	 * @param op
 	 * @return
 	 */
-	public Error closeOperator(String node, AbstractOperator op) {
+	public Error closeOperator(String node, Identifier operatorId) {
 		Error err = Error.NO_ERROR;
-		CloseSignal signal = new CloseSignal(op.getOperatorId());
+		CloseSignal signal = new CloseSignal(operatorId);
 		
 		try {
 			Socket server = new Socket(node, Config.COMPUTE_PORT);
