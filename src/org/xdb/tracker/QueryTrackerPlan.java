@@ -5,15 +5,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.Set;
 
 import org.xdb.client.ComputeClient;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.OperatorDesc;
+import org.xdb.logging.XDBLog;
 import org.xdb.tracker.operator.AbstractOperator;
 import org.xdb.utils.Identifier;
 
-public class ExecutionPlan implements Serializable {
+public class QueryTrackerPlan implements Serializable {
 
 	private static final long serialVersionUID = -5521482252707107847L;
 
@@ -40,17 +43,25 @@ public class ExecutionPlan implements Serializable {
 
 	// last error
 	private Error err = Error.NO_ERROR;
+	
+	//Logger
+	private Logger logger;
 
 	// constructor
-	public ExecutionPlan(QueryTrackerNode tracker, Identifier planId) {
+	public QueryTrackerPlan(QueryTrackerNode tracker, Identifier planId) {
 		this.planId = planId;
 		this.tracker = tracker;
 		this.computeClient = tracker.getComputeClient();
+		this.logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
 	// getter and setter
 	public Identifier getPlanId() {
 		return this.planId;
+	}
+
+	public Error getLastError() {
+		return err;
 	}
 
 	/**
@@ -85,6 +96,24 @@ public class ExecutionPlan implements Serializable {
 	// methods
 	
 	/**
+	 * Removes result tables of root nodes
+	 * @param currentDeployment
+	 */
+	public void cleanPlan(Map<Identifier, OperatorDesc> currentDeployment) {
+		//close operators which are not root operators
+		for(Entry<Identifier, OperatorDesc> entry : currentDeployment.entrySet()){
+			AbstractOperator planOp = this.operators.get(entry.getKey());
+			if(planOp.isRoot()){
+				OperatorDesc operDesc = entry.getValue();
+				this.err = this.computeClient.closeOperator(operDesc.getOperatorNode(), operDesc.getOperatorID());
+				
+				if(this.err.isError())
+					break;
+			}
+		}
+	}
+	
+	/**
 	 * Executes a plan using a given deployment description
 	 * @param currentDeployment
 	 */
@@ -102,9 +131,16 @@ public class ExecutionPlan implements Serializable {
 				break;
 		}
 		
-		//close operators
-		for(OperatorDesc operDesc: currentDeployment.values()){
-			this.computeClient.closeOperator(operDesc.getOperatorNode(), operDesc.getOperatorID());
+		//close operators which are not root operators
+		for(Entry<Identifier, OperatorDesc> entry : currentDeployment.entrySet()){
+			AbstractOperator planOp = this.operators.get(entry.getKey());
+			if(!planOp.isRoot()){
+				OperatorDesc operDesc = entry.getValue();
+				this.err = this.computeClient.closeOperator(operDesc.getOperatorNode(), operDesc.getOperatorID());
+				
+				if(this.err.isError())
+					break;
+			}
 		}
 	}
 
@@ -153,6 +189,8 @@ public class ExecutionPlan implements Serializable {
 			org.xdb.execute.operators.AbstractOperator deployOper = oper
 					.genDeployOperator(deployOperDesc);
 
+			logger.log(Level.INFO, "Deploy operator '" + deployOper.getOperatorId() + "' for plan operator '"+operId+"'");
+			
 			for (Identifier consumerId : this.consumers.get(operId)) {
 				OperatorDesc consumerDesc = currentDeployment.get(consumerId);
 				deployOper.addConsumer(consumerDesc);

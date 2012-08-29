@@ -35,5 +35,5 @@ public class Config implements Serializable{
 	public static final int QUERYTRACKER_PORT = 55557;
 	
 	public static final String LOG_FILE = "./log/xdb.log";
-	public static final Level LOG_LEVEL = Level.INFO;
+	public static final Level LOG_LEVEL = Level.SEVERE;
 }

@@ -51,15 +51,17 @@ public class ComputeServer extends AbstractServer {
 				switch (cmd) {
 				case CMD_PREPARE_OP:
 					AbstractOperator op = (AbstractOperator) in.readObject();
-					logger.log(Level.INFO, "Recieved op:" + op.getOperatorId());
+					logger.log(Level.INFO, "Received operator:" + op.getOperatorId());
 					err = compute.installOperator(op);
 					break;
 				case CMD_READY_SIGNAL:
 					ReadySignal readSignal = (ReadySignal) in.readObject();
+					logger.log(Level.INFO, "Received ready signal for operator:" + readSignal.getConsumer());
 					err = compute.signalOperator(readSignal);
 					break;
 				case CMD_CLOSE_SIGNAL:
 					CloseSignal closeSignal = (CloseSignal) in.readObject();
+					logger.log(Level.INFO, "Received close signal for operator:" + closeSignal.getConsumer());
 					err = compute.closeOperator(closeSignal);
 					break;
 				default:
