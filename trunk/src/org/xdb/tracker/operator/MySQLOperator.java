@@ -1,6 +1,7 @@
 package org.xdb.tracker.operator;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.xdb.execute.operators.OperatorDesc;
@@ -13,8 +14,12 @@ public class MySQLOperator extends AbstractOperator {
 	private Vector<StringTemplate> executeSQLs = new Vector<StringTemplate>();
 
 	// constructors
-	public MySQLOperator(Integer outParts) {
-		super(outParts);
+	public MySQLOperator(Identifier operatorId) {
+		super(operatorId, 1);
+	}
+	
+	public MySQLOperator(Identifier operatorId, Integer outParts) {
+		super(operatorId, outParts);
 	}
 
 	// getters and setters
@@ -26,7 +31,7 @@ public class MySQLOperator extends AbstractOperator {
 
 	@Override
 	public org.xdb.execute.operators.AbstractOperator genDeployOperator(
-			OperatorDesc operDesc) {
+			OperatorDesc operDesc, Map<Identifier, OperatorDesc> currentDeployment) {
 
 		Identifier deployOperId = operDesc.getOperatorID();
 		org.xdb.execute.operators.MySQLOperator deployOper = new org.xdb.execute.operators.MySQLOperator(
@@ -34,31 +39,45 @@ public class MySQLOperator extends AbstractOperator {
 
 		HashMap<String, String> args = new HashMap<String, String>();
 
-		// generate open SQLs
+		// generate DDLs to open operator
 		for (String tableName : this.inTables.keySet()) {
+			
+			TableDesc inTableDesc = this.inTableDesc.get(tableName);
+			OperatorDesc sourceOp = currentDeployment.get(inTableDesc.getOperatorID());
+			String sourceURL = sourceOp.getOperatorNode();
+			String sourceTableName = inTableDesc.getTableName();
+			Identifier sourceOperId = sourceOp.getOperatorID();
+			
 			String deployTableDDL = this.genDeployInputTableDDL(tableName,
-					operDesc);
-			String deployTableName = genDeployTableName(tableName, operDesc);
+					deployOperId, sourceTableName, sourceOperId, sourceURL);
+			
+			String deployTableName = genDeployTableName(tableName, deployOperId);
 			deployOper.addOpenSQL(deployTableDDL);
 			args.put(tableName, deployTableName);
 		}
 
 		for (String tableName : this.outTables.keySet()) {
+			
 			String deployTableDDL = this.genDeployOutputTableDDL(tableName,
-					operDesc);
-			String deployTableName = genDeployTableName(tableName, operDesc);
+					deployOperId);
+			
+			String deployTableName = genDeployTableName(tableName, deployOperId);
 			deployOper.addOpenSQL(deployTableDDL);
 			args.put(tableName, deployTableName);
 		}
 
-		// generate execution SQLs
+		// generate DMLs to execute operator
 		for (StringTemplate executeSQL : this.executeSQLs) {
 			deployOper.addExecuteSQL(executeSQL.toString(args));
 		}
 
-		// generate close SQLs
+		// generate DDLs to close operator
+		for (String tableName : this.inTables.keySet()) {
+			deployOper.addCloseSQL(genDropDeployTableDDL(tableName, deployOperId));
+		}
+		
 		for (String tableName : this.outTables.keySet()) {
-			deployOper.addCloseSQL(genDropDeployTableDDL(tableName, operDesc));
+			deployOper.addCloseSQL(genDropDeployTableDDL(tableName, deployOperId));
 		}
 
 		return deployOper;

@@ -10,7 +10,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractOperator;
@@ -153,7 +152,7 @@ public class ComputeNode {
 		if (err.isError())
 			return err;
 
-		// send signal to consumer
+		// send READY signal to consumer
 		Set<OperatorDesc> consumers = op.getConsumers();
 		for (OperatorDesc consumer : consumers) {
 			if (consumer != null) {
@@ -161,27 +160,13 @@ public class ComputeNode {
 						"Send READY_SIGNAL from operator " + op.getOperatorId()
 								+ " to consumer: " + consumer);
 
-				err = client.sendReadySignal(op, consumer);
+				err = this.client.sendReadySignal(op, consumer);
 				if (err.isError())
 					return err;
 
 			}
 		}
 
-		// send signal to sources
-		Set<OperatorDesc> sources = op.getSources();
-		for (OperatorDesc source : sources) {
-			// COMPUTE_NOOP_ID is used to trigger execution => do not send
-			// response
-			if (source.getOperatorID() == Config.COMPUTE_NOOP_ID)
-				continue;
-
-			logger.log(Level.INFO,
-					"Send CLOSE_SIGNAL from operator " + op.getOperatorId()
-							+ " to source: " + source);
-
-			this.client.sendCloseSignal(source);
-		}
 		return err;
 	}
 
