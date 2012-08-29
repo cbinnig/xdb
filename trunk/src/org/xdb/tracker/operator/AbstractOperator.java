@@ -18,6 +18,7 @@ public abstract class AbstractOperator implements Serializable {
 	
 	private static final StringTemplate OUTPUT_DDL = new StringTemplate(
 			" ENGINE=MEMORY PARTITION BY HASH(<partAtt>) PARTITIONS <parts>");
+	
 	private static final String KEY_PARTATT = "partAtt";
 	private static final String KEY_PARTS = "parts";
 
@@ -25,6 +26,7 @@ public abstract class AbstractOperator implements Serializable {
 			" ENGINE=FEDERATED CONNECTION='mysql://" + Config.COMPUTE_DB_USER
 					+ ":" + Config.COMPUTE_DB_PASSWD + "@<host>/"
 					+ Config.COMPUTE_DB_NAME + "/<table>'");
+	
 	private static final String KEY_HOST = "host";
 	private static final String KEY_TABLE = "table";
 

@@ -14,16 +14,16 @@ public class CloseSignal implements Serializable {
 	private static final long serialVersionUID = 8951710674335728187L;
 	
 	//source: operator id
-	private Identifier source;
+	private Identifier consumer;
 	
 	//constructors
-	public CloseSignal(Identifier source) {
+	public CloseSignal(Identifier consumer) {
 		
-		this.source = source;
+		this.consumer = consumer;
 	}
 
 	//getter and setters
-	public Identifier getSource() {
-		return source;
+	public Identifier getConsumer() {
+		return consumer;
 	}
 }

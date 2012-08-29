@@ -37,13 +37,6 @@ public abstract class AbstractHandler extends Thread {
 			err = createServerError(e);
 		}
 
-		// log error
-		if (err.isError()) {
-			logger.log(Level.SEVERE, err.toString());
-			this.close();
-			return;
-		}
-
 		// send response
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(

@@ -104,7 +104,7 @@ public class ComputeNode {
 		sourceIds.add(source);
 
 		if (sourceIds.containsAll(op.getSourceIds())) {
-			logger.log(Level.INFO, "All signals recieved to execute operator: "
+			logger.log(Level.INFO, "All signals received to execute operator: "
 					+ op.getOperatorId());
 			execute = true;
 		}
@@ -128,7 +128,7 @@ public class ComputeNode {
 		Error err = Error.NO_ERROR;
 
 		// execute operator
-		AbstractOperator op = this.operators.get(signal.getSource());
+		AbstractOperator op = this.operators.get(signal.getConsumer());
 		if (op != null) {
 			err = op.close();
 			logger.log(Level.INFO, "Closed operator: " + op.getOperatorId());

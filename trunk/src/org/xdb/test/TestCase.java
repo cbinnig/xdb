@@ -12,8 +12,26 @@ import org.xdb.error.Error;
 import org.xdb.funsql.statement.AbstractStatement;
 
 public abstract class TestCase extends junit.framework.TestCase {
+	protected static final String dburl = Config.COMPUTE_DB_URL;
+	protected static final String dbname = Config.COMPUTE_DB_NAME;
+	protected static final String dbuser = Config.COMPUTE_DB_USER;
+	protected static final String dbpasswd = Config.COMPUTE_DB_PASSWD;
+	
+	protected static final String CREATE_TABLE_DDL = "CREATE TABLE ";
+	protected static final String DROP_TABLE_DDL = "DROP TABLE ";
+	
+	protected Connection conn;
+	
 	public TestCase() {
 		super();
+		
+		try {
+			Class.forName(Config.COMPUTE_DRIVER_CLASS);
+			this.conn = DriverManager.getConnection(dburl+dbname, dbuser, dbpasswd);
+		} 
+		catch (Exception e) {
+			assertTrue(e.toString(), false);
+		}
 	}
 	
 	/**

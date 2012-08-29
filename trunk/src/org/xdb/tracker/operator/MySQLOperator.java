@@ -28,7 +28,7 @@ public class MySQLOperator extends AbstractOperator {
 	public org.xdb.execute.operators.AbstractOperator genDeployOperator(
 			OperatorDesc operDesc) {
 
-		Identifier deployOperId = this.genDeployOperId(operDesc);
+		Identifier deployOperId = operDesc.getOperatorID();
 		org.xdb.execute.operators.MySQLOperator deployOper = new org.xdb.execute.operators.MySQLOperator(
 				deployOperId);
 
@@ -36,16 +36,18 @@ public class MySQLOperator extends AbstractOperator {
 
 		// generate open SQLs
 		for (String tableName : this.inTables.keySet()) {
-			String deployTableName = this.genDeployInputTableDDL(tableName,
+			String deployTableDDL = this.genDeployInputTableDDL(tableName,
 					operDesc);
-			deployOper.addOpenSQL(deployTableName);
+			String deployTableName = genDeployTableName(tableName, operDesc);
+			deployOper.addOpenSQL(deployTableDDL);
 			args.put(tableName, deployTableName);
 		}
 
 		for (String tableName : this.outTables.keySet()) {
-			String deployTableName = this.genDeployOutputTableDDL(tableName,
+			String deployTableDDL = this.genDeployOutputTableDDL(tableName,
 					operDesc);
-			deployOper.addOpenSQL(deployTableName);
+			String deployTableName = genDeployTableName(tableName, operDesc);
+			deployOper.addOpenSQL(deployTableDDL);
 			args.put(tableName, deployTableName);
 		}
 
@@ -55,14 +57,8 @@ public class MySQLOperator extends AbstractOperator {
 		}
 
 		// generate close SQLs
-		for (String tableName : this.inTables.keySet()) {
+		for (String tableName : this.outTables.keySet()) {
 			deployOper.addCloseSQL(genDropDeployTableDDL(tableName, operDesc));
-		}
-
-		if(!this.isRoot){
-			for (String tableName : this.outTables.keySet()) {
-				deployOper.addCloseSQL(genDropDeployTableDDL(tableName, operDesc));
-			}
 		}
 
 		return deployOper;
