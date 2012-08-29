@@ -2,6 +2,7 @@ package org.xdb.tracker.operator;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.xdb.Config;
 import org.xdb.execute.operators.OperatorDesc;
@@ -30,26 +31,29 @@ public abstract class AbstractOperator implements Serializable {
 	private static final String KEY_HOST = "host";
 	private static final String KEY_TABLE = "table";
 
-	// name of partition attribute
+	// map: table name -> partition attribute
 	protected HashMap<String, String> partAtt = new HashMap<String, String>();
 
-	// info (parts, DDLs) for output tables
+	// map: output table name -> DDLs
 	protected Integer outParts;
 	protected HashMap<String, StringTemplate> outTables = new HashMap<String, StringTemplate>();
 
-	// info (parts, DDLs) for input tables
+	// map: input table name -> DDLs
 	protected HashMap<String, StringTemplate> inTables = new HashMap<String, StringTemplate>();
+	
+	// map: input table name -> TableDesc
+	protected HashMap<String, TableDesc> inTableDesc = new HashMap<String, TableDesc>();
 
 	// unique operator id
 	protected Identifier operatorId;
 	
-	//Is root operator
+	// flag for root operator
 	protected boolean isRoot = false;
 
 	// constructors
-	public AbstractOperator(Integer outParts) {
+	public AbstractOperator(Identifier operatorId, Integer outParts) {
 		super();
-		this.operatorId = Config.COMPUTE_NOOP_ID;
+		this.operatorId = operatorId;
 		this.outParts = outParts;
 	}
 
@@ -66,8 +70,12 @@ public abstract class AbstractOperator implements Serializable {
 		this.outParts = outParts;
 	}
 
+	public void setInTableSource(String tableName, TableDesc tableDesc){
+		inTableDesc.put(tableName, tableDesc);
+	}
+	
 	public void addInTables(String tableName, StringTemplate tableDDL,
-			String partAtt) {
+			String partAtt ) {
 		this.inTables.put(tableName, tableDDL);
 		this.partAtt.put(tableName, partAtt);
 	}
@@ -88,7 +96,7 @@ public abstract class AbstractOperator implements Serializable {
 
 	// methods
 	public abstract org.xdb.execute.operators.AbstractOperator genDeployOperator(
-			OperatorDesc operDesc);
+			OperatorDesc operDesc, Map<Identifier, OperatorDesc> currentDeployment);
 
 	/**
 	 * Generate SQL DDL to deploy partitioned in-memory output table
@@ -97,13 +105,13 @@ public abstract class AbstractOperator implements Serializable {
 	 * @param operDesc
 	 * @return
 	 */
-	protected String genDeployOutputTableDDL(String tableName, OperatorDesc operDesc) {
+	protected String genDeployOutputTableDDL(String tableName, Identifier operatorID) {
 		StringTemplate tableTemplate = this.outTables.get(tableName);
 		StringBuffer tableDDL = new StringBuffer(CREATE_TABLE_DDL);
 
 		// replace table name
 		HashMap<String, String> args = new HashMap<String, String>();
-		args.put(tableName,	genDeployTableName(tableName, operDesc));
+		args.put(tableName,	genDeployTableName(tableName, operatorID));
 		tableDDL.append(tableTemplate.toString(args));
 
 		// add partition specification
@@ -116,26 +124,27 @@ public abstract class AbstractOperator implements Serializable {
 	}
 
 	/**
-	 * Generate SQL DDL to deploy federated input table
+	 * Generate SQL DDL to deploy input table
 	 * 
 	 * @param tableName
 	 * @param operDesc
 	 * @return
 	 */
-	protected String genDeployInputTableDDL(String tableName, OperatorDesc operDesc) {
-		StringTemplate tableTemplate = this.outTables.get(tableName);
+	protected String genDeployInputTableDDL(String tableName, Identifier opID, String sourceTableName, Identifier sourceOpID, String sourceNode) {
+		StringTemplate tableTemplate = this.inTables.get(tableName);
 		StringBuffer tableDDL = new StringBuffer(CREATE_TABLE_DDL);
 
-		// replace table name
+		// create table DDL
 		HashMap<String, String> args = new HashMap<String, String>();
-		String deployTableName = genDeployTableName(tableName, operDesc);
+		String deployTableName = genDeployTableName(tableName, opID);
 		args.put(tableName, deployTableName);
 		tableDDL.append(tableTemplate.toString(args));
 
-		// add partition specification
+		// add federation specification
 		args.clear();
-		args.put(KEY_HOST, operDesc.getOperatorNode());
-		args.put(KEY_TABLE, deployTableName);
+		String deploySourceTableName = genDeployTableName(sourceTableName, sourceOpID);
+		args.put(KEY_HOST, sourceNode);
+		args.put(KEY_TABLE, deploySourceTableName);
 		tableDDL.append(INPUT_DDL.toString(args));
 
 		return tableDDL.toString();
@@ -148,9 +157,9 @@ public abstract class AbstractOperator implements Serializable {
 	 * @return
 	 */
 	public static String genDropDeployTableDDL(String tableName,
-			OperatorDesc operDesc) {
+			Identifier operatorID) {
 		StringBuffer tableDDL = new StringBuffer(DROP_TABLE_DDL);
-		tableDDL.append(genDeployTableName(tableName, operDesc));
+		tableDDL.append(genDeployTableName(tableName, operatorID));
 		return tableDDL.toString();
 	}
 	
@@ -162,8 +171,8 @@ public abstract class AbstractOperator implements Serializable {
 	 * @return
 	 */
 	public static String genDeployTableName(String tableName,
-			OperatorDesc operDesc) {
-		Identifier newTableName = operDesc.getOperatorID().clone();
+			Identifier operatorID) {
+		Identifier newTableName = operatorID.clone();
 		newTableName.append(tableName);
 		return newTableName.toString();
 	}

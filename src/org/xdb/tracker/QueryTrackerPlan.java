@@ -63,6 +63,10 @@ public class QueryTrackerPlan implements Serializable {
 	public Error getLastError() {
 		return err;
 	}
+	
+	public Integer nextPlanOperId(){
+		return this.lastPlanOperId++;
+	}
 
 	/**
 	 * Adds operator to plan and generates a plan operator id: PLAN_ID+"_"+PLAN_OPER_ID
@@ -71,12 +75,9 @@ public class QueryTrackerPlan implements Serializable {
 	 * @param consumers
 	 * @return
 	 */
-	public Identifier addOperator(AbstractOperator operator, Set<Identifier> sources,
+	public void addOperator(AbstractOperator operator, Set<Identifier> sources,
 			Set<Identifier> consumers) {
-		Identifier operId = this.planId.clone();
-		operId.append(this.lastPlanOperId++);
-		operator.setOperatorId(operId);
-		
+		Identifier operId = operator.getOperatorId();
 		this.operators.put(operId, operator);
 		this.sources.put(operId, sources);
 		this.consumers.put(operId, consumers);
@@ -89,8 +90,6 @@ public class QueryTrackerPlan implements Serializable {
 			this.roots.add(operator.getOperatorId());
 			operator.setIsRoot(true);
 		}
-		
-		return operId;
 	}
 
 	// methods
@@ -187,7 +186,7 @@ public class QueryTrackerPlan implements Serializable {
 
 			// create executable operator and set consumers / sources
 			org.xdb.execute.operators.AbstractOperator deployOper = oper
-					.genDeployOperator(deployOperDesc);
+					.genDeployOperator(deployOperDesc, currentDeployment);
 
 			logger.log(Level.INFO, "Deploy operator '" + deployOper.getOperatorId() + "' for plan operator '"+operId+"'");
 			
@@ -198,7 +197,7 @@ public class QueryTrackerPlan implements Serializable {
 
 			for (Identifier sourceId : this.sources.get(operId)) {
 				OperatorDesc sourceDesc = currentDeployment.get(sourceId);
-				deployOper.addConsumer(sourceDesc);
+				deployOper.addSource(sourceDesc);
 			}
 
 			// deploy operator
