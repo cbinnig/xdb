@@ -17,16 +17,21 @@ import org.xdb.logging.XDBLog;
 import org.xdb.server.ComputeServer;
 import org.xdb.utils.Identifier;
 
+/**
+ * Client to talk to Compute Server.
+ */
 public class ComputeClient {
 	// Helpers
 	private Logger logger;
 
+	// constructor
 	public ComputeClient() {
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
 	/**
-	 * Prepares operator on node
+	 * Installs operator on node
+	 * 
 	 * @param node
 	 * @param op
 	 * @return
@@ -43,54 +48,93 @@ public class ComputeClient {
 			out.flush();
 			out.writeObject(op);
 			out.flush();
-			
-			ObjectInputStream in = new ObjectInputStream( server.getInputStream() );
-			err = (Error)in.readObject();
-			
+
+			ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
+			err = (Error) in.readObject();
+
 			server.close();
-			
+
 		} catch (Exception e) {
 			err = createClientError(e);
 		}
 
 		return err;
 	}
-	
+
 	/**
-	 * Triggers to run operator on node
-	 * @param node
-	 * @param op
+	 * Send ready signal to operator on node from source operator
+	 * 
+	 * @param sourceOpId
+	 * @param destNode
+	 * @param destOpId
 	 * @return
 	 */
-	public Error executeOperator(String node, Identifier operatorId) {
+	public Error executeOperator(Identifier sourceOpId, String destNode,
+			Identifier destOpId) {
 		Error err = Error.NO_ERROR;
-		ReadySignal signal = new ReadySignal(Config.COMPUTE_NOOP_ID, operatorId);
-		
+
 		try {
-			Socket server = new Socket(node, Config.COMPUTE_PORT);
+			Socket server = new Socket(destNode, Config.COMPUTE_PORT);
 			ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
+			ReadySignal signal = new ReadySignal(sourceOpId, destOpId);
 
 			out.writeInt(ComputeServer.CMD_READY_SIGNAL);
 			out.flush();
 			out.writeObject(signal);
 			out.flush();
-			
-			ObjectInputStream in = new ObjectInputStream( server.getInputStream() );
-			err = (Error)in.readObject();
-			
+
+			ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
+			err = (Error) in.readObject();
+
 			server.close();
-			
 		} catch (Exception e) {
 			err = createClientError(e);
 		}
-		
+
 		return err;
 	}
-	
-	
+
+	/**
+	 * Send ready signal to operator on node from source operator
+	 * 
+	 * @param sourceOp
+	 * @param dest
+	 * @return
+	 */
+	public Error executeOperator(Identifier sourceOpId, OperatorDesc dest) {
+		return this.executeOperator(sourceOpId, dest.getOperatorNode(),
+				dest.getOperatorID());
+	}
+
+	/**
+	 * Send ready signal to operator on node w/o a source operator
+	 * 
+	 * @param node
+	 * @param op
+	 * @return
+	 */
+	public Error executeOperator(OperatorDesc dest) {
+		return this.executeOperator(Config.COMPUTE_NOOP_ID,
+				dest.getOperatorNode(), dest.getOperatorID());
+	}
+
+	/**
+	 * Send ready signal to operator on node w/o a source operator
+	 * 
+	 * @param destNode
+	 * @param destOpId
+	 * @return
+	 */
+	public Error executeOperator(String destNode, Identifier destOpId) {
+		return this.executeOperator(Config.COMPUTE_NOOP_ID, destNode, destOpId);
+	}
+
 	/**
 	 * Closes operator on node
+	 * 
 	 * @param node
 	 * @param op
 	 * @return
@@ -98,7 +142,7 @@ public class ComputeClient {
 	public Error closeOperator(String node, Identifier operatorId) {
 		Error err = Error.NO_ERROR;
 		CloseSignal signal = new CloseSignal(operatorId);
-		
+
 		try {
 			Socket server = new Socket(node, Config.COMPUTE_PORT);
 			ObjectOutputStream out = new ObjectOutputStream(
@@ -108,91 +152,40 @@ public class ComputeClient {
 			out.flush();
 			out.writeObject(signal);
 			out.flush();
-			
-			ObjectInputStream in = new ObjectInputStream( server.getInputStream() );
-			err = (Error)in.readObject();
-			
+
+			ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
+			err = (Error) in.readObject();
+
 			server.close();
-			
+
 		} catch (Exception e) {
 			err = createClientError(e);
 		}
-		
+
 		return err;
 	}
-	
+
 	/**
-	 * Send ready signal
+	 * Close operator on node
+	 * 
 	 * @param op
-	 * @param consumer
+	 * @param dest
 	 * @return
 	 */
-	public Error sendReadySignal(AbstractOperator op, OperatorDesc consumer){
-		Error err = Error.NO_ERROR;
-		
-		try {
-			Socket consumerSocket = new Socket(consumer.getOperatorNode(),
-					Config.COMPUTE_PORT);
-			ObjectOutputStream out = new ObjectOutputStream(
-					consumerSocket.getOutputStream());
-			ReadySignal signal = new ReadySignal(op.getOperatorId(),
-					consumer.getOperatorID());
-			
-			out.writeInt(ComputeServer.CMD_READY_SIGNAL);
-			out.flush();
-			out.writeObject(signal);
-			out.flush();
-			
-			ObjectInputStream in = new ObjectInputStream( consumerSocket.getInputStream() );
-			err = (Error)in.readObject();
-			
-			consumerSocket.close();
-		} catch (Exception e) {
-			err = createClientError(e);
-		}
-		
-		return err;
+	public Error closeOperator(OperatorDesc dest) {
+		return this.closeOperator(dest.getOperatorNode(), dest.getOperatorID());
 	}
-	
-	/**
-	 * Send close signal
-	 * @param op
-	 * @param source
-	 * @return
-	 */
-	public Error sendCloseSignal(OperatorDesc source){
-		Error err = Error.NO_ERROR;
-		
-		try {
-			Socket sourceSocket = new Socket(source.getOperatorNode(),
-					Config.COMPUTE_PORT);
-			ObjectOutputStream out = new ObjectOutputStream(
-					sourceSocket.getOutputStream());
-			CloseSignal signal = new CloseSignal(source.getOperatorID());
-			out.writeInt(ComputeServer.CMD_CLOSE_SIGNAL);
-			out.flush();
-			out.writeObject(signal);
-			out.flush();
-			
-			ObjectInputStream in = new ObjectInputStream( sourceSocket.getInputStream() );
-			err = (Error)in.readObject();
-			
-			sourceSocket.close();
-		} catch (Exception e) {
-			err = createClientError(e);
-		}
-		
-		return err;
-	}
-	
+
 	/**
 	 * Create error
+	 * 
 	 * @param e
 	 * @return
 	 */
 	private Error createClientError(Exception e) {
 		e.printStackTrace();
-		
+
 		String[] args = { e.toString() };
 		Error err = new Error(EnumError.CLIENT_ERROR, args);
 		logger.log(Level.SEVERE, err.toString());
