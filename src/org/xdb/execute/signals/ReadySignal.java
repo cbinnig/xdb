@@ -5,7 +5,7 @@ import java.io.Serializable;
 import org.xdb.utils.Identifier;
 
 /**
- * Signal which is send by operator (source) to consumer
+ * Signal which is send to source operator to signal to consumer that input from source is ready
  * @author cbinnig
  *
  */

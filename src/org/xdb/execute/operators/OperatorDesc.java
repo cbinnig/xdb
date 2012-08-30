@@ -5,7 +5,7 @@ import java.io.Serializable;
 import org.xdb.utils.Identifier;
 
 /**
- * Consumer specification with URL for consumer node and operator ID
+ * Operator specification with URL of compute node and operator ID
  * @author cbinnig
  *
  */

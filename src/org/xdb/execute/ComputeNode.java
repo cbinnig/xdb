@@ -21,7 +21,7 @@ import org.xdb.utils.Identifier;
 
 /**
  * Responsible to keep track of operators: - installs new operators - executes
- * operators if input is ready
+ * operators - closes operators on one node
  * 
  * @author cbinnig
  * 
@@ -83,7 +83,7 @@ public class ComputeNode {
 		// Get node
 		AbstractOperator op = null;
 		op = this.operators.get(consumer);
-		if(op==null)
+		if (op == null)
 			return err;
 
 		logger.log(Level.INFO,
@@ -160,7 +160,7 @@ public class ComputeNode {
 						"Send READY_SIGNAL from operator " + op.getOperatorId()
 								+ " to consumer: " + consumer);
 
-				err = this.client.sendReadySignal(op, consumer);
+				err = this.client.executeOperator(op.getOperatorId(), consumer);
 				if (err.isError())
 					return err;
 

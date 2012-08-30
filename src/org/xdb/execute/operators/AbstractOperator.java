@@ -15,7 +15,7 @@ import org.xdb.error.Error;
 import org.xdb.utils.Identifier;
 
 /**
- * Executes operators on computing nodes and signals consumer when ready
+ * Abstract operator implementation with an iterator interface
  * 
  * @author cbinnig
  */
