@@ -5,7 +5,7 @@ import java.io.Serializable;
 import org.xdb.utils.Identifier;
 
 /**
- * Signal which is send by operator (source) to consumer
+ * Signal which is send to operator to close consumer operator (e.g., delete input/output tables)
  * @author cbinnig
  *
  */
