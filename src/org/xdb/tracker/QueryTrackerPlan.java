@@ -104,7 +104,7 @@ public class QueryTrackerPlan implements Serializable {
 			AbstractOperator planOp = this.operators.get(entry.getKey());
 			if(planOp.isRoot()){
 				OperatorDesc operDesc = entry.getValue();
-				this.err = this.computeClient.closeOperator(operDesc.getOperatorNode(), operDesc.getOperatorID());
+				this.err = this.computeClient.closeOperator(operDesc);
 				
 				if(this.err.isError())
 					break;
@@ -123,8 +123,7 @@ public class QueryTrackerPlan implements Serializable {
 		//execute operators
 		for (Identifier leaveId : this.leaves) {
 			OperatorDesc leaveDesc = currentDeployment.get(leaveId);
-			this.err = this.computeClient.executeOperator(leaveDesc.getOperatorNode(),
-					leaveDesc.getOperatorID());
+			this.err = this.computeClient.executeOperator(leaveDesc);
 			
 			if(this.err.isError())
 				break;
@@ -135,7 +134,7 @@ public class QueryTrackerPlan implements Serializable {
 			AbstractOperator planOp = this.operators.get(entry.getKey());
 			if(!planOp.isRoot()){
 				OperatorDesc operDesc = entry.getValue();
-				this.err = this.computeClient.closeOperator(operDesc.getOperatorNode(), operDesc.getOperatorID());
+				this.err = this.computeClient.closeOperator(operDesc);
 				
 				if(this.err.isError())
 					break;
@@ -160,12 +159,8 @@ public class QueryTrackerPlan implements Serializable {
 
 		// handle error
 		if (err.isError()) {
-			for (Entry<Identifier, OperatorDesc> entry : currentDeployment
-					.entrySet()) {
-				Identifier operId = entry.getKey();
-				OperatorDesc deployOperDesc = entry.getValue();
-				this.computeClient.closeOperator(
-						deployOperDesc.getOperatorNode(), operId);
+			for (OperatorDesc deployOperDesc: currentDeployment.values()) {
+				this.computeClient.closeOperator(deployOperDesc);
 			}
 			currentDeployment.clear();
 		}
