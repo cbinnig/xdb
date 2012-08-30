@@ -45,9 +45,9 @@ public class ComputeServer extends AbstractServer {
 					this.client.getInputStream());
 
 			int cmd = in.readInt();
-			logger.log(Level.INFO, "Read command from client:" + cmd);
+			logger.log(Level.INFO, "ComputeServer: Read command from client:" + cmd);
 			try {
-
+				
 				switch (cmd) {
 				case CMD_PREPARE_OP:
 					AbstractOperator op = (AbstractOperator) in.readObject();
