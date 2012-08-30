@@ -4,6 +4,7 @@ import org.xdb.error.Error;
 
 public abstract class AbstractStatement {
 	protected EnumStatement statementType;
+	protected String stmtString;
 	
 	public EnumStatement getType() {
 		return statementType;
