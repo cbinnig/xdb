@@ -1,7 +1,7 @@
 package org.xdb.error;
 
 /**
- * Enumeration for error and messages
+ * Enumeration for error numbers and messages
  * @author cbinnig
  *
  */
