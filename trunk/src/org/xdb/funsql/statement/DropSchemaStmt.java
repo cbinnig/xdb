@@ -6,7 +6,7 @@ import org.xdb.metadata.Catalog;
 import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Schema;
 
-public class DropSchemaStmt extends AbstractStatement {
+public class DropSchemaStmt extends AbstractServerStmt {
 	private TokenSchema tSchema;
 	private Schema schema;
 

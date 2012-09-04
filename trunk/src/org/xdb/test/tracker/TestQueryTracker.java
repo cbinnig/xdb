@@ -1,7 +1,6 @@
 package org.xdb.test.tracker;
 
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -52,8 +51,7 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		qPlan.executePlan(currentDeployment);
 
 		// read result
-		Statement stmt = this.conn.createStatement();
-		ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM 1_1_1_R1");
+		ResultSet rs = this.executeComputeQuery("SELECT COUNT(*) FROM 1_1_1_R1");
 		int actualCnt = 0;
 		if (rs.next())
 			actualCnt = rs.getInt(1);
@@ -100,7 +98,7 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		op2.addExecuteSQL(q2DML);
 		op2.addOutTables("R3", r3DDL, "R_REGIONKEY");
 
-		// add operator to plan w/o sources and consumers
+		// add operator to plan w/ sources and consumers
 		Set<Identifier> empty = new HashSet<Identifier>();
 		Set<Identifier> op1Consumer = new HashSet<Identifier>();
 		op1Consumer.add(op2Id);
@@ -117,8 +115,7 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		qPlan.executePlan(currentDeployment);
 
 		// read result
-		Statement stmt = this.conn.createStatement();
-		ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM 1_2_2_R3");
+		ResultSet rs = this.executeComputeQuery("SELECT COUNT(*) FROM 1_2_2_R3");
 		int actualCnt = 0;
 		if (rs.next())
 			actualCnt = rs.getInt(1);

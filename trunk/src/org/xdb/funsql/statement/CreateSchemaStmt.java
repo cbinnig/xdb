@@ -5,7 +5,7 @@ import org.xdb.funsql.compile.tokens.TokenSchema;
 import org.xdb.metadata.Catalog;
 import org.xdb.metadata.Schema;
 
-public class CreateSchemaStmt extends AbstractStatement {
+public class CreateSchemaStmt extends AbstractServerStmt {
 	private TokenSchema tSchema;
 	private Schema schema;
 	

@@ -196,7 +196,7 @@ public class QueryTrackerPlan implements Serializable {
 			}
 
 			// deploy operator
-			this.err = computeClient.prepareOperator(
+			this.err = computeClient.openOperator(
 					deployOperDesc.getOperatorNode(), deployOper);
 			if (this.err.isError())
 				return;

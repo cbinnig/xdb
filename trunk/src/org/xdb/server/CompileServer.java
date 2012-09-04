@@ -6,10 +6,10 @@ import java.net.Socket;
 import java.util.logging.Level;
 
 import org.xdb.Config;
-import org.xdb.client.statement.Statement;
+import org.xdb.client.statement.ClientStmt;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.FunSQLCompiler;
-import org.xdb.funsql.statement.AbstractStatement;
+import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.metadata.Catalog;
 
 /**
@@ -41,20 +41,32 @@ public class CompileServer extends AbstractServer {
 			try {
 
 				switch (cmd) {
-				case CMD_EXECUTE:
-					Statement clientStmt = (Statement)in.readObject();
-					logger.log(Level.INFO, "CompileServer: Received stmt:" + clientStmt.getStmt());
+				case CMD_EXECUTE_W_RESULT:
+				case CMD_EXECUTE_WO_RESULT:
+					ClientStmt clientStmt = (ClientStmt)in.readObject();
+					logger.log(Level.INFO, "CompileServer: Received client stmt:" + clientStmt.getStmt());
 					
 					FunSQLCompiler compiler = new FunSQLCompiler();
-					AbstractStatement serverStmt = compiler.compile(clientStmt.getStmt());
-					err = serverStmt.compile();
+					AbstractServerStmt serverStmt = compiler.compile(clientStmt.getStmt());
+					err = compiler.getLastError();
 					if(err.isError())
-						break;
+						return err;
+					
+					err = serverStmt.compile();
+					
+					if(err.isError())
+						return err;
 					
 					err = serverStmt.execute();
-					break;
-				case CMD_EXECUTE_CALL:
-					//TODO: Execute function call and return result sets to client!
+
+					if(err.isError())
+						return err;
+					
+					//TODO: extract results from statement
+					if(cmd == CMD_EXECUTE_W_RESULT){
+						
+					}
+					
 					break;
 				default:
 					err = createCmdError(cmd);
@@ -69,13 +81,13 @@ public class CompileServer extends AbstractServer {
 	}
 
 	// constants for commands
-	public static final int CMD_EXECUTE = 1;
-	public static final int CMD_EXECUTE_CALL = 2;
+	public static final int CMD_EXECUTE_WO_RESULT = 1;
+	public static final int CMD_EXECUTE_W_RESULT = 2;
 	
 	// constructors
 	public CompileServer() {
 		super();
-		this.port = Config.METADATA_PORT;
+		this.port = Config.COMPILE_PORT;
 		
 		this.err = Catalog.load();
 		this.logger.log(Level.INFO, "Catalog loaded ... ");
@@ -95,7 +107,7 @@ public class CompileServer extends AbstractServer {
 	 * 
 	 * @return
 	 */
-	public static synchronized Error delete() {
+	public static synchronized Error deleteCatalog() {
 		return Catalog.delete();
 	}
 

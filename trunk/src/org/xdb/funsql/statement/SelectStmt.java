@@ -8,7 +8,7 @@ import org.xdb.funsql.compile.predicate.AbstractPredicate;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenTable;
 
-public class SelectStmt extends AbstractStatement {
+public class SelectStmt extends AbstractServerStmt {
 	private Vector<TokenAttribute> tAttributes = new Vector<TokenAttribute>();
 	private Vector<TokenTable> tTables = new Vector<TokenTable>();
 	private AbstractPredicate tPredicate;

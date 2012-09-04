@@ -3,14 +3,11 @@ package org.xdb.client;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.xdb.Config;
-import org.xdb.error.EnumError;
 import org.xdb.error.Error;
-import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.operators.AbstractOperator;
+import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
 import org.xdb.logging.XDBLog;
@@ -20,10 +17,7 @@ import org.xdb.utils.Identifier;
 /**
  * Client to talk to Compute Server.
  */
-public class ComputeClient {
-	// Helpers
-	private Logger logger;
-
+public class ComputeClient extends AbstractClient{
 	// constructor
 	public ComputeClient() {
 		this.logger = XDBLog.getLogger(this.getClass().getName());
@@ -36,24 +30,24 @@ public class ComputeClient {
 	 * @param op
 	 * @return
 	 */
-	public Error prepareOperator(String node, AbstractOperator op) {
+	public Error openOperator(String node, AbstractOperator op) {
 		Error err = Error.NO_ERROR;
 
 		try {
-			Socket server = new Socket(node, Config.COMPUTE_PORT);
+			this.server = new Socket(node, Config.COMPUTE_PORT);
 			ObjectOutputStream out = new ObjectOutputStream(
-					server.getOutputStream());
+					this.server.getOutputStream());
 
-			out.writeInt(ComputeServer.CMD_PREPARE_OP);
+			out.writeInt(ComputeServer.CMD_OPEN_OP);
 			out.flush();
 			out.writeObject(op);
 			out.flush();
 
 			ObjectInputStream in = new ObjectInputStream(
-					server.getInputStream());
+					this.server.getInputStream());
 			err = (Error) in.readObject();
 
-			server.close();
+			this.server.close();
 
 		} catch (Exception e) {
 			err = createClientError(e);
@@ -75,9 +69,9 @@ public class ComputeClient {
 		Error err = Error.NO_ERROR;
 
 		try {
-			Socket server = new Socket(destNode, Config.COMPUTE_PORT);
+			this.server = new Socket(destNode, Config.COMPUTE_PORT);
 			ObjectOutputStream out = new ObjectOutputStream(
-					server.getOutputStream());
+					this.server.getOutputStream());
 			ReadySignal signal = new ReadySignal(sourceOpId, destOpId);
 
 			out.writeInt(ComputeServer.CMD_READY_SIGNAL);
@@ -86,10 +80,10 @@ public class ComputeClient {
 			out.flush();
 
 			ObjectInputStream in = new ObjectInputStream(
-					server.getInputStream());
+					this.server.getInputStream());
 			err = (Error) in.readObject();
 
-			server.close();
+			this.server.close();
 		} catch (Exception e) {
 			err = createClientError(e);
 		}
@@ -144,9 +138,9 @@ public class ComputeClient {
 		CloseSignal signal = new CloseSignal(operatorId);
 
 		try {
-			Socket server = new Socket(node, Config.COMPUTE_PORT);
+			this.server = new Socket(node, Config.COMPUTE_PORT);
 			ObjectOutputStream out = new ObjectOutputStream(
-					server.getOutputStream());
+					this.server.getOutputStream());
 
 			out.writeInt(ComputeServer.CMD_CLOSE_SIGNAL);
 			out.flush();
@@ -154,10 +148,10 @@ public class ComputeClient {
 			out.flush();
 
 			ObjectInputStream in = new ObjectInputStream(
-					server.getInputStream());
+					this.server.getInputStream());
 			err = (Error) in.readObject();
 
-			server.close();
+			this.server.close();
 
 		} catch (Exception e) {
 			err = createClientError(e);
@@ -175,20 +169,5 @@ public class ComputeClient {
 	 */
 	public Error closeOperator(OperatorDesc dest) {
 		return this.closeOperator(dest.getOperatorNode(), dest.getOperatorID());
-	}
-
-	/**
-	 * Create error
-	 * 
-	 * @param e
-	 * @return
-	 */
-	private Error createClientError(Exception e) {
-		e.printStackTrace();
-
-		String[] args = { e.toString() };
-		Error err = new Error(EnumError.CLIENT_ERROR, args);
-		logger.log(Level.SEVERE, err.toString());
-		return err;
 	}
 }

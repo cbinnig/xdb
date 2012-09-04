@@ -3,7 +3,7 @@ package org.xdb.client.statement;
 import java.io.Serializable;
 import java.util.Vector;
 
-public class Statement implements Serializable {
+public class ClientStmt implements Serializable {
 
 	private static final long serialVersionUID = -6521230894217627053L;
 	
@@ -11,7 +11,7 @@ public class Statement implements Serializable {
 	protected Vector<Object> params;
 
 	// Constructor
-	public Statement(String stmt) {
+	public ClientStmt(String stmt) {
 		super();
 		this.stmt = stmt;
 	}

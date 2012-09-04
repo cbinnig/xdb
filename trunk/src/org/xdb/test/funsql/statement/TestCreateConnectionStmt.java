@@ -1,7 +1,7 @@
 package org.xdb.test.funsql.statement;
 
 import org.junit.Test;
-import org.xdb.funsql.statement.AbstractStatement;
+import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CreateConnectionStmt;
 import org.xdb.funsql.statement.DropConnectionStmt;
 import org.xdb.test.CompileServerTestCase;
@@ -12,7 +12,7 @@ public class TestCreateConnectionStmt extends CompileServerTestCase {
 		String connectionName = "TestConnection";
 		
 		//create connection 
-		AbstractStatement stmt = new CreateConnectionStmt(connectionName, "TestUrl", "TestUser", "TestPasswd", "POSTGRES");
+		AbstractServerStmt stmt = new CreateConnectionStmt(connectionName, "TestUrl", "TestUser", "TestPasswd", "POSTGRES");
 		this.compileAndExecute(stmt);
 		
 		//create duplicate connection 

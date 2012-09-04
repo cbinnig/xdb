@@ -8,19 +8,19 @@ import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.antlr.FunSQLLexer;
 import org.xdb.funsql.compile.antlr.FunSQLParser;
-import org.xdb.funsql.statement.AbstractStatement;
+import org.xdb.funsql.statement.AbstractServerStmt;
 
 public class FunSQLCompiler {
 	private Error lastError;
 	
-	public AbstractStatement compile(String sql){
+	public AbstractServerStmt compile(String sql){
 		FunSQLLexer lex = new FunSQLLexer(new ANTLRStringStream(sql));
        	CommonTokenStream tokens = new CommonTokenStream(lex);
 
        	FunSQLParser parser = new FunSQLParser(tokens);
        	
         try {
-            AbstractStatement statement =  parser.statement();
+            AbstractServerStmt statement =  parser.statement();
             this.lastError = statement.compile();
             
             if(lastError.isError())

@@ -1,4 +1,4 @@
-package org.xdb.test.execute.operators;
+package org.xdb.test.server;
 
 import java.sql.ResultSet;
 
@@ -10,11 +10,11 @@ import org.xdb.execute.operators.MySQLOperator;
 import org.xdb.test.ComputeServerTestCase;
 import org.xdb.utils.Identifier;
 
-public class TestComputeNode extends ComputeServerTestCase {
+public class TestComputeServer extends ComputeServerTestCase {
 	//private String[] nodes = {"192.168.178.42", "192.168.178.20"};
 	private String[] nodes = {"127.0.0.1", "127.0.0.1"};
 	
-	public TestComputeNode() {
+	public TestComputeServer() {
 		super();
 	}
 
@@ -32,11 +32,11 @@ public class TestComputeNode extends ComputeServerTestCase {
 		// run plan with client
 		ComputeClient client = new ComputeClient();
 
-		this.assertNoError(client.prepareOperator(this.nodes[0], op));
+		this.assertNoError(client.openOperator(this.nodes[0], op));
 		this.assertNoError(client.executeOperator(this.nodes[0], op.getOperatorId()));
 
 		// check results
-		ResultSet rs = this.execute("SELECT COUNT(*) AS CNT FROM R1;");
+		ResultSet rs = this.executeComputeQuery("SELECT COUNT(*) AS CNT FROM R1;");
 		this.assertResultSize(rs, 3);
 
 		// clean up
@@ -76,8 +76,8 @@ public class TestComputeNode extends ComputeServerTestCase {
 		// run plan with client
 		ComputeClient client = new ComputeClient();
 
-		this.assertNoError(client.prepareOperator(this.nodes[0], op1));
-		this.assertNoError(client.prepareOperator(this.nodes[1], op2));
+		this.assertNoError(client.openOperator(this.nodes[0], op1));
+		this.assertNoError(client.openOperator(this.nodes[1], op2));
 		
 		this.assertNoError(client.executeOperator(this.nodes[0], op1.getOperatorId()));
 		

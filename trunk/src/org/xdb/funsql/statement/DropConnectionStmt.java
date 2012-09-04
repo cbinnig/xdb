@@ -6,7 +6,7 @@ import org.xdb.metadata.Catalog;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.EnumDatabaseObject;
 
-public class DropConnectionStmt extends AbstractStatement {
+public class DropConnectionStmt extends AbstractServerStmt {
 	private TokenIdentifier tConnection;
 	private Connection connection;
 	

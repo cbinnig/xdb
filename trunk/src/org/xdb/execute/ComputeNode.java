@@ -56,7 +56,7 @@ public class ComputeNode {
 	 * @param operator
 	 * @return
 	 */
-	public Error installOperator(AbstractOperator op) {
+	public Error openOperator(AbstractOperator op) {
 		Error err = Error.NO_ERROR;
 
 		this.operators.put(op.getOperatorId(), op);

@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.xdb.funsql.compile.FunSQLCompiler;
-import org.xdb.funsql.statement.AbstractStatement;
+import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.test.CompileServerTestCase;
 
 public class TestCreateSchemaSQL extends CompileServerTestCase {
@@ -14,7 +14,7 @@ public class TestCreateSchemaSQL extends CompileServerTestCase {
 		
 		//create schema -> no error
 		String createSchemaSql = "CREATE SCHEMA testSchema";
-		AbstractStatement stmt = compiler.compile(createSchemaSql);
+		AbstractServerStmt stmt = compiler.compile(createSchemaSql);
 		this.assertNoError(compiler.getLastError());
 		Assert.assertNotNull(stmt);
 		this.execute(stmt);

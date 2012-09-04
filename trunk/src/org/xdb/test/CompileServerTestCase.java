@@ -9,7 +9,7 @@ public class CompileServerTestCase extends TestCase {
 
 	@Override
 	public void setUp() {
-		assertNoError(CompileServer.delete());
+		assertNoError(CompileServer.deleteCatalog());
 		
 		CompileServer server = new CompileServer();
 		CompileServer.startServer(server);

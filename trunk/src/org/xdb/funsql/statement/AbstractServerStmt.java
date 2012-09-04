@@ -2,7 +2,7 @@ package org.xdb.funsql.statement;
 
 import org.xdb.error.Error;
 
-public abstract class AbstractStatement {
+public abstract class AbstractServerStmt {
 	protected EnumStatement statementType;
 	protected String stmtString;
 	

@@ -161,8 +161,8 @@ public class Catalog {
 	}
 
 	private static synchronized Error checkCatalog() {
-		if (Catalog.getSchema(Config.XDB_DEFAULT_SCHEMA) == null) {
-			return Catalog.createObjectNotExistsErr(Config.XDB_DEFAULT_SCHEMA,
+		if (Catalog.getSchema(Config.COMPILE_DEFAULT_SCHEMA) == null) {
+			return Catalog.createObjectNotExistsErr(Config.COMPILE_DEFAULT_SCHEMA,
 					EnumDatabaseObject.SCHEMA);
 		}
 		return Error.NO_ERROR;

@@ -17,7 +17,7 @@ import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
 
-public class CreateTableStmt extends AbstractStatement {
+public class CreateTableStmt extends AbstractServerStmt {
 	private TokenTable tTable;
 	private TokenTable tSourceTable;
 	private TokenIdentifier tConnection;
