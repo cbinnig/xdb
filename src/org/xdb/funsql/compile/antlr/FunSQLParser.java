@@ -131,8 +131,8 @@ public class FunSQLParser extends Parser {
 
     // $ANTLR start "statement"
     // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:61:1: statement returns [AbstractStatement stmt] : ( ( createSchemaStatement | dropSchemaStatement | createConnectionStatement | dropConnectionStatement | createTableStatement | dropTableStatement | selectStatement ) ( SEMI )? ) ;
-    public final AbstractStatement statement() throws RecognitionException {
-        AbstractStatement stmt = null;
+    public final AbstractServerStmt statement() throws RecognitionException {
+        AbstractServerStmt stmt = null;
 
 
         CreateSchemaStmt createSchemaStatement1 =null;

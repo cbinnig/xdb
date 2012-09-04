@@ -91,7 +91,7 @@ public abstract class AbstractServer {
 					Socket client = this.serverSocket.accept();
 					handle(client);
 				} catch (Exception e) {
-
+					//Nothing to do!
 				}
 			}
 

@@ -7,7 +7,7 @@ import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
 
-public class DropTableStmt extends AbstractStatement {
+public class DropTableStmt extends AbstractServerStmt {
 	private TokenTable tTable;
 	private Table table;
 

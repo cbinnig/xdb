@@ -7,7 +7,7 @@ import org.xdb.metadata.Catalog;
 import org.xdb.metadata.Connection;
 import org.xdb.store.EnumStore;
 
-public class CreateConnectionStmt extends AbstractStatement {
+public class CreateConnectionStmt extends AbstractServerStmt {
 	private TokenIdentifier tConnection;
 	private TokenStringLiteral tURL;
 	private TokenStringLiteral tUser;

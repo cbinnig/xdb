@@ -27,7 +27,7 @@ public class TestComputeOperator extends TestCase {
 		this.executeOperator(op);
 		
 		//check results
-		ResultSet rs = this.execute("SELECT COUNT(*) AS CNT FROM R1;");
+		ResultSet rs = this.executeComputeQuery("SELECT COUNT(*) AS CNT FROM R1;");
 		this.assertResultSize(rs, 3);
 		
 		//close op
@@ -49,7 +49,7 @@ public class TestComputeOperator extends TestCase {
 		op1.addCloseSQL("DROP TABLE R1");
 		
 		this.executeOperator(op1);
-		ResultSet rs = this.execute("SELECT COUNT(*) AS CNT FROM R1;");
+		ResultSet rs = this.executeComputeQuery("SELECT COUNT(*) AS CNT FROM R1;");
 		this.assertResultSize(rs, 3);
 		
 		//second op
@@ -65,7 +65,7 @@ public class TestComputeOperator extends TestCase {
 		op2.addCloseSQL("DROP TABLE R3");
 		
 		this.executeOperator(op2);
-		rs = this.execute("SELECT COUNT(*) AS CNT FROM R3;");
+		rs = this.executeComputeQuery("SELECT COUNT(*) AS CNT FROM R3;");
 		this.assertResultSize(rs, 3);
 		
 		//clean up

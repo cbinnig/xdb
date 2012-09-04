@@ -49,10 +49,10 @@ public class ComputeServer extends AbstractServer {
 			try {
 				
 				switch (cmd) {
-				case CMD_PREPARE_OP:
+				case CMD_OPEN_OP:
 					AbstractOperator op = (AbstractOperator) in.readObject();
 					logger.log(Level.INFO, "Received operator:" + op.getOperatorId());
-					err = compute.installOperator(op);
+					err = compute.openOperator(op);
 					break;
 				case CMD_READY_SIGNAL:
 					ReadySignal readSignal = (ReadySignal) in.readObject();
@@ -77,7 +77,7 @@ public class ComputeServer extends AbstractServer {
 	}
 
 	// constants for commands
-	public static final int CMD_PREPARE_OP = 1;
+	public static final int CMD_OPEN_OP = 1;
 	public static final int CMD_READY_SIGNAL = 2;
 	public static final int CMD_CLOSE_SIGNAL = 3;
 

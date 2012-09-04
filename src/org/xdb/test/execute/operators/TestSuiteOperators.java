@@ -9,7 +9,6 @@ public class TestSuiteOperators extends TestSuite
   {
     TestSuite suite = new TestSuite( "org.xdb.test.execute.operators" );
     suite.addTestSuite( TestComputeOperator.class );
-    suite.addTestSuite( TestComputeNode.class );
     return suite;
   }
 }

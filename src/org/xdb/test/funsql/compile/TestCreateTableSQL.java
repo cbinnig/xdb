@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.xdb.funsql.compile.FunSQLCompiler;
-import org.xdb.funsql.statement.AbstractStatement;
+import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.test.CompileServerTestCase;
 
 public class TestCreateTableSQL extends CompileServerTestCase {
@@ -15,12 +15,12 @@ public class TestCreateTableSQL extends CompileServerTestCase {
 		//create connection -> no error
 		String createConnSql = 
 				"CREATE CONNECTION \"testConnection\" " +
-				"URL 'jdbc:postgresql://127.0.0.1/xdb_tmp' " +
+				"URL 'jdbc:mysql://127.0.0.1/xdb_tmp' " +
 				"USER 'xroot' " +
 				"PASSWORD 'xroot' " +
-				"STORE 'POSTGRES' ";
+				"STORE 'MYSQL' ";
 		
-		AbstractStatement stmt = compiler.compile(createConnSql);
+		AbstractServerStmt stmt = compiler.compile(createConnSql);
 		this.assertNoError(compiler.getLastError());
 		Assert.assertNotNull(stmt);
 		this.execute(stmt);

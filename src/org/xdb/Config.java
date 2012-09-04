@@ -30,8 +30,10 @@ public class Config implements Serializable {
 	public static final String METADATA_USER = "xroot";
 	public static final String METADATA_PASSWORD = "xroot";
 	public static final String METADATA_OID_NAME = "OID";
-	public static final int METADATA_PORT = 55556;
-	public static final String XDB_DEFAULT_SCHEMA = "PUBLIC";
+	
+	public static final int COMPILE_PORT = 55556;
+	public static final String COMPILE_URL = "127.0.0.1";
+	public static final String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
 
 	public static final int QUERYTRACKER_PORT = 55557;
 

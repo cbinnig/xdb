@@ -1,7 +1,7 @@
 package org.xdb.test.funsql.statement;
 
 import org.junit.Test;
-import org.xdb.funsql.statement.AbstractStatement;
+import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CreateConnectionStmt;
 import org.xdb.funsql.statement.CreateTableStmt;
 import org.xdb.funsql.statement.DropConnectionStmt;
@@ -14,7 +14,7 @@ public class TestCreateTableStmt extends CompileServerTestCase {
 	@Test
 	public void testSimpleCreate() {
 		//create connection and table
-		AbstractStatement stmt = new CreateConnectionStmt("TestConnection", "TestUrl", "TestUser", "TestPasswd", "POSTGRES");
+		AbstractServerStmt stmt = new CreateConnectionStmt("TestConnection", "TestUrl", "TestUser", "TestPasswd", "POSTGRES");
 		this.compileAndExecute(stmt);
 		
 		CreateTableStmt createTableStmt = new CreateTableStmt("TestTable", "SourceSchema", "SourceTable", "TestConnection");

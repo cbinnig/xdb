@@ -1,7 +1,7 @@
 package org.xdb.test.funsql.statement;
 
 import org.junit.Test;
-import org.xdb.funsql.statement.AbstractStatement;
+import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CreateSchemaStmt;
 import org.xdb.funsql.statement.DropSchemaStmt;
 import org.xdb.test.CompileServerTestCase;
@@ -12,7 +12,7 @@ public class TestCreateSchemaStmt extends CompileServerTestCase {
 		String schemaName = "TestSchema";
 		
 		//create schema 
-		AbstractStatement stmt = new CreateSchemaStmt(schemaName);
+		AbstractServerStmt stmt = new CreateSchemaStmt(schemaName);
 		this.compileAndExecute(stmt);
 		
 		//create duplicate schema 
