@@ -6,6 +6,7 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 
 	//attributes
 	protected AbstractOperator child;
+	protected int inputNumber=0;
 
 	//constructors
 	public AbstractUnaryOperator(AbstractOperator child){
@@ -19,5 +20,13 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 
 	public void setChild(AbstractOperator child) {
 		this.child = child;
+	}
+
+	public int getInputNumber() {
+		return inputNumber;
+	}
+
+	public void setInputNumber(int inputNumber) {
+		this.inputNumber = inputNumber;
 	}
 }

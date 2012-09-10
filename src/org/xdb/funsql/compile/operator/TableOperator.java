@@ -24,11 +24,11 @@ public class TableOperator extends AbstractOperator {
 	public EnumStore getSourceId() {
 		return sourceId;
 	}
-	public TokenTable getTokenTable() {
+	public TokenTable getTable() {
 		return table;
 	}
 
-	public void setTokenTable(TokenTable table) {
+	public void setTable(TokenTable table) {
 		this.table = table;
 	}
 }
