@@ -1,30 +1,34 @@
 package org.xdb.funsql.compile.operator;
 
+import java.io.Serializable;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.types.EnumSimpleType;
 
-public class Result {
+public class ResultDesc implements Serializable{
+	private static final long serialVersionUID = 8819533773334264233L;
+	
 	//attribute
 	private Vector<TokenAttribute> attribtues;
 	private Vector<EnumSimpleType> types;
+	private boolean materialize;
 	
 	//constructors
-	public Result(int size){
+	public ResultDesc(int size){
 		this.attribtues = new Vector<TokenAttribute>(size);
 	}
 	
 	//getters and setters
-	public void setTokenAttribute(int i, TokenAttribute attribute){
+	public void setAttribute(int i, TokenAttribute attribute){
 		this.attribtues.set(i, attribute);
 	}
 	
-	public TokenAttribute getTokenAttribute(int i){
+	public TokenAttribute getAttribute(int i){
 		return this.attribtues.get(i);
 	}
 	
-	public Vector<TokenAttribute> getTokenAttributes(){
+	public Vector<TokenAttribute> getAttributes(){
 		return this.attribtues;
 	}
 	
@@ -38,5 +42,13 @@ public class Result {
 	
 	public Vector<EnumSimpleType> getTypes(){
 		return this.types;
+	}
+	
+	public boolean isMaterialize() {
+		return materialize;
+	}
+
+	public void setMaterialize(boolean materialize) {
+		this.materialize = materialize;
 	}
 }

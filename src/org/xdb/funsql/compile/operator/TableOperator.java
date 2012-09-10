@@ -13,6 +13,7 @@ public class TableOperator extends AbstractOperator {
 	//constructors
 	public TableOperator(TokenTable table){
 		this.table = table;
+		this.type = EnumOperator.TABLE;
 	}
 
 	//getters and setters

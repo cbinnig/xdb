@@ -8,15 +8,15 @@ public abstract class AbstractOperator implements Serializable {
 	private static final long serialVersionUID = -5531022011681321483L;
 
 	//attributes
-	protected Result result;
+	protected ResultDesc result;
 	protected EnumOperator type;
 	
 	//getters and setters
-	public Result getResult() {
+	public ResultDesc getResult() {
 		return result;
 	}
 
-	public void setResult(Result result) {
+	public void setResult(ResultDesc result) {
 		this.result = result;
 	}
 

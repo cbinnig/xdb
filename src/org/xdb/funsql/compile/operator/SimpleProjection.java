@@ -19,7 +19,7 @@ public class SimpleProjection extends AbstractUnaryOperator {
 	}
 	
 	//getters and setters
-	public void setTokenAttribute(int i, TokenAttribute attribute){
+	public void setAttribute(int i, TokenAttribute attribute){
 		this.attributes.set(i, attribute);
 	}
 	
@@ -27,7 +27,7 @@ public class SimpleProjection extends AbstractUnaryOperator {
 		return this.attributes.get(i);
 	}
 
-	public Vector<TokenAttribute> getTokenAttributes() {
+	public Vector<TokenAttribute> getAttributes() {
 		return attributes;
 	}
 }
