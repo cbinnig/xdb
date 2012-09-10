@@ -13,6 +13,7 @@ public class ResultDesc implements Serializable{
 	private Vector<TokenAttribute> attribtues;
 	private Vector<EnumSimpleType> types;
 	private boolean materialize;
+	private PartitionDesc partitionDesc;
 	
 	//constructors
 	public ResultDesc(int size){
@@ -50,5 +51,13 @@ public class ResultDesc implements Serializable{
 
 	public void setMaterialize(boolean materialize) {
 		this.materialize = materialize;
+	}
+
+	public PartitionDesc getPartitionDesc() {
+		return partitionDesc;
+	}
+
+	public void setPartitionDesc(PartitionDesc partitionDesc) {
+		this.partitionDesc = partitionDesc;
 	}
 }

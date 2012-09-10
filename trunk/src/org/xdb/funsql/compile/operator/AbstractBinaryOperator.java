@@ -8,6 +8,9 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 	protected AbstractOperator leftChild;
 	protected AbstractOperator rightChild;
 	
+	protected int leftInputNumber=0;
+	protected int rightInputNumber=0;
+	
 	//constructors
 	public AbstractBinaryOperator(AbstractOperator leftChild, AbstractOperator rightChild) {
 		this.leftChild = leftChild;
@@ -29,5 +32,21 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 
 	public void setRightChild(AbstractOperator rightChild) {
 		this.rightChild = rightChild;
+	}
+
+	public int getLeftInputNumber() {
+		return leftInputNumber;
+	}
+
+	public void setLeftInputNumber(int leftInputNumber) {
+		this.leftInputNumber = leftInputNumber;
+	}
+
+	public int getRightInputNumber() {
+		return rightInputNumber;
+	}
+
+	public void setRightInputNumber(int rightInputNumber) {
+		this.rightInputNumber = rightInputNumber;
 	}	
 }
