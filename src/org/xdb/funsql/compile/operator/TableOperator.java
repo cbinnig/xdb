@@ -12,6 +12,8 @@ public class TableOperator extends AbstractOperator {
 	
 	//constructors
 	public TableOperator(TokenTable table){
+		super(1);
+		
 		this.table = table;
 		this.type = EnumOperator.TABLE;
 	}
@@ -24,6 +26,7 @@ public class TableOperator extends AbstractOperator {
 	public EnumStore getSourceId() {
 		return sourceId;
 	}
+	
 	public TokenTable getTable() {
 		return table;
 	}

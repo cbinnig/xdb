@@ -10,6 +10,8 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 
 	//constructors
 	public AbstractUnaryOperator(AbstractOperator child){
+		super(1);
+		
 		this.child = child;
 	}
 	
