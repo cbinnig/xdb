@@ -13,6 +13,8 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 	
 	//constructors
 	public AbstractBinaryOperator(AbstractOperator leftChild, AbstractOperator rightChild) {
+		super(1);
+		
 		this.leftChild = leftChild;
 		this.rightChild = rightChild;
 	}
