@@ -15,7 +15,7 @@ public class TestComputeOperator extends TestCase {
 		//operator
 		final MySQLOperator op = new MySQLOperator(new Identifier("1"));
 		op.addOpenSQL("CREATE TEMPORARY TABLE REGION ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) " +
-				"ENGINE=FEDERATED CONNECTION='mysql://xroot:xroot@127.0.0.1/tpch_s01/region';");
+				"ENGINE=FEDERATED CONNECTION='mysql://xroot:xroot@127.0.0.1/tpch_s01/REGION';");
 
 		op.addOpenSQL("CREATE TABLE R1 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) ENGINE=MEMORY;");
 
@@ -40,7 +40,7 @@ public class TestComputeOperator extends TestCase {
 		final MySQLOperator op1 = new MySQLOperator(new Identifier("1"));
 
 		op1.addOpenSQL("CREATE TEMPORARY TABLE REGION ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) " +
-				"ENGINE=FEDERATED CONNECTION='mysql://xroot:xroot@127.0.0.1/tpch_s01/region';");
+				"ENGINE=FEDERATED CONNECTION='mysql://xroot:xroot@127.0.0.1/tpch_s01/REGION';");
 
 		op1.addOpenSQL("CREATE TABLE R1 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) ENGINE=MEMORY;");
 
@@ -56,7 +56,7 @@ public class TestComputeOperator extends TestCase {
 		final MySQLOperator op2 = new MySQLOperator(new Identifier("2"));
 
 		op2.addOpenSQL("CREATE TEMPORARY TABLE R2 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) " +
-				"ENGINE=FEDERATED CONNECTION='mysql://xroot:xroot@127.0.0.1/"+Config.COMPUTE_DB_NAME+"/r1';");
+				"ENGINE=FEDERATED CONNECTION='mysql://xroot:xroot@127.0.0.1/"+Config.COMPUTE_DB_NAME+"/R1';");
 
 		op2.addOpenSQL("CREATE TABLE R3 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) ENGINE=MEMORY;");
 
