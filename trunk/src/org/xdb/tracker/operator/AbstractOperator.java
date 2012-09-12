@@ -35,7 +35,6 @@ public abstract class AbstractOperator implements Serializable {
 	protected HashMap<String, String> partAtt = new HashMap<String, String>();
 
 	// map: output table name -> DDLs
-	protected Integer outParts;
 	protected HashMap<String, StringTemplate> outTables = new HashMap<String, StringTemplate>();
 
 	// map: input table name -> DDLs
@@ -51,10 +50,9 @@ public abstract class AbstractOperator implements Serializable {
 	protected boolean isRoot = false;
 
 	// constructors
-	public AbstractOperator(Identifier operatorId, Integer outParts) {
+	public AbstractOperator(Identifier operatorId) {
 		super();
 		this.operatorId = operatorId;
-		this.outParts = outParts;
 	}
 
 	// getters and setters
@@ -64,10 +62,6 @@ public abstract class AbstractOperator implements Serializable {
 	
 	public boolean isRoot(){
 		return this.isRoot;
-	}
-	
-	public void setOutParts(int outParts) {
-		this.outParts = outParts;
 	}
 
 	public void setInTableSource(String tableName, TableDesc tableDesc){
@@ -117,7 +111,7 @@ public abstract class AbstractOperator implements Serializable {
 		// add partition specification
 		args.clear();
 		args.put(KEY_PARTATT, this.partAtt.get(tableName));
-		args.put(KEY_PARTS, this.outParts.toString());
+		args.put(KEY_PARTS, "1");
 		tableDDL.append(OUTPUT_DDL.toString(args));
 
 		return tableDDL.toString();
