@@ -13,14 +13,16 @@ public class Identifier implements Serializable, Cloneable{
 		this.id = id;
 	}
 	
-	public void append(Integer subId){
+	public Identifier append(Integer subId){
 		this.id += SEPARATOR;
 		this.id += subId;
+		return this;
 	}
 	
-	public void append(String subId){
+	public Identifier append(String subId){
 		this.id += SEPARATOR;
 		this.id += subId;
+		return this;
 	}
 	
 	@Override

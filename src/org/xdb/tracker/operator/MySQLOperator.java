@@ -15,11 +15,7 @@ public class MySQLOperator extends AbstractOperator {
 
 	// constructors
 	public MySQLOperator(Identifier operatorId) {
-		super(operatorId, 1);
-	}
-	
-	public MySQLOperator(Identifier operatorId, Integer outParts) {
-		super(operatorId, outParts);
+		super(operatorId);
 	}
 
 	// getters and setters
