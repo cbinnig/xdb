@@ -64,7 +64,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 	}
 
 	/**
-	 * Executes query on given node and returns result
+	 * Executes query on a given node and returns result
 	 * 
 	 * @param dburl
 	 * @param query
@@ -84,6 +84,33 @@ public abstract class TestCase extends junit.framework.TestCase {
 		}
 	}
 
+	/**
+	 * Executes statement on local node
+	 * @param query
+	 */
+	protected void executeComputeStatement(String query) {
+		this.executeComputeQuery(Config.COMPUTE_DB_URL
+				+ Config.COMPUTE_DB_NAME, query);
+	}
+	
+	/**
+	 * Executes statement  on a given node
+	 * @param dburl
+	 * @param query
+	 */
+	protected void executeComputeStatement(String dburl, String query) {
+		try {
+			Class.forName(Config.COMPUTE_DRIVER_CLASS);
+			Connection conn = DriverManager.getConnection(dburl,
+					Config.COMPUTE_DB_USER, Config.COMPUTE_DB_PASSWD);
+
+			Statement stmt = conn.createStatement();
+			stmt.execute(query);
+		} catch (Exception e) {
+			assertTrue(e.toString(), false);
+		}
+	}
+	
 	/**
 	 * Executes a statement and checks if no error occurred
 	 * 

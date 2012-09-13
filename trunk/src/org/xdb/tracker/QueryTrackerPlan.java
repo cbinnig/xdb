@@ -1,6 +1,7 @@
 package org.xdb.tracker;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -20,9 +21,8 @@ public class QueryTrackerPlan implements Serializable {
 
 	private static final long serialVersionUID = -5521482252707107847L;
 
-	// deployment operator id
+	// last deployment operator id
 	private Integer lastDeployOperId = 1;
-	private Integer lastPlanOperId = 1;
 
 	// unique operator id
 	private Identifier planId;
@@ -60,12 +60,16 @@ public class QueryTrackerPlan implements Serializable {
 		return this.planId;
 	}
 
-	public Error getLastError() {
-		return err;
+	public Collection<AbstractOperator> getOperators() {
+		return operators.values();
+	}
+
+	public HashSet<Identifier> getRoots() {
+		return roots;
 	}
 	
-	public Integer nextPlanOperId(){
-		return this.lastPlanOperId++;
+	public Error getLastError() {
+		return err;
 	}
 
 	/**
@@ -117,10 +121,10 @@ public class QueryTrackerPlan implements Serializable {
 	 * @param currentDeployment
 	 */
 	public void executePlan(Map<Identifier, OperatorDesc> currentDeployment) {
-		if (err.isError())
+		if (this.err.isError())
 			return;
 
-		//execute operators
+		//start execution on leave operators
 		for (Identifier leaveId : this.leaves) {
 			OperatorDesc leaveDesc = currentDeployment.get(leaveId);
 			this.err = this.computeClient.executeOperator(leaveDesc);
