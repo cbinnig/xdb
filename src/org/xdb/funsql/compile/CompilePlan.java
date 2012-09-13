@@ -1,10 +1,13 @@
 package org.xdb.funsql.compile;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
@@ -20,20 +23,26 @@ public class CompilePlan implements Serializable {
 
 	// unique plan and operator id
 	private Identifier planId;
+	
+	// last plan operator id
 	private Integer lastOpId=1;
 		
-	// operators
+	// plan info
 	private HashMap<Identifier, AbstractOperator> operators;
-	private HashMap<Identifier, AbstractOperator> roots;
+	private HashSet<Identifier> roots;
 	
-	// Logger
+	// logger
 	private Logger logger;
+	
+	// last error
+	private Error err = Error.NO_ERROR;
+		
 
 	// constructor
 	public CompilePlan(Identifier planId) {
 		this.planId = planId;
 		this.operators = new HashMap<Identifier, AbstractOperator>();
-		this.roots = new HashMap<Identifier, AbstractOperator>();
+		this.roots = new HashSet<Identifier>();
 		
 		
 		this.logger = XDBLog.getLogger(this.getClass().getName());
@@ -44,8 +53,20 @@ public class CompilePlan implements Serializable {
 		return this.planId;
 	}
 	
-	// methods
+	public Collection<AbstractOperator> getOperators() {
+		return operators.values();
+	}
+
+	public HashSet<Identifier> getRoots() {
+		return roots;
+	}
 	
+	public Error getLastError() {
+		return err;
+	}
+	
+	// methods
+
 	/**
 	 * Adds operator to plan and indicates if it is a root operator.
 	 * For each operator a unique operator ID is generated!
@@ -60,7 +81,7 @@ public class CompilePlan implements Serializable {
 		
 		this.operators.put(opId, op);
 		if(isRoot){
-			this.roots.put(opId, op);
+			this.roots.add(opId);
 		}
 	}
 }
