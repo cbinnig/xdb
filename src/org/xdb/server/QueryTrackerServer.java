@@ -22,7 +22,8 @@ public class QueryTrackerServer extends AbstractServer {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		startServer(new QueryTrackerServer());
+		QueryTrackerServer server = new QueryTrackerServer();
+		server.startServer();
 	}
 
 }

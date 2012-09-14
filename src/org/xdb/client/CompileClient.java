@@ -14,9 +14,18 @@ import org.xdb.server.CompileServer;
  * Client to talk to Compute Server.
  */
 public class CompileClient extends AbstractClient{
+
 	// constructor
 	public CompileClient() {
 		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.port = Config.COMPILE_PORT;
+		this.url = Config.COMPILE_URL;
+	}
+	
+	public CompileClient(String url, int port) {
+		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.port = port;
+		this.url = url;
 	}
 
 	
@@ -25,7 +34,7 @@ public class CompileClient extends AbstractClient{
 		ClientStmt clientStmt = new ClientStmt(stmt);
 		
 		try {
-			this.server = new Socket(Config.COMPILE_URL, Config.COMPILE_PORT);
+			this.server = new Socket(this.url, this.port);
 			ObjectOutputStream out = new ObjectOutputStream(
 					this.server.getOutputStream());
 

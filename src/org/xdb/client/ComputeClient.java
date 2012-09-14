@@ -21,20 +21,28 @@ public class ComputeClient extends AbstractClient{
 	// constructor
 	public ComputeClient() {
 		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.port = Config.COMPUTE_PORT;
+		this.url = Config.COMPUTE_URL;
+	}
+	
+	public ComputeClient(String url, int port) {
+		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.port = port;
+		this.url = url;
 	}
 
 	/**
 	 * Installs operator on node
 	 * 
-	 * @param node
+	 * @param url
 	 * @param op
 	 * @return
 	 */
-	public Error openOperator(String node, AbstractOperator op) {
+	public Error openOperator(String url, AbstractOperator op) {
 		Error err = Error.NO_ERROR;
 
 		try {
-			this.server = new Socket(node, Config.COMPUTE_PORT);
+			this.server = new Socket(url, this.port);
 			ObjectOutputStream out = new ObjectOutputStream(
 					this.server.getOutputStream());
 
@@ -60,16 +68,16 @@ public class ComputeClient extends AbstractClient{
 	 * Send ready signal to operator on node from source operator
 	 * 
 	 * @param sourceOpId
-	 * @param destNode
+	 * @param url
 	 * @param destOpId
 	 * @return
 	 */
-	public Error executeOperator(Identifier sourceOpId, String destNode,
+	public Error executeOperator(Identifier sourceOpId, String url,
 			Identifier destOpId) {
 		Error err = Error.NO_ERROR;
 
 		try {
-			this.server = new Socket(destNode, Config.COMPUTE_PORT);
+			this.server = new Socket(url, Config.COMPUTE_PORT);
 			ObjectOutputStream out = new ObjectOutputStream(
 					this.server.getOutputStream());
 			ReadySignal signal = new ReadySignal(sourceOpId, destOpId);
@@ -118,27 +126,27 @@ public class ComputeClient extends AbstractClient{
 	/**
 	 * Send ready signal to operator on node w/o a source operator
 	 * 
-	 * @param destNode
+	 * @param url
 	 * @param destOpId
 	 * @return
 	 */
-	public Error executeOperator(String destNode, Identifier destOpId) {
-		return this.executeOperator(Config.COMPUTE_NOOP_ID, destNode, destOpId);
+	public Error executeOperator(String url, Identifier destOpId) {
+		return this.executeOperator(Config.COMPUTE_NOOP_ID, url, destOpId);
 	}
 
 	/**
 	 * Closes operator on node
 	 * 
-	 * @param node
+	 * @param url
 	 * @param op
 	 * @return
 	 */
-	public Error closeOperator(String node, Identifier operatorId) {
+	public Error closeOperator(String url, Identifier operatorId) {
 		Error err = Error.NO_ERROR;
 		CloseSignal signal = new CloseSignal(operatorId);
 
 		try {
-			this.server = new Socket(node, Config.COMPUTE_PORT);
+			this.server = new Socket(url, Config.COMPUTE_PORT);
 			ObjectOutputStream out = new ObjectOutputStream(
 					this.server.getOutputStream());
 

@@ -1,21 +1,38 @@
 package org.xdb.test;
 
+import junit.framework.Assert;
+
 import org.xdb.server.ComputeServer;
+import org.xdb.server.MasterTrackerServer;
 
 public class QueryTrackerServerTestCase extends TestCase {
+	private MasterTrackerServer mTrackerServer;
+	private ComputeServer computeServer;
+	
 	public QueryTrackerServerTestCase() {
 		super();
 	}
 	
 	@Override
 	public void setUp(){
-		ComputeServer server = new ComputeServer();
-		ComputeServer.startServer(server);
-		assertNoError(server.getError());
+		//TODO: truncate tables in xdb_temp on local node
+		
+		try {
+			mTrackerServer = new MasterTrackerServer();
+			mTrackerServer.startServer();
+			assertNoError(mTrackerServer.getError());
+			
+			computeServer = new ComputeServer();
+			computeServer.startServer();
+			assertNoError(computeServer.getError());
+		} catch (Exception e) {
+			Assert.assertTrue(e.toString(), false);
+		}
 	}
 	
 	@Override
 	public void tearDown(){
-		ComputeServer.stopServer();
+		mTrackerServer.stopServer();
+		computeServer.stopServer();
 	}
 }

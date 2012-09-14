@@ -1,5 +1,6 @@
 package org.xdb.execute;
 
+import java.net.InetAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,7 +11,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.xdb.Config;
 import org.xdb.client.ComputeClient;
+import org.xdb.client.MasterTrackerClient;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractOperator;
 import org.xdb.execute.operators.OperatorDesc;
@@ -35,19 +38,32 @@ public class ComputeNode {
 	private Map<Identifier, HashSet<Identifier>> readySignals;
 	private final Lock readySignalsLock = new ReentrantLock();
 
+	//computing slots
+	private ComputeNodeDesc computeNodeDesc;
+	
 	// Helpers
 	private Logger logger;
-	private ComputeClient client;
+	private ComputeClient computeClient;
+	private MasterTrackerClient mTrackerClient;
 
 	// constructors
-	public ComputeNode() {
+	public ComputeNode() throws Exception  {
 		this.operators = Collections
 				.synchronizedMap(new HashMap<Identifier, AbstractOperator>());
 		this.readySignals = Collections
 				.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());
 
 		this.logger = XDBLog.getLogger(this.getClass().getName());
-		this.client = new ComputeClient();
+		this.computeClient = new ComputeClient();
+		this.mTrackerClient = new MasterTrackerClient();
+		
+		InetAddress addr = InetAddress.getLocalHost();
+		this.computeNodeDesc = new ComputeNodeDesc(addr.getHostAddress(), Config.COMPUTE_SLOTS);
+		
+		Error err = this.mTrackerClient.registerNode(computeNodeDesc);
+		if(err.isError()){
+			throw new IllegalArgumentException(err.toString());
+		}
 	}
 
 	/**
@@ -160,7 +176,7 @@ public class ComputeNode {
 						"Send READY_SIGNAL from operator " + op.getOperatorId()
 								+ " to consumer: " + consumer);
 
-				err = this.client.executeOperator(op.getOperatorId(), consumer);
+				err = this.computeClient.executeOperator(op.getOperatorId(), consumer);
 				if (err.isError())
 					return err;
 

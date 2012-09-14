@@ -9,6 +9,8 @@ import org.xdb.error.Error;
 
 public abstract class AbstractClient {
 	protected Socket server;
+	protected int port;
+	protected String url;
 	
 	// Helpers
 	protected Logger logger;

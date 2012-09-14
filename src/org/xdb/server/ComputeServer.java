@@ -3,6 +3,7 @@ package org.xdb.server;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.logging.Level;
 
 import org.xdb.Config;
@@ -83,9 +84,9 @@ public class ComputeServer extends AbstractServer {
 
 	// Compute node which executes commands
 	private ComputeNode compute;
-
+	
 	// constructors
-	public ComputeServer() {
+	public ComputeServer() throws Exception {
 		super();
 		
 		this.port = Config.COMPUTE_PORT;
@@ -105,8 +106,10 @@ public class ComputeServer extends AbstractServer {
 	 * Start server from cmd
 	 * 
 	 * @param args
+	 * @throws UnknownHostException 
 	 */
-	public static void main(String[] args) {
-		startServer(new ComputeServer());
+	public static void main(String[] args) throws Exception {
+		ComputeServer server = new ComputeServer();
+		server.startServer();
 	}
 }
