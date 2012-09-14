@@ -17,7 +17,7 @@ import org.xdb.logging.XDBLog;
  */
 public abstract class AbstractServer {
 	
-	protected static ServerThread serverThread = null;
+	protected ServerThread serverThread = null;
 	protected int port = -1;
 	
 	protected ServerSocket serverSocket = null;
@@ -37,8 +37,8 @@ public abstract class AbstractServer {
 	/**
 	 * Starts server thread on local node
 	 */
-	public static synchronized void startServer(AbstractServer server) {
-		serverThread = new ServerThread(server);
+	public synchronized void startServer() {
+		serverThread = new ServerThread(this);
 		serverThread.start();
 
 		//wait until thread is started
@@ -53,7 +53,7 @@ public abstract class AbstractServer {
 	/**
 	 * Stops server thread if running
 	 */
-	public static synchronized void stopServer() {
+	public synchronized void stopServer() {
 		if (serverThread != null && !serverThread.isInterrupted()) {
 			
 			serverThread.interrupt();

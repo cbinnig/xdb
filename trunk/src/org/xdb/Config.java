@@ -15,6 +15,7 @@ public class Config implements Serializable {
 
 	private static final long serialVersionUID = -769530083761951611L;
 
+	//Compute Server
 	public static final String COMPUTE_DRIVER_CLASS = "com.mysql.jdbc.Driver";
 	public static final String COMPUTE_DB_URL = "jdbc:mysql://127.0.0.1/";
 	public static final String COMPUTE_DB_NAME = "xdb_tmp";
@@ -23,7 +24,11 @@ public class Config implements Serializable {
 	public static final Identifier COMPUTE_NOOP_ID = new Identifier("NOOP");
 	public static final int COMPUTE_PORT = 55555;
 	public static final Integer COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
-
+	public static final int COMPUTE_SLOTS = 32;
+	public static final String COMPUTE_URL = "127.0.0.1";
+	
+	
+	//Compile Server
 	public static final String METADATA_DRIVER_CLASS = "com.mysql.jdbc.Driver";
 	public static final String METADATA_DB_URL = "jdbc:mysql://127.0.0.1/xdb_schema";
 	public static final String METADATA_SCHEMA = "xdb_schema";
@@ -35,7 +40,12 @@ public class Config implements Serializable {
 	public static final String COMPILE_URL = "127.0.0.1";
 	public static final String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
 
-	public static final int QUERYTRACKER_PORT = 55557;
+	//Master Tracker Server
+	public static final int MASTERTRACKER_PORT = 55557;
+	public static final String MASTERTRACKER_URL = "127.0.0.1";
+	
+	//Query Tracker Server
+	public static final int QUERYTRACKER_PORT = 55558;
 
 	public static final String LOG_FILE = "./log/xdb.log";
 	public static final Level LOG_LEVEL = Level.INFO;

@@ -117,6 +117,7 @@ public class CompileServer extends AbstractServer {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		startServer(new CompileServer());
+		CompileServer server = new CompileServer();
+		server.startServer();
 	}
 }
