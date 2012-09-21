@@ -39,8 +39,8 @@ public class ComputeClient extends AbstractClient{
 	 * @return
 	 */
 	public Error openOperator(String url, AbstractOperator op) {
-		Error err = Error.NO_ERROR;
-
+		Error err = new Error();
+		
 		try {
 			this.server = new Socket(url, this.port);
 			ObjectOutputStream out = new ObjectOutputStream(
@@ -74,8 +74,8 @@ public class ComputeClient extends AbstractClient{
 	 */
 	public Error executeOperator(Identifier sourceOpId, String url,
 			Identifier destOpId) {
-		Error err = Error.NO_ERROR;
-
+		Error err = new Error();
+		
 		try {
 			this.server = new Socket(url, Config.COMPUTE_PORT);
 			ObjectOutputStream out = new ObjectOutputStream(
@@ -142,7 +142,7 @@ public class ComputeClient extends AbstractClient{
 	 * @return
 	 */
 	public Error closeOperator(String url, Identifier operatorId) {
-		Error err = Error.NO_ERROR;
+		Error err = new Error();
 		CloseSignal signal = new CloseSignal(operatorId);
 
 		try {

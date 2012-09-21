@@ -29,7 +29,7 @@ public abstract class AbstractHandler extends Thread {
 	 * calls handler and sends result back to client
 	 */
 	public void run() {
-		Error err = Error.NO_ERROR;
+		Error err = new Error();
 		// handle request
 		try {
 			err = handle();

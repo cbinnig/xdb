@@ -30,7 +30,7 @@ public class CompileClient extends AbstractClient{
 
 	
 	public Error executeStmt(String stmt) {
-		Error err = Error.NO_ERROR;
+		Error err = new Error();
 		ClientStmt clientStmt = new ClientStmt(stmt);
 		
 		try {

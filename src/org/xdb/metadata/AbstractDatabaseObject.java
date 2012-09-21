@@ -116,7 +116,7 @@ public abstract class AbstractDatabaseObject implements Serializable {
 		selectSql.append(AbstractToken.BLANK);
 		selectSql.append(OID_NAME);
 		selectSql.append(AbstractToken.BLANK);
-		selectSql.append(AbstractToken.EQUAL);
+		selectSql.append(AbstractToken.EQUAL1);
 		selectSql.append(AbstractToken.BLANK);
 		selectSql.append(this.oid);
 		return selectSql.toString();

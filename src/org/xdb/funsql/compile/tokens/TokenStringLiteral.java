@@ -4,6 +4,8 @@ import org.xdb.funsql.types.EnumLiteralType;
 
 public class TokenStringLiteral extends TokenLiteral {
 
+	private static final long serialVersionUID = 2059513693773115009L;
+	
 	private String value;
 	
 	public TokenStringLiteral(String value){
@@ -23,9 +25,9 @@ public class TokenStringLiteral extends TokenLiteral {
 	@Override
 	public String toSqlString(){
 		StringBuffer literal = new StringBuffer();
-		literal.append(TokenConstants.QUOTE);
+		literal.append(AbstractToken.QUOTE);
 		literal.append(this.value);
-		literal.append(TokenConstants.QUOTE);
+		literal.append(AbstractToken.QUOTE);
 		return literal.toString();
 	}
 }

@@ -1,6 +1,8 @@
 package org.xdb.funsql.compile.tokens;
 
 public class TokenIdentifier extends AbstractToken{
+	private static final long serialVersionUID = -7726723089171901571L;
+	
 	//attributes
 	private String name;
 

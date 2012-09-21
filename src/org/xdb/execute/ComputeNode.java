@@ -73,8 +73,8 @@ public class ComputeNode {
 	 * @return
 	 */
 	public Error openOperator(AbstractOperator op) {
-		Error err = Error.NO_ERROR;
-
+		Error err = new Error();
+		
 		this.operators.put(op.getOperatorId(), op);
 
 		// open operator
@@ -92,7 +92,7 @@ public class ComputeNode {
 	 * @return
 	 */
 	public Error signalOperator(ReadySignal signal) {
-		Error err = Error.NO_ERROR;
+		Error err = new Error();
 		Identifier source = signal.getSource();
 		Identifier consumer = signal.getConsumer();
 
@@ -140,8 +140,8 @@ public class ComputeNode {
 	 * @return
 	 */
 	public Error closeOperator(CloseSignal signal) {
-		Error err = Error.NO_ERROR;
-
+		Error err = new Error();
+		
 		// execute operator
 		AbstractOperator op = this.operators.get(signal.getConsumer());
 		if (op != null) {
@@ -161,8 +161,8 @@ public class ComputeNode {
 	 * @return
 	 */
 	private Error executeOperator(AbstractOperator op) {
-		Error err = Error.NO_ERROR;
-
+		Error err = new Error();
+		
 		// execute operator
 		err = op.execute();
 		if (err.isError())

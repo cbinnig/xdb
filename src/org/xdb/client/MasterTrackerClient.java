@@ -31,7 +31,7 @@ public class MasterTrackerClient extends AbstractClient{
 
 	
 	public Error registerNode(ComputeNodeDesc desc) {
-		Error err = Error.NO_ERROR;
+		Error err = new Error();
 		RegisterSignal signal = new RegisterSignal(desc);
 		
 		try {

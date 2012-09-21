@@ -1,17 +1,23 @@
 package org.xdb.funsql.compile.tokens;
 
+import org.xdb.funsql.types.EnumLiteralType;
+
 public class TokenIntegerLiteral extends TokenLiteral {
-	private Long value;
+	private static final long serialVersionUID = 6479045334346379797L;
 	
-	public TokenIntegerLiteral(Long value){
+	private Integer value;
+	
+	public TokenIntegerLiteral(Integer value){
 		this.value = value;
+		this.type = EnumLiteralType.SQL_INTEGER_LITERAL;
 	}
 	
 	public TokenIntegerLiteral(String value){
-		this.value = Long.parseLong(value);
+		this.value = Integer.parseInt(value);
+		this.type = EnumLiteralType.SQL_INTEGER_LITERAL;
 	}
 	
-	public Long getValue(){
+	public Integer getValue(){
 		return this.value;
 	}
 	

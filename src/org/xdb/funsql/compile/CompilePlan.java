@@ -35,8 +35,7 @@ public class CompilePlan implements Serializable {
 	private Logger logger;
 	
 	// last error
-	private Error err = Error.NO_ERROR;
-		
+	private Error err = new Error();
 
 	// constructor
 	public CompilePlan(Identifier planId) {

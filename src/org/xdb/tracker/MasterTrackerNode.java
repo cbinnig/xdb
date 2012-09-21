@@ -26,7 +26,7 @@ public class MasterTrackerNode {
 	}
 	
 	public Error registerComputeNode(ComputeNodeDesc desc){
-		Error err = Error.NO_ERROR;
+		Error err = new Error();
 
 		logger.log(Level.INFO, "Added compute slots: " + desc);
 		this.computeSlots.put(desc.getUrl(), desc.getSlots());

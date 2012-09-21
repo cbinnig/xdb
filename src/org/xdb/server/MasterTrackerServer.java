@@ -26,7 +26,8 @@ public class MasterTrackerServer extends AbstractServer {
 		 * @throws IOException
 		 */
 		protected Error handle() throws IOException {
-			Error err = Error.NO_ERROR;
+			Error err = new Error();
+			
 			ObjectInputStream in = new ObjectInputStream(
 					this.client.getInputStream());
 

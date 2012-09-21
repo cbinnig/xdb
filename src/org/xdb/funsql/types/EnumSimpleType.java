@@ -5,9 +5,12 @@ import org.xdb.error.Error;
 
 public enum EnumSimpleType {
 	SQL_INTEGER,
-	SQL_VARCHAR;
+	SQL_VARCHAR,
+	SQL_CHAR,
+	SQL_DECIMAL,
+	SQL_DATE;
 	
-	private static final EnumSimpleType[] values  = { SQL_INTEGER, SQL_VARCHAR };
+	private static final EnumSimpleType[] values  = { SQL_INTEGER, SQL_VARCHAR, SQL_CHAR, SQL_DECIMAL, SQL_DATE };
 	
 	public static EnumSimpleType get(int i){
 		return values[i];
@@ -20,6 +23,12 @@ public enum EnumSimpleType {
 			return SQL_INTEGER;
 		else if(type.equalsIgnoreCase("VARCHAR"))
 			return SQL_VARCHAR;
+		else if(type.equalsIgnoreCase("CHAR"))
+			return SQL_CHAR;
+		else if(type.equalsIgnoreCase("DECIMAL"))
+			return SQL_DECIMAL;
+		else if(type.equalsIgnoreCase("DATE"))
+			return SQL_DATE;
 		return null;
 	}
 	
@@ -35,6 +44,12 @@ public enum EnumSimpleType {
 			return "INTEGER";
 		case 1:
 			return "VARCHAR";
+		case 2:
+			return "CHAR";
+		case 3:
+			return "DECIMAL";
+		case 4:
+			return "DATE";
 		}
 		return "";
 	}
