@@ -32,5 +32,9 @@ public class TestSelectSQL extends CompileServerTestCase {
 		stmt = (SelectStmt)compiler.compile("SELECT A FROM R WHERE B=C OR D=E AND F=G");
 		System.out.println(stmt.getPredicate());
 		this.assertNoError(compiler.getLastError());
+		
+		stmt = (SelectStmt)compiler.compile("SELECT A FROM R WHERE ( B=C OR D=E ) AND F=G");
+		System.out.println(stmt.getPredicate());
+		this.assertNoError(compiler.getLastError());
 	}
 }
