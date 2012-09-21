@@ -21,7 +21,8 @@ public enum EnumError {
 	STORE_NOT_EXISTS,
 	STORE_CONNECTION_ERROR,
 	STORE_EXECUTION_ERROR,
-	ATTRIBUTE_NOT_IN_TABLE;
+	ATTRIBUTE_NOT_IN_TABLE,
+	TRACKER_PLAN_INVALID_GENERIC;
 	
 	public static String toString(EnumError error, String[] args){
 		String msg = "";
@@ -74,6 +75,9 @@ public enum EnumError {
 			break;
 		case ATTRIBUTE_NOT_IN_TABLE:
 			msg = "Attribute \"<arg0>\" does not exist in the table \"<arg1>\"!";
+			break;
+		case TRACKER_PLAN_INVALID_GENERIC:
+			msg = "Input plan was invalid (no specific error provided).";
 			break;
 		}
 		
