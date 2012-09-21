@@ -1,29 +1,32 @@
 package org.xdb.funsql.types;
 
-public class SQLInteger extends AbstractSimpleType {
+import java.sql.Date;
+
+
+public class SQLDate extends AbstractSimpleType {
 
 	private static final long serialVersionUID = 5028158476945772100L;
 
 	//integer value
-	private Integer value;
+	private Date value;
 
 	// constructors
-	public SQLInteger() {
-		super(EnumSimpleType.SQL_INTEGER);
+	public SQLDate() {
+		super(EnumSimpleType.SQL_DATE);
 		this.isNull = true;
 	}
 
-	public SQLInteger(Integer value) {
+	public SQLDate(Date value) {
 		super(EnumSimpleType.SQL_INTEGER);
 		this.value = value;
 	}
 
 	// getter and setter
-	public Integer getValue() {
+	public Date getValue() {
 		return value;
 	}
 
-	public void setValue(Integer value) {
+	public void setValue(Date value) {
 		this.value = value;
 		this.isNull = false;
 	}
@@ -31,17 +34,17 @@ public class SQLInteger extends AbstractSimpleType {
 	// other helper methods
 	@Override
 	public boolean equals(Object o){
-		SQLInteger sqlInt = (SQLInteger)o;
+		SQLDate sqlInt = (SQLDate)o;
 		
-		if(!this.value.equals(sqlInt.value))
+		if(this.value != sqlInt.value)
 			return false;
 		
 		return true;
 	}
 	
 	@Override
-	public SQLInteger clone(){
-		SQLInteger sqlInt = new SQLInteger(this.value);
+	public SQLDate clone(){
+		SQLDate sqlInt = new SQLDate(this.value);
 		sqlInt.setNull(this.isNull);
 		return sqlInt;
 	}
@@ -53,6 +56,6 @@ public class SQLInteger extends AbstractSimpleType {
 	
 	@Override
 	public int hashCode(){
-		return this.value;
+		return this.value.hashCode();
 	}
 }

@@ -13,14 +13,18 @@ import org.xdb.funsql.statement.AbstractServerStmt;
 public class FunSQLCompiler {
 	private Error lastError;
 	
-	public AbstractServerStmt compile(String sql){
-		FunSQLLexer lex = new FunSQLLexer(new ANTLRStringStream(sql));
-       	CommonTokenStream tokens = new CommonTokenStream(lex);
-
-       	FunSQLParser parser = new FunSQLParser(tokens);
-       	
+	public AbstractServerStmt compile(String sql){       	
         try {
+        	FunSQLLexer lex = new FunSQLLexer(new ANTLRStringStream(sql));
+           	CommonTokenStream tokens = new CommonTokenStream(lex);
+
+           	FunSQLParser parser = new FunSQLParser(tokens);
             AbstractServerStmt statement =  parser.statement();
+            if(parser.failed()){
+            	//TODO: create error;
+            	return null;
+            }
+            
             this.lastError = statement.compile();
             
             if(lastError.isError())

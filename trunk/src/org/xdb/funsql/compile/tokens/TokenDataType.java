@@ -3,6 +3,8 @@ package org.xdb.funsql.compile.tokens;
 import org.xdb.funsql.types.EnumSimpleType;
 
 public class TokenDataType extends AbstractToken {
+	private static final long serialVersionUID = 3040832343338867562L;
+	
 	private EnumSimpleType dataType;
 	private int maxLength = Integer.MAX_VALUE;
 

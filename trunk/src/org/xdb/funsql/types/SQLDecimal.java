@@ -1,29 +1,31 @@
 package org.xdb.funsql.types;
 
-public class SQLInteger extends AbstractSimpleType {
+import java.math.BigDecimal;
+
+public class SQLDecimal extends AbstractSimpleType {
 
 	private static final long serialVersionUID = 5028158476945772100L;
 
 	//integer value
-	private Integer value;
+	private BigDecimal value;
 
 	// constructors
-	public SQLInteger() {
-		super(EnumSimpleType.SQL_INTEGER);
+	public SQLDecimal() {
+		super(EnumSimpleType.SQL_DECIMAL);
 		this.isNull = true;
 	}
 
-	public SQLInteger(Integer value) {
-		super(EnumSimpleType.SQL_INTEGER);
+	public SQLDecimal(BigDecimal value) {
+		super(EnumSimpleType.SQL_DECIMAL);
 		this.value = value;
 	}
 
 	// getter and setter
-	public Integer getValue() {
+	public BigDecimal getValue() {
 		return value;
 	}
 
-	public void setValue(Integer value) {
+	public void setValue(BigDecimal value) {
 		this.value = value;
 		this.isNull = false;
 	}
@@ -31,28 +33,28 @@ public class SQLInteger extends AbstractSimpleType {
 	// other helper methods
 	@Override
 	public boolean equals(Object o){
-		SQLInteger sqlInt = (SQLInteger)o;
+		SQLDecimal sqlDecimal = (SQLDecimal)o;
 		
-		if(!this.value.equals(sqlInt.value))
+		if(!this.value.equals(sqlDecimal.value))
 			return false;
 		
 		return true;
 	}
 	
 	@Override
-	public SQLInteger clone(){
-		SQLInteger sqlInt = new SQLInteger(this.value);
+	public SQLDecimal clone(){
+		SQLDecimal sqlInt = new SQLDecimal(this.value);
 		sqlInt.setNull(this.isNull);
 		return sqlInt;
 	}
 	
 	@Override
 	public String toString(){
-		return this.value.toString();
+		return ""+this.value;
 	}
 	
 	@Override
 	public int hashCode(){
-		return this.value;
+		return this.value.hashCode();
 	}
 }

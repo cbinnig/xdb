@@ -1,6 +1,8 @@
 package org.xdb.funsql.compile.tokens;
 
-public class TokenAttribute extends AbstractToken{
+public class TokenAttribute extends AbstractTokenOperand{
+	private static final long serialVersionUID = -846135086164968356L;
+	
 	// attributes
 	private TokenIdentifier name;
 	private TokenIdentifier alias;

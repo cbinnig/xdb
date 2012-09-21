@@ -42,7 +42,7 @@ public class QueryTrackerPlan implements Serializable {
 	private HashMap<Identifier, Set<OperatorDesc>> deployment = new HashMap<Identifier, Set<OperatorDesc>>();
 
 	// last error
-	private Error err = Error.NO_ERROR;
+	private Error err = new Error();
 	
 	//Logger
 	private Logger logger;

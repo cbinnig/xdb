@@ -5,12 +5,12 @@ tokens {
     EQUAL2              =   '==';
     NOT_EQUAL1          =   '!=';
     NOT_EQUAL2          =   '<>';
-    LESS                =   '<';
-    LESS_OR_EQ1         =   '<=';
-    LESS_OR_EQ2         =   '!>';
-    GREATER             =   '>';
-    GREATER_OR_EQ1      =   '>=';
-    GREATER_OR_EQ2      =   '!<';
+    LESS_THAN           =   '<';
+    LESS_EQUAL1         =   '<=';
+    LESS_EQUAL2         =   '!>';
+    GREATER_THAN        =   '>';
+    GREATER_EQUAL1      =   '>=';
+    GREATER_EQUAL2      =   '!<';
     SHIFT_LEFT          =   '<<';
     SHIFT_RIGHT         =   '>>';
     AMPERSAND           =   '&';
@@ -58,7 +58,7 @@ package org.xdb.funsql.compile.antlr;
  * PARSER RULES
  *------------------------------------------------------------------*/
 
-statement returns [AbstractStatement stmt]
+statement returns [AbstractServerStmt stmt]
         @init{
         	$stmt = null;
         }
@@ -268,70 +268,104 @@ selectStatement returns [SelectStmt stmt]
                 )*
                 (
                 KEYWORD_WHERE
-                predicate1=abstractPredicate
+                predicate1=complexPredicateOr
                 {
-                	$stmt.setPredicate($predicate1.predicate);
+                	$stmt.setPredicate($predicate1.predicateOr);
                 }
                 )?
                 
 	)
 	;
 	
-abstractPredicate returns [AbstractPredicate predicate]
+        
+complexPredicateOr returns [ComplexPredicate predicateOr]
 	@init{
-        	$predicate = null;
+        	$predicateOr = new ComplexPredicate(EnumBoolOperator.SQL_OR);
+        }
+	:	
+	(
+		predicate1=complexPredicateAnd{
+			$predicateOr.setPredicate1($predicate1.predicateAnd);
+		}
+		( 
+			KEYWORD_OR 
+			predicate2=complexPredicateAnd{
+				$predicateOr.setPredicate2($predicate2.predicateAnd);
+			} 
+		)* 
+	)
+	;
+
+complexPredicateAnd returns [ComplexPredicate predicateAnd]
+	@init{
+        	$predicateAnd = new ComplexPredicate(EnumBoolOperator.SQL_AND);
+        }
+	:	
+	( 
+		predicate1=complexPredicateNot{
+			$predicateAnd.setPredicate1($predicate1.predicateNot);
+		}
+		( 
+			KEYWORD_AND 
+			predicate2=complexPredicateNot {
+				$predicateAnd.setPredicate2($predicate2.predicateNot);
+			}
+		)* 
+	)
+	;
+
+complexPredicateNot returns [ComplexPredicate predicateNot]
+	@init{
+        	$predicateNot = new ComplexPredicate();
+        }
+	:
+	(
+		( 
+		KEYWORD_NOT{
+			$predicateNot.negate();
+		}
+		)? 
+		predicate1=simplePredicate{
+			$predicateNot.setPredicate1($predicate1.predicate);
+		}
+	) 
+	;
+                
+simplePredicate returns [SimplePredicate predicate]
+	@init{
+        	$predicate = new SimplePredicate();
         }
         :
         (
-        	(
-                predicate1=simplePredicateLiteral {
-                	$predicate = $predicate1.predicate;
+		(
+		att1=tokenAttribute
+                {
+                	$predicate.setOper1($att1.attribute);
                 }
                 |
-                predicate2=simplePredicateAttribute {
-                	$predicate = $predicate2.predicate;
+                lit1=tokenLiteral
+                {
+                	$predicate.setOper1($lit1.literal);
+                }
+                )
+                
+                comp=tokenComparator{
+                	$predicate.setComp(EnumComperator.get($comp.text));
+                }
+                
+                (
+                att2=tokenAttribute
+                {
+                	$predicate.setOper2($att2.attribute);
+                }
+                |
+                lit2=tokenLiteral
+                {
+                	$predicate.setOper2($lit2.literal);
                 }
                 )
         )
         ;
-
-simplePredicateLiteral returns [SimplePredicateLiteral predicate]
-	@init{
-        	$predicate = new SimplePredicateLiteral();
-        }
-        :
-	(
-		att1=tokenAttribute
-                {
-                	$predicate.setAttribute($att1.attribute);
-                }
-                EQUAL1
-                lit1=tokenLiteral
-                {
-                	$predicate.setLiteral($lit1.literal);
-                }
-                
-	)
-	;
-	
-simplePredicateAttribute returns [SimplePredicateAttribute predicate]
-	@init{
-        	$predicate = new SimplePredicateAttribute();
-        }
-        :
-	(
-		att1=tokenAttribute
-                {
-                	$predicate.setLeftAtt($att1.attribute);
-                }
-                EQUAL1
-                att2=tokenAttribute
-                {
-                	$predicate.setRightAtt($att2.attribute);
-                }
-	)
-	;
-
         
 tokenAttribute returns [TokenAttribute attribute]
 	@init{
@@ -427,6 +461,14 @@ tokenLiteral returns [TokenLiteral literal]
                 tokenStringLiteral {
                 	$literal = $tokenStringLiteral.literal;
                 }
+                |
+                tokenDecimalLiteral {
+                	$literal = $tokenDecimalLiteral.literal;
+                }
+                |
+                tokenDateLiteral {
+                	$literal = $tokenDateLiteral.literal;
+                }
                 )
         )
         ;        
@@ -455,6 +497,31 @@ tokenIntegerLiteral returns [TokenIntegerLiteral literal]
         )
         ;
         
+        
+ tokenDecimalLiteral returns [TokenDecimalLiteral literal]
+	@init{
+        	$literal = null;
+        }
+        :
+        (
+                LITERAL_DECIMAL {
+                	$literal = new TokenDecimalLiteral($LITERAL_DECIMAL.text);
+                }
+        )
+        ;
+        
+ tokenDateLiteral returns [TokenDateLiteral literal]
+	@init{
+        	$literal = null;
+        }
+        :
+        (
+                LITERAL_DATE {
+                	$literal = new TokenDateLiteral($LITERAL_DATE.text);
+                }
+        )
+        ;
+        
  identifierText returns [String text]
  	:	
  	(
@@ -473,7 +540,22 @@ tokenIntegerLiteral returns [TokenIntegerLiteral literal]
          	)       
  	)
  	;
-        
+
+
+tokenComparator
+    :
+    (
+    EQUAL1 |
+    NOT_EQUAL1 |
+    NOT_EQUAL2 |
+    LESS_THAN |
+    LESS_EQUAL1 |
+    LESS_EQUAL2 |
+    GREATER_EQUAL1 |
+    GREATER_EQUAL2
+    )
+    ;
+    
 /*------------------------------------------------------------------
  * LEXER RULES
  *------------------------------------------------------------------*/
@@ -484,6 +566,9 @@ KEYWORD_SELECT: S E L E C T;
 KEYWORD_FROM: F R O M;
 KEYWORD_WHERE: W H E R E;
 KEYWORD_IN: I N;
+KEYWORD_AND: A N D;
+KEYWORD_OR: O R;
+KEYWORD_NOT: N O T;
 
 KEYWORD_CONNECTION: C O N N E C T I O N;	 
 KEYWORD_SCHEMA: S C H E M A;
@@ -496,12 +581,22 @@ KEYWORD_STORE: S T O R E;
 
 TYPE_VARCHAR: V A R C H A R;
 TYPE_INTEGER: (I N T | I N T E G E R);
+    
+LITERAL_DATE
+    :
+    (D A T E QUOTED_STRING)
+    ;
 
 LITERAL_STRING
     :
     (QUOTED_STRING)
     ;
 
+LITERAL_DECIMAL 
+    : 
+    (DIGIT)+ DOT DIGIT*
+    ;
+    
 LITERAL_INTEGER 
     : 
     (DIGIT)+ 
@@ -514,7 +609,6 @@ IDENTIFIER
     ;
 
 IGNORE_CHAR: (WS|CONTROL_CHAR) {$channel=HIDDEN;};
-
      
 fragment WS: (' ') ;
 fragment CONTROL_CHAR: ('\r'|'\t'|'\u000B'|'\f'|'\n');

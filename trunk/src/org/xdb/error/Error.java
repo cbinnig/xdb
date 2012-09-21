@@ -15,7 +15,7 @@ public class Error implements Serializable {
 	private EnumError type = EnumError.NO_ERROR;
 	private String[] args = null;
 
-	private Error() {
+	public Error() {
 	}
 
 	public Error(EnumError type, String[] args) {

@@ -22,7 +22,7 @@ public abstract class AbstractServer {
 	
 	protected ServerSocket serverSocket = null;
 	protected Logger logger;
-	protected Error err = Error.NO_ERROR;
+	protected Error err = new Error();
 
 	//Constructors
 	public AbstractServer(){

@@ -53,13 +53,20 @@ public class SelectStmt extends AbstractServerStmt {
 
 	@Override
 	public Error compile() {
-		// TODO Auto-generated method stub
-		return null;
+		Error err = new Error();
+		
+		return err;
 	}
 
 	@Override
 	public Error execute() {
-		// TODO Auto-generated method stub
-		return null;
+		Error err = new Error();
+		
+		return err;
+	}
+	
+	@Override
+	public String toString(){
+		return this.tPredicate.toString();
 	}
 }

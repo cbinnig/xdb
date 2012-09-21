@@ -10,6 +10,9 @@ import java.util.logging.Logger;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.types.AbstractSimpleType;
+import org.xdb.funsql.types.SQLChar;
+import org.xdb.funsql.types.SQLDate;
+import org.xdb.funsql.types.SQLDecimal;
 import org.xdb.funsql.types.SQLInteger;
 import org.xdb.funsql.types.SQLVarchar;
 import org.xdb.funsql.types.TableType;
@@ -28,7 +31,7 @@ public abstract class JDBCStore extends AbstractStore {
 	protected ResultSet result;
 	protected TupleType resultPrototype;
 	//error
-	protected Error lastError = Error.NO_ERROR;
+	protected Error lastError = new Error();
 	
 	//constructors
 	public JDBCStore(String driver) {
@@ -40,7 +43,7 @@ public abstract class JDBCStore extends AbstractStore {
 	//methods
 	@Override
 	public Error openConnection(String url, String user, String passwd) {
-		lastError = Error.NO_ERROR;
+		lastError = new Error();
 		
 		try {
 			this.url = url;
@@ -56,7 +59,7 @@ public abstract class JDBCStore extends AbstractStore {
 
 	@Override
 	public Error executeQuery(String query, TupleType resultPrototype) {
-		lastError = Error.NO_ERROR;
+		lastError = new Error();;
 		
 		try {
 			this.query = query;
@@ -74,7 +77,7 @@ public abstract class JDBCStore extends AbstractStore {
 
 	@Override
 	public TableType fetchResult() {
-		lastError = Error.NO_ERROR;
+		lastError = new Error();
 		
 		// read next block
 		int fetchedRows = 0;
@@ -90,9 +93,21 @@ public abstract class JDBCStore extends AbstractStore {
 						SQLInteger intValue = (SQLInteger)value;
 						intValue.setValue(this.result.getInt(i+1));
 						break;
+					case SQL_DECIMAL:
+						SQLDecimal decValue = (SQLDecimal)value;
+						decValue.setValue(this.result.getBigDecimal(i+1));
+						break;
+					case SQL_DATE:
+						SQLDate dateValue = (SQLDate)value;
+						dateValue.setValue(this.result.getDate(i+1));
+						break;
 					case SQL_VARCHAR:
 						SQLVarchar stringValue = (SQLVarchar)value;
 						stringValue.setValue(this.result.getString(i+1));
+						break;
+					case SQL_CHAR:
+						SQLChar charValue = (SQLChar)value;
+						charValue.setValue(this.result.getString(i+1));
 						break;
 					}
 				}
@@ -114,7 +129,7 @@ public abstract class JDBCStore extends AbstractStore {
 	
 	@Override
 	public Error executeUpdate(String update){
-		lastError = Error.NO_ERROR;
+		lastError = new Error();;
 		
 		try {
 			Statement stmt = this.conn.createStatement();
@@ -129,7 +144,7 @@ public abstract class JDBCStore extends AbstractStore {
 	
 	@Override
 	public Error execute(String ddl){
-		lastError = Error.NO_ERROR;
+		lastError = new Error();;
 		
 		try {
 			Statement stmt = this.conn.createStatement();
@@ -150,7 +165,7 @@ public abstract class JDBCStore extends AbstractStore {
 
 	@Override
 	public Error closeConnection() {
-		lastError = Error.NO_ERROR;
+		lastError = new Error();;
 		
 		try {
 			this.conn.close();

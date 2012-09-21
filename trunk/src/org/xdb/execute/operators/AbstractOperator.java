@@ -52,7 +52,8 @@ public abstract class AbstractOperator implements Serializable {
 	protected transient Vector<PreparedStatement> closeStmts;
 
 	// last error
-	protected Error err = Error.NO_ERROR;
+	protected Error err = new Error();
+	
 	
 	// constructors
 	public AbstractOperator(Identifier nodeId) {

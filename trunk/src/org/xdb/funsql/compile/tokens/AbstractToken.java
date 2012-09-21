@@ -1,17 +1,32 @@
 package org.xdb.funsql.compile.tokens;
 
-public abstract class AbstractToken {
+import java.io.Serializable;
+
+public abstract class AbstractToken implements Serializable{
+	private static final long serialVersionUID = -5919010803270387112L;
+	
+	public static final String DATE = "DATE";
+	
 	public static final String BLANK = " ";
 	public static final String DOT = ".";
 	public static final String COMMA = ",";
 	public static final String LBRACE = "(";
 	public static final String RBRACE = ")";
-	public static final String EQUAL = "=";
-	public static final String NOT_EQUAL = "!=";
+	
+	public static final String EQUAL1 = "=";
+	public static final String EQUAL2 = "=";
+	public static final String NOT_EQUAL1 = "!=";
+	public static final String NOT_EQUAL2 = "!=";
 	public static final String GREATER_THAN = ">";
 	public static final String LESS_THAN = "<";
 	public static final String GREATER_EQUAL = ">=";
 	public static final String LESS_EQUAL = "<=";
+	
+	public static final String AND = "AND";
+	public static final String OR = "OR";
+	public static final String NOT = "NOT";
+	
+	public static final String QUOTE = "'";
 	public static final String SINGLE_QUOTE = "'";
 	public static final String DOUBLE_QUOTE = "\"";
 	public static final String MYSQL_QUOTE = "`";
