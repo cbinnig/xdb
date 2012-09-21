@@ -268,16 +268,22 @@ selectStatement returns [SelectStmt stmt]
                 )*
                 (
                 KEYWORD_WHERE
-                predicate1=complexPredicateOr
+                predicate1=abstractPredicate
                 {
-                	$stmt.setPredicate($predicate1.predicateOr);
+                	$stmt.setPredicate($predicate1.predicate);
                 }
                 )?
                 
 	)
 	;
 	
-        
+
+abstractPredicate returns [AbstractPredicate predicate]
+	:	predicate1=complexPredicateOr{
+			$predicate = $predicate1.predicateOr;
+		}
+	;
+	        
 complexPredicateOr returns [ComplexPredicate predicateOr]
 	@init{
         	$predicateOr = new ComplexPredicate(EnumBoolOperator.SQL_OR);
@@ -325,12 +331,36 @@ complexPredicateNot returns [ComplexPredicate predicateNot]
 			$predicateNot.negate();
 		}
 		)? 
-		predicate1=simplePredicate{
+		predicate1=complexPredicate{
 			$predicateNot.setPredicate1($predicate1.predicate);
 		}
 	) 
 	;
-                
+
+complexPredicate returns [AbstractPredicate predicate]
+	:
+	(
+		predicate1=parenPredicate
+		{
+			$predicate = $predicate1.predicate;
+		}
+		|	
+		predicate2=simplePredicate
+		{
+			$predicate = $predicate2.predicate;
+		}
+	)
+	;
+
+parenPredicate returns [AbstractPredicate predicate]
+	:	
+		LPAREN 
+		predicate1=abstractPredicate {
+			$predicate = $predicate1.predicate;
+		}
+		RPAREN
+	;
+	
 simplePredicate returns [SimplePredicate predicate]
 	@init{
         	$predicate = new SimplePredicate();

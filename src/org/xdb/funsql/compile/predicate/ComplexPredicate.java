@@ -68,16 +68,19 @@ public class ComplexPredicate extends AbstractPredicate {
 		if (this.isNegated)
 			sqlValue.append(AbstractToken.NOT);
 
-		sqlValue.append(AbstractToken.LBRACE);
+		if (this.pred2 != null)
+			sqlValue.append(AbstractToken.LBRACE);
+		
 		sqlValue.append(this.pred1);
+		
 		if (this.pred2 != null) {
 			sqlValue.append(AbstractToken.BLANK);
 			sqlValue.append(this.oper.toString());
 			sqlValue.append(AbstractToken.BLANK);
 			sqlValue.append(this.pred2);
+			sqlValue.append(AbstractToken.RBRACE);
 		}
-		sqlValue.append(AbstractToken.RBRACE);
-
+		
 		return sqlValue.toString();
 	}
 }
