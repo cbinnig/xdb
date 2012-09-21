@@ -7,6 +7,7 @@ import java.util.logging.Level;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.tracker.MasterTrackerNode;
 import org.xdb.tracker.signals.RegisterSignal;
 
@@ -40,6 +41,10 @@ public class MasterTrackerServer extends AbstractServer {
 					RegisterSignal signal = (RegisterSignal)in.readObject();
 					err = tracker.registerComputeNode(signal.getComputeNodeDesc());
 					break;
+				case CMD_EXECUTE_PLAN:
+					CompilePlan plan = (CompilePlan)in.readObject();
+					err = tracker.executePlan(plan);
+					break;
 				}
 			} catch (Exception e) {
 				err = createServerError(e);
@@ -51,6 +56,7 @@ public class MasterTrackerServer extends AbstractServer {
 	
 	// constants for commands
 	public static final int CMD_REGISTER_COMPUTE_NODE = 1;
+	public static final int CMD_EXECUTE_PLAN = 2;
 		
 		
 	//Master tracker node which executes cmds

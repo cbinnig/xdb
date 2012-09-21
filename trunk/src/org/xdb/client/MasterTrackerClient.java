@@ -7,9 +7,13 @@ import java.net.Socket;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
+import org.xdb.execute.signals.CloseSignal;
+import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
+import org.xdb.server.ComputeServer;
 import org.xdb.server.MasterTrackerServer;
 import org.xdb.tracker.signals.RegisterSignal;
+import org.xdb.utils.Identifier;
 
 /**
  * Client to talk to Master Tracker Server.
@@ -42,6 +46,32 @@ public class MasterTrackerClient extends AbstractClient{
 			out.writeInt(MasterTrackerServer.CMD_REGISTER_COMPUTE_NODE);
 			out.flush();
 			out.writeObject(signal);
+			out.flush();
+
+			ObjectInputStream in = new ObjectInputStream(
+					this.server.getInputStream());
+			err = (Error) in.readObject();
+
+			this.server.close();
+
+		} catch (Exception e) {
+			err = createClientError(e);
+		}
+
+		return err;
+	}
+	
+	public Error executePlan(CompilePlan plan) {
+		Error err = new Error();
+
+		try {
+			this.server = new Socket(url, Config.COMPUTE_PORT);
+			ObjectOutputStream out = new ObjectOutputStream(
+					this.server.getOutputStream());
+
+			out.writeInt(MasterTrackerServer.CMD_EXECUTE_PLAN);
+			out.flush();
+			out.writeObject(plan);
 			out.flush();
 
 			ObjectInputStream in = new ObjectInputStream(
