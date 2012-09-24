@@ -6,9 +6,6 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 	private static final long serialVersionUID = -7213914407896295638L;
 	
 	//attributes
-	protected AbstractOperator leftChild;
-	protected AbstractOperator rightChild;
-	
 	protected int leftInputNumber=0;
 	protected int rightInputNumber=0;
 	
@@ -16,27 +13,25 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 	public AbstractBinaryOperator(AbstractOperator leftChild, AbstractOperator rightChild) {
 		super(1);
 		
-		this.leftChild = leftChild;
-		this.rightChild = rightChild;
-		this.children.add(this.leftChild);
-		this.children.add(this.rightChild);
+		this.children.add(leftChild);
+		this.children.add(rightChild);
 	}
 
 	//getters and setters
 	public AbstractOperator getLeftChild() {
-		return leftChild;
+		return this.children.get(0);
 	}
 
 	public void setLeftChild(AbstractOperator leftChild) {
-		this.leftChild = leftChild;
+		this.children.set(0,leftChild);;
 	}
 
 	public AbstractOperator getRightChild() {
-		return rightChild;
+		return this.children.get(1);
 	}
 
 	public void setRightChild(AbstractOperator rightChild) {
-		this.rightChild = rightChild;
+		this.children.set(1,rightChild);;
 	}
 
 	public int getLeftInputNumber() {
