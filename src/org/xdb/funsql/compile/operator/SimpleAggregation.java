@@ -59,4 +59,10 @@ public class SimpleAggregation extends AbstractUnaryOperator {
 	public Vector<EnumAggregation> getAggregationTypes() {
 		return this.aggTypes;
 	}
+	
+	@Override
+	public String toSqlString() {
+		// TODO: generate sql
+		return null;
+	}
 }

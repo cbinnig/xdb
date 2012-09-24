@@ -60,4 +60,10 @@ public class ResultDesc implements Serializable{
 	public void setPartitionDesc(PartitionDesc partitionDesc) {
 		this.partitionDesc = partitionDesc;
 	}
+	
+	public String toSqlString() {
+		//TODO: create SQL expression suitable for use in tracker.operator.MySQLOperator
+		
+		return null;
+	}
 }

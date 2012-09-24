@@ -1,5 +1,8 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public abstract class AbstractUnaryOperator extends AbstractOperator {
 	
 	private static final long serialVersionUID = 2144601298204477490L;
@@ -13,6 +16,12 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 		super(1);
 		
 		this.child = child;
+	}
+	
+	public Set<AbstractOperator> getSourceOperators() {
+		return new HashSet<AbstractOperator>() {{
+			add(child);
+		}};
 	}
 	
 	//getters and setters

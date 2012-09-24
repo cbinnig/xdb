@@ -1,5 +1,8 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public abstract class AbstractBinaryOperator extends AbstractOperator {
 
 	private static final long serialVersionUID = -7213914407896295638L;
@@ -10,6 +13,13 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 	
 	protected int leftInputNumber=0;
 	protected int rightInputNumber=0;
+	
+	public Set<AbstractOperator> getSourceOperators() {
+		return new HashSet<AbstractOperator>() {{
+			add(leftChild);
+			add(rightChild);
+		}};
+	}
 	
 	//constructors
 	public AbstractBinaryOperator(AbstractOperator leftChild, AbstractOperator rightChild) {

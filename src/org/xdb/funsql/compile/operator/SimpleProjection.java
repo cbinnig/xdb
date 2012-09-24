@@ -30,4 +30,10 @@ public class SimpleProjection extends AbstractUnaryOperator {
 	public Vector<TokenAttribute> getAttributes() {
 		return attributes;
 	}
+	
+	@Override
+	public String toSqlString() {
+		// TODO: generate sql
+		return null;
+	}
 }

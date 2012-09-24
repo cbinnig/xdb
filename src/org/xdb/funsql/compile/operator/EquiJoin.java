@@ -34,4 +34,10 @@ public class EquiJoin extends AbstractBinaryOperator {
 	public void setRightTokenAttribute(TokenAttribute rightTokenAttribute) {
 		this.rightTokenAttribute = rightTokenAttribute;
 	}
+
+	@Override
+	public String toSqlString() {
+		// TODO: generate sql
+		return null;
+	}
 }

@@ -1,5 +1,6 @@
 package org.xdb.tracker;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,8 +16,10 @@ import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
+import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.StringTemplate;
 
 public class MasterTrackerNode {
 	//compute slots
@@ -32,7 +35,7 @@ public class MasterTrackerNode {
 	private HashMap<Identifier, QueryTrackerPlan> runningPlans = new HashMap<Identifier, QueryTrackerPlan>();
 	
 	//running plans with executing tracker identifier
-	private HashMap<Identifier, String> planDeployment = new HashMap<Identifier, String>();
+	private HashMap<Identifier, String> planAssignment = new HashMap<Identifier, String>();
 	
 	// Helpers
 	private Logger logger;
@@ -108,16 +111,143 @@ public class MasterTrackerNode {
 	 * @param plan
 	 * @return
 	 */
-	public static Set<QueryTrackerPlan> generateQueryTrackerPlan(CompilePlan plan) {
+	public QueryTrackerPlan generateQueryTrackerPlan(final CompilePlan plan) {
+		QueryTrackerPlan qPlan = new QueryTrackerPlan(plan.getPlanId());
 		
-		//TODO: generate QueryTrackerPlan from CompilePlan
+		//map of operator identifiers to all depended operator's identifiers
+		Map<Identifier, Set<Identifier>> dependencies = new HashMap<Identifier, Set<Identifier>>();
 		
-		return null;
+		for(org.xdb.funsql.compile.operator.AbstractOperator op : plan.getOperators()) {
+			
+			//add current operator to all source operators as dependent
+			for(org.xdb.funsql.compile.operator.AbstractOperator depOp : op.getSourceOperators()) {
+				
+				//get existing depended operators
+				Set<Identifier> dependendOperators = dependencies.get(depOp.getOperatorId());
+				if(dependendOperators == null) {
+					dependendOperators = new HashSet<Identifier>();
+					dependencies.put(depOp.getOperatorId(), dependendOperators);
+				}
+				
+				//add current operator as dependent
+				dependendOperators.add(op.getOperatorId());
+			}
+		}
+		
+		/*
+		 * parsing strategie:
+		 * - queue up all roots
+		 * - scan through childs of all queue elements until queue is empty
+		 * - scan until next operator, which has multiple dependent operators or 
+		 *   is marked as materialized or has no dependencies
+		 * - queue this operators up
+		 * - set source/consumer attributes accordingly
+		 * - work until queue is empty
+		 */
+		
+		Queue<org.xdb.funsql.compile.operator.AbstractOperator> scanQueue = 
+				new LinkedList<org.xdb.funsql.compile.operator.AbstractOperator>();
+		
+		//add root ops as initial new MySQLOperators
+		Collection<Identifier> rootOps = plan.getRoots();
+		for(org.xdb.funsql.compile.operator.AbstractOperator op : plan.getOperators()) {
+			if(rootOps.contains(op)) {
+				scanQueue.add(op);
+			}
+		}
+		
+		if(scanQueue.isEmpty()) {
+			logger.log(Level.INFO, "Could not convert CompilePlan: no root ops.");
+			return null;
+		}
+		
+		//map of QTP operator's identifiers to set of source operators
+		//this is needed, because dependent CP operator's are probably not in place anymore (assembled into QTP operators)
+		Map<Identifier, Set<Identifier>> operatorSources = new HashMap<Identifier, Set<Identifier>>();
+		
+		while(!scanQueue.isEmpty()) {
+			org.xdb.funsql.compile.operator.AbstractOperator op =
+					scanQueue.poll();
+			ResultDesc result = op.getResult(0);
+			
+			org.xdb.tracker.operator.MySQLOperator queryOp = 
+					new org.xdb.tracker.operator.MySQLOperator(op.getOperatorId());
+			//add single output table; TODO modify for multiple outputs
+			queryOp.addOutTables("R_OUT", new StringTemplate("<R_OUT> "+result.toSqlString()), "R_REGIONKEY");
+			
+			//sources & consumers
+			Set<Identifier> sources = new HashSet<Identifier>();
+			Set<Identifier> consumers = new HashSet<Identifier>();
+			
+			//add all dependend operators of root operator as consumers
+			if(operatorSources.containsKey(op.getOperatorId())) {
+				consumers.addAll(operatorSources.get(op.getOperatorId()));
+			}
+			
+			//assembled sql exeution statement
+			String executeSqlStatement = "INSERT INTO <R_OUT> "+op.toSqlString();
+			
+			//queue to assemble this operator
+			Queue<org.xdb.funsql.compile.operator.AbstractOperator> assemblingQueue = 
+					new LinkedList<org.xdb.funsql.compile.operator.AbstractOperator>();
+			assemblingQueue.addAll(op.getSourceOperators());
+			
+			while(!assemblingQueue.isEmpty()) {
+				org.xdb.funsql.compile.operator.AbstractOperator childOp =
+						assemblingQueue.poll();
+				
+				//break on multiple dependends or materialized-state
+				if(childOp.getResult(0).isMaterialize() || (dependencies.containsKey(childOp.getOperatorId())
+						&& dependencies.get(childOp.getOperatorId()).size() > 1)) {
+					
+					//add as new operator root
+					scanQueue.add(childOp);
+					
+					//register as source operator
+					sources.add(childOp.getOperatorId());
+					// ... and as consumers for the new operator
+					Set<Identifier> dependendOperators = operatorSources.get(childOp.getOperatorId());
+					if(dependendOperators == null) {
+						dependendOperators = new HashSet<Identifier>();
+						operatorSources.put(childOp.getOperatorId(), dependendOperators);
+					}
+					dependendOperators.add(queryOp.getOperatorId());
+					
+					//add as input
+					queryOp.addInTables(childOp.getOperatorId().toString(), 
+							new StringTemplate("<"+childOp.getOperatorId().toString()+"> "+childOp.getResult(0).toSqlString()), "R_REGIONKEY");
+					
+					//do not process this operator and do not add children of this operator to assemlingQueue
+					continue;
+				}
+				
+				StringTemplate sqlAssemblyTemplate = new StringTemplate(executeSqlStatement.toString());
+				Map<String, String> sqlAssemblyStepArgs = new HashMap<String, String>();
+				sqlAssemblyStepArgs.put(childOp.getOperatorId().toString(), "("+childOp.toSqlString()+")");
+				executeSqlStatement = sqlAssemblyTemplate.toString(sqlAssemblyStepArgs);
+				
+				assemblingQueue.addAll(childOp.getSourceOperators());
+			}
+			
+			//add compiled query
+			queryOp.addExecuteSQL(new StringTemplate(executeSqlStatement));
+			
+			logger.log(Level.INFO, "Created new MySQLOperator node in QueryTrackerPlan");
+			
+			if(sources.isEmpty() && consumers.isEmpty()) {
+				logger.log(Level.INFO, "Operator has neither sources nor consumers. Something is probably wrong.");
+			}
+			
+			//add to plan
+			qPlan.addOperator(queryOp, sources, consumers);
+		}
+		
+		return qPlan;
 	}
 	
 	/**
 	 * Tries to find next free compute slot.
-	 * @return compute slot url, if found - else null
+	 * @return tracker url, if found - else null
 	 */
 	private String getFreeQueryTrackerSlot() {
 		for(Entry<String, Integer> entry : queryTrackerSlots.entrySet()) {
@@ -131,7 +261,7 @@ public class MasterTrackerNode {
 	
 	private Error executeOnQueryTracker(String tracker, QueryTrackerPlan plan) {
 		runningPlans.put(plan.getPlanId(), plan);
-		planDeployment.put(plan.getPlanId(), tracker);
+		planAssignment.put(plan.getPlanId(), tracker);
 		
 		//TODO: send plan to query tracker and execute
 		
@@ -155,29 +285,24 @@ public class MasterTrackerNode {
 	}
 	
 	public Error executePlan(CompilePlan plan) {
-		Error err = new Error();
 		logger.log(Level.INFO, "Got new compileplan: "+plan);
 		
-		Set<QueryTrackerPlan> qtps = MasterTrackerNode.generateQueryTrackerPlan(plan);
+		QueryTrackerPlan qtp = generateQueryTrackerPlan(plan);
+		if(qtp == null)
+			return new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, null);
 		
-		for(QueryTrackerPlan qtp : qtps) {
-			Error rErr = executePlan(qtp);
-			if(!rErr.equals(Error.NO_ERROR)) {
-				err = rErr;
-			}
-		}
-		
-		return err;
+		return executePlan(qtp);
 	}
 	
 	public Error executePlan(QueryTrackerPlan plan) {
 		//possibly optimization: execute directly if possible
 		Error err = new Error();
 		
-		logger.log(Level.INFO, "Queued new plan for execution: "+plan);
 		if(plan == null) {
 			return new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, null);
 		}
+		
+		logger.log(Level.INFO, "Queued new plan for execution: "+plan);
 		
 		queuedPlans.add(plan);
 		exeutePlanIfPossible();

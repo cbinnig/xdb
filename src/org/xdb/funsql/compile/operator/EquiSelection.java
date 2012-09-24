@@ -31,4 +31,10 @@ public class EquiSelection extends AbstractUnaryOperator {
 	public void setValue(TokenLiteral value) {
 		this.value = value;
 	}
+	
+	@Override
+	public String toSqlString() {
+		// TODO: generate sql
+		return null;
+	}
 }
