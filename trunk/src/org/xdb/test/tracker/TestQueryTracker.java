@@ -25,8 +25,9 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 	@Test
 	public void testPlan1Op() throws Exception {
 		QueryTrackerNode qTracker = new QueryTrackerNode();
-		QueryTrackerPlan qPlan = new QueryTrackerPlan(qTracker, new Identifier(
+		QueryTrackerPlan qPlan = new QueryTrackerPlan(new Identifier(
 				"1"));
+		qPlan.assignTracker(qTracker);
 
 		Identifier op1Id = new Identifier("1_1");
 		MySQLOperator op1 = new MySQLOperator(op1Id);
@@ -66,8 +67,9 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 	@Test
 	public void testPlan2Ops() throws Exception {
 		QueryTrackerNode qTracker = new QueryTrackerNode();
-		QueryTrackerPlan qPlan = new QueryTrackerPlan(qTracker, new Identifier(
+		QueryTrackerPlan qPlan = new QueryTrackerPlan(new Identifier(
 				"1"));
+		qPlan.assignTracker(qTracker);
 
 		Identifier op1Id = new Identifier("1_1");
 		Identifier op2Id = new Identifier("1_2");

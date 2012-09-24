@@ -56,7 +56,7 @@ public class CompilePlan implements Serializable {
 		return operators.values();
 	}
 
-	public HashSet<Identifier> getRoots() {
+	public Collection<Identifier> getRoots() {
 		return roots;
 	}
 	

@@ -27,9 +27,9 @@ public class QueryTrackerPlan implements Serializable {
 	// unique operator id
 	private Identifier planId;
 
-	// query tracker node and compute client
-	private QueryTrackerNode tracker;
-	private ComputeClient computeClient;
+	// assigned query tracker node and compute client
+	private QueryTrackerNode tracker = null;
+	private ComputeClient computeClient = null;
 
 	// plan info
 	private HashMap<Identifier, AbstractOperator> operators = new HashMap<Identifier, AbstractOperator>();
@@ -48,10 +48,8 @@ public class QueryTrackerPlan implements Serializable {
 	private Logger logger;
 
 	// constructor
-	public QueryTrackerPlan(QueryTrackerNode tracker, Identifier planId) {
+	public QueryTrackerPlan(Identifier planId) {
 		this.planId = planId;
-		this.tracker = tracker;
-		this.computeClient = tracker.getComputeClient();
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
@@ -70,6 +68,11 @@ public class QueryTrackerPlan implements Serializable {
 	
 	public Error getLastError() {
 		return err;
+	}
+	
+	public void assignTracker(QueryTrackerNode tracker) {
+		this.tracker = tracker;
+		this.computeClient = tracker.getComputeClient();
 	}
 
 	/**
@@ -132,6 +135,7 @@ public class QueryTrackerPlan implements Serializable {
 			if(this.err.isError())
 				break;
 		}
+		
 		
 		//close operators which are not root operators
 		for(Entry<Identifier, OperatorDesc> entry : currentDeployment.entrySet()){
