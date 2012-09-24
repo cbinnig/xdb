@@ -8,7 +8,8 @@ import org.xdb.error.Error;
 import org.xdb.utils.Identifier;
 
 /**
- * MySQL operator executes SQL DML statements on computing nodes using MySQL as engine
+ * MySQL operator executes SQL DML statements on computing nodes using MySQL as
+ * engine
  * 
  * @author cbinnig
  * 
@@ -21,19 +22,19 @@ public class MySQLOperator extends AbstractOperator {
 	private transient Vector<PreparedStatement> executeStmts;
 
 	// constructor
-	public MySQLOperator(Identifier operatorId) {
+	public MySQLOperator(final Identifier operatorId) {
 		super(operatorId);
 	}
 
-	public MySQLOperator(Identifier operatorId, String dbname, String dbuser,
-			String dbpasswd) {
+	public MySQLOperator(final Identifier operatorId, final String dbname, final String dbuser,
+			final String dbpasswd) {
 
 		super(operatorId, dbname, dbuser, dbpasswd);
 	}
 
 	// getters and setters
-	public void addExecuteSQL(String dml) {
-		this.executeSQLs.add(dml);
+	public void addExecuteSQL(final String dml) {
+		executeSQLs.add(dml);
 	}
 
 	// methods
@@ -44,14 +45,14 @@ public class MySQLOperator extends AbstractOperator {
 	 */
 	protected Error executeOperator() {
 		try {
-			for (PreparedStatement stmt : this.executeStmts) {
+			for (final PreparedStatement stmt : executeStmts) {
 				stmt.execute();
 				// System.out.println("Execute stmt "+ stmt.toString());
 			}
-		} catch (SQLException e) {
-			this.err = createMySQLError(e);
+		} catch (final SQLException e) {
+			err = createMySQLError(e);
 		}
-		return this.err;
+		return err;
 	}
 
 	@Override
@@ -60,18 +61,18 @@ public class MySQLOperator extends AbstractOperator {
 	 */
 	protected Error openOperator() {
 
-		this.executeStmts = new Vector<PreparedStatement>();
+		executeStmts = new Vector<PreparedStatement>();
 
 		// compile statements
 		try {
 
-			for (String dml : this.executeSQLs) {
-				this.executeStmts.add(this.conn.prepareStatement(dml));
+			for (final String dml : executeSQLs) {
+				executeStmts.add(conn.prepareStatement(dml));
 			}
-		} catch (SQLException e) {
-			this.err = createMySQLError(e);
+		} catch (final SQLException e) {
+			err = createMySQLError(e);
 		}
-		return this.err;
+		return err;
 	}
 
 	@Override
@@ -79,8 +80,8 @@ public class MySQLOperator extends AbstractOperator {
 	 * Close connection and remove prepared statements 
 	 */
 	protected Error closeOperator() {
-		this.executeStmts.clear();
+		executeStmts.clear();
 
-		return this.err;
+		return err;
 	}
 }
