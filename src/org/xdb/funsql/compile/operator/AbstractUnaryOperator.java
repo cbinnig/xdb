@@ -1,7 +1,5 @@
 package org.xdb.funsql.compile.operator;
 
-import java.util.HashSet;
-import java.util.Set;
 
 public abstract class AbstractUnaryOperator extends AbstractOperator {
 	
@@ -16,12 +14,7 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 		super(1);
 		
 		this.child = child;
-	}
-	
-	public Set<AbstractOperator> getSourceOperators() {
-		return new HashSet<AbstractOperator>() {{
-			add(child);
-		}};
+		this.children.add(this.child);
 	}
 	
 	//getters and setters
