@@ -8,12 +8,12 @@ public class QueryTrackerServer extends AbstractServer {
 
 	public QueryTrackerServer() {
 		super();
-		
-		this.port = Config.QUERYTRACKER_PORT;
+
+		port = Config.QUERYTRACKER_PORT;
 	}
 
 	@Override
-	protected void handle(Socket client) {
+	protected void handle(final Socket client) {
 		// TODO Auto-generated method stub
 
 	}
@@ -21,8 +21,8 @@ public class QueryTrackerServer extends AbstractServer {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		QueryTrackerServer server = new QueryTrackerServer();
+	public static void main(final String[] args) {
+		final QueryTrackerServer server = new QueryTrackerServer();
 		server.startServer();
 	}
 

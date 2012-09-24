@@ -9,15 +9,16 @@ import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.tracker.MasterTrackerNode;
+import org.xdb.tracker.signals.QueryTrackerRegisterSignal;
 import org.xdb.tracker.signals.RegisterSignal;
 
 public class MasterTrackerServer extends AbstractServer {
 
 	private class Handler extends AbstractHandler {
 		// constructor
-		public Handler(Socket client) {
+		public Handler(final Socket client) {
 			super(client);
-			this.logger = MasterTrackerServer.this.logger;
+			logger = MasterTrackerServer.this.logger;
 		}
 
 		/**
@@ -26,60 +27,66 @@ public class MasterTrackerServer extends AbstractServer {
 		 * @return
 		 * @throws IOException
 		 */
+		@Override
 		protected Error handle() throws IOException {
 			Error err = new Error();
-			
-			ObjectInputStream in = new ObjectInputStream(
-					this.client.getInputStream());
 
-			int cmd = in.readInt();
+			final ObjectInputStream in = new ObjectInputStream(
+					client.getInputStream());
+
+			final int cmd = in.readInt();
 			logger.log(Level.INFO, "MasterTrackerServer: Read command from client:" + cmd);
 			try {
 
 				switch (cmd) {
 				case CMD_REGISTER_COMPUTE_NODE:
-					RegisterSignal signal = (RegisterSignal)in.readObject();
+					final RegisterSignal signal = (RegisterSignal)in.readObject();
 					err = tracker.registerComputeNode(signal.getComputeNodeDesc());
 					break;
 				case CMD_EXECUTE_PLAN:
-					CompilePlan plan = (CompilePlan)in.readObject();
+					final CompilePlan plan = (CompilePlan)in.readObject();
 					err = tracker.executePlan(plan);
 					break;
+				case CMD_REGISTER_QUERYTRACKER_NODE:
+					final QueryTrackerRegisterSignal qtSignal = (QueryTrackerRegisterSignal) in.readObject();
+					err = tracker.registerQueryTrackerNode(qtSignal.getDesc());
+					break;
 				}
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				err = createServerError(e);
 			}
 
 			return err;
 		}
 	}
-	
+
 	// constants for commands
 	public static final int CMD_REGISTER_COMPUTE_NODE = 1;
 	public static final int CMD_EXECUTE_PLAN = 2;
-		
-		
+	public static final int CMD_REGISTER_QUERYTRACKER_NODE = 3;
+
+
 	//Master tracker node which executes cmds
-	private MasterTrackerNode tracker;
-	
+	private final MasterTrackerNode tracker;
+
 	public MasterTrackerServer() {
 		super();
-		
-		this.tracker = new MasterTrackerNode();
-		this.port = Config.MASTERTRACKER_PORT;
+
+		tracker = new MasterTrackerNode();
+		port = Config.MASTERTRACKER_PORT;
 	}
 
 	@Override
-	protected void handle(Socket client) {
-		Handler handler = new Handler(client);
+	protected void handle(final Socket client) {
+		final Handler handler = new Handler(client);
 		handler.start();
 	}
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		MasterTrackerServer server = new MasterTrackerServer();
+	public static void main(final String[] args) {
+		final MasterTrackerServer server = new MasterTrackerServer();
 		server.startServer();
 	}
 

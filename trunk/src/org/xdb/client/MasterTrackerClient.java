@@ -7,13 +7,12 @@ import java.net.Socket;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
-import org.xdb.execute.signals.CloseSignal;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
-import org.xdb.server.ComputeServer;
 import org.xdb.server.MasterTrackerServer;
+import org.xdb.tracker.QueryTrackerNodeDesc;
+import org.xdb.tracker.signals.QueryTrackerRegisterSignal;
 import org.xdb.tracker.signals.RegisterSignal;
-import org.xdb.utils.Identifier;
 
 /**
  * Client to talk to Master Tracker Server.
@@ -21,66 +20,98 @@ import org.xdb.utils.Identifier;
 public class MasterTrackerClient extends AbstractClient{
 	// constructor
 	// constructor
-		public MasterTrackerClient() {
-			this.logger = XDBLog.getLogger(this.getClass().getName());
-			this.port = Config.MASTERTRACKER_PORT;
-			this.url = Config.MASTERTRACKER_URL;
-		}
-		
-		public MasterTrackerClient(String url, int port) {
-			this.logger = XDBLog.getLogger(this.getClass().getName());
-			this.port = port;
-			this.url = url;
-		}
+	public MasterTrackerClient() {
+		logger = XDBLog.getLogger(this.getClass().getName());
+		port = Config.MASTERTRACKER_PORT;
+		url = Config.MASTERTRACKER_URL;
+	}
 
-	
-	public Error registerNode(ComputeNodeDesc desc) {
+	public MasterTrackerClient(final String url, final int port) {
+		logger = XDBLog.getLogger(this.getClass().getName());
+		this.port = port;
+		this.url = url;
+	}
+
+
+	public Error registerNode(final ComputeNodeDesc desc) {
 		Error err = new Error();
-		RegisterSignal signal = new RegisterSignal(desc);
-		
+		final RegisterSignal signal = new RegisterSignal(desc);
+
 		try {
-			this.server = new Socket(this.url, this.port);
-			ObjectOutputStream out = new ObjectOutputStream(
-					this.server.getOutputStream());
+			server = new Socket(url, port);
+			final ObjectOutputStream out = new ObjectOutputStream(
+					server.getOutputStream());
 
 			out.writeInt(MasterTrackerServer.CMD_REGISTER_COMPUTE_NODE);
 			out.flush();
 			out.writeObject(signal);
 			out.flush();
 
-			ObjectInputStream in = new ObjectInputStream(
-					this.server.getInputStream());
+			final ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
 			err = (Error) in.readObject();
 
-			this.server.close();
+			server.close();
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			err = createClientError(e);
 		}
 
 		return err;
 	}
-	
-	public Error executePlan(CompilePlan plan) {
+
+	/**
+	 * Method to register new QueryTrackerNodes at the MasterTrackerServer
+	 * @param desc
+	 * @return
+	 */
+	public Error registerNode(final QueryTrackerNodeDesc desc) {
+		Error err = new Error();
+		final QueryTrackerRegisterSignal signal = new QueryTrackerRegisterSignal(desc);
+
+		try {
+			server = new Socket(url, port);
+			final ObjectOutputStream out = new ObjectOutputStream(
+					server.getOutputStream());
+
+			out.writeInt(MasterTrackerServer.CMD_REGISTER_QUERYTRACKER_NODE);
+			out.flush();
+			out.writeObject(signal);
+			out.flush();
+
+			final ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
+			err = (Error) in.readObject();
+
+			server.close();
+
+		} catch (final Exception e) {
+			err = createClientError(e);
+		}
+
+		return err;
+	}
+
+	public Error executePlan(final CompilePlan plan) {
 		Error err = new Error();
 
 		try {
-			this.server = new Socket(url, Config.COMPUTE_PORT);
-			ObjectOutputStream out = new ObjectOutputStream(
-					this.server.getOutputStream());
+			server = new Socket(url, Config.COMPUTE_PORT);
+			final ObjectOutputStream out = new ObjectOutputStream(
+					server.getOutputStream());
 
 			out.writeInt(MasterTrackerServer.CMD_EXECUTE_PLAN);
 			out.flush();
 			out.writeObject(plan);
 			out.flush();
 
-			ObjectInputStream in = new ObjectInputStream(
-					this.server.getInputStream());
+			final ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
 			err = (Error) in.readObject();
 
-			this.server.close();
+			server.close();
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			err = createClientError(e);
 		}
 
