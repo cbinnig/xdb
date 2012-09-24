@@ -6,24 +6,22 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 	private static final long serialVersionUID = 2144601298204477490L;
 
 	//attributes
-	protected AbstractOperator child;
 	protected int inputNumber=0;
 
 	//constructors
 	public AbstractUnaryOperator(AbstractOperator child){
 		super(1);
 		
-		this.child = child;
-		this.children.add(this.child);
+		this.children.add(child);
 	}
 	
 	//getters and setters
 	public AbstractOperator getChild() {
-		return child;
+		return this.children.get(0);
 	}
 
 	public void setChild(AbstractOperator child) {
-		this.child = child;
+		this.children.set(0, child);
 	}
 
 	public int getInputNumber() {
