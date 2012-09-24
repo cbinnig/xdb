@@ -1,7 +1,5 @@
 package org.xdb.funsql.compile.operator;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.tokens.TokenFunction;
@@ -18,10 +16,6 @@ public class FunctionCall extends AbstractOperator {
 		
 		this.children = new Vector<AbstractOperator>(inputNumber);
 		this.function = function;
-	}
-	
-	public Set<AbstractOperator> getSourceOperators() {
-		return new HashSet<AbstractOperator>(children);
 	}
 	
 	//getters and setters

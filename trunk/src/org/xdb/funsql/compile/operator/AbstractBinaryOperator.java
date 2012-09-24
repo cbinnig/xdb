@@ -1,7 +1,5 @@
 package org.xdb.funsql.compile.operator;
 
-import java.util.HashSet;
-import java.util.Set;
 
 public abstract class AbstractBinaryOperator extends AbstractOperator {
 
@@ -14,19 +12,14 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 	protected int leftInputNumber=0;
 	protected int rightInputNumber=0;
 	
-	public Set<AbstractOperator> getSourceOperators() {
-		return new HashSet<AbstractOperator>() {{
-			add(leftChild);
-			add(rightChild);
-		}};
-	}
-	
 	//constructors
 	public AbstractBinaryOperator(AbstractOperator leftChild, AbstractOperator rightChild) {
 		super(1);
 		
 		this.leftChild = leftChild;
 		this.rightChild = rightChild;
+		this.children.add(this.leftChild);
+		this.children.add(this.rightChild);
 	}
 
 	//getters and setters

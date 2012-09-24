@@ -1,7 +1,6 @@
 package org.xdb.funsql.compile.operator;
 
 import java.io.Serializable;
-import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.utils.Identifier;
@@ -14,15 +13,21 @@ public abstract class AbstractOperator implements Serializable {
 	//attributes
 	protected Vector<ResultDesc> results;
 	protected EnumOperator type;
+	protected Vector<AbstractOperator> children;
 	
 	// unique operator id
 	protected Identifier operatorId;
 	
+	public AbstractOperator(){
+		this.children = new Vector<AbstractOperator>();
+	}
 	/**
 	 * Get all source operators.
 	 * @return set of all dependency operators, empty set if no given
 	 */
-	public abstract Set<AbstractOperator> getSourceOperators(); 
+	public Vector<AbstractOperator> getSourceOperators(){
+		return this.children;
+	}
 		
 	//constructors
 	public AbstractOperator(int resultNumber){

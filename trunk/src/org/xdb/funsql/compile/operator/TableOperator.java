@@ -1,8 +1,5 @@
 package org.xdb.funsql.compile.operator;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.xdb.funsql.compile.tokens.TokenTable;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Table;
@@ -21,10 +18,6 @@ public class TableOperator extends AbstractOperator {
 		
 		this.tableName = tableName;
 		this.type = EnumOperator.TABLE;
-	}
-	
-	public Set<AbstractOperator> getSourceOperators() {
-		return new HashSet<AbstractOperator>();
 	}
 
 	//getters and setters
