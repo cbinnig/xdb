@@ -7,9 +7,10 @@ import java.util.logging.Level;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.tracker.MasterTrackerNode;
-import org.xdb.tracker.signals.QueryTrackerRegisterSignal;
+import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.tracker.signals.RegisterSignal;
 
 public class MasterTrackerServer extends AbstractServer {
@@ -40,16 +41,28 @@ public class MasterTrackerServer extends AbstractServer {
 
 				switch (cmd) {
 				case CMD_REGISTER_COMPUTE_NODE:
-					final RegisterSignal signal = (RegisterSignal)in.readObject();
-					err = tracker.registerComputeNode(signal.getComputeNodeDesc());
+					final Object read = in.readObject();
+					if (read instanceof RegisterSignal<?>) {
+						@SuppressWarnings("unchecked")
+						final RegisterSignal<ComputeNodeDesc> qtSignal = (RegisterSignal<ComputeNodeDesc>) read;
+						err = tracker.registerComputeNode(qtSignal.getDescription());
+					} else {
+						throw new IllegalArgumentException("Next Object to Read has to be an instance of RegisterSignal<ComputeNodeDesc>");
+					}
 					break;
 				case CMD_EXECUTE_PLAN:
 					final CompilePlan plan = (CompilePlan)in.readObject();
 					err = tracker.executePlan(plan);
 					break;
 				case CMD_REGISTER_QUERYTRACKER_NODE:
-					final QueryTrackerRegisterSignal qtSignal = (QueryTrackerRegisterSignal) in.readObject();
-					err = tracker.registerQueryTrackerNode(qtSignal.getDesc());
+					final Object qtRead = in.readObject();
+					if (qtRead instanceof RegisterSignal<?>) {
+						@SuppressWarnings("unchecked")
+						final RegisterSignal<QueryTrackerNodeDesc> qtSignal = (RegisterSignal<QueryTrackerNodeDesc>) qtRead;
+						err = tracker.registerQueryTrackerNode(qtSignal.getDescription());
+					} else {
+						throw new IllegalArgumentException("Next Object to Read has to be an instance of RegisterSignal<QueryTrackerNodeDesc>");
+					}
 					break;
 				}
 			} catch (final Exception e) {

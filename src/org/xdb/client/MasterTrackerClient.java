@@ -11,7 +11,6 @@ import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.MasterTrackerServer;
 import org.xdb.tracker.QueryTrackerNodeDesc;
-import org.xdb.tracker.signals.QueryTrackerRegisterSignal;
 import org.xdb.tracker.signals.RegisterSignal;
 
 /**
@@ -35,7 +34,7 @@ public class MasterTrackerClient extends AbstractClient{
 
 	public Error registerNode(final ComputeNodeDesc desc) {
 		Error err = new Error();
-		final RegisterSignal signal = new RegisterSignal(desc);
+		final RegisterSignal<ComputeNodeDesc> signal = new RegisterSignal<ComputeNodeDesc>(desc);
 
 		try {
 			server = new Socket(url, port);
@@ -67,7 +66,7 @@ public class MasterTrackerClient extends AbstractClient{
 	 */
 	public Error registerNode(final QueryTrackerNodeDesc desc) {
 		Error err = new Error();
-		final QueryTrackerRegisterSignal signal = new QueryTrackerRegisterSignal(desc);
+		final RegisterSignal<QueryTrackerNodeDesc> signal = new RegisterSignal<QueryTrackerNodeDesc>(desc);
 
 		try {
 			server = new Socket(url, port);
