@@ -1,12 +1,19 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.HashMap;
+
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.utils.StringTemplate;
 
 public class EquiJoin extends AbstractBinaryOperator {
 	private static final long serialVersionUID = -7557353401586940253L;
 
 	private TokenAttribute leftTokenAttribute;
 	private TokenAttribute rightTokenAttribute;
+	
+	private StringTemplate sqlTemplate = new StringTemplate(
+			"SELECT * FROM `<<OP1>>` AS `<OP1>` INNER JOIN `<<OP2>>` AS `<OP2>`" +
+			"ON `<OP1>`.`<LOP1>` = `<OP2>`.`<LOP2>`");
 
 	//constructors
 	public EquiJoin(AbstractOperator leftChild, AbstractOperator rightChild,
@@ -37,7 +44,12 @@ public class EquiJoin extends AbstractBinaryOperator {
 
 	@Override
 	public String toSqlString() {
-		// TODO: generate sql
-		return null;
+		return sqlTemplate.toString(new HashMap<String, String>() {{
+			put("OP1", getLeftChild().getOperatorId().toString());
+			put("OP2", getRightChild().getOperatorId().toString());
+			
+			put("LOP1", getLeftTokenAttribute().toSqlString());
+			put("LOP2", getRightTokenAttribute().toSqlString());
+		}});
 	}
 }

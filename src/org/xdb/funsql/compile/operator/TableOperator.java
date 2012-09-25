@@ -47,7 +47,6 @@ public class TableOperator extends AbstractOperator {
 	
 	@Override
 	public String toSqlString() {
-		// TODO: generate sql
-		return null;
+		return "<"+connection.getTableName()+">";
 	}
 }
