@@ -26,6 +26,11 @@ public abstract class AbstractToken implements Serializable{
 	public static final String OR = "OR";
 	public static final String NOT = "NOT";
 	
+	public static final String PLUS = "+";
+	public static final String MINUS = "-";
+	public static final String MULT = "*";
+	public static final String DIV = "/";
+	
 	public static final String QUOTE = "'";
 	public static final String SINGLE_QUOTE = "'";
 	public static final String DOUBLE_QUOTE = "\"";

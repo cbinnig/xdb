@@ -3,6 +3,7 @@ package org.xdb.funsql.compile.predicate;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 
 public enum EnumBoolOperator {
+	SQL_NOOP,
 	SQL_AND,
 	SQL_OR,
 	SQL_NOT;
@@ -19,11 +20,11 @@ public enum EnumBoolOperator {
 	
 	public String toString(){
 		switch(this.ordinal()){
-		case 0:
-			return AbstractToken.AND;
 		case 1:
-			return AbstractToken.OR;
+			return AbstractToken.AND;
 		case 2:
+			return AbstractToken.OR;
+		case 3:
 			return AbstractToken.NOT;
 		}
 		return "";
