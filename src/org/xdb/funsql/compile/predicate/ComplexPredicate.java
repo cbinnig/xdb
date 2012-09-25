@@ -1,5 +1,7 @@
 package org.xdb.funsql.compile.predicate;
 
+import java.util.Vector;
+
 import org.xdb.funsql.compile.tokens.AbstractToken;
 
 public class ComplexPredicate extends AbstractPredicate {
@@ -7,24 +9,20 @@ public class ComplexPredicate extends AbstractPredicate {
 	private static final long serialVersionUID = -5584803276387811894L;
 
 	private AbstractPredicate pred1;
-	private EnumBoolOperator oper;
-	private AbstractPredicate pred2;
+	private Vector<EnumBoolOperator> opers;
+	private Vector<AbstractPredicate> preds2;
 
 	public ComplexPredicate() {
 		super();
+		
+		this.opers = new Vector<EnumBoolOperator>();
+		this.preds2 = new Vector<AbstractPredicate>();
 	}
 
-	public ComplexPredicate(EnumBoolOperator oper) {
-		super();
+	public ComplexPredicate(EnumPredicateType type) {
+		this();
 
-		this.oper = oper;
-	}
-
-	public ComplexPredicate(AbstractPredicate pred1, AbstractPredicate pred2,
-			EnumBoolOperator oper) {
-		this(oper);
-		this.pred1 = pred1;
-		this.pred2 = pred2;
+		this.type = type;
 	}
 
 	// getter and setter
@@ -36,24 +34,28 @@ public class ComplexPredicate extends AbstractPredicate {
 		this.pred1 = pred1;
 	}
 
-	public EnumBoolOperator getOperator() {
-		return oper;
+	public EnumBoolOperator getOperator(int i) {
+		return opers.get(i);
 	}
 
-	public void setAnd() {
-		this.oper = EnumBoolOperator.SQL_AND;
+	public void addAnd() {
+		this.opers.add(EnumBoolOperator.SQL_AND);
 	}
 
-	public void setOr() {
-		this.oper = EnumBoolOperator.SQL_OR;
+	public void addOr() {
+		this.opers.add(EnumBoolOperator.SQL_OR);
+	}
+	
+	public void addOp(EnumBoolOperator oper) {
+		this.opers.add(oper);
 	}
 
-	public AbstractPredicate getPredicate2() {
-		return pred2;
+	public AbstractPredicate getPredicate2(int i) {
+		return preds2.get(i);
 	}
 
-	public void setPredicate2(AbstractPredicate pred2) {
-		this.pred2 = pred2;
+	public void addPredicate2(AbstractPredicate pred2) {
+		this.preds2.add(pred2);
 	}
 
 	@Override
@@ -68,18 +70,20 @@ public class ComplexPredicate extends AbstractPredicate {
 		if (this.isNegated)
 			sqlValue.append(AbstractToken.NOT);
 
-		if (this.pred2 != null)
+		if (!this.preds2.isEmpty())
 			sqlValue.append(AbstractToken.LBRACE);
 		
 		sqlValue.append(this.pred1);
 		
-		if (this.pred2 != null) {
+		for(int i=0; i<this.preds2.size(); ++i){
 			sqlValue.append(AbstractToken.BLANK);
-			sqlValue.append(this.oper.toString());
+			sqlValue.append(this.opers.get(i));
 			sqlValue.append(AbstractToken.BLANK);
-			sqlValue.append(this.pred2);
-			sqlValue.append(AbstractToken.RBRACE);
+			sqlValue.append(this.preds2.get(i).toSqlString());
 		}
+		
+		if (!this.preds2.isEmpty())
+			sqlValue.append(AbstractToken.RBRACE);
 		
 		return sqlValue.toString();
 	}

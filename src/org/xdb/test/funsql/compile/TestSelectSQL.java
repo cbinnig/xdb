@@ -9,32 +9,42 @@ public class TestSelectSQL extends CompileServerTestCase {
 	@Test
 	public void testCompileSelect() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
-		
+
 		compiler.compile("SELECT A FROM R");
 		this.assertNoError(compiler.getLastError());
-		
-		SelectStmt stmt = (SelectStmt)compiler.compile("SELECT A FROM R WHERE B=1");
+
+		SelectStmt stmt = (SelectStmt) compiler
+				.compile("SELECT A FROM R WHERE B=1");
 		System.out.println(stmt.getPredicate());
 		this.assertNoError(compiler.getLastError());
-		
-		stmt = (SelectStmt)compiler.compile("SELECT A FROM R WHERE B=C");
+
+		stmt = (SelectStmt) compiler.compile("SELECT A FROM R WHERE B=C");
 		System.out.println(stmt.getPredicate());
 		this.assertNoError(compiler.getLastError());
-		
-		stmt = (SelectStmt)compiler.compile("SELECT A FROM R WHERE B=C OR D=E");
+
+		stmt = (SelectStmt) compiler
+				.compile("SELECT A FROM R WHERE B=C OR D=E");
 		System.out.println(stmt.getPredicate());
 		this.assertNoError(compiler.getLastError());
-		
-		stmt = (SelectStmt)compiler.compile("SELECT A FROM R WHERE B=C AND D=E");
+
+		stmt = (SelectStmt) compiler
+				.compile("SELECT A FROM R WHERE B=C AND D=E");
 		System.out.println(stmt.getPredicate());
 		this.assertNoError(compiler.getLastError());
-		
-		stmt = (SelectStmt)compiler.compile("SELECT A FROM R WHERE B=C OR D=E AND F=G");
+
+		stmt = (SelectStmt) compiler
+				.compile("SELECT A FROM R WHERE B=C OR D=E AND F=G");
 		System.out.println(stmt.getPredicate());
 		this.assertNoError(compiler.getLastError());
-		
-		stmt = (SelectStmt)compiler.compile("SELECT A FROM R WHERE ( B=C OR D=E ) AND F=G");
+
+		stmt = (SelectStmt) compiler
+				.compile("SELECT A FROM R WHERE ( B=C OR D=E ) AND F=G");
 		System.out.println(stmt.getPredicate());
 		this.assertNoError(compiler.getLastError());
+
+		stmt = (SelectStmt) compiler.compile("SELECT A FROM R WHERE (B+A*C*D)=1");
+		System.out.println(stmt.getPredicate());
+		this.assertNoError(compiler.getLastError());
+
 	}
 }

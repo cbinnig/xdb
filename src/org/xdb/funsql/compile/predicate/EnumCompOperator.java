@@ -2,7 +2,8 @@ package org.xdb.funsql.compile.predicate;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
 
-public enum EnumComperator {
+public enum EnumCompOperator {
+	SQL_NOOP,
 	SQL_EQUAL,
 	SQL_NOT_EQUAL,
 	SQL_LESS_EQUAL,
@@ -10,7 +11,7 @@ public enum EnumComperator {
 	SQL_GREATER_EQUAL,
 	SQL_GREATER_THAN;
 	
-	public static EnumComperator get(String type){
+	public static EnumCompOperator get(String type){
 		if(type.equals(AbstractToken.EQUAL1))
 			return SQL_EQUAL;
 		else if(type.equals(AbstractToken.NOT_EQUAL1))
@@ -30,19 +31,19 @@ public enum EnumComperator {
 	
 	public String toString(){
 		switch(this.ordinal()){
-		case 0:
-			return AbstractToken.EQUAL1;
 		case 1:
-			return AbstractToken.NOT_EQUAL1;
+			return AbstractToken.EQUAL1;
 		case 2:
-			return AbstractToken.NOT_EQUAL2;
+			return AbstractToken.NOT_EQUAL1;
 		case 3:
-			return AbstractToken.LESS_EQUAL;
+			return AbstractToken.NOT_EQUAL2;
 		case 4:
-			return AbstractToken.LESS_THAN;
+			return AbstractToken.LESS_EQUAL;
 		case 5:
-			return AbstractToken.GREATER_EQUAL;
+			return AbstractToken.LESS_THAN;
 		case 6:
+			return AbstractToken.GREATER_EQUAL;
+		case 7:
 			return AbstractToken.GREATER_THAN;
 		}
 		return "";

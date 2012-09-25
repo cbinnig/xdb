@@ -1,5 +1,11 @@
 grammar FunSQL;
 
+options
+{
+    backtrack=true;
+    memoize=true;
+}
+
 tokens {
     EQUAL1              =   '=';
     EQUAL2              =   '==';
@@ -18,7 +24,7 @@ tokens {
     PIPE                =   '|';
     DOUBLE_PIPE         =   '||';
     DIV                 =   '/';
-    STAR                =   '*';
+    MULT                =   '*';
     PLUS                =   '+';
     MINUS               =   '-';
     TILDE               =   '~';
@@ -45,6 +51,7 @@ tokens {
 @parser::header { 
 package org.xdb.funsql.compile.antlr; 
 
+import org.xdb.funsql.compile.expression.*;
 import org.xdb.funsql.compile.predicate.*;
 import org.xdb.funsql.compile.tokens.*;
 import org.xdb.funsql.statement.*;
@@ -286,7 +293,7 @@ abstractPredicate returns [AbstractPredicate predicate]
 	        
 complexPredicateOr returns [ComplexPredicate predicateOr]
 	@init{
-        	$predicateOr = new ComplexPredicate(EnumBoolOperator.SQL_OR);
+        	$predicateOr = new ComplexPredicate(EnumPredicateType.OR_PREDICATE);
         }
 	:	
 	(
@@ -294,9 +301,11 @@ complexPredicateOr returns [ComplexPredicate predicateOr]
 			$predicateOr.setPredicate1($predicate1.predicateAnd);
 		}
 		( 
-			KEYWORD_OR 
+			KEYWORD_OR{
+				$predicateOr.addOr();
+			}
 			predicate2=complexPredicateAnd{
-				$predicateOr.setPredicate2($predicate2.predicateAnd);
+				$predicateOr.addPredicate2($predicate2.predicateAnd);
 			} 
 		)* 
 	)
@@ -304,7 +313,7 @@ complexPredicateOr returns [ComplexPredicate predicateOr]
 
 complexPredicateAnd returns [ComplexPredicate predicateAnd]
 	@init{
-        	$predicateAnd = new ComplexPredicate(EnumBoolOperator.SQL_AND);
+        	$predicateAnd = new ComplexPredicate(EnumPredicateType.AND_PREDICATE);
         }
 	:	
 	( 
@@ -312,9 +321,11 @@ complexPredicateAnd returns [ComplexPredicate predicateAnd]
 			$predicateAnd.setPredicate1($predicate1.predicateNot);
 		}
 		( 
-			KEYWORD_AND 
+			KEYWORD_AND{
+				$predicateAnd.addAnd();
+			}
 			predicate2=complexPredicateNot {
-				$predicateAnd.setPredicate2($predicate2.predicateNot);
+				$predicateAnd.addPredicate2($predicate2.predicateNot);
 			}
 		)* 
 	)
@@ -322,7 +333,7 @@ complexPredicateAnd returns [ComplexPredicate predicateAnd]
 
 complexPredicateNot returns [ComplexPredicate predicateNot]
 	@init{
-        	$predicateNot = new ComplexPredicate();
+        	$predicateNot = new ComplexPredicate(EnumPredicateType.NOT_PREDICATE);
         }
 	:
 	(
@@ -367,31 +378,128 @@ simplePredicate returns [SimplePredicate predicate]
         }
         :
         (
+		expr1=abstractExpression
+                {
+                	$predicate.setExpr1($expr1.expression);
+                }
+                
+                comp=tokenCompOperator{
+                	$predicate.setComp(EnumCompOperator.get($comp.text));
+                }
+                
+                expr2=abstractExpression
+                {
+                	$predicate.setExpr2($expr2.expression);
+                }
+        )
+        ;
+
+
+abstractExpression returns [AbstractExpression expression]
+	:	expression1=complexExpressionAdd{
+			$expression = $expression1.expression;
+		}
+	;
+
+complexExpressionAdd returns [ComplexExpression expression]
+	@init{
+        	$expression = new ComplexExpression(EnumExprType.ADD_EXPRESSION);
+        }
+	:	
+	( 
+		expression1=complexExpressionMult{
+			$expression.setExpr1($expression1.expression);
+		}
+		( 
+			op1=tokenAddOperator{
+                		$expression.addOp(EnumExprOperator.get($op1.text));
+                	}
+			expression2=complexExpressionMult {
+				$expression.addExpr2($expression2.expression);
+			}
+		)* 
+	)
+	;
+
+complexExpressionMult returns [ComplexExpression expression]
+	@init{
+        	$expression = new ComplexExpression(EnumExprType.MULT_EXPRESSION);
+        }
+	:	
+	( 
+		expression1=complexExpressionSigned{
+			$expression.setExpr1($expression1.expression);
+		}
+		( 
+			op1=tokenMultOperator{
+                		$expression.addOp(EnumExprOperator.get($op1.text));
+                	}
+			expression2=complexExpressionSigned {
+				$expression.addExpr2($expression2.expression);
+			}
+		)* 
+	)
+	;
+
+
+complexExpressionSigned returns [ComplexExpression expression]
+	@init{
+        	$expression = new ComplexExpression(EnumExprType.SIGNED_EXPRESSION);
+        }
+	:
+	(
+		( 
+		MINUS{
+			$expression.negate();
+		}
+		|
+		PLUS
+		)? 
+		expression1=complexExpression{
+			$expression.setExpr1($expression1.expression);
+		}
+	) 
+	;
+        
+complexExpression returns [AbstractExpression expression]
+	:
+	(
+		expression1=parenExpression
+		{
+			$expression = $expression1.expression;
+		}
+		|	
+		expression2=simpleExpression
+		{
+			$expression = $expression2.expression;
+		}
+	)
+	;
+
+parenExpression returns [AbstractExpression expression]
+	:	
+		LPAREN 
+		expression1=abstractExpression {
+			$expression = $expression1.expression;
+		}
+		RPAREN
+	;
+	        
+simpleExpression returns [SimpleExpression expression]
+	@init{
+        	$expression = new SimpleExpression();
+        }
+        :
+        (
 		(
 		att1=tokenAttribute
                 {
-                	$predicate.setOper1($att1.attribute);
+                	$expression.setOper($att1.attribute);
                 }
                 |
                 lit1=tokenLiteral
                 {
-                	$predicate.setOper1($lit1.literal);
-                }
-                )
-                
-                comp=tokenComparator{
-                	$predicate.setComp(EnumComperator.get($comp.text));
-                }
-                
-                (
-                att2=tokenAttribute
-                {
-                	$predicate.setOper2($att2.attribute);
-                }
-                |
-                lit2=tokenLiteral
-                {
-                	$predicate.setOper2($lit2.literal);
+                	$expression.setOper($lit1.literal);
                 }
                 )
         )
@@ -570,9 +678,24 @@ tokenIntegerLiteral returns [TokenIntegerLiteral literal]
          	)       
  	)
  	;
+    
+tokenAddOperator
+    :
+    (
+    PLUS |
+    MINUS 
+    )
+    ;
+    
+tokenMultOperator
+    :
+    (
+    MULT |
+    DIV
+    )
+    ;
 
-
-tokenComparator
+tokenCompOperator
     :
     (
     EQUAL1 |
