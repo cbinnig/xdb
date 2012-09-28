@@ -15,35 +15,35 @@ public class TestSelectSQL extends CompileServerTestCase {
 
 		SelectStmt stmt = (SelectStmt) compiler
 				.compile("SELECT A FROM R WHERE B=1");
-		System.out.println(stmt.getPredicate());
+		System.out.println(stmt);
 		this.assertNoError(compiler.getLastError());
 
 		stmt = (SelectStmt) compiler.compile("SELECT A FROM R WHERE B=C");
-		System.out.println(stmt.getPredicate());
+		System.out.println(stmt);
 		this.assertNoError(compiler.getLastError());
 
 		stmt = (SelectStmt) compiler
 				.compile("SELECT A FROM R WHERE B=C OR D=E");
-		System.out.println(stmt.getPredicate());
+		System.out.println(stmt);
 		this.assertNoError(compiler.getLastError());
 
 		stmt = (SelectStmt) compiler
-				.compile("SELECT A FROM R WHERE B=C AND D=E");
-		System.out.println(stmt.getPredicate());
+				.compile("SELECT (A+1*C)*B FROM R WHERE B=C AND D=E");
+		System.out.println(stmt);
 		this.assertNoError(compiler.getLastError());
 
 		stmt = (SelectStmt) compiler
 				.compile("SELECT A FROM R WHERE B=C OR D=E AND F=G");
-		System.out.println(stmt.getPredicate());
+		System.out.println(stmt);
 		this.assertNoError(compiler.getLastError());
 
 		stmt = (SelectStmt) compiler
 				.compile("SELECT A FROM R WHERE ( B=C OR D=E ) AND F=G");
-		System.out.println(stmt.getPredicate());
+		System.out.println(stmt);
 		this.assertNoError(compiler.getLastError());
 
 		stmt = (SelectStmt) compiler.compile("SELECT A FROM R WHERE (B+A*C*D)=1");
-		System.out.println(stmt.getPredicate());
+		System.out.println(stmt);
 		this.assertNoError(compiler.getLastError());
 
 	}

@@ -250,15 +250,15 @@ selectStatement returns [SelectStmt stmt]
         :
         (
                 KEYWORD_SELECT
-                att1=tokenAttribute
+                expr1=abstractExpression
                 {
-                	$stmt.addAttribute($att1.attribute);
+                	$stmt.addExpression($expr1.expression);
                 }
                 (
                 COMMA
-                att2=tokenAttribute
+                expr2=abstractExpression
                 {
-                	$stmt.addAttribute($att2.attribute);
+                	$stmt.addExpression($expr2.expression);
                 }
                 )*
                 KEYWORD_FROM

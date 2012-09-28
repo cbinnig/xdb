@@ -1,4 +1,4 @@
-// $ANTLR 3.4 /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g 2012-09-25 10:10:12
+// $ANTLR 3.4 /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g 2012-09-28 22:13:26
  
 package org.xdb.funsql.compile.antlr; 
 
@@ -931,15 +931,15 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "selectStatement"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:246:1: selectStatement returns [SelectStmt stmt] : ( KEYWORD_SELECT att1= tokenAttribute ( COMMA att2= tokenAttribute )* KEYWORD_FROM table1= tokenTable ( COMMA table2= tokenTable )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:246:1: selectStatement returns [SelectStmt stmt] : ( KEYWORD_SELECT expr1= abstractExpression ( COMMA expr2= abstractExpression )* KEYWORD_FROM table1= tokenTable ( COMMA table2= tokenTable )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ) ;
     public final SelectStmt selectStatement() throws RecognitionException {
         SelectStmt stmt = null;
 
         int selectStatement_StartIndex = input.index();
 
-        TokenAttribute att1 =null;
+        AbstractExpression expr1 =null;
 
-        TokenAttribute att2 =null;
+        AbstractExpression expr2 =null;
 
         TokenTable table1 =null;
 
@@ -954,25 +954,25 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 8) ) { return stmt; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:250:9: ( ( KEYWORD_SELECT att1= tokenAttribute ( COMMA att2= tokenAttribute )* KEYWORD_FROM table1= tokenTable ( COMMA table2= tokenTable )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:251:9: ( KEYWORD_SELECT att1= tokenAttribute ( COMMA att2= tokenAttribute )* KEYWORD_FROM table1= tokenTable ( COMMA table2= tokenTable )* ( KEYWORD_WHERE predicate1= abstractPredicate )? )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:250:9: ( ( KEYWORD_SELECT expr1= abstractExpression ( COMMA expr2= abstractExpression )* KEYWORD_FROM table1= tokenTable ( COMMA table2= tokenTable )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:251:9: ( KEYWORD_SELECT expr1= abstractExpression ( COMMA expr2= abstractExpression )* KEYWORD_FROM table1= tokenTable ( COMMA table2= tokenTable )* ( KEYWORD_WHERE predicate1= abstractPredicate )? )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:251:9: ( KEYWORD_SELECT att1= tokenAttribute ( COMMA att2= tokenAttribute )* KEYWORD_FROM table1= tokenTable ( COMMA table2= tokenTable )* ( KEYWORD_WHERE predicate1= abstractPredicate )? )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:252:17: KEYWORD_SELECT att1= tokenAttribute ( COMMA att2= tokenAttribute )* KEYWORD_FROM table1= tokenTable ( COMMA table2= tokenTable )* ( KEYWORD_WHERE predicate1= abstractPredicate )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:251:9: ( KEYWORD_SELECT expr1= abstractExpression ( COMMA expr2= abstractExpression )* KEYWORD_FROM table1= tokenTable ( COMMA table2= tokenTable )* ( KEYWORD_WHERE predicate1= abstractPredicate )? )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:252:17: KEYWORD_SELECT expr1= abstractExpression ( COMMA expr2= abstractExpression )* KEYWORD_FROM table1= tokenTable ( COMMA table2= tokenTable )* ( KEYWORD_WHERE predicate1= abstractPredicate )?
             {
             match(input,KEYWORD_SELECT,FOLLOW_KEYWORD_SELECT_in_selectStatement2751); if (state.failed) return stmt;
 
-            pushFollow(FOLLOW_tokenAttribute_in_selectStatement2771);
-            att1=tokenAttribute();
+            pushFollow(FOLLOW_abstractExpression_in_selectStatement2771);
+            expr1=abstractExpression();
 
             state._fsp--;
             if (state.failed) return stmt;
 
             if ( state.backtracking==0 ) {
-                            	stmt.addAttribute(att1);
+                            	stmt.addExpression(expr1);
                             }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:257:17: ( COMMA att2= tokenAttribute )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:257:17: ( COMMA expr2= abstractExpression )*
             loop5:
             do {
                 int alt5=2;
@@ -985,18 +985,18 @@ public class FunSQLParser extends Parser {
 
                 switch (alt5) {
             	case 1 :
-            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:258:17: COMMA att2= tokenAttribute
+            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:258:17: COMMA expr2= abstractExpression
             	    {
             	    match(input,COMMA,FOLLOW_COMMA_in_selectStatement2825); if (state.failed) return stmt;
 
-            	    pushFollow(FOLLOW_tokenAttribute_in_selectStatement2845);
-            	    att2=tokenAttribute();
+            	    pushFollow(FOLLOW_abstractExpression_in_selectStatement2845);
+            	    expr2=abstractExpression();
 
             	    state._fsp--;
             	    if (state.failed) return stmt;
 
             	    if ( state.backtracking==0 ) {
-            	                    	stmt.addAttribute(att2);
+            	                    	stmt.addExpression(expr2);
             	                    }
 
             	    }
@@ -3304,10 +3304,10 @@ public class FunSQLParser extends Parser {
     public static final BitSet FOLLOW_KEYWORD_DROP_in_dropTableStatement2647 = new BitSet(new long[]{0x0001000000000000L});
     public static final BitSet FOLLOW_KEYWORD_TABLE_in_dropTableStatement2665 = new BitSet(new long[]{0x0000000100000000L,0x0000000000001000L});
     public static final BitSet FOLLOW_tokenTable_in_dropTableStatement2685 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_SELECT_in_selectStatement2751 = new BitSet(new long[]{0x0000000100000000L,0x0000000000001000L});
-    public static final BitSet FOLLOW_tokenAttribute_in_selectStatement2771 = new BitSet(new long[]{0x0000010000002000L});
-    public static final BitSet FOLLOW_COMMA_in_selectStatement2825 = new BitSet(new long[]{0x0000000100000000L,0x0000000000001000L});
-    public static final BitSet FOLLOW_tokenAttribute_in_selectStatement2845 = new BitSet(new long[]{0x0000010000002000L});
+    public static final BitSet FOLLOW_KEYWORD_SELECT_in_selectStatement2751 = new BitSet(new long[]{0xBE00000100000000L,0x0000000000001100L});
+    public static final BitSet FOLLOW_abstractExpression_in_selectStatement2771 = new BitSet(new long[]{0x0000010000002000L});
+    public static final BitSet FOLLOW_COMMA_in_selectStatement2825 = new BitSet(new long[]{0xBE00000100000000L,0x0000000000001100L});
+    public static final BitSet FOLLOW_abstractExpression_in_selectStatement2845 = new BitSet(new long[]{0x0000010000002000L});
     public static final BitSet FOLLOW_KEYWORD_FROM_in_selectStatement2900 = new BitSet(new long[]{0x0000000100000000L,0x0000000000001000L});
     public static final BitSet FOLLOW_tokenTable_in_selectStatement2920 = new BitSet(new long[]{0x0008000000002002L});
     public static final BitSet FOLLOW_COMMA_in_selectStatement2975 = new BitSet(new long[]{0x0000000100000000L,0x0000000000001000L});
