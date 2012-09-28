@@ -52,6 +52,11 @@ public class ComplexExpression extends AbstractExpression {
 
 	// methods
 	@Override
+	public String toString() {
+		return this.toSqlString();
+	}
+	
+	@Override
 	public String toSqlString() {
 		StringBuffer sqlValue = new StringBuffer();
 		if (this.isNegated)

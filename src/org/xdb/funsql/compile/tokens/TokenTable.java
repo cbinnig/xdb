@@ -7,7 +7,6 @@ public class TokenTable extends AbstractToken{
 	
 	//attributes
 	private TokenIdentifier name;
-	private TokenIdentifier alias;
 	private TokenSchema schema;
 	
 	//constructors
@@ -21,10 +20,6 @@ public class TokenTable extends AbstractToken{
 	}
 	
 	//getters and setters
-	public void setAlias(String alias) {
-		this.alias = new TokenIdentifier(alias);
-	}
-
 	public void setSchema(TokenSchema schema) {
 		this.schema = schema;
 	}
@@ -45,10 +40,6 @@ public class TokenTable extends AbstractToken{
 		return name;
 	}
 
-	public TokenIdentifier getAlias() {
-		return alias;
-	}
-
 	public TokenSchema getSchema() {
 		return schema;
 	}
@@ -66,13 +57,7 @@ public class TokenTable extends AbstractToken{
 			buffer.append(this.schema.toString());
 			buffer.append(AbstractToken.DOT);
 		}
-		
-		if(this.alias != null){
-			buffer.append(this.alias.toString());
-		}
-		else{
-			buffer.append(this.name.toString());
-		}
+		buffer.append(this.name.toString());
 		
 		return buffer.toString();
 	}

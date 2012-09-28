@@ -5,7 +5,6 @@ public class TokenAttribute extends AbstractTokenOperand{
 	
 	// attributes
 	private TokenIdentifier name;
-	private TokenIdentifier alias;
 	private TokenTable table;
 
 	// constructors
@@ -23,18 +22,10 @@ public class TokenAttribute extends AbstractTokenOperand{
 		return name;
 	}
 	
-	public TokenIdentifier getAlias() {
-		return alias;
-	}
-
 	public TokenTable getTable() {
 		return table;
 	}
 	
-	public void setAlias(String alias) {
-		this.alias = new TokenIdentifier(alias);
-	}
-
 	public void setTable(String table) {
 		this.table = new TokenTable(table);
 	}
@@ -43,10 +34,6 @@ public class TokenAttribute extends AbstractTokenOperand{
 		this.name = new TokenIdentifier(name);
 	}
 	
-	public void setAlias(TokenIdentifier alias) {
-		this.alias = alias;
-	}
-
 	public void setTable(TokenTable table) {
 		this.table = table;
 	}
@@ -68,12 +55,7 @@ public class TokenAttribute extends AbstractTokenOperand{
 			buffer.append(AbstractToken.DOT);
 		}
 		
-		if(this.alias != null){
-			buffer.append(this.alias.toString());
-		}
-		else{
-			buffer.append(this.name.toString());
-		}
+		buffer.append(this.name.toString());
 		
 		return buffer.toString();
 	}
