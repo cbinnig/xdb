@@ -33,7 +33,7 @@ public class TestSelectSQL extends CompileServerTestCase {
 		this.assertNoError(compiler.getLastError());
 
 		stmt = (SelectStmt) compiler
-				.compile("SELECT A FROM R WHERE B=C OR D=E AND F=G");
+				.compile("SELECT A, B AS Y FROM R, S AS T WHERE B=C OR D=E AND F=G");
 		System.out.println(stmt);
 		this.assertNoError(compiler.getLastError());
 
