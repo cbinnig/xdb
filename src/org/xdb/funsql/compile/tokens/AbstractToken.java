@@ -44,6 +44,7 @@ public abstract class AbstractToken implements Serializable{
 	public static final String INTO = "INTO";
 	public static final String VALUES = "VALUES";
 	public static final String MAX = "MAX";
+	public static final String AS = "AS";
 	
 	public abstract String toSqlString();
 	

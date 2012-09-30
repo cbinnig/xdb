@@ -27,30 +27,32 @@ public class SelectStmt extends AbstractServerStmt {
 	//getters and setters
 	public void addExpression(AbstractExpression expr){
 		this.tExpressions.add(expr);
+		this.tExprAliases.add(null);
 	}
 	
 	public Collection<AbstractExpression> getExpressions() {
 		return this.tExpressions;
 	}
 	
-	public void addExpAlias(TokenIdentifier alias){
-		this.tExprAliases.add(alias);
+	public void setExpressionAlias(int i, TokenIdentifier alias){
+		this.tExprAliases.set(i, alias);
 	}
 	
-	public Collection<TokenIdentifier> getExprAliases() {
+	public Collection<TokenIdentifier> getExpressionAliases() {
 		return this.tExprAliases;
 	}
 
 	public void addTable(TokenTable table){
 		this.tTables.add(table);
+		this.tTableAliases.add(null);
 	}
 	
 	public Collection<TokenTable> getTables() {
 		return tTables;
 	}
 	
-	public void addTableAlias(TokenIdentifier alias){
-		this.tTableAliases.add(alias);
+	public void setTableAlias(int i, TokenIdentifier alias){
+		this.tTableAliases.set(i, alias);
 	}
 	
 	public Collection<TokenIdentifier> getTableAliases() {
@@ -84,31 +86,50 @@ public class SelectStmt extends AbstractServerStmt {
 		StringBuffer sqlValue = new StringBuffer();
 		
 		sqlValue.append(AbstractToken.SELECT);
-		sqlValue.append(AbstractToken.BLANK);
 		
-		boolean isFirst = true;
+		int i=0;
 		for(AbstractExpression tExpr: this.tExpressions){
-			if(!isFirst)
+			if(i!=0)
 				sqlValue.append(AbstractToken.COMMA);
 			
+			sqlValue.append(AbstractToken.BLANK);	
 			sqlValue.append(tExpr);
-			sqlValue.append(AbstractToken.BLANK);
-			isFirst = false;
+			TokenIdentifier tExprAlias = this.tExprAliases.get(i);
+			if(tExprAlias!=null){
+				sqlValue.append(AbstractToken.BLANK);
+				sqlValue.append(AbstractToken.AS);
+				sqlValue.append(AbstractToken.BLANK);
+				sqlValue.append(tExprAlias);
+				sqlValue.append(AbstractToken.BLANK);
+			}
+			
+			++i;
 		}
 		
+		sqlValue.append(AbstractToken.BLANK);
 		sqlValue.append(AbstractToken.FROM);
 		sqlValue.append(AbstractToken.BLANK);
 		
-		isFirst = true;
+		i = 0;
 		for(TokenTable tTable: this.tTables){
-			if(!isFirst)
+			if(i!=0)
 				sqlValue.append(AbstractToken.COMMA);
 			
-			sqlValue.append(tTable);
 			sqlValue.append(AbstractToken.BLANK);
-			isFirst = false;
+			sqlValue.append(tTable);
+			
+			TokenIdentifier tTableAlias = this.tTableAliases.get(i);
+			if(tTableAlias!=null){
+				sqlValue.append(AbstractToken.BLANK);
+				sqlValue.append(AbstractToken.AS);
+				sqlValue.append(AbstractToken.BLANK);
+				sqlValue.append(tTableAlias);
+			}
+		
+			++i;
 		}
 		
+		sqlValue.append(AbstractToken.BLANK);
 		sqlValue.append(AbstractToken.WHERE);
 		sqlValue.append(AbstractToken.BLANK);
 		sqlValue.append(this.tPredicate.toString());

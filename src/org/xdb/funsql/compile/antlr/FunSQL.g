@@ -246,6 +246,8 @@ dropTableStatement returns [DropTableStmt stmt]
 selectStatement returns [SelectStmt stmt]
         @init{
         	$stmt = new SelectStmt();
+        	int expressionNumber = 0;
+        	int tableNumber = 0;
         }
         :
         (
@@ -253,25 +255,57 @@ selectStatement returns [SelectStmt stmt]
                 expr1=abstractExpression
                 {
                 	$stmt.addExpression($expr1.expression);
+                	expressionNumber++;
                 }
+                ( 
+                KEYWORD_AS
+		alias1=tokenIdentifier
+		{
+			$stmt.setExpressionAlias(expressionNumber-1, $alias1.identifier);
+		}                 
+                )?
                 (
                 COMMA
                 expr2=abstractExpression
                 {
                 	$stmt.addExpression($expr2.expression);
+                	expressionNumber++;
                 }
+                ( 
+                KEYWORD_AS
+		alias2=tokenIdentifier
+		{
+			$stmt.setExpressionAlias(expressionNumber-1, $alias2.identifier);
+		}                 
+                )?
                 )*
                 KEYWORD_FROM
                 table1=tokenTable 
                 {
                 	$stmt.addTable($table1.table);
+                	tableNumber++;
                 }
+                ( 
+                KEYWORD_AS
+		talias1=tokenIdentifier
+		{
+			$stmt.setTableAlias(tableNumber-1, $talias1.identifier);
+		}                 
+                )?
                 (
                 COMMA
                 table2=tokenTable
                 {
                 	$stmt.addTable($table2.table);
+                	tableNumber++;
                 }
+                (
+                KEYWORD_AS
+		talias2=tokenIdentifier
+		{
+			$stmt.setTableAlias(tableNumber-1, $talias2.identifier);
+		}                 
+                )?
                 )*
                 (
                 KEYWORD_WHERE
@@ -722,6 +756,7 @@ KEYWORD_IN: I N;
 KEYWORD_AND: A N D;
 KEYWORD_OR: O R;
 KEYWORD_NOT: N O T;
+KEYWORD_AS: A S;
 
 KEYWORD_CONNECTION: C O N N E C T I O N;	 
 KEYWORD_SCHEMA: S C H E M A;
