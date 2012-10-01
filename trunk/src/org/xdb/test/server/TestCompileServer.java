@@ -15,7 +15,7 @@ public class TestCompileServer extends CompileServerTestCase {
 				"URL 'jdbc:mysql://127.0.0.1/xdb' " +
 				"USER 'xroot' " +
 				"PASSWORD 'xroot' " +
-				"STORE 'MYSQL' ";
+				"STORE 'XDB' ";
 		
 		this.assertNoError(client.executeStmt(createConnStmt));
 		

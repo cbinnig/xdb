@@ -25,4 +25,12 @@ public abstract class AbstractPredicate extends AbstractToken{
 	public boolean isNegated(){
 		return this.isNegated;
 	}
+
+	public EnumPredicateType getType() {
+		return type;
+	}
+
+	public void setType(EnumPredicateType type) {
+		this.type = type;
+	}
 }
