@@ -5,20 +5,23 @@ import org.xdb.error.Error;
 
 
 public enum EnumStore {
-	POSTGRES,
-	MYSQL;
+	XDB,
+	MYSQL,
+	POSTGRES;
 	
-	private static final EnumStore[] values  = { POSTGRES, MYSQL };
+	private static final EnumStore[] values  = { XDB, MYSQL, POSTGRES };
 	
 	public static EnumStore get(int i){
 		return values[i];
 	}
 	
 	public static EnumStore get(String type){
-		if(type.equalsIgnoreCase("POSTGRES"))
-			return POSTGRES;
+		if(type.equalsIgnoreCase("XDB"))
+			return XDB;
 		else if(type.equalsIgnoreCase("MYSQL"))
 			return MYSQL;
+		else if(type.equalsIgnoreCase("POSTGRES"))
+			return POSTGRES;
 		return null;
 	}
 	

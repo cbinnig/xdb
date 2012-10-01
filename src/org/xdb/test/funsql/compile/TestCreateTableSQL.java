@@ -18,7 +18,7 @@ public class TestCreateTableSQL extends CompileServerTestCase {
 				"URL 'jdbc:mysql://127.0.0.1/xdb_tmp' " +
 				"USER 'xroot' " +
 				"PASSWORD 'xroot' " +
-				"STORE 'MYSQL' ";
+				"STORE 'XDB' ";
 		
 		AbstractServerStmt stmt = compiler.compile(createConnSql);
 		this.assertNoError(compiler.getLastError());
