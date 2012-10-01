@@ -3,6 +3,7 @@ package org.xdb.funsql.compile.operator;
 import java.io.Serializable;
 import java.util.Vector;
 
+import org.xdb.funsql.compile.TreeVisitor;
 import org.xdb.utils.Identifier;
 
 
@@ -28,6 +29,12 @@ public abstract class AbstractOperator implements Serializable {
 	public Vector<AbstractOperator> getSourceOperators(){
 		return this.children;
 	}
+	
+	/**
+	 * @param v TreeVisitor (visitor pattern)
+	 * @return checked: okay?
+	 */
+	abstract void accept(TreeVisitor v);
 		
 	//constructors
 	public AbstractOperator(int resultNumber){

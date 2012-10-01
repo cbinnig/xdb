@@ -1,5 +1,6 @@
 package org.xdb.funsql.compile.operator;
 
+import org.xdb.funsql.compile.TreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenLiteral;
 
@@ -36,5 +37,10 @@ public class EquiSelection extends AbstractUnaryOperator {
 	public String toSqlString() {
 		// TODO: generate sql
 		return null;
+	}
+
+	@Override
+	void accept(TreeVisitor v) {
+		v.visitEquiSelection(this);
 	}
 }

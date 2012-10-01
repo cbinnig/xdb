@@ -3,6 +3,7 @@ package org.xdb.funsql.compile.operator;
 import java.util.HashMap;
 import java.util.Vector;
 
+import org.xdb.funsql.compile.TreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.StringTemplate;
 
@@ -48,5 +49,10 @@ public class SimpleProjection extends AbstractUnaryOperator {
 			put("ATTR_LIST", attrBuf.toString());
 			put("OP1", getChild().getOperatorId().toString());
 		}});
+	}
+
+	@Override
+	void accept(TreeVisitor v) {
+		v.visitSimpleProjection(this);
 	}
 }
