@@ -263,4 +263,10 @@ public class SelectStmt extends AbstractServerStmt {
 		
 		return sqlValue.toString();
 	}
+
+
+	public void addAttribute(TokenAttribute att1) {
+		// TODO Auto-generated method stub
+		
+	}
 }
