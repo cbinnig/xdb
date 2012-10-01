@@ -6,11 +6,13 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.ComplexExpression;
+import org.xdb.funsql.compile.expression.EnumExprType;
 import org.xdb.funsql.compile.expression.SimpleExpression;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
 import org.xdb.funsql.compile.predicate.ComplexPredicate;
+import org.xdb.funsql.compile.predicate.EnumPredicateType;
 import org.xdb.funsql.compile.predicate.SimplePredicate;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.AbstractToken;
@@ -117,12 +119,12 @@ public class SelectStmt extends AbstractServerStmt {
 		// generate tree and check
 		Identifier i = new Identifier("CompilePlan");
 		CompilePlan cp = new CompilePlan(i);
-		if (tPredicate.getClass().toString().equals("SimplePredicate")) {
+		if (tPredicate.getType()==EnumPredicateType.SIMPLE_PREDICATE) {
 			SimplePredicate sPredicate = (SimplePredicate) this.tPredicate;
 			Error e = this.canonicalTransformation(sPredicate, cp);
 			if (e != Error.NO_ERROR)
 				return e;
-		} else if (tPredicate.getClass().toString().equals("ComplexPredicate")) {
+		} else {
 			ComplexPredicate cPredicate = (ComplexPredicate) this.tPredicate;
 			Error e = this.canonicalTransformation(cPredicate, cp);
 			if (e != Error.NO_ERROR)
@@ -154,7 +156,7 @@ public class SelectStmt extends AbstractServerStmt {
 		TokenAttribute operand2 = null;
 		
 		// Simple Expression (for example: A.a =B.b)
-		if (sp.getExpr1().getClass().toString().equals("SimpleExpression")) {
+		if (sp.getExpr1().getType() == EnumExprType.SIMPLE_EXPRESSION) {
 			SimpleExpression exp1 = (SimpleExpression) sp.getExpr1();
 			if (exp1.getOper().getClass().toString().equals("TokenAttribute")) {
 				operand1 = (TokenAttribute) exp1.getOper();
@@ -170,7 +172,7 @@ public class SelectStmt extends AbstractServerStmt {
 			} else {
 				return null;
 			}
-			if (sp.getExpr2().getClass().toString().equals("SimpleExpression")) {
+			if (sp.getExpr2().getType()==EnumExprType.SIMPLE_EXPRESSION) {
 				SimpleExpression exp2 = (SimpleExpression) sp.getExpr2();
 				if (exp2.getOper().getClass().toString()
 						.equals("TokenAttribute")) {
