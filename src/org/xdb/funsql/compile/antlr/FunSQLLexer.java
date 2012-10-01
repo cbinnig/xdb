@@ -1,5 +1,3 @@
-// $ANTLR 3.4 /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g 2012-09-30 07:47:01
- 
 package org.xdb.funsql.compile.antlr;
 
 
@@ -3635,5 +3633,4 @@ public class FunSQLLexer extends Lexer {
 
     }
  
-
 }

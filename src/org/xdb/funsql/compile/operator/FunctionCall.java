@@ -2,6 +2,7 @@ package org.xdb.funsql.compile.operator;
 
 import java.util.Vector;
 
+import org.xdb.funsql.compile.TreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenFunction;
 
 public class FunctionCall extends AbstractOperator {
@@ -43,5 +44,10 @@ public class FunctionCall extends AbstractOperator {
 	public String toSqlString() {
 		// TODO: generate sql
 		return null;
+	}
+
+	@Override
+	void accept(TreeVisitor v) {
+		v.visitFunctionCall(this);
 	}
 }

@@ -2,6 +2,7 @@ package org.xdb.funsql.compile.operator;
 
 import java.util.Vector;
 
+import org.xdb.funsql.compile.TreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 public class SimpleAggregation extends AbstractUnaryOperator {
@@ -64,5 +65,10 @@ public class SimpleAggregation extends AbstractUnaryOperator {
 	public String toSqlString() {
 		// TODO: generate sql
 		return null;
+	}
+
+	@Override
+	void accept(TreeVisitor v) {
+		v.visitSimpleAggregation(this);
 	}
 }

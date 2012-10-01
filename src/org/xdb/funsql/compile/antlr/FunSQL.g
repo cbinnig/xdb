@@ -8,7 +8,7 @@ options
 
 tokens {
     EQUAL1              =   '=';
-    EQUAL2              =   '==';
+    EQUAL2              =   '=='S;
     NOT_EQUAL1          =   '!=';
     NOT_EQUAL2          =   '<>';
     LESS_THAN           =   '<';
@@ -100,6 +100,11 @@ statement returns [AbstractServerStmt stmt]
                 dropTableStatement 
                 {
                 	$stmt = $dropTableStatement.stmt;
+                }
+                |
+                createFunctionStatement 
+                {
+                	$stmt = $createFunctionStatement.stmt;
                 }
                 |
                 selectStatement
@@ -243,69 +248,64 @@ dropTableStatement returns [DropTableStmt stmt]
 	)
 	;
 	
+createFunctionStatement returns [CreateFunctionStmt stmt]
+        @init{
+        	$stmt = new CreateFunctionStmt();
+        }
+        :
+        (
+                KEYWORD_FUNCTION
+                function1=tokenFunction{
+                	$stmt.setFunction($function1.function);
+                }
+                LPAREN
+                (
+                KEYWORD_OUT
+                var1=tokenVariable{
+               		$stmt.addParam(var1);
+		}
+		KEYWORD_TABLE
+		)*
+		RPAREN
+		KEYWORD_BEGIN
+		(
+		ass1=tokenAssignment{
+                	$stmt.addAssignment(ass1.getVar(), ass1.getSelStmt());
+                }
+		)*
+		KEYWORD_END                
+	)
+	;
+		
 selectStatement returns [SelectStmt stmt]
         @init{
         	$stmt = new SelectStmt();
-        	int expressionNumber = 0;
-        	int tableNumber = 0;
         }
         :
         (
                 KEYWORD_SELECT
-                expr1=abstractExpression
+                att1=tokenAttribute
                 {
-                	$stmt.addExpression($expr1.expression);
-                	expressionNumber++;
+                	$stmt.addAttribute($att1.attribute);
                 }
-                ( 
-                KEYWORD_AS
-		alias1=tokenIdentifier
-		{
-			$stmt.setExpressionAlias(expressionNumber-1, $alias1.identifier);
-		}                 
-                )?
                 (
                 COMMA
-                expr2=abstractExpression
+                att2=tokenAttribute
                 {
-                	$stmt.addExpression($expr2.expression);
-                	expressionNumber++;
+                	$stmt.addAttribute($att2.attribute);
                 }
-                ( 
-                KEYWORD_AS
-		alias2=tokenIdentifier
-		{
-			$stmt.setExpressionAlias(expressionNumber-1, $alias2.identifier);
-		}                 
-                )?
                 )*
                 KEYWORD_FROM
                 table1=tokenTable 
                 {
                 	$stmt.addTable($table1.table);
-                	tableNumber++;
                 }
-                ( 
-                KEYWORD_AS
-		talias1=tokenIdentifier
-		{
-			$stmt.setTableAlias(tableNumber-1, $talias1.identifier);
-		}                 
-                )?
                 (
                 COMMA
                 table2=tokenTable
                 {
                 	$stmt.addTable($table2.table);
-                	tableNumber++;
                 }
-                (
-                KEYWORD_AS
-		talias2=tokenIdentifier
-		{
-			$stmt.setTableAlias(tableNumber-1, $talias2.identifier);
-		}                 
-                )?
                 )*
                 (
                 KEYWORD_WHERE
@@ -590,6 +590,68 @@ tokenSchema returns [TokenSchema schema]
         )
         ;
         
+tokenFunction returns [TokenFunction function]
+	@init{
+        	$function = new TokenFunction();
+        }
+        :
+        (
+                                (
+                schema1=tokenIdentifier {
+                        TokenSchema schema = new TokenSchema();
+                	$function.setSchema(schema);
+                }
+                DOT
+                )?
+                id1=tokenIdentifier {
+                	$function.setName($id1.identifier);
+                }
+        )
+        ;
+        
+tokenVariable returns [TokenVariable variable]
+	@init{
+        	$variable = null;
+        }
+        :
+        (
+                variableText {
+                $variable = new TokenVariable($variableText.text);	
+                }
+        )
+        ;       
+        
+tokenAssignment returns [TokenAssignment ass]
+	@init{
+	 	$ass=new TokenAssignment();
+	 }
+	 :
+	 (
+		 (
+		 COLON
+		 var1 = tokenVariable{
+		 $ass.setVar(var1);
+		 }
+		 EQUAL1
+		 selstmt1=selectStatement{
+		 $ass.setSelStmt(selstmt1);
+		 }
+		 )
+		 |
+		 (
+		 KEYWORD_VAR
+		 var2 = tokenVariable{
+		 $ass.setVar(var2);
+		 }
+		 EQUAL1
+		 selstmt2=selectStatement{
+		 $ass.setSelStmt(selstmt2);
+		 }
+		 )
+	 )	 
+	 ;
+
+        
 tokenIdentifier returns [TokenIdentifier identifier]
 	@init{
         	$identifier = null;
@@ -694,6 +756,16 @@ tokenIntegerLiteral returns [TokenIntegerLiteral literal]
         )
         ;
         
+ variableText returns [String text]
+ 	:	
+ 	(
+ 	
+ 		var1 = IDENTIFIER {
+ 		$text = $var1.text;
+ 		}
+ 		
+ 	)
+ 	;        
  identifierText returns [String text]
  	:	
  	(
@@ -753,14 +825,18 @@ KEYWORD_SELECT: S E L E C T;
 KEYWORD_FROM: F R O M;
 KEYWORD_WHERE: W H E R E;
 KEYWORD_IN: I N;
+KEYWORD_OUT: O U T;
 KEYWORD_AND: A N D;
 KEYWORD_OR: O R;
 KEYWORD_NOT: N O T;
-KEYWORD_AS: A S;
 
 KEYWORD_CONNECTION: C O N N E C T I O N;	 
 KEYWORD_SCHEMA: S C H E M A;
 KEYWORD_TABLE: T A B L E;
+KEYWORD_FUNCTION: F U N C T I O N;	
+KEYWORD_BEGIN: B E G I N;
+KEYWORD_END: E N D;
+KEYWORD_VAR: V A R;
 
 KEYWORD_URL: U R L;
 KEYWORD_USER: U S E R;

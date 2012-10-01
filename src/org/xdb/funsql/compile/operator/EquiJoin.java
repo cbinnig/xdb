@@ -2,6 +2,7 @@ package org.xdb.funsql.compile.operator;
 
 import java.util.HashMap;
 
+import org.xdb.funsql.compile.TreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.StringTemplate;
 
@@ -51,5 +52,10 @@ public class EquiJoin extends AbstractBinaryOperator {
 			put("LOP1", getLeftTokenAttribute().toSqlString());
 			put("LOP2", getRightTokenAttribute().toSqlString());
 		}});
+	}
+
+	@Override
+	void accept(TreeVisitor v) {
+		v.visitEquiJoin(this);
 	}
 }

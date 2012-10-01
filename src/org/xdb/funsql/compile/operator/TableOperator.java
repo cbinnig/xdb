@@ -1,5 +1,6 @@
 package org.xdb.funsql.compile.operator;
 
+import org.xdb.funsql.compile.TreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenTable;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Table;
@@ -48,5 +49,10 @@ public class TableOperator extends AbstractOperator {
 	@Override
 	public String toSqlString() {
 		return "<"+connection.getTableName()+">";
+	}
+
+	@Override
+	void accept(TreeVisitor v) {
+		v.visitTableOperator(this);
 	}
 }
