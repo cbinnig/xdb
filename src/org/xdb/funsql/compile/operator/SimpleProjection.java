@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.TreeVisitor;
-import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.funsql.compile.expression.SimpleExpression;
 import org.xdb.utils.StringTemplate;
 
 public class SimpleProjection extends AbstractUnaryOperator {
 
 	private static final long serialVersionUID = 3800517017256774443L;
 	
-	private Vector<TokenAttribute> attributes;
+	private Vector<SimpleExpression> expressions;
 	final StringTemplate sqlTemplate = 
 			new StringTemplate("SELECT <ATTR_LIST> FROM `<<OP1>>` AS `<OP1>`");
 	
@@ -19,28 +19,28 @@ public class SimpleProjection extends AbstractUnaryOperator {
 	public SimpleProjection(AbstractOperator child, int size) {
 		super(child);
 		
-		attributes = new Vector<TokenAttribute>(size);
+		expressions = new Vector<SimpleExpression>(size);
 		type = EnumOperator.SIMPLE_PROJECTION;
 	}
 	
 	//getters and setters
-	public void setAttribute(int i, TokenAttribute attribute){
-		attributes.set(i, attribute);
+	public void setExpression(int i, SimpleExpression expression){
+		expressions.add(i, expression);
 	}
 	
-	public TokenAttribute getAttribtue(int i){
-		return attributes.get(i);
+	public SimpleExpression getExpression(int i){
+		return expressions.get(i);
 	}
 
-	public Vector<TokenAttribute> getAttributes() {
-		return attributes;
+	public Vector<SimpleExpression> getExpressions() {
+		return expressions;
 	}
 	
 	@Override
 	public String toSqlString() {
 		
 		final StringBuffer attrBuf = new StringBuffer();
-		for(TokenAttribute attr : attributes) {
+		for(SimpleExpression attr : expressions) {
 			if(attrBuf.length() != 0)
 				attrBuf.append(", ");
 			attrBuf.append("`<OP1>`.`"+attr.toSqlString());

@@ -14,7 +14,7 @@ public abstract class AbstractOperator implements Serializable {
 	//attributes
 	protected Vector<ResultDesc> results;
 	protected EnumOperator type;
-	protected Vector<AbstractOperator> children;
+	protected Vector<AbstractOperator> children = new Vector<AbstractOperator>();
 	
 	// unique operator id
 	protected Identifier operatorId;

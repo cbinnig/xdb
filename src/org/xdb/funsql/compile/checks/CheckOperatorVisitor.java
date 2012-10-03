@@ -1,8 +1,10 @@
-package org.xdb.funsql.compile;
+package org.xdb.funsql.compile.checks;
 
+import org.xdb.funsql.compile.TreeVisitor;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.EquiSelection;
 import org.xdb.funsql.compile.operator.FunctionCall;
+import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.SimpleAggregation;
 import org.xdb.funsql.compile.operator.SimpleProjection;
 import org.xdb.funsql.compile.operator.TableOperator;
@@ -46,6 +48,12 @@ public class CheckOperatorVisitor implements TreeVisitor{
 
 	@Override
 	public void visitTableOperator(TableOperator to) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void visitGenericSelection(GenericSelection es) {
 		// TODO Auto-generated method stub
 		
 	}

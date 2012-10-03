@@ -8,7 +8,7 @@ options
 
 tokens {
     EQUAL1              =   '=';
-    EQUAL2              =   '=='S;
+    EQUAL2              =   '==';
     NOT_EQUAL1          =   '!=';
     NOT_EQUAL2          =   '<>';
     LESS_THAN           =   '<';
@@ -280,32 +280,65 @@ createFunctionStatement returns [CreateFunctionStmt stmt]
 selectStatement returns [SelectStmt stmt]
         @init{
         	$stmt = new SelectStmt();
+        	int i=0;
         }
         :
         (
                 KEYWORD_SELECT
-                att1=tokenAttribute
+                expr1=abstractExpression
                 {
-                	$stmt.addAttribute($att1.attribute);
+                	$stmt.addExpression($expr1.expression);
+                	++i;
                 }
                 (
+                	KEYWORD_AS
+                	exprAlias1=tokenIdentifier
+                	{
+                		$stmt.setExpressionAlias(i-1, $exprAlias1.identifier);
+                	}
+                )?
+                (
                 COMMA
-                att2=tokenAttribute
+                expr2=abstractExpression
                 {
-                	$stmt.addAttribute($att2.attribute);
+                	$stmt.addExpression($expr2.expression);
+                	++i;
                 }
+                (
+                	KEYWORD_AS
+                	exprAlias2=tokenIdentifier
+                	{
+                		$stmt.setExpressionAlias(i-1, $exprAlias2.identifier);
+                	}
+                )?
                 )*
                 KEYWORD_FROM
                 table1=tokenTable 
                 {
                 	$stmt.addTable($table1.table);
+                	i=1;
                 }
+                (
+                	KEYWORD_AS
+                	tableAlias1=tokenIdentifier
+                	{
+                		$stmt.setTableAlias(i-1, $tableAlias1.identifier);
+                	}
+                )?
                 (
                 COMMA
                 table2=tokenTable
                 {
                 	$stmt.addTable($table2.table);
+                	++i;
                 }
+                (
+                	KEYWORD_AS
+                	tableAlias2=tokenIdentifier
+                	{
+                		$stmt.setTableAlias(i-1, $tableAlias2.identifier);
+                	}
+                )?
                 )*
                 (
                 KEYWORD_WHERE
@@ -320,8 +353,21 @@ selectStatement returns [SelectStmt stmt]
 	
 
 abstractPredicate returns [AbstractPredicate predicate]
-	:	predicate1=complexPredicateOr{
-			$predicate = $predicate1.predicateOr;
+	:	
+		predicate1=complexPredicate{
+			$predicate = $predicate1.predicate;
+		}
+		|
+		predicate2=complexPredicateNot{
+			$predicate = $predicate2.predicateNot;
+		}
+		|
+		predicate3=complexPredicateAnd{
+			$predicate = $predicate3.predicateAnd;
+		}
+		|
+		predicate4=complexPredicateOr{
+			$predicate = $predicate4.predicateOr;
 		}
 	;
 	        
@@ -430,9 +476,22 @@ simplePredicate returns [SimplePredicate predicate]
 
 
 abstractExpression returns [AbstractExpression expression]
-	:	expression1=complexExpressionAdd{
-			$expression = $expression1.expression;
-		}
+	:	
+	expression1=complexExpression{
+		$expression = $expression1.expression;
+	}
+	|
+	expression2=complexExpressionSigned{
+		$expression = $expression2.expression;
+	}
+	|
+	expression3=complexExpressionMult{
+		$expression = $expression3.expression;
+	}
+	|
+	expression4=complexExpressionAdd{
+		$expression = $expression4.expression;
+	}
 	;
 
 complexExpressionAdd returns [ComplexExpression expression]
@@ -829,6 +888,7 @@ KEYWORD_OUT: O U T;
 KEYWORD_AND: A N D;
 KEYWORD_OR: O R;
 KEYWORD_NOT: N O T;
+KEYWORD_AS: A S;
 
 KEYWORD_CONNECTION: C O N N E C T I O N;	 
 KEYWORD_SCHEMA: S C H E M A;

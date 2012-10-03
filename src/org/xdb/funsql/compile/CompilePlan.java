@@ -20,9 +20,10 @@ import org.xdb.utils.Identifier;
 public class CompilePlan implements Serializable {
 
 	private static final long serialVersionUID = -9194089079571372541L;
-
+	
 	// unique plan and operator id
 	private Identifier planId;
+	private static Integer lastPlanId=1;
 	
 	// last plan operator id
 	private Integer lastOpId=1;
@@ -38,12 +39,11 @@ public class CompilePlan implements Serializable {
 	private Error err = new Error();
 
 	// constructor
-	public CompilePlan(Identifier planId) {
-		this.planId = planId;
+	public CompilePlan() {
 		this.operators = new HashMap<Identifier, AbstractOperator>();
 		this.roots = new HashSet<Identifier>();
-		
-		
+			
+		this.planId = new Identifier(lastPlanId++);
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 	}
 

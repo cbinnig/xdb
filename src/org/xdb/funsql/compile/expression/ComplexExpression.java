@@ -1,8 +1,11 @@
 package org.xdb.funsql.compile.expression;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 public class ComplexExpression extends AbstractExpression {
 
@@ -78,5 +81,21 @@ public class ComplexExpression extends AbstractExpression {
 		}
 
 		return sqlValue.toString();
+	}
+
+	@Override
+	public Set<TokenAttribute> getAttributes() {
+		HashSet<TokenAttribute> atts = new HashSet<TokenAttribute>();
+		atts.addAll(this.expr1.getAttributes());
+		
+		for(AbstractExpression expr2: this.exprs2){
+			atts.addAll(expr2.getAttributes());
+		}
+		return atts;
+	}
+
+	@Override
+	public boolean isAttribute() {
+		return false;
 	}
 }

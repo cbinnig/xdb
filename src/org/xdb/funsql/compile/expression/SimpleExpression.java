@@ -1,7 +1,12 @@
 package org.xdb.funsql.compile.expression;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.AbstractTokenOperand;
+import org.xdb.funsql.compile.tokens.EnumOperandType;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 public class SimpleExpression extends AbstractExpression {
 	private static final long serialVersionUID = -857048085355641688L;
@@ -40,5 +45,22 @@ public class SimpleExpression extends AbstractExpression {
 		sqlValue.append(tOper.toSqlString());
 		
 		return sqlValue.toString();
+	}
+
+	@Override
+	public Set<TokenAttribute> getAttributes() {
+		HashSet<TokenAttribute> atts = new HashSet<TokenAttribute>();
+		if(this.tOper.getType() == EnumOperandType.ATTRIBUTE){
+			atts.add((TokenAttribute)this.tOper);
+		}
+	
+		return atts;
+	}
+
+	@Override
+	public boolean isAttribute() {
+		if(!this.tOper.isAttribute())
+			return false;
+		return true;
 	}
 }

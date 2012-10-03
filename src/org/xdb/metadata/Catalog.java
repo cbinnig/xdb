@@ -310,6 +310,7 @@ public class Catalog {
 		if (lastError == Error.NO_ERROR) {
 			Catalog.addAttribute(att);
 		}
+		
 		return lastError;
 	}
 

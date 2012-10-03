@@ -21,7 +21,14 @@ public enum EnumError {
 	STORE_NOT_EXISTS,
 	STORE_CONNECTION_ERROR,
 	STORE_EXECUTION_ERROR,
-	ATTRIBUTE_NOT_IN_TABLE,
+	COMPILER_GENERIC,
+	COMPILER_SELECT_EXPRESSION_NOT_SUPPORTED,
+	COMPILER_SELECT_ATTRIBUTE_NOT_IN_TABLE,
+	COMPILER_SELECT_ATTRIBUTE_IN_NO_TABLE,
+	COMPILER_SELECT_ATTRIBUTE_NOT_UNIQUE,
+	COMPILER_SELECT_DUPLICATE_TABLE,
+	COMPILER_SELECT_ALIAS_MISSING,
+	COMPILER_SELECT_DUPLICATE_ATTRIBUTE,
 	TRACKER_PLAN_INVALID_GENERIC;
 	
 	public static String toString(EnumError error, String[] args){
@@ -73,11 +80,32 @@ public enum EnumError {
 		case STORE_EXECUTION_ERROR:
 			msg =  "Store: Statement \"<arg0>\" can not be executed (error: \"<arg1>\")!";
 			break;
-		case ATTRIBUTE_NOT_IN_TABLE:
-			msg = "Attribute \"<arg0>\" does not exist in the table \"<arg1>\"!";
+		case COMPILER_GENERIC:
+			msg = "Compiler: Error \"<arg0>\"!";
+			break;
+		case COMPILER_SELECT_EXPRESSION_NOT_SUPPORTED:
+			msg = "Compiler: Expression \"<arg0>\" not supported!";
+			break;
+		case COMPILER_SELECT_ATTRIBUTE_NOT_IN_TABLE:
+			msg = "Compiler: Attribute \"<arg0>\" does not exist in the table \"<arg1>\"!";
+			break;
+		case COMPILER_SELECT_ATTRIBUTE_IN_NO_TABLE:
+			msg = "Compiler: Attribute \"<arg0>\" does not exist in any table!";
+			break;
+		case COMPILER_SELECT_ATTRIBUTE_NOT_UNIQUE:
+			msg = "Compiler: Attribute \"<arg0>\" not unique!";
+			break;
+		case COMPILER_SELECT_DUPLICATE_TABLE:
+			msg = "Compiler: Table name \"<arg0>\" specified more than once!";
+			break;
+		case COMPILER_SELECT_DUPLICATE_ATTRIBUTE:
+			msg = "Compiler: Attribute name \"<arg0>\" specified more than once!";
+			break;
+		case COMPILER_SELECT_ALIAS_MISSING:
+			msg = "Compiler: Alias for expression \"<arg0>\" required!";
 			break;
 		case TRACKER_PLAN_INVALID_GENERIC:
-			msg = "Input plan was invalid (no specific error provided).";
+			msg = "Tracker: Input plan was invalid (no specific error provided).";
 			break;
 		}
 		
