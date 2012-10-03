@@ -1,6 +1,10 @@
 package org.xdb.funsql.compile.predicate;
 
+import java.util.Collection;
+import java.util.Set;
+
 import org.xdb.funsql.compile.tokens.AbstractToken;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 /**
  * Predicate representation for compilation
@@ -33,4 +37,10 @@ public abstract class AbstractPredicate extends AbstractToken{
 	public void setType(EnumPredicateType type) {
 		this.type = type;
 	}
+	
+	public abstract Set<TokenAttribute> getAttributes();
+	
+	public abstract boolean isEquiJoinPredicate();
+	
+	public abstract Collection<AbstractPredicate> splitAnd();
 }

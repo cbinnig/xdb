@@ -1,7 +1,12 @@
 package org.xdb.funsql.compile.predicate;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 public class SimplePredicate extends AbstractPredicate {
 	private static final long serialVersionUID = -857048085355641688L;
@@ -61,5 +66,31 @@ public class SimplePredicate extends AbstractPredicate {
 		sqlValue.append(AbstractToken.RBRACE);
 		
 		return sqlValue.toString();
+	}
+
+	@Override
+	public Set<TokenAttribute> getAttributes() {
+		HashSet<TokenAttribute> atts = new HashSet<TokenAttribute>();
+		atts.addAll(this.expr1.getAttributes());
+		atts.addAll(this.expr2.getAttributes());
+		return atts;
+	}
+
+	@Override
+	public boolean isEquiJoinPredicate() {
+		if(this.comp != EnumCompOperator.SQL_EQUAL)
+			return false;
+		else if(!this.expr1.isAttribute())
+			return false;
+		else if(!this.expr2.isAttribute())
+			return false;
+		return true;
+	}
+
+	@Override
+	public Collection<AbstractPredicate> splitAnd() {
+		HashSet<AbstractPredicate> predicates = new HashSet<AbstractPredicate>();
+		predicates.add(this);
+		return predicates;
 	}
 }

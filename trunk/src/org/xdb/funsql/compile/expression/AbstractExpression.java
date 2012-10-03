@@ -1,6 +1,9 @@
 package org.xdb.funsql.compile.expression;
 
+import java.util.Set;
+
 import org.xdb.funsql.compile.tokens.AbstractToken;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 public abstract class AbstractExpression extends AbstractToken{
 
@@ -28,4 +31,8 @@ public abstract class AbstractExpression extends AbstractToken{
 	public void setType(EnumExprType type) {
 		this.type = type;
 	}
+	
+	public abstract Set<TokenAttribute> getAttributes();
+	
+	public abstract boolean isAttribute();
 }

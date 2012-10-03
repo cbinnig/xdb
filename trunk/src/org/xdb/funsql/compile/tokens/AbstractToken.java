@@ -46,7 +46,27 @@ public abstract class AbstractToken implements Serializable{
 	public static final String MAX = "MAX";
 	public static final String AS = "AS";
 	
+	@Override
+	public boolean equals(Object o){
+		return this.toString().equals(o.toString());
+	}
+	
+	@Override
+	public int hashCode(){
+		return toSqlString().hashCode();
+	}
+	
+	@Override
+	public String toString(){
+		return this.toSqlString();
+	}
+	
+	/**
+	 * SQL representation of token
+	 * @return
+	 */
 	public abstract String toSqlString();
+	
 	
 	public static String toSqlLiteral(String value){
 		StringBuffer literal = new StringBuffer();

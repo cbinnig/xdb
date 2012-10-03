@@ -2,6 +2,7 @@ package org.xdb.test;
 
 import junit.framework.Assert;
 
+import org.xdb.server.CompileServer;
 import org.xdb.server.ComputeServer;
 import org.xdb.server.MasterTrackerServer;
 
@@ -16,7 +17,8 @@ public class QueryTrackerServerTestCase extends TestCase {
 	@Override
 	public void setUp(){
 		//TODO: truncate tables in xdb_temp on local node
-		
+		assertNoError(CompileServer.deleteCatalog());
+
 		try {
 			mTrackerServer = new MasterTrackerServer();
 			mTrackerServer.startServer();

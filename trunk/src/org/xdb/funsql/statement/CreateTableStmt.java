@@ -146,6 +146,8 @@ public class CreateTableStmt extends AbstractServerStmt {
 			Attribute attribute = new Attribute(tAttribute.getName().toString(), tDataType.getDataType() , this.table.getOid());
 			attributes.put(attName, attribute);
 			
+			this.table.addAttributes(attributes.values());
+			
 			lastError = attribute.checkObject();
 			if(lastError!=Error.NO_ERROR)
 				return lastError;

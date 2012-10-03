@@ -9,7 +9,7 @@ public class TokenAttribute extends AbstractTokenOperand{
 
 	// constructors
 	public TokenAttribute() {
-		super();
+		super(EnumOperandType.ATTRIBUTE);
 	}
 	
 	public TokenAttribute(String name) {
@@ -58,5 +58,10 @@ public class TokenAttribute extends AbstractTokenOperand{
 		buffer.append(this.name.toString());
 		
 		return buffer.toString();
+	}
+
+	@Override
+	public boolean isAttribute() {
+		return true;
 	}
 }

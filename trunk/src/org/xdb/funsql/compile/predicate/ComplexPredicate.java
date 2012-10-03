@@ -1,8 +1,12 @@
 package org.xdb.funsql.compile.predicate;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 public class ComplexPredicate extends AbstractPredicate {
 
@@ -86,5 +90,35 @@ public class ComplexPredicate extends AbstractPredicate {
 			sqlValue.append(AbstractToken.RBRACE);
 		
 		return sqlValue.toString();
+	}
+	
+	@Override
+	public Set<TokenAttribute> getAttributes() {
+		HashSet<TokenAttribute> atts = new HashSet<TokenAttribute>();
+		atts.addAll(this.pred1.getAttributes());
+		
+		for(AbstractPredicate pred2: this.preds2){
+			atts.addAll(pred2.getAttributes());
+		}
+		
+		return atts;
+	}
+
+	@Override
+	public boolean isEquiJoinPredicate() {
+		return false;
+	}
+
+	@Override
+	public Collection<AbstractPredicate> splitAnd() {
+		HashSet<AbstractPredicate> predicates = new HashSet<AbstractPredicate>();
+		if(this.type==EnumPredicateType.AND_PREDICATE){
+			predicates.add(this.pred1);
+			predicates.addAll(this.preds2);
+		}
+		else{
+			predicates.add(this);
+		}
+		return null;
 	}
 }

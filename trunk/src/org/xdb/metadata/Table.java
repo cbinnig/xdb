@@ -96,8 +96,24 @@ public class Table extends AbstractDatabaseObject {
 	}
 	
 
+	public void addAttributes(Collection<Attribute> atts){
+		for(Attribute att: atts){
+			this.addAttribute(att);
+		}
+	}
+	
 	public Collection<Attribute> getAttributes() {
 		return attributes.values();
+	}
+	
+	public Attribute getAttribute(String name) {
+		for(Attribute att: this.attributes.values()){
+			if(att.getName().equals(name)){
+				return att;
+			}
+		}
+		
+		return null;
 	}
 
 	@Override

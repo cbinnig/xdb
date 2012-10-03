@@ -1,3 +1,5 @@
+USE xdb_schema;
+
 CREATE TABLE `ATTRIBUTE` (
     `OID` bigint NOT NULL,
     `NAME` character varying(255) NOT NULL,
