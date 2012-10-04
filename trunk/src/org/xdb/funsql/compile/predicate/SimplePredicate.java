@@ -10,19 +10,19 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 public class SimplePredicate extends AbstractPredicate {
 	private static final long serialVersionUID = -857048085355641688L;
-	
+
 	private AbstractExpression expr1;
 	private EnumCompOperator comp;
 	private AbstractExpression expr2;
-	
-	//constructors 
+
+	// constructors
 	public SimplePredicate() {
 		super();
-		
+
 		this.type = EnumPredicateType.SIMPLE_PREDICATE;
 	}
-	
-	//getters and setters
+
+	// getters and setters
 	public EnumCompOperator getComp() {
 		return comp;
 	}
@@ -47,24 +47,24 @@ public class SimplePredicate extends AbstractPredicate {
 		this.expr2 = expr2;
 	}
 
-	//helper methods
+	// helper methods
 	@Override
 	public String toString() {
 		return this.toSqlString();
 	}
-	
+
 	@Override
-	public String toSqlString(){
+	public String toSqlString() {
 		StringBuffer sqlValue = new StringBuffer();
-		if(this.isNegated)
+		if (this.isNegated)
 			sqlValue.append(AbstractToken.NOT);
-		
+
 		sqlValue.append(AbstractToken.LBRACE);
 		sqlValue.append(expr1.toSqlString());
 		sqlValue.append(comp.toString());
 		sqlValue.append(expr2.toSqlString());
 		sqlValue.append(AbstractToken.RBRACE);
-		
+
 		return sqlValue.toString();
 	}
 
@@ -78,12 +78,25 @@ public class SimplePredicate extends AbstractPredicate {
 
 	@Override
 	public boolean isEquiJoinPredicate() {
-		if(this.comp != EnumCompOperator.SQL_EQUAL)
+		if (this.comp != EnumCompOperator.SQL_EQUAL)
 			return false;
-		else if(!this.expr1.isAttribute())
+		else if (!this.expr1.isAttribute())
 			return false;
-		else if(!this.expr2.isAttribute())
+		else if (!this.expr2.isAttribute())
 			return false;
+		else {
+			TokenAttribute[] leftAtt = this.expr1.getAttributes().toArray(
+					new TokenAttribute[1]);
+			TokenAttribute[] rightAtt = this.expr2.getAttributes().toArray(
+					new TokenAttribute[1]);
+
+			if (leftAtt[0].getTable() == null || rightAtt[0].getTable() == null){
+				return false;
+			}
+			else if (leftAtt[0].getTable().equals(rightAtt[0].getTable())) {
+				return false;
+			}
+		}
 		return true;
 	}
 
