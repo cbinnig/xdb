@@ -8,6 +8,7 @@ import java.util.Vector;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
+import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.EnumExprType;
 import org.xdb.funsql.compile.expression.SimpleExpression;
@@ -138,7 +139,7 @@ public class SelectStmt extends AbstractServerStmt {
 		for(AbstractPredicate predicate: this.selectionPreds){
 			GenericSelection selectOp = new GenericSelection(lastOp);
 			selectOp.setPredicate(predicate);
-			plan.addOperator(selectOp, true);
+			plan.addOperator(selectOp, false);
 			lastOp = selectOp;
 		}
 		
@@ -183,9 +184,15 @@ public class SelectStmt extends AbstractServerStmt {
 			Collection<AbstractPredicate> predicates = this.tPredicate.splitAnd();
 			HashMap<String, TableOperator> tableOps = new HashMap<String, TableOperator>();
 			
+			//find all equi-join predicates
+			int joinPreds = 0;
 			for(AbstractPredicate predicate: predicates){
+				
 				if(predicate.isEquiJoinPredicate()){
+					//found join predicate
+					joinPreds++;
 					
+					//get join attributes
 					TokenAttribute[] joinAtts = new TokenAttribute[2];
 					int i=0;
 					for(TokenAttribute tAttr: predicate.getAttributes()){
@@ -199,6 +206,7 @@ public class SelectStmt extends AbstractServerStmt {
 					TableOperator leftTableOp = tableOps.get(tLeftTable.getName().hashKey());
 					TableOperator rightTableOp = tableOps.get(tRightTable.getName().hashKey());
 					
+					//left table not yet in join path?
 					boolean newLeftTable = false;
 					if(leftTableOp==null){
 						Table leftTable = this.tableSymbols.get(tLeftTable.getName().hashKey());
@@ -209,6 +217,7 @@ public class SelectStmt extends AbstractServerStmt {
 						newLeftTable = true;
 					}
 					
+					//right table not yat in join path?
 					boolean newRightTable = false;
 					if(rightTableOp==null){
 						Table rightTable = this.tableSymbols.get(tRightTable.getName().hashKey());
@@ -219,27 +228,30 @@ public class SelectStmt extends AbstractServerStmt {
 						newRightTable = true;
 					}
 					
-					EquiJoin joinOp;
+					EquiJoin joinOp = null;
+					//both tables L and R are new: L JOIN R
 					if(newLeftTable && newRightTable){
 						joinOp = new EquiJoin(leftTableOp, rightTableOp, joinAtts[0], joinAtts[1]);
 					}
-					else if(newLeftTable && newRightTable){
-						joinOp = new EquiJoin(leftTableOp, lastOp, joinAtts[0], joinAtts[1]);
+					//only left table is new: LastOp JOIN L (to create left deep plan)
+					else if(newLeftTable){
+						joinOp = new EquiJoin(lastOp, leftTableOp, joinAtts[1], joinAtts[0]);
 					}
+					//only right table is new: LastOp JOIN R
 					else{
 						joinOp = new EquiJoin(lastOp, rightTableOp, joinAtts[0], joinAtts[1]);
 					}
 					plan.addOperator(joinOp, false);
-					
 					lastOp = joinOp;
 				}
 				else{
+					//keep remaining predicates!
 					selectionPreds.add(predicate);
 				}
 			}
 			
-			if(tableOps.size()<this.tTables.size()){
-				return this.createGenericCompileErr("Cartesian product not supported!");
+			if(joinPreds+1 != this.tTables.size()){
+				return FunSQLCompiler.createGenericCompileErr("Cartesian product not in SQL statement supported!");
 			}
 			
 		}
@@ -412,17 +424,6 @@ public class SelectStmt extends AbstractServerStmt {
 			}
 		}
 		return err;
-	}
-
-	/**
-	 * Create generic compiler error 
-	 * @param msg
-	 * @return
-	 */
-	private Error createGenericCompileErr(String msg) {
-		String args[] = { msg };
-		Error error = new Error(EnumError.COMPILER_GENERIC, args);
-		return error;
 	}
 	
 	/**

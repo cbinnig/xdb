@@ -11,7 +11,7 @@ public class GenericSelection extends AbstractUnaryOperator {
 	//constructors
 	public GenericSelection(AbstractOperator child) {
 		super(child);
-		this.type = EnumOperator.EQUI_SELECTION;
+		this.type = EnumOperator.GENERIC_SELECTION;
 	}
 
 	//getters and setters
