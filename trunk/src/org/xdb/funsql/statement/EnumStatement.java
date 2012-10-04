@@ -8,4 +8,5 @@ public enum EnumStatement {
 	CREATE_TABLE,
 	DROP_TABLE,
 	SELECT,
+	CREATE_FUNCTION,
 }
