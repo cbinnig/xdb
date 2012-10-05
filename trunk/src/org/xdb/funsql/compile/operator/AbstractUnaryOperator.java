@@ -1,5 +1,13 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.HashMap;
+
+import org.xdb.error.Error;
+import org.xdb.utils.Identifier;
+
+import com.oy.shared.lm.graph.Graph;
+import com.oy.shared.lm.graph.GraphNode;
+
 
 public abstract class AbstractUnaryOperator extends AbstractOperator {
 	
@@ -30,5 +38,20 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 
 	public void setInputNumber(int inputNumber) {
 		this.inputNumber = inputNumber;
+	}
+	
+	@Override
+	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
+		Error err = new Error();
+		GraphNode node = nodes.get(this.operatorId);
+		AbstractOperator childOp = this.children.get(0);
+		if(!nodes.containsKey(childOp.operatorId)){
+			GraphNode child = g.addNode();
+			child.getInfo().setCaption(childOp.type.toString());
+			g.addEdge(node, child);
+			nodes.put(childOp.operatorId, child);
+			childOp.traceGraph(g, nodes);
+		}
+		return err;
 	}
 }

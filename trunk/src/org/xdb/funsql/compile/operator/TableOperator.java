@@ -1,9 +1,16 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.HashMap;
+
+import org.xdb.error.Error;
 import org.xdb.funsql.compile.TreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenTable;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Table;
+import org.xdb.utils.Identifier;
+
+import com.oy.shared.lm.graph.Graph;
+import com.oy.shared.lm.graph.GraphNode;
 
 public class TableOperator extends AbstractOperator {
 	private static final long serialVersionUID = 997138204723229392L;
@@ -54,5 +61,12 @@ public class TableOperator extends AbstractOperator {
 	@Override
 	void accept(TreeVisitor v) {
 		v.visitTableOperator(this);
+	}
+	
+	@Override
+	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
+		Error err = new Error();
+		
+		return err;
 	}
 }

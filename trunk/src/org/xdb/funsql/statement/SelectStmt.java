@@ -44,6 +44,8 @@ public class SelectStmt extends AbstractServerStmt {
 	private HashMap<String, Attribute> attSymbols = new HashMap<String, Attribute>();
 	private CompilePlan plan = new CompilePlan();
 	private Vector<AbstractPredicate> selectionPreds = new Vector<AbstractPredicate>();
+	private AbstractOperator lastOp = null;
+	
 
 	// constructors
 	public SelectStmt() {
@@ -132,8 +134,9 @@ public class SelectStmt extends AbstractServerStmt {
 		Error err = new Error();
 
 		//from clause
-		AbstractOperator lastOp = null;
-		createFromPlan(lastOp);
+		err = createFromPlan();
+		if(err.isError())
+			return err;
 		
 		//where clause
 		for(AbstractPredicate predicate: this.selectionPreds){
@@ -166,7 +169,7 @@ public class SelectStmt extends AbstractServerStmt {
 	 * @param lastOp
 	 * @return
 	 */
-	private Error createFromPlan(AbstractOperator lastOp){
+	private Error createFromPlan(){
 		Error err = new Error();
 
 		//no join required
