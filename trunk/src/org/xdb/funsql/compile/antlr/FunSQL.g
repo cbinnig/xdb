@@ -687,8 +687,9 @@ tokenAssignment returns [TokenAssignment ass]
 	 :
 	 (
 		 (
-		 COLON
+		 COLON		 
 		 var1 = tokenVariable{
+		 $ass.setReference(true);
 		 $ass.setVar(var1);
 		 }
 		 EQUAL1
@@ -699,7 +700,8 @@ tokenAssignment returns [TokenAssignment ass]
 		 |
 		 (
 		 KEYWORD_VAR
-		 var2 = tokenVariable{
+		 var2 = tokenVariable{		 
+		 $ass.setReference(false);
 		 $ass.setVar(var2);
 		 }
 		 EQUAL1

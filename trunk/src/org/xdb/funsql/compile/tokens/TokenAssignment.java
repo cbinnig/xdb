@@ -2,16 +2,19 @@ package org.xdb.funsql.compile.tokens;
 
 import org.xdb.funsql.statement.SelectStmt;
 
+// VAR v1 = <select-Stmt>;
+// :v2 = <select-Stmt>;
 public class TokenAssignment extends AbstractToken{
 	private static final long serialVersionUID = 6953876003543489236L;
 	private TokenVariable var;
 	private SelectStmt selstmt;
-
+	private boolean isReference;
+	
 	@Override
 	public String toSqlString() {
-		// TODO Auto-generated method stub
 		return null;
 	}
+
 
 	//getter and setter
 	public void setVar(TokenVariable var) {
@@ -28,6 +31,15 @@ public class TokenAssignment extends AbstractToken{
 
 	public void setSelStmt(SelectStmt selstmt) {
 		this.selstmt = selstmt;
+	}
+
+	public boolean isReference() {
+		return isReference;
+	}
+
+
+	public void setReference(boolean isReference) {
+		this.isReference = isReference;
 	}
 
 }

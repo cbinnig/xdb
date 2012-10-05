@@ -1,6 +1,7 @@
 package org.xdb.funsql.compile.tokens;
 
 import org.xdb.Config;
+import org.xdb.funsql.statement.EnumLanguage;
 
 public class TokenFunction extends AbstractToken{
 	private static final long serialVersionUID = -7374551485124320255L;
@@ -8,6 +9,7 @@ public class TokenFunction extends AbstractToken{
 	//attributes
 	private TokenIdentifier name;
 	private TokenSchema schema;
+	private EnumLanguage language;
 	
 	//constructors
 	public TokenFunction(String name){
@@ -70,5 +72,13 @@ public class TokenFunction extends AbstractToken{
 		key.append(DOT);
 		key.append(this.name.toString());
 		return key.toString();
+	}
+
+	public EnumLanguage getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(EnumLanguage language) {
+		this.language = language;
 	}
 }
