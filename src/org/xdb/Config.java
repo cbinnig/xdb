@@ -51,4 +51,8 @@ public class Config implements Serializable {
 
 	public static final String LOG_FILE = "./log/xdb.log";
 	public static final Level LOG_LEVEL = Level.INFO;
+	
+	//DOT
+	public static final String DOT_EXE = "dot";
+	public static final String DOT_TRACE_PATH = "./log/";
 }

@@ -1,5 +1,13 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.HashMap;
+
+import org.xdb.error.Error;
+import org.xdb.utils.Identifier;
+
+import com.oy.shared.lm.graph.Graph;
+import com.oy.shared.lm.graph.GraphNode;
+
 
 public abstract class AbstractBinaryOperator extends AbstractOperator {
 
@@ -49,4 +57,28 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 	public void setRightInputNumber(int rightInputNumber) {
 		this.rightInputNumber = rightInputNumber;
 	}	
+	
+	@Override
+	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
+		Error err = new Error();
+		GraphNode node = nodes.get(this.operatorId);
+		AbstractOperator leftChildOp = this.children.get(0);
+		AbstractOperator rightChildOp = this.children.get(1);
+		
+		if(!nodes.containsKey(leftChildOp.operatorId)){
+			GraphNode child = g.addNode();
+			child.getInfo().setCaption(leftChildOp.type.toString());
+			g.addEdge(node, child);
+			nodes.put(leftChildOp.operatorId, child);
+			leftChildOp.traceGraph(g, nodes);
+		}
+		if(!nodes.containsKey(rightChildOp.operatorId)){
+			GraphNode child = g.addNode();
+			child.getInfo().setCaption(rightChildOp.type.toString());
+			g.addEdge(node, child);
+			nodes.put(rightChildOp.operatorId, child);
+			rightChildOp.traceGraph(g, nodes);
+		}
+		return err;
+	}
 }

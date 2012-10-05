@@ -1,10 +1,15 @@
 package org.xdb.funsql.compile.operator;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Vector;
 
+import org.xdb.error.Error;
 import org.xdb.funsql.compile.TreeVisitor;
 import org.xdb.utils.Identifier;
+
+import com.oy.shared.lm.graph.Graph;
+import com.oy.shared.lm.graph.GraphNode;
 
 
 public abstract class AbstractOperator implements Serializable {
@@ -78,6 +83,13 @@ public abstract class AbstractOperator implements Serializable {
 	 */
 	public abstract String toSqlString();
 	
+	
+	/**
+	 * Generates a visual graph representation of the operator
+	 * @param g
+	 * @return
+	 */
+	public abstract Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes);
 	
 	@Override
 	public String toString(){
