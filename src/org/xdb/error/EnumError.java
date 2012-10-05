@@ -30,6 +30,7 @@ public enum EnumError {
 	COMPILER_SELECT_ALIAS_MISSING,
 	COMPILER_SELECT_DUPLICATE_ATTRIBUTE,
 	COMPILER_FUNCTION_OUT_NOT_INITIALISED,
+	COMPILER_FUNCTION_VAR_NOT_DECLARED,
 	TRACKER_PLAN_INVALID_GENERIC;
 	
 	public static String toString(EnumError error, String[] args){
@@ -107,6 +108,9 @@ public enum EnumError {
 			break;
 		case COMPILER_FUNCTION_OUT_NOT_INITIALISED:
 			msg= "Compiler: Output parameter \"<arg0>\" not initialised!";
+			break;
+		case COMPILER_FUNCTION_VAR_NOT_DECLARED:
+			msg= "Compiler: Variable \"<arg0>\" not declared!";
 			break;
 		case TRACKER_PLAN_INVALID_GENERIC:
 			msg = "Tracker: Input plan was invalid (no specific error provided).";
