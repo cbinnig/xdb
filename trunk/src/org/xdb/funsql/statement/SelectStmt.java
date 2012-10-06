@@ -15,7 +15,7 @@ import org.xdb.funsql.compile.expression.SimpleExpression;
 import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericSelection;
-import org.xdb.funsql.compile.operator.SimpleProjection;
+import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
 import org.xdb.funsql.compile.tokens.AbstractToken;
@@ -147,17 +147,10 @@ public class SelectStmt extends AbstractServerStmt {
 		}
 		
 		//select clause
-		SimpleProjection projectOp = new SimpleProjection(lastOp, this.tExpressions.size());
+		GenericProjection projectOp = new GenericProjection(lastOp, this.tExpressions.size());
 		for(int i=0; i < this.tExpressions.size(); ++i){
 			AbstractExpression tExpr = this.tExpressions.get(i);
-			
-			if(tExpr.getType()==EnumExprType.SIMPLE_EXPRESSION){
-				projectOp.setExpression(i, (SimpleExpression)tExpr);
-			}
-			else{
-				return createExprNotSupportedErr(tExpr);
-			}
-			
+			projectOp.setExpression(i, tExpr);
 		}
 		plan.addOperator(projectOp, true);
 		
@@ -427,17 +420,6 @@ public class SelectStmt extends AbstractServerStmt {
 			}
 		}
 		return err;
-	}
-	
-	/**
-	 * Create compiler error when expression is not supported
-	 * @param expr
-	 * @return
-	 */
-	private Error createExprNotSupportedErr(AbstractExpression expr) {
-		String args[] = { expr.toSqlString() };
-		Error error = new Error(EnumError.COMPILER_SELECT_EXPRESSION_NOT_SUPPORTED, args);
-		return error;
 	}
 	
 	/**

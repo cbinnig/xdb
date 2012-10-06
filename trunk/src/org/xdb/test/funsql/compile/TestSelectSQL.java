@@ -38,7 +38,7 @@ public class TestSelectSQL extends CompileServerTestCase {
 		this.execute(stmt);
 
 		SelectStmt selectStmt = (SelectStmt) compiler
-				.compile("SELECT R1.A AS A1 FROM R AS R1 WHERE R1.C=1");
+				.compile("SELECT R1.A+1 AS A1 FROM R AS R1 WHERE R1.C=1");
 		this.assertNoError(compiler.getLastError());
 		selectStmt.getPlan().traceGraph(this.getClass().getName());
 		
@@ -60,7 +60,7 @@ public class TestSelectSQL extends CompileServerTestCase {
 	public void noTestCompileSelect() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
 
-		compiler.compile("SELECT A FROM R");
+		compiler.compile("SELECT A+1 AS A FROM R");
 		this.assertNoError(compiler.getLastError());
 
 		SelectStmt stmt = (SelectStmt) compiler
