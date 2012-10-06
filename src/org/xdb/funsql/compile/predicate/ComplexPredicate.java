@@ -18,7 +18,7 @@ public class ComplexPredicate extends AbstractPredicate {
 
 	public ComplexPredicate() {
 		super();
-		
+
 		this.opers = new Vector<EnumBoolOperator>();
 		this.preds2 = new Vector<AbstractPredicate>();
 	}
@@ -49,7 +49,7 @@ public class ComplexPredicate extends AbstractPredicate {
 	public void addOr() {
 		this.opers.add(EnumBoolOperator.SQL_OR);
 	}
-	
+
 	public void addOp(EnumBoolOperator oper) {
 		this.opers.add(oper);
 	}
@@ -76,49 +76,60 @@ public class ComplexPredicate extends AbstractPredicate {
 
 		if (!this.preds2.isEmpty())
 			sqlValue.append(AbstractToken.LBRACE);
-		
+
 		sqlValue.append(this.pred1);
-		
-		for(int i=0; i<this.preds2.size(); ++i){
+
+		for (int i = 0; i < this.preds2.size(); ++i) {
 			sqlValue.append(AbstractToken.BLANK);
 			sqlValue.append(this.opers.get(i));
 			sqlValue.append(AbstractToken.BLANK);
 			sqlValue.append(this.preds2.get(i).toSqlString());
 		}
-		
+
 		if (!this.preds2.isEmpty())
 			sqlValue.append(AbstractToken.RBRACE);
-		
+
 		return sqlValue.toString();
 	}
-	
+
 	@Override
 	public Set<TokenAttribute> getAttributes() {
 		HashSet<TokenAttribute> atts = new HashSet<TokenAttribute>();
 		atts.addAll(this.pred1.getAttributes());
-		
-		for(AbstractPredicate pred2: this.preds2){
+
+		for (AbstractPredicate pred2 : this.preds2) {
 			atts.addAll(pred2.getAttributes());
 		}
-		
+
 		return atts;
 	}
 
 	@Override
 	public boolean isEquiJoinPredicate() {
+		if(this.type==EnumPredicateType.NOT_PREDICATE){
+			return this.pred1.isEquiJoinPredicate();
+		}
 		return false;
 	}
 
 	@Override
 	public Collection<AbstractPredicate> splitAnd() {
 		HashSet<AbstractPredicate> predicates = new HashSet<AbstractPredicate>();
-		if(this.type==EnumPredicateType.AND_PREDICATE){
-			predicates.add(this.pred1);
-			predicates.addAll(this.preds2);
+		if (this.type == EnumPredicateType.OR_PREDICATE) {
+			if (this.preds2.size() == 0) {
+				return this.pred1.splitAnd();
+			} else {
+				return predicates;
+			}
+		} else {
+			if (this.type == EnumPredicateType.AND_PREDICATE) {
+				predicates.add(this.pred1);
+				predicates.addAll(this.preds2);
+			} else {
+				predicates.add(this);
+			}
 		}
-		else{
-			predicates.add(this);
-		}
-		return null;
+		return predicates;
+
 	}
 }
