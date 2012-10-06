@@ -49,12 +49,12 @@ public class TestSelectSQL extends CompileServerTestCase {
 		this.assertNoError(compiler.getLastError());
 		selectStmt.getPlan().traceGraph(this.getClass().getName());
 		
-		/*selectStmt = (SelectStmt) compiler
+		selectStmt = (SelectStmt) compiler
 				.compile("SELECT R1.A AS A1, R2.A AS A2 "
 						+ "FROM R AS R1, R AS R2, R AS R3 "
 						+ "WHERE R1.B=R2.B AND R2.B=R3.B AND R1.C=1");
 		this.assertNoError(compiler.getLastError());
-		selectStmt.getPlan().traceGraph(this.getClass().getName());*/
+		selectStmt.getPlan().traceGraph(this.getClass().getName());
 	}
 
 	public void noTestCompileSelect() {

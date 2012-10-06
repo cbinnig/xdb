@@ -66,7 +66,8 @@ public class TableOperator extends AbstractOperator {
 	@Override
 	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
 		Error err = new Error();
-		
+		GraphNode node = nodes.get(this.operatorId);
+		node.getInfo().setFooter(this.tableName.toSqlString());
 		return err;
 	}
 }

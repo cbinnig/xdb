@@ -354,20 +354,8 @@ selectStatement returns [SelectStmt stmt]
 
 abstractPredicate returns [AbstractPredicate predicate]
 	:	
-		predicate1=complexPredicate{
-			$predicate = $predicate1.predicate;
-		}
-		|
-		predicate2=complexPredicateNot{
-			$predicate = $predicate2.predicateNot;
-		}
-		|
-		predicate3=complexPredicateAnd{
-			$predicate = $predicate3.predicateAnd;
-		}
-		|
-		predicate4=complexPredicateOr{
-			$predicate = $predicate4.predicateOr;
+		predicate1=complexPredicateOr{
+			$predicate = $predicate1.predicateOr;
 		}
 	;
 	        
@@ -387,7 +375,7 @@ complexPredicateOr returns [ComplexPredicate predicateOr]
 			predicate2=complexPredicateAnd{
 				$predicateOr.addPredicate2($predicate2.predicateAnd);
 			} 
-		)* 
+		)*
 	)
 	;
 
@@ -476,21 +464,9 @@ simplePredicate returns [SimplePredicate predicate]
 
 
 abstractExpression returns [AbstractExpression expression]
-	:	
-	expression1=complexExpression{
+	:
+	expression1=complexExpressionAdd{
 		$expression = $expression1.expression;
-	}
-	|
-	expression2=complexExpressionSigned{
-		$expression = $expression2.expression;
-	}
-	|
-	expression3=complexExpressionMult{
-		$expression = $expression3.expression;
-	}
-	|
-	expression4=complexExpressionAdd{
-		$expression = $expression4.expression;
 	}
 	;
 
