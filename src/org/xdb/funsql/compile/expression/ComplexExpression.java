@@ -96,6 +96,9 @@ public class ComplexExpression extends AbstractExpression {
 
 	@Override
 	public boolean isAttribute() {
+		if(this.exprs2.size()==0){
+			return this.expr1.isAttribute();
+		}
 		return false;
 	}
 }
