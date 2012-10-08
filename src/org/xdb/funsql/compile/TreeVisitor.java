@@ -5,9 +5,9 @@ import org.xdb.funsql.compile.operator.*;
 public interface TreeVisitor{
 	
 	void visitEquiJoin(EquiJoin ej);
-	void visitGenericSelection(GenericSelection es);
+	void visitGenericSelection(GenericSelection gs);
 	void visitFunctionCall(FunctionCall fc);
 	void visitSimpleAggregation(SimpleAggregation sa);
-	void visitSimpleProjection(GenericProjection sp);
+	void visitGenericProjection(GenericProjection gp);
 	void visitTableOperator(TableOperator to);
 }
