@@ -59,7 +59,7 @@ public class GenericProjection extends AbstractUnaryOperator {
 
 	@Override
 	void accept(TreeVisitor v) {
-		v.visitSimpleProjection(this);
+		v.visitGenericProjection(this);
 	}
 	
 	@Override

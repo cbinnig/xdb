@@ -10,27 +10,27 @@ public class ResultDesc implements Serializable{
 	private static final long serialVersionUID = 8819533773334264233L;
 	
 	//attribute
-	private Vector<TokenAttribute> attribtues;
+	private Vector<TokenAttribute> attributes;
 	private Vector<EnumSimpleType> types;
 	private boolean materialize;
 	private PartitionDesc partitionDesc;
 	
 	//constructors
 	public ResultDesc(int size){
-		this.attribtues = new Vector<TokenAttribute>(size);
+		this.attributes = new Vector<TokenAttribute>(size);
 	}
 	
 	//getters and setters
 	public void setAttribute(int i, TokenAttribute attribute){
-		this.attribtues.set(i, attribute);
+		this.attributes.set(i, attribute);
 	}
 	
 	public TokenAttribute getAttribute(int i){
-		return this.attribtues.get(i);
+		return this.attributes.get(i);
 	}
 	
 	public Vector<TokenAttribute> getAttributes(){
-		return this.attribtues;
+		return this.attributes;
 	}
 	
 	public void setType(int i, EnumSimpleType type){
