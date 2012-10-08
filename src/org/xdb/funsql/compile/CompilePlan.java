@@ -63,6 +63,10 @@ public class CompilePlan implements Serializable {
 		return operators.values();
 	}
 
+	public AbstractOperator getOperators(Identifier opId) {
+		return operators.get(opId);
+	}
+	
 	public Collection<Identifier> getRoots() {
 		return roots;
 	}

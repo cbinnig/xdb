@@ -58,6 +58,14 @@ public class TableOperator extends AbstractOperator {
 		return "<"+connection.getTableName()+">";
 	}
 
+	/**
+	 * @return false, nothing could pushed down deeper than the table
+	 */
+	@Override
+	public boolean isPushDownAllowed(EnumPushDown pd) {
+		return false;
+	}
+
 	@Override
 	void accept(TreeVisitor v) {
 		v.visitTableOperator(this);

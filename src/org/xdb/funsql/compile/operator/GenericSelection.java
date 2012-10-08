@@ -51,4 +51,10 @@ public class GenericSelection extends AbstractUnaryOperator {
 		node.getInfo().setFooter(this.predicate.toString());
 		return err;
 	}
+
+	@Override
+	public boolean isPushDownAllowed(EnumPushDown pd) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

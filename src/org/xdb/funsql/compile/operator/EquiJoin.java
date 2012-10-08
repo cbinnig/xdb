@@ -59,6 +59,20 @@ public class EquiJoin extends AbstractBinaryOperator {
 		}});
 	}
 
+	/**
+	 * @param kind of pushdown you want to do
+	 * @return true if pushdown possible 
+	 */
+	@Override
+	public boolean isPushDownAllowed(EnumPushDown pd) {
+		switch(pd){
+		case STOP_PUSHDOWN:
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	@Override
 	void accept(TreeVisitor v) {
 		v.visitEquiJoin(this);
