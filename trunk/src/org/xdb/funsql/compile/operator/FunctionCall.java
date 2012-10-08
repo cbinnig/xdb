@@ -53,6 +53,12 @@ public class FunctionCall extends AbstractOperator {
 	}
 
 	@Override
+	public boolean isPushDownAllowed(EnumPushDown pd) {
+		// TODO: write rules, which pushdown is allowed
+		return false;
+	}
+
+	@Override
 	void accept(TreeVisitor v) {
 		v.visitFunctionCall(this);
 	}

@@ -68,6 +68,17 @@ public class SimpleAggregation extends AbstractUnaryOperator {
 	}
 
 	@Override
+	public boolean isPushDownAllowed(EnumPushDown pd) {
+		switch(pd){
+		case SELECTION_PUSHDOWN:
+		case STOP_PUSHDOWN:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	@Override
 	void accept(TreeVisitor v) {
 		v.visitSimpleAggregation(this);
 	}

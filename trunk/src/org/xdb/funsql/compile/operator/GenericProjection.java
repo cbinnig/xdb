@@ -72,4 +72,10 @@ public class GenericProjection extends AbstractUnaryOperator {
 		node.getInfo().setFooter(this.expressions.toString());
 		return err;
 	}
+
+	@Override
+	public boolean isPushDownAllowed(EnumPushDown pd) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

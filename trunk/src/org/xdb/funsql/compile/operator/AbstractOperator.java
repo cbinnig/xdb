@@ -20,12 +20,14 @@ public abstract class AbstractOperator implements Serializable {
 	protected Vector<ResultDesc> results;
 	protected EnumOperator type;
 	protected Vector<AbstractOperator> children = new Vector<AbstractOperator>();
+	protected Vector<AbstractOperator> parents = new Vector<AbstractOperator>();
 	
 	// unique operator id
 	protected Identifier operatorId;
 	
 	public AbstractOperator(){
 		this.children = new Vector<AbstractOperator>();
+		this.parents = new Vector<AbstractOperator>();
 	}
 	/**
 	 * Get all source operators.
@@ -34,6 +36,15 @@ public abstract class AbstractOperator implements Serializable {
 	public Vector<AbstractOperator> getSourceOperators(){
 		return this.children;
 	}
+
+	/**
+	 * Get all destination operators.
+	 * @return set of all dependency operators, empty set if no given
+	 */
+	public Vector<AbstractOperator> getDestinationOperators(){
+		return this.parents;
+	}
+
 	
 	/**
 	 * @param v TreeVisitor (visitor pattern)
@@ -74,6 +85,16 @@ public abstract class AbstractOperator implements Serializable {
 	public int getResultNumber(){
 		return this.results.size();
 	}
+	
+	public void setSourceOperators(Vector<AbstractOperator> sources) {
+		this.children = sources;
+	}
+	
+	public void setDestinationOperators(Vector<AbstractOperator> destinations) {
+		this.parents = destinations;
+	}
+	
+	public abstract boolean isPushDownAllowed(EnumPushDown pd);
 	
 	// methods
 	
