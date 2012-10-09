@@ -1,9 +1,14 @@
 package org.xdb.tracker;
 
+import java.util.Set;
+
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.error.Error;
+import org.xdb.server.QueryTrackerServer;
+import org.xdb.utils.Identifier;
+import org.xdb.utils.Tuple;
 
 public class QueryTrackerNode {
 	private final String[] nodes = {"127.0.0.1"};
@@ -11,6 +16,7 @@ public class QueryTrackerNode {
 
 	private final MasterTrackerClient masterTrackerClient;
 	private final QueryTrackerNodeDesc description;
+	private QueryTrackerServer server;
 
 	public QueryTrackerNode() {
 		masterTrackerClient = new MasterTrackerClient();
@@ -35,6 +41,19 @@ public class QueryTrackerNode {
 
 		final int idx = (int)(Math.random() * nodes.length);
 		return nodes[idx];
+	}
+
+	public void executePlan(final QueryTrackerPlan plan) {
+		final Set<Identifier> leaves = plan.getLeaves();
+		for (final Identifier leaf : leaves) {
+			final Tuple<String, Error> tuple = masterTrackerClient.requestComputeNode();
+			final String computeNode = tuple.getObject1();
+			final Error error = tuple.getObject2();
+			final ComputeClient computeClient = new ComputeClient(computeNode, Config.COMPUTE_PORT);
+			//			computeClient.executeOperator(...)
+		}
+
+		// TODO further actions need due to executing
 	}
 
 

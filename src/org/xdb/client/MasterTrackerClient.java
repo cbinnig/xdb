@@ -12,6 +12,7 @@ import org.xdb.logging.XDBLog;
 import org.xdb.server.MasterTrackerServer;
 import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.tracker.signals.RegisterSignal;
+import org.xdb.utils.Tuple;
 
 /**
  * Client to talk to Master Tracker Server.
@@ -115,5 +116,28 @@ public class MasterTrackerClient extends AbstractClient{
 		}
 
 		return err;
+	}
+
+	public Tuple<String, Error> requestComputeNode() {
+		Error err = new Error();
+		String computeNode = null;
+		try {
+			server = new Socket(url, port);
+			final ObjectOutputStream out = new ObjectOutputStream(
+					server.getOutputStream());
+			final ObjectInputStream in = new ObjectInputStream(server.getInputStream());
+
+			out.writeInt(MasterTrackerServer.CMD_EXECUTE_PLAN);
+			out.flush();
+			computeNode = (String) in.readObject();
+
+			err = (Error) in.readObject();
+
+			server.close();
+
+		} catch (final Exception e) {
+			err = createClientError(e);
+		}
+		return new Tuple<String, Error>(computeNode, err);
 	}
 }

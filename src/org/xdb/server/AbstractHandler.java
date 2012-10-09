@@ -19,7 +19,7 @@ public abstract class AbstractHandler extends Thread {
 	protected Logger logger;
 
 	// constructor
-	public AbstractHandler(Socket client) {
+	public AbstractHandler(final Socket client) {
 		this.client = client;
 	}
 
@@ -32,17 +32,13 @@ public abstract class AbstractHandler extends Thread {
 		Error err = new Error();
 		// handle request
 		try {
-			err = handle();
-		} catch (IOException e) {
-			err = createServerError(e);
-		}
+			final ObjectOutputStream out = new ObjectOutputStream(
+					client.getOutputStream());
+			err = handle(out);
 
-		// send response
-		try {
-			ObjectOutputStream out = new ObjectOutputStream(
-					this.client.getOutputStream());
+			// send response
 			out.writeObject(err);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			err = createServerError(e);
 		}
 
@@ -52,14 +48,14 @@ public abstract class AbstractHandler extends Thread {
 		}
 
 		// close handler
-		this.close();
+		close();
 	}
 
 	private void close() {
 		// close socket
 		try {
-			this.client.close();
-		} catch (IOException e) {
+			client.close();
+		} catch (final IOException e) {
 			createServerError(e);
 		}
 	}
@@ -70,20 +66,20 @@ public abstract class AbstractHandler extends Thread {
 	 * @param e
 	 * @return Error
 	 */
-	protected Error createServerError(Exception e) {
+	protected Error createServerError(final Exception e) {
 		e.printStackTrace();
 
-		String[] args = { e.toString() };
-		Error err = new Error(EnumError.SERVER_ERROR, args);
+		final String[] args = { e.toString() };
+		final Error err = new Error(EnumError.SERVER_ERROR, args);
 		logger.log(Level.SEVERE, err.toString());
 		return err;
 	}
-	
+
 	/**
 	 * Handle cmd
 	 * 
 	 * @return
 	 * @throws IOException
 	 */
-	protected abstract Error handle() throws IOException;
+	protected abstract Error handle(ObjectOutputStream out) throws IOException;
 }
