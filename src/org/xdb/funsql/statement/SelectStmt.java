@@ -31,12 +31,13 @@ import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
 
 public class SelectStmt extends AbstractServerStmt {
-
+	//select
 	private Vector<AbstractExpression> tExpressions = new Vector<AbstractExpression>();
 	private Vector<TokenIdentifier> tExprAliases = new Vector<TokenIdentifier>();
-
+	//from
 	private Vector<TokenTable> tTables = new Vector<TokenTable>();
 	private Vector<TokenIdentifier> tTableAliases = new Vector<TokenIdentifier>();
+	//where
 	private AbstractPredicate tPredicate;
 	
 	private HashMap<String, Schema> schemaSymbols = new HashMap<String, Schema>();
@@ -387,36 +388,41 @@ public class SelectStmt extends AbstractServerStmt {
 			TokenTable tTable = this.tTables.get(i);
 			TokenIdentifier tTableAlias = this.tTableAliases.get(i);
 
-			TokenSchema tSchema = tTable.getSchema();
-			Schema schema = Catalog.getSchema(tSchema.hashKey());
+			if (tTable.isReference()) {
+				//TODO
+			} else {
+				TokenSchema tSchema = tTable.getSchema();
+				Schema schema = Catalog.getSchema(tSchema.hashKey());
 
-			// check for non existing schema names
-			if (schema == null) {
-				return Catalog.createObjectNotExistsErr(tSchema.toSqlString(),
-						EnumDatabaseObject.SCHEMA);
-			}
-			this.schemaSymbols.put(schema.hashKey(), schema);
-
-			Table table = Catalog.getTable(tTable.hashKey(schema.getOid()));
-
-			// check for non existing table names
-			if (table == null) {
-				return Catalog.createObjectNotExistsErr(tTable.toSqlString(),
-						EnumDatabaseObject.TABLE);
-			}
-
-			// check for duplicate table names
-			if (tTableAlias != null) {
-				if (this.tableSymbols.containsKey(tTableAlias.hashKey())) {
-					return createDuplicateTableNameErr(tTableAlias);
+				// check for non existing schema names
+				if (schema == null) {
+					return Catalog.createObjectNotExistsErr(
+							tSchema.toSqlString(), EnumDatabaseObject.SCHEMA);
 				}
-				this.tableSymbols.put(tTableAlias.hashKey(), table);
-			}
-			else{
-				if (this.tableSymbols.containsKey(tTable.getName().hashKey())) {
-					return createDuplicateTableNameErr(tTable.getName());
+				this.schemaSymbols.put(schema.hashKey(), schema);
+
+				Table table = Catalog.getTable(tTable.hashKey(schema.getOid()));
+
+				// check for non existing table names
+				if (table == null) {
+					return Catalog.createObjectNotExistsErr(
+							tTable.toSqlString(), EnumDatabaseObject.TABLE);
 				}
-				this.tableSymbols.put(tTable.getName().toSqlString(), table);
+
+				// check for duplicate table names
+				if (tTableAlias != null) {
+					if (this.tableSymbols.containsKey(tTableAlias.hashKey())) {
+						return createDuplicateTableNameErr(tTableAlias);
+					}
+					this.tableSymbols.put(tTableAlias.hashKey(), table);
+				} else {
+					if (this.tableSymbols.containsKey(tTable.getName()
+							.hashKey())) {
+						return createDuplicateTableNameErr(tTable.getName());
+					}
+					this.tableSymbols
+							.put(tTable.getName().toSqlString(), table);
+				}
 			}
 		}
 		return err;
