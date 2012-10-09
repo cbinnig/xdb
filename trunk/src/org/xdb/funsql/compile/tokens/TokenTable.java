@@ -8,6 +8,7 @@ public class TokenTable extends AbstractToken{
 	//attributes
 	private TokenIdentifier name;
 	private TokenSchema schema;
+	private boolean isReference;
 	
 	//constructors
 	public TokenTable(String name){
@@ -43,6 +44,14 @@ public class TokenTable extends AbstractToken{
 	public TokenSchema getSchema() {
 		return schema;
 	}
+	
+	public boolean isReference() {
+		return isReference;
+	}
+
+	public void setReference(boolean isReference) {
+		this.isReference = isReference;
+	}
 
 	//helper methods
 	@Override
@@ -69,4 +78,5 @@ public class TokenTable extends AbstractToken{
 		key.append(this.name.toString());
 		return key.toString();
 	}
+
 }
