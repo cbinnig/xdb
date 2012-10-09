@@ -2,6 +2,7 @@ package org.xdb.funsql.compile.expression;
 
 import java.util.Set;
 
+import org.xdb.funsql.compile.checks.IExpressionVisitor;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
@@ -35,4 +36,6 @@ public abstract class AbstractExpression extends AbstractToken{
 	public abstract Set<TokenAttribute> getAttributes();
 	
 	public abstract boolean isAttribute();
+	
+	abstract void accept(IExpressionVisitor v);
 }

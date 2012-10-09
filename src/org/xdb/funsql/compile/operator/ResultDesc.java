@@ -6,14 +6,20 @@ import java.util.Vector;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.types.EnumSimpleType;
 
+/**
+ * The ResultDesc represents a number of attributes and their types
+ * which belong to an operator in a compile plan.
+ * @author 
+ *
+ */
 public class ResultDesc implements Serializable{
 	private static final long serialVersionUID = 8819533773334264233L;
 	
 	//attribute
-	private Vector<TokenAttribute> attributes;
-	private Vector<EnumSimpleType> types;
-	private boolean materialize;
-	private PartitionDesc partitionDesc;
+	private Vector<TokenAttribute> attributes;//attributes
+	private Vector<EnumSimpleType> types;	//sorted types of the attributes, can be accessed by the same number
+	private boolean materialize; //result saved?
+	private PartitionDesc partitionDesc; 
 	
 	//constructors
 	public ResultDesc(int size){

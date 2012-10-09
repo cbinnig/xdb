@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.TreeVisitor;
+import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.utils.Identifier;
 
 import com.oy.shared.lm.graph.Graph;
@@ -50,7 +50,7 @@ public abstract class AbstractOperator implements Serializable {
 	 * @param v TreeVisitor (visitor pattern)
 	 * @return checked: okay?
 	 */
-	abstract void accept(TreeVisitor v);
+	abstract void accept(ITreeVisitor v);
 		
 	//constructors
 	public AbstractOperator(int resultNumber){

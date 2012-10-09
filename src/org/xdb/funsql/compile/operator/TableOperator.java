@@ -3,7 +3,7 @@ package org.xdb.funsql.compile.operator;
 import java.util.HashMap;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.TreeVisitor;
+import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenTable;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Table;
@@ -67,7 +67,7 @@ public class TableOperator extends AbstractOperator {
 	}
 
 	@Override
-	void accept(TreeVisitor v) {
+	void accept(ITreeVisitor v) {
 		v.visitTableOperator(this);
 	}
 	

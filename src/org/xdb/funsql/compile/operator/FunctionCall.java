@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.TreeVisitor;
+import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenFunction;
 import org.xdb.utils.Identifier;
 
@@ -59,7 +59,7 @@ public class FunctionCall extends AbstractOperator {
 	}
 
 	@Override
-	void accept(TreeVisitor v) {
+	void accept(ITreeVisitor v) {
 		v.visitFunctionCall(this);
 	}
 	

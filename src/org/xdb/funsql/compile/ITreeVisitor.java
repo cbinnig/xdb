@@ -2,7 +2,7 @@ package org.xdb.funsql.compile;
 
 import org.xdb.funsql.compile.operator.*;
 
-public interface TreeVisitor{
+public interface ITreeVisitor{
 	
 	void visitEquiJoin(EquiJoin ej);
 	void visitGenericSelection(GenericSelection gs);
