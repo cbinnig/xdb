@@ -1,5 +1,7 @@
 package org.xdb.tracker;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.xdb.Config;
@@ -7,7 +9,9 @@ import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.error.Error;
 import org.xdb.server.QueryTrackerServer;
+import org.xdb.tracker.operator.AbstractOperator;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
 
 public class QueryTrackerNode {
@@ -45,11 +49,32 @@ public class QueryTrackerNode {
 
 	public void executePlan(final QueryTrackerPlan plan) {
 		final Set<Identifier> leaves = plan.getLeaves();
+		final Map<String, MutableInteger> requiredSlots = new HashMap<String, MutableInteger>();
+		for (final AbstractOperator op : plan.getOperators()) {
+			final String computeNode = plan.getComputeNode(op);
+			final MutableInteger numNodes = requiredSlots.get(computeNode);
+			if (numNodes == null) {
+				requiredSlots.put(computeNode, new MutableInteger(1));
+			} else {
+				numNodes.inc();
+			}
+		}
+		final Tuple<Map<String, MutableInteger>, Error> tuple = masterTrackerClient.requestComputeNodes(requiredSlots);
+		final Map<String, MutableInteger> allocatedSlots = tuple.getObject1();
+		final Error error = tuple.getObject2();
+
+		final Map<Identifier, AbstractOperator> operators = plan.getOperatorMapping();
 		for (final Identifier leaf : leaves) {
-			final Tuple<String, Error> tuple = masterTrackerClient.requestComputeNode();
-			final String computeNode = tuple.getObject1();
-			final Error error = tuple.getObject2();
-			final ComputeClient computeClient = new ComputeClient(computeNode, Config.COMPUTE_PORT);
+			final String bestNode = plan.getComputeNode(operators.get(leaf));
+			final MutableInteger numOfFreeNodes = allocatedSlots.get(bestNode);
+			String usedNode = null;
+			if (numOfFreeNodes == null) {
+				// TODO: Get next best ComputeNode
+			} else {
+				numOfFreeNodes.dec();
+				usedNode = bestNode;
+			}
+			final ComputeClient computeClient = new ComputeClient(usedNode, Config.COMPUTE_PORT);
 			//			computeClient.executeOperator(...)
 		}
 

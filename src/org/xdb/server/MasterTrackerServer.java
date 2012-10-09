@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.xdb.Config;
@@ -13,6 +14,7 @@ import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.tracker.MasterTrackerNode;
 import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.tracker.signals.RegisterSignal;
+import org.xdb.utils.MutableInteger;
 
 public class MasterTrackerServer extends AbstractServer {
 
@@ -66,7 +68,10 @@ public class MasterTrackerServer extends AbstractServer {
 					}
 					break;
 				case CMD_REQUEST_COMPUTE_NODE:
-					out.writeObject(tracker.getComputeSlot());
+					@SuppressWarnings("unchecked")
+					final
+					Map<String, MutableInteger> requiredNodes = (Map<String, MutableInteger>) in.readObject();
+					out.writeObject(tracker.getComputeSlots(requiredNodes));
 					break;
 				}
 			} catch (final Exception e) {

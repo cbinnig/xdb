@@ -3,6 +3,7 @@ package org.xdb.client;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Map;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
@@ -12,6 +13,7 @@ import org.xdb.logging.XDBLog;
 import org.xdb.server.MasterTrackerServer;
 import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.tracker.signals.RegisterSignal;
+import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
 
 /**
@@ -118,9 +120,10 @@ public class MasterTrackerClient extends AbstractClient{
 		return err;
 	}
 
-	public Tuple<String, Error> requestComputeNode() {
+	@SuppressWarnings("unchecked")
+	public Tuple<Map<String, MutableInteger>, Error> requestComputeNodes(final Map<String, MutableInteger> requiredNodes) {
 		Error err = new Error();
-		String computeNode = null;
+		Map<String, MutableInteger> computeNodes = null;
 		try {
 			server = new Socket(url, port);
 			final ObjectOutputStream out = new ObjectOutputStream(
@@ -128,9 +131,9 @@ public class MasterTrackerClient extends AbstractClient{
 			final ObjectInputStream in = new ObjectInputStream(server.getInputStream());
 
 			out.writeInt(MasterTrackerServer.CMD_EXECUTE_PLAN);
+			out.writeObject(requiredNodes);
 			out.flush();
-			computeNode = (String) in.readObject();
-
+			computeNodes = (Map<String, MutableInteger>) in.readObject();
 			err = (Error) in.readObject();
 
 			server.close();
@@ -138,6 +141,7 @@ public class MasterTrackerClient extends AbstractClient{
 		} catch (final Exception e) {
 			err = createClientError(e);
 		}
-		return new Tuple<String, Error>(computeNode, err);
+		return new Tuple<Map<String, MutableInteger>, Error>(computeNodes, err);
 	}
+
 }

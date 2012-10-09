@@ -20,6 +20,7 @@ import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.MutableInteger;
 import org.xdb.utils.StringTemplate;
 
 public class MasterTrackerNode {
@@ -333,7 +334,7 @@ public class MasterTrackerNode {
 		return err;
 	}
 
-	public String getComputeSlot() {
+	public Map<String, MutableInteger> getComputeSlots(final Map<String, MutableInteger> requiredSlots) {
 		// TODO return ComputeSlot
 		return null;
 	}
