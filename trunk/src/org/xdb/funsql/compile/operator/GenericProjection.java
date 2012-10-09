@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.TreeVisitor;
+import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.SimpleExpression;
 import org.xdb.utils.Identifier;
@@ -58,7 +58,7 @@ public class GenericProjection extends AbstractUnaryOperator {
 	}
 
 	@Override
-	void accept(TreeVisitor v) {
+	void accept(ITreeVisitor v) {
 		v.visitGenericProjection(this);
 	}
 	

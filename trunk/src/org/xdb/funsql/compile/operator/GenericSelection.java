@@ -3,7 +3,7 @@ package org.xdb.funsql.compile.operator;
 import java.util.HashMap;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.TreeVisitor;
+import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
 import org.xdb.utils.Identifier;
 
@@ -37,7 +37,7 @@ public class GenericSelection extends AbstractUnaryOperator {
 	}
 
 	@Override
-	void accept(TreeVisitor v) {
+	void accept(ITreeVisitor v) {
 		v.visitGenericSelection(this);
 	}
 	

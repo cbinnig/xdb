@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
+import org.xdb.funsql.compile.checks.IExpressionVisitor;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
@@ -100,5 +101,13 @@ public class ComplexExpression extends AbstractExpression {
 			return this.expr1.isAttribute();
 		}
 		return false;
+	}
+	public int getSize(){
+		return this.exprs2.size()+1;
+	}
+
+	@Override
+	void accept(IExpressionVisitor v) {
+		v.visitComplexExpression(this);		
 	}
 }
