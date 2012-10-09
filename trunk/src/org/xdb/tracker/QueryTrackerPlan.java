@@ -2,6 +2,7 @@ package org.xdb.tracker;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -253,7 +254,15 @@ public class QueryTrackerPlan implements Serializable {
 		}
 	}
 
-	public HashSet<Identifier> getLeaves() {
-		return leaves;
+	public Set<Identifier> getLeaves() {
+		return Collections.unmodifiableSet(leaves);
+	}
+	public Map<Identifier, AbstractOperator> getOperatorMapping() {
+		return Collections.unmodifiableMap(operators);
+	}
+
+	public String getComputeNode(final AbstractOperator op) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
