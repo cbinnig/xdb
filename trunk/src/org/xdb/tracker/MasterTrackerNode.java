@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
@@ -27,6 +28,9 @@ public class MasterTrackerNode {
 
 	//query tracker slots
 	private final Map<String, Integer> queryTrackerSlots = Collections.synchronizedMap(new HashMap<String, Integer>());
+
+	//query tracker clients
+	private final Map<String, QueryTrackerClient> queryTrackerClients = new HashMap<String, QueryTrackerClient>();
 
 	//new plans, waiting for execution
 	private final Queue<QueryTrackerPlan> queuedPlans = new LinkedList<QueryTrackerPlan>();
@@ -264,7 +268,9 @@ public class MasterTrackerNode {
 		runningPlans.put(plan.getPlanId(), plan);
 		planAssignment.put(plan.getPlanId(), tracker);
 
-		//TODO: send plan to query tracker and execute
+		final QueryTrackerClient client = queryTrackerClients.get(tracker);
+
+		client.executePlan(plan);
 
 		return new Error();
 	}
@@ -325,5 +331,10 @@ public class MasterTrackerNode {
 		queryTrackerSlots.put(desc.getUrl(), desc.getSlots());
 
 		return err;
+	}
+
+	public String getComputeSlot() {
+		// TODO return ComputeSlot
+		return null;
 	}
 }

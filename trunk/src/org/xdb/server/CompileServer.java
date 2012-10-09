@@ -2,6 +2,7 @@ package org.xdb.server;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 
@@ -20,9 +21,9 @@ public class CompileServer extends AbstractServer {
 
 	private class Handler extends AbstractHandler {
 		// constructor
-		public Handler(Socket client) {
+		public Handler(final Socket client) {
 			super(client);
-			this.logger = CompileServer.this.logger;
+			logger = CompileServer.this.logger;
 		}
 
 		/**
@@ -31,49 +32,52 @@ public class CompileServer extends AbstractServer {
 		 * @return
 		 * @throws IOException
 		 */
-		protected Error handle() throws IOException {
+		protected Error handle(final ObjectOutputStream out) throws IOException {
 			Error err = new Error();
-			
-			ObjectInputStream in = new ObjectInputStream(
-					this.client.getInputStream());
 
-			int cmd = in.readInt();
+			final ObjectInputStream in = new ObjectInputStream(
+					client.getInputStream());
+
+			final int cmd = in.readInt();
 			logger.log(Level.INFO, "CompileServer: Read command from client:" + cmd);
 			try {
 
 				switch (cmd) {
 				case CMD_EXECUTE_W_RESULT:
 				case CMD_EXECUTE_WO_RESULT:
-					ClientStmt clientStmt = (ClientStmt)in.readObject();
+					final ClientStmt clientStmt = (ClientStmt)in.readObject();
 					logger.log(Level.INFO, "CompileServer: Received client stmt:" + clientStmt.getStmt());
-					
-					FunSQLCompiler compiler = new FunSQLCompiler();
-					AbstractServerStmt serverStmt = compiler.compile(clientStmt.getStmt());
+
+					final FunSQLCompiler compiler = new FunSQLCompiler();
+					final AbstractServerStmt serverStmt = compiler.compile(clientStmt.getStmt());
 					err = compiler.getLastError();
-					if(err.isError())
+					if(err.isError()) {
 						return err;
-					
+					}
+
 					err = serverStmt.compile();
-					
-					if(err.isError())
+
+					if(err.isError()) {
 						return err;
-					
+					}
+
 					err = serverStmt.execute();
 
-					if(err.isError())
+					if(err.isError()) {
 						return err;
-					
+					}
+
 					//TODO: extract results from statement
 					if(cmd == CMD_EXECUTE_W_RESULT){
-						
+
 					}
-					
+
 					break;
 				default:
 					err = createCmdError(cmd);
 					break;
 				}
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				err = createServerError(e);
 			}
 
@@ -84,22 +88,23 @@ public class CompileServer extends AbstractServer {
 	// constants for commands
 	public static final int CMD_EXECUTE_WO_RESULT = 1;
 	public static final int CMD_EXECUTE_W_RESULT = 2;
-	
+
 	// constructors
 	public CompileServer() {
 		super();
-		this.port = Config.COMPILE_PORT;
-		
-		this.err = Catalog.load();
-		this.logger.log(Level.INFO, "Catalog loaded ... ");
+		port = Config.COMPILE_PORT;
+
+		err = Catalog.load();
+		logger.log(Level.INFO, "Catalog loaded ... ");
 	}
 
 	// methods
 	/**
 	 * Handle incoming client requests
 	 */
-	protected void handle(Socket client) {
-		Handler handler = new Handler(client);
+	@Override
+	protected void handle(final Socket client) {
+		final Handler handler = new Handler(client);
 		handler.start();
 	}
 
@@ -117,8 +122,8 @@ public class CompileServer extends AbstractServer {
 	 * 
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		CompileServer server = new CompileServer();
+	public static void main(final String[] args) {
+		final CompileServer server = new CompileServer();
 		server.startServer();
 	}
 }

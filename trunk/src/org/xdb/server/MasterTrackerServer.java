@@ -2,6 +2,7 @@ package org.xdb.server;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 
@@ -29,7 +30,7 @@ public class MasterTrackerServer extends AbstractServer {
 		 * @throws IOException
 		 */
 		@Override
-		protected Error handle() throws IOException {
+		protected Error handle(final ObjectOutputStream out) throws IOException {
 			Error err = new Error();
 
 			final ObjectInputStream in = new ObjectInputStream(
@@ -64,6 +65,9 @@ public class MasterTrackerServer extends AbstractServer {
 						throw new IllegalArgumentException("Next Object to Read has to be an instance of RegisterSignal<QueryTrackerNodeDesc>");
 					}
 					break;
+				case CMD_REQUEST_COMPUTE_NODE:
+					out.writeObject(tracker.getComputeSlot());
+					break;
 				}
 			} catch (final Exception e) {
 				err = createServerError(e);
@@ -77,6 +81,7 @@ public class MasterTrackerServer extends AbstractServer {
 	public static final int CMD_REGISTER_COMPUTE_NODE = 1;
 	public static final int CMD_EXECUTE_PLAN = 2;
 	public static final int CMD_REGISTER_QUERYTRACKER_NODE = 3;
+	public static final int CMD_REQUEST_COMPUTE_NODE = 4;
 
 
 	//Master tracker node which executes cmds
