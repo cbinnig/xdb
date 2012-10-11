@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.ITreeVisitor;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
 
 import com.oy.shared.lm.graph.Graph;
@@ -103,6 +104,54 @@ public abstract class AbstractOperator implements Serializable {
 	 * @return
 	 */
 	public abstract String toSqlString();
+	
+	protected String getResultAttributeList() {
+		//match output attributes to input operators and name aliases accordingly
+		
+		//map attribute to operator id (alias)
+		final HashMap<TokenAttribute, Identifier> attributeLookup = 
+				new HashMap<TokenAttribute, Identifier>();
+		
+		for(TokenAttribute attr : getResult(0).getAttributes()) {
+			final String attrName = attr.getName().toString();
+			
+			boolean matched = false;
+			
+			for(AbstractOperator searchOp : this.children) {
+				
+				for(TokenAttribute searchAttr : searchOp.getResult(0).getAttributes()) {
+					if(searchAttr.getName().equals(attrName)) {
+						attributeLookup.put(attr, searchOp.getOperatorId());
+						matched = true;
+						break;
+					}
+				}
+				
+				if(matched)
+					break;
+			}
+			
+			//we failed to find the source operator for this attribute
+			if(!matched) {
+				//TODO: Put some logging in here...
+			}
+		}
+		
+		final ResultDesc result = getResult(0);
+		final StringBuffer attributeListBuffer = new StringBuffer();
+		for(int i = 0; i < result.getNumAttributes(); i++) {
+			if(i != 0)
+				attributeListBuffer.append(", ");
+			
+			final TokenAttribute attr = result.getAttribute(i);
+			
+			if(attributeLookup.containsKey(attr))
+				attributeListBuffer.append("`"+attributeLookup.get(attr).toString()+"`.");
+			attributeListBuffer.append("`"+attr.toSqlString()+"`");
+		}
+		
+		return attributeListBuffer.toString();
+	}
 	
 	
 	/**

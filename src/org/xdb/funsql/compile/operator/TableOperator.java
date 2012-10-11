@@ -8,6 +8,7 @@ import org.xdb.funsql.compile.tokens.TokenTable;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Table;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.StringTemplate;
 
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
@@ -19,6 +20,9 @@ public class TableOperator extends AbstractOperator {
 	private TokenTable tableName;
 	private Connection connection = null;
 	private Table table = null;
+	
+	private final StringTemplate sqlTemplate = 
+			new StringTemplate("SELECT <RESULTS> FROM <<OP1>>");
 	
 	//constructors
 	public TableOperator(TokenTable tableName){
@@ -55,7 +59,11 @@ public class TableOperator extends AbstractOperator {
 	
 	@Override
 	public String toSqlString() {
-		return "<"+connection.getTableName()+">";
+		return sqlTemplate.toString(new HashMap<String, String>() {{
+			put("RESULTS", getResultAttributeList());
+			
+			put("OP1", connection.getTableName());
+		}});
 	}
 
 	/**
