@@ -31,6 +31,10 @@ public class ResultDesc implements Serializable{
 		this.attributes.set(i, attribute);
 	}
 	
+	public int getNumAttributes() {
+		return this.attributes.size();
+	}
+	
 	public TokenAttribute getAttribute(int i){
 		return this.attributes.get(i);
 	}
@@ -68,8 +72,17 @@ public class ResultDesc implements Serializable{
 	}
 	
 	public String toSqlString() {
-		//TODO: create SQL expression suitable for use in tracker.operator.MySQLOperator
+		StringBuffer tableBuffer = new StringBuffer("( ");
+		for(int i = 0; i < getNumAttributes(); i++) {
+			if(i != 0)
+				tableBuffer.append(", ");
+			
+			tableBuffer.append("`"+ getAttribute(i).toSqlString() +"` ");
+			tableBuffer.append(getType(i).toString());
+		}
 		
-		return null;
+		tableBuffer.append(")");
+		
+		return tableBuffer.toString();
 	}
 }

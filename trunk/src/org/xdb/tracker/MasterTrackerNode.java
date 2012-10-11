@@ -18,6 +18,7 @@ import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.ResultDesc;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.MutableInteger;
@@ -119,7 +120,7 @@ public class MasterTrackerNode {
 	public QueryTrackerPlan generateQueryTrackerPlan(final CompilePlan plan) {
 		final QueryTrackerPlan qPlan = new QueryTrackerPlan(plan.getPlanId());
 
-		//map of operator identifiers to all depended operator's identifiers
+		//map of operator identifiers on all depended operator's identifiers
 		final Map<Identifier, Set<Identifier>> dependencies = new HashMap<Identifier, Set<Identifier>>();
 
 		for(final org.xdb.funsql.compile.operator.AbstractOperator op : plan.getOperators()) {
@@ -140,9 +141,9 @@ public class MasterTrackerNode {
 		}
 
 		/*
-		 * parsing strategie:
+		 * parsing strategy:
 		 * - queue up all roots
-		 * - scan through childs of all queue elements until queue is empty
+		 * - scan through children of all queue elements until queue is empty
 		 * - scan until next operator, which has multiple dependent operators or 
 		 *   is marked as materialized or has no dependencies
 		 * - queue this operators up
@@ -156,7 +157,7 @@ public class MasterTrackerNode {
 		//add root ops as initial new MySQLOperators
 		final Collection<Identifier> rootOps = plan.getRoots();
 		for(final org.xdb.funsql.compile.operator.AbstractOperator op : plan.getOperators()) {
-			if(rootOps.contains(op)) {
+			if(rootOps.contains(op.getOperatorId())) {
 				scanQueue.add(op);
 			}
 		}
@@ -168,17 +169,23 @@ public class MasterTrackerNode {
 
 		//map of QTP operator's identifiers to set of source operators
 		//this is needed, because dependent CP operator's are probably not in place anymore (assembled into QTP operators)
-		final Map<Identifier, Set<Identifier>> operatorSources = new HashMap<Identifier, Set<Identifier>>();
+		final Map<Identifier, Set<Identifier>> operatorSources = 
+				new HashMap<Identifier, Set<Identifier>>();
 
 		while(!scanQueue.isEmpty()) {
+			
 			final org.xdb.funsql.compile.operator.AbstractOperator op =
 					scanQueue.poll();
-			final ResultDesc result = op.getResult(0);
+			
+			final ResultDesc opResult = op.getResult(0);
 
 			final org.xdb.tracker.operator.MySQLOperator queryOp = 
 					new org.xdb.tracker.operator.MySQLOperator(op.getOperatorId());
-			//add single output table; TODO modify for multiple outputs
-			queryOp.addOutTables("R_OUT", new StringTemplate("<R_OUT> "+result.toSqlString()), "R_REGIONKEY");
+			
+			
+			//add single output table; TODO modify for multiple outputs, e.g. parallelization
+			queryOp.addOutTables("R_OUT", new StringTemplate("<R_OUT> "+opResult.toSqlString()),
+					"R_REGIONKEY");
 
 			//sources & consumers
 			final Set<Identifier> sources = new HashSet<Identifier>();
@@ -208,7 +215,7 @@ public class MasterTrackerNode {
 					//add as new operator root
 					scanQueue.add(childOp);
 
-					//register as source operator
+					//register as source operator for the current operator
 					sources.add(childOp.getOperatorId());
 					// ... and as consumers for the new operator
 					Set<Identifier> dependendOperators = operatorSources.get(childOp.getOperatorId());
@@ -226,7 +233,9 @@ public class MasterTrackerNode {
 					continue;
 				}
 
-				final StringTemplate sqlAssemblyTemplate = new StringTemplate(executeSqlStatement.toString());
+				final StringTemplate sqlAssemblyTemplate = 
+						new StringTemplate(executeSqlStatement.toString());
+				
 				final Map<String, String> sqlAssemblyStepArgs = new HashMap<String, String>();
 				sqlAssemblyStepArgs.put(childOp.getOperatorId().toString(), "("+childOp.toSqlString()+")");
 				executeSqlStatement = sqlAssemblyTemplate.toString(sqlAssemblyStepArgs);
