@@ -77,7 +77,7 @@ public class ResultDesc implements Serializable{
 			if(i != 0)
 				tableBuffer.append(", ");
 			
-			tableBuffer.append("`"+ getAttribute(i).toSqlString() +"` ");
+			tableBuffer.append("`"+ getAttribute(i).getName().toSqlString() +"` ");
 			tableBuffer.append(getType(i).toString());
 		}
 		

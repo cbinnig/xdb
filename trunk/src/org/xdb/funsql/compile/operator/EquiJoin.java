@@ -19,7 +19,7 @@ public class EquiJoin extends AbstractBinaryOperator {
 	
 	private final StringTemplate sqlTemplate = new StringTemplate(
 			"SELECT <RESULTS> FROM <<OP1>> AS `<OP1>` INNER JOIN `<<OP2>>` AS `<OP2>`" +
-			"ON `<OP1>`.`<LOP1>` = `<OP2>`.`<LOP2>`");
+			"ON `<LOP1>` = `<LOP2>`");
 
 	//constructors
 	public EquiJoin(AbstractOperator leftChild, AbstractOperator rightChild,
@@ -51,7 +51,7 @@ public class EquiJoin extends AbstractBinaryOperator {
 	@Override
 	public String toSqlString() {
 		return sqlTemplate.toString(new HashMap<String, String>() {{
-			put("RESULTS", getResultAttributeList());
+			put("RESULTS", getResultAttributeString());
 			
 			put("OP1", getLeftChild().getOperatorId().toString());
 			put("OP2", getRightChild().getOperatorId().toString());

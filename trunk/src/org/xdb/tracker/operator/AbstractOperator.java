@@ -43,6 +43,9 @@ public abstract class AbstractOperator implements Serializable {
 	// map: input table name -> TableDesc
 	protected HashMap<String, TableDesc> inTableDesc = new HashMap<String, TableDesc>();
 
+	// map: input table name -> Connection string
+	protected HashMap<String, String> inTableConnection = new HashMap<String, String>();
+	
 	// unique operator id
 	protected Identifier operatorId;
 	
@@ -62,6 +65,10 @@ public abstract class AbstractOperator implements Serializable {
 	
 	public boolean isRoot(){
 		return this.isRoot;
+	}
+	
+	public void addInTableConnection(final String tableName, final String connectionURL) {
+		inTableConnection.put(tableName, connectionURL);
 	}
 
 	public void setInTableSource(String tableName, TableDesc tableDesc){

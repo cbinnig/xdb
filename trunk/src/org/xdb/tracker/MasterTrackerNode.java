@@ -18,8 +18,11 @@ import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.ResultDesc;
+import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.logging.XDBLog;
+import org.xdb.metadata.Connection;
+import org.xdb.tracker.operator.TableDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.MutableInteger;
 import org.xdb.utils.StringTemplate;
@@ -184,8 +187,9 @@ public class MasterTrackerNode {
 			
 			
 			//add single output table; TODO modify for multiple outputs, e.g. parallelization
-			queryOp.addOutTables("R_OUT", new StringTemplate("<R_OUT> "+opResult.toSqlString()),
-					"R_REGIONKEY");
+			final String queryOpOutName = "OUT_"+queryOp.getOperatorId().toString();
+			queryOp.addOutTables(queryOpOutName, new StringTemplate("<"+queryOpOutName+"> "+
+							opResult.toSqlString()), "R_REGIONKEY");
 
 			//sources & consumers
 			final Set<Identifier> sources = new HashSet<Identifier>();
@@ -197,7 +201,7 @@ public class MasterTrackerNode {
 			}
 
 			//assembled sql exeution statement
-			String executeSqlStatement = "INSERT INTO <R_OUT> "+op.toSqlString();
+			String executeSqlStatement = "INSERT INTO <"+queryOpOutName+"> "+op.toSqlString();
 
 			//queue to assemble this operator
 			final Queue<org.xdb.funsql.compile.operator.AbstractOperator> assemblingQueue = 
@@ -207,38 +211,56 @@ public class MasterTrackerNode {
 			while(!assemblingQueue.isEmpty()) {
 				final org.xdb.funsql.compile.operator.AbstractOperator childOp =
 						assemblingQueue.poll();
+				
+				final Identifier childOpId = childOp.getOperatorId();
 
-				//break on multiple dependends or materialized-state
-				if(childOp.getResult(0).isMaterialize() || (dependencies.containsKey(childOp.getOperatorId())
-						&& dependencies.get(childOp.getOperatorId()).size() > 1)) {
+				//break on multiple dependents or materialized-state
+				if(childOp.getResult(0).isMaterialize() || (dependencies.containsKey(childOpId)
+						&& dependencies.get(childOpId).size() > 1)) {
 
 					//add as new operator root
 					scanQueue.add(childOp);
 
 					//register as source operator for the current operator
-					sources.add(childOp.getOperatorId());
+					sources.add(childOpId);
 					// ... and as consumers for the new operator
-					Set<Identifier> dependendOperators = operatorSources.get(childOp.getOperatorId());
+					Set<Identifier> dependendOperators = operatorSources.get(childOpId);
 					if(dependendOperators == null) {
 						dependendOperators = new HashSet<Identifier>();
-						operatorSources.put(childOp.getOperatorId(), dependendOperators);
+						operatorSources.put(childOpId, dependendOperators);
 					}
 					dependendOperators.add(queryOp.getOperatorId());
 
 					//add as input
-					queryOp.addInTables(childOp.getOperatorId().toString(), 
-							new StringTemplate("<"+childOp.getOperatorId().toString()+"> "+childOp.getResult(0).toSqlString()), "R_REGIONKEY");
-
+					queryOp.addInTables(childOpId.toString(), 
+							new StringTemplate("<"+childOpId.toString()+"> "+childOp.getResult(0).toSqlString()), "R_REGIONKEY");
+					queryOp.setInTableSource(childOpId.toString(), 
+							new TableDesc("OUT_"+childOpId.toString(), childOpId));
+					
 					//do not process this operator and do not add children of this operator to assemlingQueue
 					continue;
+				}
+				
+				//add table input data
+				//TODO: this class usage seems hacky, maybe use interface?
+				try {
+					final TableOperator tableOp = TableOperator.class.cast(childOp);
+					final Connection conn = tableOp.getConnection();
+					
+					queryOp.addInTables(conn.getTableName(), 
+							new StringTemplate("<"+conn.getTableName()+"> "+childOp.getResult(0).toSqlString()), "R_REGIONKEY");
+					queryOp.addInTableConnection(conn.getTableName(), conn.getAllAttributes());
+					
+				} catch(ClassCastException e) {
+					//do nothing...
 				}
 
 				final StringTemplate sqlAssemblyTemplate = 
 						new StringTemplate(executeSqlStatement.toString());
 				
-				final Map<String, String> sqlAssemblyStepArgs = new HashMap<String, String>();
-				sqlAssemblyStepArgs.put(childOp.getOperatorId().toString(), "("+childOp.toSqlString()+")");
-				executeSqlStatement = sqlAssemblyTemplate.toString(sqlAssemblyStepArgs);
+				executeSqlStatement = sqlAssemblyTemplate.toString(new HashMap<String, String>() {{
+					put(childOpId.toString(), "("+childOp.toSqlString()+")");
+				}});
 
 				assemblingQueue.addAll(childOp.getSourceOperators());
 			}

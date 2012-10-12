@@ -19,7 +19,7 @@ public class GenericProjection extends AbstractUnaryOperator {
 	
 	private Vector<AbstractExpression> expressions;
 	final StringTemplate sqlTemplate = 
-			new StringTemplate("SELECT <ATTR_LIST> FROM `<<OP1>>` AS `<OP1>`");
+			new StringTemplate("SELECT <RESULTS> FROM `<<OP1>>` AS `<OP1>`");
 	
 	//constructors
 	public GenericProjection(AbstractOperator child, int size) {
@@ -44,15 +44,8 @@ public class GenericProjection extends AbstractUnaryOperator {
 	
 	@Override
 	public String toSqlString() {
-		
-		final StringBuffer attrBuf = new StringBuffer();
-		for(AbstractExpression attr : expressions) {
-			if(attrBuf.length() != 0)
-				attrBuf.append(", ");
-			attrBuf.append("`<OP1>`.`"+attr.toSqlString());
-		}
 		return sqlTemplate.toString(new HashMap<String, String>() {{
-			put("ATTR_LIST", attrBuf.toString());
+			put("RESULTS", getResultAttributeString());
 			put("OP1", getChild().getOperatorId().toString());
 		}});
 	}

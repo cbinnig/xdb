@@ -6,6 +6,7 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.StringTemplate;
 
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
@@ -14,6 +15,9 @@ public class GenericSelection extends AbstractUnaryOperator {
 	private static final long serialVersionUID = 5178586492851005421L;
 	
 	private AbstractPredicate predicate;
+	
+	private final StringTemplate sqlTemplate = 
+			new StringTemplate("SELECT <RESULTS> FROM <<OP1>> AS <OP1>");
 	
 	//constructors
 	public GenericSelection(AbstractOperator child) {
@@ -32,8 +36,11 @@ public class GenericSelection extends AbstractUnaryOperator {
 	
 	@Override
 	public String toSqlString() {
-		// TODO: generate sql
-		return null;
+		return sqlTemplate.toString(new HashMap<String, String>() {{
+			put("RESULTS", getResultAttributeString());
+			
+			put("OP1", getChild().getOperatorId().toString());
+		}});
 	}
 
 	@Override

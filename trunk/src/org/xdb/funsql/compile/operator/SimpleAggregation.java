@@ -1,9 +1,12 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.utils.SetUtils;
+import org.xdb.utils.StringTemplate;
 
 public class SimpleAggregation extends AbstractUnaryOperator {
 
@@ -12,6 +15,10 @@ public class SimpleAggregation extends AbstractUnaryOperator {
 	private Vector<TokenAttribute> groupAttributes;
 	private Vector<TokenAttribute> aggAttributes;
 	private Vector<EnumAggregation> aggTypes;
+	
+	private final StringTemplate sqlTemplate = 
+			new StringTemplate("SELECT <AGG_ATTRS>,<GROUP_ATTRS> FROM <<OP1>> AS <OP1>"+
+					"GROUP BY <GROUP_ATTRS>");
 	
 	//constructors
 	public SimpleAggregation(AbstractOperator child, int size) {
@@ -63,8 +70,29 @@ public class SimpleAggregation extends AbstractUnaryOperator {
 	
 	@Override
 	public String toSqlString() {
-		// TODO: generate sql
-		return null;
+		assert(aggAttributes.size() == aggTypes.size());
+		
+		//generate aggregation attribute list
+		final StringBuffer builder = new StringBuffer();
+		for(int i = 0; i < aggAttributes.size(); i++) {
+			final int k = i; //needed for the anonymous class to work...
+			if(i != 0)
+				builder.append(",");
+			
+			builder.append(aggTypes.get(i).getSqlRepresentation().toString(
+							new HashMap<String, String>() {{
+								put("EXP", aggAttributes.get(k).toSqlString());
+							}}
+			));
+		}
+		
+		
+		return sqlTemplate.toString(new HashMap<String, String>() {{
+			put("OP1", getChild().getOperatorId().toString());
+			
+			put("AGG_ATTRS", builder.toString());
+			put("GROUP_ATTRS", SetUtils.stringifyAttrVec(groupAttributes));
+		}});
 	}
 
 	@Override
