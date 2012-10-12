@@ -22,7 +22,7 @@ public class TableOperator extends AbstractOperator {
 	private Table table = null;
 	
 	private final StringTemplate sqlTemplate = 
-			new StringTemplate("SELECT <RESULTS> FROM <<OP1>>");
+			new StringTemplate("SELECT * FROM <<OP1>>");
 	
 	//constructors
 	public TableOperator(TokenTable tableName){
@@ -60,8 +60,6 @@ public class TableOperator extends AbstractOperator {
 	@Override
 	public String toSqlString() {
 		return sqlTemplate.toString(new HashMap<String, String>() {{
-			put("RESULTS", getResultAttributeList());
-			
 			put("OP1", connection.getTableName());
 		}});
 	}
