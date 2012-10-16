@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
-import org.xdb.funsql.compile.checks.IExpressionVisitor;
+import org.xdb.funsql.compile.analyze.IExpressionVisitor;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
