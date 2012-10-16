@@ -11,34 +11,33 @@ import java.util.Map.Entry;
 public class StringTemplate {
 	private static final String START_TAG = "<";
 	private static final String END_TAG = ">";
-	
-	private String template;
-	
+
+	private final String template;
+
 	//Constructors
-	public StringTemplate(String template){
+	public StringTemplate(final String template){
 		this.template = template;
 	}
-	
+
 	/**
 	 * Generate instantiated string from template
 	 * @param args
 	 * @return
 	 */
-	public String toString(Map<String, String> args){
-		String instance = new String(this.template);
-		
-		for(Entry<String, String> entry: args.entrySet()){
-			StringBuffer key = new StringBuffer(START_TAG);
+	public String toString(final Map<String, String> args){
+		String instance = new String(template);
+
+		for(final Entry<String, String> entry: args.entrySet()){
+			final StringBuffer key = new StringBuffer(START_TAG);
 			key.append(entry.getKey());
 			key.append(END_TAG);
-			
 			instance = instance.replaceAll(key.toString(), entry.getValue());
 		}
 		return instance;
 	}
-	
+
 	@Override 
 	public String toString(){
-		return this.template;
+		return template;
 	}
 }
