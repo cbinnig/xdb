@@ -1,4 +1,4 @@
-package org.xdb.funsql.compile.checks;
+package org.xdb.funsql.compile.analyze;
 
 import java.util.Collection;
 import java.util.Vector;

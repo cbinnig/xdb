@@ -1,5 +1,6 @@
-package org.xdb.funsql.compile;
+package org.xdb.funsql.compile.analyze;
 
+import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericProjection;

@@ -2,7 +2,7 @@ package org.xdb.funsql.compile.expression;
 
 import java.util.Set;
 
-import org.xdb.funsql.compile.checks.IExpressionVisitor;
+import org.xdb.funsql.compile.analyze.IExpressionVisitor;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 

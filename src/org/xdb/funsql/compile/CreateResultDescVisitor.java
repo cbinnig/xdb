@@ -28,7 +28,7 @@ import org.xdb.metadata.Table;
  * 
  * @author lschmidt
  */
-public class AggregateInformationVisitor implements ITreeVisitor {
+public class CreateResultDescVisitor implements ITreeVisitor {
 
 	/*
 	 * Visiting the EquiJoin means to add the attributes of the operators
