@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
+import org.xdb.funsql.compile.analyze.IPredicateVisitor;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
@@ -131,5 +132,10 @@ public class ComplexPredicate extends AbstractPredicate {
 		}
 		return predicates;
 
+	}
+
+	@Override
+	public void accept(IPredicateVisitor v) {
+		v.visitComplexPredicate(this);
 	}
 }

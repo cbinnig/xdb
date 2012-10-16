@@ -105,7 +105,7 @@ public class CreateResultDescVisitor implements ITreeVisitor {
 	 */
 	@Override
 	public void visitSimpleAggregation(SimpleAggregation sa) {
-		// TODO Auto-generated method stub
+		//TODO
 
 	}
 
@@ -192,10 +192,9 @@ public class CreateResultDescVisitor implements ITreeVisitor {
 		ResultDesc rd = new ResultDesc(col.size());
 		int i = 0;
 		for (TokenAttribute a : col) {
-			rd.setAttribute(i, a);
-			Table table = Catalog.getTable(a.getTable().hashKey(
-					Catalog.getSchema(a.getTable().getSchema().hashKey())
-							.getOid()));
+			rd.setAttribute(i, a);			
+			TokenTable ttable = a.getTable();
+			Table table = Catalog.getTable(ttable.toString());
 			Attribute tempAtt = table.getAttribute(a.toSqlString());
 			rd.setType(i, tempAtt.getDataType());
 			i++;

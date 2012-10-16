@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.xdb.funsql.compile.analyze.IPredicateVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -105,5 +106,11 @@ public class SimplePredicate extends AbstractPredicate {
 		HashSet<AbstractPredicate> predicates = new HashSet<AbstractPredicate>();
 		predicates.add(this);
 		return predicates;
+	}
+
+	@Override
+	public void accept(IPredicateVisitor v) {
+		v.visitSimplePredicate(this);
+		
 	}
 }
