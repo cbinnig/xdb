@@ -17,6 +17,8 @@ import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.logging.XDBLog;
 import org.xdb.tracker.operator.AbstractOperator;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.MutableInteger;
+import org.xdb.utils.Tuple;
 
 public class QueryTrackerPlan implements Serializable {
 
@@ -47,6 +49,8 @@ public class QueryTrackerPlan implements Serializable {
 
 	//Logger
 	private final Logger logger;
+
+	private HashMap<Identifier, OperatorDesc> currentDeployment;
 
 	// constructor
 	public QueryTrackerPlan(final Identifier planId) {
@@ -162,9 +166,11 @@ public class QueryTrackerPlan implements Serializable {
 	public Map<Identifier, OperatorDesc> deployPlan() {
 		final HashMap<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
 
+		final Map<String, MutableInteger> allocatedSlots = requireSlots();
+
 		// prepare deployment
 		for (final Identifier leave : leaves) {
-			prepareDeployment(leave, currentDeployment);
+			prepareDeployment(leave, currentDeployment, allocatedSlots);
 		}
 
 		// deploy plan
@@ -178,7 +184,37 @@ public class QueryTrackerPlan implements Serializable {
 			currentDeployment.clear();
 		}
 
+		this.currentDeployment = currentDeployment;
 		return currentDeployment;
+	}
+
+	private Map<String, MutableInteger> requireSlots() {
+		final ResourceScheduler resourceScheduler = new ResourceScheduler(this);
+		final MutableInteger numSlots = new MutableInteger(resourceScheduler.calcMaxParallelization());
+
+		final Map<String, MutableInteger> requiredSlots = new HashMap<String, MutableInteger>();
+		for (final Identifier leaf : leaves) {
+			if (numSlots.intValue() == 0) {
+				break;
+			}
+			final AbstractOperator op = operators.get(leaf);
+			// Gather best Connection String 
+			final String connectionString = resourceScheduler.getBestConnection(op.getInTableConnection());
+			final MutableInteger numNodes = requiredSlots.get(connectionString);
+			if (numNodes == null) {
+				requiredSlots.put(connectionString, new MutableInteger(1));
+			} else {
+				numNodes.inc();
+			}
+			numSlots.dec();
+		}
+		if (numSlots.intValue() > 0) {
+			requiredSlots.put(ResourceScheduler.RANDOM, numSlots);
+		}
+		final Tuple<Map<String, MutableInteger>, Error> tuple = tracker.requestComputeNodes(requiredSlots);
+		final Map<String, MutableInteger> allocatedSlots = tuple.getObject1();
+		err = tuple.getObject2();
+		return new HashMap<String, MutableInteger>(allocatedSlots);
 	}
 
 	/**
@@ -232,25 +268,49 @@ public class QueryTrackerPlan implements Serializable {
 	 * @param currentDeployment
 	 */
 	private void prepareDeployment(final Identifier operId,
-			final Map<Identifier, OperatorDesc> currentDeployment) {
+			final Map<Identifier, OperatorDesc> currentDeployment, final Map<String, MutableInteger> allocatedSlots) {
 
 		// operator already deployed
 		if (currentDeployment.containsKey(operId)) {
 			return;
 		}
 
+		// identify best used node
+		final Collection<String> bestNodes = operators.get(operId).getInTableConnection().values();
+		String usedNode = null;
+		for (final String bestNode : bestNodes) {	// Choose one of the possible connection strings
+			final MutableInteger numOfFreeNodes = allocatedSlots.get(bestNode);
+			if (numOfFreeNodes != null && numOfFreeNodes.intValue() > 0) {
+				numOfFreeNodes.dec();
+				usedNode = bestNode;
+			}
+		}
+		if (usedNode == null) {
+			// TODO: Get next best ComputeNode
+			int maxSlots = 0;
+			for (final Entry<String, MutableInteger> availableNode : allocatedSlots.entrySet()) {
+				if (maxSlots < availableNode.getValue().intValue()) {
+					usedNode = availableNode.getKey();
+					maxSlots = availableNode.getValue().intValue();
+				}
+			}
+			final MutableInteger numOfFreeNodes = allocatedSlots.get(usedNode);
+			numOfFreeNodes.dec();
+		}
+
+
 		// generate deployment description from plan operator
 		final Identifier deployOperId = operId.clone();
 		deployOperId.append(lastDeployOperId++);
 		final OperatorDesc deployOperDesc = new OperatorDesc(deployOperId,
-				tracker.getFreeNode());
+				usedNode);
 
 		// add to current deployment description
 		currentDeployment.put(operId, deployOperDesc);
 
 		// prepare deployment of consumers
 		for (final Identifier consumerId : consumers.get(operId)) {
-			prepareDeployment(consumerId, currentDeployment);
+			prepareDeployment(consumerId, currentDeployment, allocatedSlots);
 		}
 	}
 
@@ -261,8 +321,8 @@ public class QueryTrackerPlan implements Serializable {
 		return Collections.unmodifiableMap(operators);
 	}
 
-	public String getComputeNode(final AbstractOperator op) {
-		// TODO Auto-generated method stub
-		return null;
+	public void execute() {
+		executePlan(currentDeployment);
 	}
+
 }

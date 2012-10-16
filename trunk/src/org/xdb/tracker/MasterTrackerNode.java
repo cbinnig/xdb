@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.xdb.Config;
 import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
@@ -19,7 +20,6 @@ import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.operator.TableOperator;
-import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.logging.XDBLog;
 import org.xdb.metadata.Connection;
 import org.xdb.tracker.operator.TableDesc;
@@ -176,20 +176,20 @@ public class MasterTrackerNode {
 				new HashMap<Identifier, Set<Identifier>>();
 
 		while(!scanQueue.isEmpty()) {
-			
+
 			final org.xdb.funsql.compile.operator.AbstractOperator op =
 					scanQueue.poll();
-			
+
 			final ResultDesc opResult = op.getResult(0);
 
 			final org.xdb.tracker.operator.MySQLOperator queryOp = 
 					new org.xdb.tracker.operator.MySQLOperator(op.getOperatorId());
-			
-			
+
+
 			//add single output table; TODO modify for multiple outputs, e.g. parallelization
 			final String queryOpOutName = "OUT_"+queryOp.getOperatorId().toString();
 			queryOp.addOutTables(queryOpOutName, new StringTemplate("<"+queryOpOutName+"> "+
-							opResult.toSqlString()), "R_REGIONKEY");
+					opResult.toSqlString()), "R_REGIONKEY");
 
 			//sources & consumers
 			final Set<Identifier> sources = new HashSet<Identifier>();
@@ -211,7 +211,7 @@ public class MasterTrackerNode {
 			while(!assemblingQueue.isEmpty()) {
 				final org.xdb.funsql.compile.operator.AbstractOperator childOp =
 						assemblingQueue.poll();
-				
+
 				final Identifier childOpId = childOp.getOperatorId();
 
 				//break on multiple dependents or materialized-state
@@ -236,28 +236,28 @@ public class MasterTrackerNode {
 							new StringTemplate("<"+childOpId.toString()+"> "+childOp.getResult(0).toSqlString()), "R_REGIONKEY");
 					queryOp.setInTableSource(childOpId.toString(), 
 							new TableDesc("OUT_"+childOpId.toString(), childOpId));
-					
+
 					//do not process this operator and do not add children of this operator to assemlingQueue
 					continue;
 				}
-				
+
 				//add table input data
 				//TODO: this class usage seems hacky, maybe use interface?
 				try {
 					final TableOperator tableOp = TableOperator.class.cast(childOp);
 					final Connection conn = tableOp.getConnection();
-					
+
 					queryOp.addInTables(conn.getTableName(), 
 							new StringTemplate("<"+conn.getTableName()+"> "+childOp.getResult(0).toSqlString()), "R_REGIONKEY");
 					queryOp.addInTableConnection(conn.getTableName(), conn.getAllAttributes());
-					
-				} catch(ClassCastException e) {
+
+				} catch(final ClassCastException e) {
 					//do nothing...
 				}
 
 				final StringTemplate sqlAssemblyTemplate = 
 						new StringTemplate(executeSqlStatement.toString());
-				
+
 				executeSqlStatement = sqlAssemblyTemplate.toString(new HashMap<String, String>() {{
 					put(childOpId.toString(), "("+childOp.toSqlString()+")");
 				}});
@@ -366,7 +366,13 @@ public class MasterTrackerNode {
 	}
 
 	public Map<String, MutableInteger> getComputeSlots(final Map<String, MutableInteger> requiredSlots) {
-		// TODO return ComputeSlot
-		return null;
+		// TODO return available ComputeSlots
+		int slots = 0;
+		for (final MutableInteger mi : requiredSlots.values()) {
+			slots+=mi.intValue();
+		}
+		final HashMap<String, MutableInteger> allocatedSlots = new HashMap<String, MutableInteger>();
+		allocatedSlots.put(Config.COMPUTE_URL, new MutableInteger(slots));
+		return allocatedSlots;
 	}
 }

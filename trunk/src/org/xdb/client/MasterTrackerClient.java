@@ -130,7 +130,7 @@ public class MasterTrackerClient extends AbstractClient{
 					server.getOutputStream());
 			final ObjectInputStream in = new ObjectInputStream(server.getInputStream());
 
-			out.writeInt(MasterTrackerServer.CMD_EXECUTE_PLAN);
+			out.writeInt(MasterTrackerServer.CMD_REQUEST_COMPUTE_NODE);
 			out.writeObject(requiredNodes);
 			out.flush();
 			computeNodes = (Map<String, MutableInteger>) in.readObject();
