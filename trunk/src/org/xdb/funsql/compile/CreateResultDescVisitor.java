@@ -201,4 +201,9 @@ public class CreateResultDescVisitor implements ITreeVisitor {
 		}
 		ao.setResult(i, rd);
 	}
+
+	@Override
+	public void visit(AbstractOperator absOp) {
+		// TODO Auto-generated method stub
+	}
 }

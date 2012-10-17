@@ -4,6 +4,7 @@ import org.xdb.funsql.compile.operator.*;
 
 public interface ITreeVisitor{
 	
+	void visit(AbstractOperator absOp);
 	void visitEquiJoin(EquiJoin ej);
 	void visitGenericSelection(GenericSelection gs);
 	void visitFunctionCall(FunctionCall fc);

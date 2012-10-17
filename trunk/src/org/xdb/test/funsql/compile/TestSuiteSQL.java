@@ -12,6 +12,7 @@ public class TestSuiteSQL extends TestSuite
     suite.addTestSuite( TestCreateSchemaSQL.class );
     suite.addTestSuite( TestCreateTableSQL.class );
     suite.addTestSuite( TestSelectSQL.class );
+    suite.addTestSuite( TestOptimizeSQL.class );
     return suite;
   }
 }
