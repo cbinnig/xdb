@@ -6,6 +6,7 @@ public class TokenAttribute extends AbstractTokenOperand{
 	// attributes
 	private TokenIdentifier name;
 	private TokenTable table;
+	private TokenDataType dataType;//data type of the TokenAttribute
 
 	// constructors
 	public TokenAttribute() {
@@ -63,5 +64,13 @@ public class TokenAttribute extends AbstractTokenOperand{
 	@Override
 	public boolean isAttribute() {
 		return true;
+	}
+
+	public TokenDataType getDataType() {
+		return dataType;
+	}
+
+	public void setDataType(TokenDataType dataType) {
+		this.dataType = dataType;
 	}
 }

@@ -22,6 +22,7 @@ public enum EnumError {
 	STORE_CONNECTION_ERROR,
 	STORE_EXECUTION_ERROR,
 	COMPILER_GENERIC,
+	COMPILER_TYPE_ERROR,
 	COMPILER_SELECT_EXPRESSION_NOT_SUPPORTED,
 	COMPILER_SELECT_ATTRIBUTE_NOT_IN_TABLE,
 	COMPILER_SELECT_ATTRIBUTE_IN_NO_TABLE,
@@ -84,6 +85,9 @@ public enum EnumError {
 			break;
 		case COMPILER_GENERIC:
 			msg = "Compiler: Error \"<arg0>\"!";
+			break;
+		case COMPILER_TYPE_ERROR:
+			msg = "Compiler: Type in this context not supported (error: \"<arg0>\")!";
 			break;
 		case COMPILER_SELECT_EXPRESSION_NOT_SUPPORTED:
 			msg = "Compiler: Expression \"<arg0>\" not supported!";
