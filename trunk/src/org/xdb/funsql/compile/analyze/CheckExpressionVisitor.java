@@ -30,11 +30,7 @@ public class CheckExpressionVisitor implements IExpressionVisitor {
 		if (se.isAttribute()) {// attribute
 			while (se.getAttributes().iterator().hasNext()) {
 				ta = se.getAttributes().iterator().next();
-				e = this.checkAttribute(ta);
-				if (e.isError())
-					return e;
-				else
-					this.expType.put(ta, ta.getDataType().getDataType());
+				this.expType.put(ta, ta.getDataType().getDataType());
 			}
 		} else {// literal
 			TokenLiteral tl = (TokenLiteral) se.getOper();
@@ -121,9 +117,5 @@ public class CheckExpressionVisitor implements IExpressionVisitor {
 		return new Error();
 	}
 
-	private Error checkAttribute(TokenAttribute ta) {
-		// TODO
-		return new Error();
-	}
 
 }
