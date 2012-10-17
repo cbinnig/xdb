@@ -20,22 +20,6 @@ import org.xdb.error.Error;
  * 
  */
 public class CheckExpressionVisitor implements IExpressionVisitor {
-	public HashMap<AbstractToken, EnumSimpleType> getExpType() {
-		return expType;
-	}
-
-	public void setExpType(HashMap<AbstractToken, EnumSimpleType> expType) {
-		this.expType = expType;
-	}
-
-	public HashMap<AbstractToken, EnumLiteralType> getLitType() {
-		return litType;
-	}
-
-	public void setLitType(HashMap<AbstractToken, EnumLiteralType> litType) {
-		this.litType = litType;
-	}
-
 	HashMap<AbstractToken, EnumSimpleType> expType;
 	HashMap<AbstractToken, EnumLiteralType> litType;
 
