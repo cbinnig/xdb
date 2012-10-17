@@ -7,6 +7,7 @@ import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.expression.ComplexExpression;
 import org.xdb.funsql.compile.expression.EnumExprType;
 import org.xdb.funsql.compile.expression.SimpleExpression;
+import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericSelection;
@@ -75,6 +76,12 @@ public class CheckOperatorVisitor implements ITreeVisitor {
 	public void visitGenericSelection(GenericSelection es) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void visit(AbstractOperator absOp) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

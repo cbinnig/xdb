@@ -1,112 +1,60 @@
 package org.xdb.funsql.optimize;
 
-import java.util.Vector;
-
+import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.EquiJoin;
+import org.xdb.funsql.compile.operator.FunctionCall;
+import org.xdb.funsql.compile.operator.GenericProjection;
+import org.xdb.funsql.compile.operator.GenericSelection;
+import org.xdb.funsql.compile.operator.SimpleAggregation;
+import org.xdb.funsql.compile.operator.TableOperator;
 
-public abstract class AbstractTreeWalker {
+public abstract class AbstractTreeWalker implements ITreeVisitor {
 	
-	boolean changesDidLastRun = false;
-	Vector<AbstractOperator> operatorsToPush = new Vector<AbstractOperator>();
+	AbstractOperator thisRoot = null;
 	
-	/**
-	 * runs walker as often as needed so there are no further changes possible.
-	 */
-	public void runWalker(){	};
-	
-	/** 
-	 * @return all operators that may could pushed down, but need to wait for other walkers to unify the push down. 
-	 */
-	public Vector<AbstractOperator> getOperatorsToPush(){
-		return operatorsToPush;
+	public AbstractTreeWalker(AbstractOperator root) {
+		thisRoot = root;
 	}
 	
-	/**
-	 * adds given operator to the list of possible pushdowns after all walkers reached the stopping point 
-	 * (e.g. a join operator)
-	 * @param op
-	 */
-	void addOperatorToPush(AbstractOperator op){
-		operatorsToPush.add(op);
+	public void runWalker() {
+		visit(thisRoot);
 	}
-	
-	/**
-	 * pushes a single Operator toPush under the single operator pushedOver. This is only working with Operators
-	 * which are located directly above each other
-	 * @param toPush
-	 * @param pushedOver
-	 */
-	void pushDown(AbstractOperator toPush, AbstractOperator pushedOver){
-		
-		
-		Vector<AbstractOperator> destinations = toPush.getDestinationOperators();
-		if(destinations.size() >= 1){
-			for(AbstractOperator dest : destinations){
-				dest.getSourceOperators().remove(toPush);
-				dest.getSourceOperators().add(pushedOver);
-			}
-		}
-		Vector<AbstractOperator> sources = pushedOver.getSourceOperators();
-		if(sources.size() >= 1){
-			for(AbstractOperator src : sources){
-				src.getDestinationOperators().remove(pushedOver);
-				src.getDestinationOperators().add(toPush);
-			}
-		}
-		
-		Vector<AbstractOperator> newRootSource = pushedOver.getSourceOperators();
-		
-		pushedOver.setSourceOperators(pushedOver.getDestinationOperators());
-		pushedOver.setDestinationOperators(toPush.getDestinationOperators());
-		toPush.setDestinationOperators(toPush.getSourceOperators());
-		toPush.setSourceOperators(newRootSource);
-		
-	};
-	
-	/**
-	 * push a single Operator under several Operators. Only works with Operators directly above each other.
-	 * @param toPush
-	 * @param pushedOver
-	 */
-	void pushDown(AbstractOperator toPush, Vector<AbstractOperator> pushedOver){
-		
-		Vector<AbstractOperator> destinations = toPush.getDestinationOperators();
-		if(destinations.size() >= 1){
-			for(AbstractOperator dest : destinations){
-				dest.getSourceOperators().remove(toPush);
-				for(AbstractOperator singlePushedOver : pushedOver)
-					dest.getSourceOperators().add(singlePushedOver);
-			}
-		}
-		for(AbstractOperator singlePushedOver : pushedOver){
-			
-			//TODO: copy operator so toPushInsert can be placed into two or more branches
-			AbstractOperator toPushInsert = toPush;
 
-			Vector<AbstractOperator> sources = singlePushedOver.getSourceOperators();
-			if(sources.size() >= 1){
-				for(AbstractOperator src : sources){
-					src.getDestinationOperators().remove(singlePushedOver);
-					src.getDestinationOperators().add(toPushInsert);
-				}
-			}
-			
-
-			singlePushedOver.setDestinationOperators(toPush.getDestinationOperators());
-			Vector<AbstractOperator> vec = new Vector<AbstractOperator>();
-			vec.add(toPushInsert);
-			singlePushedOver.setSourceOperators(vec);
-			
-			//TODO: einstellungen des neuen toPushInserts bzw der "E" in der skizze.
-			
-			
-			
+	@Override
+	public void visit(AbstractOperator absOp) {
+		switch(absOp.getType()){
+		case EQUI_JOIN:
+			visitEquiJoin((EquiJoin) absOp);
+			break;
+		case GENERIC_SELECTION:
+			visitGenericSelection((GenericSelection) absOp);
+			break;
+//		case FUNCTION_CALL:
+//			visitFunctionCall((FunctionCall) absOp);
+//			break;
+		case SIMPLE_AGGREGATION:
+			visitSimpleAggregation((SimpleAggregation) absOp);
+			break;
+//		case GENERIC_PROJECTION:
+		case SIMPLE_PROJECTION:
+			visitGenericProjection((GenericProjection) absOp);
+			break;
+		case TABLE:
+			visitTableOperator((TableOperator) absOp);
+			break;
 		}
-
-		
-		
-
 	}
-	
 
+	public abstract void visitEquiJoin(EquiJoin ej);
+	
+	public abstract void visitGenericSelection(GenericSelection gs);
+	
+	public abstract void visitFunctionCall(FunctionCall fc);
+
+	public abstract void visitSimpleAggregation(SimpleAggregation sa);
+
+	public abstract void visitGenericProjection(GenericProjection gp);
+
+	public abstract void visitTableOperator(TableOperator to);
 }

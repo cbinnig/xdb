@@ -61,7 +61,9 @@ public class GenericSelection extends AbstractUnaryOperator {
 
 	@Override
 	public boolean isPushDownAllowed(EnumPushDown pd) {
-		// TODO Auto-generated method stub
-		return false;
+		if(pd == EnumPushDown.SELECTION_PUSHDOWN)
+			return true;
+		else
+			return false;
 	}
 }

@@ -31,6 +31,13 @@ public abstract class AbstractOperator implements Serializable {
 		this.children = new Vector<AbstractOperator>();
 		this.parents = new Vector<AbstractOperator>();
 	}
+	public AbstractOperator(AbstractOperator toCopy){
+		this.children = toCopy.children;
+		this.parents = toCopy.parents;
+		this.type = toCopy.type;
+		this.results = toCopy.results;
+	}
+	
 	/**
 	 * Get all source operators.
 	 * @return set of all dependency operators, empty set if no given

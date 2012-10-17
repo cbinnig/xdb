@@ -1,6 +1,7 @@
 package org.xdb.funsql.compile.analyze;
 
 import org.xdb.funsql.compile.ITreeVisitor;
+import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -68,6 +69,12 @@ public class RenameOperatorVisitor implements ITreeVisitor {
 	public void visitTableOperator(TableOperator to) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void visit(AbstractOperator absOp) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
