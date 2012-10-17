@@ -1,17 +1,15 @@
 package org.xdb.funsql.compile.analyze;
 
-import java.util.Vector;
-
+import java.util.HashMap;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.ComplexExpression;
-import org.xdb.funsql.compile.expression.EnumExprOperator;
 import org.xdb.funsql.compile.expression.EnumExprType;
 import org.xdb.funsql.compile.expression.SimpleExpression;
-import org.xdb.funsql.compile.tokens.AbstractTokenOperand;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenLiteral;
-import org.xdb.funsql.compile.tokens.TokenIntegerLiteral;
 import org.xdb.funsql.types.EnumLiteralType;
+import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 
@@ -22,6 +20,25 @@ import org.xdb.error.Error;
  * 
  */
 public class CheckExpressionVisitor implements IExpressionVisitor {
+	public HashMap<AbstractToken, EnumSimpleType> getExpType() {
+		return expType;
+	}
+
+	public void setExpType(HashMap<AbstractToken, EnumSimpleType> expType) {
+		this.expType = expType;
+	}
+
+	public HashMap<AbstractToken, EnumLiteralType> getLitType() {
+		return litType;
+	}
+
+	public void setLitType(HashMap<AbstractToken, EnumLiteralType> litType) {
+		this.litType = litType;
+	}
+
+	HashMap<AbstractToken, EnumSimpleType> expType;
+	HashMap<AbstractToken, EnumLiteralType> litType;
+
 	@Override
 	public Error visitSimpleExpression(SimpleExpression se) {
 		Error e;
@@ -32,68 +49,97 @@ public class CheckExpressionVisitor implements IExpressionVisitor {
 				e = this.checkAttribute(ta);
 				if (e.isError())
 					return e;
+				else
+					this.expType.put(ta, ta.getDataType().getDataType());
 			}
 		} else {// literal
 			TokenLiteral tl = (TokenLiteral) se.getOper();
 			EnumLiteralType tlt = tl.getLiteralType();
-			if (tlt.equals("SQL_STRING_LITERAL")) {
-
-			} else if (tlt.equals("SQL_INTEGER_LITERAL")) {
-				Integer i = ((TokenIntegerLiteral) tl).getValue();
-			}
+			this.litType.put(tl, tlt);
 		}
-		return new Error(EnumError.NO_ERROR, null);
+		return new Error();
 	}
 
 	@Override
 	public Error visitComplexExpression(ComplexExpression ce) {
 		Error e;
-		if (ce.isAttribute()) {// only 1 expression: attribute
+		if (ce.isAttribute()) {
+			// only 1 expression: attribute
 			while (ce.getExpr1().getAttributes().iterator().hasNext()) {
 				this.visitSimpleExpression((SimpleExpression) ce.getExpr1());
+				//sets the data type
 			}
 		} else if ((!ce.isAttribute()) && (ce.getSize() == 1)) {
 			// only 1 expression: literal
 			this.visitSimpleExpression((SimpleExpression) ce.getExpr1());
 		} else if ((!ce.isAttribute()) && (ce.getSize() > 1)) {// ComplexExpression
 			AbstractExpression ae1 = ce.getExpr1();
+			EnumSimpleType st = this.expType.get(ae1);
 			switch(ce.getType()){
-			case SIGNED_EXPRESSION:
-				//TODO
+			case SIGNED_EXPRESSION://-(a+1) ->ce.isNegated()
+				//data type has to be decimal
+				if(st.equals(EnumExprType.SIMPLE_EXPRESSION))
+					this.visitSimpleExpression((SimpleExpression) ae1);
+				else
+					this.visitComplexExpression((ComplexExpression)ae1);
+				if(!(st.equals(EnumSimpleType.SQL_DECIMAL))||!(st.equals(EnumSimpleType.SQL_INTEGER))){
+					String[] s ={"This type has to be decimal or integer!"};
+					return new Error(EnumError.COMPILER_TYPE_ERROR,s);
+				}
+				for(int i = 0; i< ce.getSize();i++){
+					this.visitComplexExpression((ComplexExpression) ce.getExpr2(i));
+					EnumSimpleType st2 = this.expType.get( ce.getExpr2(i));
+					if(!(st.equals(EnumSimpleType.SQL_DECIMAL))||!(st2.equals(EnumSimpleType.SQL_INTEGER))){
+						String[] s ={"This type has to be decimal or integer!"};
+						return new Error(EnumError.COMPILER_TYPE_ERROR,s);
+					}
+				}
 			case SIMPLE_EXPRESSION:
 				this.visitSimpleExpression((SimpleExpression) ae1);
-			case MULT_EXPRESSION:
-				if(ae1.getType().equals(EnumExprType.NO_EXPRESSION)){
+			case MULT_EXPRESSION://has to be integer or decimal
+				if(st.equals(EnumExprType.NO_EXPRESSION)){
 					//TODO
-				}else if(ae1.getType().equals(EnumExprType.SIMPLE_EXPRESSION)){
-					this.visitSimpleExpression((SimpleExpression) ae1);
+				}else if(st.equals(EnumExprType.SIMPLE_EXPRESSION)){
+					this.visitSimpleExpression((SimpleExpression) ae1);	
+					
+					
 				}else{
-					this.visitComplexExpression((ComplexExpression)ae1);
+					this.visitComplexExpression((ComplexExpression)ae1);					
 				}
-				AbstractExpression ae2 = ce.getExpr2(0);
-				if(ae2.getType().equals(EnumExprType.NO_EXPRESSION)){
-					//TODO
-				}else if(ae2.getType().equals(EnumExprType.SIGNED_EXPRESSION)){
-					//TODO
-				}else{
-					this.visitComplexExpression((ComplexExpression)ae2);
+				if(!(st.equals(EnumSimpleType.SQL_DECIMAL))||!(st.equals(EnumSimpleType.SQL_INTEGER))){
+					String[] s ={"This type has to be decimal or integer!"};
+					return new Error(EnumError.COMPILER_TYPE_ERROR,s);
 				}
+				//expression2
+				for(int i = 0; i< ce.getSize();i++){
+					AbstractExpression ae2 = ce.getExpr2(i);
+					this.visitComplexExpression((ComplexExpression) ae2);
+					EnumSimpleType st2 = this.expType.get(ae2);
+					if(st2.equals(EnumExprType.NO_EXPRESSION)){
+						//TODO
+					}else if(st2.equals(EnumExprType.SIGNED_EXPRESSION)){
+						//TODO
+					}else{
+						this.visitComplexExpression((ComplexExpression)ae2);
+					}
+				}
+					
 			case ADD_EXPRESSION:
 				//TODO
 			case NO_EXPRESSION:
 				//TODO
+				
 			}
-		} else {
 			String args[] = { "Error in ComplexExpression!" };
 			return new Error(EnumError.COMPILER_GENERIC, args);
 		}
 
-		return new Error(EnumError.NO_ERROR, null);
+		return new Error();
 	}
 
 	private Error checkAttribute(TokenAttribute ta) {
 		// TODO
-		return new Error(EnumError.NO_ERROR, null);
+		return new Error();
 	}
 
 }
