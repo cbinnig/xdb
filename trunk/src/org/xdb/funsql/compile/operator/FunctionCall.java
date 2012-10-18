@@ -36,6 +36,7 @@ public class FunctionCall extends AbstractOperator {
 	
 	public void addChild(int i, AbstractOperator child){
 		this.children.set(i, child);
+		child.addDestinationOperators(this);
 	}
 	
 	public AbstractOperator getChild(int i){
@@ -59,7 +60,7 @@ public class FunctionCall extends AbstractOperator {
 	}
 
 	@Override
-	void accept(ITreeVisitor v) {
+	public void accept(ITreeVisitor v) {
 		v.visitFunctionCall(this);
 	}
 	

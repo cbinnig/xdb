@@ -76,7 +76,7 @@ public class EquiJoin extends AbstractBinaryOperator {
 	}
 
 	@Override
-	void accept(ITreeVisitor v) {
+	public void accept(ITreeVisitor v) {
 		v.visitEquiJoin(this);
 	}
 	

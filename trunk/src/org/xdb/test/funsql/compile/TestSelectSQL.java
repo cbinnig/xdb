@@ -13,12 +13,12 @@ public class TestSelectSQL extends CompileServerTestCase {
 	public void testSimpleSelect() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
 
+		// create connection -> no error
 		String dropConnSql = "DROP CONNECTION \"testConnection\"";
 		AbstractServerStmt stmt = compiler.compile(dropConnSql);
 		if (stmt != null)
 			this.execute(stmt);
 
-		// create connection -> no error
 		String createConnSql = "CREATE CONNECTION \"testConnection\" "
 				+ "URL 'jdbc:mysql://127.0.0.1/xdb_tmp' " + "USER 'xroot' "
 				+ "PASSWORD 'xroot' " + "STORE 'XDB' ";
@@ -28,6 +28,12 @@ public class TestSelectSQL extends CompileServerTestCase {
 		Assert.assertNotNull(stmt);
 		this.execute(stmt);
 
+		//create table
+		String dropTableSql = "DROP CONNECTION \"R\"";
+		stmt = compiler.compile(dropTableSql);
+		if (stmt != null)
+			this.execute(stmt);
+		
 		String createTableStmt = "CREATE TABLE \"R\"( " + "  A INT,"
 				+ "  B VARCHAR," + "  C INT"
 				+ ") IN CONNECTION \"testConnection\"";
@@ -37,6 +43,7 @@ public class TestSelectSQL extends CompileServerTestCase {
 		Assert.assertNotNull(stmt);
 		this.execute(stmt);
 
+		//execute select
 		SelectStmt selectStmt = (SelectStmt) compiler
 				.compile("SELECT R1.A+1 AS A1 FROM R AS R1 WHERE R1.C=1");
 		this.assertNoError(compiler.getLastError());

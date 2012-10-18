@@ -23,6 +23,9 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 		
 		this.children.add(leftChild);
 		this.children.add(rightChild);
+		
+		leftChild.addDestinationOperators(this);
+		rightChild.addDestinationOperators(this);
 	}
 
 	//getters and setters
@@ -62,19 +65,21 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
 		Error err = new Error();
 		GraphNode node = nodes.get(this.operatorId);
+		
+		//node.getInfo().setHeader(this.parents.toString());
+		node.getInfo().setCaption(this.toString());
+		
 		AbstractOperator leftChildOp = this.children.get(0);
 		AbstractOperator rightChildOp = this.children.get(1);
 		
 		if(!nodes.containsKey(leftChildOp.operatorId)){
 			GraphNode child = g.addNode();
-			child.getInfo().setCaption(leftChildOp.type.toString());
 			g.addEdge(node, child);
 			nodes.put(leftChildOp.operatorId, child);
 			leftChildOp.traceGraph(g, nodes);
 		}
 		if(!nodes.containsKey(rightChildOp.operatorId)){
 			GraphNode child = g.addNode();
-			child.getInfo().setCaption(rightChildOp.type.toString());
 			g.addEdge(node, child);
 			nodes.put(rightChildOp.operatorId, child);
 			rightChildOp.traceGraph(g, nodes);

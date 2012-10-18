@@ -124,21 +124,4 @@ public class CompilePlan implements Serializable {
 		}
 		return error;
 	}
-	
-	public void findPartenRelations(){
-		for(Identifier id : roots){
-			AbstractOperator op = getOperators(id);
-			addParentRelation(op);
-		}
-	}
-	
-	private void addParentRelation(AbstractOperator op){
-		for(AbstractOperator child : op.getSourceOperators()){
-			if(!child.getDestinationOperators().contains(op)){
-				child.getDestinationOperators().add(op);
-				addParentRelation(child);
-			}
-		}
-	}
-	
 }

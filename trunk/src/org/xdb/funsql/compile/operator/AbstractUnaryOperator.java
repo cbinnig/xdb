@@ -21,6 +21,7 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 		super(1);
 		
 		this.children.add(child);
+		child.addDestinationOperators(this);
 	}
 	
 	//getters and setters
@@ -44,10 +45,12 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
 		Error err = new Error();
 		GraphNode node = nodes.get(this.operatorId);
+		//node.getInfo().setHeader(this.parents.toString());
+		node.getInfo().setCaption(this.toString());
 		AbstractOperator childOp = this.children.get(0);
+		
 		if(!nodes.containsKey(childOp.operatorId)){
 			GraphNode child = g.addNode();
-			child.getInfo().setCaption(childOp.type.toString());
 			g.addEdge(node, child);
 			nodes.put(childOp.operatorId, child);
 			childOp.traceGraph(g, nodes);
