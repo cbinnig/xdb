@@ -46,6 +46,14 @@ public class TokenFunction extends AbstractToken{
 	public TokenSchema getSchema() {
 		return schema;
 	}
+	
+	public EnumLanguage getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(EnumLanguage language) {
+		this.language = language;
+	}
 
 	//helper methods
 	@Override
@@ -74,11 +82,5 @@ public class TokenFunction extends AbstractToken{
 		return key.toString();
 	}
 
-	public EnumLanguage getLanguage() {
-		return language;
-	}
 
-	public void setLanguage(EnumLanguage language) {
-		this.language = language;
-	}
 }

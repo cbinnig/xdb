@@ -1,12 +1,15 @@
 package org.xdb.funsql.compile.tokens;
 
+import org.xdb.funsql.types.AbstractType;
+import org.xdb.funsql.types.EnumSimpleType;
+
 public class TokenAttribute extends AbstractTokenOperand{
 	private static final long serialVersionUID = -846135086164968356L;
 	
 	// attributes
 	private TokenIdentifier name;
 	private TokenTable table;
-	private TokenDataType dataType;//data type of the TokenAttribute
+	private EnumSimpleType dataType;//data type of the TokenAttribute
 
 	// constructors
 	public TokenAttribute() {
@@ -66,11 +69,11 @@ public class TokenAttribute extends AbstractTokenOperand{
 		return true;
 	}
 
-	public TokenDataType getDataType() {
+	public EnumSimpleType getDataType() {
 		return dataType;
 	}
 
-	public void setDataType(TokenDataType dataType) {
+	public void setDataType(EnumSimpleType dataType) {
 		this.dataType = dataType;
 	}
 }

@@ -2,6 +2,8 @@ package org.xdb.funsql.compile.operator;
 
 import java.io.Serializable;
 
+import org.xdb.funsql.types.EnumLiteralType;
+import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.utils.StringTemplate;
 
 public enum EnumAggregation implements Serializable{
@@ -17,12 +19,17 @@ public enum EnumAggregation implements Serializable{
 	 * at position of aggregating expression
 	 */
 	private final StringTemplate repr;
-	
+	private EnumSimpleType type;
+
 	private EnumAggregation(final StringTemplate repr) {
 		this.repr = repr;
-	}
+	}	
 	
 	public StringTemplate getSqlRepresentation() {
 		return repr;
+	}
+	
+	public EnumSimpleType getType() {
+		return type;
 	}
 }
