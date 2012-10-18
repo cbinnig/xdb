@@ -6,7 +6,6 @@ import java.util.Vector;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.ITreeVisitor;
-import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 

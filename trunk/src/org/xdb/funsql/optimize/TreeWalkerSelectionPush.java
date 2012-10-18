@@ -182,7 +182,6 @@ public class TreeWalkerSelectionPush extends AbstractTreeWalker { //implements I
 		Vector<AbstractOperator> pushAboveParent = new Vector<AbstractOperator>();
 		pushAboveParent.add(toPush);
 		pushAbove.setDestinationOperators(pushAboveParent);
-		
 	}
 	
 	/**
