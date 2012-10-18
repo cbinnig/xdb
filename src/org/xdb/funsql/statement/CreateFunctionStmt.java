@@ -98,7 +98,6 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		}
 		
 		//TODO: referencing variables in select statements (attributes)
-		//TODO: put select trees together for optimizing?
 		
 		return e;
 	}
