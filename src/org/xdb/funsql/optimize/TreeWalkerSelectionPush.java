@@ -2,6 +2,7 @@ package org.xdb.funsql.optimize;
 
 import java.util.Vector;
 
+import org.xdb.funsql.compile.AbstractTreeWalker;
 import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.funsql.compile.operator.EnumPushDown;

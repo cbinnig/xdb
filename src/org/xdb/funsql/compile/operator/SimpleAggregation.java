@@ -107,7 +107,7 @@ public class SimpleAggregation extends AbstractUnaryOperator {
 	}
 
 	@Override
-	void accept(ITreeVisitor v) {
+	public void accept(ITreeVisitor v) {
 		v.visitSimpleAggregation(this);
 	}
 }

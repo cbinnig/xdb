@@ -1,6 +1,5 @@
-package org.xdb.funsql.optimize;
+package org.xdb.funsql.compile;
 
-import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
@@ -36,8 +35,7 @@ public abstract class AbstractTreeWalker implements ITreeVisitor {
 		case SIMPLE_AGGREGATION:
 			visitSimpleAggregation((SimpleAggregation) absOp);
 			break;
-//		case GENERIC_PROJECTION:
-		case SIMPLE_PROJECTION:
+		case GENERIC_PROJECTION:
 			visitGenericProjection((GenericProjection) absOp);
 			break;
 		case TABLE:

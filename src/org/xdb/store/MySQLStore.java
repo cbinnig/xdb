@@ -14,8 +14,9 @@ public class MySQLStore extends JDBCStore {
 	@Override
 	public boolean supportsOperator(EnumOperator operator) {
 		switch (operator) {
-		case EQUI_SELECTION:
-		case SIMPLE_PROJECTION:
+		case SIMPLE_AGGREGATION:
+		case GENERIC_SELECTION:
+		case GENERIC_PROJECTION:
 		case EQUI_JOIN:
 			return true;
 		default:

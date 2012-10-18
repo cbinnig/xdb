@@ -44,7 +44,7 @@ public class GenericSelection extends AbstractUnaryOperator {
 	}
 
 	@Override
-	void accept(ITreeVisitor v) {
+	public void accept(ITreeVisitor v) {
 		v.visitGenericSelection(this);
 	}
 	

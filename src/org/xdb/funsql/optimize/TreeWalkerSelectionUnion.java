@@ -1,5 +1,6 @@
 package org.xdb.funsql.optimize;
 
+import org.xdb.funsql.compile.AbstractTreeWalker;
 import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;

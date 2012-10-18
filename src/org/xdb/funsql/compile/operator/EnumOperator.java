@@ -4,9 +4,8 @@ import java.io.Serializable;
 
 public enum EnumOperator implements Serializable {
 	EQUI_JOIN,
-	EQUI_SELECTION,
 	GENERIC_SELECTION,
 	SIMPLE_AGGREGATION,
-	SIMPLE_PROJECTION,
+	GENERIC_PROJECTION,
 	TABLE
 }

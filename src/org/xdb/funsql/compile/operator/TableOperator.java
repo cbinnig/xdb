@@ -73,7 +73,7 @@ public class TableOperator extends AbstractOperator {
 	}
 
 	@Override
-	void accept(ITreeVisitor v) {
+	public void accept(ITreeVisitor v) {
 		v.visitTableOperator(this);
 	}
 	
@@ -81,6 +81,8 @@ public class TableOperator extends AbstractOperator {
 	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
 		Error err = new Error();
 		GraphNode node = nodes.get(this.operatorId);
+		//node.getInfo().setHeader(this.parents.toString());
+		node.getInfo().setCaption(this.toString());
 		node.getInfo().setFooter(this.tableName.toSqlString());
 		return err;
 	}

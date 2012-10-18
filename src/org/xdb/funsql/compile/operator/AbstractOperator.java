@@ -30,6 +30,7 @@ public abstract class AbstractOperator implements Serializable {
 		this.children = new Vector<AbstractOperator>();
 		this.parents = new Vector<AbstractOperator>();
 	}
+	
 	public AbstractOperator(AbstractOperator toCopy){
 		this.children = toCopy.children;
 		this.parents = toCopy.parents;
@@ -53,13 +54,6 @@ public abstract class AbstractOperator implements Serializable {
 		return this.parents;
 	}
 
-	
-	/**
-	 * @param v TreeVisitor (visitor pattern)
-	 * @return checked: okay?
-	 */
-	abstract void accept(ITreeVisitor v);
-		
 	//constructors
 	public AbstractOperator(int resultNumber){
 		this.results = new Vector<ResultDesc>(resultNumber);
@@ -102,9 +96,24 @@ public abstract class AbstractOperator implements Serializable {
 		this.parents = destinations;
 	}
 	
-	public abstract boolean isPushDownAllowed(EnumPushDown pd);
+	public void addDestinationOperators(AbstractOperator destination) {
+		this.parents.add(destination);
+	}
 	
 	// methods
+	/**
+	 * @param v TreeVisitor (visitor pattern)
+	 * @return checked: okay?
+	 */
+	public abstract void accept(ITreeVisitor v);
+		
+	
+	/**
+	 * Checks if pushdown is allowed
+	 * @param pd
+	 * @return
+	 */
+	public abstract boolean isPushDownAllowed(EnumPushDown pd);
 	
 	/**
 	 * Generate SQL representation of this operator
@@ -119,7 +128,6 @@ public abstract class AbstractOperator implements Serializable {
 	protected String getResultAttributeString() {
 		return SetUtils.stringifyAttrVec(getResult(0).getAttributes());
 	}
-	
 	
 	/**
 	 * Generates a visual graph representation of the operator
