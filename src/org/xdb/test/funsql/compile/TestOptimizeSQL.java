@@ -3,7 +3,6 @@ package org.xdb.test.funsql.compile;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.optimize.Optimizer;
 import org.xdb.funsql.statement.AbstractServerStmt;
