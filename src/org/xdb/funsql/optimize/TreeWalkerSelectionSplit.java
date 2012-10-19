@@ -1,15 +1,15 @@
 package org.xdb.funsql.optimize;
 
-import org.xdb.funsql.compile.AbstractTreeWalker;
+import org.xdb.funsql.compile.AbstractTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
-import org.xdb.funsql.compile.operator.SimpleAggregation;
+import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.TableOperator;
 
-public class TreeWalkerSelectionSplit extends AbstractTreeWalker {
+public class TreeWalkerSelectionSplit extends AbstractTreeVisitor {
 
 	public TreeWalkerSelectionSplit(AbstractOperator root) {
 		super(root);
@@ -34,7 +34,7 @@ public class TreeWalkerSelectionSplit extends AbstractTreeWalker {
 	}
 
 	@Override
-	public void visitSimpleAggregation(SimpleAggregation sa) {
+	public void visitGenericAggregation(GenericAggregation sa) {
 		// TODO Auto-generated method stub
 
 	}

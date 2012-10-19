@@ -5,14 +5,14 @@ import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
-import org.xdb.funsql.compile.operator.SimpleAggregation;
+import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.TableOperator;
 
-public abstract class AbstractTreeWalker implements ITreeVisitor {
+public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	
 	AbstractOperator thisRoot = null;
 	
-	public AbstractTreeWalker(AbstractOperator root) {
+	public AbstractTreeVisitor(AbstractOperator root) {
 		thisRoot = root;
 	}
 	
@@ -32,8 +32,8 @@ public abstract class AbstractTreeWalker implements ITreeVisitor {
 //		case FUNCTION_CALL:
 //			visitFunctionCall((FunctionCall) absOp);
 //			break;
-		case SIMPLE_AGGREGATION:
-			visitSimpleAggregation((SimpleAggregation) absOp);
+		case GENERIC_AGGREGATION:
+			visitGenericAggregation((GenericAggregation) absOp);
 			break;
 		case GENERIC_PROJECTION:
 			visitGenericProjection((GenericProjection) absOp);
@@ -50,7 +50,7 @@ public abstract class AbstractTreeWalker implements ITreeVisitor {
 	
 	public abstract void visitFunctionCall(FunctionCall fc);
 
-	public abstract void visitSimpleAggregation(SimpleAggregation sa);
+	public abstract void visitGenericAggregation(GenericAggregation sa);
 
 	public abstract void visitGenericProjection(GenericProjection gp);
 

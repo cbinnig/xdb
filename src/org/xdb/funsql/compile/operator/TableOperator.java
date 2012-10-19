@@ -59,9 +59,9 @@ public class TableOperator extends AbstractOperator {
 	
 	@Override
 	public String toSqlString() {
-		return sqlTemplate.toString(new HashMap<String, String>() {{
-			put("OP1", connection.getTableName());
-		}});
+		HashMap<String, String> vars = new HashMap<String, String>();
+		vars.put("OP1", connection.getTableName());
+		return sqlTemplate.toString(vars);
 	}
 
 	/**

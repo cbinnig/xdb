@@ -6,7 +6,7 @@ import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
-import org.xdb.funsql.compile.operator.SimpleAggregation;
+import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.TableOperator;
 
 /**
@@ -48,7 +48,7 @@ public class RenameOperatorVisitor implements ITreeVisitor {
 	 * @see org.xdb.funsql.compile.ITreeVisitor#visitSimpleAggregation(org.xdb.funsql.compile.operator.SimpleAggregation)
 	 */
 	@Override
-	public void visitSimpleAggregation(SimpleAggregation sa) {
+	public void visitGenericAggregation(GenericAggregation sa) {
 		// TODO Auto-generated method stub
 
 	}

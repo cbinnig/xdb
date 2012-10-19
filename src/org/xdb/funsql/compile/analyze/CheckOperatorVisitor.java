@@ -12,7 +12,7 @@ import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.ResultDesc;
-import org.xdb.funsql.compile.operator.SimpleAggregation;
+import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -42,7 +42,7 @@ public class CheckOperatorVisitor implements ITreeVisitor {
 	}
 
 	@Override
-	public void visitSimpleAggregation(SimpleAggregation sa) {
+	public void visitGenericAggregation(GenericAggregation sa) {
 		// TODO Auto-generated method stub
 
 	}

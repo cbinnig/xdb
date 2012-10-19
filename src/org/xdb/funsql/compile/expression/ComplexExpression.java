@@ -107,7 +107,20 @@ public class ComplexExpression extends AbstractExpression {
 	}
 
 	@Override
-	void accept(IExpressionVisitor v) {
+	public void accept(IExpressionVisitor v) {
 		v.visitComplexExpression(this);		
+	}
+
+	@Override
+	public boolean isAggregation() {
+		if(this.expr1.isAggregation())
+			return true;
+		
+		for(AbstractExpression expr2: this.exprs2){
+			if(expr2.isAggregation())
+				return true;
+		}
+		
+		return false;
 	}
 }

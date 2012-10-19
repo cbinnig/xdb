@@ -10,16 +10,14 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.compile.expression.AbstractExpression;
-import org.xdb.funsql.compile.expression.EnumExprType;
-import org.xdb.funsql.compile.expression.SimpleExpression;
 import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
-import org.xdb.funsql.compile.operator.GenericSelection;
+import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
+import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
 import org.xdb.funsql.compile.tokens.AbstractToken;
-import org.xdb.funsql.compile.tokens.EnumOperandType;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.compile.tokens.TokenSchema;
@@ -31,22 +29,30 @@ import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
 
 public class SelectStmt extends AbstractServerStmt {
-	//select
-	private Vector<AbstractExpression> tExpressions = new Vector<AbstractExpression>();
-	private Vector<TokenIdentifier> tExprAliases = new Vector<TokenIdentifier>();
-	//from
+	// select
+	private Vector<AbstractExpression> tSelExpr = new Vector<AbstractExpression>();
+	private Vector<TokenIdentifier> tSelAliases = new Vector<TokenIdentifier>();
+
+	// from
 	private Vector<TokenTable> tTables = new Vector<TokenTable>();
 	private Vector<TokenIdentifier> tTableAliases = new Vector<TokenIdentifier>();
-	//where
-	private AbstractPredicate tPredicate;
-	
+
+	// where
+	private AbstractPredicate tWherePredicate;
+
+	// group by
+	private Vector<AbstractExpression> tGroupExpr = new Vector<AbstractExpression>();
+
+	// having
+	private AbstractPredicate tHavingPredicate;
+
+	// compiler variables
 	private HashMap<String, Schema> schemaSymbols = new HashMap<String, Schema>();
 	private HashMap<String, Table> tableSymbols = new HashMap<String, Table>();
 	private HashMap<String, Attribute> attSymbols = new HashMap<String, Attribute>();
 	private CompilePlan plan = new CompilePlan();
 	private Vector<AbstractPredicate> selectionPreds = new Vector<AbstractPredicate>();
 	private AbstractOperator lastOp = null;
-	
 
 	// constructors
 	public SelectStmt() {
@@ -54,22 +60,31 @@ public class SelectStmt extends AbstractServerStmt {
 	}
 
 	// getters and setters
-	public void addExpression(AbstractExpression expr) {
-		this.tExpressions.add(expr);
-		this.tExprAliases.add(null);
+	public void addSelExpression(AbstractExpression expr) {
+		this.tSelExpr.add(expr);
+		this.tSelAliases.add(null);
 	}
 
-	public Collection<AbstractExpression> getExpressions() {
-		return this.tExpressions;
+	public Collection<AbstractExpression> getSelExpressions() {
+		return this.tSelExpr;
 
 	}
 
-	public void setExpressionAlias(int i, TokenIdentifier alias) {
-		this.tExprAliases.set(i, alias);
+	public void setSelAlias(int i, TokenIdentifier alias) {
+		this.tSelAliases.set(i, alias);
 	}
 
-	public Collection<TokenIdentifier> getExpressionAliases() {
-		return this.tExprAliases;
+	public Collection<TokenIdentifier> getSelAliases() {
+		return this.tSelAliases;
+	}
+
+	public void addGroupExpression(AbstractExpression expr) {
+		this.tGroupExpr.add(expr);
+	}
+
+	public Collection<AbstractExpression> getGroupExpressions() {
+		return this.tGroupExpr;
+
 	}
 
 	public void addTable(TokenTable table) {
@@ -89,12 +104,12 @@ public class SelectStmt extends AbstractServerStmt {
 		return this.tTableAliases;
 	}
 
-	public AbstractPredicate getPredicate() {
-		return tPredicate;
+	public void setWherePredicate(AbstractPredicate tPredicate) {
+		this.tWherePredicate = tPredicate;
 	}
 
-	public void setPredicate(AbstractPredicate tPredicate) {
-		this.tPredicate = tPredicate;
+	public void setHavingPredicate(AbstractPredicate tPredicate) {
+		this.tHavingPredicate = tPredicate;
 	}
 
 	public CompilePlan getPlan() {
@@ -114,7 +129,7 @@ public class SelectStmt extends AbstractServerStmt {
 		if (err.isError())
 			return err;
 
-		// 3. check attributes and and create attribute symbols
+		// 3. check all attributes and and create attribute symbols
 		err = checkAttributes();
 		if (err.isError())
 			return err;
@@ -134,128 +149,185 @@ public class SelectStmt extends AbstractServerStmt {
 	private Error canonicalTransalation(CompilePlan plan) {
 		Error err = new Error();
 
-		//from clause
+		// from clause -> joins over tables
 		err = createFromPlan();
-		if(err.isError())
+		if (err.isError())
 			return err;
-		
-		//where clause
-		for(AbstractPredicate predicate: this.selectionPreds){
+
+		// where clause -> selection for remaining predicates
+		for (AbstractPredicate predicate : this.selectionPreds) {
 			GenericSelection selectOp = new GenericSelection(lastOp);
 			selectOp.setPredicate(predicate);
 			plan.addOperator(selectOp, false);
 			lastOp = selectOp;
 		}
+
+		// select and group-by clause -> aggregation
+		HashSet<AbstractExpression> aggExprs = new HashSet<AbstractExpression>();
+		for(AbstractExpression selExpr: this.tSelExpr){
+			if(selExpr.isAggregation())
+				aggExprs.add(selExpr);
+		}
 		
-		//select clause
-		GenericProjection projectOp = new GenericProjection(lastOp, this.tExpressions.size());
-		for(int i=0; i < this.tExpressions.size(); ++i){
-			AbstractExpression tExpr = this.tExpressions.get(i);
+		if(this.tGroupExpr.size()>0 || aggExprs.size()>0){
+			GenericAggregation aggOp = new GenericAggregation(lastOp);
+			
+			for(AbstractExpression aggExpr: aggExprs){
+				aggOp.addAggregationExpression(aggExpr);
+			}
+	
+			for(AbstractExpression aggExpr: this.tHavingPredicate.getAggregations()){
+				aggOp.addAggregationExpression(aggExpr);
+			}
+			
+			for(AbstractExpression groupExpr: this.tGroupExpr){
+				aggOp.addGroupExpression(groupExpr);
+			}
+			
+			plan.addOperator(aggOp, false);
+			lastOp = aggOp;
+		}
+		
+		// having clause -> selection for having predicate
+		if (this.tHavingPredicate != null) {
+			GenericSelection selectOp = new GenericSelection(lastOp);
+			selectOp.setPredicate(this.tHavingPredicate);
+			plan.addOperator(selectOp, false);
+			lastOp = selectOp;
+		}
+
+		// select clause -> projection
+		GenericProjection projectOp = new GenericProjection(lastOp,
+				this.tSelExpr.size());
+		for (int i = 0; i < this.tSelExpr.size(); ++i) {
+			AbstractExpression tExpr = this.tSelExpr.get(i);
+			TokenIdentifier tAlias = this.tSelAliases.get(i);
 			projectOp.setExpression(i, tExpr);
+			projectOp.setAlias(i, tAlias);
 		}
 		plan.addOperator(projectOp, true);
-		
+
 		return err;
 	}
 
 	/**
 	 * Create join plan for from clause
+	 * 
 	 * @param lastOp
 	 * @return
 	 */
-	private Error createFromPlan(){
+	private Error createFromPlan() {
 		Error err = new Error();
 
-		//no join required
-		if(this.tTables.size()==1){
+		// no join required
+		if (this.tTables.size() == 1) {
 			TokenTable tTable = tTables.get(0);
 			Table table = this.tableSymbols.get(tTable.getName().hashKey());
 			TableOperator tableOp = new TableOperator(tTable);
 			tableOp.setTable(table);
 			plan.addOperator(tableOp, false);
-			selectionPreds.addAll(this.tPredicate.splitAnd());
+			if (this.tWherePredicate != null) {
+				selectionPreds.addAll(this.tWherePredicate.splitAnd());
+			}
 			lastOp = tableOp;
 		}
-		//equi join required
-		else{
-			Collection<AbstractPredicate> predicates = this.tPredicate.splitAnd();
+		// join required
+		else {
+			// check predicate
+			if (this.tWherePredicate == null) {
+				return FunSQLCompiler
+						.createGenericCompileErr("Cartesian product not in SQL statement supported!");
+			}
+
+			Collection<AbstractPredicate> predicates = this.tWherePredicate
+					.splitAnd();
 			HashMap<String, TableOperator> tableOps = new HashMap<String, TableOperator>();
-			
-			//find all equi-join predicates
+
+			// find all equi-join predicates
 			int joinPreds = 0;
-			for(AbstractPredicate predicate: predicates){
-				
-				if(predicate.isEquiJoinPredicate()){
-					//found join predicate
+			for (AbstractPredicate predicate : predicates) {
+
+				if (predicate.isEquiJoinPredicate()) {
+					// found join predicate
 					joinPreds++;
-					
-					//get join attributes
+
+					// get join attributes
 					TokenAttribute[] joinAtts = new TokenAttribute[2];
-					int i=0;
-					for(TokenAttribute tAttr: predicate.getAttributes()){
+					int i = 0;
+					for (TokenAttribute tAttr : predicate.getAttributes()) {
 						joinAtts[i] = tAttr;
 						i++;
 					}
-					
+
 					TokenTable tLeftTable = joinAtts[0].getTable();
 					TokenTable tRightTable = joinAtts[1].getTable();
-					
-					TableOperator leftTableOp = tableOps.get(tLeftTable.getName().hashKey());
-					TableOperator rightTableOp = tableOps.get(tRightTable.getName().hashKey());
-					
-					//left table not yet in join path?
+
+					TableOperator leftTableOp = tableOps.get(tLeftTable
+							.getName().hashKey());
+					TableOperator rightTableOp = tableOps.get(tRightTable
+							.getName().hashKey());
+
+					// left table not yet in join path?
 					boolean newLeftTable = false;
-					if(leftTableOp==null){
-						Table leftTable = this.tableSymbols.get(tLeftTable.getName().hashKey());
+					if (leftTableOp == null) {
+						Table leftTable = this.tableSymbols.get(tLeftTable
+								.getName().hashKey());
 						leftTableOp = new TableOperator(tLeftTable);
 						leftTableOp.setTable(leftTable);
 						plan.addOperator(leftTableOp, false);
-						tableOps.put(tLeftTable.getName().hashKey(), leftTableOp);
+						tableOps.put(tLeftTable.getName().hashKey(),
+								leftTableOp);
 						newLeftTable = true;
 					}
-					
-					//right table not yat in join path?
+
+					// right table not yat in join path?
 					boolean newRightTable = false;
-					if(rightTableOp==null){
-						Table rightTable = this.tableSymbols.get(tRightTable.getName().hashKey());
+					if (rightTableOp == null) {
+						Table rightTable = this.tableSymbols.get(tRightTable
+								.getName().hashKey());
 						rightTableOp = new TableOperator(tRightTable);
 						rightTableOp.setTable(rightTable);
 						plan.addOperator(rightTableOp, false);
-						tableOps.put(tRightTable.getName().hashKey(), rightTableOp);
+						tableOps.put(tRightTable.getName().hashKey(),
+								rightTableOp);
 						newRightTable = true;
 					}
-					
+
 					EquiJoin joinOp = null;
-					//both tables L and R are new: L JOIN R
-					if(newLeftTable && newRightTable){
-						joinOp = new EquiJoin(leftTableOp, rightTableOp, joinAtts[0], joinAtts[1]);
+					// both tables L and R are new: L JOIN R
+					if (newLeftTable && newRightTable) {
+						joinOp = new EquiJoin(leftTableOp, rightTableOp,
+								joinAtts[0], joinAtts[1]);
 					}
-					//only left table is new: LastOp JOIN L (to create left deep plan)
-					else if(newLeftTable){
-						joinOp = new EquiJoin(lastOp, leftTableOp, joinAtts[1], joinAtts[0]);
+					// only left table is new: LastOp JOIN L (to create left
+					// deep plan)
+					else if (newLeftTable) {
+						joinOp = new EquiJoin(lastOp, leftTableOp, joinAtts[1],
+								joinAtts[0]);
 					}
-					//only right table is new: LastOp JOIN R
-					else{
-						joinOp = new EquiJoin(lastOp, rightTableOp, joinAtts[0], joinAtts[1]);
+					// only right table is new: LastOp JOIN R
+					else {
+						joinOp = new EquiJoin(lastOp, rightTableOp,
+								joinAtts[0], joinAtts[1]);
 					}
 					plan.addOperator(joinOp, false);
 					lastOp = joinOp;
-				}
-				else{
-					//keep remaining predicates!
+				} else {
+					// keep remaining predicates!
 					selectionPreds.add(predicate);
 				}
 			}
-			
-			if(joinPreds+1 != this.tTables.size()){
-				return FunSQLCompiler.createGenericCompileErr("Cartesian product not in SQL statement supported!");
+
+			if (joinPreds + 1 != this.tTables.size()) {
+				return FunSQLCompiler
+						.createGenericCompileErr("Cartesian product not in SQL statement supported!");
 			}
-			
+
 		}
-		
+
 		return err;
 	}
-	
+
 	/**
 	 * Check if all attributes exist in a table
 	 * 
@@ -265,7 +337,7 @@ public class SelectStmt extends AbstractServerStmt {
 		Error err = new Error();
 
 		// 1. Select Clause
-		for (AbstractExpression tExpr : this.tExpressions) {
+		for (AbstractExpression tExpr : this.tSelExpr) {
 			for (TokenAttribute tAtt : tExpr.getAttributes()) {
 				err = checkAttribute(tAtt);
 				if (err.isError())
@@ -274,8 +346,26 @@ public class SelectStmt extends AbstractServerStmt {
 		}
 
 		// 2. Where Clause
-		if (this.tPredicate != null) {
-			for (TokenAttribute tAtt : this.tPredicate.getAttributes()) {
+		if (this.tWherePredicate != null) {
+			for (TokenAttribute tAtt : this.tWherePredicate.getAttributes()) {
+				err = checkAttribute(tAtt);
+				if (err.isError())
+					return err;
+			}
+		}
+
+		// 3. Group-By Clause
+		for (AbstractExpression tExpr : this.tGroupExpr) {
+			for (TokenAttribute tAtt : tExpr.getAttributes()) {
+				err = checkAttribute(tAtt);
+				if (err.isError())
+					return err;
+			}
+		}
+
+		// 4. Having Clause
+		if (this.tHavingPredicate != null) {
+			for (TokenAttribute tAtt : this.tHavingPredicate.getAttributes()) {
 				err = checkAttribute(tAtt);
 				if (err.isError())
 					return err;
@@ -309,11 +399,11 @@ public class SelectStmt extends AbstractServerStmt {
 					tAtt.setTable(tTable);
 				}
 			}
-			
-			if(att==null){
+
+			if (att == null) {
 				return this.createAttInNoTableErr(tAtt);
 			}
-			
+
 			this.attSymbols.put(tAtt.getName().hashKey(), att);
 		}
 		// table name given in attribute token
@@ -338,44 +428,42 @@ public class SelectStmt extends AbstractServerStmt {
 	 */
 	private Error checkSelectAttributes() {
 		Error err = new Error();
-		HashSet<String> selectAtts = new HashSet<String>();
+		HashSet<String> tempAtts = new HashSet<String>();
 
 		// 1. Select Clause
-		for (int i = 0; i < this.tExpressions.size(); ++i) {
-			AbstractExpression tExpr = this.tExpressions.get(i);
-			TokenIdentifier tExprAlias = this.tExprAliases.get(i);
+		for (int i = 0; i < this.tSelExpr.size(); ++i) {
+			AbstractExpression tExpr = this.tSelExpr.get(i);
+			TokenIdentifier tExprAlias = this.tSelAliases.get(i);
 
-			// Check aliasing
+			// attribute w/o aliasing
 			TokenAttribute exprAtt = null;
-			if (tExpr.getType() == EnumExprType.SIMPLE_EXPRESSION) {
-				SimpleExpression tSimpleExpr = (SimpleExpression) tExpr;
+			if (tExpr.isAttribute() && tExprAlias == null) {
+				exprAtt = tExpr.getAttributes().iterator().next();
 
-				if (tSimpleExpr.getOper().getType() == EnumOperandType.ATTRIBUTE) {
-					exprAtt = (TokenAttribute) tSimpleExpr.getOper();
-				}
-			}
-			// Alias for complex expression is missing
-			if (exprAtt == null && tExprAlias == null) {
-				return createNoExprAliasErr(tExpr);
-			}
-			// Check for duplicates based on attribute name
-			else if (exprAtt != null && tExprAlias == null) {
-				if (selectAtts.contains(exprAtt.getName().hashKey())) {
+				// Check for duplicates based on attribute name
+				if (tempAtts.contains(exprAtt.getName().hashKey())) {
 					return this.createDuplicateAttNameErr(exprAtt.getName());
 				}
-				selectAtts.add(exprAtt.getName().hashKey());
+				tempAtts.add(exprAtt.getName().hashKey());
 			}
-			// Check for duplicates based on alias
+			// expression with alias
 			else {
-				if (selectAtts.contains(tExprAlias.hashKey())) {
+				// Check if alias is defined
+				if (tExprAlias == null) {
+					return createNoExprAliasErr(tExpr);
+				}
+
+				// Check for duplicates based on alias
+				if (tempAtts.contains(tExprAlias.hashKey())) {
 					return this.createDuplicateAttNameErr(tExprAlias);
 				}
-				selectAtts.add(tExprAlias.hashKey());
+				tempAtts.add(tExprAlias.hashKey());
 			}
 		}
 		return err;
 	}
 
+	
 	/**
 	 * Creates table symbols for compilation
 	 * 
@@ -389,7 +477,7 @@ public class SelectStmt extends AbstractServerStmt {
 			TokenIdentifier tTableAlias = this.tTableAliases.get(i);
 
 			if (tTable.isReference()) {
-				//TODO
+				// TODO
 			} else {
 				TokenSchema tSchema = tTable.getSchema();
 				Schema schema = Catalog.getSchema(tSchema.hashKey());
@@ -427,7 +515,7 @@ public class SelectStmt extends AbstractServerStmt {
 		}
 		return err;
 	}
-	
+
 	/**
 	 * Create compiler error when no unique table can be found for attribute
 	 * 
@@ -436,7 +524,8 @@ public class SelectStmt extends AbstractServerStmt {
 	 */
 	private Error createAttNotUniqueErr(TokenAttribute tAttribute) {
 		String args[] = { tAttribute.toSqlString() };
-		Error error = new Error(EnumError.COMPILER_SELECT_ATTRIBUTE_NOT_UNIQUE, args);
+		Error error = new Error(EnumError.COMPILER_SELECT_ATTRIBUTE_NOT_UNIQUE,
+				args);
 		return error;
 	}
 
@@ -449,22 +538,26 @@ public class SelectStmt extends AbstractServerStmt {
 	 */
 	private Error createAttNotInTableErr(TokenAttribute tAttribute,
 			TokenTable tTable) {
-		String args[] = { tAttribute.getName().toSqlString(), tTable.getName().toSqlString() };
-		Error error = new Error(EnumError.COMPILER_SELECT_ATTRIBUTE_NOT_IN_TABLE, args);
+		String args[] = { tAttribute.getName().toSqlString(),
+				tTable.getName().toSqlString() };
+		Error error = new Error(
+				EnumError.COMPILER_SELECT_ATTRIBUTE_NOT_IN_TABLE, args);
 		return error;
 	}
 
 	/**
 	 * Create compile error when attribute was not found in any table
+	 * 
 	 * @param tAttribute
 	 * @return
 	 */
 	private Error createAttInNoTableErr(TokenAttribute tAttribute) {
 		String args[] = { tAttribute.getName().toSqlString() };
-		Error error = new Error(EnumError.COMPILER_SELECT_ATTRIBUTE_IN_NO_TABLE, args);
+		Error error = new Error(
+				EnumError.COMPILER_SELECT_ATTRIBUTE_IN_NO_TABLE, args);
 		return error;
 	}
-	
+
 	/**
 	 * Create compile error for duplicate table names in SelectStmt
 	 * 
@@ -517,13 +610,13 @@ public class SelectStmt extends AbstractServerStmt {
 		sqlValue.append(AbstractToken.SELECT);
 
 		int i = 0;
-		for (AbstractExpression tExpr : this.tExpressions) {
+		for (AbstractExpression tExpr : this.tSelExpr) {
 			if (i != 0)
 				sqlValue.append(AbstractToken.COMMA);
 
 			sqlValue.append(AbstractToken.BLANK);
 			sqlValue.append(tExpr);
-			TokenIdentifier tExprAlias = this.tExprAliases.get(i);
+			TokenIdentifier tExprAlias = this.tSelAliases.get(i);
 			if (tExprAlias != null) {
 				sqlValue.append(AbstractToken.BLANK);
 				sqlValue.append(AbstractToken.AS);
@@ -531,7 +624,6 @@ public class SelectStmt extends AbstractServerStmt {
 				sqlValue.append(tExprAlias);
 				sqlValue.append(AbstractToken.BLANK);
 			}
-
 			++i;
 		}
 
@@ -561,7 +653,7 @@ public class SelectStmt extends AbstractServerStmt {
 		sqlValue.append(AbstractToken.BLANK);
 		sqlValue.append(AbstractToken.WHERE);
 		sqlValue.append(AbstractToken.BLANK);
-		sqlValue.append(this.tPredicate.toString());
+		sqlValue.append(this.tWherePredicate.toString());
 
 		return sqlValue.toString();
 	}

@@ -8,7 +8,7 @@ public interface ITreeVisitor{
 	void visitEquiJoin(EquiJoin ej);
 	void visitGenericSelection(GenericSelection gs);
 	void visitFunctionCall(FunctionCall fc);
-	void visitSimpleAggregation(SimpleAggregation sa);
+	void visitGenericAggregation(GenericAggregation sa);
 	void visitGenericProjection(GenericProjection gp);
 	void visitTableOperator(TableOperator to);
 }

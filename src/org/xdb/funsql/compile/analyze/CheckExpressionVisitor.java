@@ -2,6 +2,7 @@ package org.xdb.funsql.compile.analyze;
 
 import java.util.HashMap;
 import org.xdb.funsql.compile.expression.AbstractExpression;
+import org.xdb.funsql.compile.expression.AggregationExpression;
 import org.xdb.funsql.compile.expression.ComplexExpression;
 import org.xdb.funsql.compile.expression.EnumExprType;
 import org.xdb.funsql.compile.expression.SimpleExpression;
@@ -25,7 +26,7 @@ public class CheckExpressionVisitor implements IExpressionVisitor {
 
 	@Override
 	public Error visitSimpleExpression(SimpleExpression se) {
-		Error e;
+		Error e = new Error();
 		TokenAttribute ta = null;
 		if (se.isAttribute()) {// attribute
 			while (se.getAttributes().iterator().hasNext()) {
@@ -37,12 +38,12 @@ public class CheckExpressionVisitor implements IExpressionVisitor {
 			EnumLiteralType tlt = tl.getLiteralType();
 			this.litType.put(tl, tlt);
 		}
-		return new Error();
+		return e;
 	}
 
 	@Override
 	public Error visitComplexExpression(ComplexExpression ce) {
-		Error e;
+		Error e = new Error();
 		if (ce.isAttribute()) {
 			// only 1 expression: attribute
 			while (ce.getExpr1().getAttributes().iterator().hasNext()) {
@@ -114,8 +115,26 @@ public class CheckExpressionVisitor implements IExpressionVisitor {
 			return new Error(EnumError.COMPILER_GENERIC, args);
 		}
 
-		return new Error();
+		return e;
 	}
 
+	@Override
+	public Error visitAggregationExpression(AggregationExpression ce) {
+		return this.visit(ce.getExpression());
+	}
 
+	@Override
+	public Error visit(AbstractExpression expr) {
+		switch(expr.getType()){
+		case SIMPLE_EXPRESSION:
+			return this.visitSimpleExpression((SimpleExpression)expr);
+		case MULT_EXPRESSION:
+		case ADD_EXPRESSION:
+		case SIGNED_EXPRESSION:
+			return this.visitComplexExpression((ComplexExpression)expr);
+		case AGG_EXPRESSION:
+			return this.visitAggregationExpression((AggregationExpression)expr);
+		}
+		return null;
+	}
 }
