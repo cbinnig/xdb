@@ -7,6 +7,7 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
+import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
@@ -20,6 +21,7 @@ public class GenericAggregation extends AbstractUnaryOperator {
 	
 	private Vector<AbstractExpression> groupExprs;
 	private Vector<AbstractExpression> aggExprs;
+	private Vector<TokenIdentifier> aliases;
 	
 	private final StringTemplate sqlTemplate = 
 			new StringTemplate("SELECT <AGG_ATTRS>,<GROUP_ATTRS> FROM <<OP1>> AS <OP1>"+
@@ -31,11 +33,24 @@ public class GenericAggregation extends AbstractUnaryOperator {
 		
 		this.groupExprs = new Vector<AbstractExpression>();
 		this.aggExprs = new Vector<AbstractExpression>();
+		this.aliases = new Vector<TokenIdentifier>();
 		
 		this.type = EnumOperator.GENERIC_AGGREGATION;
 	}
 	
 	//getters and setters
+	public void addAlias(TokenIdentifier alias) {
+		aliases.add(alias);
+	}
+
+	public TokenIdentifier getAlias(int i) {
+		return aliases.get(i);
+	}
+
+	public Vector<TokenIdentifier> getAliases() {
+		return aliases;
+	}
+	
 	public void addGroupExpression(AbstractExpression expr){
 		this.groupExprs.add(expr);
 	}
@@ -89,9 +104,14 @@ public class GenericAggregation extends AbstractUnaryOperator {
 
 		GraphNode node = nodes.get(this.operatorId);
 		StringBuffer footer = new StringBuffer();
+		footer.append("Aggregation: ");
 		footer.append(this.aggExprs.toString());
-		footer.append(AbstractToken.BLANK);
+		footer.append(AbstractToken.NEWLINE);
+		footer.append("Grouping: ");
 		footer.append(this.groupExprs.toString());
+		footer.append(AbstractToken.NEWLINE);
+		footer.append("Aliases: ");
+		footer.append(this.aliases.toString());
 		node.getInfo().setFooter(footer.toString());
 		return err;
 	}

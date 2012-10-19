@@ -9,7 +9,9 @@ import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.FunSQLCompiler;
+import org.xdb.funsql.compile.analyze.Analyzer;
 import org.xdb.funsql.compile.expression.AbstractExpression;
+import org.xdb.funsql.compile.expression.SimpleExpression;
 import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
@@ -27,6 +29,7 @@ import org.xdb.metadata.Catalog;
 import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
+import org.xdb.utils.Identifier;
 
 public class SelectStmt extends AbstractServerStmt {
 	// select
@@ -51,6 +54,11 @@ public class SelectStmt extends AbstractServerStmt {
 	private HashMap<String, Table> tableSymbols = new HashMap<String, Table>();
 	private HashMap<String, Attribute> attSymbols = new HashMap<String, Attribute>();
 	private CompilePlan plan = new CompilePlan();
+
+	// temporary compiler variables
+	private int lastInternalAlias = 0;
+	private Identifier internalAlias = new Identifier("_INT_ALIAS");
+	private HashMap<AbstractExpression, TokenIdentifier> internalAliases = new HashMap<AbstractExpression, TokenIdentifier>();
 	private Vector<AbstractPredicate> selectionPreds = new Vector<AbstractPredicate>();
 	private AbstractOperator lastOp = null;
 
@@ -62,7 +70,14 @@ public class SelectStmt extends AbstractServerStmt {
 	// getters and setters
 	public void addSelExpression(AbstractExpression expr) {
 		this.tSelExpr.add(expr);
-		this.tSelAliases.add(null);
+		
+		if(expr.isAttribute()){
+			TokenAttribute att = expr.getAttribute();
+			this.tSelAliases.add(att.getName());
+		}
+		else{
+			this.tSelAliases.add(null);
+		}
 	}
 
 	public Collection<AbstractExpression> getSelExpressions() {
@@ -89,7 +104,7 @@ public class SelectStmt extends AbstractServerStmt {
 
 	public void addTable(TokenTable table) {
 		this.tTables.add(table);
-		this.tTableAliases.add(null);
+		this.tTableAliases.add(table.getName());
 	}
 
 	public Collection<TokenTable> getTables() {
@@ -134,10 +149,25 @@ public class SelectStmt extends AbstractServerStmt {
 		if (err.isError())
 			return err;
 
-		// 4. Create plan
-		err = this.canonicalTransalation(plan);
+		// 4. create canonical plan
+		err = this.canonicalTransalation(this.plan);
+		
+		// 5. analyze plan
+		Analyzer analyzer = new Analyzer(this.plan);
+		analyzer.analyze();
 
 		return err;
+	}
+
+	/**
+	 * Generates alias for internal expressions
+	 * 
+	 * @param expr
+	 */
+	private Identifier generateInternalAlias(AbstractExpression expr) {
+		Identifier internalAlias = this.internalAlias.clone().append(++this.lastInternalAlias);
+		this.internalAliases.put(expr, new TokenIdentifier(internalAlias.toString()));
+		return internalAlias;
 	}
 
 	/**
@@ -164,46 +194,61 @@ public class SelectStmt extends AbstractServerStmt {
 
 		// select and group-by clause -> aggregation
 		HashSet<AbstractExpression> aggExprs = new HashSet<AbstractExpression>();
-		for(AbstractExpression selExpr: this.tSelExpr){
-			if(selExpr.isAggregation())
+		for (AbstractExpression selExpr : this.tSelExpr) {
+			if (selExpr.isAggregation())
 				aggExprs.add(selExpr);
 		}
-		
-		if(this.tGroupExpr.size()>0 || aggExprs.size()>0){
+
+		if (this.tGroupExpr.size() > 0 || aggExprs.size() > 0) {
 			GenericAggregation aggOp = new GenericAggregation(lastOp);
-			
-			for(AbstractExpression aggExpr: aggExprs){
+
+			for (AbstractExpression aggExpr : aggExprs) {
 				aggOp.addAggregationExpression(aggExpr);
+				Identifier internalAlias = generateInternalAlias(aggExpr);
+				aggOp.addAlias(new TokenIdentifier(internalAlias.toString()));
 			}
-	
-			for(AbstractExpression aggExpr: this.tHavingPredicate.getAggregations()){
+
+			for (AbstractExpression aggExpr : this.tHavingPredicate
+					.getAggregations()) {
 				aggOp.addAggregationExpression(aggExpr);
+				Identifier internalAlias = generateInternalAlias(aggExpr);
+				aggOp.addAlias(new TokenIdentifier(internalAlias.toString()));
 			}
-			
-			for(AbstractExpression groupExpr: this.tGroupExpr){
+
+			for (AbstractExpression groupExpr : this.tGroupExpr) {
 				aggOp.addGroupExpression(groupExpr);
+				Identifier internalAlias = generateInternalAlias(groupExpr);
+				aggOp.addAlias(new TokenIdentifier(internalAlias.toString()));
 			}
-			
+
 			plan.addOperator(aggOp, false);
 			lastOp = aggOp;
 		}
-		
+
 		// having clause -> selection for having predicate
 		if (this.tHavingPredicate != null) {
 			GenericSelection selectOp = new GenericSelection(lastOp);
-			selectOp.setPredicate(this.tHavingPredicate);
+			selectOp.setPredicate(this.tHavingPredicate.replaceAliases(this.internalAliases));
 			plan.addOperator(selectOp, false);
 			lastOp = selectOp;
 		}
 
 		// select clause -> projection
-		GenericProjection projectOp = new GenericProjection(lastOp,
-				this.tSelExpr.size());
+		GenericProjection projectOp = new GenericProjection(lastOp);
 		for (int i = 0; i < this.tSelExpr.size(); ++i) {
 			AbstractExpression tExpr = this.tSelExpr.get(i);
 			TokenIdentifier tAlias = this.tSelAliases.get(i);
-			projectOp.setExpression(i, tExpr);
-			projectOp.setAlias(i, tAlias);
+			
+			if (this.internalAliases.containsKey(tExpr)) {
+				TokenIdentifier internalAlias = this.internalAliases.get(tExpr);
+				SimpleExpression intExpr = new SimpleExpression(
+						new TokenAttribute(internalAlias));
+				projectOp.addExpression(intExpr);
+			} 
+			else{
+				projectOp.addExpression(tExpr);
+			}
+			projectOp.addAlias(tAlias);
 		}
 		plan.addOperator(projectOp, true);
 
@@ -220,10 +265,10 @@ public class SelectStmt extends AbstractServerStmt {
 		Error err = new Error();
 
 		// no join required
-		if (this.tTables.size() == 1) {
-			TokenTable tTable = tTables.get(0);
-			Table table = this.tableSymbols.get(tTable.getName().hashKey());
-			TableOperator tableOp = new TableOperator(tTable);
+		if (this.tTableAliases.size() == 1) {
+			TokenIdentifier tTableAlias = this.tTableAliases.get(0);
+			Table table = this.tableSymbols.get(tTableAlias.hashKey());
+			TableOperator tableOp = new TableOperator(tTableAlias);
 			tableOp.setTable(table);
 			plan.addOperator(tableOp, false);
 			if (this.tWherePredicate != null) {
@@ -272,7 +317,7 @@ public class SelectStmt extends AbstractServerStmt {
 					if (leftTableOp == null) {
 						Table leftTable = this.tableSymbols.get(tLeftTable
 								.getName().hashKey());
-						leftTableOp = new TableOperator(tLeftTable);
+						leftTableOp = new TableOperator(tLeftTable.getName());
 						leftTableOp.setTable(leftTable);
 						plan.addOperator(leftTableOp, false);
 						tableOps.put(tLeftTable.getName().hashKey(),
@@ -285,7 +330,7 @@ public class SelectStmt extends AbstractServerStmt {
 					if (rightTableOp == null) {
 						Table rightTable = this.tableSymbols.get(tRightTable
 								.getName().hashKey());
-						rightTableOp = new TableOperator(tRightTable);
+						rightTableOp = new TableOperator(tRightTable.getName());
 						rightTableOp.setTable(rightTable);
 						plan.addOperator(rightTableOp, false);
 						tableOps.put(tRightTable.getName().hashKey(),
@@ -463,7 +508,6 @@ public class SelectStmt extends AbstractServerStmt {
 		return err;
 	}
 
-	
 	/**
 	 * Creates table symbols for compilation
 	 * 
@@ -498,19 +542,10 @@ public class SelectStmt extends AbstractServerStmt {
 				}
 
 				// check for duplicate table names
-				if (tTableAlias != null) {
-					if (this.tableSymbols.containsKey(tTableAlias.hashKey())) {
-						return createDuplicateTableNameErr(tTableAlias);
-					}
-					this.tableSymbols.put(tTableAlias.hashKey(), table);
-				} else {
-					if (this.tableSymbols.containsKey(tTable.getName()
-							.hashKey())) {
-						return createDuplicateTableNameErr(tTable.getName());
-					}
-					this.tableSymbols
-							.put(tTable.getName().toSqlString(), table);
+				if (this.tableSymbols.containsKey(tTableAlias.hashKey())) {
+					return createDuplicateTableNameErr(tTableAlias);
 				}
+				this.tableSymbols.put(tTableAlias.hashKey(), table);
 			}
 		}
 		return err;

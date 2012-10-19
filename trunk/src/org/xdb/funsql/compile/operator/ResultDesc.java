@@ -12,7 +12,7 @@ import org.xdb.funsql.types.EnumSimpleType;
  * @author 
  *
  */
-public class ResultDesc implements Serializable{
+public class ResultDesc implements Serializable, Cloneable{
 	private static final long serialVersionUID = 8819533773334264233L;
 	
 	//attribute
@@ -22,13 +22,23 @@ public class ResultDesc implements Serializable{
 	private PartitionDesc partitionDesc; 
 	
 	//constructors
+	public ResultDesc(){
+		this.attributes = new Vector<TokenAttribute>();
+		this.types = new Vector<EnumSimpleType>();
+	}
+	
 	public ResultDesc(int size){
 		this.attributes = new Vector<TokenAttribute>(size);
+		this.types = new Vector<EnumSimpleType>(size);
 	}
 	
 	//getters and setters
 	public void setAttribute(int i, TokenAttribute attribute){
-		this.attributes.set(i, attribute);
+		this.attributes.add(i, attribute);
+	}
+	
+	public void addAttribute(TokenAttribute attribute){
+		this.attributes.add(attribute);
 	}
 	
 	public int getNumAttributes() {
@@ -43,8 +53,12 @@ public class ResultDesc implements Serializable{
 		return this.attributes;
 	}
 	
+	public void addType(EnumSimpleType type){
+		this.types.add(type);
+	}
+	
 	public void setType(int i, EnumSimpleType type){
-		this.types.set(i, type);
+		this.types.add(i, type);
 	}
 	
 	public EnumSimpleType getType(int i){
@@ -78,11 +92,29 @@ public class ResultDesc implements Serializable{
 				tableBuffer.append(", ");
 			
 			tableBuffer.append("`"+ getAttribute(i).getName().toSqlString() +"` ");
-			tableBuffer.append(getType(i).toString());
+			tableBuffer.append(getType(i));
 		}
 		
 		tableBuffer.append(")");
 		
 		return tableBuffer.toString();
+	}
+	
+	@Override
+	public String toString(){
+		return this.toSqlString();
+	}
+	
+	@Override
+	public ResultDesc clone(){
+		ResultDesc rDesc = new ResultDesc();
+		for(TokenAttribute att: this.attributes){
+			rDesc.attributes.add(new TokenAttribute(att.getName()));
+		}
+		
+		for(EnumSimpleType type: this.types){
+			rDesc.types.add(type);
+		}
+		return rDesc;
 	}
 }

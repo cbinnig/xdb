@@ -1,6 +1,5 @@
 package org.xdb.funsql.optimize;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -162,7 +161,7 @@ public class Optimizer {
 //		
 //	}
 
-	private void findNewRoots() {
+	protected void findNewRoots() {
 		boolean changesDid = false;
 		do{
 			for(Identifier id : compilePlan.getRoots()){
@@ -180,7 +179,7 @@ public class Optimizer {
 		}while(changesDid);
 	}
 	
-	private void combineSelections(GenericSelection sel, GenericSelection otherSel) {
+	protected void combineSelections(GenericSelection sel, GenericSelection otherSel) {
 		
 			if(sel.getResult(0).getAttribute(0).getTable() == otherSel.getResult(0).getAttribute(0).getTable()){
 				

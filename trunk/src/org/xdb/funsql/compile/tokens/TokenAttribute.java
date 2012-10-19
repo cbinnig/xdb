@@ -19,7 +19,12 @@ public class TokenAttribute extends AbstractTokenOperand{
 		this();
 		this.name = new TokenIdentifier(name);
 	}
-
+	
+	public TokenAttribute(TokenIdentifier name) {
+		this();
+		this.name = name;
+	}
+	
 	// getters and setters
 	public TokenIdentifier getName() {
 		return name;
@@ -44,6 +49,15 @@ public class TokenAttribute extends AbstractTokenOperand{
 	public void setName(TokenIdentifier name) {
 		this.name = name;
 	}
+	
+	public EnumSimpleType getDataType() {
+		return dataType;
+	}
+
+	public void setDataType(EnumSimpleType dataType) {
+		this.dataType = dataType;
+	}
+	
 	//helper methods
 	@Override
 	public String toString(){
@@ -66,13 +80,5 @@ public class TokenAttribute extends AbstractTokenOperand{
 	@Override
 	public boolean isAttribute() {
 		return true;
-	}
-
-	public EnumSimpleType getDataType() {
-		return dataType;
-	}
-
-	public void setDataType(EnumSimpleType dataType) {
-		this.dataType = dataType;
 	}
 }

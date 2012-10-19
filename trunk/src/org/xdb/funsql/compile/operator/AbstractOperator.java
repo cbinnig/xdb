@@ -73,7 +73,11 @@ public abstract class AbstractOperator implements Serializable {
 	}
 
 	public void setResult(int i, ResultDesc result) {
-		this.results.set(i,  result);
+		this.results.add(i,  result);
+	}
+	
+	public void addResult(ResultDesc result) {
+		this.results.add(result);
 	}
 
 	public EnumOperator getType() {

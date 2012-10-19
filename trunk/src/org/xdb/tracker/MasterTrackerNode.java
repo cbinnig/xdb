@@ -258,9 +258,9 @@ public class MasterTrackerNode {
 				final StringTemplate sqlAssemblyTemplate = 
 						new StringTemplate(executeSqlStatement.toString());
 
-				executeSqlStatement = sqlAssemblyTemplate.toString(new HashMap<String, String>() {{
-					put(childOpId.toString(), "("+childOp.toSqlString()+")");
-				}});
+				HashMap<String, String> args = new HashMap<String, String>(); 
+				args.put(childOpId.toString(), "("+childOp.toSqlString()+")");
+				executeSqlStatement = sqlAssemblyTemplate.toString();
 
 				assemblingQueue.addAll(childOp.getSourceOperators());
 			}

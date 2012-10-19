@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.ITreeVisitor;
-import org.xdb.funsql.compile.tokens.TokenTable;
+import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Table;
 import org.xdb.utils.Identifier;
@@ -17,7 +17,7 @@ public class TableOperator extends AbstractOperator {
 	private static final long serialVersionUID = 997138204723229392L;
 
 	//attributes
-	private TokenTable tableName;
+	private TokenIdentifier tableName;
 	private Connection connection = null;
 	private Table table = null;
 	
@@ -25,7 +25,7 @@ public class TableOperator extends AbstractOperator {
 			new StringTemplate("SELECT * FROM <<OP1>>");
 	
 	//constructors
-	public TableOperator(TokenTable tableName){
+	public TableOperator(TokenIdentifier tableName){
 		super(1);
 		
 		this.tableName = tableName;
@@ -33,11 +33,15 @@ public class TableOperator extends AbstractOperator {
 	}
 
 	//getters and setters
-	public TokenTable getTableName() {
+	public String getTableName() {
+		return tableName.getName();
+	}
+	
+	public TokenIdentifier getTokenTable() {
 		return tableName;
 	}
 
-	public void setTableName(TokenTable tableName) {
+	public void setTableName(TokenIdentifier tableName) {
 		this.tableName = tableName;
 	}
 

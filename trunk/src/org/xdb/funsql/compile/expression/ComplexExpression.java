@@ -123,4 +123,12 @@ public class ComplexExpression extends AbstractExpression {
 		
 		return false;
 	}
+
+	@Override
+	public TokenAttribute getAttribute() {
+		if(this.exprs2.size()==0){
+			return this.expr1.getAttribute();
+		}
+		return null;
+	}
 }
