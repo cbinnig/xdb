@@ -3,16 +3,14 @@ package org.xdb.funsql.optimize;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.AbstractTreeVisitor;
-import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.funsql.compile.operator.EnumPushDown;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
+import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
-import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.TableOperator;
-import org.xdb.funsql.compile.tokens.TokenTable;
 
 public class TreeWalkerSelectionPush extends AbstractTreeVisitor { //implements ITreeVisitor {
 	

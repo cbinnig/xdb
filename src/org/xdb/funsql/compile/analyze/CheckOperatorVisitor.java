@@ -1,8 +1,8 @@
 package org.xdb.funsql.compile.analyze;
 
-import java.util.Collection;
 import java.util.Vector;
 
+import org.xdb.error.Error;
 import org.xdb.funsql.compile.ITreeVisitor;
 import org.xdb.funsql.compile.expression.ComplexExpression;
 import org.xdb.funsql.compile.expression.EnumExprType;
@@ -10,15 +10,11 @@ import org.xdb.funsql.compile.expression.SimpleExpression;
 import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
-import org.xdb.funsql.compile.operator.GenericSelection;
-import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
+import org.xdb.funsql.compile.operator.GenericSelection;
+import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.operator.TableOperator;
-import org.xdb.funsql.compile.tokens.TokenAttribute;
-import org.xdb.metadata.Attribute;
-import org.xdb.metadata.Catalog;
-import org.xdb.error.Error;
 
 /**
  * CheckOperatorVisitor checks the Operators and the used data types.

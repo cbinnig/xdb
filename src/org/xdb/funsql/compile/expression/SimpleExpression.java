@@ -21,6 +21,12 @@ public class SimpleExpression extends AbstractExpression {
 		this.type = EnumExprType.SIMPLE_EXPRESSION;
 	}
 	
+	public SimpleExpression(AbstractTokenOperand tOper) {
+		this();
+		
+		this.tOper = tOper;
+	}
+	
 	//getters and setters
 
 	public AbstractTokenOperand getOper() {
@@ -75,5 +81,12 @@ public class SimpleExpression extends AbstractExpression {
 		return false;
 	}
 
+	@Override
+	public TokenAttribute getAttribute() {
+		if(this.tOper.isAttribute()){
+			return (TokenAttribute)this.tOper;
+		}
+		return null;
+	}
 	
 }

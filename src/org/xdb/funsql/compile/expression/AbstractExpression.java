@@ -1,10 +1,12 @@
 package org.xdb.funsql.compile.expression;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.xdb.funsql.compile.analyze.IExpressionVisitor;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.funsql.compile.tokens.TokenIdentifier;
 
 public abstract class AbstractExpression extends AbstractToken{
 
@@ -38,12 +40,19 @@ public abstract class AbstractExpression extends AbstractToken{
 	 * @return
 	 */
 	public abstract Set<TokenAttribute> getAttributes();
-	
+
 	/**
 	 * Checks if expression is only an attribute
 	 * @return
 	 */
 	public abstract boolean isAttribute();
+	
+
+	/**
+	 * Returns attribute if expression is attribute
+	 * @return
+	 */
+	public abstract TokenAttribute getAttribute();
 	
 	/**
 	 * Returns aggregation expressions
@@ -56,4 +65,17 @@ public abstract class AbstractExpression extends AbstractToken{
 	 * @param v
 	 */
 	public abstract void accept(IExpressionVisitor v);
+	
+	/**
+	 * Replaces expressions with aliases
+	 * @param aliases
+	 */
+	public AbstractExpression replaceAliases(Map<AbstractExpression, TokenIdentifier> aliases) {
+		if(aliases.containsKey(this)){
+			TokenIdentifier alias = aliases.get(this);
+			return new SimpleExpression(new TokenAttribute(alias));
+		}
+		return this;
+	}
+	
 }

@@ -25,17 +25,17 @@ public class GenericProjection extends AbstractUnaryOperator {
 			"SELECT <RESULTS> FROM `<<OP1>>` AS `<OP1>`");
 
 	// constructors
-	public GenericProjection(AbstractOperator child, int size) {
+	public GenericProjection(AbstractOperator child) {
 		super(child);
 
-		expressions = new Vector<AbstractExpression>(size);
-		aliases = new Vector<TokenIdentifier>(size);
+		expressions = new Vector<AbstractExpression>();
+		aliases = new Vector<TokenIdentifier>();
 		type = EnumOperator.GENERIC_PROJECTION;
 	}
 
 	// getters and setters
-	public void setExpression(int i, AbstractExpression expression) {
-		expressions.add(i, expression);
+	public void addExpression(AbstractExpression expression) {
+		expressions.add(expression);
 	}
 
 	public AbstractExpression getExpression(int i) {
@@ -46,8 +46,8 @@ public class GenericProjection extends AbstractUnaryOperator {
 		return expressions;
 	}
 
-	public void setAlias(int i, TokenIdentifier alias) {
-		aliases.add(i, alias);
+	public void addAlias(TokenIdentifier alias) {
+		aliases.add(alias);
 	}
 
 	public TokenIdentifier getAlias(int i) {
@@ -80,22 +80,11 @@ public class GenericProjection extends AbstractUnaryOperator {
 
 		GraphNode node = nodes.get(this.operatorId);
 		StringBuffer footer = new StringBuffer();
-		for (int i = 0; i < this.expressions.size(); ++i) {
-			AbstractExpression expr = this.expressions.get(i);
-			TokenIdentifier alias = this.aliases.get(i);
-
-			footer.append(expr.toSqlString());
-			if (alias != null) {
-				footer.append(AbstractToken.BLANK);
-				footer.append(AbstractToken.AS);
-				footer.append(AbstractToken.BLANK);
-				footer.append(alias.toSqlString());
-			}
-			if(i<this.expressions.size()-1){
-				footer.append(AbstractToken.COMMA);
-				footer.append(AbstractToken.BLANK);
-			}
-		}
+		footer.append("Expressions: ");
+		footer.append(this.expressions.toString());
+		footer.append(AbstractToken.NEWLINE);
+		footer.append("Aliases: ");
+		footer.append(this.aliases.toString());
 		node.getInfo().setFooter(footer.toString());
 		return err;
 	}

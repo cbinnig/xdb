@@ -1,11 +1,13 @@
 package org.xdb.funsql.compile.predicate;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.xdb.funsql.compile.analyze.IPredicateVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.funsql.compile.tokens.TokenIdentifier;
 
 /**
  * Predicate representation for compilation
@@ -46,6 +48,8 @@ public abstract class AbstractPredicate extends AbstractToken{
 	public abstract Set<AbstractPredicate> splitAnd();
 	
 	public abstract Set<AbstractExpression> getAggregations();
+	
+	public abstract AbstractPredicate replaceAliases(Map<AbstractExpression, TokenIdentifier> aliases);
 	
 	public abstract void accept(IPredicateVisitor v);
 }

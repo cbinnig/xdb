@@ -66,7 +66,8 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 		Error err = new Error();
 		GraphNode node = nodes.get(this.operatorId);
 		
-		//node.getInfo().setHeader(this.parents.toString());
+		if(this.results.size()==1)
+			node.getInfo().setHeader(this.results.get(0).toSqlString());
 		node.getInfo().setCaption(this.toString());
 		
 		AbstractOperator leftChildOp = this.children.get(0);

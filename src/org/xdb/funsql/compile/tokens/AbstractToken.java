@@ -8,6 +8,7 @@ public abstract class AbstractToken implements Serializable{
 	public static final String DATE = "DATE";
 	
 	public static final String BLANK = " ";
+	public static final String UNDERSCORE = "_";
 	public static final String DOT = ".";
 	public static final String COMMA = ",";
 	public static final String LBRACE = "(";
@@ -45,6 +46,8 @@ public abstract class AbstractToken implements Serializable{
 	public static final String VALUES = "VALUES";
 	public static final String MAX = "MAX";
 	public static final String AS = "AS";
+	
+	public static final String NEWLINE = "\n";
 	
 	@Override
 	public boolean equals(Object o){

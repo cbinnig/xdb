@@ -77,4 +77,9 @@ public class AggregationExpression extends AbstractExpression {
 	public boolean isAggregation() {
 		return true;
 	}
+
+	@Override
+	public TokenAttribute getAttribute() {
+		return null;
+	}
 }

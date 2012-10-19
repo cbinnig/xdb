@@ -1,6 +1,7 @@
 package org.xdb.funsql.compile.predicate;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -8,6 +9,7 @@ import org.xdb.funsql.compile.analyze.IPredicateVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.funsql.compile.tokens.TokenIdentifier;
 
 public class ComplexPredicate extends AbstractPredicate {
 
@@ -147,5 +149,16 @@ public class ComplexPredicate extends AbstractPredicate {
 			aggExprs.addAll(pred2.getAggregations());
 		}
 		return aggExprs;
+	}
+
+	@Override
+	public AbstractPredicate replaceAliases(Map<AbstractExpression, TokenIdentifier> aliases) {
+		this.pred1.replaceAliases(aliases);
+		
+		for(AbstractPredicate pred2: this.preds2){
+			pred2.replaceAliases(aliases);
+		}
+		
+		return this;
 	}
 }

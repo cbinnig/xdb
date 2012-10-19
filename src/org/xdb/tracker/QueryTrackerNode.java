@@ -6,7 +6,6 @@ import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.error.Error;
-import org.xdb.server.QueryTrackerServer;
 import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
 
@@ -16,8 +15,7 @@ public class QueryTrackerNode {
 
 	private final MasterTrackerClient masterTrackerClient;
 	private final QueryTrackerNodeDesc description;
-	private QueryTrackerServer server;
-
+	
 	public QueryTrackerNode() {
 		masterTrackerClient = new MasterTrackerClient();
 		description = new QueryTrackerNodeDesc(Config.QUERYTRACKER_URL);

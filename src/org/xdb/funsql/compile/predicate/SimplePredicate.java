@@ -1,12 +1,14 @@
 package org.xdb.funsql.compile.predicate;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.xdb.funsql.compile.analyze.IPredicateVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.funsql.compile.tokens.TokenIdentifier;
 
 public class SimplePredicate extends AbstractPredicate {
 	private static final long serialVersionUID = -857048085355641688L;
@@ -121,5 +123,12 @@ public class SimplePredicate extends AbstractPredicate {
 		if(this.expr2.isAggregation())
 			aggExprs.add(this.expr2);
 		return aggExprs;
+	}
+
+	@Override
+	public AbstractPredicate replaceAliases(Map<AbstractExpression, TokenIdentifier> aliases) {
+		this.expr1 = this.expr1.replaceAliases(aliases);
+		this.expr2 = this.expr2.replaceAliases(aliases);
+		return this;
 	}
 }

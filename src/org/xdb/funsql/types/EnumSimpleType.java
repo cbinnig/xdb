@@ -3,7 +3,7 @@ package org.xdb.funsql.types;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 
-public enum EnumSimpleType {
+public enum EnumSimpleType implements Cloneable{
 	SQL_INTEGER,
 	SQL_VARCHAR,
 	SQL_CHAR,
