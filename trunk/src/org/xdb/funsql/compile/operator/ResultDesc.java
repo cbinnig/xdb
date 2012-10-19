@@ -3,6 +3,7 @@ package org.xdb.funsql.compile.operator;
 import java.io.Serializable;
 import java.util.Vector;
 
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.types.EnumSimpleType;
 
@@ -102,7 +103,14 @@ public class ResultDesc implements Serializable, Cloneable{
 	
 	@Override
 	public String toString(){
-		return this.toSqlString();
+		StringBuffer value = new StringBuffer();
+		value.append("Attributes: ");
+		value.append(this.attributes);
+		value.append(AbstractToken.NEWLINE);
+		value.append("Types: ");
+		value.append(this.types);
+		value.append(AbstractToken.NEWLINE);
+		return value.toString();
 	}
 	
 	@Override
