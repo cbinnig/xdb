@@ -1,6 +1,5 @@
 package org.xdb.funsql.compile.predicate;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -102,7 +101,7 @@ public class SimplePredicate extends AbstractPredicate {
 	}
 
 	@Override
-	public Collection<AbstractPredicate> splitAnd() {
+	public Set<AbstractPredicate> splitAnd() {
 		HashSet<AbstractPredicate> predicates = new HashSet<AbstractPredicate>();
 		predicates.add(this);
 		return predicates;
@@ -112,5 +111,15 @@ public class SimplePredicate extends AbstractPredicate {
 	public void accept(IPredicateVisitor v) {
 		v.visitSimplePredicate(this);
 		
+	}
+
+	@Override
+	public Set<AbstractExpression> getAggregations() {
+		HashSet<AbstractExpression> aggExprs = new HashSet<AbstractExpression>();
+		if(this.expr1.isAggregation())
+			aggExprs.add(this.expr1);
+		if(this.expr2.isAggregation())
+			aggExprs.add(this.expr2);
+		return aggExprs;
 	}
 }

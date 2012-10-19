@@ -11,7 +11,7 @@ import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.ResultDesc;
-import org.xdb.funsql.compile.operator.SimpleAggregation;
+import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.EnumOperandType;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -40,7 +40,7 @@ public class CreateResultDescVisitor implements ITreeVisitor {
 	public void visitEquiJoin(EquiJoin ej) {
 		int i = 0;
 		// the number of ResultDescs has to be one
-		Vector<TokenAttribute> ta = null;
+		Vector<TokenAttribute> ta = new Vector<TokenAttribute>();
 		while (i < ej.getLeftChild().getResultNumber()) {
 			ta.addAll(ej.getLeftChild().getResult(i).getAttributes());
 			i++;
@@ -84,11 +84,7 @@ public class CreateResultDescVisitor implements ITreeVisitor {
 	 */
 	@Override
 	public void visitFunctionCall(FunctionCall fc) {
-		for(AbstractOperator source: fc.getSourceOperators()){
-			Vector<TokenAttribute> ta = source.getResult(0).getAttributes();
-			//TODO
-			
-		}
+		//TODO
 	}
 
 	/*
@@ -99,16 +95,8 @@ public class CreateResultDescVisitor implements ITreeVisitor {
 	 * .compile.operator.SimpleAggregation)
 	 */
 	@Override
-	public void visitSimpleAggregation(SimpleAggregation sa) {
-		Vector<TokenAttribute> tokenatts=sa.getGroupAttributes();
-		for(int i= 0; i<sa.getAggregationAttributes().size();i++){
-			TokenAttribute ta = new TokenAttribute();
-			ta.setDataType(sa.getAggregationType(i).getType());
-			ta.setName(sa.getAggregationType(i).getType().toString()+"_"+sa.getAggregationAttributes().get(i).getName());
-			ta.setTable(sa.getAggregationAttributes().get(i).getTable());
-			tokenatts.add(ta);
-		}		
-		this.setResultDesc(tokenatts, sa); 	
+	public void visitGenericAggregation(GenericAggregation sa) {
+		//TODO	
 	}
 
 	/*
@@ -121,7 +109,7 @@ public class CreateResultDescVisitor implements ITreeVisitor {
 	@Override
 	public void visitGenericProjection(GenericProjection gp) {
 		AbstractExpression ae = null;
-		Vector<TokenAttribute> ca = null;
+		Vector<TokenAttribute> ca = new Vector<TokenAttribute>();
 		for (int i = 0; i < gp.getExpressions().size(); i++) {
 			if (gp.getExpression(i).getType().equals(EnumExprType.SIMPLE_EXPRESSION)) {
 				ae = gp.getExpression(i);
@@ -148,7 +136,7 @@ public class CreateResultDescVisitor implements ITreeVisitor {
 	public void visitTableOperator(TableOperator to) {
 		Collection<Attribute> ca = to.getTable().getAttributes();
 		TokenTable tt = to.getTableName();
-		Collection<TokenAttribute> cta = null;
+		Collection<TokenAttribute> cta = new Vector<TokenAttribute>();
 		while (ca.iterator().hasNext()) {
 			Attribute a = ca.iterator().next();
 			TokenAttribute ta = new TokenAttribute();

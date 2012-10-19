@@ -1,9 +1,9 @@
 package org.xdb.funsql.compile.predicate;
 
-import java.util.Collection;
 import java.util.Set;
 
 import org.xdb.funsql.compile.analyze.IPredicateVisitor;
+import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
@@ -43,7 +43,9 @@ public abstract class AbstractPredicate extends AbstractToken{
 	
 	public abstract boolean isEquiJoinPredicate();
 	
-	public abstract Collection<AbstractPredicate> splitAnd();
+	public abstract Set<AbstractPredicate> splitAnd();
+	
+	public abstract Set<AbstractExpression> getAggregations();
 	
 	public abstract void accept(IPredicateVisitor v);
 }

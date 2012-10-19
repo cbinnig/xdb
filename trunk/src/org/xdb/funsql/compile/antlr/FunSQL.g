@@ -284,34 +284,37 @@ selectStatement returns [SelectStmt stmt]
         }
         :
         (
+        	//SELECT
                 KEYWORD_SELECT
-                expr1=abstractExpression
+                selExpr1=abstractExpression
                 {
-                	$stmt.addExpression($expr1.expression);
+                	$stmt.addSelExpression($selExpr1.expression);
                 	++i;
                 }
                 (
                 	KEYWORD_AS
-                	exprAlias1=tokenIdentifier
+                	selAlias1=tokenIdentifier
                 	{
-                		$stmt.setExpressionAlias(i-1, $exprAlias1.identifier);
+                		$stmt.setSelAlias(i-1, $selAlias1.identifier);
                 	}
                 )?
                 (
                 COMMA
-                expr2=abstractExpression
+                selExpr2=abstractExpression
                 {
-                	$stmt.addExpression($expr2.expression);
+                	$stmt.addSelExpression($selExpr2.expression);
                 	++i;
                 }
                 (
                 	KEYWORD_AS
-                	exprAlias2=tokenIdentifier
+                	selAlias2=tokenIdentifier
                 	{
-                		$stmt.setExpressionAlias(i-1, $exprAlias2.identifier);
+                		$stmt.setSelAlias(i-1, $selAlias2.identifier);
                 	}
                 )?
                 )*
+                
+                //FROM
                 KEYWORD_FROM
                 table1=tokenTable 
                 {
@@ -340,14 +343,41 @@ selectStatement returns [SelectStmt stmt]
                 	}
                 )?
                 )*
+                
                 (
                 KEYWORD_WHERE
                 predicate1=abstractPredicate
                 {
-                	$stmt.setPredicate($predicate1.predicate);
+                	$stmt.setWherePredicate($predicate1.predicate);
                 }
                 )?
                 
+                //GROUB BY
+                (
+                KEYWORD_GROUP KEYWORD_BY
+                groupExpr1=abstractExpression
+                {
+                	$stmt.addGroupExpression($groupExpr1.expression);
+                	++i;
+                }
+                (
+                COMMA
+                groupExpr2=abstractExpression
+                {
+                	$stmt.addSelExpression($groupExpr2.expression);
+                	++i;
+                }
+                )*
+                )?
+                
+                //HAVING
+                (
+                KEYWORD_HAVING
+                havingPred=abstractPredicate
+                {
+                	$stmt.setHavingPredicate($havingPred.predicate);
+                }
+                )?
 	)
 	;
 	
@@ -538,9 +568,14 @@ complexExpression returns [AbstractExpression expression]
 			$expression = $expression1.expression;
 		}
 		|	
-		expression2=simpleExpression
+		expression2=aggregationExpression
 		{
 			$expression = $expression2.expression;
+		}
+		|	
+		expression3=simpleExpression
+		{
+			$expression = $expression3.expression;
 		}
 	)
 	;
@@ -553,7 +588,26 @@ parenExpression returns [AbstractExpression expression]
 		}
 		RPAREN
 	;
-	        
+	   
+      
+aggregationExpression returns [AggregationExpression expression]
+	@init{
+        	$expression = new AggregationExpression();
+        }
+        :
+        (
+		agg1=FUNCTION_AGGREGATION
+		{
+			$expression.setAggregation($agg1.text);
+		}
+		LPAREN 
+		expr1=abstractExpression {
+			$expression.setExpression($expr1.expression);
+		}
+		RPAREN
+        )
+        ;
+             
 simpleExpression returns [SimpleExpression expression]
 	@init{
         	$expression = new SimpleExpression();
@@ -573,7 +627,7 @@ simpleExpression returns [SimpleExpression expression]
                 )
         )
         ;
-        
+  
 tokenAttribute returns [TokenAttribute attribute]
 	@init{
         	$attribute = new TokenAttribute();
@@ -855,18 +909,31 @@ tokenCompOperator
 /*------------------------------------------------------------------
  * LEXER RULES
  *------------------------------------------------------------------*/
+FUNCTION_AGGREGATION
+	:
+	(KEYWORD_SUM|KEYWORD_MIN|KEYWORD_MAX|KEYWORD_AVG|KEYWORD_COUNT)
+	;
 
 KEYWORD_CREATE: C R E A T E;
 KEYWORD_DROP: D R O P;	 
 KEYWORD_SELECT: S E L E C T;
 KEYWORD_FROM: F R O M;
 KEYWORD_WHERE: W H E R E;
+KEYWORD_HAVING: H A V I N G;
+KEYWORD_GROUP: G R O U P;
+KEYWORD_BY: B Y;
 KEYWORD_IN: I N;
 KEYWORD_OUT: O U T;
 KEYWORD_AND: A N D;
 KEYWORD_OR: O R;
 KEYWORD_NOT: N O T;
-KEYWORD_AS: A S;
+KEYWORD_AS: A S;	
+fragment KEYWORD_SUM: S U M;
+fragment KEYWORD_MIN: M I N;
+fragment KEYWORD_MAX: M A X;
+fragment KEYWORD_AVG: A V G;
+fragment KEYWORD_COUNT: C O U N T;
+KEYWORD_DISTINCT: D I S T I N C T;
 
 KEYWORD_CONNECTION: C O N N E C T I O N;	 
 KEYWORD_SCHEMA: S C H E M A;
@@ -880,7 +947,7 @@ KEYWORD_URL: U R L;
 KEYWORD_USER: U S E R;
 KEYWORD_PASSWD: P A S S W O R D;
 KEYWORD_STORE: S T O R E;
-
+	
 TYPE_VARCHAR: V A R C H A R;
 TYPE_INTEGER: (I N T | I N T E G E R);
     
@@ -898,7 +965,7 @@ LITERAL_DECIMAL
     : 
     (DIGIT)+ DOT DIGIT*
     ;
-    
+        
 LITERAL_INTEGER 
     : 
     (DIGIT)+ 

@@ -1,11 +1,11 @@
 package org.xdb.funsql.compile.predicate;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.analyze.IPredicateVisitor;
+import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
@@ -114,7 +114,7 @@ public class ComplexPredicate extends AbstractPredicate {
 	}
 
 	@Override
-	public Collection<AbstractPredicate> splitAnd() {
+	public Set<AbstractPredicate> splitAnd() {
 		HashSet<AbstractPredicate> predicates = new HashSet<AbstractPredicate>();
 		if (this.type == EnumPredicateType.OR_PREDICATE) {
 			if (this.preds2.size() == 0) {
@@ -137,5 +137,15 @@ public class ComplexPredicate extends AbstractPredicate {
 	@Override
 	public void accept(IPredicateVisitor v) {
 		v.visitComplexPredicate(this);
+	}
+	
+	@Override
+	public Set<AbstractExpression> getAggregations() {
+		HashSet<AbstractExpression> aggExprs = new HashSet<AbstractExpression>();
+		aggExprs.addAll(this.pred1.getAggregations());
+		for(AbstractPredicate pred2: this.preds2){
+			aggExprs.addAll(pred2.getAggregations());
+		}
+		return aggExprs;
 	}
 }

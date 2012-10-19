@@ -33,9 +33,27 @@ public abstract class AbstractExpression extends AbstractToken{
 		this.type = type;
 	}
 	
+	/**
+	 * Returns all attributes of expression
+	 * @return
+	 */
 	public abstract Set<TokenAttribute> getAttributes();
 	
+	/**
+	 * Checks if expression is only an attribute
+	 * @return
+	 */
 	public abstract boolean isAttribute();
 	
-	abstract void accept(IExpressionVisitor v);
+	/**
+	 * Returns aggregation expressions
+	 * @return
+	 */
+	public abstract boolean isAggregation();
+	
+	/**
+	 * Accepts visitors for compile and optimize phases
+	 * @param v
+	 */
+	public abstract void accept(IExpressionVisitor v);
 }

@@ -14,7 +14,7 @@ public class PostgresStore extends JDBCStore {
 	@Override
 	public boolean supportsOperator(EnumOperator operator) {
 		switch (operator) {
-		case SIMPLE_AGGREGATION:
+		case GENERIC_AGGREGATION:
 		case GENERIC_SELECTION:
 		case GENERIC_PROJECTION:
 		case EQUI_JOIN:

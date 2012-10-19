@@ -1,6 +1,5 @@
 package org.xdb.funsql.compile.tokens;
 
-import org.xdb.funsql.types.AbstractType;
 import org.xdb.funsql.types.EnumSimpleType;
 
 public class TokenAttribute extends AbstractTokenOperand{
@@ -55,7 +54,7 @@ public class TokenAttribute extends AbstractTokenOperand{
 	public String toSqlString() {
 		StringBuffer buffer = new StringBuffer();
 		if (this.table != null) {
-			buffer.append(this.table.toString());
+			buffer.append(this.table.getName().toString());
 			buffer.append(AbstractToken.DOT);
 		}
 		

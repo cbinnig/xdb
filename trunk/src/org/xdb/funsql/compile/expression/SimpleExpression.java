@@ -66,7 +66,14 @@ public class SimpleExpression extends AbstractExpression {
 	}
 
 	@Override
-	void accept(IExpressionVisitor v) {
+	public void accept(IExpressionVisitor v) {
 		v.visitSimpleExpression(this);		
 	}
+
+	@Override
+	public boolean isAggregation() {
+		return false;
+	}
+
+	
 }

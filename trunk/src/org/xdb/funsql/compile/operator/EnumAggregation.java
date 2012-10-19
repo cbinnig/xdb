@@ -2,11 +2,11 @@ package org.xdb.funsql.compile.operator;
 
 import java.io.Serializable;
 
-import org.xdb.funsql.types.EnumLiteralType;
 import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.utils.StringTemplate;
 
 public enum EnumAggregation implements Serializable{
+	NO_AGG(new StringTemplate("(<EXP>)")), 
 	AVG(new StringTemplate("AVG(<EXP>)")), 
 	CNT(new StringTemplate("COUNT(<EXP>)")),
 	CNT_DISTINCT(new StringTemplate("COUNT(DISTINCT <EXP>)")),

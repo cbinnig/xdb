@@ -9,6 +9,8 @@ import java.util.Map.Entry;
  *
  */
 public class StringTemplate {
+	public static String KEY_EXP = "EXP";
+	
 	private static final String START_TAG = "<";
 	private static final String END_TAG = ">";
 

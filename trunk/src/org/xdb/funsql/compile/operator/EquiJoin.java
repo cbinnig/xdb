@@ -50,15 +50,15 @@ public class EquiJoin extends AbstractBinaryOperator {
 
 	@Override
 	public String toSqlString() {
-		return sqlTemplate.toString(new HashMap<String, String>() {{
-			put("RESULTS", getResultAttributeString());
-			
-			put("OP1", getLeftChild().getOperatorId().toString());
-			put("OP2", getRightChild().getOperatorId().toString());
-			
-			put("LOP1", getLeftTokenAttribute().toSqlString());
-			put("LOP2", getRightTokenAttribute().toSqlString());
-		}});
+		HashMap<String, String> vars = new HashMap<String, String>();
+		vars.put("RESULTS", getResultAttributeString());
+		
+		vars.put("OP1", getLeftChild().getOperatorId().toString());
+		vars.put("OP2", getRightChild().getOperatorId().toString());
+		
+		vars.put("LOP1", getLeftTokenAttribute().toSqlString());
+		vars.put("LOP2", getRightTokenAttribute().toSqlString());
+		return sqlTemplate.toString(vars);
 	}
 
 	/**
