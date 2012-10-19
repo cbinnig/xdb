@@ -46,7 +46,7 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 		Error err = new Error();
 		GraphNode node = nodes.get(this.operatorId);
 		if(this.results.size()==1)
-			node.getInfo().setHeader(this.results.get(0).toSqlString());
+			node.getInfo().setHeader(this.results.get(0).toString());
 		node.getInfo().setCaption(this.toString());
 		AbstractOperator childOp = this.children.get(0);
 		
