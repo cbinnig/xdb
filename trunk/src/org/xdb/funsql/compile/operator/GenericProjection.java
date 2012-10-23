@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.ITreeVisitor;
+import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;

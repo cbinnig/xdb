@@ -1,6 +1,7 @@
 package org.xdb.funsql.compile.tokens;
 
 import org.xdb.funsql.types.EnumLiteralType;
+import org.xdb.funsql.types.EnumSimpleType;
 
 public abstract class TokenLiteral extends AbstractTokenOperand{
 
@@ -14,6 +15,10 @@ public abstract class TokenLiteral extends AbstractTokenOperand{
 
 	public EnumLiteralType getLiteralType() {
 		return type;
+	}
+	
+	public EnumSimpleType getDataType() {
+		return this.type.getSimpleType();
 	}
 	
 	@Override

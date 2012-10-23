@@ -3,7 +3,6 @@ package org.xdb.funsql.compile.expression;
 import java.util.HashMap;
 import java.util.Set;
 
-import org.xdb.funsql.compile.analyze.IExpressionVisitor;
 import org.xdb.funsql.compile.operator.EnumAggregation;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.StringTemplate;
@@ -57,11 +56,6 @@ public class AggregationExpression extends AbstractExpression {
 	}
 
 	@Override
-	public void accept(IExpressionVisitor v) {
-		v.visitAggregationExpression(this);		
-	}
-
-	@Override
 	public String toSqlString() {
 		String sqlValue = this.expr.toSqlString();
 		if(this.agg == EnumAggregation.NO_AGG){
@@ -81,5 +75,10 @@ public class AggregationExpression extends AbstractExpression {
 	@Override
 	public TokenAttribute getAttribute() {
 		return null;
+	}
+
+	@Override
+	public int size() {
+		return 1;
 	}
 }

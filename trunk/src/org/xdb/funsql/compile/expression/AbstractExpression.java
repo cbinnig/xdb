@@ -3,7 +3,6 @@ package org.xdb.funsql.compile.expression;
 import java.util.Map;
 import java.util.Set;
 
-import org.xdb.funsql.compile.analyze.IExpressionVisitor;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
@@ -61,10 +60,10 @@ public abstract class AbstractExpression extends AbstractToken{
 	public abstract boolean isAggregation();
 	
 	/**
-	 * Accepts visitors for compile and optimize phases
-	 * @param v
+	 * Get number of predicates
+	 * @return
 	 */
-	public abstract void accept(IExpressionVisitor v);
+	public abstract int size();
 	
 	/**
 	 * Replaces expressions with aliases

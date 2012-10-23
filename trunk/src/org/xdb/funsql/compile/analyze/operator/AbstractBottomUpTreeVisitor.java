@@ -1,5 +1,7 @@
-package org.xdb.funsql.compile;
+package org.xdb.funsql.compile.analyze.operator;
 
+
+import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractOperator;
 
 public abstract class AbstractBottomUpTreeVisitor extends AbstractTreeVisitor {
@@ -8,16 +10,17 @@ public abstract class AbstractBottomUpTreeVisitor extends AbstractTreeVisitor {
 		super(root);
 	}
 
-	public void visit(){
-		this.visit(thisRoot);
-	}
-
 	@Override
-	public void visit(AbstractOperator absOp) {
+	public Error visit(AbstractOperator absOp) {
+		Error e = new Error();
+		
 		for(AbstractOperator child: absOp.getSourceOperators()){
-			this.visit(child);
+			e = this.visit(child);
+			if(e.isError())
+				return e;
 		}
 		
-		super.visit(absOp);
+		e = super.visit(absOp);
+		return e;
 	}
 }

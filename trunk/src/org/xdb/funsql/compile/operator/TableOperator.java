@@ -3,7 +3,7 @@ package org.xdb.funsql.compile.operator;
 import java.util.HashMap;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.ITreeVisitor;
+import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Table;
@@ -85,7 +85,8 @@ public class TableOperator extends AbstractOperator {
 	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
 		Error err = new Error();
 		GraphNode node = nodes.get(this.operatorId);
-		//node.getInfo().setHeader(this.parents.toString());
+		if(this.results.size()==1)
+			node.getInfo().setHeader(this.results.get(0).toString());
 		node.getInfo().setCaption(this.toString());
 		node.getInfo().setFooter(this.tableName.toSqlString());
 		return err;

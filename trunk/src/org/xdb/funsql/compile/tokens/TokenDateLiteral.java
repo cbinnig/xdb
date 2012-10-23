@@ -23,7 +23,6 @@ public class TokenDateLiteral extends TokenLiteral {
 	public Date getValue(){
 		return this.value;
 	}
-	
 	@Override
 	public String toString(){
 		return this.value.toString();

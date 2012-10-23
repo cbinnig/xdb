@@ -1,8 +1,10 @@
 package org.xdb.funsql.optimize;
 
+
 import java.util.Vector;
 
-import org.xdb.funsql.compile.AbstractTreeVisitor;
+import org.xdb.error.Error;
+import org.xdb.funsql.compile.analyze.operator.AbstractTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.funsql.compile.operator.EnumPushDown;
 import org.xdb.funsql.compile.operator.EquiJoin;
@@ -56,7 +58,7 @@ public class TreeWalkerSelectionPush extends AbstractTreeVisitor { //implements 
 //	}
 
 	@Override
-	public void visitEquiJoin(EquiJoin ej) {
+	public Error visitEquiJoin(EquiJoin ej) {
 
 		if(tempSel != null){
 			if(ej.isPushDownAllowed(EnumPushDown.SELECTION_PUSHDOWN)){
@@ -90,11 +92,12 @@ public class TreeWalkerSelectionPush extends AbstractTreeVisitor { //implements 
 			visit(ej.getLeftChild());
 			visit(ej.getRightChild());
 		}
+		return new Error();
 		
 	}
 
 	@Override
-	public void visitGenericSelection(GenericSelection gs) {
+	public Error visitGenericSelection(GenericSelection gs) {
 		if(tempSel == null){
 //			if(!waitToPush.contains(gs))
 				tempSel = gs;
@@ -108,16 +111,17 @@ public class TreeWalkerSelectionPush extends AbstractTreeVisitor { //implements 
 				pushDown(tempSel, gs);
 			}
 		}
+		return new Error();
 	}
 
 	@Override
-	public void visitFunctionCall(FunctionCall fc) {
-		// TODO Auto-generated method stub
+	public Error visitFunctionCall(FunctionCall fc) {
+		return new Error();
 
 	}
 
 	@Override
-	public void visitGenericAggregation(GenericAggregation sa) {
+	public Error visitGenericAggregation(GenericAggregation sa) {
 		if(tempSel != null){
 			if(sa.isPushDownAllowed(EnumPushDown.SELECTION_PUSHDOWN)){
 				visit(sa.getChild());
@@ -129,10 +133,11 @@ public class TreeWalkerSelectionPush extends AbstractTreeVisitor { //implements 
 		else{
 			visit(sa.getChild());
 		}
+		return new Error();
 	}
 
 	@Override
-	public void visitGenericProjection(GenericProjection gp) {
+	public Error visitGenericProjection(GenericProjection gp) {
 		
 		if(tempSel != null){
 			if(gp.isPushDownAllowed(EnumPushDown.SELECTION_PUSHDOWN)){
@@ -145,13 +150,15 @@ public class TreeWalkerSelectionPush extends AbstractTreeVisitor { //implements 
 		else{
 			visit(gp.getChild());
 		}
+		return new Error();
 
 	}
 
 	@Override
-	public void visitTableOperator(TableOperator to) {
+	public Error visitTableOperator(TableOperator to) {
 		
 		pushDown(tempSel,to);
+		return new Error();
 		
 	}
 	

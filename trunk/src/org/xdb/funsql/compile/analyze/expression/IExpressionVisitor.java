@@ -1,4 +1,4 @@
-package org.xdb.funsql.compile.analyze;
+package org.xdb.funsql.compile.analyze.expression;
 
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.AggregationExpression;
@@ -10,7 +10,9 @@ public interface IExpressionVisitor {
 	
 	Error visit(AbstractExpression expr); 
 	Error visitSimpleExpression(SimpleExpression se);
-	Error visitComplexExpression(ComplexExpression ce);
+	Error visitMultExpression(ComplexExpression ce);
+	Error visitAddExpression(ComplexExpression ce);
+	Error visitSignedExpression(ComplexExpression ce);
 	Error visitAggregationExpression(AggregationExpression ce);
 
 }

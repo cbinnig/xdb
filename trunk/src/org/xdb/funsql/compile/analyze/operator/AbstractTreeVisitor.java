@@ -1,8 +1,9 @@
-package org.xdb.funsql.compile;
+package org.xdb.funsql.compile.analyze.operator;
 
+
+import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
-import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.GenericAggregation;
@@ -15,44 +16,31 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	public AbstractTreeVisitor(AbstractOperator root) {
 		thisRoot = root;
 	}
-	
-	public void runWalker() {
-		visit(thisRoot);
-	}
 
+	public Error visit(){
+		return this.visit(thisRoot);
+	}
+	
 	@Override
-	public void visit(AbstractOperator absOp) {
+	public Error visit(AbstractOperator absOp) {
+		Error e = new Error();
 		switch(absOp.getType()){
 		case EQUI_JOIN:
-			visitEquiJoin((EquiJoin) absOp);
-			break;
+			return visitEquiJoin((EquiJoin) absOp);
 		case GENERIC_SELECTION:
-			visitGenericSelection((GenericSelection) absOp);
-			break;
+			return visitGenericSelection((GenericSelection) absOp);
 //		case FUNCTION_CALL:
 //			visitFunctionCall((FunctionCall) absOp);
 //			break;
 		case GENERIC_AGGREGATION:
-			visitGenericAggregation((GenericAggregation) absOp);
-			break;
+			return visitGenericAggregation((GenericAggregation) absOp);
 		case GENERIC_PROJECTION:
 			visitGenericProjection((GenericProjection) absOp);
 			break;
 		case TABLE:
-			visitTableOperator((TableOperator) absOp);
-			break;
+			return visitTableOperator((TableOperator) absOp);
 		}
+		
+		return e;
 	}
-
-	public abstract void visitEquiJoin(EquiJoin ej);
-	
-	public abstract void visitGenericSelection(GenericSelection gs);
-	
-	public abstract void visitFunctionCall(FunctionCall fc);
-
-	public abstract void visitGenericAggregation(GenericAggregation sa);
-
-	public abstract void visitGenericProjection(GenericProjection gp);
-
-	public abstract void visitTableOperator(TableOperator to);
 }
