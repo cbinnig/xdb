@@ -23,18 +23,12 @@ import org.xdb.error.Error;
  */
 public class CheckExpressionVisitor extends AbstractExpressionVisitor {
 	private Map<AbstractToken, EnumSimpleType> expType;
-	private AbstractExpression expr;
 	
 	public CheckExpressionVisitor(
 			Map<AbstractToken, EnumSimpleType> expType,
 			AbstractExpression expr) {
-		super();
+		super(expr);
 		this.expType = expType;
-		this.expr = expr;
-	}
-
-	public Error visit() {
-		return this.visit(this.expr);
 	}
 
 	@Override

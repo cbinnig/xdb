@@ -6,6 +6,11 @@ import org.xdb.funsql.compile.predicate.ComplexPredicate;
 
 public abstract class AbstractBottomUpPredicateVisitor extends AbstractPredicateVisitor {
 
+	public AbstractBottomUpPredicateVisitor(AbstractPredicate pred) {
+		super(pred);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	public Error visit(AbstractPredicate pred) {
 		Error e = new Error();
