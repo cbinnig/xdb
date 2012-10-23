@@ -25,10 +25,10 @@ import org.xdb.metadata.Table;
  * @author cbinnig
  *
  */
-public class CreateResultDesc extends AbstractBottomUpTreeVisitor {
+public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 	private Map<AbstractToken, EnumSimpleType> types;
 	
-	public CreateResultDesc(AbstractOperator root,
+	public CreateResultVisitor(AbstractOperator root,
 			Map<AbstractToken, EnumSimpleType> types) {
 		super(root);
 		this.types = types;
@@ -81,8 +81,6 @@ public class CreateResultDesc extends AbstractBottomUpTreeVisitor {
 	public Error visitGenericAggregation(GenericAggregation ga) {
 		Error e = new Error();
 		ResultDesc rDesc = new ResultDesc();
-		Vector<AbstractExpression> exprs = ga.getAggregationExpressions();
-		exprs.addAll(ga.getGroupExpressions());
 		Vector<TokenIdentifier> aliases = ga.getAliases();
 		
 		for(TokenIdentifier alias: aliases){
@@ -128,7 +126,7 @@ public class CreateResultDesc extends AbstractBottomUpTreeVisitor {
 		ResultDesc rDesc = new ResultDesc();
 		
 		for(Attribute attr: table.getAttributes()){
-			String attName = this.createResultAtt(to.getTableName(), attr.getName());
+			String attName = ResultDesc.createResultAtt(to.getTableName(), attr.getName());
 			TokenAttribute att = new TokenAttribute(attName);
 			att.setTable(to.getOperatorId().toString());
 			rDesc.addAttribute(att);
@@ -137,12 +135,5 @@ public class CreateResultDesc extends AbstractBottomUpTreeVisitor {
 		
 		to.addResult(rDesc);
 		return e;
-	}
-
-	private String createResultAtt(String table, String att){
-		StringBuffer name = new StringBuffer(table);
-		name.append(AbstractToken.UNDERSCORE);
-		name.append(att);
-		return name.toString();
 	}
 }

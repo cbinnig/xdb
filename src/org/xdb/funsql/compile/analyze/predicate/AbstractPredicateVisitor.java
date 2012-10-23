@@ -1,13 +1,23 @@
 package org.xdb.funsql.compile.analyze.predicate;
 
+
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
 import org.xdb.funsql.compile.predicate.ComplexPredicate;
 import org.xdb.funsql.compile.predicate.SimplePredicate;
 
 public abstract class AbstractPredicateVisitor implements IPredicateVisitor {
-
-	public abstract Error visit();
+	protected AbstractPredicate pred;
+	
+	public AbstractPredicateVisitor(
+			AbstractPredicate pred) {
+		super();
+		this.pred = pred;
+	}
+	
+	public Error visit(){
+		return this.visit(pred);
+	}
 		
 	@Override
 	public Error visit(AbstractPredicate pred) {

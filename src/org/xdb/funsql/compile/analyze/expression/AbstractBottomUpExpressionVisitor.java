@@ -7,6 +7,10 @@ import org.xdb.funsql.compile.expression.ComplexExpression;
 
 public abstract class AbstractBottomUpExpressionVisitor extends AbstractExpressionVisitor {
 
+	public AbstractBottomUpExpressionVisitor(AbstractExpression expr) {
+		super(expr);
+	}
+
 	@Override
 	public Error visit(AbstractExpression expr) {
 		Error e = new Error();

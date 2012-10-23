@@ -13,18 +13,12 @@ import org.xdb.funsql.types.EnumSimpleType;
 
 public class CheckPredicateVisitor extends AbstractPredicateVisitor{
 	private Map<AbstractToken, EnumSimpleType> expType;
-	private AbstractPredicate pred;
 	
 	public CheckPredicateVisitor(
 			Map<AbstractToken, EnumSimpleType> expType,
 			AbstractPredicate pred) {
-		super();
+		super(pred);
 		this.expType = expType;
-		this.pred = pred;
-	}
-	
-	public Error visit(){
-		return this.visit(pred);
 	}
 
 	@Override

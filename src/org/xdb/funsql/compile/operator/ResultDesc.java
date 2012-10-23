@@ -125,4 +125,11 @@ public class ResultDesc implements Serializable, Cloneable{
 		}
 		return rDesc;
 	}
+	
+	public static String createResultAtt(String table, String att){
+		StringBuffer name = new StringBuffer(table);
+		name.append(AbstractToken.UNDERSCORE);
+		name.append(att);
+		return name.toString();
+	}
 }

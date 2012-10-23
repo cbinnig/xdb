@@ -1,5 +1,6 @@
 package org.xdb.funsql.compile.analyze.expression;
 
+
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.AggregationExpression;
@@ -8,7 +9,17 @@ import org.xdb.funsql.compile.expression.SimpleExpression;
 
 public abstract class AbstractExpressionVisitor implements IExpressionVisitor {
 
-	public abstract Error visit();
+	protected AbstractExpression expr;
+	
+	public AbstractExpressionVisitor(
+			AbstractExpression expr) {
+		super();
+		this.expr = expr;
+	}
+	
+	public Error visit() {
+		return this.visit(this.expr);
+	}
 	
 	@Override
 	public Error visit(AbstractExpression expr) {
