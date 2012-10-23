@@ -35,15 +35,15 @@ public class Optimizer {
 			Identifier id = roots.next();
 			TreeWalkerSelectionSplit walkerSelectionSplit = new TreeWalkerSelectionSplit(compilePlan.getOperators(id));
 			treeWalkerSelectionSplitVector.add(walkerSelectionSplit);
-			walkerSelectionSplit.runWalker();
+			walkerSelectionSplit.visit();
 			
 			TreeWalkerSelectionPush walkerSelectionPush = new TreeWalkerSelectionPush(compilePlan.getOperators(id));
 			treeWalkerSelectionPushVector.add(walkerSelectionPush);
-			walkerSelectionPush.runWalker();
+			walkerSelectionPush.visit();
 			
 			TreeWalkerSelectionUnion walkerSelectionUnion = new TreeWalkerSelectionUnion(compilePlan.getOperators(id));
 			treeWalkerSelectionUnionVector.add(walkerSelectionUnion);
-			walkerSelectionUnion.runWalker();			
+			walkerSelectionUnion.visit();			
 		}
 		
 //		Vector<GenericSelection> waitToPush = new Vector<GenericSelection>();
@@ -94,7 +94,7 @@ public class Optimizer {
 //			//new walker for every root.
 //			TreeWalkerSelSplit walkerSelSplit = new TreeWalkerSelSplit(compilePlan.getOperators(id));
 //			treeWalkerSelSplitVector.add(walkerSelSplit);
-//			walkerSelSplit.runWalker();
+//			walkerSelSplit.visit();
 //		}
 //		//if walker was stopped, check why and if moving further is possible
 //		for(int i=0;i<treeWalkerSelSplitVector.size();i++){
@@ -118,7 +118,7 @@ public class Optimizer {
 //			
 //			TreeWalkerSelPush walkerSelPush = new TreeWalkerSelPush(compilePlan.getOperators(id));
 //			treeWalkerSelPushVector.add(walkerSelPush);
-//			walkerSelPush.runWalker();
+//			walkerSelPush.visit();
 //		}
 //		for(int i=0;i<treeWalkerSelPushVector.size();i++){
 //			if(treeWalkerSelPushVector.get(i).getOperatorsToPush().size() > 0){
@@ -146,7 +146,7 @@ public class Optimizer {
 //			
 //			TreeWalkerProjPush walkerProjPush = new TreeWalkerProjPush(compilePlan.getOperators(id));
 //			treeWalkerProjPushVector.add(walkerProjPush);
-//			walkerProjPush.runWalker();
+//			walkerProjPush.visit();
 //		}
 //		for(int i=0;i<treeWalkerProjPushVector.size();i++){
 //			if(treeWalkerProjPushVector.get(i).getOperatorsToPush().size() > 0){

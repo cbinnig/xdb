@@ -32,6 +32,7 @@ public enum EnumError {
 	COMPILER_SELECT_DUPLICATE_ATTRIBUTE,
 	COMPILER_FUNCTION_OUT_NOT_INITIALISED,
 	COMPILER_FUNCTION_VAR_NOT_DECLARED,
+	COMPILER_SELECT_DATATYPE_MISMATCH,
 	TRACKER_PLAN_INVALID_GENERIC;
 	
 	public static String toString(EnumError error, String[] args){
@@ -115,6 +116,9 @@ public enum EnumError {
 			break;
 		case COMPILER_FUNCTION_VAR_NOT_DECLARED:
 			msg= "Compiler: Variable \"<arg0>\" not declared!";
+			break;
+		case COMPILER_SELECT_DATATYPE_MISMATCH:
+			msg= "Compiler: Type \"<arg0>\" can not be promoted into \"<arg1>\" not declared!";
 			break;
 		case TRACKER_PLAN_INVALID_GENERIC:
 			msg = "Tracker: Input plan was invalid (no specific error provided).";

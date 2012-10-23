@@ -3,7 +3,6 @@ package org.xdb.funsql.compile.expression;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.xdb.funsql.compile.analyze.IExpressionVisitor;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.AbstractTokenOperand;
 import org.xdb.funsql.compile.tokens.EnumOperandType;
@@ -70,12 +69,6 @@ public class SimpleExpression extends AbstractExpression {
 			return false;
 		return true;
 	}
-
-	@Override
-	public void accept(IExpressionVisitor v) {
-		v.visitSimpleExpression(this);		
-	}
-
 	@Override
 	public boolean isAggregation() {
 		return false;
@@ -87,6 +80,11 @@ public class SimpleExpression extends AbstractExpression {
 			return (TokenAttribute)this.tOper;
 		}
 		return null;
+	}
+
+	@Override
+	public int size() {
+		return 1;
 	}
 	
 }

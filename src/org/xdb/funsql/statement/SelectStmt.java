@@ -24,6 +24,7 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.compile.tokens.TokenSchema;
 import org.xdb.funsql.compile.tokens.TokenTable;
+import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Catalog;
 import org.xdb.metadata.EnumDatabaseObject;
@@ -53,6 +54,8 @@ public class SelectStmt extends AbstractServerStmt {
 	private HashMap<String, Schema> schemaSymbols = new HashMap<String, Schema>();
 	private HashMap<String, Table> tableSymbols = new HashMap<String, Table>();
 	private HashMap<String, Attribute> attSymbols = new HashMap<String, Attribute>();
+	private HashMap<TokenAttribute, EnumSimpleType> attTypes = new HashMap<TokenAttribute, EnumSimpleType>();
+	
 	private CompilePlan plan = new CompilePlan();
 
 	// temporary compiler variables
@@ -153,7 +156,7 @@ public class SelectStmt extends AbstractServerStmt {
 		err = this.canonicalTransalation(this.plan);
 		
 		// 5. analyze plan
-		Analyzer analyzer = new Analyzer(this.plan);
+		Analyzer analyzer = new Analyzer(this.plan, this.attTypes);
 		analyzer.analyze();
 
 		return err;
@@ -449,7 +452,8 @@ public class SelectStmt extends AbstractServerStmt {
 				return this.createAttInNoTableErr(tAtt);
 			}
 
-			this.attSymbols.put(tAtt.getName().hashKey(), att);
+			this.attSymbols.put(tAtt.hashKey(), att);
+			this.attTypes.put(tAtt, att.getDataType());
 		}
 		// table name given in attribute token
 		else {
@@ -460,9 +464,10 @@ public class SelectStmt extends AbstractServerStmt {
 			if (att == null) {
 				return createAttNotInTableErr(tAtt, tTable);
 			}
-			this.attSymbols.put(tAtt.getName().hashKey(), att);
+			this.attSymbols.put(tAtt.hashKey(), att);
+			this.attTypes.put(tAtt, att.getDataType());
 		}
-
+		
 		return err;
 	}
 

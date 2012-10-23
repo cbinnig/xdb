@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
-import org.xdb.funsql.compile.analyze.IExpressionVisitor;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
@@ -48,6 +47,10 @@ public class ComplexExpression extends AbstractExpression {
 
 	public AbstractExpression getExpr2(int i) {
 		return exprs2.get(i);
+	}
+	
+	public Vector<AbstractExpression> getExprs2() {
+		return exprs2;
 	}
 
 	public void addExpr2(AbstractExpression expr2) {
@@ -102,14 +105,6 @@ public class ComplexExpression extends AbstractExpression {
 		}
 		return false;
 	}
-	public int getSize(){
-		return this.exprs2.size()+1;
-	}
-
-	@Override
-	public void accept(IExpressionVisitor v) {
-		v.visitComplexExpression(this);		
-	}
 
 	@Override
 	public boolean isAggregation() {
@@ -130,5 +125,10 @@ public class ComplexExpression extends AbstractExpression {
 			return this.expr1.getAttribute();
 		}
 		return null;
+	}
+
+	@Override
+	public int size() {
+		return 1 + this.exprs2.size();
 	}
 }

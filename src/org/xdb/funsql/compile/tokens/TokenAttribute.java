@@ -1,6 +1,5 @@
 package org.xdb.funsql.compile.tokens;
 
-import org.xdb.funsql.types.EnumSimpleType;
 
 public class TokenAttribute extends AbstractTokenOperand{
 	private static final long serialVersionUID = -846135086164968356L;
@@ -8,8 +7,7 @@ public class TokenAttribute extends AbstractTokenOperand{
 	// attributes
 	private TokenIdentifier name;
 	private TokenTable table;
-	private EnumSimpleType dataType;//data type of the TokenAttribute
-
+	
 	// constructors
 	public TokenAttribute() {
 		super(EnumOperandType.ATTRIBUTE);
@@ -18,6 +16,11 @@ public class TokenAttribute extends AbstractTokenOperand{
 	public TokenAttribute(String name) {
 		this();
 		this.name = new TokenIdentifier(name);
+	}
+	
+	public TokenAttribute(String table, String name) {
+		this(name);
+		this.table = new TokenTable(table);
 	}
 	
 	public TokenAttribute(TokenIdentifier name) {
@@ -50,14 +53,6 @@ public class TokenAttribute extends AbstractTokenOperand{
 		this.name = name;
 	}
 	
-	public EnumSimpleType getDataType() {
-		return dataType;
-	}
-
-	public void setDataType(EnumSimpleType dataType) {
-		this.dataType = dataType;
-	}
-	
 	//helper methods
 	@Override
 	public String toString(){
@@ -76,9 +71,17 @@ public class TokenAttribute extends AbstractTokenOperand{
 		
 		return buffer.toString();
 	}
-
+	
 	@Override
 	public boolean isAttribute() {
 		return true;
+	}
+	
+	public String hashKey(){
+		StringBuffer key = new StringBuffer();
+		key.append(this.table.getName().hashKey());
+		key.append(DOT);
+		key.append(this.name.hashKey());
+		return key.toString();
 	}
 }

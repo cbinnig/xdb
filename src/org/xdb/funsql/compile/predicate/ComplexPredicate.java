@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import org.xdb.funsql.compile.analyze.IPredicateVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -59,6 +58,10 @@ public class ComplexPredicate extends AbstractPredicate {
 
 	public AbstractPredicate getPredicate2(int i) {
 		return preds2.get(i);
+	}
+	
+	public Vector<AbstractPredicate> getPredicates2() {
+		return preds2;
 	}
 
 	public void addPredicate2(AbstractPredicate pred2) {
@@ -134,11 +137,6 @@ public class ComplexPredicate extends AbstractPredicate {
 		}
 		return predicates;
 
-	}
-
-	@Override
-	public void accept(IPredicateVisitor v) {
-		v.visitComplexPredicate(this);
 	}
 	
 	@Override
