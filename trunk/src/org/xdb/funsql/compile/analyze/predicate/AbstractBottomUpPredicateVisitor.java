@@ -8,7 +8,6 @@ public abstract class AbstractBottomUpPredicateVisitor extends AbstractPredicate
 
 	public AbstractBottomUpPredicateVisitor(AbstractPredicate pred) {
 		super(pred);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

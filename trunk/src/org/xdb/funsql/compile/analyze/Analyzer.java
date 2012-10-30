@@ -43,6 +43,7 @@ public class Analyzer {
 			resultDescVisitor.visit();
 		}
 
+		//TODO: Do renaming after optimization => remove renaming from result creation and do all renaming here!
 		// Rename attributes
 		for (Identifier rootId : compilePlan.getRoots()) {
 			AbstractOperator root = this.compilePlan.getOperators(rootId);
