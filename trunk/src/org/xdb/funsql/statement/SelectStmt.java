@@ -10,6 +10,7 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.compile.analyze.Analyzer;
+import org.xdb.funsql.compile.analyze.FunctionCache;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.SimpleExpression;
 import org.xdb.funsql.compile.operator.AbstractOperator;
@@ -57,6 +58,7 @@ public class SelectStmt extends AbstractServerStmt {
 	private HashMap<TokenAttribute, EnumSimpleType> attTypes = new HashMap<TokenAttribute, EnumSimpleType>();
 	
 	private CompilePlan plan = new CompilePlan();
+	FunctionCache fcache = FunctionCache.getCache();
 
 	// temporary compiler variables
 	private int lastInternalAlias = 0;
@@ -158,6 +160,9 @@ public class SelectStmt extends AbstractServerStmt {
 		// 5. analyze plan
 		Analyzer analyzer = new Analyzer(this.plan, this.attTypes);
 		analyzer.analyze();
+		
+		//6. add plan to cache
+		fcache.addPlan(this.plan);
 
 		return err;
 	}
@@ -525,8 +530,21 @@ public class SelectStmt extends AbstractServerStmt {
 			TokenTable tTable = this.tTables.get(i);
 			TokenIdentifier tTableAlias = this.tTableAliases.get(i);
 
-			if (tTable.isReference()) {
-				// TODO
+			if (tTable.isVariable()) {
+				Table table = null;
+				
+				// check if is in cache
+				if(!fcache.isVarInCache(tTable))
+					return this.createVariableNotDeclared(tTable);
+				else{
+					table = fcache.getTable(tTable.toString());					
+				}
+				// check for duplicate variable names
+				if (this.tableSymbols.containsKey(tTableAlias.hashKey())) {
+					return createDuplicateTableNameErr(tTableAlias);
+				}
+				this.tableSymbols.put(tTableAlias.hashKey(), table);
+				
 			} else {
 				TokenSchema tSchema = tTable.getSchema();
 				Schema schema = Catalog.getSchema(tSchema.hashKey());
@@ -633,6 +651,18 @@ public class SelectStmt extends AbstractServerStmt {
 	private Error createNoExprAliasErr(AbstractExpression tExprAlias) {
 		String args[] = { tExprAlias.toSqlString() };
 		Error error = new Error(EnumError.COMPILER_SELECT_ALIAS_MISSING, args);
+		return error;
+	}
+	
+	/**
+	 * Create compile error for missing variable in cache
+	 * @param tv
+	 * @return
+	 */
+	private Error createVariableNotDeclared(TokenTable tv) {
+		String args[] = { tv.getName().toString() };
+		Error error = new Error(EnumError.COMPILER_FUNCTION_VAR_NOT_DECLARED,
+				args);
 		return error;
 	}
 

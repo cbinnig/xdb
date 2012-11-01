@@ -1,6 +1,7 @@
 package org.xdb.funsql.compile.tokens;
 
 import org.xdb.Config;
+import org.xdb.metadata.Catalog;
 
 public class TokenTable extends AbstractToken{
 	private static final long serialVersionUID = 8546480910845519464L;
@@ -8,7 +9,7 @@ public class TokenTable extends AbstractToken{
 	//attributes
 	private TokenIdentifier name;
 	private TokenSchema schema;
-	private boolean isReference;
+	private boolean isVariable;
 	
 	//constructors
 	public TokenTable(String name){
@@ -45,13 +46,15 @@ public class TokenTable extends AbstractToken{
 		return schema;
 	}
 	
-	public boolean isReference() {
-		return isReference;
+	public boolean isVariable() {
+		return isVariable;
 	}
 
-	public void setReference(boolean isReference) {
-		this.isReference = isReference;
+	public void setVariable(boolean isVariable) {
+		this.isVariable = isVariable;
+		this.schema.setName("VARIABLE");
 	}
+	
 
 	//helper methods
 	@Override
@@ -78,5 +81,7 @@ public class TokenTable extends AbstractToken{
 		key.append(this.name.toString());
 		return key.toString();
 	}
+
+
 
 }
