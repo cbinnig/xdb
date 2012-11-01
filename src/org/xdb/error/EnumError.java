@@ -31,6 +31,7 @@ public enum EnumError {
 	COMPILER_SELECT_ALIAS_MISSING,
 	COMPILER_SELECT_DUPLICATE_ATTRIBUTE,
 	COMPILER_FUNCTION_OUT_NOT_INITIALISED,
+	COMPILER_FUNCTION_NO_OUT_PARAM,
 	COMPILER_FUNCTION_VAR_NOT_DECLARED,
 	COMPILER_SELECT_DATATYPE_MISMATCH,
 	TRACKER_PLAN_INVALID_GENERIC;
@@ -113,6 +114,9 @@ public enum EnumError {
 			break;
 		case COMPILER_FUNCTION_OUT_NOT_INITIALISED:
 			msg= "Compiler: Output parameter \"<arg0>\" not initialised!";
+			break;
+		case COMPILER_FUNCTION_NO_OUT_PARAM:
+			msg= "Compiler: No output parameter!";
 			break;
 		case COMPILER_FUNCTION_VAR_NOT_DECLARED:
 			msg= "Compiler: Variable \"<arg0>\" not declared!";
