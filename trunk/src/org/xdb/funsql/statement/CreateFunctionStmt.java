@@ -1,8 +1,6 @@
 package org.xdb.funsql.statement;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Vector;
 
 import org.xdb.error.EnumError;
@@ -10,14 +8,19 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.FunctionCache;
 import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.EnumOperator;
+import org.xdb.funsql.compile.operator.FunctionCall;
+import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.TokenAssignment;
 import org.xdb.funsql.compile.tokens.TokenFunction;
 import org.xdb.funsql.compile.tokens.TokenSchema;
+import org.xdb.funsql.compile.tokens.TokenTable;
 import org.xdb.funsql.compile.tokens.TokenVariable;
 import org.xdb.metadata.Catalog;
 import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Function;
 import org.xdb.metadata.Schema;
+import org.xdb.metadata.Table;
 import org.xdb.utils.Identifier;
 
 public class CreateFunctionStmt extends AbstractServerStmt {
@@ -33,7 +36,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	private HashMap<TokenVariable, SelectStmt> assignments = new HashMap<TokenVariable, SelectStmt>();// weglassen?
 	private Vector<TokenAssignment> tAssignments;
 
-	private CompilePlan plan = new CompilePlan();
+	private CompilePlan functionPlan = new CompilePlan();
 	
 	// Constructors
 	public CreateFunctionStmt() {
@@ -48,8 +51,8 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	@Override
 	public Error compile() {
 		Error e = new Error();
-		
-		//step 1: checks
+
+		// step 1: checks
 		// check for non existing schema names
 		TokenSchema tSchema = this.tFun.getSchema();
 		Schema schema = Catalog.getSchema(tSchema.hashKey());
@@ -63,42 +66,83 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		if (this.function != null) {
 			return Catalog.createObjectAlreadyExistsErr(this.function);// update?
 		}
-		
-		//check parameters and add them to cache
+
+		// check parameters and add them to cache
 		e = checkParameters();
-		if(e.isError())
+		if (e.isError())
 			return e;
 		cache.addVariables(this.parameters);
-		
-		//step 2: assignments
-		for(TokenAssignment ta : this.tAssignments){
-			 e = ta.getSelStmt().compile();
-			 if(e.isError())
-				 return e;
-			 
-			 if(ta.getVar().isReferenced()&&(!cache.isVarInCache(ta.getVar().getName()))){
-				 String[] s = {ta.getVar().getName()};
-				 e = new Error(EnumError.COMPILER_FUNCTION_VAR_NOT_DECLARED, s);
-			 }else{
-				 for (Identifier rootId : ta.getSelStmt().getPlan().getRoots()) {				 
-					 AbstractOperator root = ta.getSelStmt().getPlan().getOperators(rootId);
-					 cache.addVariable(ta.getVar(),root.getResult(0));//TODO: FunctionCall: more than 1 RD
-					 this.plan.addOperator(root, false);//TODO: is root???
-					 //TODO: links between assignments
-				 }
-				 
-			 }
-		}
-		
-		//step 3: create plan
-		
 
+		// step 2: assignments
+		for (TokenAssignment ta : this.tAssignments) {
+			e = ta.getSelStmt().compile();
+			if (e.isError())
+				return e;
+
+			if (ta.getVar().isReferenced()
+					&& (!cache.isVarInCache(ta.getVar().getName()))) {
+				String[] s = { ta.getVar().getName() };
+				e = new Error(EnumError.COMPILER_FUNCTION_VAR_NOT_DECLARED, s);
+			} else {
+				for (Identifier rootId : ta.getSelStmt().getPlan().getRoots()) {
+					AbstractOperator root = ta.getSelStmt().getPlan()
+							.getOperators(rootId);
+					cache.addVariable(ta.getVar(), root.getResult(0));
+					cache.addPlan((ta.getSelStmt().getPlan()));
+					this.replaceTable(ta, root);
+				}
+			}
+		}
+		//step 3: add CompilePlan to cache
+		cache.addPlan(this.functionPlan);
+		
 		this.function = new Function(this.tFun.toString(), schema.getOid(),
 				this.tFun.getLanguage(), stmtString);
 		e = this.function.checkObject();
 		return e;
-		
 
+	}
+
+	private void replaceTable(TokenAssignment ta, AbstractOperator root) {
+		for (Table tVar : ta.getSelStmt().getUsedVariables()) {
+			TokenVariable var = new TokenVariable(tVar.getName());
+
+			// search for last SelectStmt that fills this variable
+			CompilePlan usedPlan = this.assignments.get(var.getName())
+					.getPlan();
+			AbstractOperator selRoot = null;// root operator from select
+											// statement
+			if (usedPlan.getRoots().size() == 1) {
+				selRoot = usedPlan.getOperators(usedPlan.getRoots().iterator()
+						.next());
+			} else {
+				// TODO: CompilePlan with more than one root (FunctionCall)
+			}
+			for (AbstractOperator op : usedPlan.getOperators()) {
+				this.functionPlan.addOperator(op, false);
+			}// add all operators from used plan to functionPlan
+			if (!root.getType().equals(EnumOperator.TABLE)) {
+				for (AbstractOperator source : root.getSourceOperators()) {
+					if (source.getType().equals(EnumOperator.TABLE)) {
+						if (((TableOperator) source).getTable().equals(tVar)) {
+							((TableOperator) source).replace(selRoot);
+						} else {
+							if (this.functionPlan.getOperators(source
+									.getOperatorId()) == null)
+								this.functionPlan.addOperator(source, false);
+						}
+					} else {
+						if (this.functionPlan.getOperators(source
+								.getOperatorId()) == null)
+							this.functionPlan.addOperator(source, false);
+					}
+				}
+				this.functionPlan.addOperator(root, true);
+			} else {
+				// root = TableOperator
+				((TableOperator) root).replace(selRoot);
+			}
+		}
 	}
 
 	private Error checkParameters() {
@@ -190,14 +234,14 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	 * @return the plan
 	 */
 	public CompilePlan getPlan() {
-		return plan;
+		return this.functionPlan;
 	}
 
 	/**
 	 * @param plan: the plan to set
 	 */
 	public void setPlan(CompilePlan plan) {
-		this.plan = plan;
+		this.functionPlan = plan;
 	}
 
 }

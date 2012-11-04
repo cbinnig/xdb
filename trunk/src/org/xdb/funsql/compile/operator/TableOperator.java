@@ -20,6 +20,7 @@ public class TableOperator extends AbstractOperator {
 	private TokenIdentifier tableName;
 	private Connection connection = null;
 	private Table table = null;
+	private boolean isVar;
 	
 	private final StringTemplate sqlTemplate = 
 			new StringTemplate("SELECT * FROM <<OP1>>");
@@ -30,6 +31,7 @@ public class TableOperator extends AbstractOperator {
 		
 		this.tableName = tableName;
 		this.type = EnumOperator.TABLE;
+		this.isVar = false;
 	}
 
 	//getters and setters
@@ -37,6 +39,14 @@ public class TableOperator extends AbstractOperator {
 		return tableName.getName();
 	}
 	
+	public boolean isVar() {
+		return isVar;
+	}
+
+	public void setVar(boolean isVar) {
+		this.isVar = isVar;
+	}
+
 	public TokenIdentifier getTokenTable() {
 		return tableName;
 	}
@@ -90,5 +100,12 @@ public class TableOperator extends AbstractOperator {
 		node.getInfo().setCaption(this.toString());
 		node.getInfo().setFooter(this.tableName.toSqlString());
 		return err;
+	}
+	
+	public void replace(AbstractOperator newOp){
+		for(AbstractOperator p : this.parents){
+			p.children.add(newOp);
+			p.children.remove(this);
+		}
 	}
 }
