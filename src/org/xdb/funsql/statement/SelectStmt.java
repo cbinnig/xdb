@@ -56,6 +56,7 @@ public class SelectStmt extends AbstractServerStmt {
 	private HashMap<String, Table> tableSymbols = new HashMap<String, Table>();
 	private HashMap<String, Attribute> attSymbols = new HashMap<String, Attribute>();
 	private HashMap<TokenAttribute, EnumSimpleType> attTypes = new HashMap<TokenAttribute, EnumSimpleType>();
+	private Vector<Table>usedVariables;
 	
 	private CompilePlan plan = new CompilePlan();
 	FunctionCache fcache = FunctionCache.getCache();
@@ -96,6 +97,10 @@ public class SelectStmt extends AbstractServerStmt {
 
 	public Collection<TokenIdentifier> getSelAliases() {
 		return this.tSelAliases;
+	}
+
+	public Vector<Table> getUsedVariables() {
+		return usedVariables;
 	}
 
 	public void addGroupExpression(AbstractExpression expr) {
@@ -278,6 +283,9 @@ public class SelectStmt extends AbstractServerStmt {
 			Table table = this.tableSymbols.get(tTableAlias.hashKey());
 			TableOperator tableOp = new TableOperator(tTableAlias);
 			tableOp.setTable(table);
+			if(this.usedVariables.contains(table)){
+				tableOp.setVar(true);
+			}
 			plan.addOperator(tableOp, false);
 			if (this.tWherePredicate != null) {
 				selectionPreds.addAll(this.tWherePredicate.splitAnd());
@@ -544,7 +552,7 @@ public class SelectStmt extends AbstractServerStmt {
 					return createDuplicateTableNameErr(tTableAlias);
 				}
 				this.tableSymbols.put(tTableAlias.hashKey(), table);
-				
+				this.usedVariables.add(table);
 			} else {
 				TokenSchema tSchema = tTable.getSchema();
 				Schema schema = Catalog.getSchema(tSchema.hashKey());

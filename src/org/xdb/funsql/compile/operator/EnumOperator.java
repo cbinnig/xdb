@@ -7,5 +7,6 @@ public enum EnumOperator implements Serializable {
 	GENERIC_SELECTION,
 	GENERIC_AGGREGATION,
 	GENERIC_PROJECTION,
-	TABLE
+	TABLE,
+	FUNCTION_CALL
 }

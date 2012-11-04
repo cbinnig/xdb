@@ -20,8 +20,9 @@ public final class FunctionCache {
 	//Cache-variables
 	private static Vector<TokenVariable> vars;
 	private static HashMap<String, TokenVariable> namedvars;
+	private static HashMap<String, Table> tables;	//representation of variable is a table
+	//cached CompilePlans
 	private static HashMap<String, CompilePlan> plans;
-	private static HashMap<String, Table> tables;
 	
 	public synchronized static FunctionCache getCache(){
 		if(cache == null)
@@ -34,7 +35,7 @@ public final class FunctionCache {
 	/**
 	 * @param tv TokenVariable to add to the Cache
 	 */
-	public void addVariable(TokenVariable tv){
+	private void addVariable(TokenVariable tv){
 		 namedvars.put(tv.getName(), tv);
 		 vars.addElement(tv);
 		 if(Catalog.getSchema("VARIABLE").equals(null)){
@@ -104,7 +105,7 @@ public final class FunctionCache {
 	}
 	
 	/**
-	 * adds a CompilePlan to the Cache
+	 * adds a CompilePlan to the Cache; if a plan exists for this key, it is updated
 	 * @param cp CompilePlan to be added
 	 */
 	public void addPlan(CompilePlan cp){
