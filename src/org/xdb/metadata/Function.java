@@ -141,17 +141,18 @@ public class Function extends AbstractDatabaseObject {
 	}
 	
 	@Override
-	public Error checkObject(){
+	public Error checkObject() {
 		Error lastError = super.checkObject();
-		if(lastError != Error.NO_ERROR)
+		if (lastError != Error.NO_ERROR)
 			return lastError;
-		
-		String[] values = {this.source};
-		int[] maxLength = {Integer.MAX_VALUE};
-		for(int i=0; i<values.length; ++i){
-			lastError = this.checkValueLength(values[i], maxLength[i]);
-			if(lastError != Error.NO_ERROR)
-				return lastError;
+		while (this.source != null) {
+			String[] values = { this.source };
+			int[] maxLength = { Integer.MAX_VALUE };
+			for (int i = 0; i < values.length; ++i) {
+				lastError = this.checkValueLength(values[i], maxLength[i]);
+				if (lastError != Error.NO_ERROR)
+					return lastError;
+			}
 		}
 		return Error.NO_ERROR;
 	}

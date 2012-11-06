@@ -254,6 +254,7 @@ createFunctionStatement returns [CreateFunctionStmt stmt]
         }
         :
         (
+                KEYWORD_CREATE
                 KEYWORD_FUNCTION
                 function1=tokenFunction{
                 	$stmt.setFunction($function1.function);
@@ -271,7 +272,7 @@ createFunctionStatement returns [CreateFunctionStmt stmt]
 		(
 		ass1=tokenAssignment{
                 	$stmt.addAssignment(ass1.getVar(), ass1.getSelStmt());
-                }
+                }                
 		)*
 		KEYWORD_END                
 	)
@@ -653,17 +654,26 @@ tokenTable returns [TokenTable table]
         	$table = new TokenTable();
         }
         :
-        (
+        (               
                 (
                 schema1=tokenIdentifier {
                         TokenSchema schema = new TokenSchema();
                 	$table.setSchema(schema);
+                	$table.setVariable(false);
                 }
                 DOT
-                )?
+                )?                  
                 id1=tokenIdentifier {
                 	$table.setName($id1.identifier);
                 }
+         )|(                
+                (
+                COLON
+                )?  
+                 id1=tokenIdentifier {
+                	$table.setName($id1.identifier);                	
+                	$table.setVariable(true);
+                } 
         )
         ;
         
@@ -737,9 +747,10 @@ tokenAssignment returns [TokenAssignment ass]
 		 EQUAL1
 		 selstmt2=selectStatement{
 		 $ass.setSelStmt(selstmt2);
-		 }
-		 )
-	 )	 
+		 }		 
+		 )		
+	 )
+	  SEMI	 
 	 ;
 
         
