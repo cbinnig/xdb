@@ -30,11 +30,11 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	private Function function;
 	private FunctionCache cache = FunctionCache.getCache();
 	// I/O-Parameter
-	private Vector<TokenVariable> parameters;
+	private Vector<TokenVariable> parameters = new Vector<TokenVariable>();
 	
 	//assignments in function body
-	private HashMap<TokenVariable, SelectStmt> assignments = new HashMap<TokenVariable, SelectStmt>();// weglassen?
-	private Vector<TokenAssignment> tAssignments;
+	private HashMap<TokenVariable, SelectStmt> assignments = new HashMap<TokenVariable, SelectStmt>();
+	private Vector<TokenAssignment> tAssignments = new Vector<TokenAssignment>();
 
 	private CompilePlan functionPlan = new CompilePlan();
 	

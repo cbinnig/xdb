@@ -29,7 +29,7 @@ public class TestSelectSQL extends CompileServerTestCase {
 		this.execute(stmt);
 
 		//create table
-		String dropTableSql = "DROP CONNECTION \"R\"";
+		String dropTableSql = "DROP TABLE \"R\"";
 		stmt = compiler.compile(dropTableSql);
 		if (stmt != null)
 			this.execute(stmt);

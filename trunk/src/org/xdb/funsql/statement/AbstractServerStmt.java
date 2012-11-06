@@ -28,6 +28,7 @@ public abstract class AbstractServerStmt {
 	public boolean isDML(){
 		switch(this.statementType){
 		case SELECT:
+		case CREATE_FUNCTION:	
 			return true;
 		}
 		return false;

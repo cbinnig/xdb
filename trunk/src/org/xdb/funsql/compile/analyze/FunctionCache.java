@@ -43,7 +43,7 @@ public final class FunctionCache {
 	private void addVariable(TokenVariable tv){
 		 namedvars.put(tv.getName(), tv);
 		 vars.addElement(tv);
-		 if(Catalog.getSchema("VARIABLE").equals(null)){
+		 if(Catalog.getSchema("VARIABLE")==(null)){
 			 Catalog.createSchema(new Schema("VARIABLE"));
 		 }
 		 Schema schema = Catalog.getSchema("VARIABLE");
