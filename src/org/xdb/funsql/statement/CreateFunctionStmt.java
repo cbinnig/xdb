@@ -148,15 +148,18 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	private Error checkParameters() {
 		Error e = new Error();
 		// check Parameters
-		for (TokenVariable var : this.parameters) {
-			if ((this.parameters != null)
-					&& (!this.assignments.containsKey(var))) {
-				e = this.createOutputParameterIsNotInitialisedErr(var);
+		if(this.parameters != null){
+			for (TokenVariable var : this.parameters) {
+				if (!this.assignments.containsKey(var)) {
+					e = this.createOutputParameterIsNotInitialisedErr(var);
+				}
+				else if (this.parameters == null)
+					e = this.createNoOutputParameterErr();
 			}
-			else if (this.parameters == null)
-				e = this.createNoOutputParameterErr();
+			return e;
+		}else{
+			return this.createNoOutputParameterErr();
 		}
-		return e;
 	}
 
 	private Error createOutputParameterIsNotInitialisedErr(TokenVariable tv) {

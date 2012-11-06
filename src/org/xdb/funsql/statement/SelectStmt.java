@@ -283,8 +283,8 @@ public class SelectStmt extends AbstractServerStmt {
 			Table table = this.tableSymbols.get(tTableAlias.hashKey());
 			TableOperator tableOp = new TableOperator(tTableAlias);
 			tableOp.setTable(table);
-			if(this.usedVariables.contains(table)){
-				tableOp.setVar(true);
+			if(this.usedVariables != null&&this.usedVariables.contains(table)){		
+					tableOp.setVar(true);
 			}
 			plan.addOperator(tableOp, false);
 			if (this.tWherePredicate != null) {
