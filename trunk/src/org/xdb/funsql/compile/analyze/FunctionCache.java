@@ -25,8 +25,13 @@ public final class FunctionCache {
 	private static HashMap<String, CompilePlan> plans;
 	
 	public synchronized static FunctionCache getCache(){
-		if(cache == null)
+		if(cache == null){
 			cache = new FunctionCache();
+			plans = new HashMap<String, CompilePlan>();
+			tables = new HashMap<String, Table>();
+			namedvars = new HashMap<String, TokenVariable>();
+			vars= new Vector<TokenVariable>();
+		}
 		return cache;
 	}
 	
