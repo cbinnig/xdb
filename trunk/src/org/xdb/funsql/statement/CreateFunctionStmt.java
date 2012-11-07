@@ -89,7 +89,8 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 							.getOperators(rootId);
 					cache.addVariable(ta.getVar(), root.getResult(0));
 					cache.addPlan((ta.getSelStmt().getPlan()));
-					this.replaceTable(ta, root);
+					if(ta.isReference())
+						this.replaceTable(ta, root);
 				}
 			}
 		}
@@ -212,6 +213,10 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 
 	public void setAssignments(HashMap<TokenVariable, SelectStmt> assignments) {
 		this.assignments = assignments;
+	}
+	
+	public void addAssignment(TokenAssignment ta){
+		this.tAssignments.add(ta);
 	}
 
 	public Vector<TokenVariable> getParameters() {

@@ -272,6 +272,7 @@ createFunctionStatement returns [CreateFunctionStmt stmt]
 		(
 		ass1=tokenAssignment{
                 	$stmt.addAssignment(ass1.getVar(), ass1.getSelStmt());
+                	$stmt.addAssignment(ass1);
                 }                
 		)*
 		KEYWORD_END                
