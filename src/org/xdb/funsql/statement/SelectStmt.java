@@ -56,7 +56,7 @@ public class SelectStmt extends AbstractServerStmt {
 	private HashMap<String, Table> tableSymbols = new HashMap<String, Table>();
 	private HashMap<String, Attribute> attSymbols = new HashMap<String, Attribute>();
 	private HashMap<TokenAttribute, EnumSimpleType> attTypes = new HashMap<TokenAttribute, EnumSimpleType>();
-	private Vector<Table>usedVariables;
+	private Vector<Table>usedVariables = new Vector<Table>();
 	
 	private CompilePlan plan = new CompilePlan();
 	FunctionCache fcache = FunctionCache.getCache();
@@ -545,7 +545,7 @@ public class SelectStmt extends AbstractServerStmt {
 				if(!fcache.isVarInCache(tTable))
 					return this.createVariableNotDeclared(tTable);
 				else{
-					table = fcache.getTable(tTable.toString());					
+					table = fcache.getTable("VAR_"+tTable.getName().toString());					
 				}
 				// check for duplicate variable names
 				if (this.tableSymbols.containsKey(tTableAlias.hashKey())) {

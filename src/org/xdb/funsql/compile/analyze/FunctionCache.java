@@ -41,28 +41,28 @@ public final class FunctionCache {
 	 * @param tv TokenVariable to add to the Cache
 	 */
 	private void addVariable(TokenVariable tv){
-		 namedvars.put(tv.getName(), tv);
+		 namedvars.put(tv.getName().toUpperCase(), tv);
 		 vars.addElement(tv);
-		 if(Catalog.getSchema("VARIABLE")==(null)){
-			 Catalog.createSchema(new Schema("VARIABLE"));
-		 }
-		 Schema schema = Catalog.getSchema("VARIABLE");
-		 Table table = new Table("VAR_"+ tv.getName(), tv.getName(), schema.getName(), schema.getOid(),null);
+//		 if(Catalog.getSchema("VARIABLE")==(null)){
+//			 Catalog.createSchema(new Schema("VARIABLE"));
+//		 }
+		 Schema schema = Catalog.getSchema("PUBLIC");
+		 Table table = new Table("VAR_"+ tv.getName().toUpperCase(), tv.getName(), schema.getName(), schema.getOid(),null);
 		 tables.put(table.getName(), table);
 	}	
 	
 	public void addVariable(TokenVariable tv, ResultDesc rd) {
 		Table t;
-		if (!this.isVarInCache(tv.getName())) {
+		if (!this.isVarInCache(tv.getName().toUpperCase())) {
 			this.addVariable(tv);
 		}
-		t = tables.get(tv.getName());
-		tables.remove(tv.getName());
+		t = tables.get("VAR_"+tv.getName().toUpperCase());
+		tables.remove(t);
 		for(int i = 0; i <  rd.getAttributes().size(); i++){
 			TokenAttribute ta = rd.getAttribute(i);
 			t.addAttribute(new Attribute(ta.getName().toString(),rd.getType(i), t.getOid()));
 		}
-		tables.put(t.getName(), t);
+		tables.put(t.getName().toUpperCase(), t);
 	}
 	
 	/**
@@ -71,8 +71,8 @@ public final class FunctionCache {
 	 * @return true = variable is in Cache, false = variable is not in Cache
 	 */
 	public boolean isVarInCache(String VarName){
-		TokenVariable tv = namedvars.get(VarName);
-		if (tv.equals(null))
+		TokenVariable tv = namedvars.get(VarName.toUpperCase());
+		if (tv==null)
 			return false;
 		else return true;
 	}
@@ -83,8 +83,8 @@ public final class FunctionCache {
 	 * @return true = variable is in Cache, false = variable is not in Cache
 	 */
 	public boolean isVarInCache(TokenTable ttable){
-		Table t = tables.get(ttable.toString());
-		if (t.equals(null))
+		Table t = tables.get("VAR_"+ttable.getName().toString().toUpperCase());
+		if (t == null)
 			return false;
 		else return true;
 	}
@@ -95,7 +95,7 @@ public final class FunctionCache {
 	 * @return TokenVariable
 	 */
 	public TokenVariable getVar(String VarName){
-		TokenVariable tv = namedvars.get(VarName);
+		TokenVariable tv = namedvars.get(VarName.toUpperCase());
 		return tv;
 	}
 	
@@ -105,7 +105,7 @@ public final class FunctionCache {
 	 * @return TokenVariable
 	 */
 	public Table getTable(String VarName){
-		Table t = tables.get(VarName);
+		Table t = tables.get(VarName.toUpperCase());
 		return t;
 	}
 	
