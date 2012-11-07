@@ -75,7 +75,7 @@ public class TestCreateFunctionSQL extends CompileServerTestCase {
 
 	}
 
-	@Test
+	/*@Test
 	public void testSimpleCreate() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
 
@@ -139,5 +139,5 @@ public class TestCreateFunctionSQL extends CompileServerTestCase {
 				s);
 		this.assertError(e);
 		// this.assertNoError(compiler.getLastError());
-	}
+	}*/
 }
