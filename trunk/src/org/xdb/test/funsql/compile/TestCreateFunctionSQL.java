@@ -75,7 +75,7 @@ public class TestCreateFunctionSQL extends CompileServerTestCase {
 
 	}
 
-	/*@Test
+	@Test
 	public void testSimpleCreate() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
 
@@ -134,10 +134,7 @@ public class TestCreateFunctionSQL extends CompileServerTestCase {
 					+ "WHERE V1.A1=3 AND V2.F=V1.A2; \n"
 				+ ":o1 = SELECT R1.A FROM :v2 as R1; \n"
 				+ "END; ");
-		String[] s = { "Cartesian product not in SQL statement supported!" };
-		Error e = new Error(EnumError.COMPILER_SELECT_EXPRESSION_NOT_SUPPORTED,
-				s);
-		this.assertError(e);
-		// this.assertNoError(compiler.getLastError());
-	}*/
+		this.assertNoError(compiler.getLastError());
+		fStmt.getPlan().traceGraph(this.getClass().getName());
+	}
 }

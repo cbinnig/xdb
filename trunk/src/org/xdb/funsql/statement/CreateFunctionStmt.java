@@ -106,11 +106,11 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 
 	private void replaceTable(TokenAssignment ta, AbstractOperator root) {
 		for (Table tVar : ta.getSelStmt().getUsedVariables()) {
-			TokenVariable var = new TokenVariable(tVar.getName());
+			TokenVariable var = new TokenVariable(tVar.getName().replaceFirst("VAR_", ""));
 
 			// search for last SelectStmt that fills this variable
-			CompilePlan usedPlan = this.assignments.get(var.getName())
-					.getPlan();
+			SelectStmt selstmt = (SelectStmt) this.assignments.get(var);
+			CompilePlan usedPlan =selstmt.getPlan();
 			AbstractOperator selRoot = null;// root operator from select
 											// statement
 			if (usedPlan.getRoots().size() == 1) {
@@ -151,6 +151,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		// check Parameters
 		if(this.parameters != null){
 			for (TokenVariable var : this.parameters) {
+				var.setName(var.getName().toUpperCase());
 				if (!this.assignments.containsKey(var)) {
 					e = this.createOutputParameterIsNotInitialisedErr(var);
 				}
@@ -186,6 +187,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 
 	// Assignments in FunctionBody
 	public void addAssignment(TokenVariable var, SelectStmt selstmt) {
+		var.setName(var.getName().toUpperCase());
 		this.assignments.put(var, selstmt);
 	}
 
@@ -216,6 +218,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	}
 	
 	public void addAssignment(TokenAssignment ta){
+		ta.getVar().setName(ta.getVar().getName().toUpperCase());
 		this.tAssignments.add(ta);
 	}
 
