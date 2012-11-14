@@ -12,6 +12,8 @@ import org.xdb.utils.Identifier;
 public class TestComputeOperator extends TestCase {
 	@Test
 	public void test1Op() throws Exception {
+
+		Config.useQueryTrackerComputeConnection = false;
 		//operator
 		final MySQLOperator op = new MySQLOperator(new Identifier("1"));
 		op.addOpenSQL("CREATE TEMPORARY TABLE REGION ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) " +
@@ -32,10 +34,13 @@ public class TestComputeOperator extends TestCase {
 
 		//close op
 		closeOperator(op);
+
+		Config.useQueryTrackerComputeConnection = true;
 	}
 
 	@Test
 	public void test2Ops() throws Exception {
+		Config.useQueryTrackerComputeConnection = false; 
 		//first op
 		final MySQLOperator op1 = new MySQLOperator(new Identifier("1"));
 
@@ -71,6 +76,8 @@ public class TestComputeOperator extends TestCase {
 		//clean up
 		closeOperator(op1);
 		closeOperator(op2);
+
+		Config.useQueryTrackerComputeConnection = true;
 	}
 
 	protected void executeOperator(final AbstractOperator op){

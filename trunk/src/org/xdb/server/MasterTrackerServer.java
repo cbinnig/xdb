@@ -32,11 +32,8 @@ public class MasterTrackerServer extends AbstractServer {
 		 * @throws IOException
 		 */
 		@Override
-		protected Error handle(final ObjectOutputStream out) throws IOException {
+		protected Error handle(final ObjectOutputStream out, final ObjectInputStream in) throws IOException {
 			Error err = new Error();
-
-			final ObjectInputStream in = new ObjectInputStream(
-					client.getInputStream());
 
 			final int cmd = in.readInt();
 			logger.log(Level.INFO, "MasterTrackerServer: Read command from client:" + cmd);
@@ -73,6 +70,11 @@ public class MasterTrackerServer extends AbstractServer {
 					Map<String, MutableInteger> requiredNodes = (Map<String, MutableInteger>) in.readObject();
 					out.writeObject(tracker.getComputeSlots(requiredNodes));
 					break;
+				case CMD_NOTICE_FREE_COMPUTE_NODES:
+					@SuppressWarnings("unchecked")
+					final Map<String, MutableInteger> freeNodes = (Map<String, MutableInteger>) in.readObject();
+					tracker.addFreeNodes(freeNodes);
+					break;
 				}
 			} catch (final Exception e) {
 				err = createServerError(e);
@@ -87,6 +89,7 @@ public class MasterTrackerServer extends AbstractServer {
 	public static final int CMD_EXECUTE_PLAN = 2;
 	public static final int CMD_REGISTER_QUERYTRACKER_NODE = 3;
 	public static final int CMD_REQUEST_COMPUTE_NODE = 4;
+	public static final int CMD_NOTICE_FREE_COMPUTE_NODES = 5;
 
 
 	//Master tracker node which executes cmds

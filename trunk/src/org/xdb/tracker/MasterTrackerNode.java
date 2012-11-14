@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.xdb.Config;
 import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
@@ -258,7 +257,7 @@ public class MasterTrackerNode {
 				final StringTemplate sqlAssemblyTemplate = 
 						new StringTemplate(executeSqlStatement.toString());
 
-				HashMap<String, String> args = new HashMap<String, String>(); 
+				final HashMap<String, String> args = new HashMap<String, String>(); 
 				args.put(childOpId.toString(), "("+childOp.toSqlString()+")");
 				executeSqlStatement = sqlAssemblyTemplate.toString();
 
@@ -366,13 +365,69 @@ public class MasterTrackerNode {
 	}
 
 	public Map<String, MutableInteger> getComputeSlots(final Map<String, MutableInteger> requiredSlots) {
-		// TODO return available ComputeSlots
-		int slots = 0;
-		for (final MutableInteger mi : requiredSlots.values()) {
-			slots+=mi.intValue();
-		}
 		final HashMap<String, MutableInteger> allocatedSlots = new HashMap<String, MutableInteger>();
-		allocatedSlots.put(Config.COMPUTE_URL, new MutableInteger(slots));
+
+		// First handle allocatable Wishlist-Slots
+		for (final Entry<String, MutableInteger> reqSlot : requiredSlots.entrySet()) {
+			if (computeSlots.containsKey(reqSlot.getKey())) {
+				final int available = computeSlots.get(reqSlot.getKey());
+				final MutableInteger required = reqSlot.getValue();
+				final int difference = available - required.intValue();
+				if (difference >= 0) {
+					allocatedSlots.put(reqSlot.getKey(), required.clone());
+					computeSlots.put(reqSlot.getKey(), difference);
+					required.setValue(0);
+				} else {
+					allocatedSlots.put(reqSlot.getKey(), new MutableInteger(available));
+					computeSlots.put(reqSlot.getKey(), 0);
+					required.setValue(required.substract(available));
+				}
+			}
+		}
+
+		// Now return random slots that are not on the wishlist
+		for (final Entry<String, MutableInteger> reqSlot : requiredSlots.entrySet()) {
+			final MutableInteger required = reqSlot.getValue();
+			for (final Entry<String, Integer> computeSlot : computeSlots.entrySet()) {
+				final int available = computeSlot.getValue();
+				final int difference = available - required.intValue();
+				final MutableInteger old = allocatedSlots.get(computeSlot.getKey());
+				if (difference >= 0) {
+					if (old != null) {
+						old.setValue(old.add(required.intValue()));
+					} else {
+						allocatedSlots.put(computeSlot.getKey(), required.clone());
+					}
+					computeSlot.setValue(difference);
+					required.setValue(0);
+					break;
+				} else {
+					if (old != null) {
+						old.setValue(old.add(available));
+					} else {
+						allocatedSlots.put(computeSlot.getKey(), new MutableInteger(available));
+					}
+					computeSlot.setValue(0);
+					required.setValue(required.substract(available));
+				}
+			}
+		}
+
 		return allocatedSlots;
+	}
+
+	/**
+	 * Add free nodes that were before in use by querytracker
+	 * @param freeNodes
+	 */
+	public void addFreeNodes(final Map<String, MutableInteger> freeNodes) {
+		for (final Entry<String, MutableInteger> node : freeNodes.entrySet()) {
+			Integer num = computeSlots.get(node.getKey());
+			if (num == null) {
+				num = 0;
+			}
+			num += node.getValue().intValue();
+			computeSlots.put(node.getKey(), num);
+		}
 	}
 }

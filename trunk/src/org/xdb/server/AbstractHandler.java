@@ -1,6 +1,7 @@
 package org.xdb.server;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -34,8 +35,8 @@ public abstract class AbstractHandler extends Thread {
 		try {
 			final ObjectOutputStream out = new ObjectOutputStream(
 					client.getOutputStream());
-			err = handle(out);
-
+			final ObjectInputStream in = new ObjectInputStream(client.getInputStream());
+			err = handle(out, in);
 			// send response
 			out.writeObject(err);
 		} catch (final IOException e) {
@@ -81,5 +82,5 @@ public abstract class AbstractHandler extends Thread {
 	 * @return
 	 * @throws IOException
 	 */
-	protected abstract Error handle(ObjectOutputStream out) throws IOException;
+	protected abstract Error handle(ObjectOutputStream out, ObjectInputStream in) throws IOException;
 }

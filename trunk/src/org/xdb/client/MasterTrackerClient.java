@@ -3,6 +3,7 @@ package org.xdb.client;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.xdb.Config;
@@ -142,6 +143,26 @@ public class MasterTrackerClient extends AbstractClient{
 			err = createClientError(e);
 		}
 		return new Tuple<Map<String, MutableInteger>, Error>(computeNodes, err);
+	}
+
+	public Error noticeFreeSlots(final HashMap<String, MutableInteger> slots) {
+		Error err = new Error();
+		try {
+			server = new Socket(url, port);
+			final ObjectOutputStream out = new ObjectOutputStream(
+					server.getOutputStream());
+			final ObjectInputStream in = new ObjectInputStream(server.getInputStream());
+
+			out.writeInt(MasterTrackerServer.CMD_NOTICE_FREE_COMPUTE_NODES);
+			out.writeObject(slots);
+			out.flush();
+			err = (Error) in.readObject();
+			server.close();
+
+		} catch (final Exception e) {
+			err = createClientError(e);
+		}
+		return err;
 	}
 
 }

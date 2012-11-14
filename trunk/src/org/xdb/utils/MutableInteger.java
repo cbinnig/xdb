@@ -16,12 +16,18 @@ public class MutableInteger extends Number {
 		this.value = value;
 	}
 
-	public void inc() {
-		value++;
+	public MutableInteger(final MutableInteger mutableInteger) {
+		value = mutableInteger.value;
 	}
 
-	public void dec() {
+	public MutableInteger inc() {
+		value++;
+		return this;
+	}
+
+	public MutableInteger dec() {
 		value--;
+		return this;
 	}
 
 
@@ -32,6 +38,10 @@ public class MutableInteger extends Number {
 
 	public void setValue(final int value) {
 		this.value = value;
+	}
+
+	public void setValue(final MutableInteger newValue) {
+		value = newValue.value;
 	}
 
 	@Override
@@ -52,6 +62,21 @@ public class MutableInteger extends Number {
 	@Override
 	public long longValue() {
 		return value;
+	}
+
+	public MutableInteger add(final Integer value) {
+		this.value+=value;
+		return this;
+	}
+
+	public MutableInteger substract(final Integer value) {
+		this.value+=value;
+		return this;
+	}
+
+	@Override
+	public MutableInteger clone() {
+		return new MutableInteger(this);
 	}
 
 }
