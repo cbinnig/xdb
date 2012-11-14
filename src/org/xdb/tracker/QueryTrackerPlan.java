@@ -40,6 +40,7 @@ public class QueryTrackerPlan implements Serializable {
 	private final HashMap<Identifier, Set<Identifier>> sources = new HashMap<Identifier, Set<Identifier>>();
 	private final HashSet<Identifier> roots = new HashSet<Identifier>();
 	private final HashSet<Identifier> leaves = new HashSet<Identifier>();
+	private HashMap<String, MutableInteger> slots;
 
 	// deployment info
 	private final HashMap<Identifier, Set<OperatorDesc>> deployment = new HashMap<Identifier, Set<OperatorDesc>>();
@@ -134,6 +135,7 @@ public class QueryTrackerPlan implements Serializable {
 			return;
 		}
 
+
 		//start execution on leave operators
 		for (final Identifier leaveId : leaves) {
 			final OperatorDesc leaveDesc = currentDeployment.get(leaveId);
@@ -157,6 +159,7 @@ public class QueryTrackerPlan implements Serializable {
 				}
 			}
 		}
+
 	}
 
 	/**
@@ -166,11 +169,11 @@ public class QueryTrackerPlan implements Serializable {
 	public Map<Identifier, OperatorDesc> deployPlan() {
 		final HashMap<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
 
-		final Map<String, MutableInteger> allocatedSlots = requireSlots();
+		requireSlots();
 
 		// prepare deployment
 		for (final Identifier leave : leaves) {
-			prepareDeployment(leave, currentDeployment, allocatedSlots);
+			prepareDeployment(leave, currentDeployment, slots);
 		}
 
 		// deploy plan
@@ -188,7 +191,7 @@ public class QueryTrackerPlan implements Serializable {
 		return currentDeployment;
 	}
 
-	private Map<String, MutableInteger> requireSlots() {
+	private void requireSlots() {
 		final ResourceScheduler resourceScheduler = new ResourceScheduler(this);
 		final MutableInteger numSlots = new MutableInteger(resourceScheduler.calcMaxParallelization());
 
@@ -214,7 +217,7 @@ public class QueryTrackerPlan implements Serializable {
 		final Tuple<Map<String, MutableInteger>, Error> tuple = tracker.requestComputeNodes(requiredSlots);
 		final Map<String, MutableInteger> allocatedSlots = tuple.getObject1();
 		err = tuple.getObject2();
-		return new HashMap<String, MutableInteger>(allocatedSlots);
+		slots = new HashMap<String, MutableInteger>(allocatedSlots);
 	}
 
 	/**
@@ -323,6 +326,10 @@ public class QueryTrackerPlan implements Serializable {
 
 	public void execute() {
 		executePlan(currentDeployment);
+	}
+
+	public HashMap<String, MutableInteger> getSlots() {
+		return slots;
 	}
 
 }

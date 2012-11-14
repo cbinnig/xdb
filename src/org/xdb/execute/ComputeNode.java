@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
+import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractOperator;
 import org.xdb.execute.operators.OperatorDesc;
@@ -32,35 +33,41 @@ import org.xdb.utils.Identifier;
 public class ComputeNode {
 
 	// Map of operatorId -> operator
-	private Map<Identifier, AbstractOperator> operators;
+	private final Map<Identifier, AbstractOperator> operators;
 
 	// Map of consumer -> sources which are ready
-	private Map<Identifier, HashSet<Identifier>> readySignals;
+	private final Map<Identifier, HashSet<Identifier>> readySignals;
 	private final Lock readySignalsLock = new ReentrantLock();
 
 	//computing slots
-	private ComputeNodeDesc computeNodeDesc;
-	
+	private final ComputeNodeDesc computeNodeDesc;
+
 	// Helpers
-	private Logger logger;
-	private ComputeClient computeClient;
-	private MasterTrackerClient mTrackerClient;
+	private final Logger logger;
+	private final ComputeClient computeClient;
+	private final MasterTrackerClient mTrackerClient;
+	private final QueryTrackerClient queryTrackerClient;
 
 	// constructors
 	public ComputeNode() throws Exception  {
-		this.operators = Collections
+		operators = Collections
 				.synchronizedMap(new HashMap<Identifier, AbstractOperator>());
-		this.readySignals = Collections
+		readySignals = Collections
 				.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());
 
-		this.logger = XDBLog.getLogger(this.getClass().getName());
-		this.computeClient = new ComputeClient();
-		this.mTrackerClient = new MasterTrackerClient();
-		
-		InetAddress addr = InetAddress.getLocalHost();
-		this.computeNodeDesc = new ComputeNodeDesc(addr.getHostAddress(), Config.COMPUTE_SLOTS);
-		
-		Error err = this.mTrackerClient.registerNode(computeNodeDesc);
+		logger = XDBLog.getLogger(this.getClass().getName());
+		computeClient = new ComputeClient();
+		mTrackerClient = new MasterTrackerClient();
+		if (Config.useQueryTrackerComputeConnection) { 
+			queryTrackerClient = new QueryTrackerClient(Config.QUERYTRACKER_URL, Config.QUERYTRACKER_PORT);
+		} else {
+			queryTrackerClient = null;
+		}
+
+		final InetAddress addr = InetAddress.getLocalHost();
+		computeNodeDesc = new ComputeNodeDesc(addr.getHostAddress(), Config.COMPUTE_SLOTS);
+
+		final Error err = mTrackerClient.registerNode(computeNodeDesc);
 		if(err.isError()){
 			throw new IllegalArgumentException(err.toString());
 		}
@@ -72,10 +79,10 @@ public class ComputeNode {
 	 * @param operator
 	 * @return
 	 */
-	public Error openOperator(AbstractOperator op) {
+	public Error openOperator(final AbstractOperator op) {
 		Error err = new Error();
-		
-		this.operators.put(op.getOperatorId(), op);
+
+		operators.put(op.getOperatorId(), op);
 
 		// open operator
 		logger.log(Level.INFO, "Open operator: " + op.getOperatorId());
@@ -91,30 +98,31 @@ public class ComputeNode {
 	 * @param signal
 	 * @return
 	 */
-	public Error signalOperator(ReadySignal signal) {
+	public Error signalOperator(final ReadySignal signal) {
 		Error err = new Error();
-		Identifier source = signal.getSource();
-		Identifier consumer = signal.getConsumer();
+		final Identifier source = signal.getSource();
+		final Identifier consumer = signal.getConsumer();
 
 		// Get node
 		AbstractOperator op = null;
-		op = this.operators.get(consumer);
-		if (op == null)
+		op = operators.get(consumer);
+		if (op == null) {
 			return err;
+		}
 
 		logger.log(Level.INFO,
 				"Received READY_SIGNAL for operator: " + op.getOperatorId()
-						+ " from source: " + source);
+				+ " from source: " + source);
 
 		// Add source to sources
 		boolean execute = false;
-		this.readySignalsLock.lock();
+		readySignalsLock.lock();
 		HashSet<Identifier> sourceIds = null;
-		if (!this.readySignals.containsKey(consumer)) {
+		if (!readySignals.containsKey(consumer)) {
 			sourceIds = new HashSet<Identifier>();
-			this.readySignals.put(source, sourceIds);
+			readySignals.put(source, sourceIds);
 		} else {
-			sourceIds = this.readySignals.get(source);
+			sourceIds = readySignals.get(source);
 		}
 		sourceIds.add(source);
 
@@ -123,7 +131,7 @@ public class ComputeNode {
 					+ op.getOperatorId());
 			execute = true;
 		}
-		this.readySignalsLock.unlock();
+		readySignalsLock.unlock();
 
 		// execute operator and send signal to consumer
 		if (execute) {
@@ -139,11 +147,11 @@ public class ComputeNode {
 	 * @param signal
 	 * @return
 	 */
-	public Error closeOperator(CloseSignal signal) {
+	public Error closeOperator(final CloseSignal signal) {
 		Error err = new Error();
-		
+
 		// execute operator
-		AbstractOperator op = this.operators.get(signal.getConsumer());
+		final AbstractOperator op = operators.get(signal.getConsumer());
 		if (op != null) {
 			err = op.close();
 			logger.log(Level.INFO, "Closed operator: " + op.getOperatorId());
@@ -160,25 +168,34 @@ public class ComputeNode {
 	 * @param op
 	 * @return
 	 */
-	private Error executeOperator(AbstractOperator op) {
+	private Error executeOperator(final AbstractOperator op) {
 		Error err = new Error();
-		
+
 		// execute operator
 		err = op.execute();
-		if (err.isError())
+		if (err.isError()) {
 			return err;
+		}
+
+		// send READY signal to QueryTracker
+		if (queryTrackerClient != null && Config.useQueryTrackerComputeConnection) {
+			logger.log(Level.INFO, "Send Ready-Signal from operator " + op.getOperatorId() + " to QueryTracker");
+			err = queryTrackerClient.operatorReady(op);
+		}
+		// TODO
 
 		// send READY signal to consumer
-		Set<OperatorDesc> consumers = op.getConsumers();
-		for (OperatorDesc consumer : consumers) {
+		final Set<OperatorDesc> consumers = op.getConsumers();
+		for (final OperatorDesc consumer : consumers) {
 			if (consumer != null) {
 				logger.log(Level.INFO,
 						"Send READY_SIGNAL from operator " + op.getOperatorId()
-								+ " to consumer: " + consumer);
+						+ " to consumer: " + consumer);
 
-				err = this.computeClient.executeOperator(op.getOperatorId(), consumer);
-				if (err.isError())
+				err = computeClient.executeOperator(op.getOperatorId(), consumer);
+				if (err.isError()) {
 					return err;
+				}
 
 			}
 		}
@@ -191,8 +208,8 @@ public class ComputeNode {
 	 * 
 	 * @param op
 	 */
-	private synchronized void removeOperator(AbstractOperator op) {
-		this.operators.remove(op.getOperatorId());
-		this.readySignals.remove(op.getOperatorId());
+	private synchronized void removeOperator(final AbstractOperator op) {
+		operators.remove(op.getOperatorId());
+		readySignals.remove(op.getOperatorId());
 	}
 }

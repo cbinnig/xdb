@@ -41,11 +41,10 @@ public class ComputeServer extends AbstractServer {
 		 * @return
 		 * @throws IOException
 		 */
-		protected Error handle(final ObjectOutputStream out) throws IOException {
+		@Override
+		protected Error handle(final ObjectOutputStream out, final ObjectInputStream in) throws IOException {
 			Error err = new Error();
 
-			final ObjectInputStream in = new ObjectInputStream(
-					client.getInputStream());
 
 			final int cmd = in.readInt();
 			logger.log(Level.INFO, "ComputeServer: Read command from client:" + cmd);
