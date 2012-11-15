@@ -1,6 +1,7 @@
 package org.xdb.tracker.operator;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +10,9 @@ import org.xdb.Config;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
+
+import com.oy.shared.lm.graph.Graph;
+import com.oy.shared.lm.graph.GraphNode;
 
 public abstract class AbstractOperator implements Serializable {
 
@@ -86,6 +90,10 @@ public abstract class AbstractOperator implements Serializable {
 			final String partAtt) {
 		outTables.put(tableName, tableDDL);
 		this.partAtt.put(tableName, partAtt);
+	}
+	
+	public Collection<StringTemplate> getOutTables() {
+		return outTables.values();
 	}
 
 	public void setOperatorId(final Identifier operatorId) {
@@ -188,6 +196,14 @@ public abstract class AbstractOperator implements Serializable {
 		final Identifier newOperId = operatorId.clone();
 		newOperId.append(operDesc.getOperatorID().toString());
 		return newOperId;
+	}
+	
+	public Map<String, StringTemplate> getInTables() {
+		return Collections.unmodifiableMap(inTables);
+	}
+	
+	public Map<String, TableDesc> getInTableSource() {
+		return Collections.unmodifiableMap(inTableDesc);
 	}
 
 	public Map<String, String> getInTableConnection() {

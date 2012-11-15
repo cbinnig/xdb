@@ -6,6 +6,7 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
 
 import com.oy.shared.lm.graph.Graph;
@@ -51,7 +52,8 @@ public class EquiJoin extends AbstractBinaryOperator {
 	@Override
 	public String toSqlString() {
 		HashMap<String, String> vars = new HashMap<String, String>();
-		vars.put("RESULTS", getResultAttributeString());
+		//vars.put("RESULTS", SetUtils.stringifyAttributes(getResultAttributes()));
+		//TODO: FIX
 		
 		vars.put("OP1", getLeftChild().getOperatorId().toString());
 		vars.put("OP2", getRightChild().getOperatorId().toString());

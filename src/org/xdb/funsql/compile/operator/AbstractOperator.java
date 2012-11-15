@@ -1,11 +1,14 @@
 package org.xdb.funsql.compile.operator;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 
@@ -126,11 +129,10 @@ public abstract class AbstractOperator implements Serializable {
 	public abstract String toSqlString();
 	
 	/**
-	 * Get stringified list of all result TokenAttributes.
-	 * @see org.xdb.utils.SetUtils.stringifyAttrVec
+	 * Get list of all result TokenAttributes.
 	 */
-	protected String getResultAttributeString() {
-		return SetUtils.stringifyAttrVec(getResult(0).getAttributes());
+	protected List<String> getResultAttributes() {
+		return SetUtils.attributesToString(getResult(0).getAttributes());
 	}
 	
 	/**

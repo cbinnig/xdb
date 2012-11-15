@@ -1,24 +1,37 @@
 package org.xdb.tracker;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.OperatorDesc;
+import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.logging.XDBLog;
 import org.xdb.tracker.operator.AbstractOperator;
+import org.xdb.tracker.operator.MySQLOperator;
+import org.xdb.tracker.operator.TableDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.MutableInteger;
+import org.xdb.utils.StringTemplate;
 import org.xdb.utils.Tuple;
+
+import com.oy.shared.lm.graph.Graph;
+import com.oy.shared.lm.graph.GraphFactory;
+import com.oy.shared.lm.graph.GraphNode;
+import com.oy.shared.lm.out.GRAPHtoDOTtoGIF;
 
 public class QueryTrackerPlan implements Serializable {
 
@@ -326,6 +339,85 @@ public class QueryTrackerPlan implements Serializable {
 
 	public void execute() {
 		executePlan(currentDeployment);
+	}
+	
+	/**
+	 * Generates a visual graph representation of the compile plan
+	 */
+	public Error traceGraph(String fileName){
+		fileName += this.planId;
+		Error error =new Error();
+		Graph graph = GraphFactory.newGraph();
+		
+		HashMap<Identifier, GraphNode> nodes = new HashMap<Identifier, GraphNode>();
+		
+		final Queue<Identifier> assemblingQueue = new LinkedList<Identifier>();
+		assemblingQueue.addAll(this.roots);
+		
+		
+		while(!assemblingQueue.isEmpty()) {
+			AbstractOperator rootOp = this.operators.get(assemblingQueue.poll());
+			GraphNode node = graph.addNode();
+			
+			for(Identifier parent : this.sources.get(rootOp.getOperatorId())) {
+				graph.addEdge(nodes.get(parent), node);
+			}			
+			
+			StringBuilder caption = new StringBuilder();
+			for(StringTemplate outTable : rootOp.getOutTables()) {
+				caption.append(outTable.toString()+"\n");
+			}
+			node.getInfo().setHeader(caption.toString());
+			
+			if(rootOp instanceof MySQLOperator) {
+				MySQLOperator myOp = (MySQLOperator)rootOp;
+				StringBuilder body = new StringBuilder();
+				body.append("MySQL-Operator: " + myOp.getOperatorId().toString()+"\n\n");
+				for(StringTemplate exStmt : myOp.getExecuteSQLs()) {
+					body.append(exStmt.toString()+"\n");
+				}
+				node.getInfo().setCaption("\n\n"+body.toString()+"\n\n");
+				
+
+				StringBuilder footer = new StringBuilder();
+				
+				if(myOp.getInTables().size() > 0) {
+					footer.append("Input:\n");
+					for(Entry<String, StringTemplate> e : myOp.getInTables().entrySet()) {
+						footer.append(e.getKey() + ":\n  DDL: "+e.getValue().toString()+"\n");
+						TableDesc desc = myOp.getInTableSource().get(e.getKey());
+						if(desc != null)
+							footer.append("Operator: " + desc.getOperatorID().toString()+"\n");
+					}
+					footer.append("\n\n");
+				}
+				
+				node.getInfo().setFooter(footer.toString());
+			}
+			
+			
+			nodes.put(rootOp.getOperatorId(), node);
+			
+			assemblingQueue.addAll(consumers.get(rootOp.getOperatorId()));
+		}
+		
+		for(Identifier opId : this.operators.keySet()) {
+			if(!nodes.containsKey(opId)) {
+				logger.info("Got unreachable operator"+opId);
+			}
+		}
+		
+		// output graph to *.gif
+		final String path = Config.DOT_TRACE_PATH;
+		final String dotFileName = path + fileName + ".dot";
+		final String gifFileName = path + fileName + ".gif";
+		final String exeFileName = Config.DOT_EXE;
+		try {
+			GRAPHtoDOTtoGIF.transform( graph, dotFileName, gifFileName, exeFileName);
+		} catch (IOException e) {
+			return FunSQLCompiler.createGenericCompileErr(e.getMessage());
+		}
+		return error;
 	}
 
 	public HashMap<String, MutableInteger> getSlots() {

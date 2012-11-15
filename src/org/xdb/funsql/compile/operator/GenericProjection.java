@@ -9,6 +9,7 @@ import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
 
 import com.oy.shared.lm.graph.Graph;
@@ -61,9 +62,21 @@ public class GenericProjection extends AbstractUnaryOperator {
 	// methods
 	@Override
 	public String toSqlString() {
-		HashMap<String, String> vars = new HashMap<String, String>();
-		vars.put("RESULTS", getResultAttributeString());
-		vars.put("OP1", getChild().getOperatorId().toString());
+		final HashMap<String, String> vars = new HashMap<String, String>();
+		final String opDummy = getChild().getOperatorId().toString();
+		
+		final Vector<String> expressionVec = new Vector<String>(expressions.size());
+		for(AbstractExpression exp : expressions) {
+			expressionVec.add(exp.toString());
+		}
+		final Vector<String> aliasVec = new Vector<String>(aliases.size());
+		for(TokenIdentifier tok : aliases) {
+			expressionVec.add(tok.getName());
+		}
+		
+		
+		vars.put("RESULTS", SetUtils.buildAliasString(opDummy, expressionVec, aliasVec));
+		vars.put("OP1", opDummy);
 		return sqlTemplate.toString(vars);
 	}
 

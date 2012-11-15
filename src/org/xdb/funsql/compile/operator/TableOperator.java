@@ -1,13 +1,16 @@
 package org.xdb.funsql.compile.operator;
 
 import java.util.HashMap;
+import java.util.Vector;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
+import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Table;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
 
 import com.oy.shared.lm.graph.Graph;
@@ -23,7 +26,7 @@ public class TableOperator extends AbstractOperator {
 	private boolean isVar;
 	
 	private final StringTemplate sqlTemplate = 
-			new StringTemplate("SELECT * FROM <<OP1>>");
+			new StringTemplate("SELECT <RESULTS> FROM <<OP1>> AS <OP1>");
 	
 	//constructors
 	public TableOperator(TokenIdentifier tableName){
@@ -74,7 +77,15 @@ public class TableOperator extends AbstractOperator {
 	@Override
 	public String toSqlString() {
 		HashMap<String, String> vars = new HashMap<String, String>();
-		vars.put("OP1", connection.getTableName());
+		final String opDummy = getOperatorId().toString()+"_TABLE";
+		vars.put("OP1", opDummy);
+		
+		//get alle table attributes and match them in order
+		final Vector<String> attrs = new Vector<String>();
+		for(Attribute attr : table.getAttributes()) {
+			attrs.add(attr.getName());
+		}
+		vars.put("RESULTS", SetUtils.buildAliasString(opDummy, attrs, getResultAttributes()));
 		return sqlTemplate.toString(vars);
 	}
 

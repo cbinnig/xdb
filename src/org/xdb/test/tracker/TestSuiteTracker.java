@@ -9,6 +9,7 @@ public class TestSuiteTracker extends TestSuite
   {
     TestSuite suite = new TestSuite( "org.xdb.test.execute.tracker" );
     suite.addTestSuite( TestQueryTracker.class );
+    suite.addTestSuite( TestPlanTranslation.class );
     return suite;
   }
 }

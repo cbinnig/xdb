@@ -1,6 +1,7 @@
 package org.xdb.funsql.compile.operator;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 
 import org.xdb.error.Error;
@@ -24,7 +25,7 @@ public class GenericAggregation extends AbstractUnaryOperator {
 	private Vector<TokenIdentifier> aliases;
 	
 	private final StringTemplate sqlTemplate = 
-			new StringTemplate("SELECT <AGG_ATTRS>,<GROUP_ATTRS> FROM <<OP1>> AS <OP1>"+
+			new StringTemplate("SELECT <RESULT> FROM <<OP1>> AS <OP1>"+
 					"GROUP BY <GROUP_ATTRS>");
 	
 	//constructors
@@ -77,10 +78,29 @@ public class GenericAggregation extends AbstractUnaryOperator {
 	
 	@Override
 	public String toSqlString() {
-		HashMap<String, String>  vars = new HashMap<String, String>();
-		vars.put("OP1", getChild().getOperatorId().toString());
+		final HashMap<String, String>  vars = new HashMap<String, String>();
+		final String opDummy = getChild().getOperatorId().toString();
+		vars.put("OP1", opDummy);
 		vars.put("AGG_ATTRS", SetUtils.stringifyExprVec(aggExprs));
 		vars.put("GROUP_ATTRS", SetUtils.stringifyExprVec(groupExprs));
+		
+		final Vector<String> aliasVec = new Vector<String>(aliases.size());
+		for(TokenIdentifier tok : aliases) {
+			aliasVec.add(tok.getName());
+		}
+		final List<String> aggrAliases = aliasVec.subList(0, aggExprs.size()-1);
+		final List<String> grpAliases = aliasVec.subList(aggExprs.size()-1, aliasVec.size()-1);
+		
+		final Vector<String> aggrExprVec = new Vector<String>(aggExprs.size());
+		for(AbstractExpression exp : aggExprs) {
+			aggrExprVec.add(exp.toString());
+		}
+		final Vector<String> groupExprVec = new Vector<String>(groupExprs.size());
+		for(AbstractExpression exp : groupExprs) {
+			groupExprVec.add(exp.toString());
+		}
+		
+		vars.put("RESULT", SetUtils.buildAliasString(opDummy, aggrExprVec, aggrAliases)+","+SetUtils.buildAliasString(opDummy, groupExprVec, grpAliases));
 		
 		return sqlTemplate.toString(vars);
 	}

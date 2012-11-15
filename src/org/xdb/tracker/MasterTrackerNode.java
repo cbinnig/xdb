@@ -21,6 +21,7 @@ import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.logging.XDBLog;
 import org.xdb.metadata.Connection;
+import org.xdb.metadata.Table;
 import org.xdb.tracker.operator.TableDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.MutableInteger;
@@ -119,7 +120,7 @@ public class MasterTrackerNode {
 	 * @param plan
 	 * @return
 	 */
-	public QueryTrackerPlan generateQueryTrackerPlan(final CompilePlan plan) {
+	public static QueryTrackerPlan generateQueryTrackerPlan(final CompilePlan plan) {
 		final QueryTrackerPlan qPlan = new QueryTrackerPlan(plan.getPlanId());
 
 		//map of operator identifiers on all depended operator's identifiers
@@ -164,10 +165,9 @@ public class MasterTrackerNode {
 			}
 		}
 
-		if(scanQueue.isEmpty()) {
-			logger.log(Level.INFO, "Could not convert CompilePlan: no root ops.");
+		//found no roots
+		if(scanQueue.isEmpty())
 			return null;
-		}
 
 		//map of QTP operator's identifiers to set of source operators
 		//this is needed, because dependent CP operator's are probably not in place anymore (assembled into QTP operators)
@@ -242,16 +242,12 @@ public class MasterTrackerNode {
 
 				//add table input data
 				//TODO: this class usage seems hacky, maybe use interface?
-				try {
+				if(childOp instanceof TableOperator) {
 					final TableOperator tableOp = TableOperator.class.cast(childOp);
 					final Connection conn = tableOp.getConnection();
 
-					queryOp.addInTables(conn.getTableName(), 
-							new StringTemplate("<"+conn.getTableName()+"> "+childOp.getResult(0).toSqlString()), "R_REGIONKEY");
-					queryOp.addInTableConnection(conn.getTableName(), conn.getAllAttributes());
-
-				} catch(final ClassCastException e) {
-					//do nothing...
+					queryOp.addInTables(tableOp.getOperatorId() + "_TABLE", 
+							new StringTemplate("<"+tableOp.getOperatorId()+"_TABLE> " + childOp.getResult(0).toSqlString() + " ENGINE=FEDERATED CONNECTION='" + conn.toConnectionString() + "/" + tableOp.getTableName() + "'"), "R_REGIONKEY");
 				}
 
 				final StringTemplate sqlAssemblyTemplate = 
@@ -259,7 +255,7 @@ public class MasterTrackerNode {
 
 				final HashMap<String, String> args = new HashMap<String, String>(); 
 				args.put(childOpId.toString(), "("+childOp.toSqlString()+")");
-				executeSqlStatement = sqlAssemblyTemplate.toString();
+				executeSqlStatement = sqlAssemblyTemplate.toString(args);
 
 				assemblingQueue.addAll(childOp.getSourceOperators());
 			}
@@ -267,10 +263,8 @@ public class MasterTrackerNode {
 			//add compiled query
 			queryOp.addExecuteSQL(new StringTemplate(executeSqlStatement));
 
-			logger.log(Level.INFO, "Created new MySQLOperator node in QueryTrackerPlan");
-
 			if(sources.isEmpty() && consumers.isEmpty()) {
-				logger.log(Level.INFO, "Operator has neither sources nor consumers. Something is probably wrong.");
+				//TODO: this should be an error...
 			}
 
 			//add to plan

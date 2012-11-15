@@ -1,5 +1,6 @@
 package org.xdb.tracker.operator;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -7,6 +8,9 @@ import java.util.Vector;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
+
+import com.oy.shared.lm.graph.Graph;
+import com.oy.shared.lm.graph.GraphNode;
 
 public class MySQLOperator extends AbstractOperator {
 
@@ -21,6 +25,10 @@ public class MySQLOperator extends AbstractOperator {
 	// getters and setters
 	public void addExecuteSQL(StringTemplate dml) {
 		this.executeSQLs.add(dml);
+	}
+	
+	public Collection<StringTemplate> getExecuteSQLs() {
+		return executeSQLs;
 	}
 
 	// methods
@@ -77,5 +85,15 @@ public class MySQLOperator extends AbstractOperator {
 		}
 
 		return deployOper;
+	}
+	
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		for(StringTemplate temp : executeSQLs) {
+			builder.append(temp.toString());
+		}
+		
+		return builder.toString();
 	}
 }
