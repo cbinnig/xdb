@@ -234,7 +234,7 @@ public class MasterTrackerNode {
 					queryOp.addInTables(childOpId.toString(), 
 							new StringTemplate("<"+childOpId.toString()+"> "+childOp.getResult(0).toSqlString()), "R_REGIONKEY");
 					queryOp.setInTableSource(childOpId.toString(), 
-							new TableDesc("OUT_"+childOpId.toString(), childOpId));
+							new TableDesc(childOpId.toString(), childOpId));
 
 					//do not process this operator and do not add children of this operator to assemlingQueue
 					continue;
@@ -248,6 +248,7 @@ public class MasterTrackerNode {
 
 					queryOp.addInTables(tableOp.getOperatorId() + "_TABLE", 
 							new StringTemplate("<"+tableOp.getOperatorId()+"_TABLE> " + childOp.getResult(0).toSqlString() + " ENGINE=FEDERATED CONNECTION='" + conn.toConnectionString() + "/" + tableOp.getTableName() + "'"), "R_REGIONKEY");
+					qPlan.addNodeOperator(conn.getUrl());
 				}
 
 				final StringTemplate sqlAssemblyTemplate = 

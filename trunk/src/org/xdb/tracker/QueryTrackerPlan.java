@@ -54,6 +54,7 @@ public class QueryTrackerPlan implements Serializable {
 	private final HashSet<Identifier> roots = new HashSet<Identifier>();
 	private final HashSet<Identifier> leaves = new HashSet<Identifier>();
 	private HashMap<String, MutableInteger> slots;
+	private final HashMap<String, Integer> numNodeOperators = new HashMap<String, Integer>();
 
 	// deployment info
 	private final HashMap<Identifier, Set<OperatorDesc>> deployment = new HashMap<Identifier, Set<OperatorDesc>>();
@@ -70,6 +71,18 @@ public class QueryTrackerPlan implements Serializable {
 	public QueryTrackerPlan(final Identifier planId) {
 		this.planId = planId;
 		logger = XDBLog.getLogger(this.getClass().getName());
+	}
+	
+	public void addNodeOperator(final String node) {
+		if(!numNodeOperators.containsKey(node)) {
+			numNodeOperators.put(node, 1);
+		} else {
+			numNodeOperators.put(node, numNodeOperators.get(node)+1);
+		}
+	}
+	
+	public Map<String, Integer> getNumNodeOperators() {
+		return numNodeOperators;
 	}
 
 	// getter and setter
