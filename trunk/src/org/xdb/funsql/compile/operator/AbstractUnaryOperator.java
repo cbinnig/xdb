@@ -56,6 +56,10 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 			nodes.put(childOp.operatorId, child);
 			childOp.traceGraph(g, nodes);
 		}
+		else{
+			GraphNode child = nodes.get(childOp.operatorId);
+			g.addEdge(node, child);
+		}
 		return err;
 	}
 }

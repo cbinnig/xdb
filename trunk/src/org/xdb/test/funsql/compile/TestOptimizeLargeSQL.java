@@ -4,6 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.xdb.funsql.compile.FunSQLCompiler;
+import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
@@ -67,13 +68,16 @@ public class TestOptimizeLargeSQL extends CompileServerTestCase {
 		for(Identifier opId : selectStmt.getPlan().getRoots()){
 			
 			GenericProjection proj = (GenericProjection) selectStmt.getPlan().getOperators(opId);
-			GenericProjection proj2 = new GenericProjection(proj);
 			
 			GenericSelection sel1 = (GenericSelection) proj.getChild();
 			GenericSelection sel2 = (GenericSelection) sel1.getChild();
 			EquiJoin join = (EquiJoin) sel2.getChild();
 			
 			GenericSelection sel = new GenericSelection(join);
+			GenericProjection proj2 = new GenericProjection(sel);
+			for(AbstractExpression exp: proj.getExpressions()){
+				proj2.addExpression(exp);
+			}
 			
 			selectStmt.getPlan().addOperator(sel, false);
 			selectStmt.getPlan().addOperator(proj2, true);
@@ -82,6 +86,7 @@ public class TestOptimizeLargeSQL extends CompileServerTestCase {
 			pred.setPredicate1(sel2.getPredicate());
 			
 			sel.setPredicate(pred);
+			selectStmt.getPlan().traceGraph(this.getClass().getName());
 			
 			ResultDesc desc = new ResultDesc();
 			for(TokenAttribute att :  sel2.getResult(0).getAttributes()){
@@ -130,7 +135,7 @@ public class TestOptimizeLargeSQL extends CompileServerTestCase {
 		Optimizer opti = new Optimizer(selectStmt.getPlan());
 		opti.optimize();
 		
-		selectStmt.getPlan().traceGraph(this.getClass().getName());
+		selectStmt.getPlan().traceGraph(this.getClass().getName()+"Optimized");
 		
 	}
 

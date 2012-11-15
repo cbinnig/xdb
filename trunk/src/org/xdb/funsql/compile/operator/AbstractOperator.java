@@ -1,14 +1,12 @@
 package org.xdb.funsql.compile.operator;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
-import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 

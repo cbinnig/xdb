@@ -6,7 +6,6 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
-import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
 
 import com.oy.shared.lm.graph.Graph;

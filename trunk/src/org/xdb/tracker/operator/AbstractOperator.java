@@ -11,9 +11,6 @@ import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
-import com.oy.shared.lm.graph.Graph;
-import com.oy.shared.lm.graph.GraphNode;
-
 public abstract class AbstractOperator implements Serializable {
 
 	private static final long serialVersionUID = 8183857279874181382L;
