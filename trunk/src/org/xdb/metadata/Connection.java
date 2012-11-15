@@ -1,5 +1,6 @@
 package org.xdb.metadata;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.store.EnumStore;
@@ -162,5 +163,10 @@ CREATE TABLE "SYSTEM"."CONNECTION"
 				return lastError;
 		}
 		return Error.NO_ERROR;
+	}
+	
+	public String toConnectionString() {
+		return  store.toString() + "://" + user + ":" + passwd + 
+				"@" + url;
 	}
 }

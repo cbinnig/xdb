@@ -72,6 +72,7 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		qServer.stopServer();
 	}
 
+	
 	@Test
 	public void testPlan2Ops() throws Exception {
 		final QueryTrackerServer qServer = new QueryTrackerServer();
