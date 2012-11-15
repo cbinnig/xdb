@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Map.Entry;
@@ -54,7 +55,7 @@ public class QueryTrackerPlan implements Serializable {
 	private final HashSet<Identifier> roots = new HashSet<Identifier>();
 	private final HashSet<Identifier> leaves = new HashSet<Identifier>();
 	private HashMap<String, MutableInteger> slots;
-	private final HashMap<String, Integer> numNodeOperators = new HashMap<String, Integer>();
+	private final HashMap<Identifier, List<String>> nodeOperators = new HashMap<Identifier, List<String>>();
 
 	// deployment info
 	private final HashMap<Identifier, Set<OperatorDesc>> deployment = new HashMap<Identifier, Set<OperatorDesc>>();
@@ -73,16 +74,18 @@ public class QueryTrackerPlan implements Serializable {
 		logger = XDBLog.getLogger(this.getClass().getName());
 	}
 	
-	public void addNodeOperator(final String node) {
-		if(!numNodeOperators.containsKey(node)) {
-			numNodeOperators.put(node, 1);
+	public void addNodeOperator(final String node, final Identifier opId) {
+		if(!nodeOperators.containsKey(opId)) {
+			List<String> ops = new LinkedList<String>();
+			ops.add(node);
+			nodeOperators.put(opId, ops);
 		} else {
-			numNodeOperators.put(node, numNodeOperators.get(node)+1);
+			nodeOperators.get(opId).add(node);
 		}
 	}
 	
-	public Map<String, Integer> getNumNodeOperators() {
-		return numNodeOperators;
+	public Map<Identifier, List<String>> getNumNodeOperators() {
+		return nodeOperators;
 	}
 
 	// getter and setter

@@ -248,7 +248,7 @@ public class MasterTrackerNode {
 
 					queryOp.addInTables(tableOp.getOperatorId() + "_TABLE", 
 							new StringTemplate("<"+tableOp.getOperatorId()+"_TABLE> " + childOp.getResult(0).toSqlString() + " ENGINE=FEDERATED CONNECTION='" + conn.toConnectionString() + "/" + tableOp.getTableName() + "'"), "R_REGIONKEY");
-					qPlan.addNodeOperator(conn.getUrl());
+					qPlan.addNodeOperator(conn.getUrl(), tableOp.getOperatorId());
 				}
 
 				final StringTemplate sqlAssemblyTemplate = 
