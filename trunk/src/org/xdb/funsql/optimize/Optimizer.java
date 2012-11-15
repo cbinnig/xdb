@@ -1,10 +1,14 @@
 package org.xdb.funsql.optimize;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.EnumOperator;
+import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.utils.Identifier;
 
@@ -18,12 +22,9 @@ public class Optimizer {
 
 	public void optimize(){
 		
-//		Vector<TreeWalkerSelSplit> treeWalkerSelSplitVector = new Vector<TreeWalkerSelSplit>();
 		Vector<TreeWalkerSelectionSplit> treeWalkerSelectionSplitVector = new Vector<TreeWalkerSelectionSplit>();
 		Vector<TreeWalkerSelectionPush> treeWalkerSelectionPushVector = new Vector<TreeWalkerSelectionPush>();
 		Vector<TreeWalkerSelectionUnion> treeWalkerSelectionUnionVector = new Vector<TreeWalkerSelectionUnion>();
-//		Vector<TreeWalkerProjPush> treeWalkerProjPushVector = new Vector<TreeWalkerProjPush>();
-
 
 		Iterator<Identifier> roots = compilePlan.getRoots().iterator();
 		
@@ -46,120 +47,58 @@ public class Optimizer {
 			walkerSelectionUnion.visit();			
 		}
 		
-//		Vector<GenericSelection> waitToPush = new Vector<GenericSelection>();
-//		for(TreeWalkerSelectionPush walker : treeWalkerSelectionPushVector){
-//			if(!walker.getWaitToPush().isEmpty()){
-//				waitToPush.addAll(walker.getWaitToPush());
-//			}
-//		}
-//		if(!waitToPush.isEmpty()){
-//			for(GenericSelection sel : waitToPush){
-//				for(GenericSelection otherSel : waitToPush){
-//					if(sel.equals(otherSel))
-//						continue;
-//					if(sel.getChild().equals(otherSel.getChild())){
-//						combineSelections(sel, otherSel);
-//					}
-//				}
-//			}
-//		}
-//		for(TreeWalkerSelectionPush walker : treeWalkerSelectionPushVector){
-//			walker.continuePushDown();
-//		}
-		
-		
-		
-//		findNewRoots();
-		
-		
-		
-		
-		
-		
-		
+		boolean changesDid = true;
+		while(changesDid){
+			HashMap<Identifier, Vector<GenericSelection>> allWaitingSelMap = new HashMap<Identifier, Vector<GenericSelection>>();
+			for(TreeWalkerSelectionPush walker : treeWalkerSelectionPushVector){
+				allWaitingSelMap.putAll(walker.getWaitToPushMap());
+			}
+			if(!allWaitingSelMap.isEmpty()){
+				boolean pushAllowed = checkPushDownOneSide(allWaitingSelMap);
+				for(TreeWalkerSelectionPush walker : treeWalkerSelectionPushVector){
+					changesDid = walker.pushFurther(pushAllowed);
+				}
+			}
+		}
 	}
 
 
-//		Vector<TreeWalkerSelSplit> treeWalkerSelSplitVector = new Vector<TreeWalkerSelSplit>();
-//		Vector<TreeWalkerSelPush> treeWalkerSelPushVector = new Vector<TreeWalkerSelPush>();
-//		Vector<TreeWalkerProjPush> treeWalkerProjPushVector = new Vector<TreeWalkerProjPush>();
-//
-//		/*
-//		 * Selection Split Walker.
-//		 */
-//		Iterator<Identifier> roots = compilePlan.getRoots().iterator();
-//		while(roots.hasNext()){
-//			Identifier id = roots.next();
-//
-//			//new walker for every root.
-//			TreeWalkerSelSplit walkerSelSplit = new TreeWalkerSelSplit(compilePlan.getOperators(id));
-//			treeWalkerSelSplitVector.add(walkerSelSplit);
-//			walkerSelSplit.visit();
-//		}
-//		//if walker was stopped, check why and if moving further is possible
-//		for(int i=0;i<treeWalkerSelSplitVector.size();i++){
-//			if(treeWalkerSelSplitVector.get(i).getOperatorsToPush().size() > 0){
-//				/*
-//				 * 
-//				 * TODO: if different push downs are allowed: combine if possible and push down further
-//				 * 
-//				 */
-//			}
-//		}
-//		//find new roots
-//		findNewRoots();
-//		
-//		/*
-//		 * Selection Push Down
-//		 */
-//		roots = compilePlan.getRoots().iterator();
-//		while(roots.hasNext()){
-//			Identifier id = roots.next();
-//			
-//			TreeWalkerSelPush walkerSelPush = new TreeWalkerSelPush(compilePlan.getOperators(id));
-//			treeWalkerSelPushVector.add(walkerSelPush);
-//			walkerSelPush.visit();
-//		}
-//		for(int i=0;i<treeWalkerSelPushVector.size();i++){
-//			if(treeWalkerSelPushVector.get(i).getOperatorsToPush().size() > 0){
-//				
-//				Vector<AbstractOperator> toPush = new Vector<AbstractOperator>();
-//				for(TreeWalkerSelPush walker : treeWalkerSelPushVector){
-//					toPush.addAll(walker.getOperatorsToPush());
-//				}
-//				
-//				/*
-//				 * 
-//				 * TODO: if different push downs are allowed: combine if possible and push down further
-//				 * 
-//				 */
-//			}
-//		}
-//		findNewRoots();
-//		
-//		/*
-//		 * Projection Push Down
-//		 */
-//		roots = compilePlan.getRoots().iterator();
-//		while(roots.hasNext()){
-//			Identifier id = roots.next();
-//			
-//			TreeWalkerProjPush walkerProjPush = new TreeWalkerProjPush(compilePlan.getOperators(id));
-//			treeWalkerProjPushVector.add(walkerProjPush);
-//			walkerProjPush.visit();
-//		}
-//		for(int i=0;i<treeWalkerProjPushVector.size();i++){
-//			if(treeWalkerProjPushVector.get(i).getOperatorsToPush().size() > 0){
-//				/*
-//				 * 
-//				 * TODO: if different push downs are allowed: combine if possible and push down further
-//				 * 
-//				 */
-//			}
-//		}
-//		findNewRoots();
-//		
-//	}
+
+	private boolean checkPushDownOneSide(HashMap<Identifier, Vector<GenericSelection>> allWaitingSelMap) {
+
+		Set<Identifier> keys = allWaitingSelMap.keySet();
+		for(Identifier key : keys){
+			Vector<GenericSelection> selVec = allWaitingSelMap.get(key);
+			boolean directionChanged = false;
+			
+			if(selVec.size() == 0)
+				continue;
+			GenericSelection sel = selVec.elementAt(0);
+			
+			EquiJoin join = (EquiJoin) compilePlan.getOperators(key);
+			
+			boolean lastDirection = TreeWalkerSelectionPush.checkJoinSide(sel, join);
+			
+			for(int i=1;i<selVec.size();i++){
+				sel = selVec.elementAt(i);
+				if(sel.getChild().getType() == EnumOperator.EQUI_JOIN){
+					join = (EquiJoin) sel.getChild();
+					
+					if(TreeWalkerSelectionPush.checkJoinSide(sel, join) != lastDirection)
+						directionChanged = true;
+				}
+				else{
+					//Error
+					return false;
+				}
+			}
+			
+			if(directionChanged)
+				return false;
+		}
+	
+		return true;
+	}
 
 	protected void findNewRoots() {
 		boolean changesDid = false;

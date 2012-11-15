@@ -124,16 +124,10 @@ public class ComplexPredicate extends AbstractPredicate {
 		if (this.type == EnumPredicateType.OR_PREDICATE) {
 			if (this.preds2.size() == 0) {
 				return this.pred1.splitAnd();
-			} else {
-				return predicates;
 			}
-		} else {
-			if (this.type == EnumPredicateType.AND_PREDICATE) {
-				predicates.add(this.pred1);
-				predicates.addAll(this.preds2);
-			} else {
-				predicates.add(this);
-			}
+		} else if (this.type == EnumPredicateType.AND_PREDICATE) {
+			predicates.add(this.pred1);
+			predicates.addAll(this.preds2);
 		}
 		return predicates;
 

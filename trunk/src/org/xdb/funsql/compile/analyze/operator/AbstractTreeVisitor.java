@@ -11,7 +11,7 @@ import org.xdb.funsql.compile.operator.TableOperator;
 
 public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	
-	AbstractOperator thisRoot = null;
+	protected AbstractOperator thisRoot = null;
 	
 	public AbstractTreeVisitor(AbstractOperator root) {
 		thisRoot = root;
