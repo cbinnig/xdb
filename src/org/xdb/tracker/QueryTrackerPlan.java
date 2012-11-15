@@ -9,8 +9,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,17 +73,17 @@ public class QueryTrackerPlan implements Serializable {
 		this.planId = planId;
 		logger = XDBLog.getLogger(this.getClass().getName());
 	}
-	
+
 	public void addNodeOperator(final String node, final Identifier opId) {
 		if(!nodeOperators.containsKey(opId)) {
-			List<String> ops = new LinkedList<String>();
+			final List<String> ops = new LinkedList<String>();
 			ops.add(node);
 			nodeOperators.put(opId, ops);
 		} else {
 			nodeOperators.get(opId).add(node);
 		}
 	}
-	
+
 	public Map<Identifier, List<String>> getNumNodeOperators() {
 		return nodeOperators;
 	}
@@ -231,7 +231,7 @@ public class QueryTrackerPlan implements Serializable {
 			}
 			final AbstractOperator op = operators.get(leaf);
 			// Gather best Connection String 
-			final String connectionString = resourceScheduler.getBestConnection(op.getInTableConnection());
+			final String connectionString = resourceScheduler.getBestConnection(getNumNodeOperators().get(op.getOperatorId()));
 			final MutableInteger numNodes = requiredSlots.get(connectionString);
 			if (numNodes == null) {
 				requiredSlots.put(connectionString, new MutableInteger(1));
@@ -308,15 +308,17 @@ public class QueryTrackerPlan implements Serializable {
 		}
 
 		// identify best used node
-		final Collection<String> bestNodes = operators.get(operId).getInTableConnection().values();
+		final Collection<String> bestNodes = getNumNodeOperators().get(operId);
 		String usedNode = null;
-		for (final String bestNode : bestNodes) {	// Choose one of the possible connection strings
-			final MutableInteger numOfFreeNodes = allocatedSlots.get(bestNode);
-			if (numOfFreeNodes != null && numOfFreeNodes.intValue() > 0) {
-				numOfFreeNodes.dec();
-				usedNode = bestNode;
+		if (bestNodes != null) {
+			for (final String bestNode : bestNodes) {	// Choose one of the possible connection strings
+				final MutableInteger numOfFreeNodes = allocatedSlots.get(bestNode);
+				if (numOfFreeNodes != null && numOfFreeNodes.intValue() > 0) {
+					numOfFreeNodes.dec();
+					usedNode = bestNode;
+				}
 			}
-		}
+		} 
 		if (usedNode == null) {
 			// TODO: Get next best ComputeNode
 			int maxSlots = 0;
@@ -356,73 +358,74 @@ public class QueryTrackerPlan implements Serializable {
 	public void execute() {
 		executePlan(currentDeployment);
 	}
-	
+
 	/**
 	 * Generates a visual graph representation of the compile plan
 	 */
 	public Error traceGraph(String fileName){
-		fileName += this.planId;
-		Error error =new Error();
-		Graph graph = GraphFactory.newGraph();
-		
-		HashMap<Identifier, GraphNode> nodes = new HashMap<Identifier, GraphNode>();
-		
+		fileName += planId;
+		final Error error =new Error();
+		final Graph graph = GraphFactory.newGraph();
+
+		final HashMap<Identifier, GraphNode> nodes = new HashMap<Identifier, GraphNode>();
+
 		final Queue<Identifier> assemblingQueue = new LinkedList<Identifier>();
-		assemblingQueue.addAll(this.roots);
-		
-		
+		assemblingQueue.addAll(roots);
+
+
 		while(!assemblingQueue.isEmpty()) {
-			AbstractOperator rootOp = this.operators.get(assemblingQueue.poll());
-			GraphNode node = graph.addNode();
-			
-			for(Identifier parent : this.sources.get(rootOp.getOperatorId())) {
+			final AbstractOperator rootOp = operators.get(assemblingQueue.poll());
+			final GraphNode node = graph.addNode();
+
+			for(final Identifier parent : sources.get(rootOp.getOperatorId())) {
 				graph.addEdge(nodes.get(parent), node);
 			}			
-			
-			StringBuilder caption = new StringBuilder();
-			for(StringTemplate outTable : rootOp.getOutTables()) {
+
+			final StringBuilder caption = new StringBuilder();
+			for(final StringTemplate outTable : rootOp.getOutTables()) {
 				caption.append(outTable.toString()+"\n");
 			}
 			node.getInfo().setHeader(caption.toString());
-			
+
 			if(rootOp instanceof MySQLOperator) {
-				MySQLOperator myOp = (MySQLOperator)rootOp;
-				StringBuilder body = new StringBuilder();
+				final MySQLOperator myOp = (MySQLOperator)rootOp;
+				final StringBuilder body = new StringBuilder();
 				body.append("MySQL-Operator: " + myOp.getOperatorId().toString()+"\n\n");
-				for(StringTemplate exStmt : myOp.getExecuteSQLs()) {
+				for(final StringTemplate exStmt : myOp.getExecuteSQLs()) {
 					body.append(exStmt.toString()+"\n");
 				}
 				node.getInfo().setCaption("\n\n"+body.toString()+"\n\n");
-				
 
-				StringBuilder footer = new StringBuilder();
-				
+
+				final StringBuilder footer = new StringBuilder();
+
 				if(myOp.getInTables().size() > 0) {
 					footer.append("Input:\n");
-					for(Entry<String, StringTemplate> e : myOp.getInTables().entrySet()) {
+					for(final Entry<String, StringTemplate> e : myOp.getInTables().entrySet()) {
 						footer.append(e.getKey() + ":\n  DDL: "+e.getValue().toString()+"\n");
-						TableDesc desc = myOp.getInTableSource().get(e.getKey());
-						if(desc != null)
+						final TableDesc desc = myOp.getInTableSource().get(e.getKey());
+						if(desc != null) {
 							footer.append("Operator: " + desc.getOperatorID().toString()+"\n");
+						}
 					}
 					footer.append("\n\n");
 				}
-				
+
 				node.getInfo().setFooter(footer.toString());
 			}
-			
-			
+
+
 			nodes.put(rootOp.getOperatorId(), node);
-			
+
 			assemblingQueue.addAll(consumers.get(rootOp.getOperatorId()));
 		}
-		
-		for(Identifier opId : this.operators.keySet()) {
+
+		for(final Identifier opId : operators.keySet()) {
 			if(!nodes.containsKey(opId)) {
 				logger.info("Got unreachable operator"+opId);
 			}
 		}
-		
+
 		// output graph to *.gif
 		final String path = Config.DOT_TRACE_PATH;
 		final String dotFileName = path + fileName + ".dot";
@@ -430,7 +433,7 @@ public class QueryTrackerPlan implements Serializable {
 		final String exeFileName = Config.DOT_EXE;
 		try {
 			GRAPHtoDOTtoGIF.transform( graph, dotFileName, gifFileName, exeFileName);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			return FunSQLCompiler.createGenericCompileErr(e.getMessage());
 		}
 		return error;

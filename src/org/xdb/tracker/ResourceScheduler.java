@@ -1,6 +1,6 @@
 package org.xdb.tracker;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Helper class used to perform actions on QueryTrackerPlan optimization and execution
@@ -24,9 +24,9 @@ public class ResourceScheduler {
 		return plan.getOperators().size();
 	}
 
-	public String getBestConnection(final Map<String, String> inTableConnection) {
+	public String getBestConnection(final List<String> inTableConnection) {
 		// TODO implement better logic
-		if (!inTableConnection.isEmpty()) {
+		if (inTableConnection != null && !inTableConnection.isEmpty()) {
 			return inTableConnection.get(0);
 		}
 		return null;
