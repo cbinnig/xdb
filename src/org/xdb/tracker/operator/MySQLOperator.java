@@ -9,9 +9,6 @@ import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
-import com.oy.shared.lm.graph.Graph;
-import com.oy.shared.lm.graph.GraphNode;
-
 public class MySQLOperator extends AbstractOperator {
 
 	private static final long serialVersionUID = -6394800229111645825L;

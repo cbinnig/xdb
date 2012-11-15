@@ -1,12 +1,10 @@
 package org.xdb.utils;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
-import org.xdb.funsql.compile.tokens.TokenIdentifier;
 
 /**
  * Container class for helper functions operating on data sets.

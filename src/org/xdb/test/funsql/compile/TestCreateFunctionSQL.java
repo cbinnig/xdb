@@ -1,13 +1,13 @@
 package org.xdb.test.funsql.compile;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CreateFunctionStmt;
-import org.xdb.funsql.statement.SelectStmt;
 import org.xdb.test.CompileServerTestCase;
 
 public class TestCreateFunctionSQL extends CompileServerTestCase {
@@ -59,7 +59,8 @@ public class TestCreateFunctionSQL extends CompileServerTestCase {
 		this.execute(stmt);
 
 		// execute CreateFunction
-		CreateFunctionStmt fStmt = (CreateFunctionStmt) compiler.compile(""
+		//CreateFunctionStmt fStmt = (CreateFunctionStmt) 
+		compiler.compile(""
 				+ "CREATE FUNCTION f1( OUT o1 TABLE) \n" + "BEGIN \n"
 				+ "VAR v1 = SELECT R1.A AS A1, R2.D AS A2 "
 				+ "FROM R AS R1, S AS R2 " + "WHERE R1.B=R2.E AND R1.C=1; \n"
@@ -70,9 +71,9 @@ public class TestCreateFunctionSQL extends CompileServerTestCase {
 		Error e = new Error(EnumError.COMPILER_SELECT_EXPRESSION_NOT_SUPPORTED,
 				s);
 		this.assertError(e);
-		// this.assertNoError(compiler.getLastError());
-		// fStmt.getPlan().traceGraph(this.getClass().getName());
-
+		
+		//this.assertNoError(compiler.getLastError());
+		//fStmt.getPlan().traceGraph(this.getClass().getName());
 	}
 
 	@Test

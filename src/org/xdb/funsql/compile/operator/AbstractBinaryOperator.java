@@ -79,11 +79,20 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 			nodes.put(leftChildOp.operatorId, child);
 			leftChildOp.traceGraph(g, nodes);
 		}
+		else{
+			GraphNode child = nodes.get(leftChildOp.operatorId);
+			g.addEdge(node, child);
+		}
+		
 		if(!nodes.containsKey(rightChildOp.operatorId)){
 			GraphNode child = g.addNode();
 			g.addEdge(node, child);
 			nodes.put(rightChildOp.operatorId, child);
 			rightChildOp.traceGraph(g, nodes);
+		}
+		else{
+			GraphNode child = nodes.get(rightChildOp.operatorId);
+			g.addEdge(node, child);
 		}
 		return err;
 	}

@@ -21,7 +21,6 @@ import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.logging.XDBLog;
 import org.xdb.metadata.Connection;
-import org.xdb.metadata.Table;
 import org.xdb.tracker.operator.TableDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.MutableInteger;

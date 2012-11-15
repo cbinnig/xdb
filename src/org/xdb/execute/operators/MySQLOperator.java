@@ -47,7 +47,6 @@ public class MySQLOperator extends AbstractOperator {
 		try {
 			for (final PreparedStatement stmt : executeStmts) {
 				stmt.execute();
-				// System.out.println("Execute stmt "+ stmt.toString());
 			}
 		} catch (final SQLException e) {
 			err = createMySQLError(e);
