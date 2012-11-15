@@ -41,7 +41,7 @@ public class TestPlanTranslation extends TestCase {
 		 * Test Plan
 		 *   INPUT:
 		 *    tables: R ( a INT )
-		 *    statement: SELECT a FROM R
+		 *    statement: SELECT a+1 FROM R WHERE a = 1
 		 *   checked OUTPUT:
 		 *    - existing plan object
 		 *    - single MySQL Operator
