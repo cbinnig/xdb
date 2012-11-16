@@ -23,7 +23,7 @@ public class Function extends AbstractDatabaseObject {
 	private static Function prototype = new Function();
 	
 	private Long schemaOid=-1L;
-	EnumLanguage language;
+	private EnumLanguage language = EnumLanguage.FUNSQL;
 	private String source;
 	
 	
@@ -146,7 +146,7 @@ public class Function extends AbstractDatabaseObject {
 		if (lastError != Error.NO_ERROR)
 			return lastError;
 		
-		while (this.source != null) {
+		if (this.source != null) {
 			String[] values = { this.source };
 			int[] maxLength = { Integer.MAX_VALUE };
 			for (int i = 0; i < values.length; ++i) {

@@ -12,7 +12,12 @@ public class TokenAssignment extends AbstractToken{
 	
 	@Override
 	public String toSqlString() {
-		return null;
+		StringBuffer sqlString = new StringBuffer();
+		sqlString.append(this.var.toSqlString());
+		sqlString.append(AbstractToken.EQUAL1);
+		sqlString.append(this.selstmt.getStmtString());
+		sqlString.append(AbstractToken.SEMI);
+		return sqlString.toString();
 	}
 
 

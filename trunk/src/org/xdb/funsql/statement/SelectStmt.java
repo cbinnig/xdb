@@ -21,7 +21,6 @@ import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
-import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.compile.tokens.TokenSchema;
@@ -672,60 +671,5 @@ public class SelectStmt extends AbstractServerStmt {
 		String[] args = {"SELECT statement can not be executed!"};
 		Error err = new Error(EnumError.COMPILER_GENERIC, args);
 		return err;
-	}
-
-	@Override
-	public String toString() {
-		StringBuffer sqlValue = new StringBuffer();
-
-		sqlValue.append(AbstractToken.SELECT);
-
-		int i = 0;
-		for (AbstractExpression tExpr : this.tSelExpr) {
-			if (i != 0)
-				sqlValue.append(AbstractToken.COMMA);
-
-			sqlValue.append(AbstractToken.BLANK);
-			sqlValue.append(tExpr);
-			TokenIdentifier tExprAlias = this.tSelAliases.get(i);
-			if (tExprAlias != null) {
-				sqlValue.append(AbstractToken.BLANK);
-				sqlValue.append(AbstractToken.AS);
-				sqlValue.append(AbstractToken.BLANK);
-				sqlValue.append(tExprAlias);
-				sqlValue.append(AbstractToken.BLANK);
-			}
-			++i;
-		}
-
-		sqlValue.append(AbstractToken.BLANK);
-		sqlValue.append(AbstractToken.FROM);
-		sqlValue.append(AbstractToken.BLANK);
-
-		i = 0;
-		for (TokenTable tTable : this.tTables) {
-			if (i != 0)
-				sqlValue.append(AbstractToken.COMMA);
-
-			sqlValue.append(AbstractToken.BLANK);
-			sqlValue.append(tTable);
-
-			TokenIdentifier tTableAlias = this.tTableAliases.get(i);
-			if (tTableAlias != null) {
-				sqlValue.append(AbstractToken.BLANK);
-				sqlValue.append(AbstractToken.AS);
-				sqlValue.append(AbstractToken.BLANK);
-				sqlValue.append(tTableAlias);
-			}
-
-			++i;
-		}
-
-		sqlValue.append(AbstractToken.BLANK);
-		sqlValue.append(AbstractToken.WHERE);
-		sqlValue.append(AbstractToken.BLANK);
-		sqlValue.append(this.tWherePredicate.toString());
-
-		return sqlValue.toString();
 	}
 }
