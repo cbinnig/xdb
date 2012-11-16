@@ -157,7 +157,7 @@ public class MasterTrackerNode {
 				new LinkedList<org.xdb.funsql.compile.operator.AbstractOperator>();
 
 		//add root ops as initial new MySQLOperators
-		final Collection<Identifier> rootOps = plan.getRoots();
+		final Collection<Identifier> rootOps = plan.getRootIds();
 		for(final org.xdb.funsql.compile.operator.AbstractOperator op : plan.getOperators()) {
 			if(rootOps.contains(op.getOperatorId())) {
 				scanQueue.add(op);

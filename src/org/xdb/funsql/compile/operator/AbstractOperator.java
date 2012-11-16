@@ -106,6 +106,20 @@ public abstract class AbstractOperator implements Serializable {
 	}
 	
 	// methods
+	public boolean replaceChild(AbstractOperator oldChild, AbstractOperator newChild){
+		boolean replaced = false;
+		
+		for(int i=0; i<this.children.size(); ++i){
+			AbstractOperator child = this.children.get(i);
+			if(child.equals(oldChild)){
+				this.children.set(i, newChild);
+				replaced = true;
+			}
+		}
+		
+		return replaced;
+	}
+	
 	/**
 	 * @param v TreeVisitor (visitor pattern)
 	 * @return checked: okay?
@@ -134,11 +148,26 @@ public abstract class AbstractOperator implements Serializable {
 	}
 	
 	/**
+	 * Checks if operator is leave
+	 * @return
+	 */
+	public abstract boolean isLeaf();
+	
+	/**
 	 * Generates a visual graph representation of the operator
 	 * @param g
 	 * @return
 	 */
 	public abstract Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes);
+	
+	@Override
+	public boolean equals(Object o){
+		AbstractOperator op  = (AbstractOperator)o;
+		if(op.operatorId.equals(this.operatorId))
+			return true;
+		
+		return false;
+	}
 	
 	@Override
 	public String toString(){

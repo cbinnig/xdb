@@ -22,7 +22,7 @@ public class Function extends AbstractDatabaseObject {
 	private static long LAST_OID = 0;
 	private static Function prototype = new Function();
 	
-	private Long schemaOid;
+	private Long schemaOid=-1L;
 	EnumLanguage language;
 	private String source;
 	
@@ -145,6 +145,7 @@ public class Function extends AbstractDatabaseObject {
 		Error lastError = super.checkObject();
 		if (lastError != Error.NO_ERROR)
 			return lastError;
+		
 		while (this.source != null) {
 			String[] values = { this.source };
 			int[] maxLength = { Integer.MAX_VALUE };

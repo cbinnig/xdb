@@ -42,6 +42,11 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 	}
 	
 	@Override
+	public boolean isLeaf(){
+		return false;
+	}
+	
+	@Override
 	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
 		Error err = new Error();
 		GraphNode node = nodes.get(this.operatorId);

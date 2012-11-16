@@ -1,5 +1,6 @@
 package org.xdb.metadata;
 
+import org.xdb.Config;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.types.EnumSimpleType;
 
@@ -19,16 +20,24 @@ public class Attribute extends AbstractDatabaseObject{
 	private static final String[] ATTRIBUTES = {"OID", "NAME", "TYPE", "TABLE_OID"};
 	private static final String ALL_ATTRIBUTES = AbstractToken.toSqlIdentifierList(ATTRIBUTES);
 	private static long LAST_OID = 0;
+	private static long LAST_TEMP_OID = -1l;
+	
 	private static Attribute prototype = new Attribute();
 
 	private EnumSimpleType dataType;
-	private long tableOid;
+	private long tableOid = Config.METADATA_TEMP_OID;
 
 	private Attribute() {
 		super();
 		this.objectType = EnumDatabaseObject.ATTRIBUTE;
 	}
 
+	public Attribute(String name, EnumSimpleType dataType) {
+		super(LAST_TEMP_OID--, name);
+		this.dataType = dataType;
+		this.objectType = EnumDatabaseObject.ATTRIBUTE;
+	}
+	
 	public Attribute(long oid, String name, int dataType, long tableOid) {
 		super(oid, name);
 		this.dataType = EnumSimpleType.get(dataType);

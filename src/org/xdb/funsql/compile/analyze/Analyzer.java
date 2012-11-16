@@ -26,7 +26,7 @@ public class Analyzer {
 
 	public void analyze() {
 		// Check types
-		for (Identifier rootId : compilePlan.getRoots()) {
+		for (Identifier rootId : compilePlan.getRootIds()) {
 			AbstractOperator root = this.compilePlan.getOperators(rootId);
 
 			CheckOperatorVisitor checkOpVisitor = new CheckOperatorVisitor(
@@ -35,7 +35,7 @@ public class Analyzer {
 		}
 
 		// Create result descriptions
-		for (Identifier rootId : compilePlan.getRoots()) {
+		for (Identifier rootId : compilePlan.getRootIds()) {
 			AbstractOperator root = this.compilePlan.getOperators(rootId);
 
 			CreateResultVisitor resultDescVisitor = new CreateResultVisitor(
@@ -45,7 +45,7 @@ public class Analyzer {
 
 		//TODO: Do renaming after optimization => remove renaming from result creation and do all renaming here!
 		// Rename attributes
-		for (Identifier rootId : compilePlan.getRoots()) {
+		for (Identifier rootId : compilePlan.getRootIds()) {
 			AbstractOperator root = this.compilePlan.getOperators(rootId);
 
 			RenameOperatorVisitor renameVisitor = new RenameOperatorVisitor(

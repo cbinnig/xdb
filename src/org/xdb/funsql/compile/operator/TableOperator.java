@@ -23,7 +23,6 @@ public class TableOperator extends AbstractOperator {
 	private TokenIdentifier tableName;
 	private Connection connection = null;
 	private Table table = null;
-	private boolean isVar;
 	
 	private final StringTemplate sqlTemplate = 
 			new StringTemplate("SELECT <RESULTS> FROM <<OP1>> AS <OP1>");
@@ -34,20 +33,11 @@ public class TableOperator extends AbstractOperator {
 		
 		this.tableName = tableName;
 		this.type = EnumOperator.TABLE;
-		this.isVar = false;
 	}
 
 	//getters and setters
 	public String getTableName() {
 		return tableName.getName();
-	}
-	
-	public boolean isVar() {
-		return isVar;
-	}
-
-	public void setVar(boolean isVar) {
-		this.isVar = isVar;
 	}
 
 	public TokenIdentifier getTokenTable() {
@@ -100,6 +90,11 @@ public class TableOperator extends AbstractOperator {
 	@Override
 	public void accept(ITreeVisitor v) {
 		v.visitTableOperator(this);
+	}
+	
+	@Override
+	public boolean isLeaf(){
+		return true;
 	}
 	
 	@Override
