@@ -75,41 +75,49 @@ statement returns [AbstractServerStmt stmt]
                 createSchemaStatement 
                 {
                 	$stmt = $createSchemaStatement.stmt;
+                	$stmt.setStmtString($createSchemaStatement.text);
                 }
                 |
                 dropSchemaStatement 
                 {
                 	$stmt = $dropSchemaStatement.stmt;
+                	$stmt.setStmtString($dropSchemaStatement.text);
                 }
                 |
                 createConnectionStatement 
                 {
                 	$stmt = $createConnectionStatement.stmt;
+                	$stmt.setStmtString($createConnectionStatement.text);
                 }
                 |
                 dropConnectionStatement 
                 {
                 	$stmt = $dropConnectionStatement.stmt;
+                	$stmt.setStmtString($dropConnectionStatement.text);
                 }
                 |
                 createTableStatement 
                 {
                 	$stmt = $createTableStatement.stmt;
+                	$stmt.setStmtString($createTableStatement.text);
                 }
                 |
                 dropTableStatement 
                 {
                 	$stmt = $dropTableStatement.stmt;
+                	$stmt.setStmtString($dropTableStatement.text);
                 }
                 |
                 createFunctionStatement 
                 {
                 	$stmt = $createFunctionStatement.stmt;
+                	$stmt.setStmtString($createFunctionStatement.text);
                 }
                 |
                 selectStatement
                 {
                 	$stmt = $selectStatement.stmt;
+                	$stmt.setStmtString($selectStatement.text);
                 }
                 )
                 SEMI?
@@ -735,7 +743,7 @@ tokenAssignment returns [TokenAssignment ass]
 		 }
 		 EQUAL1
 		 selstmt1=selectStatement{
-		 $ass.setSelStmt(selstmt1);
+		 $ass.setSelStmt(selstmt1.stmt);
 		 }
 		 )
 		 |
@@ -747,7 +755,7 @@ tokenAssignment returns [TokenAssignment ass]
 		 }
 		 EQUAL1
 		 selstmt2=selectStatement{
-		 $ass.setSelStmt(selstmt2);
+		 $ass.setSelStmt(selstmt2.stmt);
 		 }		 
 		 )		
 	 )

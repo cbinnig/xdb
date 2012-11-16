@@ -13,6 +13,7 @@ public abstract class AbstractToken implements Serializable{
 	public static final String COMMA = ",";
 	public static final String LBRACE = "(";
 	public static final String RBRACE = ")";
+	public static final String SEMI = ";";
 	
 	public static final String EQUAL1 = "=";
 	public static final String EQUAL2 = "=";

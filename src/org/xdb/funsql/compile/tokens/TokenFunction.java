@@ -9,7 +9,7 @@ public class TokenFunction extends AbstractToken{
 	//attributes
 	private TokenIdentifier name;
 	private TokenSchema schema;
-	private EnumLanguage language;
+	private EnumLanguage language = EnumLanguage.FUNSQL;
 	
 	//constructors
 	public TokenFunction(String name){

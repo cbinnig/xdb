@@ -137,5 +137,7 @@ public class TestCreateFunctionSQL extends CompileServerTestCase {
 				+ "END; ");
 		this.assertNoError(compiler.getLastError());
 		fStmt.getPlan().traceGraph(this.getClass().getName());
+		
+		this.assertNoError(fStmt.execute());
 	}
 }

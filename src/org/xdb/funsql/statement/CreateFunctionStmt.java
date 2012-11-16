@@ -112,7 +112,6 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 				this.tFun.getLanguage(), stmtString);
 		
 		fCache.addPlan(this.function.hashKey(), this.functionPlan);
-		
 		e = this.function.checkObject();
 		
 		return e;
@@ -157,8 +156,6 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 				EnumError.COMPILER_FUNCTION_NO_OUT_PARAM, args);
 		return error;
 	}
-
-
 
 	@Override
 	public Error execute() {

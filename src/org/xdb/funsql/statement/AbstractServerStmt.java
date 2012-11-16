@@ -6,6 +6,14 @@ public abstract class AbstractServerStmt {
 	protected EnumStatement statementType;
 	protected String stmtString;
 	
+	public String getStmtString() {
+		return stmtString;
+	}
+
+	public void setStmtString(String stmtString) {
+		this.stmtString = stmtString;
+	}
+
 	public EnumStatement getType() {
 		return statementType;
 	}
@@ -37,4 +45,8 @@ public abstract class AbstractServerStmt {
 	public abstract Error compile();
 	
 	public abstract Error execute();
+	
+	public String toSqlString() {
+		return this.stmtString;
+	}
 }
