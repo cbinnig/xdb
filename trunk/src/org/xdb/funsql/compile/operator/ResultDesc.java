@@ -132,4 +132,8 @@ public class ResultDesc implements Serializable, Cloneable{
 		name.append(att);
 		return name.toString();
 	}
+	
+	public int size(){
+		return this.attributes.size();
+	}
 }

@@ -24,11 +24,13 @@ public class Table extends AbstractDatabaseObject {
 	private static final String[] ATTRIBUTES = {"OID", "NAME", "SOURCE_NAME", "SOURCE_SCHEMA", "SCHEMA_OID", "CONNECTION_OID"};
 	private static final String ALL_ATTRIBUTES = AbstractToken.toSqlIdentifierList(ATTRIBUTES);
 	private static long LAST_OID = 0;
+	private static long LAST_TEMP_OID = -1l;
+	
 	private static Table prototype = new Table();
 	
 	private String sourceName;
 	private String sourceSchema;
-	private Long schemaOid;
+	private Long schemaOid=-1l;
 	private Long connectionOid;
 	private HashMap<Long, Attribute> attributes = new HashMap<Long, Attribute>(); 
 	
@@ -47,12 +49,11 @@ public class Table extends AbstractDatabaseObject {
 	}
 
 	public Table(String name, String sourceName, String sourceSchema, Long schemaOid, Long connectionOid) {
-		super(++LAST_OID, name);
-		this.sourceName = sourceName;
-		this.sourceSchema = sourceSchema;
-		this.schemaOid = schemaOid;
-		this.connectionOid = connectionOid;
-		this.objectType = EnumDatabaseObject.TABLE;
+		this(++LAST_OID, name, sourceName, sourceSchema, schemaOid, connectionOid);
+	}
+	
+	public Table(String name) {
+		super(LAST_TEMP_OID--, name);
 	}
 	
 	public static void LAST_OID(long LAST_OID) {

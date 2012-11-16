@@ -1,39 +1,43 @@
 package org.xdb.funsql.statement;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Vector;
 
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.FunctionCache;
-import org.xdb.funsql.compile.operator.AbstractOperator;
-import org.xdb.funsql.compile.operator.EnumOperator;
-import org.xdb.funsql.compile.operator.TableOperator;
+import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.tokens.TokenAssignment;
 import org.xdb.funsql.compile.tokens.TokenFunction;
 import org.xdb.funsql.compile.tokens.TokenSchema;
 import org.xdb.funsql.compile.tokens.TokenVariable;
+import org.xdb.funsql.types.EnumSimpleType;
+import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Catalog;
 import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Function;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
-import org.xdb.utils.Identifier;
 
 public class CreateFunctionStmt extends AbstractServerStmt {
 	
 	//function
 	private TokenFunction tFun;
 	private Function function;
-	private FunctionCache cache = FunctionCache.getCache();
+	private FunctionCache fCache = FunctionCache.getCache();
 	// I/O-Parameter
-	private Vector<TokenVariable> parameters = new Vector<TokenVariable>();
+	private Vector<TokenVariable> outParameters = new Vector<TokenVariable>();
+	private HashSet<String> outParamKeys = new HashSet<String>();
+	
 	
 	//assignments in function body
 	private HashMap<TokenVariable, SelectStmt> assignments = new HashMap<TokenVariable, SelectStmt>();
 	private Vector<TokenAssignment> tAssignments = new Vector<TokenAssignment>();
-
+	private HashMap<String, CompilePlan> compilePlans = new HashMap<String, CompilePlan>();
+	private HashMap<String, Table> varSymbols = new HashMap<String, Table>();
+	
 	private CompilePlan functionPlan = new CompilePlan();
 	
 	// Constructors
@@ -69,92 +73,70 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		e = checkParameters();
 		if (e.isError())
 			return e;
-		cache.addVariables(this.parameters);
-
-		// step 2: assignments
+		
+		// step 2: compile assignments
 		for (TokenAssignment ta : this.tAssignments) {
-			e = ta.getSelStmt().compile();
+			SelectStmt stmt = ta.getSelStmt();
+			stmt.addVarSymbols(this.varSymbols);
+			e = stmt.compile();
 			if (e.isError())
 				return e;
-
-			if (ta.getVar().isReferenced()
-					&& (!cache.isVarInCache(ta.getVar().getName()))) {
-				String[] s = { ta.getVar().getName() };
-				e = new Error(EnumError.COMPILER_FUNCTION_VAR_NOT_DECLARED, s);
-			} else {
-				for (Identifier rootId : ta.getSelStmt().getPlan().getRoots()) {
-					AbstractOperator root = ta.getSelStmt().getPlan()
-							.getOperators(rootId);
-					cache.addVariable(ta.getVar(), root.getResult(0));
-					cache.addPlan((ta.getSelStmt().getPlan()));
-					if(ta.isReference())
-						this.replaceTable(ta, root);
-				}
+			
+			//add plan to compiled plans and build table from result
+			this.compilePlans.put(ta.getVar().hashKey(), stmt.getPlan());
+			Table tableType = this.buildTableType(ta.getVar(), stmt.getPlan().getRoot(0).getResult(0));
+			varSymbols.put(ta.hashKey(), tableType);
+		}
+		
+		//step 3: build compile plan from select plans
+		//TODO: not yet correct
+		for (TokenAssignment ta : this.tAssignments) {
+			SelectStmt stmt = ta.getSelStmt();
+			CompilePlan stmtPlan = stmt.getPlan();
+			
+			//replace variables in stmtPlan
+			for(String varKey: stmt.getUsedVariables()){
+				CompilePlan varPlan = this.compilePlans.get(varKey);
+				stmtPlan.replaceVariable(varKey, varPlan.getRoot(0));
+			}
+			
+			//add stmtPlan to functionPlan
+			this.functionPlan.addSubPlan(stmtPlan);
+			if(this.outParamKeys.contains(ta.getVar())){
+				this.functionPlan.addRootId(stmtPlan.getRootId(0));
 			}
 		}
-		//step 3: add CompilePlan to cache
-		cache.addPlan(this.functionPlan);
 		
+		//step 4: add CompilePlan to cache and catalog
 		this.function = new Function(this.tFun.toString(), schema.getOid(),
 				this.tFun.getLanguage(), stmtString);
+		
+		fCache.addPlan(this.function.hashKey(), this.functionPlan);
+		
 		e = this.function.checkObject();
+		
 		return e;
-
 	}
-
-	private void replaceTable(TokenAssignment ta, AbstractOperator root) {
-		for (Table tVar : ta.getSelStmt().getUsedVariables()) {
-			TokenVariable var = new TokenVariable(tVar.getName().replaceFirst("VAR_", ""));
-
-			// search for last SelectStmt that fills this variable
-			SelectStmt selstmt = (SelectStmt) this.assignments.get(var);
-			CompilePlan usedPlan =selstmt.getPlan();
-			AbstractOperator selRoot = null;// root operator from select
-											// statement
-			if (usedPlan.getRoots().size() == 1) {
-				selRoot = usedPlan.getOperators(usedPlan.getRoots().iterator()
-						.next());
-			} else {
-				// TODO: CompilePlan with more than one root (FunctionCall)
-			}
-			for (AbstractOperator op : usedPlan.getOperators()) {
-				this.functionPlan.addOperator(op, false);
-			}// add all operators from used plan to functionPlan
-			if (!root.getType().equals(EnumOperator.TABLE)) {
-				for (AbstractOperator source : root.getSourceOperators()) {
-					if (source.getType().equals(EnumOperator.TABLE)) {
-						if (((TableOperator) source).getTable().equals(tVar)) {
-							((TableOperator) source).replace(selRoot);
-						} else {
-							if (this.functionPlan.getOperators(source
-									.getOperatorId()) == null)
-								this.functionPlan.addOperator(source, false);
-						}
-					} else {
-						if (this.functionPlan.getOperators(source
-								.getOperatorId()) == null)
-							this.functionPlan.addOperator(source, false);
-					}
-				}
-				this.functionPlan.addOperator(root, true);
-			} else {
-				// root = TableOperator
-				((TableOperator) root).replace(selRoot);
-			}
+	
+	private Table buildTableType(TokenVariable var, ResultDesc resultDesc){
+		Table table = new Table(var.getName());
+		for(int i=0; i<resultDesc.size(); ++i){
+			String attName = resultDesc.getAttribute(i).getName().toSqlString();
+			EnumSimpleType attType = resultDesc.getType(i);
+			Attribute att = new Attribute(attName, attType);
+			table.addAttribute(att);
 		}
+		return table;
 	}
 
 	private Error checkParameters() {
 		Error e = new Error();
 		// check Parameters
-		if(this.parameters != null){
-			for (TokenVariable var : this.parameters) {
-				var.setName(var.getName().toUpperCase());
+		if(this.outParameters.size()>0){
+			for (TokenVariable var : this.outParameters) {
 				if (!this.assignments.containsKey(var)) {
 					e = this.createOutputParameterIsNotInitialisedErr(var);
 				}
-				else if (this.parameters == null)
-					e = this.createNoOutputParameterErr();
 			}
 			return e;
 		}else{
@@ -190,8 +172,9 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	}
 
 	// In/Out Parameters
-	public void addParam(TokenVariable var) {
-		this.parameters.addElement(var);
+	public void addOutParam(TokenVariable var) {
+		this.outParameters.addElement(var);
+		this.outParamKeys.add(var.hashKey());
 	}
 
 	// getter and setter
@@ -221,11 +204,11 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	}
 
 	public Vector<TokenVariable> getParameters() {
-		return parameters;
+		return outParameters;
 	}
 
 	public void setParameters(Vector<TokenVariable> parameters) {
-		this.parameters = parameters;
+		this.outParameters = parameters;
 	}
 
 	public Vector<TokenAssignment> gettAssignments() {

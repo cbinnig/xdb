@@ -3,6 +3,7 @@ package org.xdb.funsql.statement;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Vector;
 
 import org.xdb.error.EnumError;
@@ -56,7 +57,8 @@ public class SelectStmt extends AbstractServerStmt {
 	private HashMap<String, Table> tableSymbols = new HashMap<String, Table>();
 	private HashMap<String, Attribute> attSymbols = new HashMap<String, Attribute>();
 	private HashMap<TokenAttribute, EnumSimpleType> attTypes = new HashMap<TokenAttribute, EnumSimpleType>();
-	private Vector<Table>usedVariables = new Vector<Table>();
+	private HashMap<String, Table> varSymbols = new HashMap<String, Table>();
+	private Vector<String> usedVariables = new Vector<String>();
 	
 	private CompilePlan plan = new CompilePlan();
 	FunctionCache fcache = FunctionCache.getCache();
@@ -74,6 +76,10 @@ public class SelectStmt extends AbstractServerStmt {
 	}
 
 	// getters and setters
+	public void addVarSymbols(Map<String, Table> varSymbols){
+		this.varSymbols.putAll(varSymbols);
+	}
+	
 	public void addSelExpression(AbstractExpression expr) {
 		this.tSelExpr.add(expr);
 		
@@ -99,7 +105,7 @@ public class SelectStmt extends AbstractServerStmt {
 		return this.tSelAliases;
 	}
 
-	public Vector<Table> getUsedVariables() {
+	public Vector<String> getUsedVariables() {
 		return usedVariables;
 	}
 
@@ -166,9 +172,6 @@ public class SelectStmt extends AbstractServerStmt {
 		Analyzer analyzer = new Analyzer(this.plan, this.attTypes);
 		analyzer.analyze();
 		
-		//6. add plan to cache
-		fcache.addPlan(this.plan);
-
 		return err;
 	}
 
@@ -283,9 +286,7 @@ public class SelectStmt extends AbstractServerStmt {
 			Table table = this.tableSymbols.get(tTableAlias.hashKey());
 			TableOperator tableOp = new TableOperator(tTableAlias);
 			tableOp.setTable(table);
-			if(this.usedVariables != null&&this.usedVariables.contains(table)){		
-					tableOp.setVar(true);
-			}
+			
 			plan.addOperator(tableOp, false);
 			if (this.tWherePredicate != null) {
 				selectionPreds.addAll(this.tWherePredicate.splitAnd());
@@ -537,22 +538,15 @@ public class SelectStmt extends AbstractServerStmt {
 		for (int i = 0; i < this.tTables.size(); ++i) {
 			TokenTable tTable = this.tTables.get(i);
 			TokenIdentifier tTableAlias = this.tTableAliases.get(i);
-
+			Table table = null;
+			
 			if (tTable.isVariable()) {
-				Table table = null;
+				if(!this.varSymbols.containsKey(tTable.hashKey())){
+					return createVariableNotDeclared(tTable);
+				}
 				
-				// check if is in cache
-				if(!fcache.isVarInCache(tTable))
-					return this.createVariableNotDeclared(tTable);
-				else{
-					table = fcache.getTable("VAR_"+tTable.getName().toString());					
-				}
-				// check for duplicate variable names
-				if (this.tableSymbols.containsKey(tTableAlias.hashKey())) {
-					return createDuplicateTableNameErr(tTableAlias);
-				}
-				this.tableSymbols.put(tTableAlias.hashKey(), table);
-				this.usedVariables.add(table);
+				table = this.varSymbols.get(tTable.hashKey());
+				this.usedVariables.add(tTable.hashKey());
 			} else {
 				TokenSchema tSchema = tTable.getSchema();
 				Schema schema = Catalog.getSchema(tSchema.hashKey());
@@ -564,20 +558,19 @@ public class SelectStmt extends AbstractServerStmt {
 				}
 				this.schemaSymbols.put(schema.hashKey(), schema);
 
-				Table table = Catalog.getTable(tTable.hashKey(schema.getOid()));
+				table = Catalog.getTable(tTable.hashKey(schema.getOid()));
 
 				// check for non existing table names
 				if (table == null) {
 					return Catalog.createObjectNotExistsErr(
 							tTable.toSqlString(), EnumDatabaseObject.TABLE);
 				}
-
-				// check for duplicate table names
-				if (this.tableSymbols.containsKey(tTableAlias.hashKey())) {
-					return createDuplicateTableNameErr(tTableAlias);
-				}
-				this.tableSymbols.put(tTableAlias.hashKey(), table);
 			}
+			// check for duplicate table names
+			if (this.tableSymbols.containsKey(tTableAlias.hashKey())) {
+				return createDuplicateTableNameErr(tTableAlias);
+			}
+			this.tableSymbols.put(tTableAlias.hashKey(), table);
 		}
 		return err;
 	}
@@ -676,8 +669,8 @@ public class SelectStmt extends AbstractServerStmt {
 
 	@Override
 	public Error execute() {
-		Error err = new Error();
-
+		String[] args = {"SELECT statement can not be executed!"};
+		Error err = new Error(EnumError.COMPILER_GENERIC, args);
 		return err;
 	}
 

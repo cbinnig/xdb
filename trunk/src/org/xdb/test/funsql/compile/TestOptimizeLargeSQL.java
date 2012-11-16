@@ -65,7 +65,7 @@ public class TestOptimizeLargeSQL extends CompileServerTestCase {
 		this.assertNoError(compiler.getLastError());
 		
 		
-		for(Identifier opId : selectStmt.getPlan().getRoots()){
+		for(Identifier opId : selectStmt.getPlan().getRootIds()){
 			
 			GenericProjection proj = (GenericProjection) selectStmt.getPlan().getOperators(opId);
 			

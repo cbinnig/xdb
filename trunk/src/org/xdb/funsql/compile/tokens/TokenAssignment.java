@@ -41,5 +41,9 @@ public class TokenAssignment extends AbstractToken{
 	public void setReference(boolean isReference) {
 		this.isReference = isReference;
 	}
+	
+	public String hashKey(){
+		return this.var.hashKey();
+	}
 
 }

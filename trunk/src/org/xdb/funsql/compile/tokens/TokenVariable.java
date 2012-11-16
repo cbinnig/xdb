@@ -41,5 +41,9 @@ public class TokenVariable extends AbstractToken{
 	public void setReferenced(boolean isReferenced) {
 		this.isReferenced = isReferenced;
 	}
+	
+	public String hashKey(){
+		return this.name;
+	}
 
 }

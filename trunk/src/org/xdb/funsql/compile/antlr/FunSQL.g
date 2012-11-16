@@ -263,7 +263,7 @@ createFunctionStatement returns [CreateFunctionStmt stmt]
                 (
                 KEYWORD_OUT
                 var1=tokenVariable{
-               		$stmt.addParam(var1);
+               		$stmt.addOutParam(var1);
 		}
 		KEYWORD_TABLE
 		)*
@@ -864,7 +864,7 @@ tokenIntegerLiteral returns [TokenIntegerLiteral literal]
  	(
  	
  		var1 = IDENTIFIER {
- 		$text = $var1.text;
+ 		$text = $var1.text.toUpperCase();
  		}
  		
  	)

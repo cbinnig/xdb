@@ -5,12 +5,14 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
 
@@ -38,9 +40,10 @@ public class CompilePlan implements Serializable {
 	private Integer lastOpId = 1;
 
 	// plan info
-	private HashMap<Identifier, AbstractOperator> operators;
-	private HashSet<Identifier> roots;
-
+	private HashMap<Identifier, AbstractOperator> operators = new HashMap<Identifier, AbstractOperator>();
+	private Vector<Identifier> roots = new Vector<Identifier>();
+	private HashSet<Identifier> leaves = new HashSet<Identifier>();
+	
 	// logger
 	private Logger logger;
 
@@ -49,9 +52,6 @@ public class CompilePlan implements Serializable {
 
 	// constructor
 	public CompilePlan() {
-		this.operators = new HashMap<Identifier, AbstractOperator>();
-		this.roots = new HashSet<Identifier>();
-
 		this.planId = new Identifier(lastPlanId++);
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 	}
@@ -69,8 +69,25 @@ public class CompilePlan implements Serializable {
 		return operators.get(opId);
 	}
 
-	public Collection<Identifier> getRoots() {
+	public Collection<Identifier> getRootIds() {
 		return roots;
+	}
+	
+	public Identifier getRootId(int i) {
+		return roots.get(0);
+	}
+	
+	public AbstractOperator getRoot(int i){
+		return this.operators.get(this.roots.get(i));
+	}
+	
+	public void addRootId(Identifier root){
+		this.roots.add(root);
+	}
+	
+	public void addSubPlan(CompilePlan plan) {
+		this.operators.putAll(plan.operators);
+		this.leaves.addAll(plan.leaves);
 	}
 
 	public Error getLastError() {
@@ -78,6 +95,27 @@ public class CompilePlan implements Serializable {
 	}
 
 	// methods
+	/**
+	 * replaces a leaf Operator with a given variable name in plan with new leaf
+	 * @param varKey
+	 * @param newLeafOp
+	 */
+	public void replaceVariable(String varKey, AbstractOperator newLeafOp){
+		HashSet<Identifier> removedLeaves = new HashSet<Identifier>();
+		for(Identifier leafId: this.leaves){
+			TableOperator leafOp = (TableOperator)this.operators.get(leafId);
+			if(leafOp.getTable().hashKey().equals(varKey)){
+				
+				for(AbstractOperator parentOp: leafOp.getDestinationOperators()){
+					if(parentOp.replaceChild(leafOp, newLeafOp)){
+						removedLeaves.add(leafId);
+					}
+				}
+			}
+		}
+		this.leaves.removeAll(removedLeaves);
+	}
+		
 	/**
 	 * Adds operator to plan and indicates if it is a root operator. For each
 	 * operator a unique operator ID is generated!
@@ -96,6 +134,9 @@ public class CompilePlan implements Serializable {
 		if (isRoot) {
 			this.roots.add(opId);
 		}
+		
+		if(op.isLeaf())
+			this.leaves.add(op.getOperatorId());
 	}
 
 	/**

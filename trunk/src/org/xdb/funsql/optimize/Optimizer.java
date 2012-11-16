@@ -26,12 +26,12 @@ public class Optimizer {
 		Vector<TreeWalkerSelectionPush> treeWalkerSelectionPushVector = new Vector<TreeWalkerSelectionPush>();
 		Vector<TreeWalkerSelectionUnion> treeWalkerSelectionUnionVector = new Vector<TreeWalkerSelectionUnion>();
 
-		Iterator<Identifier> roots = compilePlan.getRoots().iterator();
+		Iterator<Identifier> roots = compilePlan.getRootIds().iterator();
 		
 		/*
 		 * Selection Push Down
 		 */
-		roots = compilePlan.getRoots().iterator();
+		roots = compilePlan.getRootIds().iterator();
 		while(roots.hasNext()){
 			Identifier id = roots.next();
 			TreeWalkerSelectionSplit walkerSelectionSplit = new TreeWalkerSelectionSplit(compilePlan.getOperators(id));
@@ -103,13 +103,13 @@ public class Optimizer {
 	protected void findNewRoots() {
 		boolean changesDid = false;
 		do{
-			for(Identifier id : compilePlan.getRoots()){
+			for(Identifier id : compilePlan.getRootIds()){
 				AbstractOperator op = compilePlan.getOperators(id);
 				if(op.getDestinationOperators() != null){
-					compilePlan.getRoots().remove(op.getOperatorId());
+					compilePlan.getRootIds().remove(op.getOperatorId());
 					for(AbstractOperator newRoot : op.getDestinationOperators()){
-						if(!compilePlan.getRoots().contains(newRoot.getOperatorId())){
-							compilePlan.getRoots().add(newRoot.getOperatorId());
+						if(!compilePlan.getRootIds().contains(newRoot.getOperatorId())){
+							compilePlan.getRootIds().add(newRoot.getOperatorId());
 							changesDid = true;
 						}
 					}

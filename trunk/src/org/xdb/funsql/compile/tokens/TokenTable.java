@@ -81,6 +81,9 @@ public class TokenTable extends AbstractToken{
 		return key.toString();
 	}
 
-
-
+	public String hashKey(){
+		StringBuffer key = new StringBuffer();
+		key.append(this.name.toString());
+		return key.toString();
+	}
 }

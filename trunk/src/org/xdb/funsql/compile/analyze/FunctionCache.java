@@ -1,26 +1,13 @@
 package org.xdb.funsql.compile.analyze;
 
 import java.util.HashMap;
-import java.util.Vector;
 
 import org.xdb.funsql.compile.CompilePlan;
-import org.xdb.funsql.compile.operator.ResultDesc;
-import org.xdb.funsql.compile.tokens.*;
-import org.xdb.metadata.Attribute;
-import org.xdb.metadata.Catalog;
-import org.xdb.metadata.Schema;
-import org.xdb.metadata.Table;
 
 public final class FunctionCache {
 	//Singleton
 	private static FunctionCache cache;
-	//constructor
-	private FunctionCache(){}
 	
-	//Cache-variables
-	private static Vector<TokenVariable> vars;
-	private static HashMap<String, TokenVariable> namedvars;
-	private static HashMap<String, Table> tables;	//representation of variable is a table
 	//cached CompilePlans
 	private static HashMap<String, CompilePlan> plans;
 	
@@ -28,108 +15,27 @@ public final class FunctionCache {
 		if(cache == null){
 			cache = new FunctionCache();
 			plans = new HashMap<String, CompilePlan>();
-			tables = new HashMap<String, Table>();
-			namedvars = new HashMap<String, TokenVariable>();
-			vars= new Vector<TokenVariable>();
 		}
 		return cache;
 	}
 	
-	//methods
-	
-	/**
-	 * @param tv TokenVariable to add to the Cache
-	 */
-	private void addVariable(TokenVariable tv){
-		 namedvars.put(tv.getName().toUpperCase(), tv);
-		 vars.addElement(tv);
-//		 if(Catalog.getSchema("VARIABLE")==(null)){
-//			 Catalog.createSchema(new Schema("VARIABLE"));
-//		 }
-		 Schema schema = Catalog.getSchema("PUBLIC");
-		 Table table = new Table("VAR_"+ tv.getName().toUpperCase(), tv.getName(), schema.getName(), schema.getOid(),null);
-		 tables.put(table.getName(), table);
-	}	
-	
-	public void addVariable(TokenVariable tv, ResultDesc rd) {
-		Table t;
-		if (!this.isVarInCache(tv.getName().toUpperCase())) {
-			this.addVariable(tv);
-		}
-		t = tables.get("VAR_"+tv.getName().toUpperCase());
-		tables.remove(t);
-		for(int i = 0; i <  rd.getAttributes().size(); i++){
-			TokenAttribute ta = rd.getAttribute(i);
-			t.addAttribute(new Attribute(ta.getName().toString(),rd.getType(i), t.getOid()));
-		}
-		tables.put(t.getName().toUpperCase(), t);
-	}
-	
-	/**
-	 * Checks if variable is in Cache
-	 * @param VarName
-	 * @return true = variable is in Cache, false = variable is not in Cache
-	 */
-	public boolean isVarInCache(String VarName){
-		TokenVariable tv = namedvars.get(VarName.toUpperCase());
-		if (tv==null)
-			return false;
-		else return true;
-	}
-	
-	/**
-	 * Checks if variable is in Cache
-	 * @param VarName
-	 * @return true = variable is in Cache, false = variable is not in Cache
-	 */
-	public boolean isVarInCache(TokenTable ttable){
-		Table t = tables.get("VAR_"+ttable.getName().toString().toUpperCase());
-		if (t == null)
-			return false;
-		else return true;
-	}
-	
-	/**
-	 * Gets a Variable from Cache
-	 * @param VarName
-	 * @return TokenVariable
-	 */
-	public TokenVariable getVar(String VarName){
-		TokenVariable tv = namedvars.get(VarName.toUpperCase());
-		return tv;
-	}
-	
-	/**
-	 * Gets a Variable from Cache
-	 * @param VarName
-	 * @return TokenVariable
-	 */
-	public Table getTable(String VarName){
-		Table t = tables.get(VarName.toUpperCase());
-		return t;
-	}
-	
+	//constructor
+	private FunctionCache(){}
+		
+	//methods	
 	/**
 	 * adds a CompilePlan to the Cache; if a plan exists for this key, it is updated
 	 * @param cp CompilePlan to be added
 	 */
-	public void addPlan(CompilePlan cp){
-		plans.put(cp.getPlanId().toString(),cp);		
+	public void addPlan(String functioName, CompilePlan cp){
+		plans.put(functioName, cp);		
 	}
 	
 	/**
 	 * Fetches the Plan from the Cache
 	 * @param i
 	 */
-	public void getPlan(int i){
-		plans.get(i);
+	public void getPlan(String id){
+		plans.get(id);
 	}
-
-	public void addVariables(Vector<TokenVariable> variables) {
-		for(TokenVariable tv: variables){
-			this.addVariable(tv);
-		}
-		
-	}
-
 }
