@@ -7,7 +7,7 @@ public class TestSuiteSQL extends TestSuite
 {
   public static Test suite()
   {
-    TestSuite suite = new TestSuite( "org.xdb.test.funsql.compile" );
+    TestSuite suite = new TestSuite( TestSuiteSQL.class.getPackage().getName() );
     suite.addTestSuite( TestCreateConnectionSQL.class );
     suite.addTestSuite( TestCreateSchemaSQL.class );
     suite.addTestSuite( TestCreateTableSQL.class );

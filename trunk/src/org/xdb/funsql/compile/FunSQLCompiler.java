@@ -13,6 +13,7 @@ import org.xdb.funsql.statement.AbstractServerStmt;
 public class FunSQLCompiler {
 	private Error lastError;
 	private boolean doOptimize = true;
+	private boolean doSemanticAnalysis = true;
 	
 	//getters and setters
 	public Error getLastError() {
@@ -21,6 +22,10 @@ public class FunSQLCompiler {
 
 	public void doOptimize(boolean doOptimize) {
 		this.doOptimize = doOptimize;
+	}
+	
+	public void doSemanticAnalysis(boolean doSemanticAnalysis) {
+		this.doSemanticAnalysis = doSemanticAnalysis;
 	}
 
 	//methods
@@ -31,16 +36,18 @@ public class FunSQLCompiler {
 
 			FunSQLParser parser = new FunSQLParser(tokens);
 			AbstractServerStmt statement = parser.statement();
-			if (parser.failed()) {
+			if (statement==null || parser.failed()) {
 				createGenericCompileErr("Statement could not be parsed (No details can be provided)!");
 				return null;
 			}
-
+			
+			//compile (including semantic analysis if requested)
+			statement.doSemanticAnalysis(this.doSemanticAnalysis);
 			this.lastError = statement.compile();
-
 			if (lastError.isError())
 				return null;
 
+			//optimize if requested
 			if(this.doOptimize){
 				this.lastError = statement.optimize();
 				if (lastError.isError())

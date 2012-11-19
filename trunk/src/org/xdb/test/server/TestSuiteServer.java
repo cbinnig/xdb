@@ -7,7 +7,7 @@ public class TestSuiteServer extends TestSuite
 {
   public static Test suite()
   {
-    TestSuite suite = new TestSuite( "org.xdb.test.server" );
+    TestSuite suite = new TestSuite( TestSuiteServer.class.getPackage().getName() );
     suite.addTestSuite( TestCompileServer.class );
     suite.addTestSuite( TestComputeServer.class );
     return suite;

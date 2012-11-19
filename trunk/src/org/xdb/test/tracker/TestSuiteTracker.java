@@ -7,7 +7,7 @@ public class TestSuiteTracker extends TestSuite
 {
   public static Test suite()
   {
-    TestSuite suite = new TestSuite( "org.xdb.test.execute.tracker" );
+    TestSuite suite = new TestSuite( TestSuiteTracker.class.getPackage().getName() );
     suite.addTestSuite( TestQueryTracker.class );
     suite.addTestSuite( TestPlanTranslation.class );
     return suite;
