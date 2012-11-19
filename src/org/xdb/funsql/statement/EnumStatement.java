@@ -7,6 +7,6 @@ public enum EnumStatement {
 	DROP_SCHEMA,
 	CREATE_TABLE,
 	DROP_TABLE,
-	SELECT,
 	CREATE_FUNCTION,
+	SELECT
 }

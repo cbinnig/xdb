@@ -2,10 +2,17 @@ package org.xdb.funsql.statement;
 
 import org.xdb.error.Error;
 
+/**
+ * Implements a statement on the server side
+ * 
+ * @author cbinnig
+ *
+ */
 public abstract class AbstractServerStmt {
 	protected EnumStatement statementType;
 	protected String stmtString;
 	
+	//getter and setters
 	public String getStmtString() {
 		return stmtString;
 	}
@@ -22,30 +29,63 @@ public abstract class AbstractServerStmt {
 		this.statementType = type;
 	}
 	
+	//methods
+	
+	/**
+	 * Checks if statement is a DDL statement
+	 * @return
+	 */
 	public boolean isDDL(){
 		switch(this.statementType){
+		case DROP_CONNECTION:
 		case CREATE_CONNECTION:
+		case DROP_SCHEMA:
 		case CREATE_SCHEMA:
 		case CREATE_TABLE:
 		case DROP_TABLE:
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean isDML(){
-		switch(this.statementType){
-		case SELECT:
 		case CREATE_FUNCTION:	
 			return true;
 		}
 		return false;
 	}
 	
+	/**
+	 * Checks if statement is a DML statement
+	 * @return
+	 */
+	public boolean isDML(){
+		switch(this.statementType){
+		case SELECT:
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Compile a statement
+	 * @return
+	 */
 	public abstract Error compile();
 	
+	/**
+	 * Optimizes a given statement
+	 * @return
+	 */
+	public Error optimize(){
+		//Nothing to do in most cases
+		return new Error();
+	}
+	
+	/**
+	 * Execute a statement
+	 * @return
+	 */
 	public abstract Error execute();
 	
+	/**
+	 * Return SQL representation of statement
+	 * @return
+	 */
 	public String toSqlString() {
 		return this.stmtString;
 	}

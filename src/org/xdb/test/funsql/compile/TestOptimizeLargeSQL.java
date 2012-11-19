@@ -24,7 +24,8 @@ public class TestOptimizeLargeSQL extends CompileServerTestCase {
 	@Test
 	public void testComplexOptimizer() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
-
+		compiler.doOptimize(false);
+		
 		// create connection -> no error
 		String dropConnSql = "DROP CONNECTION \"testConnection\"";
 		AbstractServerStmt stmt = compiler.compile(dropConnSql);
@@ -101,14 +102,14 @@ public class TestOptimizeLargeSQL extends CompileServerTestCase {
 				desc.setType(i, type);
 			}
 			
-			sel.setResult(0, desc);
+			sel.addResult(desc);
 			
 			sel.getDestinationOperators().add(proj2);
 			sel.setChild(join);
 			
 			proj2.getDestinationOperators().removeAllElements();
 			for(int i=0;i<proj.getResultNumber();i++){
-				proj2.setResult(i, proj.getResult(i));
+				proj2.addResult( proj.getResult(i));
 			}
 			proj2.setChild(sel);
 			

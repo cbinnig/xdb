@@ -4,7 +4,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.xdb.funsql.compile.FunSQLCompiler;
-import org.xdb.funsql.optimize.Optimizer;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.SelectStmt;
 import org.xdb.test.CompileServerTestCase;
@@ -52,10 +51,7 @@ public class TestOptimizeSQL extends CompileServerTestCase {
 							+ "WHERE R1.B=R2.B AND R2.B=R3.B AND R1.C=1");
 			this.assertNoError(compiler.getLastError());
 
-			Optimizer opti = new Optimizer(selectStmt.getPlan());
-			opti.optimize();
 			selectStmt.getPlan().traceGraph(this.getClass().getName());
-			
 		}
 
 	

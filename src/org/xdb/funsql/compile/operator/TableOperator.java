@@ -64,21 +64,25 @@ public class TableOperator extends AbstractOperator {
 		this.table = table;
 	}
 	
-	@Override
-	public String toSqlString() {
-		HashMap<String, String> vars = new HashMap<String, String>();
-		final String opDummy = getOperatorId().toString()+"_TABLE";
-		vars.put("OP1", opDummy);
-		
-		//get alle table attributes and match them in order
-		final Vector<String> attrs = new Vector<String>();
-		for(Attribute attr : table.getAttributes()) {
-			attrs.add(attr.getName());
-		}
-		vars.put("RESULTS", SetUtils.buildAliasString(opDummy, attrs, getResultAttributes()));
-		return sqlTemplate.toString(vars);
-	}
+	//methods
+	
+	/**
+	 * Replace table by other operator, e.g.
+	 * sub-plan
+	 * 
+	 * @param newOp
+	 */
+	public void replace(AbstractOperator newOp){
+		//replace result description in newOp
+		newOp.setResult(0, this.getResult(0));
 
+		//add newOp to plan
+		for(AbstractOperator p : this.parents){
+			p.children.add(newOp);
+			p.children.remove(this);
+		}
+	}
+	
 	/**
 	 * @return false, nothing could pushed down deeper than the table
 	 */
@@ -98,6 +102,22 @@ public class TableOperator extends AbstractOperator {
 	}
 	
 	@Override
+	public String toSqlString() {
+		HashMap<String, String> vars = new HashMap<String, String>();
+		final String opDummy = getOperatorId().toString()+"_TABLE";
+		vars.put("OP1", opDummy);
+		
+		//get alle table attributes and match them in order
+		final Vector<String> attrs = new Vector<String>();
+		for(Attribute attr : table.getAttributes()) {
+			attrs.add(attr.getName());
+		}
+		vars.put("RESULTS", SetUtils.buildAliasString(opDummy, attrs, getResultAttributes()));
+		return sqlTemplate.toString(vars);
+	}
+
+	
+	@Override
 	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
 		Error err = new Error();
 		GraphNode node = nodes.get(this.operatorId);
@@ -106,12 +126,5 @@ public class TableOperator extends AbstractOperator {
 		node.getInfo().setCaption(this.toString());
 		node.getInfo().setFooter(this.tableName.toSqlString());
 		return err;
-	}
-	
-	public void replace(AbstractOperator newOp){
-		for(AbstractOperator p : this.parents){
-			p.children.add(newOp);
-			p.children.remove(this);
-		}
 	}
 }
