@@ -13,7 +13,7 @@ public class TestSuiteXDB extends TestSuite
 {
   public static Test suite()
   {
-    TestSuite suite = new TestSuite( "org.xdb.test" );
+    TestSuite suite = new TestSuite( TestSuiteXDB.class.getPackage().getName() );
     suite.addTest(TestSuiteOperators.suite());
     suite.addTest(TestSuiteTracker.suite());
     suite.addTest(TestSuiteStmt.suite());

@@ -7,7 +7,7 @@ public class TestSuiteOperators extends TestSuite
 {
   public static Test suite()
   {
-    TestSuite suite = new TestSuite( "org.xdb.test.execute.operators" );
+    TestSuite suite = new TestSuite( TestSuiteOperators.class.getPackage().getName() );
     suite.addTestSuite( TestComputeOperator.class );
     return suite;
   }

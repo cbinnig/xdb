@@ -1,6 +1,8 @@
 package org.xdb.funsql.compile.analyze;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.xdb.funsql.compile.CompilePlan;
 
@@ -9,33 +11,50 @@ public final class FunctionCache {
 	private static FunctionCache cache;
 	
 	//cached CompilePlans
-	private static HashMap<String, CompilePlan> plans;
+	private Map<String, CompilePlan> plans;
 	
 	public synchronized static FunctionCache getCache(){
 		if(cache == null){
 			cache = new FunctionCache();
-			plans = new HashMap<String, CompilePlan>();
 		}
 		return cache;
 	}
 	
 	//constructor
-	private FunctionCache(){}
+	private FunctionCache(){
+		this.plans = Collections.synchronizedMap(new HashMap<String, CompilePlan>());
+	}
 		
 	//methods	
 	/**
 	 * adds a CompilePlan to the Cache; if a plan exists for this key, it is updated
 	 * @param cp CompilePlan to be added
 	 */
-	public void addPlan(String functioName, CompilePlan cp){
-		plans.put(functioName, cp);		
+	public void addPlan(String functionKey, CompilePlan cp){
+		plans.put(functionKey, cp);		
 	}
 	
 	/**
 	 * Fetches the Plan from the Cache
 	 * @param i
 	 */
-	public void getPlan(String id){
-		plans.get(id);
+	public CompilePlan getPlan(String functionKey){
+		return this.plans.get(functionKey);
+	}
+	
+	/**
+	 * Checks if function is in cache
+	 * @param functionKey
+	 * @return
+	 */
+	public boolean hasPlan(String functionKey){
+		return this.plans.containsKey(functionKey);
+	}
+	
+	/**
+	 * Clear Cache
+	 */
+	public void clear(){
+		this.plans.clear();
 	}
 }

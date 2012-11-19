@@ -11,8 +11,13 @@ import org.xdb.error.Error;
 public abstract class AbstractServerStmt {
 	protected EnumStatement statementType;
 	protected String stmtString;
+	protected boolean doSemanticAnalysis = true;
 	
 	//getter and setters
+	public void doSemanticAnalysis(boolean doSemanticAnalysis) {
+		this.doSemanticAnalysis = doSemanticAnalysis;
+	}
+	
 	public String getStmtString() {
 		return stmtString;
 	}
@@ -44,6 +49,7 @@ public abstract class AbstractServerStmt {
 		case CREATE_TABLE:
 		case DROP_TABLE:
 		case CREATE_FUNCTION:	
+		case DROP_FUNCTION:	
 			return true;
 		}
 		return false;
@@ -55,6 +61,7 @@ public abstract class AbstractServerStmt {
 	 */
 	public boolean isDML(){
 		switch(this.statementType){
+		case CALL_FUNCTION:
 		case SELECT:
 			return true;
 		}

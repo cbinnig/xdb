@@ -114,6 +114,18 @@ statement returns [AbstractServerStmt stmt]
                 	$stmt.setStmtString($createFunctionStatement.text);
                 }
                 |
+                dropFunctionStatement 
+                {
+                	$stmt = $dropFunctionStatement.stmt;
+                	$stmt.setStmtString($dropFunctionStatement.text);
+                }
+                |
+                callFunctionStatement 
+                {
+                	$stmt = $callFunctionStatement.stmt;
+                	$stmt.setStmtString($callFunctionStatement.text);
+                }
+                |
                 selectStatement
                 {
                 	$stmt = $selectStatement.stmt;
@@ -292,6 +304,34 @@ createFunctionStatement returns [CreateFunctionStmt stmt]
                 }                
 		)*
 		KEYWORD_END                
+	)
+	;
+	
+dropFunctionStatement returns [DropFunctionStmt stmt]
+        @init{
+        	$stmt = new DropFunctionStmt();
+        }
+        :
+        (
+                KEYWORD_DROP
+                KEYWORD_FUNCTION
+                fun1=tokenFunction {
+                	$stmt.setFunction($fun1.function);
+                }
+	)
+	;
+	
+callFunctionStatement returns [CallFunctionStmt stmt]
+        @init{
+        	$stmt = new CallFunctionStmt();
+        }
+        :
+        (
+                KEYWORD_CALL
+                KEYWORD_FUNCTION
+                fun1=tokenFunction {
+                	$stmt.setFunction($fun1.function);
+                }
 	)
 	;
 		
@@ -942,6 +982,7 @@ FUNCTION_AGGREGATION
 	(KEYWORD_SUM|KEYWORD_MIN|KEYWORD_MAX|KEYWORD_AVG|KEYWORD_COUNT)
 	;
 
+KEYWORD_CALL: C A L L;
 KEYWORD_CREATE: C R E A T E;
 KEYWORD_DROP: D R O P;	 
 KEYWORD_SELECT: S E L E C T;

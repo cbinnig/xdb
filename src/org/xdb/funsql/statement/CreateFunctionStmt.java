@@ -46,11 +46,6 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		this.statementType = EnumStatement.CREATE_FUNCTION;
 	}
 
-	public CreateFunctionStmt(String name) {
-		this();
-		this.tFun = new TokenFunction(name);
-	}
-
 	// getter and setter
 
 	// Assignments in FunctionBody
@@ -118,26 +113,29 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	@Override
 	public Error compile() {
 		Error e = new Error();
-
-		// step 1: checks
-		// check for non existing schema names
 		TokenSchema tSchema = this.tFun.getSchema();
 		Schema schema = Catalog.getSchema(tSchema.hashKey());
-		if (schema == null) {
-			return Catalog.createObjectNotExistsErr(tSchema.toSqlString(),
-					EnumDatabaseObject.SCHEMA);
-		}
+		
+		// step 1: semantic checks
+		if (this.doSemanticAnalysis) {
+			// check for non existing schema names
+			if (schema == null) {
+				return Catalog.createObjectNotExistsErr(tSchema.toSqlString(),
+						EnumDatabaseObject.SCHEMA);
+			}
 
-		// check if function with same name already exists
-		this.function = Catalog.getFunction(this.tFun.hashKey(schema.getOid()));
-		if (this.function != null) {
-			return Catalog.createObjectAlreadyExistsErr(this.function);// update?
-		}
+			// check if function with same name already exists
+			this.function = Catalog.getFunction(this.tFun.hashKey(schema
+					.getOid()));
+			if (this.function != null) {
+				return Catalog.createObjectAlreadyExistsErr(this.function);// update?
+			}
 
-		// check parameters and add them to cache
-		e = checkParameters();
-		if (e.isError())
-			return e;
+			// check parameters and add them to cache
+			e = checkParameters();
+			if (e.isError())
+				return e;
+		}
 
 		// step 2: compile assignments
 		for (TokenAssignment ta : this.tAssignments) {
@@ -174,8 +172,8 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		}
 
 		// step 4: add CompilePlan to cache and catalog
-		this.function = new Function(this.tFun.toString(), schema.getOid(),
-				this.tFun.getLanguage(), stmtString);
+		this.function = new Function(this.tFun.getName().toString(),
+				schema.getOid(), this.tFun.getLanguage(), stmtString);
 
 		fCache.addPlan(this.function.hashKey(), this.functionPlan);
 		e = this.function.checkObject();
