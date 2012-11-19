@@ -25,6 +25,7 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.compile.tokens.TokenSchema;
 import org.xdb.funsql.compile.tokens.TokenTable;
+import org.xdb.funsql.optimize.Optimizer;
 import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Catalog;
@@ -664,6 +665,14 @@ public class SelectStmt extends AbstractServerStmt {
 		Error error = new Error(EnumError.COMPILER_FUNCTION_VAR_NOT_DECLARED,
 				args);
 		return error;
+	}
+	
+	@Override
+	public Error optimize(){
+		Error err = new Error();
+		Optimizer opti = new Optimizer(this.plan);
+		opti.optimize();
+		return err;
 	}
 
 	@Override

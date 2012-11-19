@@ -79,7 +79,8 @@ public class TestCreateFunctionSQL extends CompileServerTestCase {
 	@Test
 	public void testSimpleCreate() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
-
+		compiler.doOptimize(false);
+		
 		// create connection -> no error
 		String dropConnSql = "DROP CONNECTION \"testConnection\"";
 		AbstractServerStmt stmt = compiler.compile(dropConnSql);
@@ -125,7 +126,7 @@ public class TestCreateFunctionSQL extends CompileServerTestCase {
 
 		// execute CreateFunction
 		CreateFunctionStmt fStmt = (CreateFunctionStmt) compiler.compile(""
-				+ "CREATE FUNCTION f1( OUT o1 TABLE) \n" 
+				+ "CREATE FUNCTION f1( OUT o1 TABLE, OUT o2 TABLE) \n" 
 				+ "BEGIN \n"
 				+ "VAR v1 = SELECT R1.A AS A1, R2.D AS A2 "
 					+ "FROM R AS R1, S AS R2 " 
@@ -134,6 +135,8 @@ public class TestCreateFunctionSQL extends CompileServerTestCase {
 					+ "FROM :v1 AS V1, S AS V2 " 
 					+ "WHERE V1.A1=3 AND V2.F=V1.A2; \n"
 				+ ":o1 = SELECT R1.A FROM :v2 as R1; \n"
+				+ ":o2 = SELECT R1.A2 FROM :v1 as R1 "
+					+ "WHERE R1.A1=1; \n"
 				+ "END; ");
 		this.assertNoError(compiler.getLastError());
 		fStmt.getPlan().traceGraph(this.getClass().getName());

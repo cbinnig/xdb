@@ -274,6 +274,14 @@ createFunctionStatement returns [CreateFunctionStmt stmt]
                		$stmt.addOutParam(var1);
 		}
 		KEYWORD_TABLE
+		)
+		(
+		COMMA
+		KEYWORD_OUT
+                var2=tokenVariable{
+               		$stmt.addOutParam(var2);
+		}
+		KEYWORD_TABLE
 		)*
 		RPAREN
 		KEYWORD_BEGIN

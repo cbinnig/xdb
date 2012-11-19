@@ -12,7 +12,18 @@ import org.xdb.funsql.statement.AbstractServerStmt;
 
 public class FunSQLCompiler {
 	private Error lastError;
+	private boolean doOptimize = true;
+	
+	//getters and setters
+	public Error getLastError() {
+		return lastError;
+	}
 
+	public void doOptimize(boolean doOptimize) {
+		this.doOptimize = doOptimize;
+	}
+
+	//methods
 	public AbstractServerStmt compile(String sql) {
 		try {
 			FunSQLLexer lex = new FunSQLLexer(new ANTLRStringStream(sql));
@@ -30,6 +41,12 @@ public class FunSQLCompiler {
 			if (lastError.isError())
 				return null;
 
+			if(this.doOptimize){
+				this.lastError = statement.optimize();
+				if (lastError.isError())
+					return null;
+			}
+			
 			return statement;
 
 		} catch (RecognitionException e) {
@@ -38,10 +55,6 @@ public class FunSQLCompiler {
 		}
 
 		return null;
-	}
-
-	public Error getLastError() {
-		return lastError;
 	}
 
 	/**

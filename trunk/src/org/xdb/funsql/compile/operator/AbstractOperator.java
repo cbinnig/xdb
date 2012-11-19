@@ -74,7 +74,7 @@ public abstract class AbstractOperator implements Serializable {
 	}
 
 	public void setResult(int i, ResultDesc result) {
-		this.results.add(i,  result);
+		this.results.set(i,  result);
 	}
 	
 	public void addResult(ResultDesc result) {
@@ -106,20 +106,6 @@ public abstract class AbstractOperator implements Serializable {
 	}
 	
 	// methods
-	public boolean replaceChild(AbstractOperator oldChild, AbstractOperator newChild){
-		boolean replaced = false;
-		
-		for(int i=0; i<this.children.size(); ++i){
-			AbstractOperator child = this.children.get(i);
-			if(child.equals(oldChild)){
-				this.children.set(i, newChild);
-				replaced = true;
-			}
-		}
-		
-		return replaced;
-	}
-	
 	/**
 	 * @param v TreeVisitor (visitor pattern)
 	 * @return checked: okay?
