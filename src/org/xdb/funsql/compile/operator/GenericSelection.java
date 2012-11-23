@@ -79,6 +79,9 @@ public class GenericSelection extends AbstractUnaryOperator {
 		//modify selection 
 		this.setChild(child);
 		this.parents.add(parent);
+		ResultDesc newSelResult = child.getResult(0).clone();
+		TokenAttribute.renameTable(newSelResult.getAttributes(), this.getOperatorId().toString());
+		this.setResult(0, newSelResult);
 		
 		//modify child
 		int parentIdx = child.parents.indexOf(parent);

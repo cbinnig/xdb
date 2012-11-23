@@ -1,6 +1,6 @@
 package org.xdb.funsql.compile.tokens;
 
-public class TokenIdentifier extends AbstractToken{
+public class TokenIdentifier extends AbstractToken implements Cloneable{
 	private static final long serialVersionUID = -7726723089171901571L;
 	
 	//attributes
@@ -27,7 +27,13 @@ public class TokenIdentifier extends AbstractToken{
 		return this.name;
 	}
 	
+	@Override
+	public TokenIdentifier clone(){
+		return new TokenIdentifier(this.name);
+	}
+	
 	public String hashKey(){
 		return this.name;
 	}
+	
 }

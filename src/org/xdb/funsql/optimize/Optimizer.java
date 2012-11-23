@@ -31,9 +31,15 @@ public class Optimizer {
 
 		// rewrite: push down selection
 		err = pushSelections();
+		if(err.isError())
+			return err;
 
-		// TODO: other rewrites which eliminate projections and combine
-		// selections
+		// rewrite: combine selections
+		err = combineSelections();
+		if(err.isError())
+			return err;
+		
+		// TODO: other rewrites which eliminate projections
 
 		return err;
 	}
@@ -62,6 +68,22 @@ public class Optimizer {
 			}
 		}
 
+		return err;
+	}
+	
+	/**
+	 * Combines selection operators in plan
+	 * @return
+	 */
+	private Error combineSelections() {
+		Error err = new Error();
+		for (AbstractOperator root : this.compilePlan.getRoots()) {
+			SelectionCombineVisitor combineVisitor = new SelectionCombineVisitor(root);
+			err = combineVisitor.visit();
+			
+			if (err.isError())
+				return err;
+		}
 		return err;
 	}
 
