@@ -30,4 +30,9 @@ public class TokenStringLiteral extends TokenLiteral {
 		literal.append(AbstractToken.QUOTE);
 		return literal.toString();
 	}
+
+	@Override
+	public AbstractTokenOperand clone() {
+		return new TokenStringLiteral(this.value);
+	}
 }

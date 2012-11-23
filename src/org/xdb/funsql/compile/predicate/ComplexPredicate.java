@@ -1,5 +1,6 @@
 package org.xdb.funsql.compile.predicate;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -99,9 +100,11 @@ public class ComplexPredicate extends AbstractPredicate {
 	}
 
 	@Override
-	public Set<TokenAttribute> getAttributes() {
-		HashSet<TokenAttribute> atts = new HashSet<TokenAttribute>();
-		atts.addAll(this.pred1.getAttributes());
+	public Collection<TokenAttribute> getAttributes() {
+		Collection<TokenAttribute> atts1 = this.pred1.getAttributes();
+		Vector<TokenAttribute> atts = new Vector<TokenAttribute>(atts1.size());
+		
+		atts.addAll(atts1);
 
 		for (AbstractPredicate pred2 : this.preds2) {
 			atts.addAll(pred2.getAttributes());
@@ -152,5 +155,22 @@ public class ComplexPredicate extends AbstractPredicate {
 		}
 		
 		return this;
+	}
+
+	@Override
+	public AbstractPredicate clone() {
+		ComplexPredicate pred = new ComplexPredicate(this.type);
+		if(this.pred1!=null)
+			pred.pred1 = this.pred1.clone();
+		pred.opers = new Vector<EnumBoolOperator>(this.opers);
+		
+		
+
+		pred.preds2 = new Vector<AbstractPredicate>(this.preds2.size());
+		for(AbstractPredicate pred2: this.preds2){
+			pred.preds2.add(pred2.clone());
+		}
+		
+		return pred;
 	}
 }

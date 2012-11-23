@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 
@@ -106,25 +105,22 @@ public abstract class AbstractOperator implements Serializable {
 	}
 	
 	// methods
-	/**
-	 * @param v TreeVisitor (visitor pattern)
-	 * @return checked: okay?
-	 */
-	public abstract void accept(ITreeVisitor v);
-		
+	public int findParent(AbstractOperator parent){
+		for(int i=0; i<this.parents.size();++i){
+			if(this.parents.get(i).equals(parent)){
+				return i;
+			}
+		}
+		return -1;
+	}
 	
-	/**
-	 * Checks if pushdown is allowed
-	 * @param pd
-	 * @return
-	 */
-	public abstract boolean isPushDownAllowed(EnumPushDown pd);
+	public boolean removeParent(AbstractOperator parent){
+		return this.parents.remove(parent);
+	}
 	
-	/**
-	 * Generate SQL representation of this operator
-	 * @return
-	 */
-	public abstract String toSqlString();
+	public void addParents(Vector<AbstractOperator> parents){
+		this.parents.addAll(parents);
+	}
 	
 	/**
 	 * Get list of all result TokenAttributes.
@@ -132,19 +128,6 @@ public abstract class AbstractOperator implements Serializable {
 	protected List<String> getResultAttributes() {
 		return SetUtils.attributesToString(getResult(0).getAttributes());
 	}
-	
-	/**
-	 * Checks if operator is leave
-	 * @return
-	 */
-	public abstract boolean isLeaf();
-	
-	/**
-	 * Generates a visual graph representation of the operator
-	 * @param g
-	 * @return
-	 */
-	public abstract Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes);
 	
 	@Override
 	public boolean equals(Object o){
@@ -165,4 +148,30 @@ public abstract class AbstractOperator implements Serializable {
 		value.append(")");
 		return value.toString();
 	}
+	
+	/**
+	 * Generate SQL representation of this operator
+	 * @return
+	 */
+	public abstract String toSqlString();
+	
+	/**
+	 * Renames attributes names according to new id of child
+	 * @param oldId
+	 * @param newId
+	 */
+	public abstract void renameAttributes(String oldChildId, String newChildId);
+	
+	/**
+	 * Checks if operator is leave
+	 * @return
+	 */
+	public abstract boolean isLeaf();
+	
+	/**
+	 * Generates a visual graph representation of the operator
+	 * @param g
+	 * @return
+	 */
+	public abstract Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes);
 }

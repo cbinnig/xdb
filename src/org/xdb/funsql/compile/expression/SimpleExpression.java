@@ -1,7 +1,7 @@
 package org.xdb.funsql.compile.expression;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
+import java.util.Vector;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.AbstractTokenOperand;
@@ -54,8 +54,8 @@ public class SimpleExpression extends AbstractExpression {
 	}
 
 	@Override
-	public Set<TokenAttribute> getAttributes() {
-		HashSet<TokenAttribute> atts = new HashSet<TokenAttribute>();
+	public Collection<TokenAttribute> getAttributes() {
+		Vector<TokenAttribute> atts = new Vector<TokenAttribute>();
 		if(this.tOper.getType() == EnumOperandType.ATTRIBUTE){
 			atts.add((TokenAttribute)this.tOper);
 		}
@@ -85,6 +85,13 @@ public class SimpleExpression extends AbstractExpression {
 	@Override
 	public int size() {
 		return 1;
+	}
+
+	@Override
+	public AbstractExpression clone() {
+		SimpleExpression expr = new SimpleExpression();
+		expr.tOper = this.tOper.clone();
+		return expr;
 	}
 	
 }

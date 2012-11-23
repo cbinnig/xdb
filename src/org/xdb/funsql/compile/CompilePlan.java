@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
@@ -77,6 +78,14 @@ public class CompilePlan implements Serializable {
 		return roots.get(0);
 	}
 	
+	public Collection<AbstractOperator> getRoots(){
+		Vector<AbstractOperator> rootOps = new Vector<AbstractOperator>(this.roots.size());
+		for(Identifier rootId: this.roots){
+			rootOps.add(this.operators.get(rootId));
+		}
+		return rootOps;
+	}
+	
 	public AbstractOperator getRoot(int i){
 		return this.operators.get(this.roots.get(i));
 	}
@@ -100,11 +109,13 @@ public class CompilePlan implements Serializable {
 	 * @param varKey
 	 * @param newLeafOp
 	 */
-	public void replaceVariable(String varKey, AbstractOperator newLeafOp){
+	public void replaceVariable(String varKey, AbstractOperator rootOfSubplan){
 		HashSet<Identifier> removedLeaves = new HashSet<Identifier>();
 		for(Identifier leafId: this.leaves){
 			TableOperator leafOp = (TableOperator)this.operators.get(leafId);
 			if(leafOp.getTable().getName().equals(varKey)){
+				Rename newLeafOp = new Rename(rootOfSubplan, leafOp.getResult());
+				this.addOperator(newLeafOp, false);
 				leafOp.replace(newLeafOp);
 				removedLeaves.add(leafOp.getOperatorId());
 			}

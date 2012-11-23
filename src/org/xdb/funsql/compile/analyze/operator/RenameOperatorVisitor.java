@@ -12,6 +12,7 @@ import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
+import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -83,5 +84,10 @@ public class RenameOperatorVisitor extends AbstractBottomUpTreeVisitor {
 		Error e = new Error();
 		return e;
 	}
-
+	
+	@Override
+	public Error visitRename(Rename ro) {
+		Error e = new Error();
+		return e;
+	}
 }

@@ -1,8 +1,10 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
 
 import com.oy.shared.lm.graph.Graph;
@@ -29,6 +31,14 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 	}
 
 	//getters and setters
+	public ResultDesc getResult(){
+		return this.results.get(0);
+	}
+	
+	public AbstractOperator getChild(int idx) {
+		return this.children.get(idx);
+	}
+	
 	public AbstractOperator getLeftChild() {
 		return this.children.get(0);
 	}
@@ -65,6 +75,9 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 	public boolean isLeaf(){
 		return false;
 	}
+	
+	//methods
+	public abstract void renameForPushDown(Collection<TokenAttribute> selAtts, int child);
 	
 	@Override
 	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){

@@ -8,5 +8,6 @@ public enum EnumOperator implements Serializable {
 	GENERIC_AGGREGATION,
 	GENERIC_PROJECTION,
 	TABLE,
-	FUNCTION_CALL
+	FUNCTION_CALL,
+	RENAME
 }

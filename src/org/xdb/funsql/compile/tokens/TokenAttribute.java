@@ -1,5 +1,8 @@
 package org.xdb.funsql.compile.tokens;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.Vector;
 
 public class TokenAttribute extends AbstractTokenOperand{
 	private static final long serialVersionUID = -846135086164968356L;
@@ -77,11 +80,67 @@ public class TokenAttribute extends AbstractTokenOperand{
 		return true;
 	}
 	
+	@Override
+	public TokenAttribute clone(){
+		TokenAttribute att = new TokenAttribute(this.table.getName().toString(), this.name.toString());
+		return att;
+	}
+	
 	public String hashKey(){
 		StringBuffer key = new StringBuffer();
 		key.append(this.table.getName().hashKey());
 		key.append(DOT);
 		key.append(this.name.hashKey());
 		return key.toString();
+	}
+	
+
+	/**
+	 * Renames all attributes
+	 * @param atts
+	 * @param newTable
+	 * @param renameMap
+	 */
+	public static void rename(Collection<TokenAttribute> atts, String newTable, Map<TokenIdentifier,TokenIdentifier> renameMap){
+		for(TokenAttribute att: atts){
+			att.getTable().setName(newTable);
+			att.setName(renameMap.get(att.getName()));
+		}
+	}
+	
+	/**
+	 * Renames all attributes in a given list using a new table name
+	 * @param atts
+	 * @param tableName
+	 */
+	public static void renameTable(Collection<TokenAttribute> atts, String newTable){
+		for(TokenAttribute att: atts){
+			att.getTable().setName(newTable);
+		}
+	}
+	
+	/**
+	 * Renames all attributes in a given list using a new table name
+	 * @param atts
+	 * @param tableName
+	 */
+	public static void renameTable(Collection<TokenAttribute> atts, String oldTable, String newTable){
+		for(TokenAttribute att: atts){
+			if(att.getTable().getName().toString().equals(oldTable))
+				att.getTable().setName(newTable);
+		}
+	}
+	
+	/**
+	 * clones a list of attributes
+	 * @param atts
+	 * @return
+	 */
+	public static Collection<TokenAttribute> clone(Collection<TokenAttribute> atts){
+		Vector<TokenAttribute> newAtts = new Vector<TokenAttribute>(atts.size());
+		for(TokenAttribute att: atts){
+			newAtts.add(att.clone());
+		}
+		return newAtts;
 	}
 }

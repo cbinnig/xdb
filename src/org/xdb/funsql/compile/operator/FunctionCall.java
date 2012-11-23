@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenFunction;
 import org.xdb.utils.Identifier;
 
@@ -49,19 +48,7 @@ public class FunctionCall extends AbstractOperator {
 	
 	@Override
 	public String toSqlString() {
-		// TODO: generate sql
 		return null;
-	}
-
-	@Override
-	public boolean isPushDownAllowed(EnumPushDown pd) {
-		// TODO: write rules, which pushdown is allowed
-		return false;
-	}
-
-	@Override
-	public void accept(ITreeVisitor v) {
-		v.visitFunctionCall(this);
 	}
 	
 	@Override
@@ -75,5 +62,10 @@ public class FunctionCall extends AbstractOperator {
 		Error err = new Error();
 		
 		return err;
+	}
+
+	@Override
+	public void renameAttributes(String oldId, String newId) {
+		//Nothing to do
 	}
 }

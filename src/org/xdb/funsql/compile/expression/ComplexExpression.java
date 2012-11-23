@@ -1,7 +1,6 @@
 package org.xdb.funsql.compile.expression;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
@@ -88,9 +87,9 @@ public class ComplexExpression extends AbstractExpression {
 	}
 
 	@Override
-	public Set<TokenAttribute> getAttributes() {
-		HashSet<TokenAttribute> atts = new HashSet<TokenAttribute>();
-		atts.addAll(this.expr1.getAttributes());
+	public Collection<TokenAttribute> getAttributes() {
+		Collection<TokenAttribute> atts1 = this.expr1.getAttributes();
+		Vector<TokenAttribute> atts = new Vector<TokenAttribute>(atts1);
 		
 		for(AbstractExpression expr2: this.exprs2){
 			atts.addAll(expr2.getAttributes());
@@ -130,5 +129,22 @@ public class ComplexExpression extends AbstractExpression {
 	@Override
 	public int size() {
 		return 1 + this.exprs2.size();
+	}
+
+	@Override
+	public AbstractExpression clone() {
+		ComplexExpression expr = new ComplexExpression(this.type);
+		
+		if(this.expr1!=null)
+			expr.expr1 = this.expr1.clone();
+		
+		expr.ops = new Vector<EnumExprOperator>(this.ops);
+		
+		expr.exprs2 = new Vector<AbstractExpression>(this.exprs2.size());
+		for(AbstractExpression expr2: this.exprs2){
+			expr.exprs2.add(expr2.clone());
+		}
+		
+		return expr;
 	}
 }
