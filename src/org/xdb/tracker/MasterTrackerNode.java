@@ -1,5 +1,9 @@
 package org.xdb.tracker;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -244,10 +248,19 @@ public class MasterTrackerNode {
 				if(childOp instanceof TableOperator) {
 					final TableOperator tableOp = TableOperator.class.cast(childOp);
 					final Connection conn = tableOp.getConnection();
+					final URI connURL;
+					final String connectionString;
+					try {
+						connectionString = conn.toConnectionString();
+						connURL = new URI(connectionString);
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
+						return null;
+					}
 
 					queryOp.addInTables(tableOp.getOperatorId() + "_TABLE", 
-							new StringTemplate("<"+tableOp.getOperatorId()+"_TABLE> " + childOp.getResult(0).toSqlString() + " ENGINE=FEDERATED CONNECTION='" + conn.toConnectionString() + "/" + tableOp.getTableName() + "'"), "R_REGIONKEY");
-					qPlan.addNodeOperator(conn.getUrl(), tableOp.getOperatorId());
+							new StringTemplate("<"+tableOp.getOperatorId()+"_TABLE> " + childOp.getResult(0).toSqlString() + " ENGINE=FEDERATED CONNECTION='" + connectionString + "/" + tableOp.getTableName() + "'"), "R_REGIONKEY");
+					qPlan.addNodeOperator(connURL.getHost(), tableOp.getOperatorId());
 				}
 
 				final StringTemplate sqlAssemblyTemplate = 

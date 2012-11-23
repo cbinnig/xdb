@@ -64,20 +64,13 @@ public class GenericProjection extends AbstractUnaryOperator {
 	@Override
 	public String toSqlString() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
-		final String opDummy = getChild().getOperatorId().toString();
-		
 		final Vector<String> expressionVec = new Vector<String>(expressions.size());
 		for(AbstractExpression exp : expressions) {
-			expressionVec.add(exp.toString());
-		}
-		final Vector<String> aliasVec = new Vector<String>(aliases.size());
-		for(TokenIdentifier tok : aliases) {
-			expressionVec.add(tok.getName());
+			expressionVec.add(exp.toSqlString());
 		}
 		
-		
-		vars.put("RESULTS", SetUtils.buildAliasString(opDummy, expressionVec, aliasVec));
-		vars.put("OP1", opDummy);
+		vars.put("RESULTS", SetUtils.buildAliasString(expressionVec, getResultAttributes()));
+		vars.put("OP1", getChild().getOperatorId().toString());
 		return sqlTemplate.toString(vars);
 	}
 

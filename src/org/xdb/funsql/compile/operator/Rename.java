@@ -25,15 +25,14 @@ public class Rename extends AbstractUnaryOperator {
 	@Override
 	public String toSqlString() {
 		HashMap<String, String> vars = new HashMap<String, String>();
-		final String opDummy = getOperatorId().toString()+"_TABLE";
-		vars.put("OP1", opDummy);
+		vars.put("OP1", getOperatorId().toString());
 		
 		//get all table attributes and match them in order
 		final Vector<String> attrs = new Vector<String>();
 		for(TokenAttribute attr : this.results.get(0).getAttributes()) {
 			attrs.add(attr.getName().toString());
 		}
-		vars.put("RESULTS", SetUtils.buildAliasString(opDummy, attrs, getResultAttributes()));
+		vars.put("RESULTS", SetUtils.buildAliasString(attrs, getResultAttributes()));
 		return sqlTemplate.toString(vars);
 	}
 

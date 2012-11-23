@@ -80,28 +80,24 @@ public class GenericAggregation extends AbstractUnaryOperator {
 	@Override
 	public String toSqlString() {
 		final HashMap<String, String>  vars = new HashMap<String, String>();
-		final String opDummy = getChild().getOperatorId().toString();
-		vars.put("OP1", opDummy);
+		vars.put("OP1", getChild().getOperatorId().toString());
 		vars.put("AGG_ATTRS", SetUtils.stringifyExprVec(aggExprs));
 		vars.put("GROUP_ATTRS", SetUtils.stringifyExprVec(groupExprs));
 		
-		final Vector<String> aliasVec = new Vector<String>(aliases.size());
-		for(TokenIdentifier tok : aliases) {
-			aliasVec.add(tok.getName());
-		}
+		final List<String> aliasVec = getResultAttributes();
 		final List<String> aggrAliases = aliasVec.subList(0, aggExprs.size()-1);
 		final List<String> grpAliases = aliasVec.subList(aggExprs.size()-1, aliasVec.size()-1);
 		
 		final Vector<String> aggrExprVec = new Vector<String>(aggExprs.size());
 		for(AbstractExpression exp : aggExprs) {
-			aggrExprVec.add(exp.toString());
+			aggrExprVec.add(exp.toSqlString());
 		}
 		final Vector<String> groupExprVec = new Vector<String>(groupExprs.size());
 		for(AbstractExpression exp : groupExprs) {
-			groupExprVec.add(exp.toString());
+			groupExprVec.add(exp.toSqlString());
 		}
 		
-		vars.put("RESULT", SetUtils.buildAliasString(opDummy, aggrExprVec, aggrAliases)+","+SetUtils.buildAliasString(opDummy, groupExprVec, grpAliases));
+		vars.put("RESULT", SetUtils.buildAliasString(aggrExprVec, aggrAliases)+","+SetUtils.buildAliasString(groupExprVec, grpAliases));
 		
 		return sqlTemplate.toString(vars);
 	}

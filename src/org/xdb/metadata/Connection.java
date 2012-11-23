@@ -1,5 +1,10 @@
 package org.xdb.metadata;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.store.EnumStore;
@@ -164,8 +169,9 @@ CREATE TABLE "SYSTEM"."CONNECTION"
 		return Error.NO_ERROR;
 	}
 	
-	public String toConnectionString() {
-		return  store.toString() + "://" + user + ":" + passwd + 
-				"@" + url;
+	public String toConnectionString() throws URISyntaxException {
+		final URI urlObject = new URI(url);
+		return urlObject.getScheme() + "://" + user + ":" + passwd + 
+				"@" + urlObject.getHost() + ":" + (urlObject.getPort() == -1 ? 3306 : urlObject.getPort()) + urlObject.getPath();
 	}
 }

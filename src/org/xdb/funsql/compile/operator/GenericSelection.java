@@ -91,10 +91,8 @@ public class GenericSelection extends AbstractUnaryOperator {
 	@Override
 	public String toSqlString() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
-		final String opDummy = getChild().getOperatorId().toString();
-		
-		vars.put("RESULTS", SetUtils.stringifyAttributes("", getResultAttributes()));
-		vars.put("OP1", opDummy);
+		vars.put("RESULTS", SetUtils.buildAliasString(getChild().getResultTableAttributes(), getResultAttributes()));
+		vars.put("OP1", getChild().getOperatorId().toString());
 		return sqlTemplate.toString(vars);
 	}
 	

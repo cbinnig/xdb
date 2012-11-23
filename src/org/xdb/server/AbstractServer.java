@@ -1,6 +1,7 @@
 package org.xdb.server;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -82,7 +83,9 @@ public abstract class AbstractServer {
 		try {
 			this.logger.log(Level.INFO, "Server ("+this.getClass().getSimpleName()+") started ... ");
 
-			this.serverSocket = new ServerSocket(this.port);
+			this.serverSocket = new ServerSocket();
+			this.serverSocket.setReuseAddress(true);
+			this.serverSocket.bind(new InetSocketAddress(this.port));
 
 			thread.setRunning();
 
