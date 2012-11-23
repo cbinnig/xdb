@@ -114,7 +114,7 @@ public class TableOperator extends AbstractOperator {
 		if(this.results.size()==1)
 			node.getInfo().setHeader(this.results.get(0).toString());
 		node.getInfo().setCaption(this.toString());
-		node.getInfo().setFooter(this.tableName.toSqlString());
+		node.getInfo().setFooter(this.table.getName() +" AS "+ this.tableName.toSqlString());
 		return err;
 	}
 

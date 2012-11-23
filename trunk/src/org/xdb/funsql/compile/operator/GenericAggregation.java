@@ -147,6 +147,6 @@ public class GenericAggregation extends AbstractUnaryOperator {
 				renameMap.put(expr.getAttribute().getName(), this.aliases.get(this.aggExprs.size()+i));
 			}
 		}
-		TokenAttribute.rename(selAtts, this.getOperatorId().toString(), renameMap);
+		TokenAttribute.rename(selAtts, this.getChild().getOperatorId().toString(), renameMap);
 	}
 }

@@ -115,7 +115,7 @@ public class CompilePlan implements Serializable {
 			TableOperator leafOp = (TableOperator)this.operators.get(leafId);
 			if(leafOp.getTable().getName().equals(varKey)){
 				Rename newLeafOp = new Rename(rootOfSubplan, leafOp.getResult());
-				this.addOperator(newLeafOp, false);
+				this.replaceOperator(leafOp.getOperatorId(), newLeafOp, false);
 				leafOp.replace(newLeafOp);
 				removedLeaves.add(leafOp.getOperatorId());
 			}
@@ -144,6 +144,21 @@ public class CompilePlan implements Serializable {
 		
 		if(op.isLeaf())
 			this.leaves.add(op.getOperatorId());
+	}
+	
+	/**
+	 * Replace operator with given id
+	 * @param opId
+	 * @param op
+	 * @param isRoot
+	 */
+	public void replaceOperator(Identifier opId, AbstractOperator op, boolean isRoot) {
+		op.setOperatorId(opId);
+
+		logger.log(Level.INFO, "Add operator" + op.toString()
+				+ " to compile plan " + this.planId);
+
+		this.operators.put(opId, op);
 	}
 
 	/**
