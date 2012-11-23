@@ -1,10 +1,12 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
@@ -35,6 +37,54 @@ public class GenericSelection extends AbstractUnaryOperator {
 		this.predicate = predicate;
 	}	
 	
+	//methods
+	
+	/**
+	 * Remove selection from plan
+	 */
+	public Map<AbstractOperator, Integer> cut(){
+		HashMap<AbstractOperator, Integer> cutInfo = new HashMap<AbstractOperator, Integer>();
+		
+		//Modify child
+		AbstractOperator child = this.getChild();
+		child.removeParent(this);
+		child.addParents(this.parents);
+		
+		//Modify parents
+		for(AbstractOperator p: this.parents){
+			int childIdx = p.children.indexOf(this);
+			p.children.set(childIdx, child);
+			p.renameAttributes(this.getOperatorId().toString(), child.getOperatorId().toString());
+			cutInfo.put(p, childIdx);
+		}
+		
+		//Modify operator
+		this.parents.clear();
+		
+		return cutInfo;
+	}
+	
+	/**
+	 * Add selection to plan below given parent
+	 * @param parent
+	 */
+	public void paste(AbstractOperator parent, Integer childIdx){
+		//Get old child 
+		AbstractOperator child = parent.children.get(childIdx);
+		
+		//modify parent
+		parent.renameAttributes(child.getOperatorId().toString(), this.operatorId.toString());
+		parent.children.set(childIdx, this);
+		
+		//modify selection 
+		this.setChild(child);
+		this.parents.add(parent);
+		
+		//modify child
+		int parentIdx = child.parents.indexOf(parent);
+		child.parents.set(parentIdx, this);
+	}
+	
 	@Override
 	public String toSqlString() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
@@ -43,11 +93,6 @@ public class GenericSelection extends AbstractUnaryOperator {
 		vars.put("RESULTS", SetUtils.stringifyAttributes("", getResultAttributes()));
 		vars.put("OP1", opDummy);
 		return sqlTemplate.toString(vars);
-	}
-
-	@Override
-	public void accept(ITreeVisitor v) {
-		v.visitGenericSelection(this);
 	}
 	
 	@Override
@@ -60,12 +105,14 @@ public class GenericSelection extends AbstractUnaryOperator {
 		node.getInfo().setFooter(this.predicate.toString());
 		return err;
 	}
-
+	
 	@Override
-	public boolean isPushDownAllowed(EnumPushDown pd) {
-		if(pd == EnumPushDown.SELECTION_PUSHDOWN)
-			return true;
-		else
-			return false;
+	public void renameAttributes(String oldId, String newId) {
+		TokenAttribute.renameTable(this.predicate.getAttributes(), oldId, newId);
+	}
+	
+	@Override
+	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
+		TokenAttribute.renameTable(selAtts, this.getChild().getOperatorId().toString());
 	}
 }

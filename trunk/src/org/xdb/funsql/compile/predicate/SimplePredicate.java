@@ -1,8 +1,10 @@
 package org.xdb.funsql.compile.predicate;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
@@ -70,10 +72,13 @@ public class SimplePredicate extends AbstractPredicate {
 	}
 
 	@Override
-	public Set<TokenAttribute> getAttributes() {
-		HashSet<TokenAttribute> atts = new HashSet<TokenAttribute>();
-		atts.addAll(this.expr1.getAttributes());
-		atts.addAll(this.expr2.getAttributes());
+	public Collection<TokenAttribute> getAttributes() {
+		Collection<TokenAttribute> atts1 = this.expr1.getAttributes();
+		Collection<TokenAttribute> atts2 = this.expr2.getAttributes();
+		
+		Vector<TokenAttribute> atts = new Vector<TokenAttribute>(atts1.size() + atts2.size());
+		atts.addAll(atts1);
+		atts.addAll(atts2);
 		return atts;
 	}
 
@@ -123,5 +128,16 @@ public class SimplePredicate extends AbstractPredicate {
 		this.expr1 = this.expr1.replaceAliases(aliases);
 		this.expr2 = this.expr2.replaceAliases(aliases);
 		return this;
+	}
+
+	@Override
+	public AbstractPredicate clone() {
+		SimplePredicate pred = new SimplePredicate();
+		if(this.expr1!=null)
+			pred.expr1 = this.expr1.clone();
+		pred.comp = this.comp;
+		if(this.expr2!=null)
+			pred.expr2 = this.expr2.clone();
+		return pred;
 	}
 }

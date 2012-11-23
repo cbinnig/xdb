@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Connection;
@@ -36,6 +35,10 @@ public class TableOperator extends AbstractOperator {
 	}
 
 	//getters and setters
+	public ResultDesc getResult(){
+		return this.results.get(0);
+	}
+	
 	public String getTableName() {
 		return tableName.getName();
 	}
@@ -74,26 +77,13 @@ public class TableOperator extends AbstractOperator {
 	 */
 	public void replace(AbstractOperator newOp){
 		//replace result description in newOp
-		newOp.setResult(0, this.getResult(0));
+		newOp.setResult(0, this.getResult());
 
 		//add newOp to plan
 		for(AbstractOperator p : this.parents){
-			p.children.add(newOp);
-			p.children.remove(this);
+			int childIdx = p.children.indexOf(this);
+			p.children.set(childIdx, newOp);
 		}
-	}
-	
-	/**
-	 * @return false, nothing could pushed down deeper than the table
-	 */
-	@Override
-	public boolean isPushDownAllowed(EnumPushDown pd) {
-		return false;
-	}
-
-	@Override
-	public void accept(ITreeVisitor v) {
-		v.visitTableOperator(this);
 	}
 	
 	@Override
@@ -107,7 +97,7 @@ public class TableOperator extends AbstractOperator {
 		final String opDummy = getOperatorId().toString()+"_TABLE";
 		vars.put("OP1", opDummy);
 		
-		//get alle table attributes and match them in order
+		//get all table attributes and match them in order
 		final Vector<String> attrs = new Vector<String>();
 		for(Attribute attr : table.getAttributes()) {
 			attrs.add(attr.getName());
@@ -126,5 +116,10 @@ public class TableOperator extends AbstractOperator {
 		node.getInfo().setCaption(this.toString());
 		node.getInfo().setFooter(this.tableName.toSqlString());
 		return err;
+	}
+
+	@Override
+	public void renameAttributes(String oldId, String newId) {
+		//nothing to do
 	}
 }

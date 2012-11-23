@@ -1,12 +1,13 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
@@ -81,11 +82,6 @@ public class GenericProjection extends AbstractUnaryOperator {
 	}
 
 	@Override
-	public void accept(ITreeVisitor v) {
-		v.visitGenericProjection(this);
-	}
-
-	@Override
 	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes) {
 		Error err = super.traceGraph(g, nodes);
 		if (err.isError())
@@ -101,10 +97,25 @@ public class GenericProjection extends AbstractUnaryOperator {
 		node.getInfo().setFooter(footer.toString());
 		return err;
 	}
+	
+	@Override
+	public void renameAttributes(String oldId, String newId) {
+		Vector<TokenAttribute> atts = new Vector<TokenAttribute>();
+		for(AbstractExpression expr: this.expressions){
+			atts.addAll(expr.getAttributes());
+		}
+		TokenAttribute.renameTable(atts, oldId, newId);
+	}
 
 	@Override
-	public boolean isPushDownAllowed(EnumPushDown pd) {
-		// TODO Auto-generated method stub
-		return false;
+	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
+		HashMap<TokenIdentifier,TokenIdentifier> renameMap = new HashMap<TokenIdentifier,TokenIdentifier>();
+		for(int i=0; i<this.expressions.size(); ++i){
+			AbstractExpression expr = this.expressions.get(i);
+			if(expr.isAttribute()){
+				renameMap.put(expr.getAttribute().getName(), this.aliases.get(i));
+			}
+		}
+		TokenAttribute.rename(selAtts, this.getOperatorId().toString(), renameMap);
 	}
 }

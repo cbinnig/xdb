@@ -1,5 +1,6 @@
 package org.xdb.funsql.compile.predicate;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,7 +14,7 @@ import org.xdb.funsql.compile.tokens.TokenIdentifier;
  * @author cbinnig
  *
  */
-public abstract class AbstractPredicate extends AbstractToken{
+public abstract class AbstractPredicate extends AbstractToken implements Cloneable{
 
 	private static final long serialVersionUID = -8077067070422642204L;
 
@@ -40,7 +41,7 @@ public abstract class AbstractPredicate extends AbstractToken{
 		this.type = type;
 	}
 	
-	public abstract Set<TokenAttribute> getAttributes();
+	public abstract Collection<TokenAttribute> getAttributes();
 	
 	public abstract boolean isEquiJoinPredicate();
 	
@@ -49,4 +50,6 @@ public abstract class AbstractPredicate extends AbstractToken{
 	public abstract Set<AbstractExpression> getAggregations();
 	
 	public abstract AbstractPredicate replaceAliases(Map<AbstractExpression, TokenIdentifier> aliases);
+	
+	public abstract AbstractPredicate clone();
 }

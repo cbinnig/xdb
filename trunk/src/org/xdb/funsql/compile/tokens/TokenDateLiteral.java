@@ -36,4 +36,9 @@ public class TokenDateLiteral extends TokenLiteral {
 		sqlValue.append(this.value.toString());
 		return sqlValue.toString();
 	}
+	
+	@Override
+	public AbstractTokenOperand clone() {
+		return new TokenDateLiteral(this.value);
+	}
 }

@@ -15,7 +15,7 @@ public class TestCreateFunctionSQL extends CompileServerTestCase {
 	@Test
 	public void testSimpleCreate() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
-		compiler.doOptimize(false);
+		compiler.doOptimize(true);
 		
 		// create connection -> no error
 		String dropConnSql = "DROP CONNECTION \"testConnection\"";

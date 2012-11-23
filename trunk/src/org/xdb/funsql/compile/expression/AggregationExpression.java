@@ -1,7 +1,7 @@
 package org.xdb.funsql.compile.expression;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Set;
 
 import org.xdb.funsql.compile.operator.EnumAggregation;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -43,7 +43,7 @@ public class AggregationExpression extends AbstractExpression {
 	//methods
 	
 	@Override
-	public Set<TokenAttribute> getAttributes() {
+	public Collection<TokenAttribute> getAttributes() {
 		return this.expr.getAttributes();
 	}
 
@@ -80,5 +80,15 @@ public class AggregationExpression extends AbstractExpression {
 	@Override
 	public int size() {
 		return 1;
+	}
+	
+	@Override
+	public AbstractExpression clone() {
+		AggregationExpression expr = new AggregationExpression();
+		if(this.expr!=null)
+			expr.expr = this.expr.clone();
+		expr.agg = this.agg;
+		
+		return expr;
 	}
 }

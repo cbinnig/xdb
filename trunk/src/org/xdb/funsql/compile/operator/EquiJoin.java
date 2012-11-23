@@ -1,9 +1,10 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
@@ -62,24 +63,6 @@ public class EquiJoin extends AbstractBinaryOperator {
 		return sqlTemplate.toString(vars);
 	}
 
-	/**
-	 * @param kind of pushdown you want to do
-	 * @return true if pushdown possible 
-	 */
-	@Override
-	public boolean isPushDownAllowed(EnumPushDown pd) {
-		switch(pd){
-		case STOP_PUSHDOWN:
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	@Override
-	public void accept(ITreeVisitor v) {
-		v.visitEquiJoin(this);
-	}
 	
 	@Override
 	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
@@ -90,5 +73,18 @@ public class EquiJoin extends AbstractBinaryOperator {
 		GraphNode node = nodes.get(this.operatorId);
 		node.getInfo().setFooter(this.leftTokenAttribute.toString()+"="+this.rightTokenAttribute.toString());
 		return err;
+	}
+
+	@Override
+	public void renameAttributes(String oldId, String newId) {
+		Vector<TokenAttribute> atts = new Vector<TokenAttribute>(2);
+		atts.add(this.leftTokenAttribute);
+		atts.add(this.rightTokenAttribute);
+		TokenAttribute.renameTable(atts, oldId, newId);
+	}
+	
+	@Override
+	public void renameForPushDown(Collection<TokenAttribute> selAtts, int childIdx) {
+		TokenAttribute.renameTable(selAtts, this.getChild(childIdx).getOperatorId().toString());
 	}
 }

@@ -1,13 +1,14 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.analyze.operator.ITreeVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
@@ -106,17 +107,6 @@ public class GenericAggregation extends AbstractUnaryOperator {
 	}
 
 	@Override
-	public boolean isPushDownAllowed(EnumPushDown pd) {
-		switch(pd){
-		case SELECTION_PUSHDOWN:
-		case STOP_PUSHDOWN:
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	@Override
 	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes) {
 		Error err = super.traceGraph(g, nodes);
 		if (err.isError())
@@ -137,7 +127,26 @@ public class GenericAggregation extends AbstractUnaryOperator {
 	}
 
 	@Override
-	public void accept(ITreeVisitor v) {
-		v.visitGenericAggregation(this);
+	public void renameAttributes(String oldId, String newId) {
+		Vector<TokenAttribute> atts = new Vector<TokenAttribute>();
+		for(AbstractExpression expr: this.aggExprs){
+			atts.addAll(expr.getAttributes());
+		}
+		for(AbstractExpression expr: this.groupExprs){
+			atts.addAll(expr.getAttributes());
+		}
+		TokenAttribute.renameTable(atts, oldId, newId);
+	}
+	
+	@Override
+	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
+		HashMap<TokenIdentifier,TokenIdentifier> renameMap = new HashMap<TokenIdentifier,TokenIdentifier>();
+		for(int i=0; i<this.groupExprs.size(); ++i){
+			AbstractExpression expr = this.groupExprs.get(i);
+			if(expr.isAttribute()){
+				renameMap.put(expr.getAttribute().getName(), this.aliases.get(this.aggExprs.size()+i));
+			}
+		}
+		TokenAttribute.rename(selAtts, this.getOperatorId().toString(), renameMap);
 	}
 }

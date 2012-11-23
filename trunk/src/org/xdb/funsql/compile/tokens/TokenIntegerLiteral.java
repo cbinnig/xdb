@@ -30,4 +30,9 @@ public class TokenIntegerLiteral extends TokenLiteral {
 	public String toSqlString(){
 		return this.value.toString();
 	}
+	
+	@Override
+	public AbstractTokenOperand clone() {
+		return new TokenIntegerLiteral(this.value);
+	}
 }

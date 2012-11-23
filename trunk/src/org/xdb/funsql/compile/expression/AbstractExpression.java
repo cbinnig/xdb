@@ -1,13 +1,13 @@
 package org.xdb.funsql.compile.expression;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 
-public abstract class AbstractExpression extends AbstractToken{
+public abstract class AbstractExpression extends AbstractToken implements Cloneable{
 
 	private static final long serialVersionUID = 7432833594195223415L;
 
@@ -38,7 +38,7 @@ public abstract class AbstractExpression extends AbstractToken{
 	 * Returns all attributes of expression
 	 * @return
 	 */
-	public abstract Set<TokenAttribute> getAttributes();
+	public abstract Collection<TokenAttribute> getAttributes();
 
 	/**
 	 * Checks if expression is only an attribute
@@ -64,6 +64,11 @@ public abstract class AbstractExpression extends AbstractToken{
 	 * @return
 	 */
 	public abstract int size();
+	
+	/**
+	 * Clones expression
+	 */
+	public abstract AbstractExpression clone();
 	
 	/**
 	 * Replaces expressions with aliases

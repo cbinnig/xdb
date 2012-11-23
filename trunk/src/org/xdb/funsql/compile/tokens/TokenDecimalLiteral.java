@@ -32,4 +32,9 @@ public class TokenDecimalLiteral extends TokenLiteral {
 	public String toSqlString(){
 		return this.value.toString();
 	}
+	
+	@Override
+	public AbstractTokenOperand clone() {
+		return new TokenDecimalLiteral(this.value);
+	}
 }
