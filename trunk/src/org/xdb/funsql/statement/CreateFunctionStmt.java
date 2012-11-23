@@ -175,7 +175,6 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		this.function = new Function(this.tFun.getName().toString(),
 				schema.getOid(), this.tFun.getLanguage(), stmtString);
 
-		fCache.addPlan(this.function.hashKey(), this.functionPlan);
 		e = this.function.checkObject();
 
 		return e;
@@ -222,7 +221,13 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 
 	@Override
 	public Error execute() {
-		return Catalog.createFunction(this.function);
+		//add function to catalog!
+		Error err = Catalog.createFunction(this.function);
+		
+		//add function to cache
+		this.fCache.addPlan(this.function.hashKey(), this.functionPlan);
+		
+		return err;
 	}
 
 	@Override

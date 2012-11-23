@@ -16,6 +16,11 @@ public class TokenTable extends AbstractToken{
 		this.name = new TokenIdentifier(name);
 	}
 	
+	public TokenTable(TokenIdentifier name){
+		this();
+		this.name = name;
+	}
+	
 	public TokenTable(){
 		this.schema = new TokenSchema(Config.COMPILE_DEFAULT_SCHEMA);
 	}

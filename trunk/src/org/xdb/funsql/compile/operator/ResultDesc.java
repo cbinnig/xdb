@@ -117,7 +117,9 @@ public class ResultDesc implements Serializable, Cloneable{
 	public ResultDesc clone(){
 		ResultDesc rDesc = new ResultDesc();
 		for(TokenAttribute att: this.attributes){
-			rDesc.attributes.add(new TokenAttribute(att.getName()));
+			TokenAttribute newAtt = new TokenAttribute(att.getName().clone());
+			newAtt.setTable(att.getTable().getName().clone());
+			rDesc.attributes.add(newAtt);
 		}
 		
 		for(EnumSimpleType type: this.types){
