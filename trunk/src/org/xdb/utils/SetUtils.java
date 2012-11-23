@@ -12,7 +12,7 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
  */
 public class SetUtils {
 
-	public static String buildAliasString(final String sourceTable, final List<String> attrNameList,
+	public static String buildAliasString(final List<String> attrNameList,
 			final List<String> aliasList) {
 		assert(attrNameList.size() == aliasList.size());
 		
@@ -21,8 +21,6 @@ public class SetUtils {
 		for(int i = 0; i < attrNameList.size(); i++) {
 			if(i != 0)
 				attributeListBuffer.append(", ");
-			if(sourceTable.length() > 0)
-				attributeListBuffer.append(sourceTable + ".");
 			attributeListBuffer.append(attrNameList.get(i) + " AS " + aliasList.get(i));
 		}
 		
@@ -30,14 +28,12 @@ public class SetUtils {
 	}
 
 	
-	public static String stringifyAttributes(final String sourceTable, final List<String> attrList) {
+	public static String stringifyAttributes(final List<String> attrList) {
 		final StringBuffer attributeListBuffer = new StringBuffer();
 		
 		for(int i = 0; i < attrList.size(); i++) {
 			if(i != 0)
 				attributeListBuffer.append(", ");
-			if(sourceTable.length() > 0)
-				attributeListBuffer.append(sourceTable + ".");
 			attributeListBuffer.append(attrList.get(i));
 		}
 		
@@ -47,7 +43,16 @@ public class SetUtils {
 	public static Vector<String> attributesToString(final Vector<TokenAttribute> attrs) {
 		final Vector<String> stringAttrs = new Vector<String>(attrs.size());
 		for(TokenAttribute attr : attrs) {
-			stringAttrs.add(attr.toString());
+			stringAttrs.add(attr.getName().toSqlString());
+		}
+		
+		return stringAttrs;
+	}
+	
+	public static Vector<String> attributesToTableString(final Vector<TokenAttribute> attrs) {
+		final Vector<String> stringAttrs = new Vector<String>(attrs.size());
+		for(TokenAttribute attr : attrs) {
+			stringAttrs.add(attr.toSqlString());
 		}
 		
 		return stringAttrs;

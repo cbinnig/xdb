@@ -100,9 +100,9 @@ public class TableOperator extends AbstractOperator {
 		//get all table attributes and match them in order
 		final Vector<String> attrs = new Vector<String>();
 		for(Attribute attr : table.getAttributes()) {
-			attrs.add(attr.getName());
+			attrs.add(opDummy + "." + attr.getName());
 		}
-		vars.put("RESULTS", SetUtils.buildAliasString(opDummy, attrs, getResultAttributes()));
+		vars.put("RESULTS", SetUtils.buildAliasString(attrs, getResultAttributes()));
 		return sqlTemplate.toString(vars);
 	}
 

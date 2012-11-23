@@ -125,6 +125,9 @@ public abstract class AbstractOperator implements Serializable {
 	/**
 	 * Get list of all result TokenAttributes.
 	 */
+	protected List<String> getResultTableAttributes() {
+		return SetUtils.attributesToTableString(getResult(0).getAttributes());
+	}
 	protected List<String> getResultAttributes() {
 		return SetUtils.attributesToString(getResult(0).getAttributes());
 	}

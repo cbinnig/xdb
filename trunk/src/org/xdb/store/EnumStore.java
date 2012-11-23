@@ -5,15 +5,9 @@ import org.xdb.error.Error;
 
 
 public enum EnumStore {
-	XDB("xdb"), //??
-	MYSQL("mysql"),
-	POSTGRES("postgres");
-	
-	private final String stringRepr; 
-	
-	private EnumStore(final String str) {
-		stringRepr = str;
-	}
+	XDB,
+	MYSQL,
+	POSTGRES;
 	
 	private static final EnumStore[] values  = { XDB, MYSQL, POSTGRES };
 	
@@ -36,9 +30,5 @@ public enum EnumStore {
 		String args[] = { type };
 		Error error = new Error(EnumError.STORE_NOT_EXISTS, args);
 		return error;
-	}
-	
-	public String toString() {
-		return stringRepr;
 	}
 }
