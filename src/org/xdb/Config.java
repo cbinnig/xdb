@@ -51,7 +51,7 @@ public class Config implements Serializable {
 	public static final String QUERYTRACKER_URL = "127.0.0.1";
 
 	public static final String LOG_FILE = "./log/xdb.log";
-	public static final Level LOG_LEVEL = Level.INFO;
+	public static final Level LOG_LEVEL = Level.SEVERE;
 
 	//DOT
 	public static final String DOT_EXE = "dot";

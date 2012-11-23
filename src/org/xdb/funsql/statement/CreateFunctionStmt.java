@@ -229,7 +229,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	public Error optimize() {
 		Error err = new Error();
 		Optimizer opti = new Optimizer(this.functionPlan);
-		opti.optimize();
+		err = opti.optimize();
 		return err;
 	}
 }

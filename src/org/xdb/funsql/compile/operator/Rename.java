@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
 
@@ -43,6 +44,10 @@ public class Rename extends AbstractUnaryOperator {
 
 	@Override
 	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
-		TokenAttribute.renameTable(selAtts, this.getChild().getOperatorId().toString());
+		HashMap<TokenIdentifier,TokenIdentifier> renameMap = new HashMap<TokenIdentifier,TokenIdentifier>();
+		for(int i=0; i<this.getResult().size(); ++i){
+			renameMap.put(this.getResult().getAttribute(i).getName(), this.getChild().getResult(0).getAttribute(i).getName());
+		}
+		TokenAttribute.rename(selAtts, this.getChild().getOperatorId().toString(), renameMap);
 	}
 }

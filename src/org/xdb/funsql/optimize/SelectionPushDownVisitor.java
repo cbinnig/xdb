@@ -28,7 +28,7 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
 
 /**
- * Optimizer rule which pushed down selection in CompilePlan
+ * Optimizer rule which pushes down selections in a CompilePlan
  * 
  * @author cbinnig
  * 
@@ -51,14 +51,14 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	private CompilePlan plan;
 
 	private Error err = new Error();
-	
+
 	// constructors
 	public SelectionPushDownVisitor(AbstractOperator root, CompilePlan plan) {
 		super(root);
 		this.plan = plan;
 	}
-	
-	//getter and setter
+
+	// getter and setter
 	/**
 	 * Returns true if plan was modified by optimization rule
 	 * 
@@ -69,7 +69,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	}
 
 	// methods
-	public void reset(AbstractOperator root){
+	public void reset(AbstractOperator root) {
 		this.treeRoot = root;
 		this.cutSelection = null;
 		this.lastOp = null;
@@ -78,24 +78,32 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 		this.doWaitNextVisit = true;
 		this.err = new Error();
 	}
-	
+
 	@Override
 	public Error visit(AbstractOperator absOp) {
-		//visit this operator
+		// visit this operator
 		err = super.visit(absOp);
-		if (this.stop)
+		if (err.isError() || this.stop)
 			return err;
 
-		//set status for next child
-		if(!absOp.getType().equals(EnumOperator.GENERIC_SELECTION))
+		// set status for next child
+		if (!absOp.getType().equals(EnumOperator.GENERIC_SELECTION))
 			this.lastOp = absOp;
 		this.doWaitNextVisit = true;
-		
-		//visit child
-		if (absOp.getSourceOperators().size() > 0) {
+
+		// pushdown: visit next child
+		if (this.cutSelection != null && absOp.getSourceOperators().size() > 0) {
 			AbstractOperator child = absOp.getSourceOperators().get(
 					this.nextChildIdx);
 			err = this.visit(child);
+		}
+		// visit all children to find selection
+		else {
+			for (AbstractOperator child : absOp.getSourceOperators()) {
+				err = this.visit(child);
+				if (err.isError())
+					return err;
+			}
 		}
 
 		return err;
@@ -111,8 +119,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	public Error visitGenericSelection(GenericSelection gs) {
 		// pick selection
 		if (this.cutSelection == null
-				&& !this.finishedSelections.contains(gs
-						.getOperatorId())) {
+				&& !this.finishedSelections.contains(gs.getOperatorId())) {
 			this.cutSelection = gs;
 			this.pasteInfo = this.cutSelection.cut();
 		}
@@ -147,7 +154,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 		this.paste();
 		return err;
 	}
-	
+
 	@Override
 	public Error visitRename(Rename ro) {
 		this.pushDown(ro);
@@ -184,7 +191,8 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 				waitPred = andPred;
 				waitPreds.put(parentIdx, waitPred);
 			} else {
-				AbstractPredicate waitPred = this.cutSelection.getPredicate().clone();
+				AbstractPredicate waitPred = this.cutSelection.getPredicate()
+						.clone();
 				waitPreds.put(parentIdx, waitPred);
 			}
 
@@ -206,8 +214,8 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 					count++;
 				}
 			}
-			
-			//push down new selection with disjunctive predicate
+
+			// push down new selection with disjunctive predicate
 			if (count == op.getDestinationOperators().size()) {
 				this.treeRoot = op;
 				this.lastOp = op;
@@ -238,13 +246,15 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 					.getResult(RESULT_IDX).getAttributes();
 
 			AbstractPredicate predicate = this.cutSelection.getPredicate();
-			
+
 			Collection<TokenAttribute> selAtts = predicate.getAttributes();
-			Collection<TokenAttribute> newLeftAtts = TokenAttribute.clone(selAtts);
+			Collection<TokenAttribute> newLeftAtts = TokenAttribute
+					.clone(selAtts);
 			op.renameForPushDown(newLeftAtts, LEFT_CHILD_IDX);
-			Collection<TokenAttribute> newRightAtts = TokenAttribute.clone(selAtts);
+			Collection<TokenAttribute> newRightAtts = TokenAttribute
+					.clone(selAtts);
 			op.renameForPushDown(newRightAtts, RIGHT_CHILD_IDX);
-			
+
 			// wait
 			if (this.doWaitNextVisit && this.wait(op)) {
 				return;
@@ -287,7 +297,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 			Collection<TokenAttribute> selAtts = predicate.getAttributes();
 			Collection<TokenAttribute> newAtts = TokenAttribute.clone(selAtts);
 			op.renameForPushDown(newAtts);
-			
+
 			// wait
 			if (this.doWaitNextVisit && this.wait(op)) {
 				return;
@@ -297,6 +307,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 				op.renameForPushDown(selAtts);
 				this.pasteInfo.clear();
 				this.pasteInfo.put(op, CHILD_IDX);
+				this.nextChildIdx = 0;
 				return;
 			}
 			// stop pushdown
@@ -311,14 +322,14 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	 * Pastes selection into plan with given paste info
 	 */
 	private void paste() {
-		if(this.cutSelection==null)
+		if (this.cutSelection == null)
 			return;
-		
+
 		for (Map.Entry<AbstractOperator, Integer> entry : this.pasteInfo
 				.entrySet()) {
 			this.cutSelection.paste(entry.getKey(), entry.getValue());
 		}
-		
+
 		this.finishedSelections.add(this.cutSelection.getOperatorId());
 		this.pasteInfo.clear();
 		this.cutSelection = null;

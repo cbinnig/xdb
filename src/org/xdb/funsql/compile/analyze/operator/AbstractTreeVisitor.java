@@ -8,6 +8,7 @@ import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.GenericAggregation;
+import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.TableOperator;
 
 public abstract class AbstractTreeVisitor implements ITreeVisitor {
@@ -36,7 +37,7 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	public Error visit(AbstractOperator absOp) {
 		Error e = new Error();
 		
-		if(this.stop)
+		if(e.isError() || this.stop)
 			return e;
 		
 		switch(absOp.getType()){
@@ -48,10 +49,12 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 			return visitGenericAggregation((GenericAggregation) absOp);
 		case GENERIC_PROJECTION:
 			return visitGenericProjection((GenericProjection) absOp);
+		case RENAME:
+			return visitRename((Rename) absOp);
 		case TABLE:
 			return visitTableOperator((TableOperator) absOp);
 		default:
-			String[] args = {"AbstractTreeVisitor: Operator not supported"};
+			String[] args = {"AbstractTreeVisitor: Operator of type "+absOp.getType()+" not supported"};
 			e = new Error(EnumError.COMPILER_GENERIC, args);
 		}
 		

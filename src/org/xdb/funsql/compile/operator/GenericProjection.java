@@ -113,9 +113,9 @@ public class GenericProjection extends AbstractUnaryOperator {
 		for(int i=0; i<this.expressions.size(); ++i){
 			AbstractExpression expr = this.expressions.get(i);
 			if(expr.isAttribute()){
-				renameMap.put(expr.getAttribute().getName(), this.aliases.get(i));
+				renameMap.put(this.aliases.get(i), expr.getAttribute().getName());
 			}
 		}
-		TokenAttribute.rename(selAtts, this.getOperatorId().toString(), renameMap);
+		TokenAttribute.rename(selAtts, this.getChild().getOperatorId().toString(), renameMap);
 	}
 }
