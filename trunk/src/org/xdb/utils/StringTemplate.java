@@ -1,5 +1,6 @@
 package org.xdb.utils;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -8,7 +9,10 @@ import java.util.Map.Entry;
  * @author cbinnig
  *
  */
-public class StringTemplate {
+public class StringTemplate implements Serializable{
+
+	private static final long serialVersionUID = -5493387022545601948L;
+
 	public static String KEY_EXP = "EXP";
 	
 	private static final String START_TAG = "<";

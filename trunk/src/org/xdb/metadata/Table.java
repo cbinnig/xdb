@@ -59,6 +59,10 @@ public class Table extends AbstractDatabaseObject {
 	public static void LAST_OID(long LAST_OID) {
 		Table.LAST_OID = LAST_OID;
 	}
+	
+	public boolean isTemp(){
+		return this.oid<0;
+	}
 
 	public String getSourceName() {
 		return this.sourceName;

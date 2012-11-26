@@ -1,18 +1,19 @@
-package org.xdb.test.funsql.compile;
+package org.xdb.test.xdb;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
+import org.xdb.funsql.statement.CallFunctionStmt;
 import org.xdb.funsql.statement.CreateFunctionStmt;
 import org.xdb.funsql.statement.DropFunctionStmt;
-import org.xdb.test.CompileServerTestCase;
+import org.xdb.test.XDBTestCase;
 
-public class TestCreateFunctionSQL extends CompileServerTestCase {
+public class TestCallFunctionSQL extends XDBTestCase {
 
 	@Test
-	public void testSimpleCreate() {
+	public void testSimpleCall() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
 		compiler.doOptimize(true);
 		
@@ -77,9 +78,9 @@ public class TestCreateFunctionSQL extends CompileServerTestCase {
 		fStmt.getPlan().traceGraph(this.getClass().getName());
 		this.assertNoError(fStmt.execute());
 		
-		/*CallFunctionStmt callFStmt = (CallFunctionStmt) compiler.compile("CALL FUNCTION f1;");
+		CallFunctionStmt callFStmt = (CallFunctionStmt) compiler.compile("CALL FUNCTION f1;");
 		this.assertNoError(compiler.getLastError());
-		this.assertNoError(callFStmt.execute());*/
+		this.assertNoError(callFStmt.execute());
 		
 		DropFunctionStmt dropFStmt = (DropFunctionStmt) compiler.compile("DROP FUNCTION f1;");
 		this.assertNoError(compiler.getLastError());

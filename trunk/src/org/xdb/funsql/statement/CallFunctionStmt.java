@@ -1,5 +1,6 @@
 package org.xdb.funsql.statement;
 
+import org.xdb.client.MasterTrackerClient;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.FunSQLCompiler;
@@ -13,7 +14,6 @@ import org.xdb.metadata.Schema;
 public class CallFunctionStmt extends AbstractServerStmt {
 	private TokenFunction tFunction;
 	private FunctionCache cache = FunctionCache.getCache();
-	@SuppressWarnings("unused")
 	private CompilePlan fPlan;
 
 	//constructors
@@ -55,9 +55,9 @@ public class CallFunctionStmt extends AbstractServerStmt {
 		else{
 			FunSQLCompiler compiler = new FunSQLCompiler();
 			compiler.doSemanticAnalysis(false);
-			compiler.doOptimize(false);
+			compiler.doOptimize(true);
 			
-			CreateFunctionStmt fStmt = (CreateFunctionStmt)  compiler.compile(function.getSource());
+			CreateFunctionStmt fStmt = (CreateFunctionStmt) compiler.compile(function.getSource());
 			if(compiler.getLastError().isError()){
 				return compiler.getLastError();
 			}
@@ -69,7 +69,10 @@ public class CallFunctionStmt extends AbstractServerStmt {
 
 	@Override
 	public Error execute() {
-		//TODO: Execute function
+		MasterTrackerClient client = new MasterTrackerClient();
+		Error err = client.executePlan(this.fPlan);
+		if(err.isError())
+			return err;
 		
 		return new Error();
 	}

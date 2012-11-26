@@ -29,6 +29,7 @@ import org.xdb.funsql.optimize.Optimizer;
 import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Catalog;
+import org.xdb.metadata.Connection;
 import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
@@ -59,7 +60,7 @@ public class SelectStmt extends AbstractServerStmt {
 	private HashMap<TokenAttribute, EnumSimpleType> attTypes = new HashMap<TokenAttribute, EnumSimpleType>();
 	private HashMap<String, Table> varSymbols = new HashMap<String, Table>();
 	private Vector<String> usedVariables = new Vector<String>();
-	
+
 	private CompilePlan plan = new CompilePlan();
 	FunctionCache fcache = FunctionCache.getCache();
 
@@ -76,18 +77,17 @@ public class SelectStmt extends AbstractServerStmt {
 	}
 
 	// getters and setters
-	public void addVarSymbols(Map<String, Table> varSymbols){
+	public void addVarSymbols(Map<String, Table> varSymbols) {
 		this.varSymbols.putAll(varSymbols);
 	}
-	
+
 	public void addSelExpression(AbstractExpression expr) {
 		this.tSelExpr.add(expr);
-		
-		if(expr.isAttribute()){
+
+		if (expr.isAttribute()) {
 			TokenAttribute att = expr.getAttribute();
 			this.tSelAliases.add(att.getName());
-		}
-		else{
+		} else {
 			this.tSelAliases.add(null);
 		}
 	}
@@ -167,11 +167,11 @@ public class SelectStmt extends AbstractServerStmt {
 
 		// 4. create canonical plan
 		err = this.canonicalTransalation(this.plan);
-		
+
 		// 5. analyze plan
 		Analyzer analyzer = new Analyzer(this.plan, this.attTypes);
 		analyzer.analyze();
-		
+
 		return err;
 	}
 
@@ -181,8 +181,10 @@ public class SelectStmt extends AbstractServerStmt {
 	 * @param expr
 	 */
 	private Identifier generateInternalAlias(AbstractExpression expr) {
-		Identifier internalAlias = this.internalAlias.clone().append(++this.lastInternalAlias);
-		this.internalAliases.put(expr, new TokenIdentifier(internalAlias.toString()));
+		Identifier internalAlias = this.internalAlias.clone().append(
+				++this.lastInternalAlias);
+		this.internalAliases.put(expr,
+				new TokenIdentifier(internalAlias.toString()));
 		return internalAlias;
 	}
 
@@ -244,7 +246,8 @@ public class SelectStmt extends AbstractServerStmt {
 		// having clause -> selection for having predicate
 		if (this.tHavingPredicate != null) {
 			GenericSelection selectOp = new GenericSelection(lastOp);
-			selectOp.setPredicate(this.tHavingPredicate.replaceAliases(this.internalAliases));
+			selectOp.setPredicate(this.tHavingPredicate
+					.replaceAliases(this.internalAliases));
 			plan.addOperator(selectOp, false);
 			lastOp = selectOp;
 		}
@@ -254,14 +257,13 @@ public class SelectStmt extends AbstractServerStmt {
 		for (int i = 0; i < this.tSelExpr.size(); ++i) {
 			AbstractExpression tExpr = this.tSelExpr.get(i);
 			TokenIdentifier tAlias = this.tSelAliases.get(i);
-			
+
 			if (this.internalAliases.containsKey(tExpr)) {
 				TokenIdentifier internalAlias = this.internalAliases.get(tExpr);
 				SimpleExpression intExpr = new SimpleExpression(
 						new TokenAttribute(internalAlias));
 				projectOp.addExpression(intExpr);
-			} 
-			else{
+			} else {
 				projectOp.addExpression(tExpr);
 			}
 			projectOp.addAlias(tAlias);
@@ -283,11 +285,11 @@ public class SelectStmt extends AbstractServerStmt {
 		// no join required
 		if (this.tTableAliases.size() == 1) {
 			TokenIdentifier tTableAlias = this.tTableAliases.get(0);
-			Table table = this.tableSymbols.get(tTableAlias.hashKey());
 			TableOperator tableOp = new TableOperator(tTableAlias);
-			tableOp.setTable(table);
-			
-			plan.addOperator(tableOp, false);
+
+			// add meta data to plan
+			this.addTableToPlan(tableOp);
+
 			if (this.tWherePredicate != null) {
 				selectionPreds.addAll(this.tWherePredicate.splitAnd());
 			}
@@ -332,11 +334,10 @@ public class SelectStmt extends AbstractServerStmt {
 					// left table not yet in join path?
 					boolean newLeftTable = false;
 					if (leftTableOp == null) {
-						Table leftTable = this.tableSymbols.get(tLeftTable
-								.getName().hashKey());
 						leftTableOp = new TableOperator(tLeftTable.getName());
-						leftTableOp.setTable(leftTable);
-						plan.addOperator(leftTableOp, false);
+
+						this.addTableToPlan(leftTableOp);
+						
 						tableOps.put(tLeftTable.getName().hashKey(),
 								leftTableOp);
 						newLeftTable = true;
@@ -345,11 +346,10 @@ public class SelectStmt extends AbstractServerStmt {
 					// right table not yat in join path?
 					boolean newRightTable = false;
 					if (rightTableOp == null) {
-						Table rightTable = this.tableSymbols.get(tRightTable
-								.getName().hashKey());
 						rightTableOp = new TableOperator(tRightTable.getName());
-						rightTableOp.setTable(rightTable);
-						plan.addOperator(rightTableOp, false);
+
+						this.addTableToPlan(rightTableOp);
+
 						tableOps.put(tRightTable.getName().hashKey(),
 								rightTableOp);
 						newRightTable = true;
@@ -388,6 +388,26 @@ public class SelectStmt extends AbstractServerStmt {
 		}
 
 		return err;
+	}
+
+	/**
+	 * Adds table and connection info to plan for table operator
+	 * @param tableOp
+	 * @param tTableAlias
+	 */
+	private void addTableToPlan(TableOperator tableOp) {
+		// set table
+		Table table = this.tableSymbols.get(tableOp.getTokenTable().hashKey());
+		tableOp.setTable(table);
+
+		// set connection
+		if (!table.isTemp()) {
+			Connection conn = Catalog.getConnection(table.getConnectionOid());
+			tableOp.setConnection(conn);
+		}
+		
+		// add table op to plan
+		this.plan.addOperator(tableOp, false);
 	}
 
 	/**
@@ -481,7 +501,7 @@ public class SelectStmt extends AbstractServerStmt {
 			this.attSymbols.put(tAtt.hashKey(), att);
 			this.attTypes.put(tAtt, att.getDataType());
 		}
-		
+
 		return err;
 	}
 
@@ -539,12 +559,12 @@ public class SelectStmt extends AbstractServerStmt {
 			TokenTable tTable = this.tTables.get(i);
 			TokenIdentifier tTableAlias = this.tTableAliases.get(i);
 			Table table = null;
-			
+
 			if (tTable.isVariable()) {
-				if(!this.varSymbols.containsKey(tTable.hashKey())){
+				if (!this.varSymbols.containsKey(tTable.hashKey())) {
 					return createVariableNotDeclared(tTable);
 				}
-				
+
 				table = this.varSymbols.get(tTable.hashKey());
 				this.usedVariables.add(tTable.hashKey());
 			} else {
@@ -654,9 +674,10 @@ public class SelectStmt extends AbstractServerStmt {
 		Error error = new Error(EnumError.COMPILER_SELECT_ALIAS_MISSING, args);
 		return error;
 	}
-	
+
 	/**
-	 * Create compile error for missing variable in cache
+	 * Create compile error for missing variable
+	 * 
 	 * @param tv
 	 * @return
 	 */
@@ -666,9 +687,9 @@ public class SelectStmt extends AbstractServerStmt {
 				args);
 		return error;
 	}
-	
+
 	@Override
-	public Error optimize(){
+	public Error optimize() {
 		Error err = new Error();
 		Optimizer opti = new Optimizer(this.plan);
 		opti.optimize();
@@ -677,7 +698,7 @@ public class SelectStmt extends AbstractServerStmt {
 
 	@Override
 	public Error execute() {
-		String[] args = {"SELECT statement can not be executed!"};
+		String[] args = { "SELECT statement can not be executed!" };
 		Error err = new Error(EnumError.COMPILER_GENERIC, args);
 		return err;
 	}

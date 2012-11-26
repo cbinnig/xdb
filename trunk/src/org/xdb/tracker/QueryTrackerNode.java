@@ -16,7 +16,6 @@ import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
 
 public class QueryTrackerNode {
-	private final String[] nodes = {"127.0.0.1"};
 	private final ComputeClient computeClient = new ComputeClient();
 
 	private final MasterTrackerClient masterTrackerClient;
@@ -39,23 +38,17 @@ public class QueryTrackerNode {
 		return computeClient;
 	}
 
-	/**
-	 * Get a free node (currently: dummy method)
-	 * @return
-	 */
-	public String getFreeNode(){
-		//TODO: Implement resource management using master tracker
-
-		final int idx = (int)(Math.random() * nodes.length);
-		return nodes[idx];
-	}
-
-	public void executePlan(final QueryTrackerPlan plan) {
+	public Error executePlan(final QueryTrackerPlan plan) {
 		plan.execute();
-		final Error err = masterTrackerClient.noticeFreeSlots(plan.getSlots());
-		if (err.isError()) {
-			throw new RuntimeException(err.toString());
-		}
+		Error err = plan.getLastError();
+		if(err.isError())
+			return err;
+		
+		err = masterTrackerClient.noticeFreeSlots(plan.getSlots());
+		if(err.isError())
+			return err;
+		
+		return err;
 	}
 
 	/**
@@ -87,6 +80,4 @@ public class QueryTrackerNode {
 		}
 		return err;
 	}
-
-
 }

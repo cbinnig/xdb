@@ -56,8 +56,7 @@ public class Optimizer {
 				null, compilePlan);
 		for (AbstractOperator root : this.compilePlan.getRoots()) {
 			boolean modified = true;
-			this.compilePlan.traceGraph(this.getClass().getName());
-
+			
 			while (modified) {
 				pushDownVisitor.reset(root);
 				err = pushDownVisitor.visit();

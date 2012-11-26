@@ -115,7 +115,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		Error e = new Error();
 		TokenSchema tSchema = this.tFun.getSchema();
 		Schema schema = Catalog.getSchema(tSchema.hashKey());
-		
+
 		// step 1: semantic checks
 		if (this.doSemanticAnalysis) {
 			// check for non existing schema names
@@ -171,11 +171,15 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 			}
 		}
 
-		// step 4: add CompilePlan to cache and catalog
+		// step 4: check catalog object
 		this.function = new Function(this.tFun.getName().toString(),
 				schema.getOid(), this.tFun.getLanguage(), stmtString);
-
 		e = this.function.checkObject();
+		if (e.isError())
+			return e;
+
+		// step 5: add CompilePlan to cache
+		this.fCache.addPlan(this.function.hashKey(), this.functionPlan);
 
 		return e;
 	}
@@ -221,12 +225,8 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 
 	@Override
 	public Error execute() {
-		//add function to catalog!
+		// add function to catalog!
 		Error err = Catalog.createFunction(this.function);
-		
-		//add function to cache
-		this.fCache.addPlan(this.function.hashKey(), this.functionPlan);
-		
 		return err;
 	}
 
