@@ -46,7 +46,7 @@ public class CompilePlan implements Serializable {
 	private HashSet<Identifier> leaves = new HashSet<Identifier>();
 	
 	// logger
-	private Logger logger;
+	private transient Logger logger;
 
 	// last error
 	private Error err = new Error();

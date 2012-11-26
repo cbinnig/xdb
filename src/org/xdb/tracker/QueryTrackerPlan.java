@@ -375,10 +375,14 @@ public class QueryTrackerPlan implements Serializable {
 
 		while(!assemblingQueue.isEmpty()) {
 			final AbstractOperator rootOp = operators.get(assemblingQueue.poll());
+			if(nodes.containsKey(rootOp.getOperatorId()))
+				continue;
+			
 			final GraphNode node = graph.addNode();
 
-			for(final Identifier parent : sources.get(rootOp.getOperatorId())) {
-				graph.addEdge(nodes.get(parent), node);
+			for(final Identifier parent : consumers.get(rootOp.getOperatorId())) {
+				if(nodes.containsKey(parent))
+					graph.addEdge(nodes.get(parent), node);
 			}			
 
 			final StringBuilder caption = new StringBuilder();
@@ -417,7 +421,7 @@ public class QueryTrackerPlan implements Serializable {
 
 			nodes.put(rootOp.getOperatorId(), node);
 
-			assemblingQueue.addAll(consumers.get(rootOp.getOperatorId()));
+			assemblingQueue.addAll(sources.get(rootOp.getOperatorId()));
 		}
 
 		for(final Identifier opId : operators.keySet()) {

@@ -99,7 +99,7 @@ public class MasterTrackerClient extends AbstractClient{
 		Error err = new Error();
 
 		try {
-			server = new Socket(url, Config.COMPUTE_PORT);
+			server = new Socket(url, port);
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 
@@ -164,5 +164,4 @@ public class MasterTrackerClient extends AbstractClient{
 		}
 		return err;
 	}
-
 }

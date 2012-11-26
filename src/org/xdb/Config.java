@@ -67,21 +67,27 @@ public class Config implements Serializable {
 	}
 
 	private static void load() {
-		String[] intProperties = {"COMPUTE_MAX_FETCHSIZE", "COMPUTE_SLOTS", "COMPILE_PORT", "MASTERTRACKER_PORT", "QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS"};
-		
+		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
+				"COMPUTE_SLOTS", "COMPILE_URL", "COMPILE_PORT",
+				"MASTERTRACKER_URL", "MASTERTRACKER_PORT", "QUERYTRACKER_URL",
+				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS" };
+
 		String CONFIG_FILE = "./config/xdb.conf";
 		Properties props;
 		props = new Properties();
 		try {
 			props.load(new FileReader(CONFIG_FILE));
-			for(String intProperty: intProperties){
-				if(props.containsKey(intProperty))
-					Config.class.getField(intProperty).setInt(null, Integer.parseInt(props.get(intProperty).toString()));
+			for (String intProperty : intProperties) {
+				if (props.containsKey(intProperty))
+					Config.class.getField(intProperty)
+							.setInt(null,
+									Integer.parseInt(props.get(intProperty)
+											.toString()));
 			}
-			
-			if(props.containsKey("LOG_LEVEL"))
+
+			if (props.containsKey("LOG_LEVEL"))
 				LOG_LEVEL = Level.parse(props.getProperty("LOG_LEVEL"));
-			
+
 		} catch (Exception e) {
 			// do nothing
 			e.printStackTrace();

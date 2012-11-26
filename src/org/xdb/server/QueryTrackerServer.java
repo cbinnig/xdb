@@ -13,6 +13,9 @@ import org.xdb.tracker.QueryTrackerPlan;
 
 public class QueryTrackerServer extends AbstractServer {
 
+	public static final int CMD_EXECUTE_PLAN = 1;
+	public static final int CMD_OPERATOR_READY = 2;
+
 	private final QueryTrackerNode tracker;
 
 	public QueryTrackerServer() {
@@ -45,7 +48,7 @@ public class QueryTrackerServer extends AbstractServer {
 				switch (cmd) {
 				case CMD_EXECUTE_PLAN:
 					final QueryTrackerPlan plan = (QueryTrackerPlan) in.readObject();
-					tracker.executePlan(plan);
+					err = tracker.executePlan(plan);
 					break;
 				case CMD_OPERATOR_READY:
 					final AbstractOperator op = (AbstractOperator) in.readObject();
@@ -60,9 +63,6 @@ public class QueryTrackerServer extends AbstractServer {
 			return err;
 		}
 	}
-
-	public static final int CMD_EXECUTE_PLAN = 1;
-	public static final int CMD_OPERATOR_READY = 2;
 
 	@Override
 	protected void handle(final Socket client) {
