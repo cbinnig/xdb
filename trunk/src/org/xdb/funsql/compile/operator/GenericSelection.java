@@ -20,7 +20,7 @@ public class GenericSelection extends AbstractUnaryOperator {
 	private AbstractPredicate predicate;
 	
 	private final StringTemplate sqlTemplate = 
-			new StringTemplate("SELECT <RESULTS> FROM <<OP1>> AS <OP1>");
+			new StringTemplate("SELECT <RESULTS> FROM <<OP1>> AS <OP1> WHERE <PRED>");
 	
 	//constructors
 	public GenericSelection(AbstractOperator child) {
@@ -93,6 +93,7 @@ public class GenericSelection extends AbstractUnaryOperator {
 		final HashMap<String, String> vars = new HashMap<String, String>();
 		vars.put("RESULTS", SetUtils.buildAliasString(getChild().getResultTableAttributes(), getResultAttributes()));
 		vars.put("OP1", getChild().getOperatorId().toString());
+		vars.put("PRED", predicate.toSqlString());
 		return sqlTemplate.toString(vars);
 	}
 	

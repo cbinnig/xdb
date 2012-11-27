@@ -3,13 +3,20 @@ package org.xdb.test.tracker;
 import org.junit.Assert;
 import org.junit.Test;
 import org.xdb.funsql.compile.CompilePlan;
+import org.xdb.funsql.compile.expression.AggregationExpression;
 import org.xdb.funsql.compile.expression.ComplexExpression;
 import org.xdb.funsql.compile.expression.EnumExprOperator;
 import org.xdb.funsql.compile.expression.EnumExprType;
 import org.xdb.funsql.compile.expression.SimpleExpression;
+import org.xdb.funsql.compile.operator.EnumAggregation;
+import org.xdb.funsql.compile.operator.EquiJoin;
+import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
+import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.operator.TableOperator;
+import org.xdb.funsql.compile.predicate.EnumCompOperator;
+import org.xdb.funsql.compile.predicate.SimplePredicate;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.compile.tokens.TokenIntegerLiteral;
@@ -34,12 +41,12 @@ public class TestPlanTranslation extends TestCase {
 	
 	
 	@Test
-	public void testSimpleSelect() throws Exception {
+	public void testSimpleProjection() throws Exception {
 		/*
 		 * Test Plan
 		 *   INPUT:
 		 *    tables: R ( a INT )
-		 *    statement: SELECT a+1 FROM R WHERE a = 1
+		 *    statement: SELECT a+1 FROM R
 		 *   checked OUTPUT:
 		 *    - existing plan object
 		 *    - single MySQL Operator
@@ -59,27 +66,255 @@ public class TestPlanTranslation extends TestCase {
 		plan.addOperator(tableOp , false); 
 		plan.addOperator(selectOp , true); //root
 		
+		final TokenAttribute tableResultA = new TokenAttribute(tableOp.getOperatorId().toString(), "a");
+		
 		//add calculation to select operator
 		final ComplexExpression addExp = new ComplexExpression(EnumExprType.ADD_EXPRESSION);
-		addExp.setExpr1(new SimpleExpression(new TokenAttribute(tableOp.getOperatorId().toString(), "a")));
+		addExp.setExpr1(new SimpleExpression(tableResultA));
 		addExp.addOp(EnumExprOperator.SQL_PLUS);
 		addExp.addExpr2(new SimpleExpression(new TokenIntegerLiteral(1)));
 		selectOp.addExpression(addExp);
 		
 		//add results
-		final ResultDesc selectResult = new ResultDesc();
+		final ResultDesc selectResult = new ResultDesc(1);
 		selectResult.addAttribute(new TokenAttribute(tableOp.getOperatorId().toString(), "a_1"));
 		selectResult.addType(EnumSimpleType.SQL_INTEGER);
 		selectOp.addResult(selectResult);
 		
 		// same result as output/select, but w/o op table name
 		final ResultDesc tableResult = new ResultDesc(1);
-		tableResult.addAttribute(new TokenAttribute(tableOp.getOperatorId().toString(), "a"));
+		tableResult.addAttribute(tableResultA);
 		tableResult.addType(EnumSimpleType.SQL_INTEGER);
 		tableOp.addResult(tableResult);
 		Table table = new Table("R", "R", "PUBLIC", 0L, 0L);
 		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
+		
+		QueryTrackerPlan qPlan = MasterTrackerNode.generateQueryTrackerPlan(plan);
+		Assert.assertNotNull(qPlan);
+		qPlan.traceGraph(this.getClass().getName());
+		
+		assertEquals(qPlan.getOperators().size(), 1);
+		
+	}
+	
+	@Test
+	public void testSimpleSelection() throws Exception {
+		/*
+		 * Test Plan
+		 *   INPUT:
+		 *    tables: R ( a INT )
+		 *    statement: SELECT a FROM R WHERE a > 1
+		 *   checked OUTPUT:
+		 *    - existing plan object
+		 *    - single MySQL Operator
+		 */
+		final CompilePlan plan = new CompilePlan();
+		
+		//setup statement
+		//input table
+		final TableOperator tableOp = new TableOperator(new TokenIdentifier("R"));
+		//assign a connection for tracking purposes
+		tableOp.setConnection(new Connection("INVALID_CONNECTION", "mysql://127.0.0.1/xdb", "user", "password", EnumStore.MYSQL));
+		
+		//select operator
+		final GenericSelection selectOp = new GenericSelection(tableOp);
+				
+		//add ops to plan
+		plan.addOperator(tableOp , false); 
+		plan.addOperator(selectOp , true); //root
+		
+		final TokenAttribute attributeA = new TokenAttribute(tableOp.getOperatorId().toString(), "a");
+		
+		//add calculation to select operator
+		final SimplePredicate selPred = new SimplePredicate();
+		selPred.setExpr1(new SimpleExpression(attributeA));
+		selPred.setComp(EnumCompOperator.SQL_GREATER_THAN);
+		selPred.setExpr2(new SimpleExpression(new TokenIntegerLiteral(1)));
+		selectOp.setPredicate(selPred);
+		
+		//add results
+		final ResultDesc selectResult = new ResultDesc(1);
+		selectResult.addAttribute(attributeA);
+		selectResult.addType(EnumSimpleType.SQL_INTEGER);
+		selectOp.addResult(selectResult);
+		
+		// same result as output/select, but w/o op table name
+		final ResultDesc tableResult = new ResultDesc(1);
+		tableResult.addAttribute(attributeA);
+		tableResult.addType(EnumSimpleType.SQL_INTEGER);
+		tableOp.addResult(tableResult);
+		Table table = new Table("R", "R", "PUBLIC", 0L, 0L);
+		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
+		tableOp.setTable(table);
+		
+		QueryTrackerPlan qPlan = MasterTrackerNode.generateQueryTrackerPlan(plan);
+		Assert.assertNotNull(qPlan);
+		qPlan.traceGraph(this.getClass().getName());
+		
+		assertEquals(qPlan.getOperators().size(), 1);
+		
+	}
+	
+	@Test
+	public void testSimpleAggregation() throws Exception {
+		/*
+		 * Test Plan
+		 *   INPUT:
+		 *    tables: R ( a INT, b INT )
+		 *    statement: SELECT SUM(a),b FROM R GROUP BY b
+		 *   checked OUTPUT:
+		 *    - existing plan object
+		 *    - single MySQL Operator
+		 */
+		final CompilePlan plan = new CompilePlan();
+		
+		//setup statement
+		//input table
+		final TableOperator tableOp = new TableOperator(new TokenIdentifier("R"));
+		//assign a connection for tracking purposes
+		tableOp.setConnection(new Connection("INVALID_CONNECTION", "mysql://127.0.0.1/xdb", "user", "password", EnumStore.MYSQL));
+		
+		//select operator
+		final GenericAggregation selectOp = new GenericAggregation(tableOp);
+				
+		//add ops to plan
+		plan.addOperator(tableOp , false); 
+		plan.addOperator(selectOp , true); //root
+		
+		final TokenAttribute attributeA = new TokenAttribute(tableOp.getOperatorId().toString(), "a");
+		final TokenAttribute attributeB = new TokenAttribute(tableOp.getOperatorId().toString(), "b");
+		
+		//add calculation to select operator
+		final AggregationExpression aggExp = new AggregationExpression();
+		aggExp.setExpression(new SimpleExpression(attributeA));
+		aggExp.setAggregation(EnumAggregation.SUM);
+		selectOp.addAggregationExpression(aggExp);
+		selectOp.addGroupExpression(new SimpleExpression(attributeB));
+		
+		//add results
+		final ResultDesc selectResult = new ResultDesc(1);
+		selectResult.addAttribute(new TokenAttribute(tableOp.getOperatorId().toString(), "a_TESTSUM"));
+		selectResult.addType(EnumSimpleType.SQL_INTEGER);
+		selectResult.addAttribute(attributeB);
+		selectResult.addType(EnumSimpleType.SQL_INTEGER);
+		selectOp.addResult(selectResult);
+		
+		// same result as output/select, but w/o op table name
+		final ResultDesc tableResult = new ResultDesc(2);
+		tableResult.addAttribute(attributeA);
+		tableResult.addType(EnumSimpleType.SQL_INTEGER);
+		tableResult.addAttribute(attributeB);
+		tableResult.addType(EnumSimpleType.SQL_INTEGER);
+		tableOp.addResult(tableResult);
+		Table table = new Table("R", "R", "PUBLIC", 0L, 0L);
+		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
+		table.addAttribute(new Attribute("b", EnumSimpleType.SQL_INTEGER, 0L));
+		tableOp.setTable(table);
+		
+		QueryTrackerPlan qPlan = MasterTrackerNode.generateQueryTrackerPlan(plan);
+		Assert.assertNotNull(qPlan);
+		qPlan.traceGraph(this.getClass().getName());
+		
+		assertEquals(qPlan.getOperators().size(), 1);
+		
+	}
+	
+	@Test
+	public void testEquiJoin() throws Exception {
+		/*
+		 * Test Plan
+		 *   INPUT:
+		 *    tables: R ( a INT, b INT ), S ( a INT, c INT) 
+		 *    statement: SELECT R.a,R.b,R.c FROM R INNER JOIN S ON R.a = S.a
+		 *   checked OUTPUT:
+		 *    - existing plan object
+		 *    - single MySQL Operator
+		 *   notes:
+		 *    - EquiJoin does not support simultaneous projection
+		 */
+		final CompilePlan plan = new CompilePlan();
+		
+		//setup statement
+		//input table
+		final TableOperator lTableOp = new TableOperator(new TokenIdentifier("R"));
+		final TableOperator rTableOp = new TableOperator(new TokenIdentifier("S"));
+		//assign a connection for tracking purposes
+		lTableOp.setConnection(new Connection("INVALID_CONNECTION", "mysql://127.0.0.1/xdbR", "user", "password", EnumStore.MYSQL));
+		rTableOp.setConnection(new Connection("INVALID_CONNECTION", "mysql://127.0.0.1/xdbS", "user", "password", EnumStore.MYSQL));
+		
+		//add tableOps to plan (gen id), create join attributes, create join op, add join op to plan
+		
+		plan.addOperator(lTableOp, false); //root 
+		plan.addOperator(rTableOp, false); //root
+		
+		final TokenAttribute lAttributeA = new TokenAttribute(lTableOp.getOperatorId().toString(), "a");
+		final TokenAttribute lAttributeB = new TokenAttribute(lTableOp.getOperatorId().toString(), "b");
+		final TokenAttribute rAttributeA = new TokenAttribute(rTableOp.getOperatorId().toString(), "a");
+		final TokenAttribute rAttributeC = new TokenAttribute(rTableOp.getOperatorId().toString(), "c");
+		
+		//select operator
+		final EquiJoin joinOp = new EquiJoin(lTableOp, rTableOp, lAttributeA, rAttributeA);
+		plan.addOperator(joinOp, false);
+		
+		final TokenAttribute jAttributeAl = new TokenAttribute(joinOp.getOperatorId().toString(), "a_L");
+		final TokenAttribute jAttributeAr = new TokenAttribute(joinOp.getOperatorId().toString(), "a_R");
+		final TokenAttribute jAttributeB  = new TokenAttribute(joinOp.getOperatorId().toString(), "b");
+		final TokenAttribute jAttributeC  = new TokenAttribute(joinOp.getOperatorId().toString(), "c");
+		
+		final GenericProjection projOp = new GenericProjection(joinOp);
+		plan.addOperator(projOp, true);
+		
+		final TokenAttribute pAttributeA = new TokenAttribute(projOp.getOperatorId().toString(), "a");
+		final TokenAttribute pAttributeB = new TokenAttribute(projOp.getOperatorId().toString(), "b");
+		final TokenAttribute pAttributeC = new TokenAttribute(projOp.getOperatorId().toString(), "c");
+		
+		//add results
+		projOp.addExpression(new SimpleExpression(jAttributeAl));
+		projOp.addExpression(new SimpleExpression(jAttributeB));
+		projOp.addExpression(new SimpleExpression(jAttributeC));
+		final ResultDesc projResult = new ResultDesc(3);
+		projResult.addAttribute(pAttributeA);
+		projResult.addType(EnumSimpleType.SQL_INTEGER);
+		projResult.addAttribute(pAttributeB);
+		projResult.addType(EnumSimpleType.SQL_INTEGER);
+		projResult.addAttribute(pAttributeC);
+		projResult.addType(EnumSimpleType.SQL_INTEGER);
+		projOp.addResult(projResult);
+		
+		
+		final ResultDesc joinResult = new ResultDesc(4);
+		joinResult.addAttribute(jAttributeAl);
+		joinResult.addType(EnumSimpleType.SQL_INTEGER);
+		joinResult.addAttribute(jAttributeAr);
+		joinResult.addType(EnumSimpleType.SQL_INTEGER);
+		joinResult.addAttribute(jAttributeB);
+		joinResult.addType(EnumSimpleType.SQL_INTEGER);
+		joinResult.addAttribute(jAttributeC);
+		joinResult.addType(EnumSimpleType.SQL_INTEGER);
+		joinOp.addResult(joinResult);
+		
+		final ResultDesc lTableResult = new ResultDesc(2);
+		lTableResult.addAttribute(lAttributeA);
+		lTableResult.addType(EnumSimpleType.SQL_INTEGER);
+		lTableResult.addAttribute(lAttributeB);
+		lTableResult.addType(EnumSimpleType.SQL_INTEGER);
+		lTableOp.addResult(lTableResult);
+		final Table lTable = new Table("R", "R", "PUBLIC", 0L, 0L);
+		lTable.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
+		lTable.addAttribute(new Attribute("b", EnumSimpleType.SQL_INTEGER, 0L));
+		lTableOp.setTable(lTable);
+		
+		final ResultDesc rTableResult = new ResultDesc(2);
+		rTableResult.addAttribute(rAttributeA);
+		rTableResult.addType(EnumSimpleType.SQL_INTEGER);
+		rTableResult.addAttribute(rAttributeC);
+		rTableResult.addType(EnumSimpleType.SQL_INTEGER);
+		rTableOp.addResult(rTableResult);
+		final Table rTable = new Table("S", "S", "PUBLIC", 0L, 0L);
+		rTable.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
+		rTable.addAttribute(new Attribute("c", EnumSimpleType.SQL_INTEGER, 0L));
+		rTableOp.setTable(rTable);
 		
 		QueryTrackerPlan qPlan = MasterTrackerNode.generateQueryTrackerPlan(plan);
 		Assert.assertNotNull(qPlan);
