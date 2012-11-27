@@ -24,7 +24,7 @@ public class GenericProjection extends AbstractUnaryOperator {
 	private Vector<TokenIdentifier> aliases;
 
 	final StringTemplate sqlTemplate = new StringTemplate(
-			"SELECT <RESULTS> FROM `<<OP1>>` AS `<OP1>`");
+			"SELECT <RESULTS> FROM <<OP1>> AS <OP1>");
 
 	// constructors
 	public GenericProjection(AbstractOperator child) {

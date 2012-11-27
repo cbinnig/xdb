@@ -27,7 +27,7 @@ public class GenericAggregation extends AbstractUnaryOperator {
 	
 	private final StringTemplate sqlTemplate = 
 			new StringTemplate("SELECT <RESULT> FROM <<OP1>> AS <OP1>"+
-					"GROUP BY <GROUP_ATTRS>");
+					" GROUP BY <GROUP_ATTRS>");
 	
 	//constructors
 	public GenericAggregation(AbstractOperator child) {
@@ -85,8 +85,8 @@ public class GenericAggregation extends AbstractUnaryOperator {
 		vars.put("GROUP_ATTRS", SetUtils.stringifyExprVec(groupExprs));
 		
 		final List<String> aliasVec = getResultAttributes();
-		final List<String> aggrAliases = aliasVec.subList(0, aggExprs.size()-1);
-		final List<String> grpAliases = aliasVec.subList(aggExprs.size()-1, aliasVec.size()-1);
+		final List<String> aggrAliases = aliasVec.subList(0, aggExprs.size());
+		final List<String> grpAliases = aliasVec.subList(aggExprs.size(), aliasVec.size());
 		
 		final Vector<String> aggrExprVec = new Vector<String>(aggExprs.size());
 		for(AbstractExpression exp : aggExprs) {

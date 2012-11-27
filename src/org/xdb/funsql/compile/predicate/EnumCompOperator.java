@@ -35,15 +35,15 @@ public enum EnumCompOperator {
 			return AbstractToken.EQUAL1;
 		case 2:
 			return AbstractToken.NOT_EQUAL1;
+		/*case 3:
+			return AbstractToken.NOT_EQUAL2; */
 		case 3:
-			return AbstractToken.NOT_EQUAL2;
-		case 4:
 			return AbstractToken.LESS_EQUAL;
-		case 5:
+		case 4:
 			return AbstractToken.LESS_THAN;
-		case 6:
+		case 5:
 			return AbstractToken.GREATER_EQUAL;
-		case 7:
+		case 6:
 			return AbstractToken.GREATER_THAN;
 		}
 		return "";

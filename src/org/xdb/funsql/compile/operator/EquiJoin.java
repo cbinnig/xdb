@@ -2,11 +2,13 @@ package org.xdb.funsql.compile.operator;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
 
 import com.oy.shared.lm.graph.Graph;
@@ -19,8 +21,8 @@ public class EquiJoin extends AbstractBinaryOperator {
 	private TokenAttribute rightTokenAttribute;
 	
 	private final StringTemplate sqlTemplate = new StringTemplate(
-			"SELECT <RESULTS> FROM <<OP1>> AS `<OP1>` INNER JOIN `<<OP2>>` AS `<OP2>`" +
-			"ON `<LOP1>` = `<LOP2>`");
+			"SELECT <RESULT> FROM <<OP1>> AS `<OP1>` INNER JOIN `<<OP2>>` AS `<OP2>`" +
+			" ON `<LOP1>` = `<LOP2>`");
 
 	//constructors
 	public EquiJoin(AbstractOperator leftChild, AbstractOperator rightChild,
@@ -51,9 +53,16 @@ public class EquiJoin extends AbstractBinaryOperator {
 
 	@Override
 	public String toSqlString() {
-		HashMap<String, String> vars = new HashMap<String, String>();
-		//vars.put("RESULTS", SetUtils.stringifyAttributes(getResultAttributes()));
-		//TODO: FIX
+		final HashMap<String, String> vars = new HashMap<String, String>();
+		
+		final List<String> lAttributes = getLeftChild().getResultTableAttributes();
+		final List<String> rAttributes = getRightChild().getResultTableAttributes();
+		final List<String> aliasVec = getResultAttributes();
+		
+		final List<String> lAliases = aliasVec.subList(0, lAttributes.size());
+		final List<String> rAliases = aliasVec.subList(lAttributes.size(), aliasVec.size());
+		
+		vars.put("RESULT", SetUtils.buildAliasString(lAttributes, lAliases)+","+SetUtils.buildAliasString(rAttributes, rAliases));
 		
 		vars.put("OP1", getLeftChild().getOperatorId().toString());
 		vars.put("OP2", getRightChild().getOperatorId().toString());
