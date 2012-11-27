@@ -21,11 +21,11 @@ public class EquiJoin extends AbstractBinaryOperator {
 	private TokenAttribute rightTokenAttribute;
 	
 	private final StringTemplate sqlTemplate = new StringTemplate(
-			"SELECT <RESULT> FROM <<OP1>> AS `<OP1>` INNER JOIN `<<OP2>>` AS `<OP2>`" +
-			" ON `<LOP1>` = `<LOP2>`");
+			"SELECT <RESULT> FROM (<<OP1>>) AS <OP1> INNER JOIN (<<OP2>>) AS <OP2>" +
+			" ON <JATT1> = <JATT2>");
 
 	//constructors
-	public EquiJoin(AbstractOperator leftChild, AbstractOperator rightChild,
+	public EquiJoin(AbstractCompileOperator leftChild, AbstractCompileOperator rightChild,
 			TokenAttribute leftTokenAttribute, TokenAttribute rightTokenAttribute) {
 		super(leftChild, rightChild);
 		
@@ -67,8 +67,9 @@ public class EquiJoin extends AbstractBinaryOperator {
 		vars.put("OP1", getLeftChild().getOperatorId().toString());
 		vars.put("OP2", getRightChild().getOperatorId().toString());
 		
-		vars.put("LOP1", getLeftTokenAttribute().toSqlString());
-		vars.put("LOP2", getRightTokenAttribute().toSqlString());
+		vars.put("JATT1", getLeftTokenAttribute().toSqlString());
+		vars.put("JATT2", getRightTokenAttribute().toSqlString());
+		
 		return sqlTemplate.toString(vars);
 	}
 

@@ -101,7 +101,7 @@ public class TestOptimizeLargeSQL extends CompileServerTestCase {
 
 		sel.setChild(join);
 
-		proj2.getDestinationOperators().removeAllElements();
+		proj2.getParents().removeAllElements();
 		for (int i = 0; i < proj.getResultNumber(); i++) {
 			proj2.addResult(proj.getResult(i));
 		}

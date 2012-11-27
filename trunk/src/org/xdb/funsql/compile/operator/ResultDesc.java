@@ -87,16 +87,19 @@ public class ResultDesc implements Serializable, Cloneable{
 	}
 	
 	public String toSqlString() {
-		StringBuffer tableBuffer = new StringBuffer("( ");
+		StringBuffer tableBuffer = new StringBuffer(AbstractToken.LBRACE);
 		for(int i = 0; i < getNumAttributes(); i++) {
-			if(i != 0)
-				tableBuffer.append(", ");
+			if(i != 0){
+				tableBuffer.append(AbstractToken.COMMA);
+				tableBuffer.append(AbstractToken.BLANK);
+			}
 			
-			tableBuffer.append("`"+ getAttribute(i).getName().toSqlString() +"` ");
+			tableBuffer.append(getAttribute(i).getName().toSqlString());
+			tableBuffer.append(AbstractToken.BLANK);
 			tableBuffer.append(getType(i));
 		}
 		
-		tableBuffer.append(")");
+		tableBuffer.append(AbstractToken.RBRACE);
 		
 		return tableBuffer.toString();
 	}

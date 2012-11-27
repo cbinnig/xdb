@@ -11,7 +11,7 @@ import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
 
-public abstract class AbstractBinaryOperator extends AbstractOperator {
+public abstract class AbstractBinaryOperator extends AbstractCompileOperator {
 
 	private static final long serialVersionUID = -7213914407896295638L;
 	
@@ -20,7 +20,7 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 	protected int rightInputNumber=0;
 	
 	//constructors
-	public AbstractBinaryOperator(AbstractOperator leftChild, AbstractOperator rightChild) {
+	public AbstractBinaryOperator(AbstractCompileOperator leftChild, AbstractCompileOperator rightChild) {
 		super(1);
 		
 		this.children.add(leftChild);
@@ -35,23 +35,23 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 		return this.results.get(0);
 	}
 	
-	public AbstractOperator getChild(int idx) {
+	public AbstractCompileOperator getChild(int idx) {
 		return this.children.get(idx);
 	}
 	
-	public AbstractOperator getLeftChild() {
+	public AbstractCompileOperator getLeftChild() {
 		return this.children.get(0);
 	}
 
-	public void setLeftChild(AbstractOperator leftChild) {
+	public void setLeftChild(AbstractCompileOperator leftChild) {
 		this.children.set(0,leftChild);;
 	}
 
-	public AbstractOperator getRightChild() {
+	public AbstractCompileOperator getRightChild() {
 		return this.children.get(1);
 	}
 
-	public void setRightChild(AbstractOperator rightChild) {
+	public void setRightChild(AbstractCompileOperator rightChild) {
 		this.children.set(1,rightChild);;
 	}
 
@@ -88,8 +88,8 @@ public abstract class AbstractBinaryOperator extends AbstractOperator {
 			node.getInfo().setHeader(this.results.get(0).toString());
 		node.getInfo().setCaption(this.toString());
 		
-		AbstractOperator leftChildOp = this.children.get(0);
-		AbstractOperator rightChildOp = this.children.get(1);
+		AbstractCompileOperator leftChildOp = this.children.get(0);
+		AbstractCompileOperator rightChildOp = this.children.get(1);
 		
 		if(!nodes.containsKey(leftChildOp.operatorId)){
 			GraphNode child = g.addNode();

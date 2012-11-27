@@ -13,36 +13,42 @@ import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
 
-public abstract class AbstractOperator implements Serializable {
+public abstract class AbstractCompileOperator implements Serializable {
 
 	private static final long serialVersionUID = -5531022011681321483L;
 
 	//attributes
 	protected Vector<ResultDesc> results;
 	protected EnumOperator type;
-	protected Vector<AbstractOperator> children = new Vector<AbstractOperator>();
-	protected Vector<AbstractOperator> parents = new Vector<AbstractOperator>();
+	protected Vector<AbstractCompileOperator> children = new Vector<AbstractCompileOperator>();
+	protected Vector<AbstractCompileOperator> parents = new Vector<AbstractCompileOperator>();
 	
 	// unique operator id
 	protected Identifier operatorId;
 	
-	public AbstractOperator(){
-		this.children = new Vector<AbstractOperator>();
-		this.parents = new Vector<AbstractOperator>();
+	//constructors
+	public AbstractCompileOperator(){
+		this.children = new Vector<AbstractCompileOperator>();
+		this.parents = new Vector<AbstractCompileOperator>();
 	}
 	
-	public AbstractOperator(AbstractOperator toCopy){
+	public AbstractCompileOperator(AbstractCompileOperator toCopy){
 		this.children = toCopy.children;
 		this.parents = toCopy.parents;
 		this.type = toCopy.type;
 		this.results = toCopy.results;
 	}
+
+	public AbstractCompileOperator(int resultNumber){
+		this.results = new Vector<ResultDesc>(resultNumber);
+	}
 	
+	//getters and setters
 	/**
 	 * Get all source operators.
 	 * @return set of all dependency operators, empty set if no given
 	 */
-	public Vector<AbstractOperator> getSourceOperators(){
+	public Vector<AbstractCompileOperator> getChildren(){
 		return this.children;
 	}
 
@@ -50,16 +56,10 @@ public abstract class AbstractOperator implements Serializable {
 	 * Get all destination operators.
 	 * @return set of all dependency operators, empty set if no given
 	 */
-	public Vector<AbstractOperator> getDestinationOperators(){
+	public Vector<AbstractCompileOperator> getParents(){
 		return this.parents;
 	}
-
-	//constructors
-	public AbstractOperator(int resultNumber){
-		this.results = new Vector<ResultDesc>(resultNumber);
-	}
 	
-	//getters and setters
 	public Identifier getOperatorId() {
 		return this.operatorId;
 	}
@@ -92,20 +92,20 @@ public abstract class AbstractOperator implements Serializable {
 		return this.results.size();
 	}
 	
-	public void setSourceOperators(Vector<AbstractOperator> sources) {
+	public void setSourceOperators(Vector<AbstractCompileOperator> sources) {
 		this.children = sources;
 	}
 	
-	public void setDestinationOperators(Vector<AbstractOperator> destinations) {
+	public void setDestinationOperators(Vector<AbstractCompileOperator> destinations) {
 		this.parents = destinations;
 	}
 	
-	public void addDestinationOperators(AbstractOperator destination) {
+	public void addDestinationOperators(AbstractCompileOperator destination) {
 		this.parents.add(destination);
 	}
 	
 	// methods
-	public int findParent(AbstractOperator parent){
+	public int findParent(AbstractCompileOperator parent){
 		for(int i=0; i<this.parents.size();++i){
 			if(this.parents.get(i).equals(parent)){
 				return i;
@@ -114,11 +114,11 @@ public abstract class AbstractOperator implements Serializable {
 		return -1;
 	}
 	
-	public boolean removeParent(AbstractOperator parent){
+	public boolean removeParent(AbstractCompileOperator parent){
 		return this.parents.remove(parent);
 	}
 	
-	public void addParents(Vector<AbstractOperator> parents){
+	public void addParents(Vector<AbstractCompileOperator> parents){
 		this.parents.addAll(parents);
 	}
 	
@@ -134,7 +134,7 @@ public abstract class AbstractOperator implements Serializable {
 	
 	@Override
 	public boolean equals(Object o){
-		AbstractOperator op  = (AbstractOperator)o;
+		AbstractCompileOperator op  = (AbstractCompileOperator)o;
 		if(op.operatorId.equals(this.operatorId))
 			return true;
 		

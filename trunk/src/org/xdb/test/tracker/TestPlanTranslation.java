@@ -31,12 +31,13 @@ import org.xdb.tracker.QueryTrackerPlan;
 
 public class TestPlanTranslation extends TestCase {
 
+	private MasterTrackerNode mTracker;
 	@Override
 	/**
 	 * Setup common statements (connect, drop, ...)
 	 */
 	public void setUp() {
-		
+		this.mTracker = new MasterTrackerNode();
 	}
 	
 	
@@ -90,7 +91,7 @@ public class TestPlanTranslation extends TestCase {
 		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
-		QueryTrackerPlan qPlan = MasterTrackerNode.generateQueryTrackerPlan(plan);
+		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(plan);
 		Assert.assertNotNull(qPlan);
 		qPlan.traceGraph(this.getClass().getName());
 		
@@ -148,7 +149,7 @@ public class TestPlanTranslation extends TestCase {
 		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
-		QueryTrackerPlan qPlan = MasterTrackerNode.generateQueryTrackerPlan(plan);
+		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(plan);
 		Assert.assertNotNull(qPlan);
 		qPlan.traceGraph(this.getClass().getName());
 		
@@ -212,7 +213,7 @@ public class TestPlanTranslation extends TestCase {
 		table.addAttribute(new Attribute("b", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
-		QueryTrackerPlan qPlan = MasterTrackerNode.generateQueryTrackerPlan(plan);
+		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(plan);
 		Assert.assertNotNull(qPlan);
 		qPlan.traceGraph(this.getClass().getName());
 		
@@ -316,11 +317,10 @@ public class TestPlanTranslation extends TestCase {
 		rTable.addAttribute(new Attribute("c", EnumSimpleType.SQL_INTEGER, 0L));
 		rTableOp.setTable(rTable);
 		
-		QueryTrackerPlan qPlan = MasterTrackerNode.generateQueryTrackerPlan(plan);
+		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(plan);
 		Assert.assertNotNull(qPlan);
 		qPlan.traceGraph(this.getClass().getName());
 		
 		assertEquals(qPlan.getOperators().size(), 1);
-		
 	}
 }

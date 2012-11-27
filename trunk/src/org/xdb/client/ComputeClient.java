@@ -6,7 +6,7 @@ import java.net.Socket;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
-import org.xdb.execute.operators.AbstractOperator;
+import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
@@ -38,7 +38,7 @@ public class ComputeClient extends AbstractClient{
 	 * @param op
 	 * @return
 	 */
-	public Error openOperator(final String url, final AbstractOperator op) {
+	public Error openOperator(final String url, final AbstractExecuteOperator op) {
 		Error err = new Error();
 
 		try {

@@ -14,9 +14,9 @@ public class Rename extends AbstractUnaryOperator {
 	private static final long serialVersionUID = -2350193145633977329L;
 	
 	private final StringTemplate sqlTemplate = 
-			new StringTemplate("SELECT <RESULTS> FROM <<OP1>> AS <OP1>");
+			new StringTemplate("SELECT <RESULTS> FROM (<<OP1>>) AS <OP1>");
 	
-	public Rename(AbstractOperator child, ResultDesc result) {
+	public Rename(AbstractCompileOperator child, ResultDesc result) {
 		super(child);
 		this.addResult(result);
 		this.type = EnumOperator.RENAME;

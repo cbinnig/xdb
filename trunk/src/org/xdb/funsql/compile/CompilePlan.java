@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.logging.XDBLog;
@@ -41,7 +41,7 @@ public class CompilePlan implements Serializable {
 	private Integer lastOpId = 1;
 
 	// plan info
-	private HashMap<Identifier, AbstractOperator> operators = new HashMap<Identifier, AbstractOperator>();
+	private HashMap<Identifier, AbstractCompileOperator> operators = new HashMap<Identifier, AbstractCompileOperator>();
 	private Vector<Identifier> roots = new Vector<Identifier>();
 	private HashSet<Identifier> leaves = new HashSet<Identifier>();
 	
@@ -62,11 +62,11 @@ public class CompilePlan implements Serializable {
 		return this.planId;
 	}
 
-	public Collection<AbstractOperator> getOperators() {
+	public Collection<AbstractCompileOperator> getOperators() {
 		return operators.values();
 	}
 
-	public AbstractOperator getOperators(Identifier opId) {
+	public AbstractCompileOperator getOperators(Identifier opId) {
 		return operators.get(opId);
 	}
 
@@ -78,15 +78,15 @@ public class CompilePlan implements Serializable {
 		return roots.get(0);
 	}
 	
-	public Collection<AbstractOperator> getRoots(){
-		Vector<AbstractOperator> rootOps = new Vector<AbstractOperator>(this.roots.size());
+	public Collection<AbstractCompileOperator> getRoots(){
+		Vector<AbstractCompileOperator> rootOps = new Vector<AbstractCompileOperator>(this.roots.size());
 		for(Identifier rootId: this.roots){
 			rootOps.add(this.operators.get(rootId));
 		}
 		return rootOps;
 	}
 	
-	public AbstractOperator getRoot(int i){
+	public AbstractCompileOperator getRoot(int i){
 		return this.operators.get(this.roots.get(i));
 	}
 	
@@ -109,7 +109,7 @@ public class CompilePlan implements Serializable {
 	 * @param varKey
 	 * @param newLeafOp
 	 */
-	public void replaceVariable(String varKey, AbstractOperator rootOfSubplan){
+	public void replaceVariable(String varKey, AbstractCompileOperator rootOfSubplan){
 		HashSet<Identifier> removedLeaves = new HashSet<Identifier>();
 		for(Identifier leafId: this.leaves){
 			TableOperator leafOp = (TableOperator)this.operators.get(leafId);
@@ -130,7 +130,7 @@ public class CompilePlan implements Serializable {
 	 * @param op
 	 * @param isRoot
 	 */
-	public void addOperator(AbstractOperator op, boolean isRoot) {
+	public void addOperator(AbstractCompileOperator op, boolean isRoot) {
 		Identifier opId = this.planId.clone().append(lastOpId++);
 		op.setOperatorId(opId);
 
@@ -152,7 +152,7 @@ public class CompilePlan implements Serializable {
 	 * @param op
 	 * @param isRoot
 	 */
-	public void replaceOperator(Identifier opId, AbstractOperator op, boolean isRoot) {
+	public void replaceOperator(Identifier opId, AbstractCompileOperator op, boolean isRoot) {
 		op.setOperatorId(opId);
 
 		logger.log(Level.INFO, "Add operator" + op.toString()
@@ -172,7 +172,7 @@ public class CompilePlan implements Serializable {
 		HashMap<Identifier, GraphNode> nodes = new HashMap<Identifier, GraphNode>();
 		for (Identifier root : this.roots) {
 			GraphNode node = graph.addNode();
-			AbstractOperator rootOp = this.operators.get(root);
+			AbstractCompileOperator rootOp = this.operators.get(root);
 			node.getInfo().setCaption(rootOp.getType().toString());
 			nodes.put(root, node);
 			rootOp.traceGraph(graph, nodes);

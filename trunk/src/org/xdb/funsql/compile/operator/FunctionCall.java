@@ -10,17 +10,17 @@ import org.xdb.utils.Identifier;
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
-public class FunctionCall extends AbstractOperator {
+public class FunctionCall extends AbstractCompileOperator {
 
 	private static final long serialVersionUID = -7332127330583927641L;
-	private Vector<AbstractOperator> children;
+	private Vector<AbstractCompileOperator> children;
 	private TokenFunction function;
 	
 	//constructors
 	public FunctionCall(TokenFunction function, int inputNumber, int resultNumber) {
 		super(resultNumber);
 		
-		this.children = new Vector<AbstractOperator>(inputNumber);
+		this.children = new Vector<AbstractCompileOperator>(inputNumber);
 		this.function = function;
 	}
 	
@@ -33,16 +33,16 @@ public class FunctionCall extends AbstractOperator {
 		this.function = function;
 	}
 	
-	public void addChild(int i, AbstractOperator child){
+	public void addChild(int i, AbstractCompileOperator child){
 		this.children.set(i, child);
 		child.addDestinationOperators(this);
 	}
 	
-	public AbstractOperator getChild(int i){
+	public AbstractCompileOperator getChild(int i){
 		return this.children.get(i);
 	}
 	
-	public Vector<AbstractOperator> getChildren(){
+	public Vector<AbstractCompileOperator> getChildren(){
 		return this.children;
 	}
 	

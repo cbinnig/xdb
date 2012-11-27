@@ -11,7 +11,7 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractBinaryOperator;
-import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.AbstractUnaryOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
@@ -41,10 +41,10 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 
 	private HashSet<Identifier> finishedSelections = new HashSet<Identifier>();
 
-	private Map<AbstractOperator, Integer> pasteInfo = new HashMap<AbstractOperator, Integer>();
+	private Map<AbstractCompileOperator, Integer> pasteInfo = new HashMap<AbstractCompileOperator, Integer>();
 	private Map<Identifier, Map<Integer, AbstractPredicate>> waitInfo = new HashMap<Identifier, Map<Integer, AbstractPredicate>>();
 	private GenericSelection cutSelection = null;
-	private AbstractOperator lastOp = null;
+	private AbstractCompileOperator lastOp = null;
 	private boolean modifiedPlan = false;
 	private int nextChildIdx = 0;
 	private boolean doWaitNextVisit = true;
@@ -53,7 +53,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	private Error err = new Error();
 
 	// constructors
-	public SelectionPushDownVisitor(AbstractOperator root, CompilePlan plan) {
+	public SelectionPushDownVisitor(AbstractCompileOperator root, CompilePlan plan) {
 		super(root);
 		this.plan = plan;
 	}
@@ -69,7 +69,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	}
 
 	// methods
-	public void reset(AbstractOperator root) {
+	public void reset(AbstractCompileOperator root) {
 		this.treeRoot = root;
 		this.cutSelection = null;
 		this.lastOp = null;
@@ -80,7 +80,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	}
 
 	@Override
-	public Error visit(AbstractOperator absOp) {
+	public Error visit(AbstractCompileOperator absOp) {
 		// visit this operator
 		err = super.visit(absOp);
 		if (err.isError() || this.stop)
@@ -92,14 +92,14 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 		this.doWaitNextVisit = true;
 
 		// pushdown: visit next child
-		if (this.cutSelection != null && absOp.getSourceOperators().size() > 0) {
-			AbstractOperator child = absOp.getSourceOperators().get(
+		if (this.cutSelection != null && absOp.getChildren().size() > 0) {
+			AbstractCompileOperator child = absOp.getChildren().get(
 					this.nextChildIdx);
 			err = this.visit(child);
 		}
 		// visit all children to find selection
 		else {
-			for (AbstractOperator child : absOp.getSourceOperators()) {
+			for (AbstractCompileOperator child : absOp.getChildren()) {
 				err = this.visit(child);
 				if (err.isError())
 					return err;
@@ -167,15 +167,15 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	 * @param op
 	 * @return
 	 */
-	private boolean wait(AbstractOperator op) {
-		if (op.getDestinationOperators().size() >= 2) {
+	private boolean wait(AbstractCompileOperator op) {
+		if (op.getParents().size() >= 2) {
 
 			// add current selection to wait list
 			Integer parentIdx = op.findParent(this.lastOp);
 			if (!this.waitInfo.containsKey(op.getOperatorId())) {
 				this.waitInfo.put(op.getOperatorId(),
 						new HashMap<Integer, AbstractPredicate>(op
-								.getDestinationOperators().size()));
+								.getParents().size()));
 			}
 			Map<Integer, AbstractPredicate> waitPreds = this.waitInfo.get(op
 					.getOperatorId());
@@ -216,7 +216,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 			}
 
 			// push down new selection with disjunctive predicate
-			if (count == op.getDestinationOperators().size()) {
+			if (count == op.getParents().size()) {
 				this.treeRoot = op;
 				this.lastOp = op;
 				this.modifiedPlan = true;
@@ -326,7 +326,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 		if (this.cutSelection == null)
 			return;
 
-		for (Map.Entry<AbstractOperator, Integer> entry : this.pasteInfo
+		for (Map.Entry<AbstractCompileOperator, Integer> entry : this.pasteInfo
 				.entrySet()) {
 			this.cutSelection.paste(entry.getKey(), entry.getValue());
 		}

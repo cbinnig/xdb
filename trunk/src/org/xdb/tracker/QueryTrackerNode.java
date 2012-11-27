@@ -9,7 +9,7 @@ import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.error.Error;
-import org.xdb.execute.operators.AbstractOperator;
+import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.MutableInteger;
@@ -62,7 +62,7 @@ public class QueryTrackerNode {
 		return tuple;
 	}
 
-	public Error operatorReady(final AbstractOperator op) {
+	public Error operatorReady(final AbstractExecuteOperator op) {
 		Error err = new Error();
 		// Send READY Signal to Customers
 		final Set<OperatorDesc> consumers = op.getConsumers();

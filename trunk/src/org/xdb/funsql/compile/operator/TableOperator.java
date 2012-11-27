@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.error.Error;
+import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Connection;
@@ -15,7 +16,7 @@ import org.xdb.utils.StringTemplate;
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
-public class TableOperator extends AbstractOperator {
+public class TableOperator extends AbstractCompileOperator {
 	private static final long serialVersionUID = 997138204723229392L;
 
 	//attributes
@@ -75,12 +76,12 @@ public class TableOperator extends AbstractOperator {
 	 * 
 	 * @param newOp
 	 */
-	public void replace(AbstractOperator newOp){
+	public void replace(AbstractCompileOperator newOp){
 		//replace result description in newOp
 		newOp.setResult(0, this.getResult());
 
 		//add newOp to plan
-		for(AbstractOperator p : this.parents){
+		for(AbstractCompileOperator p : this.parents){
 			int childIdx = p.children.indexOf(this);
 			p.children.set(childIdx, newOp);
 		}
@@ -94,7 +95,7 @@ public class TableOperator extends AbstractOperator {
 	@Override
 	public String toSqlString() {
 		HashMap<String, String> vars = new HashMap<String, String>();
-		final String opDummy = getOperatorId().toString()+"_TABLE";
+		final String opDummy = getOperatorId().clone().append(CodeGenerator.IN_SUFFIX).toString();
 		vars.put("OP1", opDummy);
 		
 		//get all table attributes and match them in order

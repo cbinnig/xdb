@@ -5,7 +5,7 @@ import java.util.Vector;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.expression.AbstractExpression;
-import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericAggregation;
@@ -29,7 +29,7 @@ import org.xdb.metadata.Table;
 public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 	private Map<AbstractToken, EnumSimpleType> types;
 	
-	public CreateResultVisitor(AbstractOperator root,
+	public CreateResultVisitor(AbstractCompileOperator root,
 			Map<AbstractToken, EnumSimpleType> types) {
 		super(root);
 		this.types = types;

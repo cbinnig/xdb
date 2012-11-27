@@ -6,7 +6,7 @@ import java.net.Socket;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
-import org.xdb.execute.operators.AbstractOperator;
+import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.QueryTrackerServer;
 import org.xdb.tracker.QueryTrackerPlan;
@@ -56,7 +56,7 @@ public class QueryTrackerClient extends AbstractClient{
 		return err;
 	}
 
-	public Error operatorReady(final AbstractOperator op) {
+	public Error operatorReady(final AbstractExecuteOperator op) {
 		Error err = new Error();
 		try {
 			server = new Socket(url, port);

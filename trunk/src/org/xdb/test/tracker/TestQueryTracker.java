@@ -12,7 +12,7 @@ import org.xdb.server.QueryTrackerServer;
 import org.xdb.test.QueryTrackerServerTestCase;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
-import org.xdb.tracker.operator.MySQLOperator;
+import org.xdb.tracker.operator.MySQLTrackerOperator;
 import org.xdb.tracker.operator.TableDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
@@ -28,17 +28,15 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		final QueryTrackerServer qServer = new QueryTrackerServer();
 		qServer.startServer();
 		final QueryTrackerNode qTracker = new QueryTrackerNode();
-		final QueryTrackerPlan qPlan = new QueryTrackerPlan(new Identifier(
-				"1"));
+		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);
 
-		final Identifier op1Id = new Identifier("1_1");
-		final MySQLOperator op1 = new MySQLOperator(op1Id);
+		final MySQLTrackerOperator op1 = new MySQLTrackerOperator();
 
 		// add output DDLs
 		final StringTemplate r1DDL = new StringTemplate(
 				"<R1> (R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152))");
-		op1.addOutTables("R1", r1DDL, "R_REGIONKEY");
+		op1.addOutTable("R1", r1DDL);
 
 		// add execution DMLs
 		final StringTemplate q1DML = new StringTemplate(
@@ -47,22 +45,20 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 
 
 		// add operator to plan w/o sources and consumers
-		final Set<Identifier> empty = new HashSet<Identifier>();
-		qPlan.addOperator(op1, empty, empty);
+		qPlan.addOperator(op1);
 
 		// deploy, execute and clean plan
 		final Map<Identifier, OperatorDesc> currentDeployment = qPlan.deployPlan();
 		assertEquals(Error.NO_ERROR, qPlan.getLastError());
 		qPlan.executePlan(currentDeployment);
 
-
 		// read result
-		final ResultSet rs = this.executeComputeQuery("SELECT COUNT(*) FROM 1_1_1_R1");
+		Identifier deployOp1Id = currentDeployment.get(op1.getOperatorId()).getOperatorID();
+		final ResultSet rs = this.executeComputeQuery("SELECT COUNT(*) FROM "+deployOp1Id+"_R1");
 		int actualCnt = 0;
 		if (rs.next()) {
 			actualCnt = rs.getInt(1);
 		}
-
 
 		qPlan.cleanPlan(currentDeployment);
 		assertEquals(Error.NO_ERROR, qPlan.getLastError());
@@ -78,14 +74,11 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		final QueryTrackerServer qServer = new QueryTrackerServer();
 		qServer.startServer();
 		final QueryTrackerNode qTracker = new QueryTrackerNode();
-		final QueryTrackerPlan qPlan = new QueryTrackerPlan(new Identifier(
-				"1"));
+		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);
 
-		final Identifier op1Id = new Identifier("1_1");
-		final Identifier op2Id = new Identifier("1_2");
-		final MySQLOperator op1 = new MySQLOperator(op1Id);
-		final MySQLOperator op2 = new MySQLOperator(op2Id);
+		final MySQLTrackerOperator op1 = new MySQLTrackerOperator();
+		final MySQLTrackerOperator op2 = new MySQLTrackerOperator();
 
 		// op1
 		final StringTemplate r1DDL = new StringTemplate(
@@ -95,7 +88,8 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 				"INSERT INTO <R1> SELECT * FROM tpch_s01.REGION ");
 
 		op1.addExecuteSQL(q1DML);
-		op1.addOutTables("R1", r1DDL, "R_REGIONKEY");
+		op1.addOutTable("R1", r1DDL);
+		qPlan.addOperator(op1);
 
 		// op2
 		final StringTemplate r2DDL = new StringTemplate(
@@ -107,20 +101,20 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		final StringTemplate q2DML = new StringTemplate(
 				"INSERT INTO <R3> SELECT * FROM <R2> ");
 
-		op2.addInTables("R2", r2DDL, "R_REGIONKEY");
+		op2.addInTable("R2", r2DDL);
 		op2.addExecuteSQL(q2DML);
-		op2.addOutTables("R3", r3DDL, "R_REGIONKEY");
-
-		// add operator to plan w/ sources and consumers
-		final Set<Identifier> empty = new HashSet<Identifier>();
+		op2.addOutTable("R3", r3DDL);
+		qPlan.addOperator(op2);
+		
+		// connect operators
 		final Set<Identifier> op1Consumer = new HashSet<Identifier>();
-		op1Consumer.add(op2Id);
+		op1Consumer.add(op2.getOperatorId());
+		qPlan.setConsumers(op1.getOperatorId(), op1Consumer);
+		
 		final Set<Identifier> op2Sources = new HashSet<Identifier>();
-		op2Sources.add(op1Id);
-
-		qPlan.addOperator(op1, empty, op1Consumer);
-		qPlan.addOperator(op2, op2Sources, empty);
-		op2.setInTableSource("R2", new TableDesc("R1", op1Id));
+		op2Sources.add(op1.getOperatorId());
+		qPlan.setSources(op2.getOperatorId(), op2Sources);
+		op2.setInTableSource("R2", new TableDesc("R1", op1.getOperatorId()));
 
 		// deploy and execute plan
 		final Map<Identifier, OperatorDesc> currentDeployment = qPlan.deployPlan();
@@ -128,7 +122,8 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		qPlan.executePlan(currentDeployment);
 
 		// read result
-		final ResultSet rs = this.executeComputeQuery("SELECT COUNT(*) FROM 1_2_2_R3");
+		Identifier deployOp2Id = currentDeployment.get(op2.getOperatorId()).getOperatorID();
+		final ResultSet rs = this.executeComputeQuery("SELECT COUNT(*) FROM "+deployOp2Id+"_R3");
 		int actualCnt = 0;
 		if (rs.next()) {
 			actualCnt = rs.getInt(1);

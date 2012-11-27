@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNode;
-import org.xdb.execute.operators.AbstractOperator;
+import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
 
@@ -52,7 +52,7 @@ public class ComputeServer extends AbstractServer {
 
 				switch (cmd) {
 				case CMD_OPEN_OP:
-					final AbstractOperator op = (AbstractOperator) in.readObject();
+					final AbstractExecuteOperator op = (AbstractExecuteOperator) in.readObject();
 					logger.log(Level.INFO, "Received operator:" + op.getOperatorId());
 					err = compute.openOperator(op);
 					break;

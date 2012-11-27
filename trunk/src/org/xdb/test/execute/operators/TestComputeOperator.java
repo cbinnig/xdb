@@ -4,8 +4,8 @@ import java.sql.ResultSet;
 
 import org.junit.Test;
 import org.xdb.Config;
-import org.xdb.execute.operators.AbstractOperator;
-import org.xdb.execute.operators.MySQLOperator;
+import org.xdb.execute.operators.AbstractExecuteOperator;
+import org.xdb.execute.operators.MySQLExecuteOperator;
 import org.xdb.test.TestCase;
 import org.xdb.utils.Identifier;
 
@@ -15,7 +15,7 @@ public class TestComputeOperator extends TestCase {
 
 		Config.useQueryTrackerComputeConnection = false;
 		//operator
-		final MySQLOperator op = new MySQLOperator(new Identifier("1"));
+		final MySQLExecuteOperator op = new MySQLExecuteOperator(new Identifier("1"));
 		op.addOpenSQL("CREATE TEMPORARY TABLE REGION ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) " +
 				"ENGINE=FEDERATED CONNECTION='mysql://xroot:xroot@127.0.0.1/tpch_s01/REGION';");
 
@@ -42,7 +42,7 @@ public class TestComputeOperator extends TestCase {
 	public void test2Ops() throws Exception {
 		Config.useQueryTrackerComputeConnection = false; 
 		//first op
-		final MySQLOperator op1 = new MySQLOperator(new Identifier("1"));
+		final MySQLExecuteOperator op1 = new MySQLExecuteOperator(new Identifier("1"));
 
 		op1.addOpenSQL("CREATE TEMPORARY TABLE REGION ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) " +
 				"ENGINE=FEDERATED CONNECTION='mysql://xroot:xroot@127.0.0.1/tpch_s01/REGION';");
@@ -58,7 +58,7 @@ public class TestComputeOperator extends TestCase {
 		assertResultSize(rs, 3);
 
 		//second op
-		final MySQLOperator op2 = new MySQLOperator(new Identifier("2"));
+		final MySQLExecuteOperator op2 = new MySQLExecuteOperator(new Identifier("2"));
 
 		op2.addOpenSQL("CREATE TEMPORARY TABLE R2 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) " +
 				"ENGINE=FEDERATED CONNECTION='mysql://xroot:xroot@127.0.0.1/"+Config.COMPUTE_DB_NAME+"/R1';");
@@ -80,12 +80,12 @@ public class TestComputeOperator extends TestCase {
 		Config.useQueryTrackerComputeConnection = true;
 	}
 
-	protected void executeOperator(final AbstractOperator op){
+	protected void executeOperator(final AbstractExecuteOperator op){
 		assertNoError(op.open());
 		assertNoError(op.execute());
 	}
 
-	protected void closeOperator(final AbstractOperator op){
+	protected void closeOperator(final AbstractExecuteOperator op){
 		assertNoError(op.close());
 	}
 }
