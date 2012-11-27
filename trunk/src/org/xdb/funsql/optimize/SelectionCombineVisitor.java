@@ -1,5 +1,6 @@
 package org.xdb.funsql.optimize;
 
+import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.AbstractTopDownTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractOperator;
@@ -56,8 +57,9 @@ public class SelectionCombineVisitor extends AbstractTopDownTreeVisitor {
 
 	@Override
 	public Error visitFunctionCall(FunctionCall fc) {
-		this.lastOp = fc;
-		return err;
+		String[] args = { "Optimizer: Selection combination for function call not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
+		return e;
 	}
 
 	@Override
