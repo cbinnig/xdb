@@ -1,6 +1,6 @@
 package org.xdb.store;
 
-import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.store.JDBCStore;
 
@@ -25,7 +25,7 @@ public class MySQLStore extends JDBCStore {
 	}
 
 	@Override
-	public String generateQuery(AbstractOperator operator) {
+	public String generateQuery(AbstractCompileOperator operator) {
 		return null;
 	}
 

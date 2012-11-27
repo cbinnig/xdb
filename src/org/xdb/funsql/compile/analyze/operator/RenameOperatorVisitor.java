@@ -6,7 +6,7 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.expression.RenameExpressionVisitor;
 import org.xdb.funsql.compile.analyze.predicate.RenamePredicateVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
-import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericAggregation;
@@ -19,7 +19,7 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 public class RenameOperatorVisitor extends AbstractBottomUpTreeVisitor {
 
-	public RenameOperatorVisitor(AbstractOperator root) {
+	public RenameOperatorVisitor(AbstractCompileOperator root) {
 		super(root);
 	}
 

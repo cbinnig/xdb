@@ -3,7 +3,7 @@ package org.xdb.funsql.optimize;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.AbstractTopDownTreeVisitor;
-import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
@@ -18,10 +18,10 @@ import org.xdb.funsql.compile.predicate.EnumPredicateType;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 public class SelectionCombineVisitor extends AbstractTopDownTreeVisitor {
-	private AbstractOperator lastOp = null;
+	private AbstractCompileOperator lastOp = null;
 	private Error err = new Error();
 	
-	public SelectionCombineVisitor(AbstractOperator root) {
+	public SelectionCombineVisitor(AbstractCompileOperator root) {
 		super(root);
 	}
 

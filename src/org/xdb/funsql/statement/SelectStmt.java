@@ -14,7 +14,7 @@ import org.xdb.funsql.compile.analyze.Analyzer;
 import org.xdb.funsql.compile.analyze.FunctionCache;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.SimpleExpression;
-import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -33,6 +33,7 @@ import org.xdb.metadata.Connection;
 import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
+import org.xdb.store.EnumStore;
 import org.xdb.utils.Identifier;
 
 public class SelectStmt extends AbstractServerStmt {
@@ -69,7 +70,7 @@ public class SelectStmt extends AbstractServerStmt {
 	private Identifier internalAlias = new Identifier("_INT_ALIAS");
 	private HashMap<AbstractExpression, TokenIdentifier> internalAliases = new HashMap<AbstractExpression, TokenIdentifier>();
 	private Vector<AbstractPredicate> selectionPreds = new Vector<AbstractPredicate>();
-	private AbstractOperator lastOp = null;
+	private AbstractCompileOperator lastOp = null;
 
 	// constructors
 	public SelectStmt() {
@@ -288,7 +289,9 @@ public class SelectStmt extends AbstractServerStmt {
 			TableOperator tableOp = new TableOperator(tTableAlias);
 
 			// add meta data to plan
-			this.addTableToPlan(tableOp);
+			err = this.addTableToPlan(tableOp);
+			if (err.isError())
+				return err;
 
 			if (this.tWherePredicate != null) {
 				selectionPreds.addAll(this.tWherePredicate.splitAnd());
@@ -336,19 +339,23 @@ public class SelectStmt extends AbstractServerStmt {
 					if (leftTableOp == null) {
 						leftTableOp = new TableOperator(tLeftTable.getName());
 
-						this.addTableToPlan(leftTableOp);
-						
+						err = this.addTableToPlan(leftTableOp);
+						if (err.isError())
+							return err;
+
 						tableOps.put(tLeftTable.getName().hashKey(),
 								leftTableOp);
 						newLeftTable = true;
 					}
 
-					// right table not yat in join path?
+					// right table not yet in join path?
 					boolean newRightTable = false;
 					if (rightTableOp == null) {
 						rightTableOp = new TableOperator(tRightTable.getName());
 
-						this.addTableToPlan(rightTableOp);
+						err = this.addTableToPlan(rightTableOp);
+						if (err.isError())
+							return err;
 
 						tableOps.put(tRightTable.getName().hashKey(),
 								rightTableOp);
@@ -392,10 +399,11 @@ public class SelectStmt extends AbstractServerStmt {
 
 	/**
 	 * Adds table and connection info to plan for table operator
+	 * 
 	 * @param tableOp
 	 * @param tTableAlias
 	 */
-	private void addTableToPlan(TableOperator tableOp) {
+	private Error addTableToPlan(TableOperator tableOp) {
 		// set table
 		Table table = this.tableSymbols.get(tableOp.getTokenTable().hashKey());
 		tableOp.setTable(table);
@@ -404,10 +412,17 @@ public class SelectStmt extends AbstractServerStmt {
 		if (!table.isTemp()) {
 			Connection conn = Catalog.getConnection(table.getConnectionOid());
 			tableOp.setConnection(conn);
+			if (!conn.getStore().equals(EnumStore.XDB)) {
+				String args[] = { "Store of type " + conn.getStore()
+						+ " not supported" };
+				return new Error(EnumError.COMPILER_GENERIC, args);
+			}
 		}
-		
+
 		// add table op to plan
 		this.plan.addOperator(tableOp, false);
+
+		return new Error();
 	}
 
 	/**

@@ -2,16 +2,16 @@ package org.xdb.funsql.compile.analyze.operator;
 
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 
 public abstract class AbstractTopDownTreeVisitor extends AbstractTreeVisitor {
 
-	public AbstractTopDownTreeVisitor(AbstractOperator root) {
+	public AbstractTopDownTreeVisitor(AbstractCompileOperator root) {
 		super(root);
 	}
 
 	@Override
-	public Error visit(AbstractOperator absOp) {
+	public Error visit(AbstractCompileOperator absOp) {
 		Error e = new Error();
 		
 		e = super.visit(absOp);
@@ -19,7 +19,7 @@ public abstract class AbstractTopDownTreeVisitor extends AbstractTreeVisitor {
 		if(this.stop)
 			return e;
 		
-		for(AbstractOperator child: absOp.getSourceOperators()){
+		for(AbstractCompileOperator child: absOp.getChildren()){
 			e = this.visit(child);
 			if(e.isError())
 				return e;

@@ -2,7 +2,7 @@ package org.xdb.store;
 
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.types.TableType;
 import org.xdb.funsql.types.TupleType;
@@ -21,7 +21,7 @@ public abstract class AbstractStore{
 	 * @param operator
 	 * @return
 	 */
-	public abstract String generateQuery(AbstractOperator operator);
+	public abstract String generateQuery(AbstractCompileOperator operator);
 	
 	/**
 	 * Opens connection to store

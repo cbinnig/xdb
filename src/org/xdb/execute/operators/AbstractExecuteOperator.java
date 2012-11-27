@@ -19,7 +19,7 @@ import org.xdb.utils.Identifier;
  * 
  * @author cbinnig
  */
-public abstract class AbstractOperator implements Serializable {
+public abstract class AbstractExecuteOperator implements Serializable {
 	private static final long serialVersionUID = -3874534068048724293L;
 
 	// connection
@@ -56,12 +56,12 @@ public abstract class AbstractOperator implements Serializable {
 	
 	
 	// constructors
-	public AbstractOperator(Identifier nodeId) {
+	public AbstractExecuteOperator(Identifier nodeId) {
 		super();
 		this.operatorId = nodeId;
 	}
 
-	public AbstractOperator(Identifier operatorId, String dbname,
+	public AbstractExecuteOperator(Identifier operatorId, String dbname,
 			String dbuser, String dbpasswd) {
 		this(operatorId);
 

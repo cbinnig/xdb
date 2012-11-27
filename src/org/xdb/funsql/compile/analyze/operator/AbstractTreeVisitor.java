@@ -3,7 +3,7 @@ package org.xdb.funsql.compile.analyze.operator;
 
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
@@ -13,10 +13,10 @@ import org.xdb.funsql.compile.operator.TableOperator;
 
 public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	
-	protected AbstractOperator treeRoot = null;
+	protected AbstractCompileOperator treeRoot = null;
 	protected boolean stop = false;
 	
-	public AbstractTreeVisitor(AbstractOperator root) {
+	public AbstractTreeVisitor(AbstractCompileOperator root) {
 		treeRoot = root;
 	}
 
@@ -34,7 +34,7 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	}
 	
 	@Override
-	public Error visit(AbstractOperator absOp) {
+	public Error visit(AbstractCompileOperator absOp) {
 		Error e = new Error();
 		
 		if(e.isError() || this.stop)

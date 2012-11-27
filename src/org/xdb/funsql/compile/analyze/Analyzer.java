@@ -7,7 +7,7 @@ import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.CheckOperatorVisitor;
 import org.xdb.funsql.compile.analyze.operator.CreateResultVisitor;
 import org.xdb.funsql.compile.analyze.operator.RenameOperatorVisitor;
-import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.types.EnumSimpleType;
@@ -27,7 +27,7 @@ public class Analyzer {
 	public void analyze() {
 		// Check types
 		for (Identifier rootId : compilePlan.getRootIds()) {
-			AbstractOperator root = this.compilePlan.getOperators(rootId);
+			AbstractCompileOperator root = this.compilePlan.getOperators(rootId);
 
 			CheckOperatorVisitor checkOpVisitor = new CheckOperatorVisitor(
 					this.expTypes, root);
@@ -36,7 +36,7 @@ public class Analyzer {
 
 		// Create result descriptions
 		for (Identifier rootId : compilePlan.getRootIds()) {
-			AbstractOperator root = this.compilePlan.getOperators(rootId);
+			AbstractCompileOperator root = this.compilePlan.getOperators(rootId);
 
 			CreateResultVisitor resultDescVisitor = new CreateResultVisitor(
 					root, expTypes);
@@ -46,7 +46,7 @@ public class Analyzer {
 		//TODO: Do renaming after optimization => remove renaming from result creation and do all renaming here!
 		// Rename attributes
 		for (Identifier rootId : compilePlan.getRootIds()) {
-			AbstractOperator root = this.compilePlan.getOperators(rootId);
+			AbstractCompileOperator root = this.compilePlan.getOperators(rootId);
 
 			RenameOperatorVisitor renameVisitor = new RenameOperatorVisitor(
 					root);

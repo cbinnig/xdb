@@ -1,7 +1,7 @@
 package org.xdb.funsql.optimize;
 
 import org.xdb.funsql.compile.CompilePlan;
-import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.error.Error;
 
 /**
@@ -53,7 +53,7 @@ public class Optimizer {
 
 		SelectionPushDownVisitor pushDownVisitor = new SelectionPushDownVisitor(
 				null, compilePlan);
-		for (AbstractOperator root : this.compilePlan.getRoots()) {
+		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
 			boolean modified = true;
 			
 			while (modified) {
@@ -75,7 +75,7 @@ public class Optimizer {
 	 */
 	private Error combineSelections() {
 		Error err = new Error();
-		for (AbstractOperator root : this.compilePlan.getRoots()) {
+		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
 			SelectionCombineVisitor combineVisitor = new SelectionCombineVisitor(root);
 			err = combineVisitor.visit();
 			

@@ -16,7 +16,7 @@ import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.Error;
-import org.xdb.execute.operators.AbstractOperator;
+import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
@@ -33,7 +33,7 @@ import org.xdb.utils.Identifier;
 public class ComputeNode {
 
 	// Map of operatorId -> operator
-	private final Map<Identifier, AbstractOperator> operators;
+	private final Map<Identifier, AbstractExecuteOperator> operators;
 
 	// Map of consumer -> sources which are ready
 	private final Map<Identifier, HashSet<Identifier>> readySignals;
@@ -51,7 +51,7 @@ public class ComputeNode {
 	// constructors
 	public ComputeNode() throws Exception  {
 		operators = Collections
-				.synchronizedMap(new HashMap<Identifier, AbstractOperator>());
+				.synchronizedMap(new HashMap<Identifier, AbstractExecuteOperator>());
 		readySignals = Collections
 				.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());
 
@@ -79,7 +79,7 @@ public class ComputeNode {
 	 * @param operator
 	 * @return
 	 */
-	public Error openOperator(final AbstractOperator op) {
+	public Error openOperator(final AbstractExecuteOperator op) {
 		Error err = new Error();
 
 		operators.put(op.getOperatorId(), op);
@@ -104,7 +104,7 @@ public class ComputeNode {
 		final Identifier consumer = signal.getConsumer();
 
 		// Get node
-		AbstractOperator op = null;
+		AbstractExecuteOperator op = null;
 		op = operators.get(consumer);
 		if (op == null) {
 			return err;
@@ -151,7 +151,7 @@ public class ComputeNode {
 		Error err = new Error();
 
 		// execute operator
-		final AbstractOperator op = operators.get(signal.getConsumer());
+		final AbstractExecuteOperator op = operators.get(signal.getConsumer());
 		if (op != null) {
 			err = op.close();
 			logger.log(Level.INFO, "Closed operator: " + op.getOperatorId());
@@ -168,7 +168,7 @@ public class ComputeNode {
 	 * @param op
 	 * @return
 	 */
-	private Error executeOperator(final AbstractOperator op) {
+	private Error executeOperator(final AbstractExecuteOperator op) {
 		Error err = new Error();
 
 		// execute operator
@@ -208,7 +208,7 @@ public class ComputeNode {
 	 * 
 	 * @param op
 	 */
-	private synchronized void removeOperator(final AbstractOperator op) {
+	private synchronized void removeOperator(final AbstractExecuteOperator op) {
 		operators.remove(op.getOperatorId());
 		readySignals.remove(op.getOperatorId());
 	}

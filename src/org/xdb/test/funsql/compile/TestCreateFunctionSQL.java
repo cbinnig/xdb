@@ -77,10 +77,6 @@ public class TestCreateFunctionSQL extends CompileServerTestCase {
 		fStmt.getPlan().traceGraph(this.getClass().getName());
 		this.assertNoError(fStmt.execute());
 		
-		/*CallFunctionStmt callFStmt = (CallFunctionStmt) compiler.compile("CALL FUNCTION f1;");
-		this.assertNoError(compiler.getLastError());
-		this.assertNoError(callFStmt.execute());*/
-		
 		DropFunctionStmt dropFStmt = (DropFunctionStmt) compiler.compile("DROP FUNCTION f1;");
 		this.assertNoError(compiler.getLastError());
 		this.assertNoError(dropFStmt.execute());

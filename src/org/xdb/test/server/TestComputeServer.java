@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import org.junit.Test;
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
-import org.xdb.execute.operators.MySQLOperator;
+import org.xdb.execute.operators.MySQLExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.test.ComputeServerTestCase;
 import org.xdb.utils.Identifier;
@@ -23,7 +23,7 @@ public class TestComputeServer extends ComputeServerTestCase {
 		Config.useQueryTrackerComputeConnection = false;
 
 		// operator
-		final MySQLOperator op = new MySQLOperator(new Identifier("1"));
+		final MySQLExecuteOperator op = new MySQLExecuteOperator(new Identifier("1"));
 		op.addOpenSQL("CREATE TEMPORARY TABLE REGION ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) "
 				+ "ENGINE=FEDERATED CONNECTION='mysql://"+Config.COMPUTE_DB_USER+":"+Config.COMPUTE_DB_PASSWD+"@"+nodes[0]+"/tpch_s01/REGION';");
 
@@ -53,7 +53,7 @@ public class TestComputeServer extends ComputeServerTestCase {
 		Config.useQueryTrackerComputeConnection = false;
 
 		// first op
-		final MySQLOperator op1 = new MySQLOperator(new Identifier("1"));
+		final MySQLExecuteOperator op1 = new MySQLExecuteOperator(new Identifier("1"));
 
 		op1.addOpenSQL("CREATE TEMPORARY TABLE REGION ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) "
 				+ "ENGINE=FEDERATED CONNECTION='mysql://"+Config.COMPUTE_DB_USER+":"+Config.COMPUTE_DB_PASSWD+"@"+nodes[0]+"/tpch_s01/REGION';");
@@ -63,7 +63,7 @@ public class TestComputeServer extends ComputeServerTestCase {
 
 
 		// second op
-		final MySQLOperator op2 = new MySQLOperator(new Identifier("2"));
+		final MySQLExecuteOperator op2 = new MySQLExecuteOperator(new Identifier("2"));
 
 		op2.addOpenSQL("CREATE TEMPORARY TABLE R2 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) "
 				+ "ENGINE=FEDERATED CONNECTION='mysql://"+Config.COMPUTE_DB_USER+":"+Config.COMPUTE_DB_PASSWD+"@"+nodes[0]+"/"+Config.COMPUTE_DB_NAME+"/R1';");

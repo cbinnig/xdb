@@ -11,7 +11,7 @@ import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
 
-public abstract class AbstractUnaryOperator extends AbstractOperator {
+public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 	
 	private static final long serialVersionUID = 2144601298204477490L;
 
@@ -19,7 +19,7 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 	protected int inputNumber=0;
 
 	//constructors
-	public AbstractUnaryOperator(AbstractOperator child){
+	public AbstractUnaryOperator(AbstractCompileOperator child){
 		super(1);
 		
 		this.children.add(child);
@@ -31,11 +31,11 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 		return this.results.get(0);
 	}
 	
-	public AbstractOperator getChild() {
+	public AbstractCompileOperator getChild() {
 		return this.children.get(0);
 	}
 
-	public void setChild(AbstractOperator child) {
+	public void setChild(AbstractCompileOperator child) {
 		this.children.set(0, child);
 	}
 
@@ -62,7 +62,7 @@ public abstract class AbstractUnaryOperator extends AbstractOperator {
 		if(this.results.size()==1)
 			node.getInfo().setHeader(this.results.get(0).toString());
 		node.getInfo().setCaption(this.toString());
-		AbstractOperator childOp = this.children.get(0);
+		AbstractCompileOperator childOp = this.children.get(0);
 		
 		if(!nodes.containsKey(childOp.operatorId)){
 			GraphNode child = g.addNode();

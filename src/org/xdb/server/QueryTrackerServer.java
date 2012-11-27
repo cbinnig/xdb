@@ -7,7 +7,7 @@ import java.net.Socket;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
-import org.xdb.execute.operators.AbstractOperator;
+import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 
@@ -51,7 +51,7 @@ public class QueryTrackerServer extends AbstractServer {
 					err = tracker.executePlan(plan);
 					break;
 				case CMD_OPERATOR_READY:
-					final AbstractOperator op = (AbstractOperator) in.readObject();
+					final AbstractExecuteOperator op = (AbstractExecuteOperator) in.readObject();
 					err = tracker.operatorReady(op);
 				}
 				out.writeObject(err);

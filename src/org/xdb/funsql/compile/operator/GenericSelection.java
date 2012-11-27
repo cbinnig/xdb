@@ -20,10 +20,10 @@ public class GenericSelection extends AbstractUnaryOperator {
 	private AbstractPredicate predicate;
 	
 	private final StringTemplate sqlTemplate = 
-			new StringTemplate("SELECT <RESULTS> FROM <<OP1>> AS <OP1> WHERE <PRED>");
+			new StringTemplate("SELECT <RESULTS> FROM (<<OP1>>) AS <OP1> WHERE <PRED>");
 	
 	//constructors
-	public GenericSelection(AbstractOperator child) {
+	public GenericSelection(AbstractCompileOperator child) {
 		super(child);
 		this.type = EnumOperator.GENERIC_SELECTION;
 	}
@@ -42,16 +42,16 @@ public class GenericSelection extends AbstractUnaryOperator {
 	/**
 	 * Remove selection from plan
 	 */
-	public Map<AbstractOperator, Integer> cut(){
-		HashMap<AbstractOperator, Integer> cutInfo = new HashMap<AbstractOperator, Integer>();
+	public Map<AbstractCompileOperator, Integer> cut(){
+		HashMap<AbstractCompileOperator, Integer> cutInfo = new HashMap<AbstractCompileOperator, Integer>();
 		
 		//Modify child
-		AbstractOperator child = this.getChild();
+		AbstractCompileOperator child = this.getChild();
 		child.removeParent(this);
 		child.addParents(this.parents);
 		
 		//Modify parents
-		for(AbstractOperator p: this.parents){
+		for(AbstractCompileOperator p: this.parents){
 			int childIdx = p.children.indexOf(this);
 			p.children.set(childIdx, child);
 			p.renameAttributes(this.getOperatorId().toString(), child.getOperatorId().toString());
@@ -68,9 +68,9 @@ public class GenericSelection extends AbstractUnaryOperator {
 	 * Add selection to plan below given parent
 	 * @param parent
 	 */
-	public void paste(AbstractOperator parent, Integer childIdx){
+	public void paste(AbstractCompileOperator parent, Integer childIdx){
 		//Get old child 
-		AbstractOperator child = parent.children.get(childIdx);
+		AbstractCompileOperator child = parent.children.get(childIdx);
 		
 		//modify parent
 		parent.renameAttributes(child.getOperatorId().toString(), this.operatorId.toString());

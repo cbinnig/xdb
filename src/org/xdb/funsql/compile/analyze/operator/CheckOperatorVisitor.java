@@ -5,7 +5,7 @@ import java.util.Map;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.expression.CheckExpressionVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
-import org.xdb.funsql.compile.operator.AbstractOperator;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericAggregation;
@@ -27,7 +27,7 @@ public class CheckOperatorVisitor extends AbstractBottomUpTreeVisitor {
 	private Map<AbstractToken, EnumSimpleType> expType;
 
 	public CheckOperatorVisitor(Map<AbstractToken, EnumSimpleType> expType,
-			AbstractOperator root) {
+			AbstractCompileOperator root) {
 		super(root);
 
 		this.expType = expType;

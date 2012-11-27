@@ -14,7 +14,7 @@ import org.xdb.utils.Identifier;
  * @author cbinnig
  * 
  */
-public class MySQLOperator extends AbstractOperator {
+public class MySQLExecuteOperator extends AbstractExecuteOperator {
 	private static final long serialVersionUID = -6945734207336600373L;
 
 	// DML statements for execution
@@ -22,11 +22,11 @@ public class MySQLOperator extends AbstractOperator {
 	private transient Vector<PreparedStatement> executeStmts;
 
 	// constructor
-	public MySQLOperator(final Identifier operatorId) {
+	public MySQLExecuteOperator(final Identifier operatorId) {
 		super(operatorId);
 	}
 
-	public MySQLOperator(final Identifier operatorId, final String dbname, final String dbuser,
+	public MySQLExecuteOperator(final Identifier operatorId, final String dbname, final String dbuser,
 			final String dbpasswd) {
 
 		super(operatorId, dbname, dbuser, dbpasswd);
