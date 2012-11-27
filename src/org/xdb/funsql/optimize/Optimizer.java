@@ -15,7 +15,6 @@ public class Optimizer {
 	private CompilePlan compilePlan;
 
 	// constructors
-
 	public Optimizer(CompilePlan compilePlan) {
 		super();
 		this.compilePlan = compilePlan;

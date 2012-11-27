@@ -8,10 +8,10 @@ public class TableDesc implements Serializable {
 
 	private static final long serialVersionUID = 8232468468334368891L;
 
-	//operator ID
+		//name of table 
 		private String tableName;
 		
-		//operator URL
+		//operator which produces table
 		private Identifier operatorId;
 		
 		//constructors
