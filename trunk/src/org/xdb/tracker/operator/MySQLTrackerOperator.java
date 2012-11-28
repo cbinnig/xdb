@@ -61,7 +61,7 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 				URI connURI = inTableDesc.getURI();
 				String sourceTableName = inTableDesc.getTableName();
 				String sourceURL = connURI.getHost();
-				String sourceDB = connURI.getPath();
+				String sourceDB = connURI.getPath().substring(1);
 				
 				String deployTableDDL = this.genDeployInputTableDDL(tableName,
 						deployOperId, sourceTableName, sourceDB, sourceURL);

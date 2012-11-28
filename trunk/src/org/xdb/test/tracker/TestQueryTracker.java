@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
-import org.xdb.error.Error;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.server.QueryTrackerServer;
 import org.xdb.test.QueryTrackerServerTestCase;
@@ -48,9 +47,9 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		qPlan.addOperator(op1);
 
 		// deploy, execute and clean plan
-		final Map<Identifier, OperatorDesc> currentDeployment = qPlan.deployPlan();
-		assertEquals(Error.NO_ERROR, qPlan.getLastError());
-		qPlan.executePlan(currentDeployment);
+		this.assertNoError(qPlan.deployPlan());
+		final Map<Identifier, OperatorDesc> currentDeployment = qPlan.getCurrentDeployment();
+		this.assertNoError(qPlan.executePlan());
 
 		// read result
 		Identifier deployOp1Id = currentDeployment.get(op1.getOperatorId()).getOperatorID();
@@ -60,8 +59,7 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 			actualCnt = rs.getInt(1);
 		}
 
-		qPlan.cleanPlan(currentDeployment);
-		assertEquals(Error.NO_ERROR, qPlan.getLastError());
+		this.assertNoError(qPlan.cleanPlan());
 
 		// verify results
 		assertEquals(5, actualCnt);
@@ -117,9 +115,9 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		op2.setInTableSource("R2", new TableDesc("R1", op1.getOperatorId()));
 
 		// deploy and execute plan
-		final Map<Identifier, OperatorDesc> currentDeployment = qPlan.deployPlan();
-		assertEquals(Error.NO_ERROR, qPlan.getLastError());
-		qPlan.executePlan(currentDeployment);
+		this.assertNoError(qPlan.deployPlan());
+		final Map<Identifier, OperatorDesc> currentDeployment = qPlan.getCurrentDeployment();
+		this.assertNoError(qPlan.executePlan());
 
 		// read result
 		Identifier deployOp2Id = currentDeployment.get(op2.getOperatorId()).getOperatorID();
@@ -130,8 +128,7 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		}
 
 		// clean plan
-		qPlan.cleanPlan(currentDeployment);
-		assertEquals(Error.NO_ERROR, qPlan.getLastError());
+		this.assertNoError(qPlan.cleanPlan());
 
 		// verify results
 		//		assertEquals(5, actualCnt);

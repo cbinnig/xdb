@@ -56,6 +56,6 @@ public class TableDesc implements Serializable {
 		
 		@Override
 		public String toString(){
-			return "("+this.operatorId+","+this.tableName+")";
+			return this.tableName;
 		}
 }

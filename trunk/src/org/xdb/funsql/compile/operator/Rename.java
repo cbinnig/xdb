@@ -16,16 +16,15 @@ public class Rename extends AbstractUnaryOperator {
 	private final StringTemplate sqlTemplate = 
 			new StringTemplate("SELECT <RESULTS> FROM (<<OP1>>) AS <OP1>");
 	
-	public Rename(AbstractCompileOperator child, ResultDesc result) {
+	public Rename(AbstractCompileOperator child) {
 		super(child);
-		this.addResult(result);
 		this.type = EnumOperator.RENAME;
 	}
 
 	@Override
 	public String toSqlString() {
 		HashMap<String, String> vars = new HashMap<String, String>();
-		vars.put("OP1", getOperatorId().toString());
+		vars.put("OP1", this.getChild().getOperatorId().toString());
 		
 		//get all table attributes and match them in order
 		final Vector<String> attrs = new Vector<String>();

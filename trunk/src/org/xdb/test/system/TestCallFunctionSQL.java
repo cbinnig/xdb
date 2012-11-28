@@ -1,4 +1,4 @@
-package org.xdb.test.xdb;
+package org.xdb.test.system;
 
 import junit.framework.Assert;
 
@@ -7,7 +7,6 @@ import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CallFunctionStmt;
 import org.xdb.funsql.statement.CreateFunctionStmt;
-import org.xdb.funsql.statement.DropFunctionStmt;
 import org.xdb.test.XDBTestCase;
 
 public class TestCallFunctionSQL extends XDBTestCase {
@@ -24,7 +23,7 @@ public class TestCallFunctionSQL extends XDBTestCase {
 			this.execute(stmt);
 
 		String createConnSql = "CREATE CONNECTION \"testConnection\" "
-				+ "URL 'jdbc:mysql://127.0.0.1/xdb_tmp' " + "USER 'xroot' "
+				+ "URL 'mysql://127.0.0.1/xdb_tmp' " + "USER 'xroot' "
 				+ "PASSWORD 'xroot' " + "STORE 'XDB' ";
 
 		stmt = compiler.compile(createConnSql);
@@ -81,9 +80,5 @@ public class TestCallFunctionSQL extends XDBTestCase {
 		CallFunctionStmt callFStmt = (CallFunctionStmt) compiler.compile("CALL FUNCTION f1;");
 		this.assertNoError(compiler.getLastError());
 		this.assertNoError(callFStmt.execute());
-		
-		DropFunctionStmt dropFStmt = (DropFunctionStmt) compiler.compile("DROP FUNCTION f1;");
-		this.assertNoError(compiler.getLastError());
-		this.assertNoError(dropFStmt.execute());
 	}
 }

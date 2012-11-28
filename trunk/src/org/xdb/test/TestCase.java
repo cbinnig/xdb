@@ -129,7 +129,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 		assertNoError(stmt.compile());
 		assertNoError(stmt.execute());
 	}
-
+	
 	/**
 	 * Executes a statement and checks if error occurred
 	 * 
@@ -137,9 +137,8 @@ public abstract class TestCase extends junit.framework.TestCase {
 	 */
 	protected void compileAndExecuteWithErr(AbstractServerStmt stmt) {
 		Error lastError = stmt.compile();
-		assertError(lastError);
 
-		if (lastError == Error.NO_ERROR)
+		if (!lastError.isError())
 			assertError(stmt.execute());
 	}
 }

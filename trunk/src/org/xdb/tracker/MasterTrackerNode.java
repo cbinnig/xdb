@@ -2,10 +2,10 @@ package org.xdb.tracker;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,14 +25,13 @@ public class MasterTrackerNode {
 			.synchronizedMap(new HashMap<String, Integer>());;
 
 	// query tracker slots
-	private final Map<String, Integer> queryTrackerSlots = Collections
-			.synchronizedMap(new HashMap<String, Integer>());
+	private final List<String> queryTrackerSlots = Collections
+			.synchronizedList(new Vector<String>());
+	
+	private int lastQueryTrackerSlot = 0;
 
 	// query tracker clients
 	private final Map<String, QueryTrackerClient> queryTrackerClients = new HashMap<String, QueryTrackerClient>();
-
-	// new plans, waiting for execution
-	private final Queue<QueryTrackerPlan> queuedPlans = new LinkedList<QueryTrackerPlan>();
 
 	// running plans by plan identifier
 	private final HashMap<Identifier, QueryTrackerPlan> runningPlans = new HashMap<Identifier, QueryTrackerPlan>();
@@ -42,20 +41,14 @@ public class MasterTrackerNode {
 
 	// logger
 	private final Logger logger;
-
+	private Error err = new Error();
+	
 	//constructor
 	public MasterTrackerNode() {
 		logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
 	//getters and setters
-	/**
-	 * Grab number of waiting plans.
-	 */
-	public int getNoWaitingPlans() {
-		return queuedPlans.size();
-	}
-
 	/**
 	 * Grab number of running plans.
 	 */
@@ -84,13 +77,9 @@ public class MasterTrackerNode {
 	 * @return number of free slots
 	 */
 	public int getNoFreeQueryTrackerSlots() {
-		int n = 0;
+		
 
-		for (final Entry<String, Integer> entry : queryTrackerSlots.entrySet()) {
-			n += entry.getValue();
-		}
-
-		return n;
+		return this.queryTrackerSlots.size();
 	}
 
 	/**
@@ -105,8 +94,6 @@ public class MasterTrackerNode {
 		logger.log(Level.INFO, "Added compute slots: " + desc);
 		computeSlots.put(desc.getUrl(), desc.getSlots());
 
-		exeutePlanIfPossible();
-
 		return err;
 	}
 
@@ -119,7 +106,7 @@ public class MasterTrackerNode {
 	public QueryTrackerPlan generateQueryTrackerPlan(
 			final CompilePlan compilePlan) {
 		CodeGenerator codeGen = new CodeGenerator(compilePlan);
-		Error err = codeGen.generate();
+		err = codeGen.generate();
 		if(err.isError())
 			return null;
 		
@@ -132,11 +119,11 @@ public class MasterTrackerNode {
 	 * @return tracker url, if found - else null
 	 */
 	private String getFreeQueryTrackerSlot() {
-		for (final Entry<String, Integer> entry : queryTrackerSlots.entrySet()) {
-			int freeSlots = entry.getValue();
-			if (freeSlots > 0) {
-				return entry.getKey();
-			}
+		if(this.queryTrackerSlots.size() > 0){
+			this.lastQueryTrackerSlot++;
+			this.lastQueryTrackerSlot = (this.lastQueryTrackerSlot %  this.queryTrackerSlots.size());
+			
+			return this.queryTrackerSlots.get(this.lastQueryTrackerSlot);
 		}
 
 		return null;
@@ -148,39 +135,20 @@ public class MasterTrackerNode {
 		runningPlans.put(plan.getPlanId(), plan);
 		planAssignment.put(plan.getPlanId(), tracker);
 
-		final QueryTrackerClient client = queryTrackerClients.get(tracker);
+		final QueryTrackerClient client = this.queryTrackerClients.get(tracker);
 
 		client.executePlan(plan);
 
 		return new Error();
 	}
 
-	private void exeutePlanIfPossible() {
-		if (queuedPlans.isEmpty()) {
-			return;
-		}
-
-		logger.log(Level.INFO, "Trying to execute queued plan.");
-
-		final String slot = getFreeQueryTrackerSlot();
-		if (slot == null) {
-			logger.log(Level.INFO, "No slot available.");
-		}
-
-		queryTrackerSlots.put(slot, queryTrackerSlots.get(slot) - 1);
-
-		executeOnQueryTracker(slot, queuedPlans.poll());
-	}
-
 	public Error executePlan(final CompilePlan plan) {
 		logger.log(Level.INFO, "Got new compileplan: " + plan);
 
 		final QueryTrackerPlan qtp = generateQueryTrackerPlan(plan);
-		if (qtp == null) {
-			return new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, null);
+		if (this.err.isError()) {
+			return err;
 		}
-		
-		qtp.traceGraph(this.getClass().getCanonicalName());
 
 		return executePlan(qtp);
 	}
@@ -190,13 +158,18 @@ public class MasterTrackerNode {
 		final Error err = new Error();
 
 		if (plan == null) {
-			return new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, null);
+			String[] args = {"No query tracker plan provided"};
+			return new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, args);
 		}
 
 		logger.log(Level.INFO, "Queued new plan for execution: " + plan);
 
-		queuedPlans.add(plan);
-		exeutePlanIfPossible();
+		final String slot = getFreeQueryTrackerSlot();
+		if(slot==null){
+			String[] args = {"No query tracker slot provided"};
+			return new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, args);
+		}
+		this.executeOnQueryTracker(slot, plan);
 
 		return err;
 	}
@@ -211,8 +184,9 @@ public class MasterTrackerNode {
 		final Error err = new Error();
 
 		logger.log(Level.INFO, "Added QueryTrackerNode: " + desc);
-		queryTrackerSlots.put(desc.getUrl(), desc.getSlots());
-
+		queryTrackerSlots.add(desc.getUrl());
+		this.queryTrackerClients.put(desc.getUrl(), new QueryTrackerClient(desc.getUrl()));
+		
 		return err;
 	}
 
@@ -277,11 +251,11 @@ public class MasterTrackerNode {
 	}
 
 	/**
-	 * Add free nodes that were before in use by querytracker
+	 * Add free nodes that were before in use by query tracker
 	 * 
 	 * @param freeNodes
 	 */
-	public void addFreeNodes(final Map<String, MutableInteger> freeNodes) {
+	public void addFreeComputeSlots(final Map<String, MutableInteger> freeNodes) {
 		for (final Entry<String, MutableInteger> node : freeNodes.entrySet()) {
 			Integer num = computeSlots.get(node.getKey());
 			if (num == null) {

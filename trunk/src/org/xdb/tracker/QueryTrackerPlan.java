@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
@@ -20,7 +18,6 @@ import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.funsql.compile.FunSQLCompiler;
-import org.xdb.logging.XDBLog;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.MutableInteger;
@@ -58,23 +55,18 @@ public class QueryTrackerPlan implements Serializable {
 	private final HashMap<Identifier, Set<Identifier>> sources = new HashMap<Identifier, Set<Identifier>>();
 	private final HashSet<Identifier> roots = new HashSet<Identifier>();
 	private final HashSet<Identifier> leaves = new HashSet<Identifier>();
-	private HashMap<String, MutableInteger> slots;
+	private final HashMap<String, MutableInteger> slots = new HashMap<String, MutableInteger>();
 	private final HashMap<Identifier, List<String>> nodeOperators = new HashMap<Identifier, List<String>>();
 
 	// deployment info
-	private final HashMap<Identifier, Set<OperatorDesc>> deployment = new HashMap<Identifier, Set<OperatorDesc>>();
-	private HashMap<Identifier, OperatorDesc> currentDeployment;
+	private HashMap<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
 
 	// last error
 	private Error err = new Error();
 
-	// Logger
-	private final Logger logger;
-
 	// constructor
 	public QueryTrackerPlan() {
 		this.planId = new Identifier(lastPlanId++);
-		logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
 	// getter and setter
@@ -86,6 +78,10 @@ public class QueryTrackerPlan implements Serializable {
 		} else {
 			nodeOperators.get(opId).add(node);
 		}
+	}
+
+	public HashMap<Identifier, OperatorDesc> getCurrentDeployment() {
+		return currentDeployment;
 	}
 
 	public Map<Identifier, List<String>> getNumNodeOperators() {
@@ -157,7 +153,7 @@ public class QueryTrackerPlan implements Serializable {
 	 * 
 	 * @param currentDeployment
 	 */
-	public void cleanPlan(final Map<Identifier, OperatorDesc> currentDeployment) {
+	public Error cleanPlan() {
 		// close operators which are not root operators
 		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
 				.entrySet()) {
@@ -168,10 +164,11 @@ public class QueryTrackerPlan implements Serializable {
 				err = computeClient.closeOperator(operDesc);
 
 				if (err.isError()) {
-					break;
+					return err;
 				}
 			}
 		}
+		return err;
 	}
 
 	/**
@@ -179,10 +176,9 @@ public class QueryTrackerPlan implements Serializable {
 	 * 
 	 * @param currentDeployment
 	 */
-	public void executePlan(
-			final Map<Identifier, OperatorDesc> currentDeployment) {
+	public Error executePlan() {
 		if (err.isError()) {
-			return;
+			return err;
 		}
 
 		// start execution on leave operators
@@ -191,7 +187,7 @@ public class QueryTrackerPlan implements Serializable {
 			err = computeClient.executeOperator(leaveDesc);
 
 			if (err.isError()) {
-				break;
+				return err;
 			}
 		}
 
@@ -205,11 +201,12 @@ public class QueryTrackerPlan implements Serializable {
 				err = computeClient.closeOperator(operDesc);
 
 				if (err.isError()) {
-					break;
+					return err;
 				}
 			}
 		}
-
+		
+		return err;
 	}
 
 	/**
@@ -217,32 +214,36 @@ public class QueryTrackerPlan implements Serializable {
 	 * 
 	 * @return
 	 */
-	public Map<Identifier, OperatorDesc> deployPlan() {
-		final HashMap<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
+	public Error deployPlan() {
 
-		requireSlots();
+		//request compute slots
+		requestSlots();
+		if(err.isError())
+			return this.err;
 
 		// prepare deployment
 		for (final Identifier leave : leaves) {
-			prepareDeployment(leave, currentDeployment, slots);
+			prepareDeployment(leave,  slots);
 		}
 
-		// deploy plan
-		deployPlan(currentDeployment);
-
-		// handle error
+		// distribute plan to compute nodes
+		distributePlan();
 		if (err.isError()) {
 			for (final OperatorDesc deployOperDesc : currentDeployment.values()) {
 				computeClient.closeOperator(deployOperDesc);
 			}
 			currentDeployment.clear();
+			
+			return err;
 		}
 
-		this.currentDeployment = currentDeployment;
-		return currentDeployment;
+		return this.err;
 	}
 
-	private void requireSlots() {
+	/**
+	 * Requests computation slots from master tracker
+	 */
+	private void requestSlots() {
 		final ResourceScheduler resourceScheduler = new ResourceScheduler(this);
 		final MutableInteger numSlots = new MutableInteger(
 				resourceScheduler.calcMaxParallelization());
@@ -269,10 +270,10 @@ public class QueryTrackerPlan implements Serializable {
 			requiredSlots.put(ResourceScheduler.RANDOM, numSlots);
 		}
 		final Tuple<Map<String, MutableInteger>, Error> tuple = tracker
-				.requestComputeNodes(requiredSlots);
+				.requestComputeSlots(requiredSlots);
 		final Map<String, MutableInteger> allocatedSlots = tuple.getObject1();
 		err = tuple.getObject2();
-		slots = new HashMap<String, MutableInteger>(allocatedSlots);
+		slots.putAll(allocatedSlots);
 	}
 
 	/**
@@ -280,8 +281,7 @@ public class QueryTrackerPlan implements Serializable {
 	 * 
 	 * @param currentDeployment
 	 */
-	private void deployPlan(
-			final Map<Identifier, OperatorDesc> currentDeployment) {
+	private void distributePlan() {
 		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
 				.entrySet()) {
 			final Identifier operId = entry.getKey();
@@ -291,10 +291,6 @@ public class QueryTrackerPlan implements Serializable {
 			// create executable operator and set consumers / sources
 			final AbstractExecuteOperator deployOper = oper.genDeployOperator(
 					deployOperDesc, currentDeployment);
-
-			logger.log(Level.INFO,
-					"Deploy operator '" + deployOper.getOperatorId()
-							+ "' for plan operator '" + operId + "'");
 
 			for (final Identifier consumerId : consumers.get(operId)) {
 				final OperatorDesc consumerDesc = currentDeployment
@@ -310,17 +306,8 @@ public class QueryTrackerPlan implements Serializable {
 			// deploy operator
 			err = computeClient.openOperator(deployOperDesc.getOperatorNode(),
 					deployOper);
-			if (err.isError()) {
+			if (err.isError()) 
 				return;
-			}
-
-			// add info to deployments
-			Set<OperatorDesc> deployementDesc = deployment.get(operId);
-			if (deployementDesc == null) {
-				deployementDesc = new HashSet<OperatorDesc>();
-				deployment.put(operId, deployementDesc);
-			}
-			deployementDesc.add(deployOperDesc);
 		}
 	}
 
@@ -331,7 +318,6 @@ public class QueryTrackerPlan implements Serializable {
 	 * @param currentDeployment
 	 */
 	private void prepareDeployment(final Identifier operId,
-			final Map<Identifier, OperatorDesc> currentDeployment,
 			final Map<String, MutableInteger> allocatedSlots) {
 
 		// operator already deployed
@@ -379,7 +365,7 @@ public class QueryTrackerPlan implements Serializable {
 
 		// prepare deployment of consumers
 		for (final Identifier consumerId : consumers.get(operId)) {
-			prepareDeployment(consumerId, currentDeployment, allocatedSlots);
+			prepareDeployment(consumerId, allocatedSlots);
 		}
 	}
 
@@ -389,10 +375,6 @@ public class QueryTrackerPlan implements Serializable {
 
 	public Map<Identifier, AbstractTrackerOperator> getOperatorMapping() {
 		return Collections.unmodifiableMap(operators);
-	}
-
-	public void execute() {
-		executePlan(currentDeployment);
 	}
 
 	/**

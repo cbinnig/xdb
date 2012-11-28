@@ -72,7 +72,7 @@ public class MasterTrackerServer extends AbstractServer {
 					@SuppressWarnings("unchecked")
 					final Map<String, MutableInteger> freeNodes = (Map<String, MutableInteger>) in
 							.readObject();
-					tracker.addFreeNodes(freeNodes);
+					tracker.addFreeComputeSlots(freeNodes);
 					break;
 				}
 			} catch (final Exception e) {

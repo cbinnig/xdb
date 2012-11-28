@@ -66,6 +66,8 @@ public class Catalog {
 			}
 
 			Catalog.conn.close();
+			Catalog.unload();
+			
 		} catch (Exception e) {
 			return createCatalogNotAvailableErr(e);
 		}
