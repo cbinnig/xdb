@@ -126,10 +126,12 @@ public abstract class AbstractExecuteOperator implements Serializable {
 
 			// compile open and close statements
 			for (String ddl : this.openSQLs) {
+				System.out.println(ddl);
 				this.openStmts.add(this.conn.prepareStatement(ddl));
 			}
 
 			for (String ddl : this.closeSQLs) {
+				System.out.println(ddl);
 				this.closeStmts.add(this.conn.prepareStatement(ddl));
 			}
 

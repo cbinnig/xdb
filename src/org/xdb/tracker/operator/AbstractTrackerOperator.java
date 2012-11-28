@@ -30,7 +30,7 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	private static final StringTemplate INPUT2_DDL = new StringTemplate(
 			" ENGINE=FEDERATED CONNECTION='mysql://" + Config.COMPUTE_DB_USER
 			+ ":" + Config.COMPUTE_DB_PASSWD + "@<HOST>/"
-			+ "/<DB>/<TABLE>'");
+			+ "<DB>/<TABLE>'");
 
 	private static final String KEY_HOST = "HOST";
 	private static final String KEY_TABLE = "TABLE";
