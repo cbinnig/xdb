@@ -24,7 +24,7 @@ public class TableOperator extends AbstractCompileOperator {
 	private Table table = null;
 	
 	private final StringTemplate sqlTemplate = 
-			new StringTemplate("SELECT <RESULTS> FROM "+TABLE_PREFIX+"<<OP1>> AS "+TABLE_PREFIX+"<OP1>");
+			new StringTemplate("SELECT <RESULTS> FROM <<OP1>> AS <OP1>");
 	
 	//constructors
 	public TableOperator(TokenIdentifier tableName){
@@ -96,7 +96,7 @@ public class TableOperator extends AbstractCompileOperator {
 	@Override
 	public String toSqlString() {
 		HashMap<String, String> vars = new HashMap<String, String>();
-		final String opDummy = getOperatorId().toString();
+		final String opDummy = TABLE_PREFIX+getOperatorId().toString();
 		vars.put("OP1", opDummy);
 		
 		//get all table attributes and match them in order
