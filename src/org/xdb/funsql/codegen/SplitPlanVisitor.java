@@ -41,22 +41,27 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 		this.treeRoot = root;
 	}
 
-	private void analyzeParents(AbstractCompileOperator op){
+	/**
+	 * Analyze parents of operator and decide if split is required
+	 * @param op
+	 */
+	private void doSplit(AbstractCompileOperator op){
 		if(op.getResult(0).isMaterialize() 
 				|| op.getParents().size()!=1){
-			this.splitOps.add(op);
+			if(!this.splitOps.contains(op))
+				this.splitOps.add(op);
 		}
 	}
 
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
-		analyzeParents(ej);
+		doSplit(ej);
 		return err;
 	}
 
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
-		analyzeParents(gs);
+		doSplit(gs);
 		return err;
 	}
 
@@ -69,25 +74,25 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
-		analyzeParents(sa);
+		doSplit(sa);
 		return err;
 	}
 
 	@Override
 	public Error visitGenericProjection(GenericProjection gp) {
-		analyzeParents(gp);
+		doSplit(gp);
 		return err;
 	}
 
 	@Override
 	public Error visitTableOperator(TableOperator to) {
-		analyzeParents(to);
+		doSplit(to);
 		return err;
 	}
 
 	@Override
 	public Error visitRename(Rename ro) {
-		analyzeParents(ro);
+		doSplit(ro);
 		return err;
 	}
 }

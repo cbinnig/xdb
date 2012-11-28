@@ -125,7 +125,7 @@ public enum EnumError {
 			msg= "Compiler: Type \"<arg0>\" can not be promoted into \"<arg1>\" not declared!";
 			break;
 		case TRACKER_PLAN_INVALID_GENERIC:
-			msg = "Tracker: Input plan was invalid (no specific error provided).";
+			msg = "Tracker: Error \"<arg0>\"";
 			break;
 		}
 		

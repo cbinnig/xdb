@@ -11,8 +11,12 @@ public class TestCreateConnectionStmt extends CompileServerTestCase {
 	public void testDuplicateCreate() {
 		String connectionName = "TestConnection";
 		
+		//drop connection 
+		AbstractServerStmt stmt = new DropConnectionStmt(connectionName);
+		this.compileAndExecuteWithErr(stmt);		
+				
 		//create connection 
-		AbstractServerStmt stmt = new CreateConnectionStmt(connectionName, "TestUrl", "TestUser", "TestPasswd", "POSTGRES");
+		stmt = new CreateConnectionStmt(connectionName, "TestUrl", "TestUser", "TestPasswd", "POSTGRES");
 		this.compileAndExecute(stmt);
 		
 		//create duplicate connection 

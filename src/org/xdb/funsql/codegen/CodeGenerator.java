@@ -30,7 +30,6 @@ import org.xdb.error.Error;
 public class CodeGenerator {
 	private static final String TAB1 = "TAB1";
 	private static final String SQL1 = "SQL1";
-	public static final String IN_SUFFIX = "IN";
 	public static final String OUT_SUFFIX = "OUT";
 
 	private CompilePlan compilePlan;
@@ -130,26 +129,28 @@ public class CodeGenerator {
 		Set<AbstractCompileOperator> inputCompileOps = getInputOps(compileOp);
 		for (AbstractCompileOperator inputCompileOp : inputCompileOps) {
 			String inDDL = generateResultDDL(inputCompileOp);
-			String inTable = inputCompileOp.getOperatorId().clone()
-					.append(IN_SUFFIX).toString();
-
+			String inTable = inputCompileOp.getOperatorId().clone().toString();
+			if (inputCompileOp.getType().equals(EnumOperator.TABLE)) {
+				inTable = TableOperator.TABLE_PREFIX + inTable;
+			}
+			
 			args.put(SQL1, inDDL);
 			args.put(TAB1, inTable);
 
-			inDDL = this.sqlDDLTemplate.toString(args);
+			inDDL = this.sqlDDLTemplate.toString(args);	
 			trackerOp.addInTable(inTable, new StringTemplate(inDDL));
 
-			String inTableRemote = inputCompileOp.getOperatorId().clone()
-					.append(OUT_SUFFIX).toString();
 			if (inputCompileOp.getType().equals(EnumOperator.TABLE)) { // table
 				TableOperator inputTableOp = (TableOperator) inputCompileOp;
-				URI connURI = new URI(inputTableOp.getConnection().getUrl());
+				URI connURI = URI.create(inputTableOp.getConnection().getUrl());
 				TableDesc tableDesc = new TableDesc(inputTableOp.getTable()
 						.getSourceName(), connURI);
 				trackerOp.setInTableSource(inTable, tableDesc);
 			} else { // other operators
+				String inTableRemote = inputCompileOp.getOperatorId().clone()
+						.append(OUT_SUFFIX).toString();
 				Identifier inTrackerOpId = this.compileOp2trackerOp
-						.get(inputCompileOp);
+						.get(inputCompileOp.getOperatorId());
 				TableDesc tableDesc = new TableDesc(inTableRemote,
 						inTrackerOpId);
 				trackerOp.setInTableSource(inTable, tableDesc);

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Connection;
@@ -18,14 +17,14 @@ import com.oy.shared.lm.graph.GraphNode;
 
 public class TableOperator extends AbstractCompileOperator {
 	private static final long serialVersionUID = 997138204723229392L;
-
+	public static final String TABLE_PREFIX = "_";
 	//attributes
 	private TokenIdentifier tableName;
 	private Connection connection = null;
 	private Table table = null;
 	
 	private final StringTemplate sqlTemplate = 
-			new StringTemplate("SELECT <RESULTS> FROM <<OP1>> AS <OP1>");
+			new StringTemplate("SELECT <RESULTS> FROM "+TABLE_PREFIX+"<<OP1>> AS "+TABLE_PREFIX+"<OP1>");
 	
 	//constructors
 	public TableOperator(TokenIdentifier tableName){
@@ -76,11 +75,13 @@ public class TableOperator extends AbstractCompileOperator {
 	 * 
 	 * @param newOp
 	 */
-	public void replace(AbstractCompileOperator newOp){
+	public void replace(Rename newOp){
 		//replace result description in newOp
-		newOp.setResult(0, this.getResult());
+		newOp.addResult(this.getResult());
 
 		//add newOp to plan
+		newOp.addParents(this.getParents());
+		
 		for(AbstractCompileOperator p : this.parents){
 			int childIdx = p.children.indexOf(this);
 			p.children.set(childIdx, newOp);
@@ -95,7 +96,7 @@ public class TableOperator extends AbstractCompileOperator {
 	@Override
 	public String toSqlString() {
 		HashMap<String, String> vars = new HashMap<String, String>();
-		final String opDummy = getOperatorId().clone().append(CodeGenerator.IN_SUFFIX).toString();
+		final String opDummy = getOperatorId().toString();
 		vars.put("OP1", opDummy);
 		
 		//get all table attributes and match them in order

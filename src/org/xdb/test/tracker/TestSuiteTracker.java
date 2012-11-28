@@ -10,6 +10,7 @@ public class TestSuiteTracker extends TestSuite
     TestSuite suite = new TestSuite( TestSuiteTracker.class.getPackage().getName() );
     suite.addTestSuite( TestQueryTracker.class );
     suite.addTestSuite( TestPlanTranslation.class );
+    suite.addTestSuite( TestSQLPlanTranslation.class );
     return suite;
   }
 }

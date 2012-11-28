@@ -24,9 +24,10 @@ public class QueryTrackerNode {
 
 	public QueryTrackerNode() {
 
-		logger = XDBLog.getLogger(this.getClass().getName());
-		masterTrackerClient = new MasterTrackerClient();
-		description = new QueryTrackerNodeDesc(Config.QUERYTRACKER_URL);
+		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.masterTrackerClient = new MasterTrackerClient();
+		this.description = new QueryTrackerNodeDesc(Config.QUERYTRACKER_URL);
+		
 		final Error err = masterTrackerClient.registerNode(description);
 		if(err.isError()){
 			throw new IllegalArgumentException(err.toString());
@@ -38,9 +39,21 @@ public class QueryTrackerNode {
 		return computeClient;
 	}
 
+	// methods
+	
+	/**
+	 * Execute given tracker plan
+	 * @param plan
+	 * @return
+	 */
 	public Error executePlan(final QueryTrackerPlan plan) {
-		plan.execute();
-		Error err = plan.getLastError();
+		plan.assignTracker(this);
+		
+		Error err = plan.deployPlan();
+		if(err.isError())
+			return err;
+		
+		err = plan.executePlan();
 		if(err.isError())
 			return err;
 		
@@ -56,12 +69,17 @@ public class QueryTrackerNode {
 	 * @param requiredSlots
 	 * @return
 	 */
-	public Tuple<Map<String, MutableInteger>, Error> requestComputeNodes(
+	public Tuple<Map<String, MutableInteger>, Error> requestComputeSlots(
 			final Map<String, MutableInteger> requiredSlots) {
 		final Tuple<Map<String, MutableInteger>, Error> tuple = masterTrackerClient.requestComputeNodes(requiredSlots);
 		return tuple;
 	}
 
+	/**
+	 * Signal operator that input is ready 
+	 * @param op
+	 * @return
+	 */
 	public Error operatorReady(final AbstractExecuteOperator op) {
 		Error err = new Error();
 		// Send READY Signal to Customers

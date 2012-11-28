@@ -31,6 +31,10 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 		return this.results.get(0);
 	}
 	
+	public void setResult(ResultDesc result){
+		this.results.set(0,  result);
+	}
+	
 	public AbstractCompileOperator getChild() {
 		return this.children.get(0);
 	}

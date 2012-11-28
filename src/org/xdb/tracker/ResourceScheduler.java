@@ -16,16 +16,11 @@ public class ResourceScheduler {
 	}
 
 	public int calcMaxParallelization() {
-		// maximum >= num(leaves)
-		//int maximum = plan.getLeaves().size();
-
-		// TODO should be implemented later
-
 		return plan.getOperators().size();
 	}
 
 	public String getBestConnection(final List<String> inTableConnection) {
-		// TODO implement better logic
+		
 		if (inTableConnection != null && !inTableConnection.isEmpty()) {
 			return inTableConnection.get(0);
 		}
