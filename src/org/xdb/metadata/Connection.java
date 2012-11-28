@@ -20,7 +20,8 @@ CREATE TABLE "SYSTEM"."CONNECTION"
 */
 	
 	private static final long serialVersionUID = 8877966550656112235L;
-
+	private static final String JDBC_PREFIX = "jdbc";
+	
 	private static final String TABLE_NAME = AbstractToken.toSqlIdentifier("CONNECTION");
 	private static final String[] ATTRIBUTES = {"OID", "NAME", "URL", "USER", "PASSWD", "STORE"};
 	private static final String ALL_ATTRIBUTES = AbstractToken.toSqlIdentifierList(ATTRIBUTES);
@@ -48,7 +49,7 @@ CREATE TABLE "SYSTEM"."CONNECTION"
 
 	public Connection(String name, String url, String user, String passwd, EnumStore store) {
 		super(++LAST_OID, name);
-		this.url = url;
+		setUrl(url);
 		this.user = user;
 		this.passwd = passwd;
 		this.store = store;
@@ -64,6 +65,9 @@ CREATE TABLE "SYSTEM"."CONNECTION"
 	}
 
 	public void setUrl(String url) {
+		if(url.startsWith(JDBC_PREFIX)){
+			url = url.substring(JDBC_PREFIX.length()+1);
+		}
 		this.url = url;
 	}
 
