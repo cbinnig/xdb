@@ -50,16 +50,28 @@ public class QueryTrackerNode {
 		plan.assignTracker(this);
 		
 		Error err = plan.deployPlan();
-		if(err.isError())
+		if(err.isError()){
+			plan.cleanPlanOnError();
 			return err;
+		}
 		
 		err = plan.executePlan();
-		if(err.isError())
+		if(err.isError()){
+			plan.cleanPlanOnError();
 			return err;
+		}
 		
 		err = masterTrackerClient.noticeFreeSlots(plan.getSlots());
-		if(err.isError())
+		if(err.isError()){
+			plan.cleanPlanOnError();
 			return err;
+		}
+		
+		err = plan.cleanPlan();
+		if(err.isError()){
+			plan.cleanPlanOnError();
+			return err;
+		}
 		
 		return err;
 	}

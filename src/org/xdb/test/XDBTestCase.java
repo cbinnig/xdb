@@ -19,7 +19,6 @@ public class XDBTestCase extends TestCase {
 	
 	@Override
 	public void setUp(){
-		//TODO: truncate tables in xdb_temp on local node
 		assertNoError(CompileServer.deleteCatalog());
 
 		try {

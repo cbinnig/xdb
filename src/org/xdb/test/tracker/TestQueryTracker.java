@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.xdb.execute.operators.OperatorDesc;
-import org.xdb.server.QueryTrackerServer;
 import org.xdb.test.QueryTrackerServerTestCase;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
@@ -24,8 +23,6 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 
 	@Test
 	public void testPlan1Op() throws Exception {
-		final QueryTrackerServer qServer = new QueryTrackerServer();
-		qServer.startServer();
 		final QueryTrackerNode qTracker = new QueryTrackerNode();
 		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);
@@ -47,9 +44,17 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		qPlan.addOperator(op1);
 
 		// deploy, execute and clean plan
-		this.assertNoError(qPlan.deployPlan());
+		org.xdb.error.Error err = qPlan.deployPlan();
+		if(err.isError())
+			qPlan.cleanPlanOnError();
+		this.assertNoError(err);
+		
 		final Map<Identifier, OperatorDesc> currentDeployment = qPlan.getCurrentDeployment();
-		this.assertNoError(qPlan.executePlan());
+		err = qPlan.executePlan();
+		if(err.isError())
+			qPlan.cleanPlanOnError();
+		this.assertNoError(err);
+		
 
 		// read result
 		Identifier deployOp1Id = currentDeployment.get(op1.getOperatorId()).getOperatorID();
@@ -63,14 +68,11 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 
 		// verify results
 		assertEquals(5, actualCnt);
-		qServer.stopServer();
 	}
 
 	
 	@Test
 	public void testPlan2Ops() throws Exception {
-		final QueryTrackerServer qServer = new QueryTrackerServer();
-		qServer.startServer();
 		final QueryTrackerNode qTracker = new QueryTrackerNode();
 		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);
@@ -97,7 +99,7 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 				"<R3> (R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152))");
 
 		final StringTemplate q2DML = new StringTemplate(
-				"INSERT INTO <R3> SELECT * FROM <R2> ");
+				"INSERT INTO <R3> <R2> ");
 
 		op2.addInTable("R2", r2DDL);
 		op2.addExecuteSQL(q2DML);
@@ -115,9 +117,16 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		op2.setInTableSource("R2", new TableDesc("R1", op1.getOperatorId()));
 
 		// deploy and execute plan
-		this.assertNoError(qPlan.deployPlan());
+		org.xdb.error.Error err = qPlan.deployPlan();
+		if(err.isError())
+			qPlan.cleanPlanOnError();
+		this.assertNoError(err);
+		
 		final Map<Identifier, OperatorDesc> currentDeployment = qPlan.getCurrentDeployment();
-		this.assertNoError(qPlan.executePlan());
+		err = qPlan.executePlan();
+		if(err.isError())
+			qPlan.cleanPlanOnError();
+		this.assertNoError(err);
 
 		// read result
 		Identifier deployOp2Id = currentDeployment.get(op2.getOperatorId()).getOperatorID();
@@ -133,6 +142,5 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		// verify results
 		//		assertEquals(5, actualCnt);
 		assertEquals(10, actualCnt); // TODO Warum 10?
-		qServer.stopServer();
 	}
 }

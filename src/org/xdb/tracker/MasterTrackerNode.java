@@ -97,6 +97,8 @@ public class MasterTrackerNode {
 		return err;
 	}
 
+	//methods
+	
 	/**
 	 * Transform a CompilePlan to into multiple QueryTrackerPlans
 	 * 
@@ -129,33 +131,17 @@ public class MasterTrackerNode {
 		return null;
 	}
 
-	private Error executeOnQueryTracker(final String tracker,
-			final QueryTrackerPlan plan) {
-
-		runningPlans.put(plan.getPlanId(), plan);
-		planAssignment.put(plan.getPlanId(), tracker);
-
-		final QueryTrackerClient client = this.queryTrackerClients.get(tracker);
-
-		client.executePlan(plan);
-
-		return new Error();
-	}
-
 	public Error executePlan(final CompilePlan plan) {
 		logger.log(Level.INFO, "Got new compileplan: " + plan);
 
 		final QueryTrackerPlan qtp = generateQueryTrackerPlan(plan);
-		if (this.err.isError()) {
+		if (this.err.isError()) 
 			return err;
-		}
 
 		return executePlan(qtp);
 	}
 
 	public Error executePlan(final QueryTrackerPlan plan) {
-		// possibly optimization: execute directly if possible
-		final Error err = new Error();
 
 		if (plan == null) {
 			String[] args = {"No query tracker plan provided"};
@@ -169,9 +155,23 @@ public class MasterTrackerNode {
 			String[] args = {"No query tracker slot provided"};
 			return new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, args);
 		}
-		this.executeOnQueryTracker(slot, plan);
+		this.err = this.executeOnQueryTracker(slot, plan);
 
-		return err;
+		return this.err;
+	}
+	
+
+	private Error executeOnQueryTracker(final String tracker,
+			final QueryTrackerPlan plan) {
+
+		runningPlans.put(plan.getPlanId(), plan);
+		planAssignment.put(plan.getPlanId(), tracker);
+
+		final QueryTrackerClient client = this.queryTrackerClients.get(tracker);
+
+		this.err = client.executePlan(plan);
+		
+		return this.err;
 	}
 
 	/**

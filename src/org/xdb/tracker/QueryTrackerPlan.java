@@ -28,6 +28,7 @@ import com.oy.shared.lm.graph.GraphFactory;
 import com.oy.shared.lm.graph.GraphNode;
 import com.oy.shared.lm.out.GRAPHtoDOTtoGIF;
 
+//TODO: Rework wish list in request slots and remove method call to getNodeOperators();
 public class QueryTrackerPlan implements Serializable {
 
 	private static final long serialVersionUID = -5521482252707107847L;
@@ -84,7 +85,7 @@ public class QueryTrackerPlan implements Serializable {
 		return currentDeployment;
 	}
 
-	public Map<Identifier, List<String>> getNumNodeOperators() {
+	public Map<Identifier, List<String>> getNodeOperators() {
 		return nodeOperators;
 	}
 
@@ -154,7 +155,7 @@ public class QueryTrackerPlan implements Serializable {
 	 * @param currentDeployment
 	 */
 	public Error cleanPlan() {
-		// close operators which are not root operators
+		// close operators which are root operators
 		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
 				.entrySet()) {
 			final AbstractTrackerOperator planOp = operators
@@ -170,6 +171,21 @@ public class QueryTrackerPlan implements Serializable {
 		}
 		return err;
 	}
+	
+	/**
+	 * Closes all operators and ignores errors
+	 * @return
+	 */
+	public Error cleanPlanOnError() {
+		// close all operators 
+		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
+				.entrySet()) {
+			final OperatorDesc operDesc = entry.getValue();
+			computeClient.closeOperator(operDesc);
+		}
+		return err;
+	}
+	
 
 	/**
 	 * Executes a plan using a given deployment description
@@ -256,7 +272,7 @@ public class QueryTrackerPlan implements Serializable {
 			final AbstractTrackerOperator op = operators.get(leaf);
 			// Gather best Connection String
 			final String connectionString = resourceScheduler
-					.getBestConnection(getNumNodeOperators().get(
+					.getBestConnection(getNodeOperators().get(
 							op.getOperatorId()));
 			final MutableInteger numNodes = requiredSlots.get(connectionString);
 			if (numNodes == null) {
@@ -326,7 +342,7 @@ public class QueryTrackerPlan implements Serializable {
 		}
 
 		// identify best used node
-		final Collection<String> bestNodes = getNumNodeOperators().get(operId);
+		final Collection<String> bestNodes = getNodeOperators().get(operId);
 		String usedNode = null;
 		if (bestNodes != null) {
 			for (final String bestNode : bestNodes) { // Choose one of the

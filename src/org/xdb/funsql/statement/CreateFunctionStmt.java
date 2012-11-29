@@ -153,7 +153,6 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		}
 
 		// step 3: build compile plan from select plans
-		// TODO: not yet correct
 		for (TokenAssignment ta : this.tAssignments) {
 			SelectStmt stmt = ta.getSelStmt();
 			CompilePlan stmtPlan = stmt.getPlan();

@@ -46,6 +46,12 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 	 * @param op
 	 */
 	private void doSplit(AbstractCompileOperator op){
+		/*
+		 * Split plan if
+		 * - an operator has no parent (i.e, it is a root)
+		 * - an operator has > 1 parents 
+		 * - an operator is marked to be materialized
+		 */
 		if(op.getResult(0).isMaterialize() 
 				|| op.getParents().size()!=1){
 			if(!this.splitOps.contains(op))

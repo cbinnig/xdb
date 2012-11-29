@@ -5,10 +5,13 @@ import junit.framework.Assert;
 import org.xdb.server.CompileServer;
 import org.xdb.server.ComputeServer;
 import org.xdb.server.MasterTrackerServer;
+import org.xdb.server.QueryTrackerServer;
 
 public class QueryTrackerServerTestCase extends TestCase {
 	private MasterTrackerServer mTrackerServer;
 	private ComputeServer computeServer;
+	private QueryTrackerServer qServer;
+	
 	
 	public QueryTrackerServerTestCase() {
 		super();
@@ -16,13 +19,16 @@ public class QueryTrackerServerTestCase extends TestCase {
 	
 	@Override
 	public void setUp(){
-		//TODO: truncate tables in xdb_temp on local node
 		assertNoError(CompileServer.deleteCatalog());
 
 		try {
 			mTrackerServer = new MasterTrackerServer();
 			mTrackerServer.startServer();
 			assertNoError(mTrackerServer.getError());
+			
+			qServer = new QueryTrackerServer();
+			qServer.startServer();
+			assertNoError(qServer.getError());
 			
 			computeServer = new ComputeServer();
 			computeServer.startServer();
@@ -35,6 +41,7 @@ public class QueryTrackerServerTestCase extends TestCase {
 	@Override
 	public void tearDown(){
 		mTrackerServer.stopServer();
+		qServer.stopServer();
 		computeServer.stopServer();
 	}
 }
