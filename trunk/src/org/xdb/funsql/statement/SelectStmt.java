@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Vector;
 
+import org.xdb.client.MasterTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
@@ -713,8 +714,11 @@ public class SelectStmt extends AbstractServerStmt {
 
 	@Override
 	public Error execute() {
-		String[] args = { "SELECT statement can not be executed!" };
-		Error err = new Error(EnumError.COMPILER_GENERIC, args);
-		return err;
+		MasterTrackerClient client = new MasterTrackerClient();
+		Error err = client.executePlan(this.plan);
+		if(err.isError())
+			return err;
+		
+		return new Error();
 	}
 }

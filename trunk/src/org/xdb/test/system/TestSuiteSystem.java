@@ -9,6 +9,7 @@ public class TestSuiteSystem extends TestSuite
   {
     TestSuite suite = new TestSuite( TestSuiteSystem.class.getPackage().getName() );
     suite.addTestSuite( TestCallFunctionSQL.class );
+    suite.addTestSuite( TestSelectSQL.class );
     return suite;
   }
 }
