@@ -1,18 +1,29 @@
-package org.xdb.test.system;
+package org.xdb.test.tracker;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
-import org.xdb.funsql.statement.CallFunctionStmt;
 import org.xdb.funsql.statement.CreateFunctionStmt;
-import org.xdb.test.XDBTestCase;
+import org.xdb.test.CompileServerTestCase;
+import org.xdb.tracker.MasterTrackerNode;
+import org.xdb.tracker.QueryTrackerPlan;
 
-public class TestCallFunctionSQL extends XDBTestCase {
-
+public class TestSQLPlanTranslation extends CompileServerTestCase {
+	
+	private MasterTrackerNode mTracker;
+	@Override
+	/**
+	 * Setup common statements (connect, drop, ...)
+	 */
+	public void setUp() {
+		super.setUp();
+		this.mTracker = new MasterTrackerNode();
+	}
+	
 	@Test
-	public void testSimpleCall() {
+	public void testSimpleCreate() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
 		compiler.doOptimize(true);
 		
@@ -23,7 +34,7 @@ public class TestCallFunctionSQL extends XDBTestCase {
 			this.execute(stmt);
 
 		String createConnSql = "CREATE CONNECTION \"testConnection\" "
-				+ "URL 'mysql://127.0.0.1/xdb_test' " + "USER 'xroot' "
+				+ "URL 'jdbc:mysql://127.0.0.1/xdb_tmp' " + "USER 'xroot' "
 				+ "PASSWORD 'xroot' " + "STORE 'XDB' ";
 
 		stmt = compiler.compile(createConnSql);
@@ -74,11 +85,13 @@ public class TestCallFunctionSQL extends XDBTestCase {
 					+ "WHERE R1.A1=1; \n"
 				+ "END; ");
 		this.assertNoError(compiler.getLastError());
-		fStmt.getPlan().traceGraph(this.getClass().getName());
+		fStmt.getPlan().traceGraph(this.getClass().getName()+"_Compiler");
 		this.assertNoError(fStmt.execute());
 		
-		CallFunctionStmt callFStmt = (CallFunctionStmt) compiler.compile("CALL FUNCTION f1;");
-		this.assertNoError(compiler.getLastError());
-		this.assertNoError(callFStmt.execute());
+		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(fStmt.getPlan());
+		Assert.assertNotNull(qPlan);
+		qPlan.traceGraph(this.getClass().getName()+"_Tracker");
+		
+		assertEquals(qPlan.getOperators().size(), 3);
 	}
 }

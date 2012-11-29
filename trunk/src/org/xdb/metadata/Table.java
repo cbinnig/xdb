@@ -2,6 +2,7 @@ package org.xdb.metadata;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
@@ -199,5 +200,26 @@ public class Table extends AbstractDatabaseObject {
 				return lastError;
 		}
 		return Error.NO_ERROR;
+	}
+	
+	public String toSqlString() {
+		StringBuffer tableBuffer = new StringBuffer(AbstractToken.LBRACE);
+		
+		Iterator<Attribute> attIter = this.attributes.values().iterator();
+		while(attIter.hasNext()){
+			Attribute att = attIter.next();
+			tableBuffer.append(att.getName());
+			tableBuffer.append(AbstractToken.BLANK);
+			tableBuffer.append(att.getDataType().toString());
+			
+			if(attIter.hasNext()){
+				tableBuffer.append(AbstractToken.COMMA);
+				tableBuffer.append(AbstractToken.BLANK);
+			}
+		}
+		
+		tableBuffer.append(AbstractToken.RBRACE);
+		
+		return tableBuffer.toString();
 	}
 }

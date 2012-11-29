@@ -128,10 +128,17 @@ public class CodeGenerator {
 		// add input table DDL statements and input table descriptions
 		Set<AbstractCompileOperator> inputCompileOps = getInputOps(compileOp);
 		for (AbstractCompileOperator inputCompileOp : inputCompileOps) {
-			String inDDL = generateResultDDL(inputCompileOp);
+			TableOperator inputTableOp = null;
+			String inDDL = null;
 			String inTable = inputCompileOp.getOperatorId().clone().toString();
+			
 			if (inputCompileOp.getType().equals(EnumOperator.TABLE)) {
+				inputTableOp = (TableOperator) inputCompileOp;
 				inTable = TableOperator.TABLE_PREFIX + inTable;
+				inDDL = inputTableOp.getTable().toSqlString();
+			}
+			else{
+				inDDL = generateResultDDL(inputCompileOp);
 			}
 			
 			args.put(SQL1, inDDL);
@@ -141,7 +148,6 @@ public class CodeGenerator {
 			trackerOp.addInTable(inTable, new StringTemplate(inDDL));
 
 			if (inputCompileOp.getType().equals(EnumOperator.TABLE)) { // table
-				TableOperator inputTableOp = (TableOperator) inputCompileOp;
 				URI connURI = URI.create(inputTableOp.getConnection().getUrl());
 				TableDesc tableDesc = new TableDesc(inputTableOp.getTable()
 						.getSourceName(), connURI);

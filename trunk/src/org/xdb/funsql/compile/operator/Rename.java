@@ -28,7 +28,7 @@ public class Rename extends AbstractUnaryOperator {
 		
 		//get all table attributes and match them in order
 		final Vector<String> attrs = new Vector<String>();
-		for(TokenAttribute attr : this.results.get(0).getAttributes()) {
+		for(TokenAttribute attr : this.getChild().getResult(0).getAttributes()) {
 			attrs.add(attr.getName().toString());
 		}
 		vars.put("RESULTS", SetUtils.buildAliasString(attrs, getResultAttributes()));
