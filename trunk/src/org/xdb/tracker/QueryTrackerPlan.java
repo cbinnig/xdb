@@ -6,8 +6,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -57,7 +55,6 @@ public class QueryTrackerPlan implements Serializable {
 	private final HashSet<Identifier> roots = new HashSet<Identifier>();
 	private final HashSet<Identifier> leaves = new HashSet<Identifier>();
 	private final HashMap<String, MutableInteger> slots = new HashMap<String, MutableInteger>();
-	private final HashMap<Identifier, List<String>> nodeOperators = new HashMap<Identifier, List<String>>();
 
 	// deployment info
 	private HashMap<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
@@ -71,22 +68,20 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	// getter and setter
-	public void addNodeOperator(final String node, final Identifier opId) {
-		if (!nodeOperators.containsKey(opId)) {
-			final List<String> ops = new LinkedList<String>();
-			ops.add(node);
-			nodeOperators.put(opId, ops);
-		} else {
-			nodeOperators.get(opId).add(node);
-		}
+	public Set<Identifier> getLeaves() {
+		return Collections.unmodifiableSet(leaves);
 	}
 
+	public Map<Identifier, AbstractTrackerOperator> getOperatorMapping() {
+		return Collections.unmodifiableMap(operators);
+	}
+	
+	public HashMap<String, MutableInteger> getSlots() {
+		return slots;
+	}
+	
 	public HashMap<Identifier, OperatorDesc> getCurrentDeployment() {
 		return currentDeployment;
-	}
-
-	public Map<Identifier, List<String>> getNodeOperators() {
-		return nodeOperators;
 	}
 
 	public Identifier getPlanId() {
@@ -171,13 +166,14 @@ public class QueryTrackerPlan implements Serializable {
 		}
 		return err;
 	}
-	
+
 	/**
 	 * Closes all operators and ignores errors
+	 * 
 	 * @return
 	 */
 	public Error cleanPlanOnError() {
-		// close all operators 
+		// close all operators
 		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
 				.entrySet()) {
 			final OperatorDesc operDesc = entry.getValue();
@@ -185,7 +181,6 @@ public class QueryTrackerPlan implements Serializable {
 		}
 		return err;
 	}
-	
 
 	/**
 	 * Executes a plan using a given deployment description
@@ -221,7 +216,7 @@ public class QueryTrackerPlan implements Serializable {
 				}
 			}
 		}
-		
+
 		return err;
 	}
 
@@ -232,15 +227,15 @@ public class QueryTrackerPlan implements Serializable {
 	 */
 	public Error deployPlan() {
 
-		//request compute slots
+		// request compute slots
 		requestSlots();
-		if(err.isError())
+		if (err.isError())
 			return this.err;
 
 		// prepare deployment
-		for (final Identifier leave : leaves) {
-			prepareDeployment(leave,  slots);
-		}
+		prepareDeployment();
+		if (err.isError())
+			return this.err;
 
 		// distribute plan to compute nodes
 		distributePlan();
@@ -249,7 +244,7 @@ public class QueryTrackerPlan implements Serializable {
 				computeClient.closeOperator(deployOperDesc);
 			}
 			currentDeployment.clear();
-			
+
 			return err;
 		}
 
@@ -263,37 +258,80 @@ public class QueryTrackerPlan implements Serializable {
 		final ResourceScheduler resourceScheduler = new ResourceScheduler(this);
 		final MutableInteger numSlots = new MutableInteger(
 				resourceScheduler.calcMaxParallelization());
-
 		final Map<String, MutableInteger> requiredSlots = new HashMap<String, MutableInteger>();
-		for (final Identifier leaf : leaves) {
-			if (numSlots.intValue() == 0) {
-				break;
-			}
-			final AbstractTrackerOperator op = operators.get(leaf);
-			// Gather best Connection String
-			final String connectionString = resourceScheduler
-					.getBestConnection(getNodeOperators().get(
-							op.getOperatorId()));
-			final MutableInteger numNodes = requiredSlots.get(connectionString);
-			if (numNodes == null) {
-				requiredSlots.put(connectionString, new MutableInteger(1));
-			} else {
-				numNodes.inc();
-			}
-			numSlots.dec();
-		}
+
 		if (numSlots.intValue() > 0) {
 			requiredSlots.put(ResourceScheduler.RANDOM, numSlots);
 		}
+
 		final Tuple<Map<String, MutableInteger>, Error> tuple = tracker
 				.requestComputeSlots(requiredSlots);
+
 		final Map<String, MutableInteger> allocatedSlots = tuple.getObject1();
 		err = tuple.getObject2();
 		slots.putAll(allocatedSlots);
 	}
+	
+	/**
+	 * Prepare deployment of plan by assigning operators
+	 * to compute nodes 
+	 */
+	private void prepareDeployment(){
+		for (final Identifier leave : leaves) {
+			prepareDeployment(leave);
+			if (err.isError())
+				return;
+		}
+	}
+	
+
 
 	/**
-	 * Deploys plan using a given deployment description
+	 * Prepares deployment for a given operator in plan
+	 * 
+	 * @param operId
+	 * @param currentDeployment
+	 */
+	private void prepareDeployment(final Identifier operId) {
+
+		// operator already deployed
+		if (currentDeployment.containsKey(operId)) {
+			return;
+		}
+
+		// identify best used node
+		String usedNode = null;
+
+		// TODO: Get next best ComputeNode
+		int maxSlots = 0;
+		for (final Entry<String, MutableInteger> availableNode : slots
+				.entrySet()) {
+			if (maxSlots < availableNode.getValue().intValue()) {
+				usedNode = availableNode.getKey();
+				maxSlots = availableNode.getValue().intValue();
+			}
+		}
+		final MutableInteger numOfFreeNodes = slots.get(usedNode);
+		numOfFreeNodes.dec();
+
+		// generate deployment description from plan operator
+		final Identifier deployOperId = operId.clone();
+		deployOperId.append(lastDeployOperId++);
+		final OperatorDesc deployOperDesc = new OperatorDesc(deployOperId,
+				usedNode);
+
+		// add to current deployment description
+		currentDeployment.put(operId, deployOperDesc);
+
+		// prepare deployment of consumers
+		for (final Identifier consumerId : consumers.get(operId)) {
+			prepareDeployment(consumerId);
+		}
+	}
+
+
+	/**
+	 * Distributes plan using a given deployment description
 	 * 
 	 * @param currentDeployment
 	 */
@@ -322,75 +360,9 @@ public class QueryTrackerPlan implements Serializable {
 			// deploy operator
 			err = computeClient.openOperator(deployOperDesc.getOperatorNode(),
 					deployOper);
-			if (err.isError()) 
+			if (err.isError())
 				return;
 		}
-	}
-
-	/**
-	 * Prepares deployment for a given operator in plan
-	 * 
-	 * @param operId
-	 * @param currentDeployment
-	 */
-	private void prepareDeployment(final Identifier operId,
-			final Map<String, MutableInteger> allocatedSlots) {
-
-		// operator already deployed
-		if (currentDeployment.containsKey(operId)) {
-			return;
-		}
-
-		// identify best used node
-		final Collection<String> bestNodes = getNodeOperators().get(operId);
-		String usedNode = null;
-		if (bestNodes != null) {
-			for (final String bestNode : bestNodes) { // Choose one of the
-														// possible connection
-														// strings
-				final MutableInteger numOfFreeNodes = allocatedSlots
-						.get(bestNode);
-				if (numOfFreeNodes != null && numOfFreeNodes.intValue() > 0) {
-					numOfFreeNodes.dec();
-					usedNode = bestNode;
-				}
-			}
-		}
-		if (usedNode == null) {
-			// TODO: Get next best ComputeNode
-			int maxSlots = 0;
-			for (final Entry<String, MutableInteger> availableNode : allocatedSlots
-					.entrySet()) {
-				if (maxSlots < availableNode.getValue().intValue()) {
-					usedNode = availableNode.getKey();
-					maxSlots = availableNode.getValue().intValue();
-				}
-			}
-			final MutableInteger numOfFreeNodes = allocatedSlots.get(usedNode);
-			numOfFreeNodes.dec();
-		}
-
-		// generate deployment description from plan operator
-		final Identifier deployOperId = operId.clone();
-		deployOperId.append(lastDeployOperId++);
-		final OperatorDesc deployOperDesc = new OperatorDesc(deployOperId,
-				usedNode);
-
-		// add to current deployment description
-		currentDeployment.put(operId, deployOperDesc);
-
-		// prepare deployment of consumers
-		for (final Identifier consumerId : consumers.get(operId)) {
-			prepareDeployment(consumerId, allocatedSlots);
-		}
-	}
-
-	public Set<Identifier> getLeaves() {
-		return Collections.unmodifiableSet(leaves);
-	}
-
-	public Map<Identifier, AbstractTrackerOperator> getOperatorMapping() {
-		return Collections.unmodifiableMap(operators);
 	}
 
 	/**
@@ -438,9 +410,4 @@ public class QueryTrackerPlan implements Serializable {
 		}
 		return error;
 	}
-
-	public HashMap<String, MutableInteger> getSlots() {
-		return slots;
-	}
-
 }
