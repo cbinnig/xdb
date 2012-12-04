@@ -27,10 +27,10 @@ public class MasterTrackerNode {
 	// query tracker slots
 	private final List<String> queryTrackerSlots = Collections
 			.synchronizedList(new Vector<String>());
-	
+
 	private int lastQueryTrackerSlot = 0;
 
-	// query tracker clients
+	// query tracker clients for each registered query tracker
 	private final Map<String, QueryTrackerClient> queryTrackerClients = new HashMap<String, QueryTrackerClient>();
 
 	// running plans by plan identifier
@@ -42,13 +42,17 @@ public class MasterTrackerNode {
 	// logger
 	private final Logger logger;
 	private Error err = new Error();
-	
-	//constructor
+
+	// constructor
 	public MasterTrackerNode() {
 		logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
-	//getters and setters
+	// getters and setters
+	public Error getLastError(){
+		return this.err;
+	}
+	
 	/**
 	 * Grab number of running plans.
 	 */
@@ -77,28 +81,27 @@ public class MasterTrackerNode {
 	 * @return number of free slots
 	 */
 	public int getNoFreeQueryTrackerSlots() {
-		
-
 		return this.queryTrackerSlots.size();
 	}
 
+	// methods
 	/**
-	 * Register new compute node for management.
+	 * Generates query tracker plan from compile plan and executes query tracker
+	 * plan using a query tracker
 	 * 
-	 * @param desc
-	 *            ComputeNodeDesc
+	 * @param plan
+	 * @return
 	 */
-	public Error registerComputeNode(final ComputeNodeDesc desc) {
-		final Error err = new Error();
+	public Error executePlan(final CompilePlan plan) {
+		logger.log(Level.INFO, "Got new compileplan: " + plan);
 
-		logger.log(Level.INFO, "Added compute slots: " + desc);
-		computeSlots.put(desc.getUrl(), desc.getSlots());
+		final QueryTrackerPlan qtp = generateQueryTrackerPlan(plan);
+		if (this.err.isError())
+			return err;
 
-		return err;
+		return executePlan(qtp);
 	}
 
-	//methods
-	
 	/**
 	 * Transform a CompilePlan to into multiple QueryTrackerPlans
 	 * 
@@ -109,58 +112,61 @@ public class MasterTrackerNode {
 			final CompilePlan compilePlan) {
 		CodeGenerator codeGen = new CodeGenerator(compilePlan);
 		err = codeGen.generate();
-		if(err.isError())
+		if (err.isError())
 			return null;
-		
+
 		return codeGen.getQueryTrackerPlan();
 	}
 
 	/**
-	 * Tries to find next free query tracker slot.
+	 * Determines query tracker and hands over query tracker plan for execution
 	 * 
-	 * @return tracker url, if found - else null
+	 * @param plan
+	 * @return
 	 */
-	private String getFreeQueryTrackerSlot() {
-		if(this.queryTrackerSlots.size() > 0){
-			this.lastQueryTrackerSlot++;
-			this.lastQueryTrackerSlot = (this.lastQueryTrackerSlot %  this.queryTrackerSlots.size());
-			
-			return this.queryTrackerSlots.get(this.lastQueryTrackerSlot);
-		}
-
-		return null;
-	}
-
-	public Error executePlan(final CompilePlan plan) {
-		logger.log(Level.INFO, "Got new compileplan: " + plan);
-
-		final QueryTrackerPlan qtp = generateQueryTrackerPlan(plan);
-		if (this.err.isError()) 
-			return err;
-
-		return executePlan(qtp);
-	}
-
 	public Error executePlan(final QueryTrackerPlan plan) {
 
 		if (plan == null) {
-			String[] args = {"No query tracker plan provided"};
+			String[] args = { "No query tracker plan provided" };
 			return new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, args);
 		}
 
 		logger.log(Level.INFO, "Queued new plan for execution: " + plan);
 
 		final String slot = getFreeQueryTrackerSlot();
-		if(slot==null){
-			String[] args = {"No query tracker slot provided"};
+		if (slot == null) {
+			String[] args = { "No query tracker slot provided" };
 			return new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, args);
 		}
 		this.err = this.executeOnQueryTracker(slot, plan);
 
 		return this.err;
 	}
-	
 
+	/**
+	 * Determines next query tracker using a round-robin scheme
+	 * 
+	 * @return tracker URL if found - else null
+	 */
+	private String getFreeQueryTrackerSlot() {
+		if (this.queryTrackerSlots.size() > 0) {
+			this.lastQueryTrackerSlot++;
+			this.lastQueryTrackerSlot = (this.lastQueryTrackerSlot % this.queryTrackerSlots
+					.size());
+
+			return this.queryTrackerSlots.get(this.lastQueryTrackerSlot);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Executes query tracker plan on given query tracker
+	 * 
+	 * @param tracker
+	 * @param plan
+	 * @return
+	 */
 	private Error executeOnQueryTracker(final String tracker,
 			final QueryTrackerPlan plan) {
 
@@ -170,31 +176,24 @@ public class MasterTrackerNode {
 		final QueryTrackerClient client = this.queryTrackerClients.get(tracker);
 
 		this.err = client.executePlan(plan);
-		
+
 		return this.err;
 	}
 
 	/**
-	 * Register a new QueryTrackerNode
+	 * Returns a list of compute slots for a given wish-list of compute-slots
+	 * (nodes)
 	 * 
-	 * @param desc
-	 * @return
+	 * @param requiredSlots
+	 *            wish-list of compute-slots
+	 * @return assigned compute-slots
 	 */
-	public Error registerQueryTrackerNode(final QueryTrackerNodeDesc desc) {
-		final Error err = new Error();
-
-		logger.log(Level.INFO, "Added QueryTrackerNode: " + desc);
-		queryTrackerSlots.add(desc.getUrl());
-		this.queryTrackerClients.put(desc.getUrl(), new QueryTrackerClient(desc.getUrl()));
-		
-		return err;
-	}
-
 	public Map<String, MutableInteger> getComputeSlots(
 			final Map<String, MutableInteger> requiredSlots) {
+
 		final HashMap<String, MutableInteger> allocatedSlots = new HashMap<String, MutableInteger>();
 
-		// First handle allocatable Wishlist-Slots
+		// First handle wish list-slots
 		for (final Entry<String, MutableInteger> reqSlot : requiredSlots
 				.entrySet()) {
 			if (computeSlots.containsKey(reqSlot.getKey())) {
@@ -214,7 +213,8 @@ public class MasterTrackerNode {
 			}
 		}
 
-		// Now return random slots that are not on the wishlist
+		// Now return random slots that are not available + satisfy requests for
+		// random slots
 		for (final Entry<String, MutableInteger> reqSlot : requiredSlots
 				.entrySet()) {
 			final MutableInteger required = reqSlot.getValue();
@@ -247,7 +247,52 @@ public class MasterTrackerNode {
 			}
 		}
 
+		//check if request could be satisfied
+		for (final Entry<String, MutableInteger> reqSlot : requiredSlots
+				.entrySet()) {
+			final MutableInteger required = reqSlot.getValue();
+
+			if (required.intValue() > 0) {
+				String[] args = { "Not enough free compute slots available" };
+				this.err = new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC,
+						args);
+				break;
+			}
+		}
+
 		return allocatedSlots;
+	}
+
+	/**
+	 * Register a new QueryTrackerNode
+	 * 
+	 * @param desc
+	 * @return
+	 */
+	public Error registerQueryTrackerNode(final QueryTrackerNodeDesc desc) {
+		final Error err = new Error();
+
+		logger.log(Level.INFO, "Added QueryTrackerNode: " + desc);
+		queryTrackerSlots.add(desc.getUrl());
+		this.queryTrackerClients.put(desc.getUrl(),
+				new QueryTrackerClient(desc.getUrl()));
+
+		return err;
+	}
+
+	/**
+	 * Register new compute node for management.
+	 * 
+	 * @param desc
+	 *            ComputeNodeDesc
+	 */
+	public Error registerComputeNode(final ComputeNodeDesc desc) {
+		final Error err = new Error();
+
+		logger.log(Level.INFO, "Added compute slots: " + desc);
+		computeSlots.put(desc.getUrl(), desc.getSlots());
+
+		return err;
 	}
 
 	/**

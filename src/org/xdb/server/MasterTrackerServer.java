@@ -67,12 +67,14 @@ public class MasterTrackerServer extends AbstractServer {
 					final Map<String, MutableInteger> requiredNodes = (Map<String, MutableInteger>) in
 							.readObject();
 					out.writeObject(tracker.getComputeSlots(requiredNodes));
+					err = tracker.getLastError();
 					break;
 				case CMD_NOTICE_FREE_COMPUTE_NODES:
 					@SuppressWarnings("unchecked")
 					final Map<String, MutableInteger> freeNodes = (Map<String, MutableInteger>) in
 							.readObject();
 					tracker.addFreeComputeSlots(freeNodes);
+					err = tracker.getLastError();
 					break;
 				}
 			} catch (final Exception e) {
