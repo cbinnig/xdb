@@ -17,6 +17,7 @@ import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
+import org.xdb.tracker.scheduler.AbstractResourceScheduler;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
@@ -255,13 +256,13 @@ public class QueryTrackerPlan implements Serializable {
 	 * Requests computation slots from master tracker
 	 */
 	private void requestSlots() {
-		final ResourceScheduler resourceScheduler = new ResourceScheduler(this);
+		final AbstractResourceScheduler resourceScheduler = AbstractResourceScheduler.createScheduler(this);
 		final MutableInteger numSlots = new MutableInteger(
 				resourceScheduler.calcMaxParallelization());
 		final Map<String, MutableInteger> requiredSlots = new HashMap<String, MutableInteger>();
 
 		if (numSlots.intValue() > 0) {
-			requiredSlots.put(ResourceScheduler.RANDOM, numSlots);
+			requiredSlots.put(AbstractResourceScheduler.RANDOM, numSlots);
 		}
 
 		final Tuple<Map<String, MutableInteger>, Error> tuple = tracker

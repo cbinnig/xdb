@@ -17,7 +17,7 @@ public class ClientStmt implements Serializable {
 	}
 	
 	// getter and setter
-	public void setParameter(int idx, Object param){
+	public void addParameter(int idx, Object param){
 		this.params.add(idx, param);
 	}
 
