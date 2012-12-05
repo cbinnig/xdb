@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import org.xdb.tracker.scheduler.EnumResourceScheduler;
 import org.xdb.utils.Identifier;
 
 /**
@@ -50,6 +51,7 @@ public class Config implements Serializable {
 	public static int QUERYTRACKER_PORT = 55558;
 	public static int QUERYTRACKER_SLOTS = 32;
 	public static String QUERYTRACKER_URL = "127.0.0.1";
+	public static EnumResourceScheduler RESOURCE_SCHEDULER = EnumResourceScheduler.SIMPLE_SCHEDULER;
 
 	public static String LOG_FILE = "./log/xdb.log";
 	public static Level LOG_LEVEL = Level.SEVERE;
