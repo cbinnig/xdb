@@ -4,7 +4,7 @@ options
 {
     backtrack=true;
     memoize=true;
-}
+} 
 
 tokens {
     EQUAL1              =   '=';
@@ -48,6 +48,12 @@ tokens {
     COLON               =   ':';
 }
 
+/*@rulecatch {
+    catch (RecognitionException e) {
+        throw e;
+    }
+}*/
+
 @parser::header { 
 package org.xdb.funsql.compile.antlr; 
 
@@ -57,9 +63,28 @@ import org.xdb.funsql.compile.tokens.*;
 import org.xdb.funsql.statement.*;
 }
 
+/*@parser::members {
+  @Override
+  protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow) throws RecognitionException {
+    throw new MismatchedTokenException(ttype, input);
+  }
+
+  @Override
+  public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow) throws RecognitionException {
+    throw e;
+  }
+}*/
+
 @lexer::header { 
 package org.xdb.funsql.compile.antlr;
 }
+
+/*@lexer::members {
+    @Override
+    public void reportError(RecognitionException e) {
+        throw new RuntimeException(e);
+    }
+}*/  
 
 /*------------------------------------------------------------------
  * PARSER RULES
@@ -422,7 +447,7 @@ selectStatement returns [SelectStmt stmt]
                 COMMA
                 groupExpr2=abstractExpression
                 {
-                	$stmt.addSelExpression($groupExpr2.expression);
+                	$stmt.addGroupExpression($groupExpr2.expression);
                 	++i;
                 }
                 )*
@@ -656,7 +681,7 @@ aggregationExpression returns [AggregationExpression expression]
         (
 		agg1=FUNCTION_AGGREGATION
 		{
-			$expression.setAggregation($agg1.text);
+			$expression.setAggregation($agg1.text.toUpperCase());
 		}
 		LPAREN 
 		expr1=abstractExpression {
@@ -837,6 +862,14 @@ tokenDataType returns [TokenDataType dataType]
                 TYPE_INTEGER {
                 	$dataType = new TokenDataType($TYPE_INTEGER.text);
                 }
+                |
+                TYPE_DECIMAL {
+                	$dataType = new TokenDataType($TYPE_DECIMAL.text);
+                }
+                |
+                TYPE_DATE {
+                	$dataType = new TokenDataType($TYPE_DATE.text);
+                }
         )
         ;
         
@@ -909,8 +942,10 @@ tokenIntegerLiteral returns [TokenIntegerLiteral literal]
         }
         :
         (
-                LITERAL_DATE {
-                	$literal = new TokenDateLiteral($LITERAL_DATE.text);
+                
+                TYPE_DATE
+                LITERAL_STRING {
+                	$literal = new TokenDateLiteral("date "+$LITERAL_STRING.text);
                 }
         )
         ;
@@ -996,7 +1031,7 @@ KEYWORD_OUT: O U T;
 KEYWORD_AND: A N D;
 KEYWORD_OR: O R;
 KEYWORD_NOT: N O T;
-KEYWORD_AS: A S;	
+KEYWORD_AS: A S;
 fragment KEYWORD_SUM: S U M;
 fragment KEYWORD_MIN: M I N;
 fragment KEYWORD_MAX: M A X;
@@ -1019,11 +1054,8 @@ KEYWORD_STORE: S T O R E;
 	
 TYPE_VARCHAR: V A R C H A R;
 TYPE_INTEGER: (I N T | I N T E G E R);
-    
-LITERAL_DATE
-    :
-    (D A T E QUOTED_STRING)
-    ;
+TYPE_DECIMAL: D E C I M A L;
+TYPE_DATE: D A T E;
 
 LITERAL_STRING
     :

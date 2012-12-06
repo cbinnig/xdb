@@ -53,12 +53,6 @@ public class CompileServer extends AbstractServer {
 						return err;
 					}
 
-					err = serverStmt.compile();
-
-					if(err.isError()) {
-						return err;
-					}
-
 					err = serverStmt.execute();
 
 					if(err.isError()) {

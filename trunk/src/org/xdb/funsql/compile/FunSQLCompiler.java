@@ -58,7 +58,8 @@ public class FunSQLCompiler {
 			return statement;
 
 		} catch (RecognitionException e) {
-			String[] args = { e.getMessage() };
+			e.printStackTrace();
+			String[] args = { e.toString() };
 			this.lastError = new Error(EnumError.COMPILER_UNDEFINED_ERROR, args);
 		}
 

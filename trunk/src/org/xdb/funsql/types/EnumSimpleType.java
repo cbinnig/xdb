@@ -53,7 +53,7 @@ public enum EnumSimpleType implements Cloneable {
 		case 1:
 			return "INTEGER";
 		case 2:
-			return "TEXT";
+			return "VARCHAR(255)";
 		case 3:
 			return "CHAR";
 		case 4:

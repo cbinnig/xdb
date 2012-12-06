@@ -17,7 +17,7 @@ public class SQLDate extends AbstractSimpleType {
 	}
 
 	public SQLDate(Date value) {
-		super(EnumSimpleType.SQL_INTEGER);
+		super(EnumSimpleType.SQL_DATE);
 		this.value = value;
 	}
 

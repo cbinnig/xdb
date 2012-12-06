@@ -49,8 +49,7 @@ public class CheckExpressionVisitor extends AbstractExpressionVisitor {
 	@Override
 	public Error visitAggregationExpression(AggregationExpression ce) {
 		Error e = this.visit(ce.getExpression());
-		if (ce.getAggregation() == EnumAggregation.CNT
-				|| ce.getAggregation() == EnumAggregation.CNT_DISTINCT) {
+		if (ce.getAggregation() == EnumAggregation.CNT) {
 			this.expType.put(ce, EnumSimpleType.SQL_INTEGER);
 		}
 		else{
