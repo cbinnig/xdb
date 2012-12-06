@@ -25,7 +25,7 @@ public class AggregationExpression extends AbstractExpression {
 	}
 
 	public void setAggregation(String aggregation) {
-		this.agg = EnumAggregation.valueOf(aggregation);
+		this.agg = EnumAggregation.valueOfSql(aggregation);
 	}
 	
 	public void setAggregation(EnumAggregation aggregation) {

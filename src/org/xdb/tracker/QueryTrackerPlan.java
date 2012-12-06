@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
+import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
@@ -27,7 +28,14 @@ import com.oy.shared.lm.graph.GraphFactory;
 import com.oy.shared.lm.graph.GraphNode;
 import com.oy.shared.lm.out.GRAPHtoDOTtoGIF;
 
-//TODO: Rework wish list in request slots and remove method call to getNodeOperators();
+/**
+ * Plan implementation for query tracker. This plan is used to compute 
+ * its deployment using a given resource scheduler. Using this deployment
+ * the plan can be executed the deployed resources (i.e., compute nodes)
+ * 
+ * @author cbinnig
+ *
+ */
 public class QueryTrackerPlan implements Serializable {
 
 	private static final long serialVersionUID = -5521482252707107847L;
@@ -45,10 +53,11 @@ public class QueryTrackerPlan implements Serializable {
 	// unique operator id
 	private final Identifier planId;
 
-	// assigned query tracker node and compute client
-	private QueryTrackerNode tracker = null;
-	private ComputeClient computeClient = null;
-
+	// assigned when plan is handed over to query tracker
+	private transient QueryTrackerNode tracker = null;
+	private transient ComputeClient computeClient = null;
+	private transient AbstractResourceScheduler resourceScheduler = null;
+	
 	// plan info
 	private final HashMap<Identifier, AbstractTrackerOperator> operators = new HashMap<Identifier, AbstractTrackerOperator>();
 	private final HashMap<Identifier, Set<Identifier>> consumers = new HashMap<Identifier, Set<Identifier>>();
@@ -56,10 +65,10 @@ public class QueryTrackerPlan implements Serializable {
 	private final HashSet<Identifier> roots = new HashSet<Identifier>();
 	private final HashSet<Identifier> leaves = new HashSet<Identifier>();
 	private final HashMap<String, MutableInteger> slots = new HashMap<String, MutableInteger>();
-
+	
 	// deployment info
 	private HashMap<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
-
+	
 	// last error
 	private Error err = new Error();
 
@@ -105,11 +114,24 @@ public class QueryTrackerPlan implements Serializable {
 		return err;
 	}
 
+	// methods
+	
+	/**
+	 * Assigns a query tracker node to a query tracker plan
+	 * when it is handed over from master tracker
+	 * @param tracker
+	 */
 	public void assignTracker(final QueryTrackerNode tracker) {
 		this.tracker = tracker;
-		computeClient = tracker.getComputeClient();
+		this.computeClient = tracker.getComputeClient();
+		this.resourceScheduler = AbstractResourceScheduler.createScheduler(this);
 	}
 
+	/**
+	 * Adds operator to plan and marks it as new root and leaf
+	 * without sources and consumers
+	 * @param op
+	 */
 	public void addOperator(final AbstractTrackerOperator op) {
 		Identifier opId = this.planId.clone().append(lastTrackerOpId++);
 		op.setOperatorId(opId);
@@ -124,6 +146,13 @@ public class QueryTrackerPlan implements Serializable {
 		this.consumers.put(opId, EMPTY_OP_SET);
 	}
 
+	/**
+	 * Sets sources of an operator and changes status to be 
+	 * no leaf anymore if sources is not empty
+	 * 
+	 * @param operId
+	 * @param opSources
+	 */
 	public void setSources(Identifier operId, final Set<Identifier> opSources) {
 		this.sources.put(operId, opSources);
 
@@ -132,6 +161,12 @@ public class QueryTrackerPlan implements Serializable {
 		}
 	}
 
+	/**
+	 * Sets consumers of an operator and changes status to be 
+	 * no root anymore if consumers is not empty
+	 * @param operId
+	 * @param opConsumers
+	 */
 	public void setConsumers(Identifier operId,
 			final Set<Identifier> opConsumers) {
 		this.consumers.put(operId, opConsumers);
@@ -142,11 +177,10 @@ public class QueryTrackerPlan implements Serializable {
 			operator.setIsRoot(false);
 		}
 	}
-
-	// methods
-
+	
 	/**
-	 * Removes result tables of root nodes
+	 * Closes all operators in the plan that are no root operators
+	 * (i.e., result tables are kept)
 	 * 
 	 * @param currentDeployment
 	 */
@@ -169,7 +203,8 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	/**
-	 * Closes all operators and ignores errors
+	 * Closes all operators on error
+	 * (i.e., all intermediate results are dropped)
 	 * 
 	 * @return
 	 */
@@ -256,21 +291,20 @@ public class QueryTrackerPlan implements Serializable {
 	 * Requests computation slots from master tracker
 	 */
 	private void requestSlots() {
-		final AbstractResourceScheduler resourceScheduler = AbstractResourceScheduler.createScheduler(this);
-		final MutableInteger numSlots = new MutableInteger(
-				resourceScheduler.calcMaxParallelization());
-		final Map<String, MutableInteger> requiredSlots = new HashMap<String, MutableInteger>();
+		//create wish-list of compute slots
+		final Map<String, MutableInteger> requiredSlots = resourceScheduler.calcRequiredSlots();
 
-		if (numSlots.intValue() > 0) {
-			requiredSlots.put(AbstractResourceScheduler.RANDOM, numSlots);
-		}
-
-		final Tuple<Map<String, MutableInteger>, Error> tuple = tracker
+		//as master tracker for slots
+		final Tuple<Map<String, MutableInteger>, Error> resultRequest = tracker
 				.requestComputeSlots(requiredSlots);
 
-		final Map<String, MutableInteger> allocatedSlots = tuple.getObject1();
-		err = tuple.getObject2();
-		slots.putAll(allocatedSlots);
+		//read result
+		final Map<String, MutableInteger> allocatedSlots = resultRequest.getObject1();
+		err = resultRequest.getObject2();
+		
+		//assign slots
+		this.slots.putAll(allocatedSlots);
+		this.resourceScheduler.assignSlots(slots);
 	}
 	
 	/**
@@ -284,8 +318,6 @@ public class QueryTrackerPlan implements Serializable {
 				return;
 		}
 	}
-	
-
 
 	/**
 	 * Prepares deployment for a given operator in plan
@@ -301,25 +333,18 @@ public class QueryTrackerPlan implements Serializable {
 		}
 
 		// identify best used node
-		String usedNode = null;
-
-		// TODO: Get next best ComputeNode
-		int maxSlots = 0;
-		for (final Entry<String, MutableInteger> availableNode : slots
-				.entrySet()) {
-			if (maxSlots < availableNode.getValue().intValue()) {
-				usedNode = availableNode.getKey();
-				maxSlots = availableNode.getValue().intValue();
-			}
+		String assignedSlot = this.resourceScheduler.getSlot(operId);
+		if(assignedSlot == null){
+			String args[] = {"No slot could be assigned for operator "+operId.toString()};
+			this.err = new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, args);
+			return;
 		}
-		final MutableInteger numOfFreeNodes = slots.get(usedNode);
-		numOfFreeNodes.dec();
 
 		// generate deployment description from plan operator
 		final Identifier deployOperId = operId.clone();
 		deployOperId.append(lastDeployOperId++);
 		final OperatorDesc deployOperDesc = new OperatorDesc(deployOperId,
-				usedNode);
+				assignedSlot);
 
 		// add to current deployment description
 		currentDeployment.put(operId, deployOperDesc);

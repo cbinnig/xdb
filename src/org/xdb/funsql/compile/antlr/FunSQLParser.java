@@ -1,4 +1,4 @@
-// $ANTLR 3.4 /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g 2012-11-19 15:21:35
+// $ANTLR 3.4 /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g 2012-12-06 22:53:52
  
 package org.xdb.funsql.compile.antlr; 
 
@@ -18,7 +18,7 @@ import java.util.HashMap;
 @SuppressWarnings({"all", "warnings", "unchecked"})
 public class FunSQLParser extends Parser {
     public static final String[] tokenNames = new String[] {
-        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "A", "AMPERSAND", "APOSTROPHE", "AT", "B", "BACKSLASH", "C", "CHAR", "COLON", "COMMA", "CONTROL_CHAR", "D", "DIGIT", "DIV", "DOLLAR", "DOT", "DOUBLE_PIPE", "E", "EQUAL1", "EQUAL2", "F", "FUNCTION_AGGREGATION", "G", "GREATER_EQUAL1", "GREATER_EQUAL2", "GREATER_THAN", "H", "HAT", "I", "IDENTIFIER", "IGNORE_CHAR", "J", "K", "KEYWORD_AND", "KEYWORD_AS", "KEYWORD_AVG", "KEYWORD_BEGIN", "KEYWORD_BY", "KEYWORD_CALL", "KEYWORD_CONNECTION", "KEYWORD_COUNT", "KEYWORD_CREATE", "KEYWORD_DISTINCT", "KEYWORD_DROP", "KEYWORD_END", "KEYWORD_FROM", "KEYWORD_FUNCTION", "KEYWORD_GROUP", "KEYWORD_HAVING", "KEYWORD_IN", "KEYWORD_MAX", "KEYWORD_MIN", "KEYWORD_NOT", "KEYWORD_OR", "KEYWORD_OUT", "KEYWORD_PASSWD", "KEYWORD_SCHEMA", "KEYWORD_SELECT", "KEYWORD_STORE", "KEYWORD_SUM", "KEYWORD_TABLE", "KEYWORD_URL", "KEYWORD_USER", "KEYWORD_VAR", "KEYWORD_WHERE", "L", "LBRACKET", "LESS_EQUAL1", "LESS_EQUAL2", "LESS_THAN", "LITERAL_DATE", "LITERAL_DECIMAL", "LITERAL_INTEGER", "LITERAL_STRING", "LPAREN", "M", "MINUS", "MOD", "MULT", "N", "NOT_EQUAL1", "NOT_EQUAL2", "O", "P", "PIPE", "PLUS", "Q", "QUESTION", "QUOTED_STRING", "QUOTE_DOUBLE", "QUOTE_SINGLE", "QUOTE_TRIPLE", "R", "RBRACKET", "RPAREN", "S", "SEMI", "SHIFT_LEFT", "SHIFT_RIGHT", "T", "TILDE", "TYPE_INTEGER", "TYPE_VARCHAR", "U", "UNDERSCORE", "V", "W", "WS", "X", "Y", "Z"
+        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "A", "AMPERSAND", "APOSTROPHE", "AT", "B", "BACKSLASH", "C", "CHAR", "COLON", "COMMA", "CONTROL_CHAR", "D", "DIGIT", "DIV", "DOLLAR", "DOT", "DOUBLE_PIPE", "E", "EQUAL1", "EQUAL2", "F", "FUNCTION_AGGREGATION", "G", "GREATER_EQUAL1", "GREATER_EQUAL2", "GREATER_THAN", "H", "HAT", "I", "IDENTIFIER", "IGNORE_CHAR", "J", "K", "KEYWORD_AND", "KEYWORD_AS", "KEYWORD_AVG", "KEYWORD_BEGIN", "KEYWORD_BY", "KEYWORD_CALL", "KEYWORD_CONNECTION", "KEYWORD_COUNT", "KEYWORD_CREATE", "KEYWORD_DISTINCT", "KEYWORD_DROP", "KEYWORD_END", "KEYWORD_FROM", "KEYWORD_FUNCTION", "KEYWORD_GROUP", "KEYWORD_HAVING", "KEYWORD_IN", "KEYWORD_MAX", "KEYWORD_MIN", "KEYWORD_NOT", "KEYWORD_OR", "KEYWORD_OUT", "KEYWORD_PASSWD", "KEYWORD_SCHEMA", "KEYWORD_SELECT", "KEYWORD_STORE", "KEYWORD_SUM", "KEYWORD_TABLE", "KEYWORD_URL", "KEYWORD_USER", "KEYWORD_VAR", "KEYWORD_WHERE", "L", "LBRACKET", "LESS_EQUAL1", "LESS_EQUAL2", "LESS_THAN", "LITERAL_DECIMAL", "LITERAL_INTEGER", "LITERAL_STRING", "LPAREN", "M", "MINUS", "MOD", "MULT", "N", "NOT_EQUAL1", "NOT_EQUAL2", "O", "P", "PIPE", "PLUS", "Q", "QUESTION", "QUOTED_STRING", "QUOTE_DOUBLE", "QUOTE_SINGLE", "QUOTE_TRIPLE", "R", "RBRACKET", "RPAREN", "S", "SEMI", "SHIFT_LEFT", "SHIFT_RIGHT", "T", "TILDE", "TYPE_DATE", "TYPE_DECIMAL", "TYPE_INTEGER", "TYPE_VARCHAR", "U", "UNDERSCORE", "V", "W", "WS", "X", "Y", "Z"
     };
 
     public static final int EOF=-1;
@@ -92,47 +92,48 @@ public class FunSQLParser extends Parser {
     public static final int LESS_EQUAL1=71;
     public static final int LESS_EQUAL2=72;
     public static final int LESS_THAN=73;
-    public static final int LITERAL_DATE=74;
-    public static final int LITERAL_DECIMAL=75;
-    public static final int LITERAL_INTEGER=76;
-    public static final int LITERAL_STRING=77;
-    public static final int LPAREN=78;
-    public static final int M=79;
-    public static final int MINUS=80;
-    public static final int MOD=81;
-    public static final int MULT=82;
-    public static final int N=83;
-    public static final int NOT_EQUAL1=84;
-    public static final int NOT_EQUAL2=85;
-    public static final int O=86;
-    public static final int P=87;
-    public static final int PIPE=88;
-    public static final int PLUS=89;
-    public static final int Q=90;
-    public static final int QUESTION=91;
-    public static final int QUOTED_STRING=92;
-    public static final int QUOTE_DOUBLE=93;
-    public static final int QUOTE_SINGLE=94;
-    public static final int QUOTE_TRIPLE=95;
-    public static final int R=96;
-    public static final int RBRACKET=97;
-    public static final int RPAREN=98;
-    public static final int S=99;
-    public static final int SEMI=100;
-    public static final int SHIFT_LEFT=101;
-    public static final int SHIFT_RIGHT=102;
-    public static final int T=103;
-    public static final int TILDE=104;
-    public static final int TYPE_INTEGER=105;
-    public static final int TYPE_VARCHAR=106;
-    public static final int U=107;
-    public static final int UNDERSCORE=108;
-    public static final int V=109;
-    public static final int W=110;
-    public static final int WS=111;
-    public static final int X=112;
-    public static final int Y=113;
-    public static final int Z=114;
+    public static final int LITERAL_DECIMAL=74;
+    public static final int LITERAL_INTEGER=75;
+    public static final int LITERAL_STRING=76;
+    public static final int LPAREN=77;
+    public static final int M=78;
+    public static final int MINUS=79;
+    public static final int MOD=80;
+    public static final int MULT=81;
+    public static final int N=82;
+    public static final int NOT_EQUAL1=83;
+    public static final int NOT_EQUAL2=84;
+    public static final int O=85;
+    public static final int P=86;
+    public static final int PIPE=87;
+    public static final int PLUS=88;
+    public static final int Q=89;
+    public static final int QUESTION=90;
+    public static final int QUOTED_STRING=91;
+    public static final int QUOTE_DOUBLE=92;
+    public static final int QUOTE_SINGLE=93;
+    public static final int QUOTE_TRIPLE=94;
+    public static final int R=95;
+    public static final int RBRACKET=96;
+    public static final int RPAREN=97;
+    public static final int S=98;
+    public static final int SEMI=99;
+    public static final int SHIFT_LEFT=100;
+    public static final int SHIFT_RIGHT=101;
+    public static final int T=102;
+    public static final int TILDE=103;
+    public static final int TYPE_DATE=104;
+    public static final int TYPE_DECIMAL=105;
+    public static final int TYPE_INTEGER=106;
+    public static final int TYPE_VARCHAR=107;
+    public static final int U=108;
+    public static final int UNDERSCORE=109;
+    public static final int V=110;
+    public static final int W=111;
+    public static final int WS=112;
+    public static final int X=113;
+    public static final int Y=114;
+    public static final int Z=115;
 
     // delegates
     public Parser[] getDelegates() {
@@ -147,7 +148,7 @@ public class FunSQLParser extends Parser {
     }
     public FunSQLParser(TokenStream input, RecognizerSharedState state) {
         super(input, state);
-        this.state.ruleMemo = new HashMap[99+1];
+        this.state.ruleMemo = new HashMap[101+1];
          
 
     }
@@ -158,7 +159,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "statement"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:68:1: statement returns [AbstractServerStmt stmt] : ( ( createSchemaStatement | dropSchemaStatement | createConnectionStatement | dropConnectionStatement | createTableStatement | dropTableStatement | createFunctionStatement | dropFunctionStatement | callFunctionStatement | selectStatement ) ( SEMI )? ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:93:1: statement returns [AbstractServerStmt stmt] : ( ( createSchemaStatement | dropSchemaStatement | createConnectionStatement | dropConnectionStatement | createTableStatement | dropTableStatement | createFunctionStatement | dropFunctionStatement | callFunctionStatement | selectStatement ) ( SEMI )? ) ;
     public final AbstractServerStmt statement() throws RecognitionException {
         AbstractServerStmt stmt = null;
 
@@ -191,13 +192,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 1) ) { return stmt; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:72:9: ( ( ( createSchemaStatement | dropSchemaStatement | createConnectionStatement | dropConnectionStatement | createTableStatement | dropTableStatement | createFunctionStatement | dropFunctionStatement | callFunctionStatement | selectStatement ) ( SEMI )? ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:73:9: ( ( createSchemaStatement | dropSchemaStatement | createConnectionStatement | dropConnectionStatement | createTableStatement | dropTableStatement | createFunctionStatement | dropFunctionStatement | callFunctionStatement | selectStatement ) ( SEMI )? )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:97:9: ( ( ( createSchemaStatement | dropSchemaStatement | createConnectionStatement | dropConnectionStatement | createTableStatement | dropTableStatement | createFunctionStatement | dropFunctionStatement | callFunctionStatement | selectStatement ) ( SEMI )? ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:98:9: ( ( createSchemaStatement | dropSchemaStatement | createConnectionStatement | dropConnectionStatement | createTableStatement | dropTableStatement | createFunctionStatement | dropFunctionStatement | callFunctionStatement | selectStatement ) ( SEMI )? )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:73:9: ( ( createSchemaStatement | dropSchemaStatement | createConnectionStatement | dropConnectionStatement | createTableStatement | dropTableStatement | createFunctionStatement | dropFunctionStatement | callFunctionStatement | selectStatement ) ( SEMI )? )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:74:10: ( createSchemaStatement | dropSchemaStatement | createConnectionStatement | dropConnectionStatement | createTableStatement | dropTableStatement | createFunctionStatement | dropFunctionStatement | callFunctionStatement | selectStatement ) ( SEMI )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:98:9: ( ( createSchemaStatement | dropSchemaStatement | createConnectionStatement | dropConnectionStatement | createTableStatement | dropTableStatement | createFunctionStatement | dropFunctionStatement | callFunctionStatement | selectStatement ) ( SEMI )? )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:99:10: ( createSchemaStatement | dropSchemaStatement | createConnectionStatement | dropConnectionStatement | createTableStatement | dropTableStatement | createFunctionStatement | dropFunctionStatement | callFunctionStatement | selectStatement ) ( SEMI )?
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:74:10: ( createSchemaStatement | dropSchemaStatement | createConnectionStatement | dropConnectionStatement | createTableStatement | dropTableStatement | createFunctionStatement | dropFunctionStatement | callFunctionStatement | selectStatement )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:99:10: ( createSchemaStatement | dropSchemaStatement | createConnectionStatement | dropConnectionStatement | createTableStatement | dropTableStatement | createFunctionStatement | dropFunctionStatement | callFunctionStatement | selectStatement )
             int alt1=10;
             switch ( input.LA(1) ) {
             case KEYWORD_CREATE:
@@ -289,9 +290,9 @@ public class FunSQLParser extends Parser {
 
             switch (alt1) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:75:17: createSchemaStatement
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:100:17: createSchemaStatement
                     {
-                    pushFollow(FOLLOW_createSchemaStatement_in_statement1078);
+                    pushFollow(FOLLOW_createSchemaStatement_in_statement1090);
                     createSchemaStatement1=createSchemaStatement();
 
                     state._fsp--;
@@ -305,9 +306,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:81:17: dropSchemaStatement
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:106:17: dropSchemaStatement
                     {
-                    pushFollow(FOLLOW_dropSchemaStatement_in_statement1133);
+                    pushFollow(FOLLOW_dropSchemaStatement_in_statement1145);
                     dropSchemaStatement2=dropSchemaStatement();
 
                     state._fsp--;
@@ -321,9 +322,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:87:17: createConnectionStatement
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:112:17: createConnectionStatement
                     {
-                    pushFollow(FOLLOW_createConnectionStatement_in_statement1188);
+                    pushFollow(FOLLOW_createConnectionStatement_in_statement1200);
                     createConnectionStatement3=createConnectionStatement();
 
                     state._fsp--;
@@ -337,9 +338,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 4 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:93:17: dropConnectionStatement
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:118:17: dropConnectionStatement
                     {
-                    pushFollow(FOLLOW_dropConnectionStatement_in_statement1243);
+                    pushFollow(FOLLOW_dropConnectionStatement_in_statement1255);
                     dropConnectionStatement4=dropConnectionStatement();
 
                     state._fsp--;
@@ -353,9 +354,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 5 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:99:17: createTableStatement
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:124:17: createTableStatement
                     {
-                    pushFollow(FOLLOW_createTableStatement_in_statement1298);
+                    pushFollow(FOLLOW_createTableStatement_in_statement1310);
                     createTableStatement5=createTableStatement();
 
                     state._fsp--;
@@ -369,9 +370,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 6 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:105:17: dropTableStatement
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:130:17: dropTableStatement
                     {
-                    pushFollow(FOLLOW_dropTableStatement_in_statement1353);
+                    pushFollow(FOLLOW_dropTableStatement_in_statement1365);
                     dropTableStatement6=dropTableStatement();
 
                     state._fsp--;
@@ -385,9 +386,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 7 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:111:17: createFunctionStatement
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:136:17: createFunctionStatement
                     {
-                    pushFollow(FOLLOW_createFunctionStatement_in_statement1408);
+                    pushFollow(FOLLOW_createFunctionStatement_in_statement1420);
                     createFunctionStatement7=createFunctionStatement();
 
                     state._fsp--;
@@ -401,9 +402,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 8 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:117:17: dropFunctionStatement
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:142:17: dropFunctionStatement
                     {
-                    pushFollow(FOLLOW_dropFunctionStatement_in_statement1463);
+                    pushFollow(FOLLOW_dropFunctionStatement_in_statement1475);
                     dropFunctionStatement8=dropFunctionStatement();
 
                     state._fsp--;
@@ -417,9 +418,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 9 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:123:17: callFunctionStatement
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:148:17: callFunctionStatement
                     {
-                    pushFollow(FOLLOW_callFunctionStatement_in_statement1518);
+                    pushFollow(FOLLOW_callFunctionStatement_in_statement1530);
                     callFunctionStatement9=callFunctionStatement();
 
                     state._fsp--;
@@ -433,9 +434,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 10 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:129:17: selectStatement
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:154:17: selectStatement
                     {
-                    pushFollow(FOLLOW_selectStatement_in_statement1573);
+                    pushFollow(FOLLOW_selectStatement_in_statement1585);
                     selectStatement10=selectStatement();
 
                     state._fsp--;
@@ -452,7 +453,7 @@ public class FunSQLParser extends Parser {
             }
 
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:135:17: ( SEMI )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:160:17: ( SEMI )?
             int alt2=2;
             int LA2_0 = input.LA(1);
 
@@ -461,9 +462,9 @@ public class FunSQLParser extends Parser {
             }
             switch (alt2) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:135:17: SEMI
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:160:17: SEMI
                     {
-                    match(input,SEMI,FOLLOW_SEMI_in_statement1627); if (state.failed) return stmt;
+                    match(input,SEMI,FOLLOW_SEMI_in_statement1639); if (state.failed) return stmt;
 
                     }
                     break;
@@ -498,7 +499,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "createSchemaStatement"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:139:1: createSchemaStatement returns [CreateSchemaStmt stmt] : ( KEYWORD_CREATE KEYWORD_SCHEMA tokenSchema ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:164:1: createSchemaStatement returns [CreateSchemaStmt stmt] : ( KEYWORD_CREATE KEYWORD_SCHEMA tokenSchema ) ;
     public final FunSQLParser.createSchemaStatement_return createSchemaStatement() throws RecognitionException {
         FunSQLParser.createSchemaStatement_return retval = new FunSQLParser.createSchemaStatement_return();
         retval.start = input.LT(1);
@@ -514,17 +515,17 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 2) ) { return retval; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:143:9: ( ( KEYWORD_CREATE KEYWORD_SCHEMA tokenSchema ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:144:9: ( KEYWORD_CREATE KEYWORD_SCHEMA tokenSchema )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:168:9: ( ( KEYWORD_CREATE KEYWORD_SCHEMA tokenSchema ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:169:9: ( KEYWORD_CREATE KEYWORD_SCHEMA tokenSchema )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:144:9: ( KEYWORD_CREATE KEYWORD_SCHEMA tokenSchema )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:145:17: KEYWORD_CREATE KEYWORD_SCHEMA tokenSchema
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:169:9: ( KEYWORD_CREATE KEYWORD_SCHEMA tokenSchema )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:170:17: KEYWORD_CREATE KEYWORD_SCHEMA tokenSchema
             {
-            match(input,KEYWORD_CREATE,FOLLOW_KEYWORD_CREATE_in_createSchemaStatement1705); if (state.failed) return retval;
+            match(input,KEYWORD_CREATE,FOLLOW_KEYWORD_CREATE_in_createSchemaStatement1717); if (state.failed) return retval;
 
-            match(input,KEYWORD_SCHEMA,FOLLOW_KEYWORD_SCHEMA_in_createSchemaStatement1723); if (state.failed) return retval;
+            match(input,KEYWORD_SCHEMA,FOLLOW_KEYWORD_SCHEMA_in_createSchemaStatement1735); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenSchema_in_createSchemaStatement1741);
+            pushFollow(FOLLOW_tokenSchema_in_createSchemaStatement1753);
             tokenSchema11=tokenSchema();
 
             state._fsp--;
@@ -564,7 +565,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "dropSchemaStatement"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:153:1: dropSchemaStatement returns [DropSchemaStmt stmt] : ( KEYWORD_DROP KEYWORD_SCHEMA tokenSchema ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:178:1: dropSchemaStatement returns [DropSchemaStmt stmt] : ( KEYWORD_DROP KEYWORD_SCHEMA tokenSchema ) ;
     public final FunSQLParser.dropSchemaStatement_return dropSchemaStatement() throws RecognitionException {
         FunSQLParser.dropSchemaStatement_return retval = new FunSQLParser.dropSchemaStatement_return();
         retval.start = input.LT(1);
@@ -580,17 +581,17 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 3) ) { return retval; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:157:9: ( ( KEYWORD_DROP KEYWORD_SCHEMA tokenSchema ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:158:9: ( KEYWORD_DROP KEYWORD_SCHEMA tokenSchema )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:182:9: ( ( KEYWORD_DROP KEYWORD_SCHEMA tokenSchema ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:183:9: ( KEYWORD_DROP KEYWORD_SCHEMA tokenSchema )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:158:9: ( KEYWORD_DROP KEYWORD_SCHEMA tokenSchema )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:159:17: KEYWORD_DROP KEYWORD_SCHEMA tokenSchema
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:183:9: ( KEYWORD_DROP KEYWORD_SCHEMA tokenSchema )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:184:17: KEYWORD_DROP KEYWORD_SCHEMA tokenSchema
             {
-            match(input,KEYWORD_DROP,FOLLOW_KEYWORD_DROP_in_dropSchemaStatement1820); if (state.failed) return retval;
+            match(input,KEYWORD_DROP,FOLLOW_KEYWORD_DROP_in_dropSchemaStatement1832); if (state.failed) return retval;
 
-            match(input,KEYWORD_SCHEMA,FOLLOW_KEYWORD_SCHEMA_in_dropSchemaStatement1838); if (state.failed) return retval;
+            match(input,KEYWORD_SCHEMA,FOLLOW_KEYWORD_SCHEMA_in_dropSchemaStatement1850); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenSchema_in_dropSchemaStatement1856);
+            pushFollow(FOLLOW_tokenSchema_in_dropSchemaStatement1868);
             tokenSchema12=tokenSchema();
 
             state._fsp--;
@@ -630,7 +631,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "createConnectionStatement"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:167:1: createConnectionStatement returns [CreateConnectionStmt stmt] : ( KEYWORD_CREATE KEYWORD_CONNECTION tokenIdentifier KEYWORD_URL litURL= tokenStringLiteral KEYWORD_USER litUser= tokenStringLiteral KEYWORD_PASSWD litPasswd= tokenStringLiteral KEYWORD_STORE litStore= tokenStringLiteral ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:192:1: createConnectionStatement returns [CreateConnectionStmt stmt] : ( KEYWORD_CREATE KEYWORD_CONNECTION tokenIdentifier KEYWORD_URL litURL= tokenStringLiteral KEYWORD_USER litUser= tokenStringLiteral KEYWORD_PASSWD litPasswd= tokenStringLiteral KEYWORD_STORE litStore= tokenStringLiteral ) ;
     public final FunSQLParser.createConnectionStatement_return createConnectionStatement() throws RecognitionException {
         FunSQLParser.createConnectionStatement_return retval = new FunSQLParser.createConnectionStatement_return();
         retval.start = input.LT(1);
@@ -654,17 +655,17 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 4) ) { return retval; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:171:9: ( ( KEYWORD_CREATE KEYWORD_CONNECTION tokenIdentifier KEYWORD_URL litURL= tokenStringLiteral KEYWORD_USER litUser= tokenStringLiteral KEYWORD_PASSWD litPasswd= tokenStringLiteral KEYWORD_STORE litStore= tokenStringLiteral ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:172:9: ( KEYWORD_CREATE KEYWORD_CONNECTION tokenIdentifier KEYWORD_URL litURL= tokenStringLiteral KEYWORD_USER litUser= tokenStringLiteral KEYWORD_PASSWD litPasswd= tokenStringLiteral KEYWORD_STORE litStore= tokenStringLiteral )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:196:9: ( ( KEYWORD_CREATE KEYWORD_CONNECTION tokenIdentifier KEYWORD_URL litURL= tokenStringLiteral KEYWORD_USER litUser= tokenStringLiteral KEYWORD_PASSWD litPasswd= tokenStringLiteral KEYWORD_STORE litStore= tokenStringLiteral ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:197:9: ( KEYWORD_CREATE KEYWORD_CONNECTION tokenIdentifier KEYWORD_URL litURL= tokenStringLiteral KEYWORD_USER litUser= tokenStringLiteral KEYWORD_PASSWD litPasswd= tokenStringLiteral KEYWORD_STORE litStore= tokenStringLiteral )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:172:9: ( KEYWORD_CREATE KEYWORD_CONNECTION tokenIdentifier KEYWORD_URL litURL= tokenStringLiteral KEYWORD_USER litUser= tokenStringLiteral KEYWORD_PASSWD litPasswd= tokenStringLiteral KEYWORD_STORE litStore= tokenStringLiteral )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:173:17: KEYWORD_CREATE KEYWORD_CONNECTION tokenIdentifier KEYWORD_URL litURL= tokenStringLiteral KEYWORD_USER litUser= tokenStringLiteral KEYWORD_PASSWD litPasswd= tokenStringLiteral KEYWORD_STORE litStore= tokenStringLiteral
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:197:9: ( KEYWORD_CREATE KEYWORD_CONNECTION tokenIdentifier KEYWORD_URL litURL= tokenStringLiteral KEYWORD_USER litUser= tokenStringLiteral KEYWORD_PASSWD litPasswd= tokenStringLiteral KEYWORD_STORE litStore= tokenStringLiteral )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:198:17: KEYWORD_CREATE KEYWORD_CONNECTION tokenIdentifier KEYWORD_URL litURL= tokenStringLiteral KEYWORD_USER litUser= tokenStringLiteral KEYWORD_PASSWD litPasswd= tokenStringLiteral KEYWORD_STORE litStore= tokenStringLiteral
             {
-            match(input,KEYWORD_CREATE,FOLLOW_KEYWORD_CREATE_in_createConnectionStatement1935); if (state.failed) return retval;
+            match(input,KEYWORD_CREATE,FOLLOW_KEYWORD_CREATE_in_createConnectionStatement1947); if (state.failed) return retval;
 
-            match(input,KEYWORD_CONNECTION,FOLLOW_KEYWORD_CONNECTION_in_createConnectionStatement1953); if (state.failed) return retval;
+            match(input,KEYWORD_CONNECTION,FOLLOW_KEYWORD_CONNECTION_in_createConnectionStatement1965); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenIdentifier_in_createConnectionStatement1971);
+            pushFollow(FOLLOW_tokenIdentifier_in_createConnectionStatement1983);
             tokenIdentifier13=tokenIdentifier();
 
             state._fsp--;
@@ -674,9 +675,9 @@ public class FunSQLParser extends Parser {
                             	retval.stmt.setConnection(tokenIdentifier13);
                             }
 
-            match(input,KEYWORD_URL,FOLLOW_KEYWORD_URL_in_createConnectionStatement1991); if (state.failed) return retval;
+            match(input,KEYWORD_URL,FOLLOW_KEYWORD_URL_in_createConnectionStatement2003); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenStringLiteral_in_createConnectionStatement2011);
+            pushFollow(FOLLOW_tokenStringLiteral_in_createConnectionStatement2023);
             litURL=tokenStringLiteral();
 
             state._fsp--;
@@ -686,9 +687,9 @@ public class FunSQLParser extends Parser {
                             	retval.stmt.setURL(litURL);
                             }
 
-            match(input,KEYWORD_USER,FOLLOW_KEYWORD_USER_in_createConnectionStatement2031); if (state.failed) return retval;
+            match(input,KEYWORD_USER,FOLLOW_KEYWORD_USER_in_createConnectionStatement2043); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenStringLiteral_in_createConnectionStatement2051);
+            pushFollow(FOLLOW_tokenStringLiteral_in_createConnectionStatement2063);
             litUser=tokenStringLiteral();
 
             state._fsp--;
@@ -698,9 +699,9 @@ public class FunSQLParser extends Parser {
                             	retval.stmt.setUser(litUser);
                             }
 
-            match(input,KEYWORD_PASSWD,FOLLOW_KEYWORD_PASSWD_in_createConnectionStatement2071); if (state.failed) return retval;
+            match(input,KEYWORD_PASSWD,FOLLOW_KEYWORD_PASSWD_in_createConnectionStatement2083); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenStringLiteral_in_createConnectionStatement2091);
+            pushFollow(FOLLOW_tokenStringLiteral_in_createConnectionStatement2103);
             litPasswd=tokenStringLiteral();
 
             state._fsp--;
@@ -710,9 +711,9 @@ public class FunSQLParser extends Parser {
                             	retval.stmt.setPasswd(litPasswd);
                             }
 
-            match(input,KEYWORD_STORE,FOLLOW_KEYWORD_STORE_in_createConnectionStatement2111); if (state.failed) return retval;
+            match(input,KEYWORD_STORE,FOLLOW_KEYWORD_STORE_in_createConnectionStatement2123); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenStringLiteral_in_createConnectionStatement2131);
+            pushFollow(FOLLOW_tokenStringLiteral_in_createConnectionStatement2143);
             litStore=tokenStringLiteral();
 
             state._fsp--;
@@ -752,7 +753,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "dropConnectionStatement"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:197:1: dropConnectionStatement returns [DropConnectionStmt stmt] : ( KEYWORD_DROP KEYWORD_CONNECTION tokenIdentifier ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:222:1: dropConnectionStatement returns [DropConnectionStmt stmt] : ( KEYWORD_DROP KEYWORD_CONNECTION tokenIdentifier ) ;
     public final FunSQLParser.dropConnectionStatement_return dropConnectionStatement() throws RecognitionException {
         FunSQLParser.dropConnectionStatement_return retval = new FunSQLParser.dropConnectionStatement_return();
         retval.start = input.LT(1);
@@ -768,17 +769,17 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 5) ) { return retval; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:201:9: ( ( KEYWORD_DROP KEYWORD_CONNECTION tokenIdentifier ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:202:9: ( KEYWORD_DROP KEYWORD_CONNECTION tokenIdentifier )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:226:9: ( ( KEYWORD_DROP KEYWORD_CONNECTION tokenIdentifier ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:227:9: ( KEYWORD_DROP KEYWORD_CONNECTION tokenIdentifier )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:202:9: ( KEYWORD_DROP KEYWORD_CONNECTION tokenIdentifier )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:203:17: KEYWORD_DROP KEYWORD_CONNECTION tokenIdentifier
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:227:9: ( KEYWORD_DROP KEYWORD_CONNECTION tokenIdentifier )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:228:17: KEYWORD_DROP KEYWORD_CONNECTION tokenIdentifier
             {
-            match(input,KEYWORD_DROP,FOLLOW_KEYWORD_DROP_in_dropConnectionStatement2218); if (state.failed) return retval;
+            match(input,KEYWORD_DROP,FOLLOW_KEYWORD_DROP_in_dropConnectionStatement2230); if (state.failed) return retval;
 
-            match(input,KEYWORD_CONNECTION,FOLLOW_KEYWORD_CONNECTION_in_dropConnectionStatement2236); if (state.failed) return retval;
+            match(input,KEYWORD_CONNECTION,FOLLOW_KEYWORD_CONNECTION_in_dropConnectionStatement2248); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenIdentifier_in_dropConnectionStatement2254);
+            pushFollow(FOLLOW_tokenIdentifier_in_dropConnectionStatement2266);
             tokenIdentifier14=tokenIdentifier();
 
             state._fsp--;
@@ -818,7 +819,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "createTableStatement"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:211:1: createTableStatement returns [CreateTableStmt stmt] : ( KEYWORD_CREATE KEYWORD_TABLE table1= tokenTable LPAREN att1= identifierText dataType1= tokenDataType ( COMMA att2= identifierText dataType2= tokenDataType )* RPAREN ( KEYWORD_FROM table2= tokenTable )? KEYWORD_IN KEYWORD_CONNECTION connection1= tokenIdentifier ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:236:1: createTableStatement returns [CreateTableStmt stmt] : ( KEYWORD_CREATE KEYWORD_TABLE table1= tokenTable LPAREN att1= identifierText dataType1= tokenDataType ( COMMA att2= identifierText dataType2= tokenDataType )* RPAREN ( KEYWORD_FROM table2= tokenTable )? KEYWORD_IN KEYWORD_CONNECTION connection1= tokenIdentifier ) ;
     public final FunSQLParser.createTableStatement_return createTableStatement() throws RecognitionException {
         FunSQLParser.createTableStatement_return retval = new FunSQLParser.createTableStatement_return();
         retval.start = input.LT(1);
@@ -846,17 +847,17 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 6) ) { return retval; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:215:9: ( ( KEYWORD_CREATE KEYWORD_TABLE table1= tokenTable LPAREN att1= identifierText dataType1= tokenDataType ( COMMA att2= identifierText dataType2= tokenDataType )* RPAREN ( KEYWORD_FROM table2= tokenTable )? KEYWORD_IN KEYWORD_CONNECTION connection1= tokenIdentifier ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:216:9: ( KEYWORD_CREATE KEYWORD_TABLE table1= tokenTable LPAREN att1= identifierText dataType1= tokenDataType ( COMMA att2= identifierText dataType2= tokenDataType )* RPAREN ( KEYWORD_FROM table2= tokenTable )? KEYWORD_IN KEYWORD_CONNECTION connection1= tokenIdentifier )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:240:9: ( ( KEYWORD_CREATE KEYWORD_TABLE table1= tokenTable LPAREN att1= identifierText dataType1= tokenDataType ( COMMA att2= identifierText dataType2= tokenDataType )* RPAREN ( KEYWORD_FROM table2= tokenTable )? KEYWORD_IN KEYWORD_CONNECTION connection1= tokenIdentifier ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:241:9: ( KEYWORD_CREATE KEYWORD_TABLE table1= tokenTable LPAREN att1= identifierText dataType1= tokenDataType ( COMMA att2= identifierText dataType2= tokenDataType )* RPAREN ( KEYWORD_FROM table2= tokenTable )? KEYWORD_IN KEYWORD_CONNECTION connection1= tokenIdentifier )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:216:9: ( KEYWORD_CREATE KEYWORD_TABLE table1= tokenTable LPAREN att1= identifierText dataType1= tokenDataType ( COMMA att2= identifierText dataType2= tokenDataType )* RPAREN ( KEYWORD_FROM table2= tokenTable )? KEYWORD_IN KEYWORD_CONNECTION connection1= tokenIdentifier )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:217:17: KEYWORD_CREATE KEYWORD_TABLE table1= tokenTable LPAREN att1= identifierText dataType1= tokenDataType ( COMMA att2= identifierText dataType2= tokenDataType )* RPAREN ( KEYWORD_FROM table2= tokenTable )? KEYWORD_IN KEYWORD_CONNECTION connection1= tokenIdentifier
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:241:9: ( KEYWORD_CREATE KEYWORD_TABLE table1= tokenTable LPAREN att1= identifierText dataType1= tokenDataType ( COMMA att2= identifierText dataType2= tokenDataType )* RPAREN ( KEYWORD_FROM table2= tokenTable )? KEYWORD_IN KEYWORD_CONNECTION connection1= tokenIdentifier )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:242:17: KEYWORD_CREATE KEYWORD_TABLE table1= tokenTable LPAREN att1= identifierText dataType1= tokenDataType ( COMMA att2= identifierText dataType2= tokenDataType )* RPAREN ( KEYWORD_FROM table2= tokenTable )? KEYWORD_IN KEYWORD_CONNECTION connection1= tokenIdentifier
             {
-            match(input,KEYWORD_CREATE,FOLLOW_KEYWORD_CREATE_in_createTableStatement2333); if (state.failed) return retval;
+            match(input,KEYWORD_CREATE,FOLLOW_KEYWORD_CREATE_in_createTableStatement2345); if (state.failed) return retval;
 
-            match(input,KEYWORD_TABLE,FOLLOW_KEYWORD_TABLE_in_createTableStatement2351); if (state.failed) return retval;
+            match(input,KEYWORD_TABLE,FOLLOW_KEYWORD_TABLE_in_createTableStatement2363); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenTable_in_createTableStatement2371);
+            pushFollow(FOLLOW_tokenTable_in_createTableStatement2383);
             table1=tokenTable();
 
             state._fsp--;
@@ -867,9 +868,9 @@ public class FunSQLParser extends Parser {
                             	retval.stmt.setSourceTable(table1);
                             }
 
-            match(input,LPAREN,FOLLOW_LPAREN_in_createTableStatement2391); if (state.failed) return retval;
+            match(input,LPAREN,FOLLOW_LPAREN_in_createTableStatement2403); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_identifierText_in_createTableStatement2411);
+            pushFollow(FOLLOW_identifierText_in_createTableStatement2423);
             att1=identifierText();
 
             state._fsp--;
@@ -879,7 +880,7 @@ public class FunSQLParser extends Parser {
                             	retval.stmt.addAttribute(att1);
                             }
 
-            pushFollow(FOLLOW_tokenDataType_in_createTableStatement2449);
+            pushFollow(FOLLOW_tokenDataType_in_createTableStatement2461);
             dataType1=tokenDataType();
 
             state._fsp--;
@@ -889,7 +890,7 @@ public class FunSQLParser extends Parser {
                             	retval.stmt.addType(dataType1);
                             }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:232:17: ( COMMA att2= identifierText dataType2= tokenDataType )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:257:17: ( COMMA att2= identifierText dataType2= tokenDataType )*
             loop3:
             do {
                 int alt3=2;
@@ -902,11 +903,11 @@ public class FunSQLParser extends Parser {
 
                 switch (alt3) {
             	case 1 :
-            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:233:17: COMMA att2= identifierText dataType2= tokenDataType
+            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:258:17: COMMA att2= identifierText dataType2= tokenDataType
             	    {
-            	    match(input,COMMA,FOLLOW_COMMA_in_createTableStatement2503); if (state.failed) return retval;
+            	    match(input,COMMA,FOLLOW_COMMA_in_createTableStatement2515); if (state.failed) return retval;
 
-            	    pushFollow(FOLLOW_identifierText_in_createTableStatement2523);
+            	    pushFollow(FOLLOW_identifierText_in_createTableStatement2535);
             	    att2=identifierText();
 
             	    state._fsp--;
@@ -916,7 +917,7 @@ public class FunSQLParser extends Parser {
             	                    	retval.stmt.addAttribute(att2);
             	                    }
 
-            	    pushFollow(FOLLOW_tokenDataType_in_createTableStatement2561);
+            	    pushFollow(FOLLOW_tokenDataType_in_createTableStatement2573);
             	    dataType2=tokenDataType();
 
             	    state._fsp--;
@@ -935,9 +936,9 @@ public class FunSQLParser extends Parser {
             } while (true);
 
 
-            match(input,RPAREN,FOLLOW_RPAREN_in_createTableStatement2616); if (state.failed) return retval;
+            match(input,RPAREN,FOLLOW_RPAREN_in_createTableStatement2628); if (state.failed) return retval;
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:244:17: ( KEYWORD_FROM table2= tokenTable )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:269:17: ( KEYWORD_FROM table2= tokenTable )?
             int alt4=2;
             int LA4_0 = input.LA(1);
 
@@ -946,11 +947,11 @@ public class FunSQLParser extends Parser {
             }
             switch (alt4) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:245:17: KEYWORD_FROM table2= tokenTable
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:270:17: KEYWORD_FROM table2= tokenTable
                     {
-                    match(input,KEYWORD_FROM,FOLLOW_KEYWORD_FROM_in_createTableStatement2652); if (state.failed) return retval;
+                    match(input,KEYWORD_FROM,FOLLOW_KEYWORD_FROM_in_createTableStatement2664); if (state.failed) return retval;
 
-                    pushFollow(FOLLOW_tokenTable_in_createTableStatement2672);
+                    pushFollow(FOLLOW_tokenTable_in_createTableStatement2684);
                     table2=tokenTable();
 
                     state._fsp--;
@@ -966,11 +967,11 @@ public class FunSQLParser extends Parser {
             }
 
 
-            match(input,KEYWORD_IN,FOLLOW_KEYWORD_IN_in_createTableStatement2711); if (state.failed) return retval;
+            match(input,KEYWORD_IN,FOLLOW_KEYWORD_IN_in_createTableStatement2723); if (state.failed) return retval;
 
-            match(input,KEYWORD_CONNECTION,FOLLOW_KEYWORD_CONNECTION_in_createTableStatement2713); if (state.failed) return retval;
+            match(input,KEYWORD_CONNECTION,FOLLOW_KEYWORD_CONNECTION_in_createTableStatement2725); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenIdentifier_in_createTableStatement2733);
+            pushFollow(FOLLOW_tokenIdentifier_in_createTableStatement2745);
             connection1=tokenIdentifier();
 
             state._fsp--;
@@ -1010,7 +1011,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "dropTableStatement"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:257:1: dropTableStatement returns [DropTableStmt stmt] : ( KEYWORD_DROP KEYWORD_TABLE table1= tokenTable ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:282:1: dropTableStatement returns [DropTableStmt stmt] : ( KEYWORD_DROP KEYWORD_TABLE table1= tokenTable ) ;
     public final FunSQLParser.dropTableStatement_return dropTableStatement() throws RecognitionException {
         FunSQLParser.dropTableStatement_return retval = new FunSQLParser.dropTableStatement_return();
         retval.start = input.LT(1);
@@ -1026,17 +1027,17 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 7) ) { return retval; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:261:9: ( ( KEYWORD_DROP KEYWORD_TABLE table1= tokenTable ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:262:9: ( KEYWORD_DROP KEYWORD_TABLE table1= tokenTable )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:286:9: ( ( KEYWORD_DROP KEYWORD_TABLE table1= tokenTable ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:287:9: ( KEYWORD_DROP KEYWORD_TABLE table1= tokenTable )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:262:9: ( KEYWORD_DROP KEYWORD_TABLE table1= tokenTable )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:263:17: KEYWORD_DROP KEYWORD_TABLE table1= tokenTable
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:287:9: ( KEYWORD_DROP KEYWORD_TABLE table1= tokenTable )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:288:17: KEYWORD_DROP KEYWORD_TABLE table1= tokenTable
             {
-            match(input,KEYWORD_DROP,FOLLOW_KEYWORD_DROP_in_dropTableStatement2812); if (state.failed) return retval;
+            match(input,KEYWORD_DROP,FOLLOW_KEYWORD_DROP_in_dropTableStatement2824); if (state.failed) return retval;
 
-            match(input,KEYWORD_TABLE,FOLLOW_KEYWORD_TABLE_in_dropTableStatement2830); if (state.failed) return retval;
+            match(input,KEYWORD_TABLE,FOLLOW_KEYWORD_TABLE_in_dropTableStatement2842); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenTable_in_dropTableStatement2850);
+            pushFollow(FOLLOW_tokenTable_in_dropTableStatement2862);
             table1=tokenTable();
 
             state._fsp--;
@@ -1076,7 +1077,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "createFunctionStatement"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:271:1: createFunctionStatement returns [CreateFunctionStmt stmt] : ( KEYWORD_CREATE KEYWORD_FUNCTION function1= tokenFunction LPAREN ( KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE ) ( COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE )* RPAREN KEYWORD_BEGIN (ass1= tokenAssignment )* KEYWORD_END ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:296:1: createFunctionStatement returns [CreateFunctionStmt stmt] : ( KEYWORD_CREATE KEYWORD_FUNCTION function1= tokenFunction LPAREN ( KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE ) ( COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE )* RPAREN KEYWORD_BEGIN (ass1= tokenAssignment )* KEYWORD_END ) ;
     public final FunSQLParser.createFunctionStatement_return createFunctionStatement() throws RecognitionException {
         FunSQLParser.createFunctionStatement_return retval = new FunSQLParser.createFunctionStatement_return();
         retval.start = input.LT(1);
@@ -1098,17 +1099,17 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 8) ) { return retval; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:275:9: ( ( KEYWORD_CREATE KEYWORD_FUNCTION function1= tokenFunction LPAREN ( KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE ) ( COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE )* RPAREN KEYWORD_BEGIN (ass1= tokenAssignment )* KEYWORD_END ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:276:9: ( KEYWORD_CREATE KEYWORD_FUNCTION function1= tokenFunction LPAREN ( KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE ) ( COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE )* RPAREN KEYWORD_BEGIN (ass1= tokenAssignment )* KEYWORD_END )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:300:9: ( ( KEYWORD_CREATE KEYWORD_FUNCTION function1= tokenFunction LPAREN ( KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE ) ( COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE )* RPAREN KEYWORD_BEGIN (ass1= tokenAssignment )* KEYWORD_END ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:301:9: ( KEYWORD_CREATE KEYWORD_FUNCTION function1= tokenFunction LPAREN ( KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE ) ( COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE )* RPAREN KEYWORD_BEGIN (ass1= tokenAssignment )* KEYWORD_END )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:276:9: ( KEYWORD_CREATE KEYWORD_FUNCTION function1= tokenFunction LPAREN ( KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE ) ( COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE )* RPAREN KEYWORD_BEGIN (ass1= tokenAssignment )* KEYWORD_END )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:277:17: KEYWORD_CREATE KEYWORD_FUNCTION function1= tokenFunction LPAREN ( KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE ) ( COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE )* RPAREN KEYWORD_BEGIN (ass1= tokenAssignment )* KEYWORD_END
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:301:9: ( KEYWORD_CREATE KEYWORD_FUNCTION function1= tokenFunction LPAREN ( KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE ) ( COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE )* RPAREN KEYWORD_BEGIN (ass1= tokenAssignment )* KEYWORD_END )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:302:17: KEYWORD_CREATE KEYWORD_FUNCTION function1= tokenFunction LPAREN ( KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE ) ( COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE )* RPAREN KEYWORD_BEGIN (ass1= tokenAssignment )* KEYWORD_END
             {
-            match(input,KEYWORD_CREATE,FOLLOW_KEYWORD_CREATE_in_createFunctionStatement2916); if (state.failed) return retval;
+            match(input,KEYWORD_CREATE,FOLLOW_KEYWORD_CREATE_in_createFunctionStatement2928); if (state.failed) return retval;
 
-            match(input,KEYWORD_FUNCTION,FOLLOW_KEYWORD_FUNCTION_in_createFunctionStatement2934); if (state.failed) return retval;
+            match(input,KEYWORD_FUNCTION,FOLLOW_KEYWORD_FUNCTION_in_createFunctionStatement2946); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenFunction_in_createFunctionStatement2954);
+            pushFollow(FOLLOW_tokenFunction_in_createFunctionStatement2966);
             function1=tokenFunction();
 
             state._fsp--;
@@ -1118,14 +1119,14 @@ public class FunSQLParser extends Parser {
                             	retval.stmt.setFunction(function1);
                             }
 
-            match(input,LPAREN,FOLLOW_LPAREN_in_createFunctionStatement2973); if (state.failed) return retval;
+            match(input,LPAREN,FOLLOW_LPAREN_in_createFunctionStatement2985); if (state.failed) return retval;
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:283:17: ( KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:284:17: KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:308:17: ( KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:309:17: KEYWORD_OUT var1= tokenVariable KEYWORD_TABLE
             {
-            match(input,KEYWORD_OUT,FOLLOW_KEYWORD_OUT_in_createFunctionStatement3009); if (state.failed) return retval;
+            match(input,KEYWORD_OUT,FOLLOW_KEYWORD_OUT_in_createFunctionStatement3021); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenVariable_in_createFunctionStatement3029);
+            pushFollow(FOLLOW_tokenVariable_in_createFunctionStatement3041);
             var1=tokenVariable();
 
             state._fsp--;
@@ -1135,12 +1136,12 @@ public class FunSQLParser extends Parser {
                            		retval.stmt.addOutParam(var1);
             		}
 
-            match(input,KEYWORD_TABLE,FOLLOW_KEYWORD_TABLE_in_createFunctionStatement3034); if (state.failed) return retval;
+            match(input,KEYWORD_TABLE,FOLLOW_KEYWORD_TABLE_in_createFunctionStatement3046); if (state.failed) return retval;
 
             }
 
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:290:3: ( COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:315:3: ( COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE )*
             loop5:
             do {
                 int alt5=2;
@@ -1153,13 +1154,13 @@ public class FunSQLParser extends Parser {
 
                 switch (alt5) {
             	case 1 :
-            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:291:3: COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE
+            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:316:3: COMMA KEYWORD_OUT var2= tokenVariable KEYWORD_TABLE
             	    {
-            	    match(input,COMMA,FOLLOW_COMMA_in_createFunctionStatement3046); if (state.failed) return retval;
+            	    match(input,COMMA,FOLLOW_COMMA_in_createFunctionStatement3058); if (state.failed) return retval;
 
-            	    match(input,KEYWORD_OUT,FOLLOW_KEYWORD_OUT_in_createFunctionStatement3050); if (state.failed) return retval;
+            	    match(input,KEYWORD_OUT,FOLLOW_KEYWORD_OUT_in_createFunctionStatement3062); if (state.failed) return retval;
 
-            	    pushFollow(FOLLOW_tokenVariable_in_createFunctionStatement3070);
+            	    pushFollow(FOLLOW_tokenVariable_in_createFunctionStatement3082);
             	    var2=tokenVariable();
 
             	    state._fsp--;
@@ -1169,7 +1170,7 @@ public class FunSQLParser extends Parser {
             	                   		retval.stmt.addOutParam(var2);
             	    		}
 
-            	    match(input,KEYWORD_TABLE,FOLLOW_KEYWORD_TABLE_in_createFunctionStatement3075); if (state.failed) return retval;
+            	    match(input,KEYWORD_TABLE,FOLLOW_KEYWORD_TABLE_in_createFunctionStatement3087); if (state.failed) return retval;
 
             	    }
             	    break;
@@ -1180,11 +1181,11 @@ public class FunSQLParser extends Parser {
             } while (true);
 
 
-            match(input,RPAREN,FOLLOW_RPAREN_in_createFunctionStatement3084); if (state.failed) return retval;
+            match(input,RPAREN,FOLLOW_RPAREN_in_createFunctionStatement3096); if (state.failed) return retval;
 
-            match(input,KEYWORD_BEGIN,FOLLOW_KEYWORD_BEGIN_in_createFunctionStatement3088); if (state.failed) return retval;
+            match(input,KEYWORD_BEGIN,FOLLOW_KEYWORD_BEGIN_in_createFunctionStatement3100); if (state.failed) return retval;
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:300:3: (ass1= tokenAssignment )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:325:3: (ass1= tokenAssignment )*
             loop6:
             do {
                 int alt6=2;
@@ -1197,9 +1198,9 @@ public class FunSQLParser extends Parser {
 
                 switch (alt6) {
             	case 1 :
-            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:301:3: ass1= tokenAssignment
+            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:326:3: ass1= tokenAssignment
             	    {
-            	    pushFollow(FOLLOW_tokenAssignment_in_createFunctionStatement3098);
+            	    pushFollow(FOLLOW_tokenAssignment_in_createFunctionStatement3110);
             	    ass1=tokenAssignment();
 
             	    state._fsp--;
@@ -1219,7 +1220,7 @@ public class FunSQLParser extends Parser {
             } while (true);
 
 
-            match(input,KEYWORD_END,FOLLOW_KEYWORD_END_in_createFunctionStatement3124); if (state.failed) return retval;
+            match(input,KEYWORD_END,FOLLOW_KEYWORD_END_in_createFunctionStatement3136); if (state.failed) return retval;
 
             }
 
@@ -1251,7 +1252,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "dropFunctionStatement"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:310:1: dropFunctionStatement returns [DropFunctionStmt stmt] : ( KEYWORD_DROP KEYWORD_FUNCTION fun1= tokenFunction ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:335:1: dropFunctionStatement returns [DropFunctionStmt stmt] : ( KEYWORD_DROP KEYWORD_FUNCTION fun1= tokenFunction ) ;
     public final FunSQLParser.dropFunctionStatement_return dropFunctionStatement() throws RecognitionException {
         FunSQLParser.dropFunctionStatement_return retval = new FunSQLParser.dropFunctionStatement_return();
         retval.start = input.LT(1);
@@ -1267,17 +1268,17 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 9) ) { return retval; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:314:9: ( ( KEYWORD_DROP KEYWORD_FUNCTION fun1= tokenFunction ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:315:9: ( KEYWORD_DROP KEYWORD_FUNCTION fun1= tokenFunction )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:339:9: ( ( KEYWORD_DROP KEYWORD_FUNCTION fun1= tokenFunction ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:340:9: ( KEYWORD_DROP KEYWORD_FUNCTION fun1= tokenFunction )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:315:9: ( KEYWORD_DROP KEYWORD_FUNCTION fun1= tokenFunction )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:316:17: KEYWORD_DROP KEYWORD_FUNCTION fun1= tokenFunction
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:340:9: ( KEYWORD_DROP KEYWORD_FUNCTION fun1= tokenFunction )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:341:17: KEYWORD_DROP KEYWORD_FUNCTION fun1= tokenFunction
             {
-            match(input,KEYWORD_DROP,FOLLOW_KEYWORD_DROP_in_dropFunctionStatement3204); if (state.failed) return retval;
+            match(input,KEYWORD_DROP,FOLLOW_KEYWORD_DROP_in_dropFunctionStatement3216); if (state.failed) return retval;
 
-            match(input,KEYWORD_FUNCTION,FOLLOW_KEYWORD_FUNCTION_in_dropFunctionStatement3222); if (state.failed) return retval;
+            match(input,KEYWORD_FUNCTION,FOLLOW_KEYWORD_FUNCTION_in_dropFunctionStatement3234); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenFunction_in_dropFunctionStatement3242);
+            pushFollow(FOLLOW_tokenFunction_in_dropFunctionStatement3254);
             fun1=tokenFunction();
 
             state._fsp--;
@@ -1317,7 +1318,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "callFunctionStatement"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:324:1: callFunctionStatement returns [CallFunctionStmt stmt] : ( KEYWORD_CALL KEYWORD_FUNCTION fun1= tokenFunction ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:349:1: callFunctionStatement returns [CallFunctionStmt stmt] : ( KEYWORD_CALL KEYWORD_FUNCTION fun1= tokenFunction ) ;
     public final FunSQLParser.callFunctionStatement_return callFunctionStatement() throws RecognitionException {
         FunSQLParser.callFunctionStatement_return retval = new FunSQLParser.callFunctionStatement_return();
         retval.start = input.LT(1);
@@ -1333,17 +1334,17 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 10) ) { return retval; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:328:9: ( ( KEYWORD_CALL KEYWORD_FUNCTION fun1= tokenFunction ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:329:9: ( KEYWORD_CALL KEYWORD_FUNCTION fun1= tokenFunction )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:353:9: ( ( KEYWORD_CALL KEYWORD_FUNCTION fun1= tokenFunction ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:354:9: ( KEYWORD_CALL KEYWORD_FUNCTION fun1= tokenFunction )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:329:9: ( KEYWORD_CALL KEYWORD_FUNCTION fun1= tokenFunction )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:330:17: KEYWORD_CALL KEYWORD_FUNCTION fun1= tokenFunction
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:354:9: ( KEYWORD_CALL KEYWORD_FUNCTION fun1= tokenFunction )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:355:17: KEYWORD_CALL KEYWORD_FUNCTION fun1= tokenFunction
             {
-            match(input,KEYWORD_CALL,FOLLOW_KEYWORD_CALL_in_callFunctionStatement3308); if (state.failed) return retval;
+            match(input,KEYWORD_CALL,FOLLOW_KEYWORD_CALL_in_callFunctionStatement3320); if (state.failed) return retval;
 
-            match(input,KEYWORD_FUNCTION,FOLLOW_KEYWORD_FUNCTION_in_callFunctionStatement3326); if (state.failed) return retval;
+            match(input,KEYWORD_FUNCTION,FOLLOW_KEYWORD_FUNCTION_in_callFunctionStatement3338); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenFunction_in_callFunctionStatement3346);
+            pushFollow(FOLLOW_tokenFunction_in_callFunctionStatement3358);
             fun1=tokenFunction();
 
             state._fsp--;
@@ -1383,7 +1384,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "selectStatement"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:338:1: selectStatement returns [SelectStmt stmt] : ( KEYWORD_SELECT selExpr1= abstractExpression ( KEYWORD_AS selAlias1= tokenIdentifier )? ( COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )? )* KEYWORD_FROM table1= tokenTable ( KEYWORD_AS tableAlias1= tokenIdentifier )? ( COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )? )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ( KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )* )? ( KEYWORD_HAVING havingPred= abstractPredicate )? ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:363:1: selectStatement returns [SelectStmt stmt] : ( KEYWORD_SELECT selExpr1= abstractExpression ( KEYWORD_AS selAlias1= tokenIdentifier )? ( COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )? )* KEYWORD_FROM table1= tokenTable ( KEYWORD_AS tableAlias1= tokenIdentifier )? ( COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )? )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ( KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )* )? ( KEYWORD_HAVING havingPred= abstractPredicate )? ) ;
     public final FunSQLParser.selectStatement_return selectStatement() throws RecognitionException {
         FunSQLParser.selectStatement_return retval = new FunSQLParser.selectStatement_return();
         retval.start = input.LT(1);
@@ -1422,15 +1423,15 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 11) ) { return retval; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:343:9: ( ( KEYWORD_SELECT selExpr1= abstractExpression ( KEYWORD_AS selAlias1= tokenIdentifier )? ( COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )? )* KEYWORD_FROM table1= tokenTable ( KEYWORD_AS tableAlias1= tokenIdentifier )? ( COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )? )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ( KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )* )? ( KEYWORD_HAVING havingPred= abstractPredicate )? ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:344:9: ( KEYWORD_SELECT selExpr1= abstractExpression ( KEYWORD_AS selAlias1= tokenIdentifier )? ( COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )? )* KEYWORD_FROM table1= tokenTable ( KEYWORD_AS tableAlias1= tokenIdentifier )? ( COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )? )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ( KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )* )? ( KEYWORD_HAVING havingPred= abstractPredicate )? )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:368:9: ( ( KEYWORD_SELECT selExpr1= abstractExpression ( KEYWORD_AS selAlias1= tokenIdentifier )? ( COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )? )* KEYWORD_FROM table1= tokenTable ( KEYWORD_AS tableAlias1= tokenIdentifier )? ( COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )? )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ( KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )* )? ( KEYWORD_HAVING havingPred= abstractPredicate )? ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:369:9: ( KEYWORD_SELECT selExpr1= abstractExpression ( KEYWORD_AS selAlias1= tokenIdentifier )? ( COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )? )* KEYWORD_FROM table1= tokenTable ( KEYWORD_AS tableAlias1= tokenIdentifier )? ( COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )? )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ( KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )* )? ( KEYWORD_HAVING havingPred= abstractPredicate )? )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:344:9: ( KEYWORD_SELECT selExpr1= abstractExpression ( KEYWORD_AS selAlias1= tokenIdentifier )? ( COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )? )* KEYWORD_FROM table1= tokenTable ( KEYWORD_AS tableAlias1= tokenIdentifier )? ( COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )? )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ( KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )* )? ( KEYWORD_HAVING havingPred= abstractPredicate )? )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:346:17: KEYWORD_SELECT selExpr1= abstractExpression ( KEYWORD_AS selAlias1= tokenIdentifier )? ( COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )? )* KEYWORD_FROM table1= tokenTable ( KEYWORD_AS tableAlias1= tokenIdentifier )? ( COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )? )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ( KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )* )? ( KEYWORD_HAVING havingPred= abstractPredicate )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:369:9: ( KEYWORD_SELECT selExpr1= abstractExpression ( KEYWORD_AS selAlias1= tokenIdentifier )? ( COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )? )* KEYWORD_FROM table1= tokenTable ( KEYWORD_AS tableAlias1= tokenIdentifier )? ( COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )? )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ( KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )* )? ( KEYWORD_HAVING havingPred= abstractPredicate )? )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:371:17: KEYWORD_SELECT selExpr1= abstractExpression ( KEYWORD_AS selAlias1= tokenIdentifier )? ( COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )? )* KEYWORD_FROM table1= tokenTable ( KEYWORD_AS tableAlias1= tokenIdentifier )? ( COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )? )* ( KEYWORD_WHERE predicate1= abstractPredicate )? ( KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )* )? ( KEYWORD_HAVING havingPred= abstractPredicate )?
             {
-            match(input,KEYWORD_SELECT,FOLLOW_KEYWORD_SELECT_in_selectStatement3423); if (state.failed) return retval;
+            match(input,KEYWORD_SELECT,FOLLOW_KEYWORD_SELECT_in_selectStatement3435); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_abstractExpression_in_selectStatement3443);
+            pushFollow(FOLLOW_abstractExpression_in_selectStatement3455);
             selExpr1=abstractExpression();
 
             state._fsp--;
@@ -1441,7 +1442,7 @@ public class FunSQLParser extends Parser {
                             	++i;
                             }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:352:17: ( KEYWORD_AS selAlias1= tokenIdentifier )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:377:17: ( KEYWORD_AS selAlias1= tokenIdentifier )?
             int alt7=2;
             int LA7_0 = input.LA(1);
 
@@ -1450,11 +1451,11 @@ public class FunSQLParser extends Parser {
             }
             switch (alt7) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:353:18: KEYWORD_AS selAlias1= tokenIdentifier
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:378:18: KEYWORD_AS selAlias1= tokenIdentifier
                     {
-                    match(input,KEYWORD_AS,FOLLOW_KEYWORD_AS_in_selectStatement3498); if (state.failed) return retval;
+                    match(input,KEYWORD_AS,FOLLOW_KEYWORD_AS_in_selectStatement3510); if (state.failed) return retval;
 
-                    pushFollow(FOLLOW_tokenIdentifier_in_selectStatement3519);
+                    pushFollow(FOLLOW_tokenIdentifier_in_selectStatement3531);
                     selAlias1=tokenIdentifier();
 
                     state._fsp--;
@@ -1470,7 +1471,7 @@ public class FunSQLParser extends Parser {
             }
 
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:359:17: ( COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )? )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:384:17: ( COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )? )*
             loop9:
             do {
                 int alt9=2;
@@ -1483,11 +1484,11 @@ public class FunSQLParser extends Parser {
 
                 switch (alt9) {
             	case 1 :
-            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:360:17: COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )?
+            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:385:17: COMMA selExpr2= abstractExpression ( KEYWORD_AS selAlias2= tokenIdentifier )?
             	    {
-            	    match(input,COMMA,FOLLOW_COMMA_in_selectStatement3593); if (state.failed) return retval;
+            	    match(input,COMMA,FOLLOW_COMMA_in_selectStatement3605); if (state.failed) return retval;
 
-            	    pushFollow(FOLLOW_abstractExpression_in_selectStatement3613);
+            	    pushFollow(FOLLOW_abstractExpression_in_selectStatement3625);
             	    selExpr2=abstractExpression();
 
             	    state._fsp--;
@@ -1498,7 +1499,7 @@ public class FunSQLParser extends Parser {
             	                    	++i;
             	                    }
 
-            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:366:17: ( KEYWORD_AS selAlias2= tokenIdentifier )?
+            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:391:17: ( KEYWORD_AS selAlias2= tokenIdentifier )?
             	    int alt8=2;
             	    int LA8_0 = input.LA(1);
 
@@ -1507,11 +1508,11 @@ public class FunSQLParser extends Parser {
             	    }
             	    switch (alt8) {
             	        case 1 :
-            	            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:367:18: KEYWORD_AS selAlias2= tokenIdentifier
+            	            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:392:18: KEYWORD_AS selAlias2= tokenIdentifier
             	            {
-            	            match(input,KEYWORD_AS,FOLLOW_KEYWORD_AS_in_selectStatement3668); if (state.failed) return retval;
+            	            match(input,KEYWORD_AS,FOLLOW_KEYWORD_AS_in_selectStatement3680); if (state.failed) return retval;
 
-            	            pushFollow(FOLLOW_tokenIdentifier_in_selectStatement3689);
+            	            pushFollow(FOLLOW_tokenIdentifier_in_selectStatement3701);
             	            selAlias2=tokenIdentifier();
 
             	            state._fsp--;
@@ -1536,9 +1537,9 @@ public class FunSQLParser extends Parser {
             } while (true);
 
 
-            match(input,KEYWORD_FROM,FOLLOW_KEYWORD_FROM_in_selectStatement3798); if (state.failed) return retval;
+            match(input,KEYWORD_FROM,FOLLOW_KEYWORD_FROM_in_selectStatement3810); if (state.failed) return retval;
 
-            pushFollow(FOLLOW_tokenTable_in_selectStatement3818);
+            pushFollow(FOLLOW_tokenTable_in_selectStatement3830);
             table1=tokenTable();
 
             state._fsp--;
@@ -1549,7 +1550,7 @@ public class FunSQLParser extends Parser {
                             	i=1;
                             }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:382:17: ( KEYWORD_AS tableAlias1= tokenIdentifier )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:407:17: ( KEYWORD_AS tableAlias1= tokenIdentifier )?
             int alt10=2;
             int LA10_0 = input.LA(1);
 
@@ -1558,11 +1559,11 @@ public class FunSQLParser extends Parser {
             }
             switch (alt10) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:383:18: KEYWORD_AS tableAlias1= tokenIdentifier
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:408:18: KEYWORD_AS tableAlias1= tokenIdentifier
                     {
-                    match(input,KEYWORD_AS,FOLLOW_KEYWORD_AS_in_selectStatement3874); if (state.failed) return retval;
+                    match(input,KEYWORD_AS,FOLLOW_KEYWORD_AS_in_selectStatement3886); if (state.failed) return retval;
 
-                    pushFollow(FOLLOW_tokenIdentifier_in_selectStatement3895);
+                    pushFollow(FOLLOW_tokenIdentifier_in_selectStatement3907);
                     tableAlias1=tokenIdentifier();
 
                     state._fsp--;
@@ -1578,7 +1579,7 @@ public class FunSQLParser extends Parser {
             }
 
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:389:17: ( COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )? )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:414:17: ( COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )? )*
             loop12:
             do {
                 int alt12=2;
@@ -1591,11 +1592,11 @@ public class FunSQLParser extends Parser {
 
                 switch (alt12) {
             	case 1 :
-            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:390:17: COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )?
+            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:415:17: COMMA table2= tokenTable ( KEYWORD_AS tableAlias2= tokenIdentifier )?
             	    {
-            	    match(input,COMMA,FOLLOW_COMMA_in_selectStatement3969); if (state.failed) return retval;
+            	    match(input,COMMA,FOLLOW_COMMA_in_selectStatement3981); if (state.failed) return retval;
 
-            	    pushFollow(FOLLOW_tokenTable_in_selectStatement3989);
+            	    pushFollow(FOLLOW_tokenTable_in_selectStatement4001);
             	    table2=tokenTable();
 
             	    state._fsp--;
@@ -1606,7 +1607,7 @@ public class FunSQLParser extends Parser {
             	                    	++i;
             	                    }
 
-            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:396:17: ( KEYWORD_AS tableAlias2= tokenIdentifier )?
+            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:421:17: ( KEYWORD_AS tableAlias2= tokenIdentifier )?
             	    int alt11=2;
             	    int LA11_0 = input.LA(1);
 
@@ -1615,11 +1616,11 @@ public class FunSQLParser extends Parser {
             	    }
             	    switch (alt11) {
             	        case 1 :
-            	            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:397:18: KEYWORD_AS tableAlias2= tokenIdentifier
+            	            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:422:18: KEYWORD_AS tableAlias2= tokenIdentifier
             	            {
-            	            match(input,KEYWORD_AS,FOLLOW_KEYWORD_AS_in_selectStatement4044); if (state.failed) return retval;
+            	            match(input,KEYWORD_AS,FOLLOW_KEYWORD_AS_in_selectStatement4056); if (state.failed) return retval;
 
-            	            pushFollow(FOLLOW_tokenIdentifier_in_selectStatement4065);
+            	            pushFollow(FOLLOW_tokenIdentifier_in_selectStatement4077);
             	            tableAlias2=tokenIdentifier();
 
             	            state._fsp--;
@@ -1644,7 +1645,7 @@ public class FunSQLParser extends Parser {
             } while (true);
 
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:405:17: ( KEYWORD_WHERE predicate1= abstractPredicate )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:430:17: ( KEYWORD_WHERE predicate1= abstractPredicate )?
             int alt13=2;
             int LA13_0 = input.LA(1);
 
@@ -1653,11 +1654,11 @@ public class FunSQLParser extends Parser {
             }
             switch (alt13) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:406:17: KEYWORD_WHERE predicate1= abstractPredicate
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:431:17: KEYWORD_WHERE predicate1= abstractPredicate
                     {
-                    match(input,KEYWORD_WHERE,FOLLOW_KEYWORD_WHERE_in_selectStatement4175); if (state.failed) return retval;
+                    match(input,KEYWORD_WHERE,FOLLOW_KEYWORD_WHERE_in_selectStatement4187); if (state.failed) return retval;
 
-                    pushFollow(FOLLOW_abstractPredicate_in_selectStatement4195);
+                    pushFollow(FOLLOW_abstractPredicate_in_selectStatement4207);
                     predicate1=abstractPredicate();
 
                     state._fsp--;
@@ -1673,7 +1674,7 @@ public class FunSQLParser extends Parser {
             }
 
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:414:17: ( KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )* )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:439:17: ( KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )* )?
             int alt15=2;
             int LA15_0 = input.LA(1);
 
@@ -1682,13 +1683,13 @@ public class FunSQLParser extends Parser {
             }
             switch (alt15) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:415:17: KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )*
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:440:17: KEYWORD_GROUP KEYWORD_BY groupExpr1= abstractExpression ( COMMA groupExpr2= abstractExpression )*
                     {
-                    match(input,KEYWORD_GROUP,FOLLOW_KEYWORD_GROUP_in_selectStatement4302); if (state.failed) return retval;
+                    match(input,KEYWORD_GROUP,FOLLOW_KEYWORD_GROUP_in_selectStatement4314); if (state.failed) return retval;
 
-                    match(input,KEYWORD_BY,FOLLOW_KEYWORD_BY_in_selectStatement4304); if (state.failed) return retval;
+                    match(input,KEYWORD_BY,FOLLOW_KEYWORD_BY_in_selectStatement4316); if (state.failed) return retval;
 
-                    pushFollow(FOLLOW_abstractExpression_in_selectStatement4324);
+                    pushFollow(FOLLOW_abstractExpression_in_selectStatement4336);
                     groupExpr1=abstractExpression();
 
                     state._fsp--;
@@ -1699,7 +1700,7 @@ public class FunSQLParser extends Parser {
                                     	++i;
                                     }
 
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:421:17: ( COMMA groupExpr2= abstractExpression )*
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:446:17: ( COMMA groupExpr2= abstractExpression )*
                     loop14:
                     do {
                         int alt14=2;
@@ -1712,18 +1713,18 @@ public class FunSQLParser extends Parser {
 
                         switch (alt14) {
                     	case 1 :
-                    	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:422:17: COMMA groupExpr2= abstractExpression
+                    	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:447:17: COMMA groupExpr2= abstractExpression
                     	    {
-                    	    match(input,COMMA,FOLLOW_COMMA_in_selectStatement4378); if (state.failed) return retval;
+                    	    match(input,COMMA,FOLLOW_COMMA_in_selectStatement4390); if (state.failed) return retval;
 
-                    	    pushFollow(FOLLOW_abstractExpression_in_selectStatement4398);
+                    	    pushFollow(FOLLOW_abstractExpression_in_selectStatement4410);
                     	    groupExpr2=abstractExpression();
 
                     	    state._fsp--;
                     	    if (state.failed) return retval;
 
                     	    if ( state.backtracking==0 ) {
-                    	                    	retval.stmt.addSelExpression(groupExpr2);
+                    	                    	retval.stmt.addGroupExpression(groupExpr2);
                     	                    	++i;
                     	                    }
 
@@ -1742,7 +1743,7 @@ public class FunSQLParser extends Parser {
             }
 
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:432:17: ( KEYWORD_HAVING havingPred= abstractPredicate )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:457:17: ( KEYWORD_HAVING havingPred= abstractPredicate )?
             int alt16=2;
             int LA16_0 = input.LA(1);
 
@@ -1751,11 +1752,11 @@ public class FunSQLParser extends Parser {
             }
             switch (alt16) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:433:17: KEYWORD_HAVING havingPred= abstractPredicate
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:458:17: KEYWORD_HAVING havingPred= abstractPredicate
                     {
-                    match(input,KEYWORD_HAVING,FOLLOW_KEYWORD_HAVING_in_selectStatement4524); if (state.failed) return retval;
+                    match(input,KEYWORD_HAVING,FOLLOW_KEYWORD_HAVING_in_selectStatement4536); if (state.failed) return retval;
 
-                    pushFollow(FOLLOW_abstractPredicate_in_selectStatement4544);
+                    pushFollow(FOLLOW_abstractPredicate_in_selectStatement4556);
                     havingPred=abstractPredicate();
 
                     state._fsp--;
@@ -1797,7 +1798,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "abstractPredicate"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:443:1: abstractPredicate returns [AbstractPredicate predicate] : predicate1= complexPredicateOr ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:468:1: abstractPredicate returns [AbstractPredicate predicate] : predicate1= complexPredicateOr ;
     public final AbstractPredicate abstractPredicate() throws RecognitionException {
         AbstractPredicate predicate = null;
 
@@ -1809,10 +1810,10 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 12) ) { return predicate; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:444:2: (predicate1= complexPredicateOr )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:445:3: predicate1= complexPredicateOr
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:469:2: (predicate1= complexPredicateOr )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:470:3: predicate1= complexPredicateOr
             {
-            pushFollow(FOLLOW_complexPredicateOr_in_abstractPredicate4606);
+            pushFollow(FOLLOW_complexPredicateOr_in_abstractPredicate4618);
             predicate1=complexPredicateOr();
 
             state._fsp--;
@@ -1842,7 +1843,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "complexPredicateOr"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:450:1: complexPredicateOr returns [ComplexPredicate predicateOr] : (predicate1= complexPredicateAnd ( KEYWORD_OR predicate2= complexPredicateAnd )* ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:475:1: complexPredicateOr returns [ComplexPredicate predicateOr] : (predicate1= complexPredicateAnd ( KEYWORD_OR predicate2= complexPredicateAnd )* ) ;
     public final ComplexPredicate complexPredicateOr() throws RecognitionException {
         ComplexPredicate predicateOr = null;
 
@@ -1859,13 +1860,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 13) ) { return predicateOr; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:454:2: ( (predicate1= complexPredicateAnd ( KEYWORD_OR predicate2= complexPredicateAnd )* ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:455:2: (predicate1= complexPredicateAnd ( KEYWORD_OR predicate2= complexPredicateAnd )* )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:479:2: ( (predicate1= complexPredicateAnd ( KEYWORD_OR predicate2= complexPredicateAnd )* ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:480:2: (predicate1= complexPredicateAnd ( KEYWORD_OR predicate2= complexPredicateAnd )* )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:455:2: (predicate1= complexPredicateAnd ( KEYWORD_OR predicate2= complexPredicateAnd )* )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:456:3: predicate1= complexPredicateAnd ( KEYWORD_OR predicate2= complexPredicateAnd )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:480:2: (predicate1= complexPredicateAnd ( KEYWORD_OR predicate2= complexPredicateAnd )* )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:481:3: predicate1= complexPredicateAnd ( KEYWORD_OR predicate2= complexPredicateAnd )*
             {
-            pushFollow(FOLLOW_complexPredicateAnd_in_complexPredicateOr4644);
+            pushFollow(FOLLOW_complexPredicateAnd_in_complexPredicateOr4656);
             predicate1=complexPredicateAnd();
 
             state._fsp--;
@@ -1875,7 +1876,7 @@ public class FunSQLParser extends Parser {
             			predicateOr.setPredicate1(predicate1);
             		}
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:459:3: ( KEYWORD_OR predicate2= complexPredicateAnd )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:484:3: ( KEYWORD_OR predicate2= complexPredicateAnd )*
             loop17:
             do {
                 int alt17=2;
@@ -1888,15 +1889,15 @@ public class FunSQLParser extends Parser {
 
                 switch (alt17) {
             	case 1 :
-            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:460:4: KEYWORD_OR predicate2= complexPredicateAnd
+            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:485:4: KEYWORD_OR predicate2= complexPredicateAnd
             	    {
-            	    match(input,KEYWORD_OR,FOLLOW_KEYWORD_OR_in_complexPredicateOr4655); if (state.failed) return predicateOr;
+            	    match(input,KEYWORD_OR,FOLLOW_KEYWORD_OR_in_complexPredicateOr4667); if (state.failed) return predicateOr;
 
             	    if ( state.backtracking==0 ) {
             	    				predicateOr.addOr();
             	    			}
 
-            	    pushFollow(FOLLOW_complexPredicateAnd_in_complexPredicateOr4663);
+            	    pushFollow(FOLLOW_complexPredicateAnd_in_complexPredicateOr4675);
             	    predicate2=complexPredicateAnd();
 
             	    state._fsp--;
@@ -1938,7 +1939,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "complexPredicateAnd"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:470:1: complexPredicateAnd returns [ComplexPredicate predicateAnd] : (predicate1= complexPredicateNot ( KEYWORD_AND predicate2= complexPredicateNot )* ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:495:1: complexPredicateAnd returns [ComplexPredicate predicateAnd] : (predicate1= complexPredicateNot ( KEYWORD_AND predicate2= complexPredicateNot )* ) ;
     public final ComplexPredicate complexPredicateAnd() throws RecognitionException {
         ComplexPredicate predicateAnd = null;
 
@@ -1955,13 +1956,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 14) ) { return predicateAnd; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:474:2: ( (predicate1= complexPredicateNot ( KEYWORD_AND predicate2= complexPredicateNot )* ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:475:2: (predicate1= complexPredicateNot ( KEYWORD_AND predicate2= complexPredicateNot )* )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:499:2: ( (predicate1= complexPredicateNot ( KEYWORD_AND predicate2= complexPredicateNot )* ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:500:2: (predicate1= complexPredicateNot ( KEYWORD_AND predicate2= complexPredicateNot )* )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:475:2: (predicate1= complexPredicateNot ( KEYWORD_AND predicate2= complexPredicateNot )* )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:476:3: predicate1= complexPredicateNot ( KEYWORD_AND predicate2= complexPredicateNot )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:500:2: (predicate1= complexPredicateNot ( KEYWORD_AND predicate2= complexPredicateNot )* )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:501:3: predicate1= complexPredicateNot ( KEYWORD_AND predicate2= complexPredicateNot )*
             {
-            pushFollow(FOLLOW_complexPredicateNot_in_complexPredicateAnd4702);
+            pushFollow(FOLLOW_complexPredicateNot_in_complexPredicateAnd4714);
             predicate1=complexPredicateNot();
 
             state._fsp--;
@@ -1971,7 +1972,7 @@ public class FunSQLParser extends Parser {
             			predicateAnd.setPredicate1(predicate1);
             		}
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:479:3: ( KEYWORD_AND predicate2= complexPredicateNot )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:504:3: ( KEYWORD_AND predicate2= complexPredicateNot )*
             loop18:
             do {
                 int alt18=2;
@@ -1984,15 +1985,15 @@ public class FunSQLParser extends Parser {
 
                 switch (alt18) {
             	case 1 :
-            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:480:4: KEYWORD_AND predicate2= complexPredicateNot
+            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:505:4: KEYWORD_AND predicate2= complexPredicateNot
             	    {
-            	    match(input,KEYWORD_AND,FOLLOW_KEYWORD_AND_in_complexPredicateAnd4713); if (state.failed) return predicateAnd;
+            	    match(input,KEYWORD_AND,FOLLOW_KEYWORD_AND_in_complexPredicateAnd4725); if (state.failed) return predicateAnd;
 
             	    if ( state.backtracking==0 ) {
             	    				predicateAnd.addAnd();
             	    			}
 
-            	    pushFollow(FOLLOW_complexPredicateNot_in_complexPredicateAnd4721);
+            	    pushFollow(FOLLOW_complexPredicateNot_in_complexPredicateAnd4733);
             	    predicate2=complexPredicateNot();
 
             	    state._fsp--;
@@ -2034,7 +2035,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "complexPredicateNot"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:490:1: complexPredicateNot returns [ComplexPredicate predicateNot] : ( ( KEYWORD_NOT )? predicate1= complexPredicate ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:515:1: complexPredicateNot returns [ComplexPredicate predicateNot] : ( ( KEYWORD_NOT )? predicate1= complexPredicate ) ;
     public final ComplexPredicate complexPredicateNot() throws RecognitionException {
         ComplexPredicate predicateNot = null;
 
@@ -2049,13 +2050,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 15) ) { return predicateNot; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:494:2: ( ( ( KEYWORD_NOT )? predicate1= complexPredicate ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:495:2: ( ( KEYWORD_NOT )? predicate1= complexPredicate )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:519:2: ( ( ( KEYWORD_NOT )? predicate1= complexPredicate ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:520:2: ( ( KEYWORD_NOT )? predicate1= complexPredicate )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:495:2: ( ( KEYWORD_NOT )? predicate1= complexPredicate )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:496:3: ( KEYWORD_NOT )? predicate1= complexPredicate
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:520:2: ( ( KEYWORD_NOT )? predicate1= complexPredicate )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:521:3: ( KEYWORD_NOT )? predicate1= complexPredicate
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:496:3: ( KEYWORD_NOT )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:521:3: ( KEYWORD_NOT )?
             int alt19=2;
             int LA19_0 = input.LA(1);
 
@@ -2064,9 +2065,9 @@ public class FunSQLParser extends Parser {
             }
             switch (alt19) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:497:3: KEYWORD_NOT
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:522:3: KEYWORD_NOT
                     {
-                    match(input,KEYWORD_NOT,FOLLOW_KEYWORD_NOT_in_complexPredicateNot4762); if (state.failed) return predicateNot;
+                    match(input,KEYWORD_NOT,FOLLOW_KEYWORD_NOT_in_complexPredicateNot4774); if (state.failed) return predicateNot;
 
                     if ( state.backtracking==0 ) {
                     			predicateNot.negate();
@@ -2078,7 +2079,7 @@ public class FunSQLParser extends Parser {
             }
 
 
-            pushFollow(FOLLOW_complexPredicate_in_complexPredicateNot4775);
+            pushFollow(FOLLOW_complexPredicate_in_complexPredicateNot4787);
             predicate1=complexPredicate();
 
             state._fsp--;
@@ -2111,7 +2112,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "complexPredicate"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:507:1: complexPredicate returns [AbstractPredicate predicate] : (predicate1= parenPredicate |predicate2= simplePredicate ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:532:1: complexPredicate returns [AbstractPredicate predicate] : (predicate1= parenPredicate |predicate2= simplePredicate ) ;
     public final AbstractPredicate complexPredicate() throws RecognitionException {
         AbstractPredicate predicate = null;
 
@@ -2125,10 +2126,10 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 16) ) { return predicate; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:508:2: ( (predicate1= parenPredicate |predicate2= simplePredicate ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:509:2: (predicate1= parenPredicate |predicate2= simplePredicate )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:533:2: ( (predicate1= parenPredicate |predicate2= simplePredicate ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:534:2: (predicate1= parenPredicate |predicate2= simplePredicate )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:509:2: (predicate1= parenPredicate |predicate2= simplePredicate )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:534:2: (predicate1= parenPredicate |predicate2= simplePredicate )
             int alt20=2;
             int LA20_0 = input.LA(1);
 
@@ -2150,7 +2151,7 @@ public class FunSQLParser extends Parser {
 
                 }
             }
-            else if ( (LA20_0==FUNCTION_AGGREGATION||LA20_0==IDENTIFIER||(LA20_0 >= LITERAL_DATE && LA20_0 <= LITERAL_STRING)||LA20_0==MINUS||LA20_0==PLUS||LA20_0==QUOTE_DOUBLE) ) {
+            else if ( (LA20_0==FUNCTION_AGGREGATION||LA20_0==IDENTIFIER||(LA20_0 >= LITERAL_DECIMAL && LA20_0 <= LITERAL_STRING)||LA20_0==MINUS||LA20_0==PLUS||LA20_0==QUOTE_DOUBLE||LA20_0==TYPE_DATE) ) {
                 alt20=2;
             }
             else {
@@ -2163,9 +2164,9 @@ public class FunSQLParser extends Parser {
             }
             switch (alt20) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:510:3: predicate1= parenPredicate
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:535:3: predicate1= parenPredicate
                     {
-                    pushFollow(FOLLOW_parenPredicate_in_complexPredicate4802);
+                    pushFollow(FOLLOW_parenPredicate_in_complexPredicate4814);
                     predicate1=parenPredicate();
 
                     state._fsp--;
@@ -2178,9 +2179,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:515:3: predicate2= simplePredicate
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:540:3: predicate2= simplePredicate
                     {
-                    pushFollow(FOLLOW_simplePredicate_in_complexPredicate4817);
+                    pushFollow(FOLLOW_simplePredicate_in_complexPredicate4829);
                     predicate2=simplePredicate();
 
                     state._fsp--;
@@ -2216,7 +2217,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "parenPredicate"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:522:1: parenPredicate returns [AbstractPredicate predicate] : LPAREN predicate1= abstractPredicate RPAREN ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:547:1: parenPredicate returns [AbstractPredicate predicate] : LPAREN predicate1= abstractPredicate RPAREN ;
     public final AbstractPredicate parenPredicate() throws RecognitionException {
         AbstractPredicate predicate = null;
 
@@ -2228,12 +2229,12 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 17) ) { return predicate; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:523:2: ( LPAREN predicate1= abstractPredicate RPAREN )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:524:3: LPAREN predicate1= abstractPredicate RPAREN
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:548:2: ( LPAREN predicate1= abstractPredicate RPAREN )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:549:3: LPAREN predicate1= abstractPredicate RPAREN
             {
-            match(input,LPAREN,FOLLOW_LPAREN_in_parenPredicate4842); if (state.failed) return predicate;
+            match(input,LPAREN,FOLLOW_LPAREN_in_parenPredicate4854); if (state.failed) return predicate;
 
-            pushFollow(FOLLOW_abstractPredicate_in_parenPredicate4849);
+            pushFollow(FOLLOW_abstractPredicate_in_parenPredicate4861);
             predicate1=abstractPredicate();
 
             state._fsp--;
@@ -2243,7 +2244,7 @@ public class FunSQLParser extends Parser {
             			predicate = predicate1;
             		}
 
-            match(input,RPAREN,FOLLOW_RPAREN_in_parenPredicate4855); if (state.failed) return predicate;
+            match(input,RPAREN,FOLLOW_RPAREN_in_parenPredicate4867); if (state.failed) return predicate;
 
             }
 
@@ -2265,7 +2266,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "simplePredicate"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:531:1: simplePredicate returns [SimplePredicate predicate] : (expr1= abstractExpression comp= tokenCompOperator expr2= abstractExpression ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:556:1: simplePredicate returns [SimplePredicate predicate] : (expr1= abstractExpression comp= tokenCompOperator expr2= abstractExpression ) ;
     public final SimplePredicate simplePredicate() throws RecognitionException {
         SimplePredicate predicate = null;
 
@@ -2284,13 +2285,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 18) ) { return predicate; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:535:9: ( (expr1= abstractExpression comp= tokenCompOperator expr2= abstractExpression ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:536:9: (expr1= abstractExpression comp= tokenCompOperator expr2= abstractExpression )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:560:9: ( (expr1= abstractExpression comp= tokenCompOperator expr2= abstractExpression ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:561:9: (expr1= abstractExpression comp= tokenCompOperator expr2= abstractExpression )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:536:9: (expr1= abstractExpression comp= tokenCompOperator expr2= abstractExpression )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:537:3: expr1= abstractExpression comp= tokenCompOperator expr2= abstractExpression
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:561:9: (expr1= abstractExpression comp= tokenCompOperator expr2= abstractExpression )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:562:3: expr1= abstractExpression comp= tokenCompOperator expr2= abstractExpression
             {
-            pushFollow(FOLLOW_abstractExpression_in_simplePredicate4897);
+            pushFollow(FOLLOW_abstractExpression_in_simplePredicate4909);
             expr1=abstractExpression();
 
             state._fsp--;
@@ -2300,7 +2301,7 @@ public class FunSQLParser extends Parser {
                             	predicate.setExpr1(expr1);
                             }
 
-            pushFollow(FOLLOW_tokenCompOperator_in_simplePredicate4952);
+            pushFollow(FOLLOW_tokenCompOperator_in_simplePredicate4964);
             comp=tokenCompOperator();
 
             state._fsp--;
@@ -2310,7 +2311,7 @@ public class FunSQLParser extends Parser {
                             	predicate.setComp(EnumCompOperator.get((comp!=null?input.toString(comp.start,comp.stop):null)));
                             }
 
-            pushFollow(FOLLOW_abstractExpression_in_simplePredicate4990);
+            pushFollow(FOLLOW_abstractExpression_in_simplePredicate5002);
             expr2=abstractExpression();
 
             state._fsp--;
@@ -2343,7 +2344,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "abstractExpression"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:554:1: abstractExpression returns [AbstractExpression expression] : expression1= complexExpressionAdd ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:579:1: abstractExpression returns [AbstractExpression expression] : expression1= complexExpressionAdd ;
     public final AbstractExpression abstractExpression() throws RecognitionException {
         AbstractExpression expression = null;
 
@@ -2355,10 +2356,10 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 19) ) { return expression; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:555:2: (expression1= complexExpressionAdd )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:556:2: expression1= complexExpressionAdd
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:580:2: (expression1= complexExpressionAdd )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:581:2: expression1= complexExpressionAdd
             {
-            pushFollow(FOLLOW_complexExpressionAdd_in_abstractExpression5044);
+            pushFollow(FOLLOW_complexExpressionAdd_in_abstractExpression5056);
             expression1=complexExpressionAdd();
 
             state._fsp--;
@@ -2388,7 +2389,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "complexExpressionAdd"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:561:1: complexExpressionAdd returns [ComplexExpression expression] : (expression1= complexExpressionMult (op1= tokenAddOperator expression2= complexExpressionMult )* ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:586:1: complexExpressionAdd returns [ComplexExpression expression] : (expression1= complexExpressionMult (op1= tokenAddOperator expression2= complexExpressionMult )* ) ;
     public final ComplexExpression complexExpressionAdd() throws RecognitionException {
         ComplexExpression expression = null;
 
@@ -2407,13 +2408,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 20) ) { return expression; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:565:2: ( (expression1= complexExpressionMult (op1= tokenAddOperator expression2= complexExpressionMult )* ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:566:2: (expression1= complexExpressionMult (op1= tokenAddOperator expression2= complexExpressionMult )* )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:590:2: ( (expression1= complexExpressionMult (op1= tokenAddOperator expression2= complexExpressionMult )* ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:591:2: (expression1= complexExpressionMult (op1= tokenAddOperator expression2= complexExpressionMult )* )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:566:2: (expression1= complexExpressionMult (op1= tokenAddOperator expression2= complexExpressionMult )* )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:567:3: expression1= complexExpressionMult (op1= tokenAddOperator expression2= complexExpressionMult )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:591:2: (expression1= complexExpressionMult (op1= tokenAddOperator expression2= complexExpressionMult )* )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:592:3: expression1= complexExpressionMult (op1= tokenAddOperator expression2= complexExpressionMult )*
             {
-            pushFollow(FOLLOW_complexExpressionMult_in_complexExpressionAdd5074);
+            pushFollow(FOLLOW_complexExpressionMult_in_complexExpressionAdd5086);
             expression1=complexExpressionMult();
 
             state._fsp--;
@@ -2423,7 +2424,7 @@ public class FunSQLParser extends Parser {
             			expression.setExpr1(expression1);
             		}
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:570:3: (op1= tokenAddOperator expression2= complexExpressionMult )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:595:3: (op1= tokenAddOperator expression2= complexExpressionMult )*
             loop21:
             do {
                 int alt21=2;
@@ -2436,9 +2437,9 @@ public class FunSQLParser extends Parser {
 
                 switch (alt21) {
             	case 1 :
-            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:571:4: op1= tokenAddOperator expression2= complexExpressionMult
+            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:596:4: op1= tokenAddOperator expression2= complexExpressionMult
             	    {
-            	    pushFollow(FOLLOW_tokenAddOperator_in_complexExpressionAdd5087);
+            	    pushFollow(FOLLOW_tokenAddOperator_in_complexExpressionAdd5099);
             	    op1=tokenAddOperator();
 
             	    state._fsp--;
@@ -2448,7 +2449,7 @@ public class FunSQLParser extends Parser {
             	                    		expression.addOp(EnumExprOperator.get((op1!=null?input.toString(op1.start,op1.stop):null)));
             	                    	}
 
-            	    pushFollow(FOLLOW_complexExpressionMult_in_complexExpressionAdd5095);
+            	    pushFollow(FOLLOW_complexExpressionMult_in_complexExpressionAdd5107);
             	    expression2=complexExpressionMult();
 
             	    state._fsp--;
@@ -2490,7 +2491,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "complexExpressionMult"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:581:1: complexExpressionMult returns [ComplexExpression expression] : (expression1= complexExpressionSigned (op1= tokenMultOperator expression2= complexExpressionSigned )* ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:606:1: complexExpressionMult returns [ComplexExpression expression] : (expression1= complexExpressionSigned (op1= tokenMultOperator expression2= complexExpressionSigned )* ) ;
     public final ComplexExpression complexExpressionMult() throws RecognitionException {
         ComplexExpression expression = null;
 
@@ -2509,13 +2510,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 21) ) { return expression; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:585:2: ( (expression1= complexExpressionSigned (op1= tokenMultOperator expression2= complexExpressionSigned )* ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:586:2: (expression1= complexExpressionSigned (op1= tokenMultOperator expression2= complexExpressionSigned )* )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:610:2: ( (expression1= complexExpressionSigned (op1= tokenMultOperator expression2= complexExpressionSigned )* ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:611:2: (expression1= complexExpressionSigned (op1= tokenMultOperator expression2= complexExpressionSigned )* )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:586:2: (expression1= complexExpressionSigned (op1= tokenMultOperator expression2= complexExpressionSigned )* )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:587:3: expression1= complexExpressionSigned (op1= tokenMultOperator expression2= complexExpressionSigned )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:611:2: (expression1= complexExpressionSigned (op1= tokenMultOperator expression2= complexExpressionSigned )* )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:612:3: expression1= complexExpressionSigned (op1= tokenMultOperator expression2= complexExpressionSigned )*
             {
-            pushFollow(FOLLOW_complexExpressionSigned_in_complexExpressionMult5135);
+            pushFollow(FOLLOW_complexExpressionSigned_in_complexExpressionMult5147);
             expression1=complexExpressionSigned();
 
             state._fsp--;
@@ -2525,7 +2526,7 @@ public class FunSQLParser extends Parser {
             			expression.setExpr1(expression1);
             		}
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:590:3: (op1= tokenMultOperator expression2= complexExpressionSigned )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:615:3: (op1= tokenMultOperator expression2= complexExpressionSigned )*
             loop22:
             do {
                 int alt22=2;
@@ -2538,9 +2539,9 @@ public class FunSQLParser extends Parser {
 
                 switch (alt22) {
             	case 1 :
-            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:591:4: op1= tokenMultOperator expression2= complexExpressionSigned
+            	    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:616:4: op1= tokenMultOperator expression2= complexExpressionSigned
             	    {
-            	    pushFollow(FOLLOW_tokenMultOperator_in_complexExpressionMult5148);
+            	    pushFollow(FOLLOW_tokenMultOperator_in_complexExpressionMult5160);
             	    op1=tokenMultOperator();
 
             	    state._fsp--;
@@ -2550,7 +2551,7 @@ public class FunSQLParser extends Parser {
             	                    		expression.addOp(EnumExprOperator.get((op1!=null?input.toString(op1.start,op1.stop):null)));
             	                    	}
 
-            	    pushFollow(FOLLOW_complexExpressionSigned_in_complexExpressionMult5156);
+            	    pushFollow(FOLLOW_complexExpressionSigned_in_complexExpressionMult5168);
             	    expression2=complexExpressionSigned();
 
             	    state._fsp--;
@@ -2592,7 +2593,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "complexExpressionSigned"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:602:1: complexExpressionSigned returns [ComplexExpression expression] : ( ( MINUS | PLUS )? expression1= complexExpression ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:627:1: complexExpressionSigned returns [ComplexExpression expression] : ( ( MINUS | PLUS )? expression1= complexExpression ) ;
     public final ComplexExpression complexExpressionSigned() throws RecognitionException {
         ComplexExpression expression = null;
 
@@ -2607,13 +2608,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 22) ) { return expression; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:606:2: ( ( ( MINUS | PLUS )? expression1= complexExpression ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:607:2: ( ( MINUS | PLUS )? expression1= complexExpression )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:631:2: ( ( ( MINUS | PLUS )? expression1= complexExpression ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:632:2: ( ( MINUS | PLUS )? expression1= complexExpression )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:607:2: ( ( MINUS | PLUS )? expression1= complexExpression )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:608:3: ( MINUS | PLUS )? expression1= complexExpression
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:632:2: ( ( MINUS | PLUS )? expression1= complexExpression )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:633:3: ( MINUS | PLUS )? expression1= complexExpression
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:608:3: ( MINUS | PLUS )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:633:3: ( MINUS | PLUS )?
             int alt23=3;
             int LA23_0 = input.LA(1);
 
@@ -2625,9 +2626,9 @@ public class FunSQLParser extends Parser {
             }
             switch (alt23) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:609:3: MINUS
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:634:3: MINUS
                     {
-                    match(input,MINUS,FOLLOW_MINUS_in_complexExpressionSigned5198); if (state.failed) return expression;
+                    match(input,MINUS,FOLLOW_MINUS_in_complexExpressionSigned5210); if (state.failed) return expression;
 
                     if ( state.backtracking==0 ) {
                     			expression.negate();
@@ -2636,9 +2637,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:613:3: PLUS
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:638:3: PLUS
                     {
-                    match(input,PLUS,FOLLOW_PLUS_in_complexExpressionSigned5207); if (state.failed) return expression;
+                    match(input,PLUS,FOLLOW_PLUS_in_complexExpressionSigned5219); if (state.failed) return expression;
 
                     }
                     break;
@@ -2646,7 +2647,7 @@ public class FunSQLParser extends Parser {
             }
 
 
-            pushFollow(FOLLOW_complexExpression_in_complexExpressionSigned5219);
+            pushFollow(FOLLOW_complexExpression_in_complexExpressionSigned5231);
             expression1=complexExpression();
 
             state._fsp--;
@@ -2679,7 +2680,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "complexExpression"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:621:1: complexExpression returns [AbstractExpression expression] : (expression1= parenExpression |expression2= aggregationExpression |expression3= simpleExpression ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:646:1: complexExpression returns [AbstractExpression expression] : (expression1= parenExpression |expression2= aggregationExpression |expression3= simpleExpression ) ;
     public final AbstractExpression complexExpression() throws RecognitionException {
         AbstractExpression expression = null;
 
@@ -2695,10 +2696,10 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 23) ) { return expression; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:622:2: ( (expression1= parenExpression |expression2= aggregationExpression |expression3= simpleExpression ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:623:2: (expression1= parenExpression |expression2= aggregationExpression |expression3= simpleExpression )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:647:2: ( (expression1= parenExpression |expression2= aggregationExpression |expression3= simpleExpression ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:648:2: (expression1= parenExpression |expression2= aggregationExpression |expression3= simpleExpression )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:623:2: (expression1= parenExpression |expression2= aggregationExpression |expression3= simpleExpression )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:648:2: (expression1= parenExpression |expression2= aggregationExpression |expression3= simpleExpression )
             int alt24=3;
             switch ( input.LA(1) ) {
             case LPAREN:
@@ -2712,11 +2713,11 @@ public class FunSQLParser extends Parser {
                 }
                 break;
             case IDENTIFIER:
-            case LITERAL_DATE:
             case LITERAL_DECIMAL:
             case LITERAL_INTEGER:
             case LITERAL_STRING:
             case QUOTE_DOUBLE:
+            case TYPE_DATE:
                 {
                 alt24=3;
                 }
@@ -2732,9 +2733,9 @@ public class FunSQLParser extends Parser {
 
             switch (alt24) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:624:3: expression1= parenExpression
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:649:3: expression1= parenExpression
                     {
-                    pushFollow(FOLLOW_parenExpression_in_complexExpression5254);
+                    pushFollow(FOLLOW_parenExpression_in_complexExpression5266);
                     expression1=parenExpression();
 
                     state._fsp--;
@@ -2747,9 +2748,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:629:3: expression2= aggregationExpression
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:654:3: expression2= aggregationExpression
                     {
-                    pushFollow(FOLLOW_aggregationExpression_in_complexExpression5269);
+                    pushFollow(FOLLOW_aggregationExpression_in_complexExpression5281);
                     expression2=aggregationExpression();
 
                     state._fsp--;
@@ -2762,9 +2763,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:634:3: expression3= simpleExpression
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:659:3: expression3= simpleExpression
                     {
-                    pushFollow(FOLLOW_simpleExpression_in_complexExpression5284);
+                    pushFollow(FOLLOW_simpleExpression_in_complexExpression5296);
                     expression3=simpleExpression();
 
                     state._fsp--;
@@ -2800,7 +2801,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "parenExpression"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:641:1: parenExpression returns [AbstractExpression expression] : LPAREN expression1= abstractExpression RPAREN ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:666:1: parenExpression returns [AbstractExpression expression] : LPAREN expression1= abstractExpression RPAREN ;
     public final AbstractExpression parenExpression() throws RecognitionException {
         AbstractExpression expression = null;
 
@@ -2812,12 +2813,12 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 24) ) { return expression; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:642:2: ( LPAREN expression1= abstractExpression RPAREN )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:643:3: LPAREN expression1= abstractExpression RPAREN
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:667:2: ( LPAREN expression1= abstractExpression RPAREN )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:668:3: LPAREN expression1= abstractExpression RPAREN
             {
-            match(input,LPAREN,FOLLOW_LPAREN_in_parenExpression5309); if (state.failed) return expression;
+            match(input,LPAREN,FOLLOW_LPAREN_in_parenExpression5321); if (state.failed) return expression;
 
-            pushFollow(FOLLOW_abstractExpression_in_parenExpression5316);
+            pushFollow(FOLLOW_abstractExpression_in_parenExpression5328);
             expression1=abstractExpression();
 
             state._fsp--;
@@ -2827,7 +2828,7 @@ public class FunSQLParser extends Parser {
             			expression = expression1;
             		}
 
-            match(input,RPAREN,FOLLOW_RPAREN_in_parenExpression5322); if (state.failed) return expression;
+            match(input,RPAREN,FOLLOW_RPAREN_in_parenExpression5334); if (state.failed) return expression;
 
             }
 
@@ -2849,7 +2850,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "aggregationExpression"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:651:1: aggregationExpression returns [AggregationExpression expression] : (agg1= FUNCTION_AGGREGATION LPAREN expr1= abstractExpression RPAREN ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:676:1: aggregationExpression returns [AggregationExpression expression] : (agg1= FUNCTION_AGGREGATION LPAREN expr1= abstractExpression RPAREN ) ;
     public final AggregationExpression aggregationExpression() throws RecognitionException {
         AggregationExpression expression = null;
 
@@ -2865,21 +2866,21 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 25) ) { return expression; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:655:9: ( (agg1= FUNCTION_AGGREGATION LPAREN expr1= abstractExpression RPAREN ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:656:9: (agg1= FUNCTION_AGGREGATION LPAREN expr1= abstractExpression RPAREN )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:680:9: ( (agg1= FUNCTION_AGGREGATION LPAREN expr1= abstractExpression RPAREN ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:681:9: (agg1= FUNCTION_AGGREGATION LPAREN expr1= abstractExpression RPAREN )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:656:9: (agg1= FUNCTION_AGGREGATION LPAREN expr1= abstractExpression RPAREN )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:657:3: agg1= FUNCTION_AGGREGATION LPAREN expr1= abstractExpression RPAREN
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:681:9: (agg1= FUNCTION_AGGREGATION LPAREN expr1= abstractExpression RPAREN )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:682:3: agg1= FUNCTION_AGGREGATION LPAREN expr1= abstractExpression RPAREN
             {
-            agg1=(Token)match(input,FUNCTION_AGGREGATION,FOLLOW_FUNCTION_AGGREGATION_in_aggregationExpression5374); if (state.failed) return expression;
+            agg1=(Token)match(input,FUNCTION_AGGREGATION,FOLLOW_FUNCTION_AGGREGATION_in_aggregationExpression5386); if (state.failed) return expression;
 
             if ( state.backtracking==0 ) {
-            			expression.setAggregation((agg1!=null?agg1.getText():null));
+            			expression.setAggregation((agg1!=null?agg1.getText():null).toUpperCase());
             		}
 
-            match(input,LPAREN,FOLLOW_LPAREN_in_aggregationExpression5382); if (state.failed) return expression;
+            match(input,LPAREN,FOLLOW_LPAREN_in_aggregationExpression5394); if (state.failed) return expression;
 
-            pushFollow(FOLLOW_abstractExpression_in_aggregationExpression5389);
+            pushFollow(FOLLOW_abstractExpression_in_aggregationExpression5401);
             expr1=abstractExpression();
 
             state._fsp--;
@@ -2889,7 +2890,7 @@ public class FunSQLParser extends Parser {
             			expression.setExpression(expr1);
             		}
 
-            match(input,RPAREN,FOLLOW_RPAREN_in_aggregationExpression5395); if (state.failed) return expression;
+            match(input,RPAREN,FOLLOW_RPAREN_in_aggregationExpression5407); if (state.failed) return expression;
 
             }
 
@@ -2914,7 +2915,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "simpleExpression"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:669:1: simpleExpression returns [SimpleExpression expression] : ( (att1= tokenAttribute |lit1= tokenLiteral ) ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:694:1: simpleExpression returns [SimpleExpression expression] : ( (att1= tokenAttribute |lit1= tokenLiteral ) ) ;
     public final SimpleExpression simpleExpression() throws RecognitionException {
         SimpleExpression expression = null;
 
@@ -2931,20 +2932,20 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 26) ) { return expression; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:673:9: ( ( (att1= tokenAttribute |lit1= tokenLiteral ) ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:674:9: ( (att1= tokenAttribute |lit1= tokenLiteral ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:698:9: ( ( (att1= tokenAttribute |lit1= tokenLiteral ) ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:699:9: ( (att1= tokenAttribute |lit1= tokenLiteral ) )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:674:9: ( (att1= tokenAttribute |lit1= tokenLiteral ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:675:3: (att1= tokenAttribute |lit1= tokenLiteral )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:699:9: ( (att1= tokenAttribute |lit1= tokenLiteral ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:700:3: (att1= tokenAttribute |lit1= tokenLiteral )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:675:3: (att1= tokenAttribute |lit1= tokenLiteral )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:700:3: (att1= tokenAttribute |lit1= tokenLiteral )
             int alt25=2;
             int LA25_0 = input.LA(1);
 
             if ( (LA25_0==IDENTIFIER||LA25_0==QUOTE_DOUBLE) ) {
                 alt25=1;
             }
-            else if ( ((LA25_0 >= LITERAL_DATE && LA25_0 <= LITERAL_STRING)) ) {
+            else if ( ((LA25_0 >= LITERAL_DECIMAL && LA25_0 <= LITERAL_STRING)||LA25_0==TYPE_DATE) ) {
                 alt25=2;
             }
             else {
@@ -2957,9 +2958,9 @@ public class FunSQLParser extends Parser {
             }
             switch (alt25) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:676:3: att1= tokenAttribute
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:701:3: att1= tokenAttribute
                     {
-                    pushFollow(FOLLOW_tokenAttribute_in_simpleExpression5470);
+                    pushFollow(FOLLOW_tokenAttribute_in_simpleExpression5482);
                     att1=tokenAttribute();
 
                     state._fsp--;
@@ -2972,9 +2973,9 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:681:17: lit1= tokenLiteral
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:706:17: lit1= tokenLiteral
                     {
-                    pushFollow(FOLLOW_tokenLiteral_in_simpleExpression5526);
+                    pushFollow(FOLLOW_tokenLiteral_in_simpleExpression5538);
                     lit1=tokenLiteral();
 
                     state._fsp--;
@@ -3013,7 +3014,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenAttribute"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:689:1: tokenAttribute returns [TokenAttribute attribute] : ( (table1= tokenIdentifier DOT )? id1= tokenIdentifier ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:714:1: tokenAttribute returns [TokenAttribute attribute] : ( (table1= tokenIdentifier DOT )? id1= tokenIdentifier ) ;
     public final TokenAttribute tokenAttribute() throws RecognitionException {
         TokenAttribute attribute = null;
 
@@ -3030,13 +3031,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 27) ) { return attribute; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:693:9: ( ( (table1= tokenIdentifier DOT )? id1= tokenIdentifier ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:694:9: ( (table1= tokenIdentifier DOT )? id1= tokenIdentifier )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:718:9: ( ( (table1= tokenIdentifier DOT )? id1= tokenIdentifier ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:719:9: ( (table1= tokenIdentifier DOT )? id1= tokenIdentifier )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:694:9: ( (table1= tokenIdentifier DOT )? id1= tokenIdentifier )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:695:17: (table1= tokenIdentifier DOT )? id1= tokenIdentifier
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:719:9: ( (table1= tokenIdentifier DOT )? id1= tokenIdentifier )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:720:17: (table1= tokenIdentifier DOT )? id1= tokenIdentifier
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:695:17: (table1= tokenIdentifier DOT )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:720:17: (table1= tokenIdentifier DOT )?
             int alt26=2;
             int LA26_0 = input.LA(1);
 
@@ -3064,9 +3065,9 @@ public class FunSQLParser extends Parser {
             }
             switch (alt26) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:696:17: table1= tokenIdentifier DOT
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:721:17: table1= tokenIdentifier DOT
                     {
-                    pushFollow(FOLLOW_tokenIdentifier_in_tokenAttribute5654);
+                    pushFollow(FOLLOW_tokenIdentifier_in_tokenAttribute5666);
                     table1=tokenIdentifier();
 
                     state._fsp--;
@@ -3078,7 +3079,7 @@ public class FunSQLParser extends Parser {
                                     	attribute.setTable(table);
                                     }
 
-                    match(input,DOT,FOLLOW_DOT_in_tokenAttribute5674); if (state.failed) return attribute;
+                    match(input,DOT,FOLLOW_DOT_in_tokenAttribute5686); if (state.failed) return attribute;
 
                     }
                     break;
@@ -3086,7 +3087,7 @@ public class FunSQLParser extends Parser {
             }
 
 
-            pushFollow(FOLLOW_tokenIdentifier_in_tokenAttribute5713);
+            pushFollow(FOLLOW_tokenIdentifier_in_tokenAttribute5725);
             id1=tokenIdentifier();
 
             state._fsp--;
@@ -3119,7 +3120,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenTable"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:709:1: tokenTable returns [TokenTable table] : ( ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier ) | ( ( COLON )? id1= tokenIdentifier ) );
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:734:1: tokenTable returns [TokenTable table] : ( ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier ) | ( ( COLON )? id1= tokenIdentifier ) );
     public final TokenTable tokenTable() throws RecognitionException {
         TokenTable table = null;
 
@@ -3136,7 +3137,7 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 28) ) { return table; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:713:9: ( ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier ) | ( ( COLON )? id1= tokenIdentifier ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:738:9: ( ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier ) | ( ( COLON )? id1= tokenIdentifier ) )
             int alt29=2;
             switch ( input.LA(1) ) {
             case IDENTIFIER:
@@ -3219,12 +3220,12 @@ public class FunSQLParser extends Parser {
 
             switch (alt29) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:714:9: ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier )
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:739:9: ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier )
                     {
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:714:9: ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier )
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:715:17: (schema1= tokenIdentifier DOT )? id1= tokenIdentifier
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:739:9: ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier )
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:740:17: (schema1= tokenIdentifier DOT )? id1= tokenIdentifier
                     {
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:715:17: (schema1= tokenIdentifier DOT )?
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:740:17: (schema1= tokenIdentifier DOT )?
                     int alt27=2;
                     int LA27_0 = input.LA(1);
 
@@ -3252,9 +3253,9 @@ public class FunSQLParser extends Parser {
                     }
                     switch (alt27) {
                         case 1 :
-                            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:716:17: schema1= tokenIdentifier DOT
+                            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:741:17: schema1= tokenIdentifier DOT
                             {
-                            pushFollow(FOLLOW_tokenIdentifier_in_tokenTable5836);
+                            pushFollow(FOLLOW_tokenIdentifier_in_tokenTable5848);
                             schema1=tokenIdentifier();
 
                             state._fsp--;
@@ -3266,7 +3267,7 @@ public class FunSQLParser extends Parser {
                                             	table.setVariable(false);
                                             }
 
-                            match(input,DOT,FOLLOW_DOT_in_tokenTable5856); if (state.failed) return table;
+                            match(input,DOT,FOLLOW_DOT_in_tokenTable5868); if (state.failed) return table;
 
                             }
                             break;
@@ -3274,7 +3275,7 @@ public class FunSQLParser extends Parser {
                     }
 
 
-                    pushFollow(FOLLOW_tokenIdentifier_in_tokenTable5913);
+                    pushFollow(FOLLOW_tokenIdentifier_in_tokenTable5925);
                     id1=tokenIdentifier();
 
                     state._fsp--;
@@ -3290,12 +3291,12 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:726:12: ( ( COLON )? id1= tokenIdentifier )
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:751:12: ( ( COLON )? id1= tokenIdentifier )
                     {
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:726:12: ( ( COLON )? id1= tokenIdentifier )
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:727:17: ( COLON )? id1= tokenIdentifier
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:751:12: ( ( COLON )? id1= tokenIdentifier )
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:752:17: ( COLON )? id1= tokenIdentifier
                     {
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:727:17: ( COLON )?
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:752:17: ( COLON )?
                     int alt28=2;
                     int LA28_0 = input.LA(1);
 
@@ -3304,9 +3305,9 @@ public class FunSQLParser extends Parser {
                     }
                     switch (alt28) {
                         case 1 :
-                            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:728:17: COLON
+                            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:753:17: COLON
                             {
-                            match(input,COLON,FOLLOW_COLON_in_tokenTable5980); if (state.failed) return table;
+                            match(input,COLON,FOLLOW_COLON_in_tokenTable5992); if (state.failed) return table;
 
                             }
                             break;
@@ -3314,7 +3315,7 @@ public class FunSQLParser extends Parser {
                     }
 
 
-                    pushFollow(FOLLOW_tokenIdentifier_in_tokenTable6022);
+                    pushFollow(FOLLOW_tokenIdentifier_in_tokenTable6034);
                     id1=tokenIdentifier();
 
                     state._fsp--;
@@ -3350,7 +3351,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenSchema"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:737:1: tokenSchema returns [TokenSchema schema] : ( tokenIdentifier ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:762:1: tokenSchema returns [TokenSchema schema] : ( tokenIdentifier ) ;
     public final TokenSchema tokenSchema() throws RecognitionException {
         TokenSchema schema = null;
 
@@ -3365,13 +3366,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 29) ) { return schema; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:741:9: ( ( tokenIdentifier ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:742:9: ( tokenIdentifier )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:766:9: ( ( tokenIdentifier ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:767:9: ( tokenIdentifier )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:742:9: ( tokenIdentifier )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:743:17: tokenIdentifier
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:767:9: ( tokenIdentifier )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:768:17: tokenIdentifier
             {
-            pushFollow(FOLLOW_tokenIdentifier_in_tokenSchema6103);
+            pushFollow(FOLLOW_tokenIdentifier_in_tokenSchema6115);
             tokenIdentifier15=tokenIdentifier();
 
             state._fsp--;
@@ -3404,7 +3405,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenFunction"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:749:1: tokenFunction returns [TokenFunction function] : ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:774:1: tokenFunction returns [TokenFunction function] : ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier ) ;
     public final TokenFunction tokenFunction() throws RecognitionException {
         TokenFunction function = null;
 
@@ -3421,13 +3422,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 30) ) { return function; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:753:9: ( ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:754:9: ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:778:9: ( ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:779:9: ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:754:9: ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:755:33: (schema1= tokenIdentifier DOT )? id1= tokenIdentifier
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:779:9: ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:780:33: (schema1= tokenIdentifier DOT )? id1= tokenIdentifier
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:755:33: (schema1= tokenIdentifier DOT )?
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:780:33: (schema1= tokenIdentifier DOT )?
             int alt30=2;
             int LA30_0 = input.LA(1);
 
@@ -3455,9 +3456,9 @@ public class FunSQLParser extends Parser {
             }
             switch (alt30) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:756:17: schema1= tokenIdentifier DOT
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:781:17: schema1= tokenIdentifier DOT
                     {
-                    pushFollow(FOLLOW_tokenIdentifier_in_tokenFunction6219);
+                    pushFollow(FOLLOW_tokenIdentifier_in_tokenFunction6231);
                     schema1=tokenIdentifier();
 
                     state._fsp--;
@@ -3468,7 +3469,7 @@ public class FunSQLParser extends Parser {
                                     	function.setSchema(schema);
                                     }
 
-                    match(input,DOT,FOLLOW_DOT_in_tokenFunction6239); if (state.failed) return function;
+                    match(input,DOT,FOLLOW_DOT_in_tokenFunction6251); if (state.failed) return function;
 
                     }
                     break;
@@ -3476,7 +3477,7 @@ public class FunSQLParser extends Parser {
             }
 
 
-            pushFollow(FOLLOW_tokenIdentifier_in_tokenFunction6278);
+            pushFollow(FOLLOW_tokenIdentifier_in_tokenFunction6290);
             id1=tokenIdentifier();
 
             state._fsp--;
@@ -3509,7 +3510,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenVariable"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:768:1: tokenVariable returns [TokenVariable variable] : ( variableText ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:793:1: tokenVariable returns [TokenVariable variable] : ( variableText ) ;
     public final TokenVariable tokenVariable() throws RecognitionException {
         TokenVariable variable = null;
 
@@ -3524,13 +3525,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 31) ) { return variable; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:772:9: ( ( variableText ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:773:9: ( variableText )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:797:9: ( ( variableText ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:798:9: ( variableText )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:773:9: ( variableText )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:774:17: variableText
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:798:9: ( variableText )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:799:17: variableText
             {
-            pushFollow(FOLLOW_variableText_in_tokenVariable6358);
+            pushFollow(FOLLOW_variableText_in_tokenVariable6370);
             variableText16=variableText();
 
             state._fsp--;
@@ -3563,7 +3564,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenAssignment"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:780:1: tokenAssignment returns [TokenAssignment ass] : ( ( COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement ) | ( KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement ) ) SEMI ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:805:1: tokenAssignment returns [TokenAssignment ass] : ( ( COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement ) | ( KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement ) ) SEMI ;
     public final TokenAssignment tokenAssignment() throws RecognitionException {
         TokenAssignment ass = null;
 
@@ -3584,10 +3585,10 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 32) ) { return ass; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:784:3: ( ( ( COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement ) | ( KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement ) ) SEMI )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:785:3: ( ( COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement ) | ( KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement ) ) SEMI
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:809:3: ( ( ( COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement ) | ( KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement ) ) SEMI )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:810:3: ( ( COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement ) | ( KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement ) ) SEMI
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:785:3: ( ( COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement ) | ( KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:810:3: ( ( COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement ) | ( KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement ) )
             int alt31=2;
             int LA31_0 = input.LA(1);
 
@@ -3607,14 +3608,14 @@ public class FunSQLParser extends Parser {
             }
             switch (alt31) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:786:4: ( COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement )
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:811:4: ( COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement )
                     {
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:786:4: ( COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement )
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:787:4: COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:811:4: ( COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement )
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:812:4: COLON var1= tokenVariable EQUAL1 selstmt1= selectStatement
                     {
-                    match(input,COLON,FOLLOW_COLON_in_tokenAssignment6425); if (state.failed) return ass;
+                    match(input,COLON,FOLLOW_COLON_in_tokenAssignment6437); if (state.failed) return ass;
 
-                    pushFollow(FOLLOW_tokenVariable_in_tokenAssignment6437);
+                    pushFollow(FOLLOW_tokenVariable_in_tokenAssignment6449);
                     var1=tokenVariable();
 
                     state._fsp--;
@@ -3625,9 +3626,9 @@ public class FunSQLParser extends Parser {
                     		 ass.setVar(var1);
                     		 }
 
-                    match(input,EQUAL1,FOLLOW_EQUAL1_in_tokenAssignment6443); if (state.failed) return ass;
+                    match(input,EQUAL1,FOLLOW_EQUAL1_in_tokenAssignment6455); if (state.failed) return ass;
 
-                    pushFollow(FOLLOW_selectStatement_in_tokenAssignment6450);
+                    pushFollow(FOLLOW_selectStatement_in_tokenAssignment6462);
                     selstmt1=selectStatement();
 
                     state._fsp--;
@@ -3643,14 +3644,14 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:798:4: ( KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement )
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:823:4: ( KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement )
                     {
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:798:4: ( KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement )
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:799:4: KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:823:4: ( KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement )
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:824:4: KEYWORD_VAR var2= tokenVariable EQUAL1 selstmt2= selectStatement
                     {
-                    match(input,KEYWORD_VAR,FOLLOW_KEYWORD_VAR_in_tokenAssignment6471); if (state.failed) return ass;
+                    match(input,KEYWORD_VAR,FOLLOW_KEYWORD_VAR_in_tokenAssignment6483); if (state.failed) return ass;
 
-                    pushFollow(FOLLOW_tokenVariable_in_tokenAssignment6480);
+                    pushFollow(FOLLOW_tokenVariable_in_tokenAssignment6492);
                     var2=tokenVariable();
 
                     state._fsp--;
@@ -3661,9 +3662,9 @@ public class FunSQLParser extends Parser {
                     		 ass.setVar(var2);
                     		 }
 
-                    match(input,EQUAL1,FOLLOW_EQUAL1_in_tokenAssignment6486); if (state.failed) return ass;
+                    match(input,EQUAL1,FOLLOW_EQUAL1_in_tokenAssignment6498); if (state.failed) return ass;
 
-                    pushFollow(FOLLOW_selectStatement_in_tokenAssignment6493);
+                    pushFollow(FOLLOW_selectStatement_in_tokenAssignment6505);
                     selstmt2=selectStatement();
 
                     state._fsp--;
@@ -3682,7 +3683,7 @@ public class FunSQLParser extends Parser {
             }
 
 
-            match(input,SEMI,FOLLOW_SEMI_in_tokenAssignment6513); if (state.failed) return ass;
+            match(input,SEMI,FOLLOW_SEMI_in_tokenAssignment6525); if (state.failed) return ass;
 
             }
 
@@ -3704,7 +3705,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenIdentifier"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:814:1: tokenIdentifier returns [TokenIdentifier identifier] : ( identifierText ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:839:1: tokenIdentifier returns [TokenIdentifier identifier] : ( identifierText ) ;
     public final TokenIdentifier tokenIdentifier() throws RecognitionException {
         TokenIdentifier identifier = null;
 
@@ -3719,13 +3720,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 33) ) { return identifier; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:818:9: ( ( identifierText ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:819:9: ( identifierText )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:843:9: ( ( identifierText ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:844:9: ( identifierText )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:819:9: ( identifierText )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:820:17: identifierText
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:844:9: ( identifierText )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:845:17: identifierText
             {
-            pushFollow(FOLLOW_identifierText_in_tokenIdentifier6578);
+            pushFollow(FOLLOW_identifierText_in_tokenIdentifier6590);
             identifierText17=identifierText();
 
             state._fsp--;
@@ -3758,7 +3759,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenDataType"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:827:1: tokenDataType returns [TokenDataType dataType] : ( TYPE_VARCHAR | TYPE_INTEGER ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:852:1: tokenDataType returns [TokenDataType dataType] : ( TYPE_VARCHAR | TYPE_INTEGER | TYPE_DECIMAL | TYPE_DATE ) ;
     public final TokenDataType tokenDataType() throws RecognitionException {
         TokenDataType dataType = null;
 
@@ -3766,6 +3767,8 @@ public class FunSQLParser extends Parser {
 
         Token TYPE_VARCHAR18=null;
         Token TYPE_INTEGER19=null;
+        Token TYPE_DECIMAL20=null;
+        Token TYPE_DATE21=null;
 
 
                 	dataType = null;
@@ -3773,20 +3776,33 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 34) ) { return dataType; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:831:9: ( ( TYPE_VARCHAR | TYPE_INTEGER ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:832:9: ( TYPE_VARCHAR | TYPE_INTEGER )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:856:9: ( ( TYPE_VARCHAR | TYPE_INTEGER | TYPE_DECIMAL | TYPE_DATE ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:857:9: ( TYPE_VARCHAR | TYPE_INTEGER | TYPE_DECIMAL | TYPE_DATE )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:832:9: ( TYPE_VARCHAR | TYPE_INTEGER )
-            int alt32=2;
-            int LA32_0 = input.LA(1);
-
-            if ( (LA32_0==TYPE_VARCHAR) ) {
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:857:9: ( TYPE_VARCHAR | TYPE_INTEGER | TYPE_DECIMAL | TYPE_DATE )
+            int alt32=4;
+            switch ( input.LA(1) ) {
+            case TYPE_VARCHAR:
+                {
                 alt32=1;
-            }
-            else if ( (LA32_0==TYPE_INTEGER) ) {
+                }
+                break;
+            case TYPE_INTEGER:
+                {
                 alt32=2;
-            }
-            else {
+                }
+                break;
+            case TYPE_DECIMAL:
+                {
+                alt32=3;
+                }
+                break;
+            case TYPE_DATE:
+                {
+                alt32=4;
+                }
+                break;
+            default:
                 if (state.backtracking>0) {state.failed=true; return dataType;}
                 NoViableAltException nvae =
                     new NoViableAltException("", 32, 0, input);
@@ -3794,11 +3810,12 @@ public class FunSQLParser extends Parser {
                 throw nvae;
 
             }
+
             switch (alt32) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:833:17: TYPE_VARCHAR
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:858:17: TYPE_VARCHAR
                     {
-                    TYPE_VARCHAR18=(Token)match(input,TYPE_VARCHAR,FOLLOW_TYPE_VARCHAR_in_tokenDataType6659); if (state.failed) return dataType;
+                    TYPE_VARCHAR18=(Token)match(input,TYPE_VARCHAR,FOLLOW_TYPE_VARCHAR_in_tokenDataType6671); if (state.failed) return dataType;
 
                     if ( state.backtracking==0 ) {
                                     	dataType = new TokenDataType((TYPE_VARCHAR18!=null?TYPE_VARCHAR18.getText():null));
@@ -3807,12 +3824,34 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:837:17: TYPE_INTEGER
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:862:17: TYPE_INTEGER
                     {
-                    TYPE_INTEGER19=(Token)match(input,TYPE_INTEGER,FOLLOW_TYPE_INTEGER_in_tokenDataType6697); if (state.failed) return dataType;
+                    TYPE_INTEGER19=(Token)match(input,TYPE_INTEGER,FOLLOW_TYPE_INTEGER_in_tokenDataType6709); if (state.failed) return dataType;
 
                     if ( state.backtracking==0 ) {
                                     	dataType = new TokenDataType((TYPE_INTEGER19!=null?TYPE_INTEGER19.getText():null));
+                                    }
+
+                    }
+                    break;
+                case 3 :
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:866:17: TYPE_DECIMAL
+                    {
+                    TYPE_DECIMAL20=(Token)match(input,TYPE_DECIMAL,FOLLOW_TYPE_DECIMAL_in_tokenDataType6747); if (state.failed) return dataType;
+
+                    if ( state.backtracking==0 ) {
+                                    	dataType = new TokenDataType((TYPE_DECIMAL20!=null?TYPE_DECIMAL20.getText():null));
+                                    }
+
+                    }
+                    break;
+                case 4 :
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:870:17: TYPE_DATE
+                    {
+                    TYPE_DATE21=(Token)match(input,TYPE_DATE,FOLLOW_TYPE_DATE_in_tokenDataType6785); if (state.failed) return dataType;
+
+                    if ( state.backtracking==0 ) {
+                                    	dataType = new TokenDataType((TYPE_DATE21!=null?TYPE_DATE21.getText():null));
                                     }
 
                     }
@@ -3841,19 +3880,19 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenLiteral"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:843:1: tokenLiteral returns [TokenLiteral literal] : ( ( tokenIntegerLiteral | tokenStringLiteral | tokenDecimalLiteral | tokenDateLiteral ) ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:876:1: tokenLiteral returns [TokenLiteral literal] : ( ( tokenIntegerLiteral | tokenStringLiteral | tokenDecimalLiteral | tokenDateLiteral ) ) ;
     public final TokenLiteral tokenLiteral() throws RecognitionException {
         TokenLiteral literal = null;
 
         int tokenLiteral_StartIndex = input.index();
 
-        TokenIntegerLiteral tokenIntegerLiteral20 =null;
+        TokenIntegerLiteral tokenIntegerLiteral22 =null;
 
-        TokenStringLiteral tokenStringLiteral21 =null;
+        TokenStringLiteral tokenStringLiteral23 =null;
 
-        TokenDecimalLiteral tokenDecimalLiteral22 =null;
+        TokenDecimalLiteral tokenDecimalLiteral24 =null;
 
-        TokenDateLiteral tokenDateLiteral23 =null;
+        TokenDateLiteral tokenDateLiteral25 =null;
 
 
 
@@ -3862,13 +3901,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 35) ) { return literal; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:847:9: ( ( ( tokenIntegerLiteral | tokenStringLiteral | tokenDecimalLiteral | tokenDateLiteral ) ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:848:9: ( ( tokenIntegerLiteral | tokenStringLiteral | tokenDecimalLiteral | tokenDateLiteral ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:880:9: ( ( ( tokenIntegerLiteral | tokenStringLiteral | tokenDecimalLiteral | tokenDateLiteral ) ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:881:9: ( ( tokenIntegerLiteral | tokenStringLiteral | tokenDecimalLiteral | tokenDateLiteral ) )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:848:9: ( ( tokenIntegerLiteral | tokenStringLiteral | tokenDecimalLiteral | tokenDateLiteral ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:849:10: ( tokenIntegerLiteral | tokenStringLiteral | tokenDecimalLiteral | tokenDateLiteral )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:881:9: ( ( tokenIntegerLiteral | tokenStringLiteral | tokenDecimalLiteral | tokenDateLiteral ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:882:10: ( tokenIntegerLiteral | tokenStringLiteral | tokenDecimalLiteral | tokenDateLiteral )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:849:10: ( tokenIntegerLiteral | tokenStringLiteral | tokenDecimalLiteral | tokenDateLiteral )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:882:10: ( tokenIntegerLiteral | tokenStringLiteral | tokenDecimalLiteral | tokenDateLiteral )
             int alt33=4;
             switch ( input.LA(1) ) {
             case LITERAL_INTEGER:
@@ -3886,7 +3925,7 @@ public class FunSQLParser extends Parser {
                 alt33=3;
                 }
                 break;
-            case LITERAL_DATE:
+            case TYPE_DATE:
                 {
                 alt33=4;
                 }
@@ -3902,61 +3941,61 @@ public class FunSQLParser extends Parser {
 
             switch (alt33) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:850:17: tokenIntegerLiteral
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:883:17: tokenIntegerLiteral
                     {
-                    pushFollow(FOLLOW_tokenIntegerLiteral_in_tokenLiteral6788);
-                    tokenIntegerLiteral20=tokenIntegerLiteral();
+                    pushFollow(FOLLOW_tokenIntegerLiteral_in_tokenLiteral6876);
+                    tokenIntegerLiteral22=tokenIntegerLiteral();
 
                     state._fsp--;
                     if (state.failed) return literal;
 
                     if ( state.backtracking==0 ) {
-                                    	literal = tokenIntegerLiteral20;
+                                    	literal = tokenIntegerLiteral22;
                                     }
 
                     }
                     break;
                 case 2 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:854:17: tokenStringLiteral
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:887:17: tokenStringLiteral
                     {
-                    pushFollow(FOLLOW_tokenStringLiteral_in_tokenLiteral6826);
-                    tokenStringLiteral21=tokenStringLiteral();
+                    pushFollow(FOLLOW_tokenStringLiteral_in_tokenLiteral6914);
+                    tokenStringLiteral23=tokenStringLiteral();
 
                     state._fsp--;
                     if (state.failed) return literal;
 
                     if ( state.backtracking==0 ) {
-                                    	literal = tokenStringLiteral21;
+                                    	literal = tokenStringLiteral23;
                                     }
 
                     }
                     break;
                 case 3 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:858:17: tokenDecimalLiteral
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:891:17: tokenDecimalLiteral
                     {
-                    pushFollow(FOLLOW_tokenDecimalLiteral_in_tokenLiteral6864);
-                    tokenDecimalLiteral22=tokenDecimalLiteral();
+                    pushFollow(FOLLOW_tokenDecimalLiteral_in_tokenLiteral6952);
+                    tokenDecimalLiteral24=tokenDecimalLiteral();
 
                     state._fsp--;
                     if (state.failed) return literal;
 
                     if ( state.backtracking==0 ) {
-                                    	literal = tokenDecimalLiteral22;
+                                    	literal = tokenDecimalLiteral24;
                                     }
 
                     }
                     break;
                 case 4 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:862:17: tokenDateLiteral
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:895:17: tokenDateLiteral
                     {
-                    pushFollow(FOLLOW_tokenDateLiteral_in_tokenLiteral6902);
-                    tokenDateLiteral23=tokenDateLiteral();
+                    pushFollow(FOLLOW_tokenDateLiteral_in_tokenLiteral6990);
+                    tokenDateLiteral25=tokenDateLiteral();
 
                     state._fsp--;
                     if (state.failed) return literal;
 
                     if ( state.backtracking==0 ) {
-                                    	literal = tokenDateLiteral23;
+                                    	literal = tokenDateLiteral25;
                                     }
 
                     }
@@ -3988,7 +4027,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenStringLiteral"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:869:1: tokenStringLiteral returns [TokenStringLiteral literal] : (lit1= LITERAL_STRING ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:902:1: tokenStringLiteral returns [TokenStringLiteral literal] : (lit1= LITERAL_STRING ) ;
     public final TokenStringLiteral tokenStringLiteral() throws RecognitionException {
         TokenStringLiteral literal = null;
 
@@ -4002,13 +4041,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 36) ) { return literal; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:873:9: ( (lit1= LITERAL_STRING ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:874:9: (lit1= LITERAL_STRING )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:906:9: ( (lit1= LITERAL_STRING ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:907:9: (lit1= LITERAL_STRING )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:874:9: (lit1= LITERAL_STRING )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:875:17: lit1= LITERAL_STRING
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:907:9: (lit1= LITERAL_STRING )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:908:17: lit1= LITERAL_STRING
             {
-            lit1=(Token)match(input,LITERAL_STRING,FOLLOW_LITERAL_STRING_in_tokenStringLiteral7002); if (state.failed) return literal;
+            lit1=(Token)match(input,LITERAL_STRING,FOLLOW_LITERAL_STRING_in_tokenStringLiteral7090); if (state.failed) return literal;
 
             if ( state.backtracking==0 ) {
                             	literal = new TokenStringLiteral((lit1!=null?lit1.getText():null).substring(1, (lit1!=null?lit1.getText():null).length()-1));
@@ -4037,13 +4076,13 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenIntegerLiteral"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:881:1: tokenIntegerLiteral returns [TokenIntegerLiteral literal] : ( LITERAL_INTEGER ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:914:1: tokenIntegerLiteral returns [TokenIntegerLiteral literal] : ( LITERAL_INTEGER ) ;
     public final TokenIntegerLiteral tokenIntegerLiteral() throws RecognitionException {
         TokenIntegerLiteral literal = null;
 
         int tokenIntegerLiteral_StartIndex = input.index();
 
-        Token LITERAL_INTEGER24=null;
+        Token LITERAL_INTEGER26=null;
 
 
                 	literal = null;
@@ -4051,16 +4090,16 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 37) ) { return literal; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:885:9: ( ( LITERAL_INTEGER ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:886:9: ( LITERAL_INTEGER )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:918:9: ( ( LITERAL_INTEGER ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:919:9: ( LITERAL_INTEGER )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:886:9: ( LITERAL_INTEGER )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:887:17: LITERAL_INTEGER
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:919:9: ( LITERAL_INTEGER )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:920:17: LITERAL_INTEGER
             {
-            LITERAL_INTEGER24=(Token)match(input,LITERAL_INTEGER,FOLLOW_LITERAL_INTEGER_in_tokenIntegerLiteral7082); if (state.failed) return literal;
+            LITERAL_INTEGER26=(Token)match(input,LITERAL_INTEGER,FOLLOW_LITERAL_INTEGER_in_tokenIntegerLiteral7170); if (state.failed) return literal;
 
             if ( state.backtracking==0 ) {
-                            	literal = new TokenIntegerLiteral((LITERAL_INTEGER24!=null?LITERAL_INTEGER24.getText():null));
+                            	literal = new TokenIntegerLiteral((LITERAL_INTEGER26!=null?LITERAL_INTEGER26.getText():null));
                             }
 
             }
@@ -4086,13 +4125,13 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenDecimalLiteral"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:894:2: tokenDecimalLiteral returns [TokenDecimalLiteral literal] : ( LITERAL_DECIMAL ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:927:2: tokenDecimalLiteral returns [TokenDecimalLiteral literal] : ( LITERAL_DECIMAL ) ;
     public final TokenDecimalLiteral tokenDecimalLiteral() throws RecognitionException {
         TokenDecimalLiteral literal = null;
 
         int tokenDecimalLiteral_StartIndex = input.index();
 
-        Token LITERAL_DECIMAL25=null;
+        Token LITERAL_DECIMAL27=null;
 
 
                 	literal = null;
@@ -4100,16 +4139,16 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 38) ) { return literal; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:898:9: ( ( LITERAL_DECIMAL ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:899:9: ( LITERAL_DECIMAL )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:931:9: ( ( LITERAL_DECIMAL ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:932:9: ( LITERAL_DECIMAL )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:899:9: ( LITERAL_DECIMAL )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:900:17: LITERAL_DECIMAL
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:932:9: ( LITERAL_DECIMAL )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:933:17: LITERAL_DECIMAL
             {
-            LITERAL_DECIMAL25=(Token)match(input,LITERAL_DECIMAL,FOLLOW_LITERAL_DECIMAL_in_tokenDecimalLiteral7172); if (state.failed) return literal;
+            LITERAL_DECIMAL27=(Token)match(input,LITERAL_DECIMAL,FOLLOW_LITERAL_DECIMAL_in_tokenDecimalLiteral7260); if (state.failed) return literal;
 
             if ( state.backtracking==0 ) {
-                            	literal = new TokenDecimalLiteral((LITERAL_DECIMAL25!=null?LITERAL_DECIMAL25.getText():null));
+                            	literal = new TokenDecimalLiteral((LITERAL_DECIMAL27!=null?LITERAL_DECIMAL27.getText():null));
                             }
 
             }
@@ -4135,13 +4174,13 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenDateLiteral"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:906:2: tokenDateLiteral returns [TokenDateLiteral literal] : ( LITERAL_DATE ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:939:2: tokenDateLiteral returns [TokenDateLiteral literal] : ( TYPE_DATE LITERAL_STRING ) ;
     public final TokenDateLiteral tokenDateLiteral() throws RecognitionException {
         TokenDateLiteral literal = null;
 
         int tokenDateLiteral_StartIndex = input.index();
 
-        Token LITERAL_DATE26=null;
+        Token LITERAL_STRING28=null;
 
 
                 	literal = null;
@@ -4149,16 +4188,18 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 39) ) { return literal; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:910:9: ( ( LITERAL_DATE ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:911:9: ( LITERAL_DATE )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:943:9: ( ( TYPE_DATE LITERAL_STRING ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:944:9: ( TYPE_DATE LITERAL_STRING )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:911:9: ( LITERAL_DATE )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:912:17: LITERAL_DATE
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:944:9: ( TYPE_DATE LITERAL_STRING )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:946:17: TYPE_DATE LITERAL_STRING
             {
-            LITERAL_DATE26=(Token)match(input,LITERAL_DATE,FOLLOW_LITERAL_DATE_in_tokenDateLiteral7253); if (state.failed) return literal;
+            match(input,TYPE_DATE,FOLLOW_TYPE_DATE_in_tokenDateLiteral7358); if (state.failed) return literal;
+
+            LITERAL_STRING28=(Token)match(input,LITERAL_STRING,FOLLOW_LITERAL_STRING_in_tokenDateLiteral7376); if (state.failed) return literal;
 
             if ( state.backtracking==0 ) {
-                            	literal = new TokenDateLiteral((LITERAL_DATE26!=null?LITERAL_DATE26.getText():null));
+                            	literal = new TokenDateLiteral("date "+(LITERAL_STRING28!=null?LITERAL_STRING28.getText():null));
                             }
 
             }
@@ -4184,7 +4225,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "variableText"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:918:2: variableText returns [String text] : (var1= IDENTIFIER ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:953:2: variableText returns [String text] : (var1= IDENTIFIER ) ;
     public final String variableText() throws RecognitionException {
         String text = null;
 
@@ -4195,13 +4236,13 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 40) ) { return text; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:919:3: ( (var1= IDENTIFIER ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:920:3: (var1= IDENTIFIER )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:954:3: ( (var1= IDENTIFIER ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:955:3: (var1= IDENTIFIER )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:920:3: (var1= IDENTIFIER )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:922:4: var1= IDENTIFIER
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:955:3: (var1= IDENTIFIER )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:957:4: var1= IDENTIFIER
             {
-            var1=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_variableText7312); if (state.failed) return text;
+            var1=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_variableText7435); if (state.failed) return text;
 
             if ( state.backtracking==0 ) {
              		text = (var1!=null?var1.getText():null).toUpperCase();
@@ -4230,7 +4271,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "identifierText"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:928:2: identifierText returns [String text] : ( (id1= IDENTIFIER ) | ( QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE ) ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:963:2: identifierText returns [String text] : ( (id1= IDENTIFIER ) | ( QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE ) ) ;
     public final String identifierText() throws RecognitionException {
         String text = null;
 
@@ -4242,10 +4283,10 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 41) ) { return text; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:929:3: ( ( (id1= IDENTIFIER ) | ( QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE ) ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:930:3: ( (id1= IDENTIFIER ) | ( QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:964:3: ( ( (id1= IDENTIFIER ) | ( QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE ) ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:965:3: ( (id1= IDENTIFIER ) | ( QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE ) )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:930:3: ( (id1= IDENTIFIER ) | ( QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:965:3: ( (id1= IDENTIFIER ) | ( QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE ) )
             int alt34=2;
             int LA34_0 = input.LA(1);
 
@@ -4265,12 +4306,12 @@ public class FunSQLParser extends Parser {
             }
             switch (alt34) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:931:4: (id1= IDENTIFIER )
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:966:4: (id1= IDENTIFIER )
                     {
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:931:4: (id1= IDENTIFIER )
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:932:4: id1= IDENTIFIER
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:966:4: (id1= IDENTIFIER )
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:967:4: id1= IDENTIFIER
                     {
-                    id1=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_identifierText7364); if (state.failed) return text;
+                    id1=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_identifierText7487); if (state.failed) return text;
 
                     if ( state.backtracking==0 ) {
                                     	text = (id1!=null?id1.getText():null).toUpperCase();
@@ -4282,20 +4323,20 @@ public class FunSQLParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:937:11: ( QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE )
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:972:11: ( QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE )
                     {
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:937:11: ( QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE )
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:938:11: QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:972:11: ( QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE )
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:973:11: QUOTE_DOUBLE id2= IDENTIFIER QUOTE_DOUBLE
                     {
-                    match(input,QUOTE_DOUBLE,FOLLOW_QUOTE_DOUBLE_in_identifierText7420); if (state.failed) return text;
+                    match(input,QUOTE_DOUBLE,FOLLOW_QUOTE_DOUBLE_in_identifierText7543); if (state.failed) return text;
 
-                    id2=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_identifierText7436); if (state.failed) return text;
+                    id2=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_identifierText7559); if (state.failed) return text;
 
                     if ( state.backtracking==0 ) {
                                     	text = (id2!=null?id2.getText():null);
                                     }
 
-                    match(input,QUOTE_DOUBLE,FOLLOW_QUOTE_DOUBLE_in_identifierText7456); if (state.failed) return text;
+                    match(input,QUOTE_DOUBLE,FOLLOW_QUOTE_DOUBLE_in_identifierText7579); if (state.failed) return text;
 
                     }
 
@@ -4329,7 +4370,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenAddOperator"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:947:1: tokenAddOperator : ( PLUS | MINUS ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:982:1: tokenAddOperator : ( PLUS | MINUS ) ;
     public final FunSQLParser.tokenAddOperator_return tokenAddOperator() throws RecognitionException {
         FunSQLParser.tokenAddOperator_return retval = new FunSQLParser.tokenAddOperator_return();
         retval.start = input.LT(1);
@@ -4339,7 +4380,7 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 42) ) { return retval; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:948:5: ( ( PLUS | MINUS ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:983:5: ( ( PLUS | MINUS ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)==MINUS||input.LA(1)==PLUS ) {
@@ -4380,7 +4421,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenMultOperator"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:955:1: tokenMultOperator : ( MULT | DIV ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:990:1: tokenMultOperator : ( MULT | DIV ) ;
     public final FunSQLParser.tokenMultOperator_return tokenMultOperator() throws RecognitionException {
         FunSQLParser.tokenMultOperator_return retval = new FunSQLParser.tokenMultOperator_return();
         retval.start = input.LT(1);
@@ -4390,7 +4431,7 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 43) ) { return retval; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:956:5: ( ( MULT | DIV ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:991:5: ( ( MULT | DIV ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)==DIV||input.LA(1)==MULT ) {
@@ -4431,7 +4472,7 @@ public class FunSQLParser extends Parser {
 
 
     // $ANTLR start "tokenCompOperator"
-    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:963:1: tokenCompOperator : ( EQUAL1 | NOT_EQUAL1 | NOT_EQUAL2 | LESS_THAN | LESS_EQUAL1 | LESS_EQUAL2 | GREATER_EQUAL1 | GREATER_EQUAL2 ) ;
+    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:998:1: tokenCompOperator : ( EQUAL1 | NOT_EQUAL1 | NOT_EQUAL2 | LESS_THAN | LESS_EQUAL1 | LESS_EQUAL2 | GREATER_EQUAL1 | GREATER_EQUAL2 ) ;
     public final FunSQLParser.tokenCompOperator_return tokenCompOperator() throws RecognitionException {
         FunSQLParser.tokenCompOperator_return retval = new FunSQLParser.tokenCompOperator_return();
         retval.start = input.LT(1);
@@ -4441,7 +4482,7 @@ public class FunSQLParser extends Parser {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 44) ) { return retval; }
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:964:5: ( ( EQUAL1 | NOT_EQUAL1 | NOT_EQUAL2 | LESS_THAN | LESS_EQUAL1 | LESS_EQUAL2 | GREATER_EQUAL1 | GREATER_EQUAL2 ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:999:5: ( ( EQUAL1 | NOT_EQUAL1 | NOT_EQUAL2 | LESS_THAN | LESS_EQUAL1 | LESS_EQUAL2 | GREATER_EQUAL1 | GREATER_EQUAL2 ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)==EQUAL1||(input.LA(1) >= GREATER_EQUAL1 && input.LA(1) <= GREATER_EQUAL2)||(input.LA(1) >= LESS_EQUAL1 && input.LA(1) <= LESS_THAN)||(input.LA(1) >= NOT_EQUAL1 && input.LA(1) <= NOT_EQUAL2) ) {
@@ -4481,10 +4522,10 @@ public class FunSQLParser extends Parser {
         AbstractPredicate predicate1 =null;
 
 
-        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:510:3: (predicate1= parenPredicate )
-        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:510:3: predicate1= parenPredicate
+        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:535:3: (predicate1= parenPredicate )
+        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:535:3: predicate1= parenPredicate
         {
-        pushFollow(FOLLOW_parenPredicate_in_synpred28_FunSQL4802);
+        pushFollow(FOLLOW_parenPredicate_in_synpred28_FunSQL4814);
         predicate1=parenPredicate();
 
         state._fsp--;
@@ -4502,13 +4543,13 @@ public class FunSQLParser extends Parser {
         TokenIdentifier id1 =null;
 
 
-        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:714:9: ( ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier ) )
-        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:714:9: ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier )
+        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:739:9: ( ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier ) )
+        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:739:9: ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier )
         {
-        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:714:9: ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier )
-        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:715:17: (schema1= tokenIdentifier DOT )? id1= tokenIdentifier
+        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:739:9: ( (schema1= tokenIdentifier DOT )? id1= tokenIdentifier )
+        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:740:17: (schema1= tokenIdentifier DOT )? id1= tokenIdentifier
         {
-        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:715:17: (schema1= tokenIdentifier DOT )?
+        // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:740:17: (schema1= tokenIdentifier DOT )?
         int alt38=2;
         int LA38_0 = input.LA(1);
 
@@ -4536,15 +4577,15 @@ public class FunSQLParser extends Parser {
         }
         switch (alt38) {
             case 1 :
-                // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:716:17: schema1= tokenIdentifier DOT
+                // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:741:17: schema1= tokenIdentifier DOT
                 {
-                pushFollow(FOLLOW_tokenIdentifier_in_synpred38_FunSQL5836);
+                pushFollow(FOLLOW_tokenIdentifier_in_synpred38_FunSQL5848);
                 schema1=tokenIdentifier();
 
                 state._fsp--;
                 if (state.failed) return ;
 
-                match(input,DOT,FOLLOW_DOT_in_synpred38_FunSQL5856); if (state.failed) return ;
+                match(input,DOT,FOLLOW_DOT_in_synpred38_FunSQL5868); if (state.failed) return ;
 
                 }
                 break;
@@ -4552,7 +4593,7 @@ public class FunSQLParser extends Parser {
         }
 
 
-        pushFollow(FOLLOW_tokenIdentifier_in_synpred38_FunSQL5913);
+        pushFollow(FOLLOW_tokenIdentifier_in_synpred38_FunSQL5925);
         id1=tokenIdentifier();
 
         state._fsp--;
@@ -4600,181 +4641,184 @@ public class FunSQLParser extends Parser {
 
  
 
-    public static final BitSet FOLLOW_createSchemaStatement_in_statement1078 = new BitSet(new long[]{0x0000000000000002L,0x0000001000000000L});
-    public static final BitSet FOLLOW_dropSchemaStatement_in_statement1133 = new BitSet(new long[]{0x0000000000000002L,0x0000001000000000L});
-    public static final BitSet FOLLOW_createConnectionStatement_in_statement1188 = new BitSet(new long[]{0x0000000000000002L,0x0000001000000000L});
-    public static final BitSet FOLLOW_dropConnectionStatement_in_statement1243 = new BitSet(new long[]{0x0000000000000002L,0x0000001000000000L});
-    public static final BitSet FOLLOW_createTableStatement_in_statement1298 = new BitSet(new long[]{0x0000000000000002L,0x0000001000000000L});
-    public static final BitSet FOLLOW_dropTableStatement_in_statement1353 = new BitSet(new long[]{0x0000000000000002L,0x0000001000000000L});
-    public static final BitSet FOLLOW_createFunctionStatement_in_statement1408 = new BitSet(new long[]{0x0000000000000002L,0x0000001000000000L});
-    public static final BitSet FOLLOW_dropFunctionStatement_in_statement1463 = new BitSet(new long[]{0x0000000000000002L,0x0000001000000000L});
-    public static final BitSet FOLLOW_callFunctionStatement_in_statement1518 = new BitSet(new long[]{0x0000000000000002L,0x0000001000000000L});
-    public static final BitSet FOLLOW_selectStatement_in_statement1573 = new BitSet(new long[]{0x0000000000000002L,0x0000001000000000L});
-    public static final BitSet FOLLOW_SEMI_in_statement1627 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_CREATE_in_createSchemaStatement1705 = new BitSet(new long[]{0x1000000000000000L});
-    public static final BitSet FOLLOW_KEYWORD_SCHEMA_in_createSchemaStatement1723 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenSchema_in_createSchemaStatement1741 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_DROP_in_dropSchemaStatement1820 = new BitSet(new long[]{0x1000000000000000L});
-    public static final BitSet FOLLOW_KEYWORD_SCHEMA_in_dropSchemaStatement1838 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenSchema_in_dropSchemaStatement1856 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_CREATE_in_createConnectionStatement1935 = new BitSet(new long[]{0x0000080000000000L});
-    public static final BitSet FOLLOW_KEYWORD_CONNECTION_in_createConnectionStatement1953 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_createConnectionStatement1971 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_URL_in_createConnectionStatement1991 = new BitSet(new long[]{0x0000000000000000L,0x0000000000002000L});
-    public static final BitSet FOLLOW_tokenStringLiteral_in_createConnectionStatement2011 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000004L});
-    public static final BitSet FOLLOW_KEYWORD_USER_in_createConnectionStatement2031 = new BitSet(new long[]{0x0000000000000000L,0x0000000000002000L});
-    public static final BitSet FOLLOW_tokenStringLiteral_in_createConnectionStatement2051 = new BitSet(new long[]{0x0800000000000000L});
-    public static final BitSet FOLLOW_KEYWORD_PASSWD_in_createConnectionStatement2071 = new BitSet(new long[]{0x0000000000000000L,0x0000000000002000L});
-    public static final BitSet FOLLOW_tokenStringLiteral_in_createConnectionStatement2091 = new BitSet(new long[]{0x4000000000000000L});
-    public static final BitSet FOLLOW_KEYWORD_STORE_in_createConnectionStatement2111 = new BitSet(new long[]{0x0000000000000000L,0x0000000000002000L});
-    public static final BitSet FOLLOW_tokenStringLiteral_in_createConnectionStatement2131 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_DROP_in_dropConnectionStatement2218 = new BitSet(new long[]{0x0000080000000000L});
-    public static final BitSet FOLLOW_KEYWORD_CONNECTION_in_dropConnectionStatement2236 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_dropConnectionStatement2254 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_CREATE_in_createTableStatement2333 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-    public static final BitSet FOLLOW_KEYWORD_TABLE_in_createTableStatement2351 = new BitSet(new long[]{0x0000000200001000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenTable_in_createTableStatement2371 = new BitSet(new long[]{0x0000000000000000L,0x0000000000004000L});
-    public static final BitSet FOLLOW_LPAREN_in_createTableStatement2391 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_identifierText_in_createTableStatement2411 = new BitSet(new long[]{0x0000000000000000L,0x0000060000000000L});
-    public static final BitSet FOLLOW_tokenDataType_in_createTableStatement2449 = new BitSet(new long[]{0x0000000000002000L,0x0000000400000000L});
-    public static final BitSet FOLLOW_COMMA_in_createTableStatement2503 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_identifierText_in_createTableStatement2523 = new BitSet(new long[]{0x0000000000000000L,0x0000060000000000L});
-    public static final BitSet FOLLOW_tokenDataType_in_createTableStatement2561 = new BitSet(new long[]{0x0000000000002000L,0x0000000400000000L});
-    public static final BitSet FOLLOW_RPAREN_in_createTableStatement2616 = new BitSet(new long[]{0x0022000000000000L});
-    public static final BitSet FOLLOW_KEYWORD_FROM_in_createTableStatement2652 = new BitSet(new long[]{0x0000000200001000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenTable_in_createTableStatement2672 = new BitSet(new long[]{0x0020000000000000L});
-    public static final BitSet FOLLOW_KEYWORD_IN_in_createTableStatement2711 = new BitSet(new long[]{0x0000080000000000L});
-    public static final BitSet FOLLOW_KEYWORD_CONNECTION_in_createTableStatement2713 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_createTableStatement2733 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_DROP_in_dropTableStatement2812 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-    public static final BitSet FOLLOW_KEYWORD_TABLE_in_dropTableStatement2830 = new BitSet(new long[]{0x0000000200001000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenTable_in_dropTableStatement2850 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_CREATE_in_createFunctionStatement2916 = new BitSet(new long[]{0x0004000000000000L});
-    public static final BitSet FOLLOW_KEYWORD_FUNCTION_in_createFunctionStatement2934 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenFunction_in_createFunctionStatement2954 = new BitSet(new long[]{0x0000000000000000L,0x0000000000004000L});
-    public static final BitSet FOLLOW_LPAREN_in_createFunctionStatement2973 = new BitSet(new long[]{0x0400000000000000L});
-    public static final BitSet FOLLOW_KEYWORD_OUT_in_createFunctionStatement3009 = new BitSet(new long[]{0x0000000200000000L});
-    public static final BitSet FOLLOW_tokenVariable_in_createFunctionStatement3029 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-    public static final BitSet FOLLOW_KEYWORD_TABLE_in_createFunctionStatement3034 = new BitSet(new long[]{0x0000000000002000L,0x0000000400000000L});
-    public static final BitSet FOLLOW_COMMA_in_createFunctionStatement3046 = new BitSet(new long[]{0x0400000000000000L});
-    public static final BitSet FOLLOW_KEYWORD_OUT_in_createFunctionStatement3050 = new BitSet(new long[]{0x0000000200000000L});
-    public static final BitSet FOLLOW_tokenVariable_in_createFunctionStatement3070 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-    public static final BitSet FOLLOW_KEYWORD_TABLE_in_createFunctionStatement3075 = new BitSet(new long[]{0x0000000000002000L,0x0000000400000000L});
-    public static final BitSet FOLLOW_RPAREN_in_createFunctionStatement3084 = new BitSet(new long[]{0x0000010000000000L});
-    public static final BitSet FOLLOW_KEYWORD_BEGIN_in_createFunctionStatement3088 = new BitSet(new long[]{0x0001000000001000L,0x0000000000000008L});
-    public static final BitSet FOLLOW_tokenAssignment_in_createFunctionStatement3098 = new BitSet(new long[]{0x0001000000001000L,0x0000000000000008L});
-    public static final BitSet FOLLOW_KEYWORD_END_in_createFunctionStatement3124 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_DROP_in_dropFunctionStatement3204 = new BitSet(new long[]{0x0004000000000000L});
-    public static final BitSet FOLLOW_KEYWORD_FUNCTION_in_dropFunctionStatement3222 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenFunction_in_dropFunctionStatement3242 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_CALL_in_callFunctionStatement3308 = new BitSet(new long[]{0x0004000000000000L});
-    public static final BitSet FOLLOW_KEYWORD_FUNCTION_in_callFunctionStatement3326 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenFunction_in_callFunctionStatement3346 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_SELECT_in_selectStatement3423 = new BitSet(new long[]{0x0000000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_abstractExpression_in_selectStatement3443 = new BitSet(new long[]{0x0002004000002000L});
-    public static final BitSet FOLLOW_KEYWORD_AS_in_selectStatement3498 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_selectStatement3519 = new BitSet(new long[]{0x0002000000002000L});
-    public static final BitSet FOLLOW_COMMA_in_selectStatement3593 = new BitSet(new long[]{0x0000000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_abstractExpression_in_selectStatement3613 = new BitSet(new long[]{0x0002004000002000L});
-    public static final BitSet FOLLOW_KEYWORD_AS_in_selectStatement3668 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_selectStatement3689 = new BitSet(new long[]{0x0002000000002000L});
-    public static final BitSet FOLLOW_KEYWORD_FROM_in_selectStatement3798 = new BitSet(new long[]{0x0000000200001000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenTable_in_selectStatement3818 = new BitSet(new long[]{0x0018004000002002L,0x0000000000000010L});
-    public static final BitSet FOLLOW_KEYWORD_AS_in_selectStatement3874 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_selectStatement3895 = new BitSet(new long[]{0x0018000000002002L,0x0000000000000010L});
-    public static final BitSet FOLLOW_COMMA_in_selectStatement3969 = new BitSet(new long[]{0x0000000200001000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenTable_in_selectStatement3989 = new BitSet(new long[]{0x0018004000002002L,0x0000000000000010L});
-    public static final BitSet FOLLOW_KEYWORD_AS_in_selectStatement4044 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_selectStatement4065 = new BitSet(new long[]{0x0018000000002002L,0x0000000000000010L});
-    public static final BitSet FOLLOW_KEYWORD_WHERE_in_selectStatement4175 = new BitSet(new long[]{0x0100000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_abstractPredicate_in_selectStatement4195 = new BitSet(new long[]{0x0018000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_GROUP_in_selectStatement4302 = new BitSet(new long[]{0x0000020000000000L});
-    public static final BitSet FOLLOW_KEYWORD_BY_in_selectStatement4304 = new BitSet(new long[]{0x0000000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_abstractExpression_in_selectStatement4324 = new BitSet(new long[]{0x0010000000002002L});
-    public static final BitSet FOLLOW_COMMA_in_selectStatement4378 = new BitSet(new long[]{0x0000000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_abstractExpression_in_selectStatement4398 = new BitSet(new long[]{0x0010000000002002L});
-    public static final BitSet FOLLOW_KEYWORD_HAVING_in_selectStatement4524 = new BitSet(new long[]{0x0100000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_abstractPredicate_in_selectStatement4544 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_complexPredicateOr_in_abstractPredicate4606 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_complexPredicateAnd_in_complexPredicateOr4644 = new BitSet(new long[]{0x0200000000000002L});
-    public static final BitSet FOLLOW_KEYWORD_OR_in_complexPredicateOr4655 = new BitSet(new long[]{0x0100000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_complexPredicateAnd_in_complexPredicateOr4663 = new BitSet(new long[]{0x0200000000000002L});
-    public static final BitSet FOLLOW_complexPredicateNot_in_complexPredicateAnd4702 = new BitSet(new long[]{0x0000002000000002L});
-    public static final BitSet FOLLOW_KEYWORD_AND_in_complexPredicateAnd4713 = new BitSet(new long[]{0x0100000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_complexPredicateNot_in_complexPredicateAnd4721 = new BitSet(new long[]{0x0000002000000002L});
-    public static final BitSet FOLLOW_KEYWORD_NOT_in_complexPredicateNot4762 = new BitSet(new long[]{0x0000000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_complexPredicate_in_complexPredicateNot4775 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_parenPredicate_in_complexPredicate4802 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_simplePredicate_in_complexPredicate4817 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_parenPredicate4842 = new BitSet(new long[]{0x0100000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_abstractPredicate_in_parenPredicate4849 = new BitSet(new long[]{0x0000000000000000L,0x0000000400000000L});
-    public static final BitSet FOLLOW_RPAREN_in_parenPredicate4855 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_abstractExpression_in_simplePredicate4897 = new BitSet(new long[]{0x0000000018400000L,0x0000000000300380L});
-    public static final BitSet FOLLOW_tokenCompOperator_in_simplePredicate4952 = new BitSet(new long[]{0x0000000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_abstractExpression_in_simplePredicate4990 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_complexExpressionAdd_in_abstractExpression5044 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_complexExpressionMult_in_complexExpressionAdd5074 = new BitSet(new long[]{0x0000000000000002L,0x0000000002010000L});
-    public static final BitSet FOLLOW_tokenAddOperator_in_complexExpressionAdd5087 = new BitSet(new long[]{0x0000000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_complexExpressionMult_in_complexExpressionAdd5095 = new BitSet(new long[]{0x0000000000000002L,0x0000000002010000L});
-    public static final BitSet FOLLOW_complexExpressionSigned_in_complexExpressionMult5135 = new BitSet(new long[]{0x0000000000020002L,0x0000000000040000L});
-    public static final BitSet FOLLOW_tokenMultOperator_in_complexExpressionMult5148 = new BitSet(new long[]{0x0000000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_complexExpressionSigned_in_complexExpressionMult5156 = new BitSet(new long[]{0x0000000000020002L,0x0000000000040000L});
-    public static final BitSet FOLLOW_MINUS_in_complexExpressionSigned5198 = new BitSet(new long[]{0x0000000202000000L,0x0000000020007C00L});
-    public static final BitSet FOLLOW_PLUS_in_complexExpressionSigned5207 = new BitSet(new long[]{0x0000000202000000L,0x0000000020007C00L});
-    public static final BitSet FOLLOW_complexExpression_in_complexExpressionSigned5219 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_parenExpression_in_complexExpression5254 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_aggregationExpression_in_complexExpression5269 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_simpleExpression_in_complexExpression5284 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_parenExpression5309 = new BitSet(new long[]{0x0000000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_abstractExpression_in_parenExpression5316 = new BitSet(new long[]{0x0000000000000000L,0x0000000400000000L});
-    public static final BitSet FOLLOW_RPAREN_in_parenExpression5322 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_FUNCTION_AGGREGATION_in_aggregationExpression5374 = new BitSet(new long[]{0x0000000000000000L,0x0000000000004000L});
-    public static final BitSet FOLLOW_LPAREN_in_aggregationExpression5382 = new BitSet(new long[]{0x0000000202000000L,0x0000000022017C00L});
-    public static final BitSet FOLLOW_abstractExpression_in_aggregationExpression5389 = new BitSet(new long[]{0x0000000000000000L,0x0000000400000000L});
-    public static final BitSet FOLLOW_RPAREN_in_aggregationExpression5395 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_tokenAttribute_in_simpleExpression5470 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_tokenLiteral_in_simpleExpression5526 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_tokenAttribute5654 = new BitSet(new long[]{0x0000000000080000L});
-    public static final BitSet FOLLOW_DOT_in_tokenAttribute5674 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_tokenAttribute5713 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_tokenTable5836 = new BitSet(new long[]{0x0000000000080000L});
-    public static final BitSet FOLLOW_DOT_in_tokenTable5856 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_tokenTable5913 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_COLON_in_tokenTable5980 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_tokenTable6022 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_tokenSchema6103 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_tokenFunction6219 = new BitSet(new long[]{0x0000000000080000L});
-    public static final BitSet FOLLOW_DOT_in_tokenFunction6239 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_tokenFunction6278 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_variableText_in_tokenVariable6358 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_COLON_in_tokenAssignment6425 = new BitSet(new long[]{0x0000000200000000L});
-    public static final BitSet FOLLOW_tokenVariable_in_tokenAssignment6437 = new BitSet(new long[]{0x0000000000400000L});
-    public static final BitSet FOLLOW_EQUAL1_in_tokenAssignment6443 = new BitSet(new long[]{0x2000000000000000L});
-    public static final BitSet FOLLOW_selectStatement_in_tokenAssignment6450 = new BitSet(new long[]{0x0000000000000000L,0x0000001000000000L});
-    public static final BitSet FOLLOW_KEYWORD_VAR_in_tokenAssignment6471 = new BitSet(new long[]{0x0000000200000000L});
-    public static final BitSet FOLLOW_tokenVariable_in_tokenAssignment6480 = new BitSet(new long[]{0x0000000000400000L});
-    public static final BitSet FOLLOW_EQUAL1_in_tokenAssignment6486 = new BitSet(new long[]{0x2000000000000000L});
-    public static final BitSet FOLLOW_selectStatement_in_tokenAssignment6493 = new BitSet(new long[]{0x0000000000000000L,0x0000001000000000L});
-    public static final BitSet FOLLOW_SEMI_in_tokenAssignment6513 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_identifierText_in_tokenIdentifier6578 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_TYPE_VARCHAR_in_tokenDataType6659 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_TYPE_INTEGER_in_tokenDataType6697 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_tokenIntegerLiteral_in_tokenLiteral6788 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_tokenStringLiteral_in_tokenLiteral6826 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_tokenDecimalLiteral_in_tokenLiteral6864 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_tokenDateLiteral_in_tokenLiteral6902 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LITERAL_STRING_in_tokenStringLiteral7002 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LITERAL_INTEGER_in_tokenIntegerLiteral7082 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LITERAL_DECIMAL_in_tokenDecimalLiteral7172 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LITERAL_DATE_in_tokenDateLiteral7253 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IDENTIFIER_in_variableText7312 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IDENTIFIER_in_identifierText7364 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_QUOTE_DOUBLE_in_identifierText7420 = new BitSet(new long[]{0x0000000200000000L});
-    public static final BitSet FOLLOW_IDENTIFIER_in_identifierText7436 = new BitSet(new long[]{0x0000000000000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_QUOTE_DOUBLE_in_identifierText7456 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_parenPredicate_in_synpred28_FunSQL4802 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_synpred38_FunSQL5836 = new BitSet(new long[]{0x0000000000080000L});
-    public static final BitSet FOLLOW_DOT_in_synpred38_FunSQL5856 = new BitSet(new long[]{0x0000000200000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_tokenIdentifier_in_synpred38_FunSQL5913 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_createSchemaStatement_in_statement1090 = new BitSet(new long[]{0x0000000000000002L,0x0000000800000000L});
+    public static final BitSet FOLLOW_dropSchemaStatement_in_statement1145 = new BitSet(new long[]{0x0000000000000002L,0x0000000800000000L});
+    public static final BitSet FOLLOW_createConnectionStatement_in_statement1200 = new BitSet(new long[]{0x0000000000000002L,0x0000000800000000L});
+    public static final BitSet FOLLOW_dropConnectionStatement_in_statement1255 = new BitSet(new long[]{0x0000000000000002L,0x0000000800000000L});
+    public static final BitSet FOLLOW_createTableStatement_in_statement1310 = new BitSet(new long[]{0x0000000000000002L,0x0000000800000000L});
+    public static final BitSet FOLLOW_dropTableStatement_in_statement1365 = new BitSet(new long[]{0x0000000000000002L,0x0000000800000000L});
+    public static final BitSet FOLLOW_createFunctionStatement_in_statement1420 = new BitSet(new long[]{0x0000000000000002L,0x0000000800000000L});
+    public static final BitSet FOLLOW_dropFunctionStatement_in_statement1475 = new BitSet(new long[]{0x0000000000000002L,0x0000000800000000L});
+    public static final BitSet FOLLOW_callFunctionStatement_in_statement1530 = new BitSet(new long[]{0x0000000000000002L,0x0000000800000000L});
+    public static final BitSet FOLLOW_selectStatement_in_statement1585 = new BitSet(new long[]{0x0000000000000002L,0x0000000800000000L});
+    public static final BitSet FOLLOW_SEMI_in_statement1639 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_KEYWORD_CREATE_in_createSchemaStatement1717 = new BitSet(new long[]{0x1000000000000000L});
+    public static final BitSet FOLLOW_KEYWORD_SCHEMA_in_createSchemaStatement1735 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenSchema_in_createSchemaStatement1753 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_KEYWORD_DROP_in_dropSchemaStatement1832 = new BitSet(new long[]{0x1000000000000000L});
+    public static final BitSet FOLLOW_KEYWORD_SCHEMA_in_dropSchemaStatement1850 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenSchema_in_dropSchemaStatement1868 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_KEYWORD_CREATE_in_createConnectionStatement1947 = new BitSet(new long[]{0x0000080000000000L});
+    public static final BitSet FOLLOW_KEYWORD_CONNECTION_in_createConnectionStatement1965 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_createConnectionStatement1983 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+    public static final BitSet FOLLOW_KEYWORD_URL_in_createConnectionStatement2003 = new BitSet(new long[]{0x0000000000000000L,0x0000000000001000L});
+    public static final BitSet FOLLOW_tokenStringLiteral_in_createConnectionStatement2023 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000004L});
+    public static final BitSet FOLLOW_KEYWORD_USER_in_createConnectionStatement2043 = new BitSet(new long[]{0x0000000000000000L,0x0000000000001000L});
+    public static final BitSet FOLLOW_tokenStringLiteral_in_createConnectionStatement2063 = new BitSet(new long[]{0x0800000000000000L});
+    public static final BitSet FOLLOW_KEYWORD_PASSWD_in_createConnectionStatement2083 = new BitSet(new long[]{0x0000000000000000L,0x0000000000001000L});
+    public static final BitSet FOLLOW_tokenStringLiteral_in_createConnectionStatement2103 = new BitSet(new long[]{0x4000000000000000L});
+    public static final BitSet FOLLOW_KEYWORD_STORE_in_createConnectionStatement2123 = new BitSet(new long[]{0x0000000000000000L,0x0000000000001000L});
+    public static final BitSet FOLLOW_tokenStringLiteral_in_createConnectionStatement2143 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_KEYWORD_DROP_in_dropConnectionStatement2230 = new BitSet(new long[]{0x0000080000000000L});
+    public static final BitSet FOLLOW_KEYWORD_CONNECTION_in_dropConnectionStatement2248 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_dropConnectionStatement2266 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_KEYWORD_CREATE_in_createTableStatement2345 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+    public static final BitSet FOLLOW_KEYWORD_TABLE_in_createTableStatement2363 = new BitSet(new long[]{0x0000000200001000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenTable_in_createTableStatement2383 = new BitSet(new long[]{0x0000000000000000L,0x0000000000002000L});
+    public static final BitSet FOLLOW_LPAREN_in_createTableStatement2403 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_identifierText_in_createTableStatement2423 = new BitSet(new long[]{0x0000000000000000L,0x00000F0000000000L});
+    public static final BitSet FOLLOW_tokenDataType_in_createTableStatement2461 = new BitSet(new long[]{0x0000000000002000L,0x0000000200000000L});
+    public static final BitSet FOLLOW_COMMA_in_createTableStatement2515 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_identifierText_in_createTableStatement2535 = new BitSet(new long[]{0x0000000000000000L,0x00000F0000000000L});
+    public static final BitSet FOLLOW_tokenDataType_in_createTableStatement2573 = new BitSet(new long[]{0x0000000000002000L,0x0000000200000000L});
+    public static final BitSet FOLLOW_RPAREN_in_createTableStatement2628 = new BitSet(new long[]{0x0022000000000000L});
+    public static final BitSet FOLLOW_KEYWORD_FROM_in_createTableStatement2664 = new BitSet(new long[]{0x0000000200001000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenTable_in_createTableStatement2684 = new BitSet(new long[]{0x0020000000000000L});
+    public static final BitSet FOLLOW_KEYWORD_IN_in_createTableStatement2723 = new BitSet(new long[]{0x0000080000000000L});
+    public static final BitSet FOLLOW_KEYWORD_CONNECTION_in_createTableStatement2725 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_createTableStatement2745 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_KEYWORD_DROP_in_dropTableStatement2824 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+    public static final BitSet FOLLOW_KEYWORD_TABLE_in_dropTableStatement2842 = new BitSet(new long[]{0x0000000200001000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenTable_in_dropTableStatement2862 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_KEYWORD_CREATE_in_createFunctionStatement2928 = new BitSet(new long[]{0x0004000000000000L});
+    public static final BitSet FOLLOW_KEYWORD_FUNCTION_in_createFunctionStatement2946 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenFunction_in_createFunctionStatement2966 = new BitSet(new long[]{0x0000000000000000L,0x0000000000002000L});
+    public static final BitSet FOLLOW_LPAREN_in_createFunctionStatement2985 = new BitSet(new long[]{0x0400000000000000L});
+    public static final BitSet FOLLOW_KEYWORD_OUT_in_createFunctionStatement3021 = new BitSet(new long[]{0x0000000200000000L});
+    public static final BitSet FOLLOW_tokenVariable_in_createFunctionStatement3041 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+    public static final BitSet FOLLOW_KEYWORD_TABLE_in_createFunctionStatement3046 = new BitSet(new long[]{0x0000000000002000L,0x0000000200000000L});
+    public static final BitSet FOLLOW_COMMA_in_createFunctionStatement3058 = new BitSet(new long[]{0x0400000000000000L});
+    public static final BitSet FOLLOW_KEYWORD_OUT_in_createFunctionStatement3062 = new BitSet(new long[]{0x0000000200000000L});
+    public static final BitSet FOLLOW_tokenVariable_in_createFunctionStatement3082 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+    public static final BitSet FOLLOW_KEYWORD_TABLE_in_createFunctionStatement3087 = new BitSet(new long[]{0x0000000000002000L,0x0000000200000000L});
+    public static final BitSet FOLLOW_RPAREN_in_createFunctionStatement3096 = new BitSet(new long[]{0x0000010000000000L});
+    public static final BitSet FOLLOW_KEYWORD_BEGIN_in_createFunctionStatement3100 = new BitSet(new long[]{0x0001000000001000L,0x0000000000000008L});
+    public static final BitSet FOLLOW_tokenAssignment_in_createFunctionStatement3110 = new BitSet(new long[]{0x0001000000001000L,0x0000000000000008L});
+    public static final BitSet FOLLOW_KEYWORD_END_in_createFunctionStatement3136 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_KEYWORD_DROP_in_dropFunctionStatement3216 = new BitSet(new long[]{0x0004000000000000L});
+    public static final BitSet FOLLOW_KEYWORD_FUNCTION_in_dropFunctionStatement3234 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenFunction_in_dropFunctionStatement3254 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_KEYWORD_CALL_in_callFunctionStatement3320 = new BitSet(new long[]{0x0004000000000000L});
+    public static final BitSet FOLLOW_KEYWORD_FUNCTION_in_callFunctionStatement3338 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenFunction_in_callFunctionStatement3358 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_KEYWORD_SELECT_in_selectStatement3435 = new BitSet(new long[]{0x0000000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_abstractExpression_in_selectStatement3455 = new BitSet(new long[]{0x0002004000002000L});
+    public static final BitSet FOLLOW_KEYWORD_AS_in_selectStatement3510 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_selectStatement3531 = new BitSet(new long[]{0x0002000000002000L});
+    public static final BitSet FOLLOW_COMMA_in_selectStatement3605 = new BitSet(new long[]{0x0000000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_abstractExpression_in_selectStatement3625 = new BitSet(new long[]{0x0002004000002000L});
+    public static final BitSet FOLLOW_KEYWORD_AS_in_selectStatement3680 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_selectStatement3701 = new BitSet(new long[]{0x0002000000002000L});
+    public static final BitSet FOLLOW_KEYWORD_FROM_in_selectStatement3810 = new BitSet(new long[]{0x0000000200001000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenTable_in_selectStatement3830 = new BitSet(new long[]{0x0018004000002002L,0x0000000000000010L});
+    public static final BitSet FOLLOW_KEYWORD_AS_in_selectStatement3886 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_selectStatement3907 = new BitSet(new long[]{0x0018000000002002L,0x0000000000000010L});
+    public static final BitSet FOLLOW_COMMA_in_selectStatement3981 = new BitSet(new long[]{0x0000000200001000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenTable_in_selectStatement4001 = new BitSet(new long[]{0x0018004000002002L,0x0000000000000010L});
+    public static final BitSet FOLLOW_KEYWORD_AS_in_selectStatement4056 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_selectStatement4077 = new BitSet(new long[]{0x0018000000002002L,0x0000000000000010L});
+    public static final BitSet FOLLOW_KEYWORD_WHERE_in_selectStatement4187 = new BitSet(new long[]{0x0100000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_abstractPredicate_in_selectStatement4207 = new BitSet(new long[]{0x0018000000000002L});
+    public static final BitSet FOLLOW_KEYWORD_GROUP_in_selectStatement4314 = new BitSet(new long[]{0x0000020000000000L});
+    public static final BitSet FOLLOW_KEYWORD_BY_in_selectStatement4316 = new BitSet(new long[]{0x0000000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_abstractExpression_in_selectStatement4336 = new BitSet(new long[]{0x0010000000002002L});
+    public static final BitSet FOLLOW_COMMA_in_selectStatement4390 = new BitSet(new long[]{0x0000000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_abstractExpression_in_selectStatement4410 = new BitSet(new long[]{0x0010000000002002L});
+    public static final BitSet FOLLOW_KEYWORD_HAVING_in_selectStatement4536 = new BitSet(new long[]{0x0100000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_abstractPredicate_in_selectStatement4556 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_complexPredicateOr_in_abstractPredicate4618 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_complexPredicateAnd_in_complexPredicateOr4656 = new BitSet(new long[]{0x0200000000000002L});
+    public static final BitSet FOLLOW_KEYWORD_OR_in_complexPredicateOr4667 = new BitSet(new long[]{0x0100000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_complexPredicateAnd_in_complexPredicateOr4675 = new BitSet(new long[]{0x0200000000000002L});
+    public static final BitSet FOLLOW_complexPredicateNot_in_complexPredicateAnd4714 = new BitSet(new long[]{0x0000002000000002L});
+    public static final BitSet FOLLOW_KEYWORD_AND_in_complexPredicateAnd4725 = new BitSet(new long[]{0x0100000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_complexPredicateNot_in_complexPredicateAnd4733 = new BitSet(new long[]{0x0000002000000002L});
+    public static final BitSet FOLLOW_KEYWORD_NOT_in_complexPredicateNot4774 = new BitSet(new long[]{0x0000000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_complexPredicate_in_complexPredicateNot4787 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_parenPredicate_in_complexPredicate4814 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_simplePredicate_in_complexPredicate4829 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_parenPredicate4854 = new BitSet(new long[]{0x0100000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_abstractPredicate_in_parenPredicate4861 = new BitSet(new long[]{0x0000000000000000L,0x0000000200000000L});
+    public static final BitSet FOLLOW_RPAREN_in_parenPredicate4867 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_abstractExpression_in_simplePredicate4909 = new BitSet(new long[]{0x0000000018400000L,0x0000000000180380L});
+    public static final BitSet FOLLOW_tokenCompOperator_in_simplePredicate4964 = new BitSet(new long[]{0x0000000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_abstractExpression_in_simplePredicate5002 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_complexExpressionAdd_in_abstractExpression5056 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_complexExpressionMult_in_complexExpressionAdd5086 = new BitSet(new long[]{0x0000000000000002L,0x0000000001008000L});
+    public static final BitSet FOLLOW_tokenAddOperator_in_complexExpressionAdd5099 = new BitSet(new long[]{0x0000000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_complexExpressionMult_in_complexExpressionAdd5107 = new BitSet(new long[]{0x0000000000000002L,0x0000000001008000L});
+    public static final BitSet FOLLOW_complexExpressionSigned_in_complexExpressionMult5147 = new BitSet(new long[]{0x0000000000020002L,0x0000000000020000L});
+    public static final BitSet FOLLOW_tokenMultOperator_in_complexExpressionMult5160 = new BitSet(new long[]{0x0000000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_complexExpressionSigned_in_complexExpressionMult5168 = new BitSet(new long[]{0x0000000000020002L,0x0000000000020000L});
+    public static final BitSet FOLLOW_MINUS_in_complexExpressionSigned5210 = new BitSet(new long[]{0x0000000202000000L,0x0000010010003C00L});
+    public static final BitSet FOLLOW_PLUS_in_complexExpressionSigned5219 = new BitSet(new long[]{0x0000000202000000L,0x0000010010003C00L});
+    public static final BitSet FOLLOW_complexExpression_in_complexExpressionSigned5231 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_parenExpression_in_complexExpression5266 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_aggregationExpression_in_complexExpression5281 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_simpleExpression_in_complexExpression5296 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_parenExpression5321 = new BitSet(new long[]{0x0000000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_abstractExpression_in_parenExpression5328 = new BitSet(new long[]{0x0000000000000000L,0x0000000200000000L});
+    public static final BitSet FOLLOW_RPAREN_in_parenExpression5334 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_FUNCTION_AGGREGATION_in_aggregationExpression5386 = new BitSet(new long[]{0x0000000000000000L,0x0000000000002000L});
+    public static final BitSet FOLLOW_LPAREN_in_aggregationExpression5394 = new BitSet(new long[]{0x0000000202000000L,0x000001001100BC00L});
+    public static final BitSet FOLLOW_abstractExpression_in_aggregationExpression5401 = new BitSet(new long[]{0x0000000000000000L,0x0000000200000000L});
+    public static final BitSet FOLLOW_RPAREN_in_aggregationExpression5407 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_tokenAttribute_in_simpleExpression5482 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_tokenLiteral_in_simpleExpression5538 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_tokenAttribute5666 = new BitSet(new long[]{0x0000000000080000L});
+    public static final BitSet FOLLOW_DOT_in_tokenAttribute5686 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_tokenAttribute5725 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_tokenTable5848 = new BitSet(new long[]{0x0000000000080000L});
+    public static final BitSet FOLLOW_DOT_in_tokenTable5868 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_tokenTable5925 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_COLON_in_tokenTable5992 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_tokenTable6034 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_tokenSchema6115 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_tokenFunction6231 = new BitSet(new long[]{0x0000000000080000L});
+    public static final BitSet FOLLOW_DOT_in_tokenFunction6251 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_tokenFunction6290 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_variableText_in_tokenVariable6370 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_COLON_in_tokenAssignment6437 = new BitSet(new long[]{0x0000000200000000L});
+    public static final BitSet FOLLOW_tokenVariable_in_tokenAssignment6449 = new BitSet(new long[]{0x0000000000400000L});
+    public static final BitSet FOLLOW_EQUAL1_in_tokenAssignment6455 = new BitSet(new long[]{0x2000000000000000L});
+    public static final BitSet FOLLOW_selectStatement_in_tokenAssignment6462 = new BitSet(new long[]{0x0000000000000000L,0x0000000800000000L});
+    public static final BitSet FOLLOW_KEYWORD_VAR_in_tokenAssignment6483 = new BitSet(new long[]{0x0000000200000000L});
+    public static final BitSet FOLLOW_tokenVariable_in_tokenAssignment6492 = new BitSet(new long[]{0x0000000000400000L});
+    public static final BitSet FOLLOW_EQUAL1_in_tokenAssignment6498 = new BitSet(new long[]{0x2000000000000000L});
+    public static final BitSet FOLLOW_selectStatement_in_tokenAssignment6505 = new BitSet(new long[]{0x0000000000000000L,0x0000000800000000L});
+    public static final BitSet FOLLOW_SEMI_in_tokenAssignment6525 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_identifierText_in_tokenIdentifier6590 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_TYPE_VARCHAR_in_tokenDataType6671 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_TYPE_INTEGER_in_tokenDataType6709 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_TYPE_DECIMAL_in_tokenDataType6747 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_TYPE_DATE_in_tokenDataType6785 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_tokenIntegerLiteral_in_tokenLiteral6876 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_tokenStringLiteral_in_tokenLiteral6914 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_tokenDecimalLiteral_in_tokenLiteral6952 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_tokenDateLiteral_in_tokenLiteral6990 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LITERAL_STRING_in_tokenStringLiteral7090 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LITERAL_INTEGER_in_tokenIntegerLiteral7170 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LITERAL_DECIMAL_in_tokenDecimalLiteral7260 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_TYPE_DATE_in_tokenDateLiteral7358 = new BitSet(new long[]{0x0000000000000000L,0x0000000000001000L});
+    public static final BitSet FOLLOW_LITERAL_STRING_in_tokenDateLiteral7376 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IDENTIFIER_in_variableText7435 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IDENTIFIER_in_identifierText7487 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_QUOTE_DOUBLE_in_identifierText7543 = new BitSet(new long[]{0x0000000200000000L});
+    public static final BitSet FOLLOW_IDENTIFIER_in_identifierText7559 = new BitSet(new long[]{0x0000000000000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_QUOTE_DOUBLE_in_identifierText7579 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_parenPredicate_in_synpred28_FunSQL4814 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_synpred38_FunSQL5848 = new BitSet(new long[]{0x0000000000080000L});
+    public static final BitSet FOLLOW_DOT_in_synpred38_FunSQL5868 = new BitSet(new long[]{0x0000000200000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_tokenIdentifier_in_synpred38_FunSQL5925 = new BitSet(new long[]{0x0000000000000002L});
 
 }

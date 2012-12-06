@@ -34,6 +34,7 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 
 	// getters and setters
 	public void addExecuteSQL(final String dml) {
+		//System.out.println(dml);
 		executeSQLs.add(dml);
 	}
 

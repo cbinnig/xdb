@@ -228,11 +228,13 @@ public class SelectStmt extends AbstractServerStmt {
 				aggOp.addAlias(new TokenIdentifier(internalAlias.toString()));
 			}
 
-			for (AbstractExpression aggExpr : this.tHavingPredicate
-					.getAggregations()) {
-				aggOp.addAggregationExpression(aggExpr);
-				Identifier internalAlias = generateInternalAlias(aggExpr);
-				aggOp.addAlias(new TokenIdentifier(internalAlias.toString()));
+			if (this.tHavingPredicate != null) {
+				for (AbstractExpression aggExpr : this.tHavingPredicate
+						.getAggregations()) {
+					aggOp.addAggregationExpression(aggExpr);
+					Identifier internalAlias = generateInternalAlias(aggExpr);
+					aggOp.addAlias(new TokenIdentifier(internalAlias.toString()));
+				}
 			}
 
 			for (AbstractExpression groupExpr : this.tGroupExpr) {
@@ -716,9 +718,9 @@ public class SelectStmt extends AbstractServerStmt {
 	public Error execute() {
 		MasterTrackerClient client = new MasterTrackerClient();
 		Error err = client.executePlan(this.plan);
-		if(err.isError())
+		if (err.isError())
 			return err;
-		
+
 		return new Error();
 	}
 }

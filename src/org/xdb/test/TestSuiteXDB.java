@@ -7,6 +7,7 @@ import org.xdb.test.execute.operators.TestSuiteOperators;
 import org.xdb.test.funsql.compile.TestSuiteSQL;
 import org.xdb.test.funsql.statement.TestSuiteStmt;
 import org.xdb.test.server.TestSuiteServer;
+import org.xdb.test.tpch.TestSuiteTPCH;
 import org.xdb.test.tracker.TestSuiteTracker;
 import org.xdb.test.system.TestSuiteSystem;
 
@@ -21,6 +22,7 @@ public class TestSuiteXDB extends TestSuite
     suite.addTest(TestSuiteSQL.suite());
     suite.addTest(TestSuiteServer.suite());
     suite.addTest(TestSuiteSystem.suite());
+    suite.addTest(TestSuiteTPCH.suite());
     return suite;
   }
 }
