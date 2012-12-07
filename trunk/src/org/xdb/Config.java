@@ -62,6 +62,9 @@ public class Config implements Serializable {
 
 	// Debugging and Testing
 	public static boolean useQueryTrackerComputeConnection = true;
+	public static boolean TRACE_COMPILE_PLAN = false;
+	public static boolean TRACE_OPTIMIZED_PLAN = false;
+	public static boolean TRACE_TRACKER_PLAN = false;
 
 	// load properties from file
 	static {
@@ -74,17 +77,30 @@ public class Config implements Serializable {
 				"MASTERTRACKER_URL", "MASTERTRACKER_PORT", "QUERYTRACKER_URL",
 				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS" };
 
+		String[] boolProperties = { "TRACE_COMPILE_PLAN",
+				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN" };
+
 		String CONFIG_FILE = "./config/xdb.conf";
 		Properties props;
 		props = new Properties();
 		try {
 			props.load(new FileReader(CONFIG_FILE));
 			for (String intProperty : intProperties) {
-				if (props.containsKey(intProperty))
+				if (props.containsKey(intProperty)){
 					Config.class.getField(intProperty)
 							.setInt(null,
 									Integer.parseInt(props.get(intProperty)
 											.toString()));
+				}
+			}
+			
+			for (String boolProperty : boolProperties) {
+				if (props.containsKey(boolProperty)){
+					Config.class.getField(boolProperty)
+							.setBoolean(null,
+									Boolean.parseBoolean(props.get(boolProperty)
+											.toString()));;
+				}
 			}
 
 			if (props.containsKey("LOG_LEVEL"))

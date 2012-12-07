@@ -65,7 +65,7 @@ public class TestTPCH extends XDBTestCase {
 				"avg(l_discount) as avg_disc,	" +
 				"count(l_orderkey) as count_order " +
 				"from	lineitem " +
-				"where	l_shipdate <= '1998-12-01' " +
+				"where	l_shipdate <= date '1998-12-01' " +
 				"group by l_returnflag,	l_linestatus";
 		
 		executeStmt(q1);

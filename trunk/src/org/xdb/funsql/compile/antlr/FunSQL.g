@@ -945,7 +945,7 @@ tokenIntegerLiteral returns [TokenIntegerLiteral literal]
                 
                 TYPE_DATE
                 LITERAL_STRING {
-                	$literal = new TokenDateLiteral("date "+$LITERAL_STRING.text);
+                	$literal = new TokenDateLiteral($LITERAL_STRING.text);
                 }
         )
         ;

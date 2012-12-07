@@ -1,4 +1,4 @@
-// $ANTLR 3.4 /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g 2012-12-06 22:53:52
+// $ANTLR 3.4 /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g 2012-12-07 07:45:01
  
 package org.xdb.funsql.compile.antlr; 
 
@@ -4199,7 +4199,7 @@ public class FunSQLParser extends Parser {
             LITERAL_STRING28=(Token)match(input,LITERAL_STRING,FOLLOW_LITERAL_STRING_in_tokenDateLiteral7376); if (state.failed) return literal;
 
             if ( state.backtracking==0 ) {
-                            	literal = new TokenDateLiteral("date "+(LITERAL_STRING28!=null?LITERAL_STRING28.getText():null));
+                            	literal = new TokenDateLiteral((LITERAL_STRING28!=null?LITERAL_STRING28.getText():null));
                             }
 
             }

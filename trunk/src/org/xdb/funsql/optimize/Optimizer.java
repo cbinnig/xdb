@@ -1,5 +1,6 @@
 package org.xdb.funsql.optimize;
 
+import org.xdb.Config;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.error.Error;
@@ -28,17 +29,23 @@ public class Optimizer {
 	public Error optimize() {
 		Error err = new Error();
 
+		// tracing
+		if (Config.TRACE_COMPILE_PLAN)
+			this.compilePlan.traceGraph(compilePlan.getClass().getCanonicalName()+"_COMPILED");
+
 		// rewrite: push down selection
 		err = pushSelections();
-		if(err.isError())
+		if (err.isError())
 			return err;
 
 		// rewrite: combine selections
 		err = combineSelections();
-		if(err.isError())
+		if (err.isError())
 			return err;
-		
-		// TODO: other rewrites which eliminate projections
+
+		// tracing
+		if (Config.TRACE_OPTIMIZED_PLAN)
+			this.compilePlan.traceGraph(compilePlan.getClass().getCanonicalName()+"_OPTIMIZED");
 
 		return err;
 	}
@@ -55,7 +62,7 @@ public class Optimizer {
 				null, compilePlan);
 		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
 			boolean modified = true;
-			
+
 			while (modified) {
 				pushDownVisitor.reset(root);
 				err = pushDownVisitor.visit();
@@ -68,17 +75,19 @@ public class Optimizer {
 
 		return err;
 	}
-	
+
 	/**
 	 * Combines selection operators in plan
+	 * 
 	 * @return
 	 */
 	private Error combineSelections() {
 		Error err = new Error();
 		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
-			SelectionCombineVisitor combineVisitor = new SelectionCombineVisitor(root);
+			SelectionCombineVisitor combineVisitor = new SelectionCombineVisitor(
+					root);
 			err = combineVisitor.visit();
-			
+
 			if (err.isError())
 				return err;
 		}
