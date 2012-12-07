@@ -9,6 +9,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.xdb.Config;
 import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
@@ -49,10 +50,10 @@ public class MasterTrackerNode {
 	}
 
 	// getters and setters
-	public Error getLastError(){
+	public Error getLastError() {
 		return this.err;
 	}
-	
+
 	/**
 	 * Grab number of running plans.
 	 */
@@ -125,13 +126,16 @@ public class MasterTrackerNode {
 	 * @return
 	 */
 	public Error executePlan(final QueryTrackerPlan plan) {
-
 		if (plan == null) {
 			String[] args = { "No query tracker plan provided" };
 			return new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, args);
 		}
 
-		logger.log(Level.INFO, "Queued new plan for execution: " + plan);
+		// tracing
+		if (Config.TRACE_TRACKER_PLAN)
+			plan.traceGraph(plan.getClass().getCanonicalName()+"_EXECUTE");
+
+		logger.log(Level.INFO, "Got new plan for execution: " + plan);
 
 		final String slot = getFreeQueryTrackerSlot();
 		if (slot == null) {
@@ -247,7 +251,7 @@ public class MasterTrackerNode {
 			}
 		}
 
-		//check if request could be satisfied
+		// check if request could be satisfied
 		for (final Entry<String, MutableInteger> reqSlot : requiredSlots
 				.entrySet()) {
 			final MutableInteger required = reqSlot.getValue();

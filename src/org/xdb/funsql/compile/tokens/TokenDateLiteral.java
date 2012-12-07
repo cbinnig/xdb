@@ -1,26 +1,18 @@
 package org.xdb.funsql.compile.tokens;
 
-import java.sql.Date;
-
 import org.xdb.funsql.types.EnumLiteralType;
 
 public class TokenDateLiteral extends TokenLiteral {
 	private static final long serialVersionUID = -8398646972151222073L;
 	
-	private Date value;
+	private String value;
 	
-	public TokenDateLiteral(Date value){
-		this.value = value;
-		this.type = EnumLiteralType.SQL_DECIMAL_LITERAL;
-	}
-	
-	@SuppressWarnings("deprecation")
 	public TokenDateLiteral(String value){
-		this.value = new Date(Date.parse(value));
-		this.type = EnumLiteralType.SQL_DECIMAL_LITERAL;
+		this.value = value;
+		this.type = EnumLiteralType.SQL_DATE_LITERAL;
 	}
 	
-	public Date getValue(){
+	public String getValue(){
 		return this.value;
 	}
 	@Override
