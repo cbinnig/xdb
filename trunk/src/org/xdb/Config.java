@@ -2,6 +2,7 @@ package org.xdb;
 
 import java.io.FileReader;
 import java.io.Serializable;
+import java.util.BitSet;
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -42,6 +43,13 @@ public class Config implements Serializable {
 	public static int COMPILE_PORT = 55556;
 	public static String COMPILE_URL = "127.0.0.1";
 	public static String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
+	public static BitSet OPTIMIZER_ACTIVE_RULES = new BitSet();
+	
+	static{
+		OPTIMIZER_ACTIVE_RULES.set(0, true);
+		OPTIMIZER_ACTIVE_RULES.set(1, true);
+		OPTIMIZER_ACTIVE_RULES.set(2, true);
+	}
 
 	// Master Tracker Server
 	public static int MASTERTRACKER_PORT = 55557;
@@ -56,15 +64,15 @@ public class Config implements Serializable {
 	public static String LOG_FILE = "./log/xdb.log";
 	public static Level LOG_LEVEL = Level.SEVERE;
 
-	// Dotty
+	// Tracing
 	public static String DOT_EXE = "dot";
 	public static String DOT_TRACE_PATH = "./log/";
-
-	// Debugging and Testing
-	public static boolean useQueryTrackerComputeConnection = true;
 	public static boolean TRACE_COMPILE_PLAN = false;
 	public static boolean TRACE_OPTIMIZED_PLAN = false;
 	public static boolean TRACE_TRACKER_PLAN = false;
+	
+	// Debugging and Testing
+	public static boolean useQueryTrackerComputeConnection = true;
 
 	// load properties from file
 	static {
@@ -103,8 +111,18 @@ public class Config implements Serializable {
 				}
 			}
 
-			if (props.containsKey("LOG_LEVEL"))
+			if (props.containsKey("LOG_LEVEL")){
 				LOG_LEVEL = Level.parse(props.getProperty("LOG_LEVEL"));
+			}
+			
+			if(props.containsKey("OPTIMIZER_ACTIVE_RULES")){
+				String ruleBitSet = props.getProperty("OPTIMIZER_ACTIVE_RULES");
+				int i=0;
+				for(char bit: ruleBitSet.toCharArray()){
+					OPTIMIZER_ACTIVE_RULES.set(i++, (bit=='1')?true:false);
+				}
+				System.out.println(OPTIMIZER_ACTIVE_RULES.toString());
+			}
 
 		} catch (Exception e) {
 			// do nothing

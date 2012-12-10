@@ -2,7 +2,6 @@ package org.xdb.funsql.compile.operator;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
@@ -38,56 +37,6 @@ public class GenericSelection extends AbstractUnaryOperator {
 	}	
 	
 	//methods
-	
-	/**
-	 * Remove selection from plan
-	 */
-	public Map<AbstractCompileOperator, Integer> cut(){
-		HashMap<AbstractCompileOperator, Integer> cutInfo = new HashMap<AbstractCompileOperator, Integer>();
-		
-		//Modify child
-		AbstractCompileOperator child = this.getChild();
-		child.removeParent(this);
-		child.addParents(this.parents);
-		
-		//Modify parents
-		for(AbstractCompileOperator p: this.parents){
-			int childIdx = p.children.indexOf(this);
-			p.children.set(childIdx, child);
-			p.renameAttributes(this.getOperatorId().toString(), child.getOperatorId().toString());
-			cutInfo.put(p, childIdx);
-		}
-		
-		//Modify operator
-		this.parents.clear();
-		
-		return cutInfo;
-	}
-	
-	/**
-	 * Add selection to plan below given parent
-	 * @param parent
-	 */
-	public void paste(AbstractCompileOperator parent, Integer childIdx){
-		//Get old child 
-		AbstractCompileOperator child = parent.children.get(childIdx);
-		
-		//modify parent
-		parent.renameAttributes(child.getOperatorId().toString(), this.operatorId.toString());
-		parent.children.set(childIdx, this);
-		
-		//modify selection 
-		this.setChild(child);
-		this.parents.add(parent);
-		ResultDesc newSelResult = child.getResult(0).clone();
-		TokenAttribute.renameTable(newSelResult.getAttributes(), this.getOperatorId().toString());
-		this.setResult(0, newSelResult);
-		
-		//modify child
-		int parentIdx = child.parents.indexOf(parent);
-		child.parents.set(parentIdx, this);
-	}
-	
 	@Override
 	public String toSqlString() {
 		final HashMap<String, String> vars = new HashMap<String, String>();

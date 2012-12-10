@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 
@@ -27,11 +28,6 @@ public abstract class AbstractCompileOperator implements Serializable {
 	protected Identifier operatorId;
 	
 	//constructors
-	public AbstractCompileOperator(){
-		this.children = new Vector<AbstractCompileOperator>();
-		this.parents = new Vector<AbstractCompileOperator>();
-	}
-	
 	public AbstractCompileOperator(AbstractCompileOperator toCopy){
 		this.children = toCopy.children;
 		this.parents = toCopy.parents;
@@ -68,12 +64,20 @@ public abstract class AbstractCompileOperator implements Serializable {
 		this.operatorId = operatorId;
 	}
 	
+	public ResultDesc getResult() {
+		return results.get(0);
+	}
+	
 	public ResultDesc getResult(int i) {
 		return results.get(i);
 	}
 
 	public void setResult(int i, ResultDesc result) {
 		this.results.set(i,  result);
+	}
+	
+	public void setResult(ResultDesc result){
+		this.results.set(0,  result);
 	}
 	
 	public void addResult(ResultDesc result) {
@@ -92,19 +96,40 @@ public abstract class AbstractCompileOperator implements Serializable {
 		return this.results.size();
 	}
 	
-	public void setSourceOperators(Vector<AbstractCompileOperator> sources) {
+	public void setChilren(Vector<AbstractCompileOperator> sources) {
 		this.children = sources;
 	}
 	
-	public void setDestinationOperators(Vector<AbstractCompileOperator> destinations) {
-		this.parents = destinations;
+	public void setChild(int idx, AbstractCompileOperator child){
+		this.children.set(idx, child);
 	}
 	
-	public void addDestinationOperators(AbstractCompileOperator destination) {
-		this.parents.add(destination);
+	public void removeParent(int idx){
+		this.parents.remove(idx);
+	}
+	
+	public void setParent(int idx, AbstractCompileOperator parent){
+		this.parents.set(idx, parent);
+	}
+	
+	public void setParents(Vector<AbstractCompileOperator> parents) {
+		this.parents = parents;
+	}
+	
+	public void addParent(AbstractCompileOperator parent) {
+		this.parents.add(parent);
 	}
 	
 	// methods
+	public int findChild(AbstractCompileOperator child){
+		for(int i=0; i<this.children.size();++i){
+			if(this.children.get(i).equals(child)){
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	public int findParent(AbstractCompileOperator parent){
 		for(int i=0; i<this.parents.size();++i){
 			if(this.parents.get(i).equals(parent)){
@@ -126,10 +151,10 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 * Get list of all result TokenAttributes.
 	 */
 	protected List<String> getResultTableAttributes() {
-		return SetUtils.attributesToTableString(getResult(0).getAttributes());
+		return SetUtils.attributesToTableString(getResult().getAttributes());
 	}
 	protected List<String> getResultAttributes() {
-		return SetUtils.attributesToString(getResult(0).getAttributes());
+		return SetUtils.attributesToString(getResult().getAttributes());
 	}
 	
 	@Override
@@ -176,5 +201,26 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 * @param g
 	 * @return
 	 */
-	public abstract Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes);
+	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes) {
+		Error err = new Error();
+		GraphNode node = nodes.get(this.operatorId);
+
+		// header
+		StringBuffer header = new StringBuffer();
+		header.append("Parents: ");
+		header.append(this.parents.toString());
+		header.append(AbstractToken.NEWLINE);
+		header.append("Children: ");
+		header.append(this.children.toString());
+		if (this.results.size() == 1) {
+			header.append(AbstractToken.NEWLINE);
+			header.append(this.getResult().toString());
+		}
+		node.getInfo().setHeader(header.toString());
+
+		// body
+		node.getInfo().setCaption(this.toString());
+
+		return err;
+	}
 }

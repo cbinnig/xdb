@@ -2,16 +2,17 @@ package org.xdb.funsql.compile.analyze.operator;
 
 import java.util.Map;
 
+import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.expression.CheckExpressionVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
-import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -39,14 +40,6 @@ public class CheckOperatorVisitor extends AbstractBottomUpTreeVisitor {
 		Error e = new Error();
 
 		return e;
-	}
-
-	@Override
-	public Error visitFunctionCall(FunctionCall fc) {
-		Error e = new Error();
-
-		return e;
-
 	}
 
 	@Override
@@ -111,6 +104,13 @@ public class CheckOperatorVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitRename(Rename ro) {
 		Error e = new Error();
+		return e;
+	}
+
+	@Override
+	public Error visitSQLUnary(SQLUnary sqlOp) {
+		String[] args = { "SQLUnary operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
 }

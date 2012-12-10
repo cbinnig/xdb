@@ -31,21 +31,39 @@ public class Optimizer {
 
 		// tracing
 		if (Config.TRACE_COMPILE_PLAN)
-			this.compilePlan.traceGraph(compilePlan.getClass().getCanonicalName()+"_COMPILED");
+			this.compilePlan.traceGraph(compilePlan.getClass()
+					.getCanonicalName() + "_COMPILED");
 
 		// rewrite: push down selection
-		err = pushSelections();
-		if (err.isError())
-			return err;
+		if (Config.OPTIMIZER_ACTIVE_RULES.get(0)) {
+			err = pushSelections();
+			if (err.isError())
+				return err;
+		}
 
 		// rewrite: combine selections
-		err = combineSelections();
-		if (err.isError())
-			return err;
+		if (Config.OPTIMIZER_ACTIVE_RULES.get(1)) {
+			err = combineSelections();
+			if (err.isError())
+				return err;
+		}
 
 		// tracing
 		if (Config.TRACE_OPTIMIZED_PLAN)
-			this.compilePlan.traceGraph(compilePlan.getClass().getCanonicalName()+"_OPTIMIZED");
+			this.compilePlan.traceGraph(compilePlan.getClass()
+					.getCanonicalName() + "_OPTIMIZED");
+
+		// rewrite: combine unary operators
+		if (Config.OPTIMIZER_ACTIVE_RULES.get(2)) {
+			err = combineUnaryOps();
+			if (err.isError())
+				return err;
+		}
+
+		// tracing
+		if (Config.TRACE_OPTIMIZED_PLAN)
+			this.compilePlan.traceGraph(compilePlan.getClass()
+					.getCanonicalName() + "_COMBINED");
 
 		return err;
 	}
@@ -94,4 +112,21 @@ public class Optimizer {
 		return err;
 	}
 
+	/**
+	 * Combines selection operators in plan
+	 * 
+	 * @return
+	 */
+	private Error combineUnaryOps() {
+		Error err = new Error();
+		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
+			SQLUnaryCombineVisitor combineVisitor = new SQLUnaryCombineVisitor(
+					root, this.compilePlan);
+			err = combineVisitor.visit();
+
+			if (err.isError())
+				return err;
+		}
+		return err;
+	}
 }

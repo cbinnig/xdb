@@ -172,8 +172,6 @@ public abstract class AbstractExecuteOperator implements Serializable {
 		if (this.err.isError())
 			return this.err;
 
-		// TODO: repartition
-
 		return this.err;
 	}
 

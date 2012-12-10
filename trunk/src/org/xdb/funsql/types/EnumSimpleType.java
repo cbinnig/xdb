@@ -49,6 +49,7 @@ public enum EnumSimpleType implements Cloneable {
 	}
 
 	public String toString() {
+		//TODO: Modify SQL string for VARCHAR and DECIMAL to have max. precision
 		switch (this.ordinal()) {
 		case 1:
 			return "INTEGER";

@@ -35,7 +35,7 @@ public class FunctionCall extends AbstractCompileOperator {
 	
 	public void addChild(int i, AbstractCompileOperator child){
 		this.children.set(i, child);
-		child.addDestinationOperators(this);
+		child.addParent(this);
 	}
 	
 	public AbstractCompileOperator getChild(int i){

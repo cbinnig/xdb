@@ -105,6 +105,16 @@ public class CompilePlan implements Serializable {
 
 	// methods
 	/**
+	 * Removes operator from plan
+	 * @param opId
+	 */
+	public void removeOperator(Identifier opId){
+		this.operators.remove(opId);
+		this.leaves.remove(opId);
+		this.roots.remove(opId);
+	}
+	
+	/**
 	 * replaces a leaf Operator with a given variable name in plan with new leaf
 	 * @param varKey
 	 * @param newLeafOp

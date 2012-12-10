@@ -49,6 +49,8 @@ public abstract class AbstractPredicate extends AbstractToken implements Cloneab
 	
 	public abstract Set<AbstractExpression> getAggregations();
 	
+	public abstract AbstractPredicate replaceExpressions(Map<TokenIdentifier,AbstractExpression> exprs);
+	
 	public abstract AbstractPredicate replaceAliases(Map<AbstractExpression, TokenIdentifier> aliases);
 	
 	public abstract AbstractPredicate clone();

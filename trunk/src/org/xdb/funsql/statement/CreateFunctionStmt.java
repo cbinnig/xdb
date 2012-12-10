@@ -148,7 +148,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 			// add plan to compiled plans and build table from result
 			this.compilePlans.put(ta.getVar().hashKey(), stmt.getPlan());
 			Table tableType = this.buildTableType(ta.getVar(), stmt.getPlan()
-					.getRoot(0).getResult(0));
+					.getRoot(0).getResult());
 			varSymbols.put(ta.hashKey(), tableType);
 		}
 

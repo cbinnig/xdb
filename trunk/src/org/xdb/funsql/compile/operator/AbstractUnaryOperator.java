@@ -2,6 +2,7 @@ package org.xdb.funsql.compile.operator;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -10,31 +11,22 @@ import org.xdb.utils.Identifier;
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
-
 public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
-	
+
 	private static final long serialVersionUID = 2144601298204477490L;
 
-	//attributes
-	protected int inputNumber=0;
+	// attributes
+	protected int inputNumber = 0;
 
-	//constructors
-	public AbstractUnaryOperator(AbstractCompileOperator child){
+	// constructors
+	public AbstractUnaryOperator(AbstractCompileOperator child) {
 		super(1);
-		
+
 		this.children.add(child);
-		child.addDestinationOperators(this);
+		child.addParent(this);
 	}
-	
-	//getters and setters
-	public ResultDesc getResult(){
-		return this.results.get(0);
-	}
-	
-	public void setResult(ResultDesc result){
-		this.results.set(0,  result);
-	}
-	
+
+	// getters and setters
 	public AbstractCompileOperator getChild() {
 		return this.children.get(0);
 	}
@@ -50,31 +42,81 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 	public void setInputNumber(int inputNumber) {
 		this.inputNumber = inputNumber;
 	}
-	
+
 	@Override
-	public boolean isLeaf(){
+	public boolean isLeaf() {
 		return false;
 	}
-	
-	//methods
+
+	// methods
 	public abstract void renameForPushDown(Collection<TokenAttribute> selAtts);
-	
-	@Override
-	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
-		Error err = new Error();
-		GraphNode node = nodes.get(this.operatorId);
-		if(this.results.size()==1)
-			node.getInfo().setHeader(this.results.get(0).toString());
-		node.getInfo().setCaption(this.toString());
-		AbstractCompileOperator childOp = this.children.get(0);
+
+	/**
+	 * Remove operator from plan
+	 */
+	public Map<AbstractCompileOperator, Integer> cut(){
+		HashMap<AbstractCompileOperator, Integer> cutInfo = new HashMap<AbstractCompileOperator, Integer>();
 		
-		if(!nodes.containsKey(childOp.operatorId)){
+		//Modify child
+		AbstractCompileOperator child = this.getChild();
+		child.removeParent(this);
+		child.addParents(this.parents);
+		
+		//Modify parents
+		for(AbstractCompileOperator p: this.parents){
+			int childIdx = p.children.indexOf(this);
+			p.children.set(childIdx, child);
+			p.renameAttributes(this.getOperatorId().toString(), child.getOperatorId().toString());
+			cutInfo.put(p, childIdx);
+		}
+		
+		//Modify operator
+		this.parents.clear();
+		
+		return cutInfo;
+	}
+	
+	/**
+	 * Add operator to plan below given parent
+	 * 
+	 * @param parent
+	 */
+	public void paste(AbstractCompileOperator parent, Integer childIdx) {
+		// Get old child
+		AbstractCompileOperator child = parent.children.get(childIdx);
+
+		// modify parent
+		parent.renameAttributes(child.getOperatorId().toString(),
+				this.operatorId.toString());
+		parent.children.set(childIdx, this);
+
+		// modify selection
+		this.setChild(child);
+		this.parents.add(parent);
+		ResultDesc newResult = child.getResult().clone();
+		TokenAttribute.renameTable(newResult.getAttributes(), this
+				.getOperatorId().toString());
+		this.setResult(newResult);
+
+		// modify child
+		int parentIdx = child.parents.indexOf(parent);
+		child.parents.set(parentIdx, this);
+	}
+
+	@Override
+	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes) {
+		Error err = super.traceGraph(g, nodes);
+	
+		// edges and children
+		GraphNode node = nodes.get(this.operatorId);
+		AbstractCompileOperator childOp = this.children.get(0);
+
+		if (!nodes.containsKey(childOp.operatorId)) {
 			GraphNode child = g.addNode();
 			g.addEdge(node, child);
 			nodes.put(childOp.operatorId, child);
 			childOp.traceGraph(g, nodes);
-		}
-		else{
+		} else {
 			GraphNode child = nodes.get(childOp.operatorId);
 			g.addEdge(node, child);
 		}

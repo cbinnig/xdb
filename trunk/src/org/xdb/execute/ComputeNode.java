@@ -182,8 +182,8 @@ public class ComputeNode {
 			logger.log(Level.INFO, "Send Ready-Signal from operator " + op.getOperatorId() + " to QueryTracker");
 			err = queryTrackerClient.operatorReady(op);
 		}
-		// TODO
-
+		
+		// TODO: Remove direct signaling
 		// send READY signal to consumer
 		final Set<OperatorDesc> consumers = op.getConsumers();
 		for (final OperatorDesc consumer : consumers) {

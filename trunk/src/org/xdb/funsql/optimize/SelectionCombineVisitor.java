@@ -1,16 +1,15 @@
 package org.xdb.funsql.optimize;
 
-import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.AbstractTopDownTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
-import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
 import org.xdb.funsql.compile.predicate.ComplexPredicate;
@@ -56,13 +55,6 @@ public class SelectionCombineVisitor extends AbstractTopDownTreeVisitor {
 	}
 
 	@Override
-	public Error visitFunctionCall(FunctionCall fc) {
-		String[] args = { "Optimizer: Selection combination for function call not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		return e;
-	}
-
-	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
 		this.lastOp = sa;
 		return err;
@@ -83,6 +75,12 @@ public class SelectionCombineVisitor extends AbstractTopDownTreeVisitor {
 	@Override
 	public Error visitRename(Rename ro) {
 		this.lastOp = ro;
+		return err;
+	}
+
+	@Override
+	public Error visitSQLUnary(SQLUnary sqlOp) {
+		this.lastOp = sqlOp;
 		return err;
 	}
 

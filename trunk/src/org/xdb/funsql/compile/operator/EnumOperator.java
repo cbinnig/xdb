@@ -9,5 +9,6 @@ public enum EnumOperator implements Serializable {
 	GENERIC_PROJECTION,
 	TABLE,
 	FUNCTION_CALL,
-	RENAME
+	RENAME,
+	SQL_UNARY
 }
