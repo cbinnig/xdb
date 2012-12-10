@@ -71,6 +71,13 @@ public abstract class AbstractExpression extends AbstractToken implements Clonea
 	public abstract AbstractExpression clone();
 	
 	/**
+	 * Replaces attributes by other expressions
+	 * @param exprs
+	 * @return
+	 */
+	public abstract AbstractExpression replaceExpressions(Map<TokenIdentifier,AbstractExpression> exprs);
+	
+	/**
 	 * Replaces expressions with aliases
 	 * @param aliases
 	 */
@@ -81,5 +88,4 @@ public abstract class AbstractExpression extends AbstractToken implements Clonea
 		}
 		return this;
 	}
-	
 }

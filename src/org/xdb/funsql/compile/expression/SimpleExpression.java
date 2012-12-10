@@ -1,12 +1,14 @@
 package org.xdb.funsql.compile.expression;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.AbstractTokenOperand;
 import org.xdb.funsql.compile.tokens.EnumOperandType;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.funsql.compile.tokens.TokenIdentifier;
 
 public class SimpleExpression extends AbstractExpression {
 	private static final long serialVersionUID = -857048085355641688L;
@@ -92,6 +94,17 @@ public class SimpleExpression extends AbstractExpression {
 		SimpleExpression expr = new SimpleExpression();
 		expr.tOper = this.tOper.clone();
 		return expr;
+	}
+
+	@Override
+	public AbstractExpression replaceExpressions(
+			Map<TokenIdentifier, AbstractExpression> exprs) {
+		if(this.isAttribute()){
+			TokenAttribute att1 = this.getAttribute();
+			if(exprs.containsKey(att1.getName()))
+				return exprs.get(att1.getName());
+		}
+		return this;
 	}
 	
 }

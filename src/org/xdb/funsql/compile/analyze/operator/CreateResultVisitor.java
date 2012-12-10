@@ -3,16 +3,17 @@ package org.xdb.funsql.compile.analyze.operator;
 import java.util.Map;
 import java.util.Vector;
 
+import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
-import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.ResultDesc;
+import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -38,8 +39,8 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
 		Error e = new Error();
-		ResultDesc leftDesc = ej.getLeftChild().getResult(0).clone();
-		ResultDesc rightDesc = ej.getRightChild().getResult(0).clone();
+		ResultDesc leftDesc = ej.getLeftChild().getResult().clone();
+		ResultDesc rightDesc = ej.getRightChild().getResult().clone();
 		
 		//copy from right to left
 		for(TokenAttribute att: rightDesc.getAttributes()){
@@ -61,20 +62,13 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
 		Error e = new Error();
-		ResultDesc rDesc = gs.getChild().getResult(0).clone();
+		ResultDesc rDesc = gs.getChild().getResult().clone();
 
 		for(TokenAttribute att: rDesc.getAttributes()){
 			att.setTable(gs.getOperatorId().toString());
 		}
 		
 		gs.addResult(rDesc);
-		return e;
-	}
-
-	@Override
-	public Error visitFunctionCall(FunctionCall fc) {
-		Error e = new Error();
-		// TODO Implement result creation for function call
 		return e;
 	}
 
@@ -141,6 +135,13 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitRename(Rename ro) {
 		Error e = new Error();
+		return e;
+	}
+	
+	@Override
+	public Error visitSQLUnary(SQLUnary sqlOp) {
+		String[] args = { "SQLUnary operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
 }

@@ -15,11 +15,11 @@ import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.AbstractUnaryOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
-import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
 import org.xdb.funsql.compile.predicate.ComplexPredicate;
@@ -34,7 +34,6 @@ import org.xdb.utils.Identifier;
  * 
  */
 public class SelectionPushDownVisitor extends AbstractTreeVisitor {
-	private static final int RESULT_IDX = 0;
 	private static final int CHILD_IDX = 0;
 	private static final int LEFT_CHILD_IDX = 0;
 	private static final int RIGHT_CHILD_IDX = 1;
@@ -131,13 +130,6 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	}
 
 	@Override
-	public Error visitFunctionCall(FunctionCall fc) {
-		String[] args = { "Optimizer: Selection pushdown for function call not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		return e;
-	}
-
-	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
 		this.pushDown(sa);
 		return err;
@@ -159,6 +151,13 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	public Error visitRename(Rename ro) {
 		this.pushDown(ro);
 		return err;
+	}
+	
+	@Override
+	public Error visitSQLUnary(SQLUnary sqlOp) {
+		String[] args = { "SQLUnary operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
+		return e;
 	}
 
 	/**
@@ -221,10 +220,11 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 				this.lastOp = op;
 				this.modifiedPlan = true;
 				this.cutSelection = new GenericSelection(op);
-				this.cutSelection.addResult(op.getResult(0).clone());
+				this.cutSelection.addResult(op.getResult().clone());
 				this.cutSelection.setPredicate(orPred);
 				this.plan.addOperator(this.cutSelection, false);
 				this.doWaitNextVisit = false;
+				this.cutSelection.cut();
 				this.err = this.visit();
 			}
 
@@ -242,9 +242,9 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 		// found selection
 		if (this.cutSelection != null) {
 			Vector<TokenAttribute> leftChildAtts = op.getLeftChild()
-					.getResult(RESULT_IDX).getAttributes();
+					.getResult().getAttributes();
 			Vector<TokenAttribute> rightChildAtts = op.getRightChild()
-					.getResult(RESULT_IDX).getAttributes();
+					.getResult().getAttributes();
 
 			AbstractPredicate predicate = this.cutSelection.getPredicate();
 
@@ -293,7 +293,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 		// found selection
 		if (this.cutSelection != null) {
 			Vector<TokenAttribute> childAtts = op.getChild()
-					.getResult(RESULT_IDX).getAttributes();
+					.getResult().getAttributes();
 			AbstractPredicate predicate = this.cutSelection.getPredicate();
 			Collection<TokenAttribute> selAtts = predicate.getAttributes();
 			Collection<TokenAttribute> newAtts = TokenAttribute.clone(selAtts);

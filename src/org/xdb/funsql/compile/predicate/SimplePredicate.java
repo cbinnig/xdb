@@ -122,6 +122,19 @@ public class SimplePredicate extends AbstractPredicate {
 			aggExprs.add(this.expr2);
 		return aggExprs;
 	}
+	
+	@Override
+	public AbstractPredicate replaceExpressions(
+			Map<TokenIdentifier, AbstractExpression> exprs) {
+		this.expr1.replaceExpressions(exprs);
+		
+		if(this.expr2!=null){
+			this.expr2.replaceExpressions(exprs);
+		}
+
+		return this;
+	}
+	
 
 	@Override
 	public AbstractPredicate replaceAliases(Map<AbstractExpression, TokenIdentifier> aliases) {

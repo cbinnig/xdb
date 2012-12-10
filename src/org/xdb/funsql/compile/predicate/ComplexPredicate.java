@@ -147,6 +147,18 @@ public class ComplexPredicate extends AbstractPredicate {
 	}
 
 	@Override
+	public AbstractPredicate replaceExpressions(
+			Map<TokenIdentifier, AbstractExpression> exprs) {
+		this.pred1.replaceExpressions(exprs);
+		
+		for(AbstractPredicate pred2: this.preds2){
+			pred2.replaceExpressions(exprs);
+		}
+		
+		return this;
+	}
+	
+	@Override
 	public AbstractPredicate replaceAliases(Map<AbstractExpression, TokenIdentifier> aliases) {
 		this.pred1.replaceAliases(aliases);
 		

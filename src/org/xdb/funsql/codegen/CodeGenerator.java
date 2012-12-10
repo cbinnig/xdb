@@ -233,7 +233,7 @@ public class CodeGenerator {
 	 * @return
 	 */
 	private String generateResultDDL(AbstractCompileOperator compileOp) {
-		return compileOp.getResult(0).toSqlString();
+		return compileOp.getResult().toSqlString();
 	}
 
 	/**

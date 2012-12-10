@@ -28,7 +28,7 @@ public class SetUtils {
 	}
 
 	
-	public static String stringifyAttributes(final List<String> attrList) {
+	public static String buildString(final List<String> attrList) {
 		final StringBuffer attributeListBuffer = new StringBuffer();
 		
 		for(int i = 0; i < attrList.size(); i++) {

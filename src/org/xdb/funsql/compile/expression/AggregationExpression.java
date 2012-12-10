@@ -2,9 +2,11 @@ package org.xdb.funsql.compile.expression;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.xdb.funsql.compile.operator.EnumAggregation;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.utils.StringTemplate;
 
 public class AggregationExpression extends AbstractExpression {
@@ -90,5 +92,14 @@ public class AggregationExpression extends AbstractExpression {
 		expr.agg = this.agg;
 		
 		return expr;
+	}
+
+	@Override
+	public AbstractExpression replaceExpressions(
+			Map<TokenIdentifier, AbstractExpression> exprs) {
+		
+		this.expr = this.expr.replaceExpressions(exprs);
+		return this;
+		
 	}
 }

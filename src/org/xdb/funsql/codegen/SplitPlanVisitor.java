@@ -13,6 +13,7 @@ import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 
 /**
@@ -52,7 +53,7 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 		 * - an operator has > 1 parents 
 		 * - an operator is marked to be materialized
 		 */
-		if(op.getResult(0).isMaterialize() 
+		if(op.getResult().isMaterialized() 
 				|| op.getParents().size()!=1){
 			if(!this.splitOps.contains(op))
 				this.splitOps.add(op);
@@ -99,6 +100,12 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitRename(Rename ro) {
 		doSplit(ro);
+		return err;
+	}
+	
+	@Override
+	public Error visitSQLUnary(SQLUnary sqlOp) {
+		doSplit(sqlOp);
 		return err;
 	}
 }

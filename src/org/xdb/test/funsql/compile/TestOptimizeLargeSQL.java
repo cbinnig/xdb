@@ -85,15 +85,15 @@ public class TestOptimizeLargeSQL extends CompileServerTestCase {
 		selectStmt.getPlan().traceGraph(this.getClass().getName());
 
 		ResultDesc desc = new ResultDesc();
-		for (TokenAttribute att : sel2.getResult(0).getAttributes()) {
+		for (TokenAttribute att : sel2.getResult().getAttributes()) {
 			TokenAttribute attNew = new TokenAttribute();
 			attNew.setName(att.getName());
 			attNew.setTable(att.getTable());
 			attNew.setType(att.getType());
 			desc.addAttribute(attNew);
 		}
-		for (int i = 0; i < sel2.getResult(0).getTypes().size(); i++) {
-			EnumSimpleType type = sel2.getResult(0).getType(i);
+		for (int i = 0; i < sel2.getResult().getTypes().size(); i++) {
+			EnumSimpleType type = sel2.getResult().getType(i);
 			desc.setType(i, type);
 		}
 

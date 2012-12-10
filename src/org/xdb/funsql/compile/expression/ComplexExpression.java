@@ -1,10 +1,12 @@
 package org.xdb.funsql.compile.expression;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.funsql.compile.tokens.TokenIdentifier;
 
 public class ComplexExpression extends AbstractExpression {
 
@@ -146,5 +148,19 @@ public class ComplexExpression extends AbstractExpression {
 		}
 		
 		return expr;
+	}
+
+	@Override
+	public AbstractExpression replaceExpressions(
+			Map<TokenIdentifier, AbstractExpression> exprs) {
+		this.expr1 = this.expr1.replaceExpressions(exprs);
+		
+		int i=0;
+		Vector<AbstractExpression> expr2Tmp = new Vector<AbstractExpression>(this.exprs2);
+		for(AbstractExpression expr2: expr2Tmp){
+			this.exprs2.set(i, expr2.replaceExpressions(exprs));
+			i++;
+		}
+		return this;
 	}
 }

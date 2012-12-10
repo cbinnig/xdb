@@ -28,7 +28,7 @@ public class Rename extends AbstractUnaryOperator {
 		
 		//get all table attributes and match them in order
 		final Vector<String> attrs = new Vector<String>();
-		for(TokenAttribute attr : this.getChild().getResult(0).getAttributes()) {
+		for(TokenAttribute attr : this.getChild().getResult().getAttributes()) {
 			attrs.add(attr.getName().toString());
 		}
 		vars.put("RESULTS", SetUtils.buildAliasString(attrs, getResultAttributes()));
@@ -44,7 +44,7 @@ public class Rename extends AbstractUnaryOperator {
 	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
 		HashMap<TokenIdentifier,TokenIdentifier> renameMap = new HashMap<TokenIdentifier,TokenIdentifier>();
 		for(int i=0; i<this.getResult().size(); ++i){
-			renameMap.put(this.getResult().getAttribute(i).getName(), this.getChild().getResult(0).getAttribute(i).getName());
+			renameMap.put(this.getResult().getAttribute(i).getName(), this.getChild().getResult().getAttribute(i).getName());
 		}
 		TokenAttribute.rename(selAtts, this.getChild().getOperatorId().toString(), renameMap);
 	}

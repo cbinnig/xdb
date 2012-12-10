@@ -70,11 +70,11 @@ public class ResultDesc implements Serializable, Cloneable{
 		return this.types;
 	}
 	
-	public boolean isMaterialize() {
+	public boolean isMaterialized() {
 		return materialize;
 	}
 
-	public void setMaterialize(boolean materialize) {
+	public void setMaterialized(boolean materialize) {
 		this.materialize = materialize;
 	}
 

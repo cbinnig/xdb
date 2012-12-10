@@ -5,10 +5,12 @@ import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
+import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 
 public abstract class AbstractTreeVisitor implements ITreeVisitor {
@@ -51,6 +53,8 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 			return visitGenericProjection((GenericProjection) absOp);
 		case RENAME:
 			return visitRename((Rename) absOp);
+		case SQL_UNARY:
+			return visitSQLUnary((SQLUnary)absOp);
 		case TABLE:
 			return visitTableOperator((TableOperator) absOp);
 		default:
@@ -58,6 +62,13 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 			e = new Error(EnumError.COMPILER_GENERIC, args);
 		}
 		
+		return e;
+	}
+	
+	@Override
+	public Error visitFunctionCall(FunctionCall fc) {
+		String[] args = { "Function calls are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
 }
