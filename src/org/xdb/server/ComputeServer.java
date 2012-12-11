@@ -92,6 +92,8 @@ public class ComputeServer extends AbstractServer {
 
 		port = Config.COMPUTE_PORT;
 		compute = new ComputeNode();
+		
+		this.err = compute.startup();
 	}
 
 	// methods

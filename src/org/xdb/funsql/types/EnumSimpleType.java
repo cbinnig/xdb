@@ -56,9 +56,9 @@ public enum EnumSimpleType implements Cloneable {
 		case 2:
 			return "VARCHAR(255)";
 		case 3:
-			return "CHAR";
+			return "CHAR(255)";
 		case 4:
-			return "DECIMAL";
+			return "DECIMAL(65,30)";
 		case 5:
 			return "DATE";
 		}

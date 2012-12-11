@@ -140,7 +140,6 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		this.assertNoError(qPlan.cleanPlan());
 
 		// verify results
-		//		assertEquals(5, actualCnt);
-		assertEquals(10, actualCnt); // TODO Warum 10?
+		assertEquals(5, actualCnt); 
 	}
 }

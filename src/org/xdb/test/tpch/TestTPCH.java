@@ -31,6 +31,29 @@ public class TestTPCH extends XDBTestCase {
 			"L_SHIPINSTRUCT 	VARCHAR," +
 			"L_SHIPMODE     	VARCHAR," +
 			"L_COMMENT      	VARCHAR" +
+			") IN CONNECTION TPCH;",
+			
+			"CREATE TABLE  CUSTOMER ( " +
+			"C_CUSTKEY     INTEGER, " +
+			"C_NAME        VARCHAR, " +
+			"C_ADDRESS     VARCHAR, " +
+			"C_NATIONKEY   INTEGER, " +
+			"C_PHONE       VARCHAR, " +
+			"C_ACCTBAL     DECIMAL  , " +
+			"C_MKTSEGMENT  VARCHAR, " +
+			"C_COMMENT     VARCHAR" +
+			") IN CONNECTION TPCH;",
+			
+			"CREATE TABLE ORDERS  ( " +
+			"O_ORDERKEY       INTEGER, " +
+			"O_CUSTKEY        INTEGER, " +
+			"O_ORDERSTATUS    VARCHAR, " +
+			"O_TOTALPRICE     DECIMAL, " +
+			"O_ORDERDATE      DATE, " +
+			"O_ORDERPRIORITY  VARCHAR, " +
+			"O_CLERK          VARCHAR,  " +
+			"O_SHIPPRIORITY   INTEGER, " +
+			"O_COMMENT        VARCHAR" +
 			") IN CONNECTION TPCH;"
 	};
 	
@@ -71,6 +94,24 @@ public class TestTPCH extends XDBTestCase {
 		executeStmt(q1);
 	}
 	
+	public void testQ3(){
+		String q3 = "" +
+				"select l_orderkey, " +
+				"sum(l_extendedprice*(1-l_discount)) as revenue, " +
+				"o_orderdate, " +
+				"o_shippriority " +
+				"from customer, " +
+				"orders, " +
+				"lineitem " +
+				"where c_mktsegment = 'BUILDING' and " +
+				"c_custkey = o_custkey and " +
+				"l_orderkey = o_orderkey and " +
+				"o_orderdate < date '1995-03-15' and " +
+				"l_shipdate > date '1995-03-15' " +
+				"group by l_orderkey, o_orderdate, o_shippriority";
+		
+		this.executeStmt(q3);
+	}
 	@Override
 	public void tearDown(){
 		super.tearDown();

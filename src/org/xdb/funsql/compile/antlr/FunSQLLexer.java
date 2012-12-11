@@ -1,4 +1,4 @@
-// $ANTLR 3.4 /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g 2012-12-07 07:45:01
+// $ANTLR 3.4 /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g 2012-12-11 19:43:52
  
 package org.xdb.funsql.compile.antlr;
 
@@ -124,6 +124,12 @@ public class FunSQLLexer extends Lexer {
     public static final int Y=114;
     public static final int Z=115;
 
+        @Override
+        public void reportError(RecognitionException e) {
+            throw new RuntimeException(e);
+        }
+
+
     // delegates
     // delegators
     public Lexer[] getDelegates() {
@@ -144,8 +150,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = AMPERSAND;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:6:11: ( '&' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:6:13: '&'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:12:11: ( '&' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:12:13: '&'
             {
             match('&'); 
 
@@ -165,8 +171,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = APOSTROPHE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:7:12: ( '`' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:7:14: '`'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:13:12: ( '`' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:13:14: '`'
             {
             match('`'); 
 
@@ -186,8 +192,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = AT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:8:4: ( '@' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:8:6: '@'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:14:4: ( '@' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:14:6: '@'
             {
             match('@'); 
 
@@ -207,8 +213,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = BACKSLASH;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:9:11: ( '\\\\' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:9:13: '\\\\'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:15:11: ( '\\\\' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:15:13: '\\\\'
             {
             match('\\'); 
 
@@ -228,8 +234,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = COLON;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:10:7: ( ':' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:10:9: ':'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:16:7: ( ':' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:16:9: ':'
             {
             match(':'); 
 
@@ -249,8 +255,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = COMMA;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:11:7: ( ',' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:11:9: ','
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:17:7: ( ',' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:17:9: ','
             {
             match(','); 
 
@@ -270,8 +276,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = DIV;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:12:5: ( '/' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:12:7: '/'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:18:5: ( '/' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:18:7: '/'
             {
             match('/'); 
 
@@ -291,8 +297,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = DOLLAR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:13:8: ( '$' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:13:10: '$'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:19:8: ( '$' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:19:10: '$'
             {
             match('$'); 
 
@@ -312,8 +318,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = DOT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:14:5: ( '.' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:14:7: '.'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:20:5: ( '.' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:20:7: '.'
             {
             match('.'); 
 
@@ -333,8 +339,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = DOUBLE_PIPE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:15:13: ( '||' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:15:15: '||'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:21:13: ( '||' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:21:15: '||'
             {
             match("||"); 
 
@@ -356,8 +362,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = EQUAL1;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:16:8: ( '=' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:16:10: '='
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:22:8: ( '=' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:22:10: '='
             {
             match('='); 
 
@@ -377,8 +383,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = EQUAL2;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:17:8: ( '==' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:17:10: '=='
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:23:8: ( '==' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:23:10: '=='
             {
             match("=="); 
 
@@ -400,8 +406,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = GREATER_EQUAL1;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:18:16: ( '>=' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:18:18: '>='
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:24:16: ( '>=' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:24:18: '>='
             {
             match(">="); 
 
@@ -423,8 +429,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = GREATER_EQUAL2;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:19:16: ( '!<' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:19:18: '!<'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:25:16: ( '!<' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:25:18: '!<'
             {
             match("!<"); 
 
@@ -446,8 +452,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = GREATER_THAN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:20:14: ( '>' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:20:16: '>'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:26:14: ( '>' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:26:16: '>'
             {
             match('>'); 
 
@@ -467,8 +473,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = HAT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:21:5: ( '^' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:21:7: '^'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:27:5: ( '^' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:27:7: '^'
             {
             match('^'); 
 
@@ -488,8 +494,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = LBRACKET;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:22:10: ( '[' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:22:12: '['
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:28:10: ( '[' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:28:12: '['
             {
             match('['); 
 
@@ -509,8 +515,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = LESS_EQUAL1;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:23:13: ( '<=' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:23:15: '<='
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:29:13: ( '<=' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:29:15: '<='
             {
             match("<="); 
 
@@ -532,8 +538,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = LESS_EQUAL2;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:24:13: ( '!>' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:24:15: '!>'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:30:13: ( '!>' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:30:15: '!>'
             {
             match("!>"); 
 
@@ -555,8 +561,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = LESS_THAN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:25:11: ( '<' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:25:13: '<'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:31:11: ( '<' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:31:13: '<'
             {
             match('<'); 
 
@@ -576,8 +582,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = LPAREN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:26:8: ( '(' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:26:10: '('
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:32:8: ( '(' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:32:10: '('
             {
             match('('); 
 
@@ -597,8 +603,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = MINUS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:27:7: ( '-' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:27:9: '-'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:33:7: ( '-' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:33:9: '-'
             {
             match('-'); 
 
@@ -618,8 +624,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = MOD;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:28:5: ( '%' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:28:7: '%'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:34:5: ( '%' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:34:7: '%'
             {
             match('%'); 
 
@@ -639,8 +645,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = MULT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:29:6: ( '*' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:29:8: '*'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:35:6: ( '*' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:35:8: '*'
             {
             match('*'); 
 
@@ -660,8 +666,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = NOT_EQUAL1;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:30:12: ( '!=' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:30:14: '!='
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:36:12: ( '!=' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:36:14: '!='
             {
             match("!="); 
 
@@ -683,8 +689,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = NOT_EQUAL2;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:31:12: ( '<>' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:31:14: '<>'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:37:12: ( '<>' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:37:14: '<>'
             {
             match("<>"); 
 
@@ -706,8 +712,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = PIPE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:32:6: ( '|' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:32:8: '|'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:38:6: ( '|' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:38:8: '|'
             {
             match('|'); 
 
@@ -727,8 +733,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = PLUS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:33:6: ( '+' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:33:8: '+'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:39:6: ( '+' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:39:8: '+'
             {
             match('+'); 
 
@@ -748,8 +754,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = QUESTION;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:34:10: ( '?' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:34:12: '?'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:40:10: ( '?' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:40:12: '?'
             {
             match('?'); 
 
@@ -769,8 +775,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = QUOTE_DOUBLE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:35:14: ( '\"' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:35:16: '\"'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:41:14: ( '\"' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:41:16: '\"'
             {
             match('\"'); 
 
@@ -790,8 +796,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = QUOTE_SINGLE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:36:14: ( '\\'' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:36:16: '\\''
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:42:14: ( '\\'' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:42:16: '\\''
             {
             match('\''); 
 
@@ -811,8 +817,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = QUOTE_TRIPLE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:37:14: ( '\\'\\'\\'' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:37:16: '\\'\\'\\''
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:43:14: ( '\\'\\'\\'' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:43:16: '\\'\\'\\''
             {
             match("'''"); 
 
@@ -834,8 +840,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = RBRACKET;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:38:10: ( ']' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:38:12: ']'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:44:10: ( ']' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:44:12: ']'
             {
             match(']'); 
 
@@ -855,8 +861,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = RPAREN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:39:8: ( ')' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:39:10: ')'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:45:8: ( ')' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:45:10: ')'
             {
             match(')'); 
 
@@ -876,8 +882,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = SEMI;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:40:6: ( ';' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:40:8: ';'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:46:6: ( ';' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:46:8: ';'
             {
             match(';'); 
 
@@ -897,8 +903,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = SHIFT_LEFT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:41:12: ( '<<' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:41:14: '<<'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:47:12: ( '<<' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:47:14: '<<'
             {
             match("<<"); 
 
@@ -920,8 +926,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = SHIFT_RIGHT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:42:13: ( '>>' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:42:15: '>>'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:48:13: ( '>>' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:48:15: '>>'
             {
             match(">>"); 
 
@@ -943,8 +949,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = TILDE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:43:7: ( '~' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:43:9: '~'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:49:7: ( '~' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:49:9: '~'
             {
             match('~'); 
 
@@ -964,8 +970,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = UNDERSCORE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:44:12: ( '_' )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:44:14: '_'
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:50:12: ( '_' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:50:14: '_'
             {
             match('_'); 
 
@@ -985,10 +991,10 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = FUNCTION_AGGREGATION;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1016:2: ( ( KEYWORD_SUM | KEYWORD_MIN | KEYWORD_MAX | KEYWORD_AVG | KEYWORD_COUNT ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1017:2: ( KEYWORD_SUM | KEYWORD_MIN | KEYWORD_MAX | KEYWORD_AVG | KEYWORD_COUNT )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1017:2: ( ( KEYWORD_SUM | KEYWORD_MIN | KEYWORD_MAX | KEYWORD_AVG | KEYWORD_COUNT ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1018:2: ( KEYWORD_SUM | KEYWORD_MIN | KEYWORD_MAX | KEYWORD_AVG | KEYWORD_COUNT )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1017:2: ( KEYWORD_SUM | KEYWORD_MIN | KEYWORD_MAX | KEYWORD_AVG | KEYWORD_COUNT )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1018:2: ( KEYWORD_SUM | KEYWORD_MIN | KEYWORD_MAX | KEYWORD_AVG | KEYWORD_COUNT )
             int alt1=5;
             switch ( input.LA(1) ) {
             case 'S':
@@ -1039,7 +1045,7 @@ public class FunSQLLexer extends Lexer {
 
             switch (alt1) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1017:3: KEYWORD_SUM
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1018:3: KEYWORD_SUM
                     {
                     mKEYWORD_SUM(); 
 
@@ -1047,7 +1053,7 @@ public class FunSQLLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1017:15: KEYWORD_MIN
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1018:15: KEYWORD_MIN
                     {
                     mKEYWORD_MIN(); 
 
@@ -1055,7 +1061,7 @@ public class FunSQLLexer extends Lexer {
                     }
                     break;
                 case 3 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1017:27: KEYWORD_MAX
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1018:27: KEYWORD_MAX
                     {
                     mKEYWORD_MAX(); 
 
@@ -1063,7 +1069,7 @@ public class FunSQLLexer extends Lexer {
                     }
                     break;
                 case 4 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1017:39: KEYWORD_AVG
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1018:39: KEYWORD_AVG
                     {
                     mKEYWORD_AVG(); 
 
@@ -1071,7 +1077,7 @@ public class FunSQLLexer extends Lexer {
                     }
                     break;
                 case 5 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1017:51: KEYWORD_COUNT
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1018:51: KEYWORD_COUNT
                     {
                     mKEYWORD_COUNT(); 
 
@@ -1098,8 +1104,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_CALL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1020:13: ( C A L L )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1020:15: C A L L
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1021:13: ( C A L L )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1021:15: C A L L
             {
             mC(); 
 
@@ -1129,8 +1135,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_CREATE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1021:15: ( C R E A T E )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1021:17: C R E A T E
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1022:15: ( C R E A T E )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1022:17: C R E A T E
             {
             mC(); 
 
@@ -1166,8 +1172,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_DROP;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1022:13: ( D R O P )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1022:15: D R O P
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1023:13: ( D R O P )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1023:15: D R O P
             {
             mD(); 
 
@@ -1197,8 +1203,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_SELECT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1023:15: ( S E L E C T )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1023:17: S E L E C T
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1024:15: ( S E L E C T )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1024:17: S E L E C T
             {
             mS(); 
 
@@ -1234,8 +1240,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_FROM;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1024:13: ( F R O M )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1024:15: F R O M
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1025:13: ( F R O M )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1025:15: F R O M
             {
             mF(); 
 
@@ -1265,8 +1271,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_WHERE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1025:14: ( W H E R E )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1025:16: W H E R E
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1026:14: ( W H E R E )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1026:16: W H E R E
             {
             mW(); 
 
@@ -1299,8 +1305,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_HAVING;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1026:15: ( H A V I N G )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1026:17: H A V I N G
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1027:15: ( H A V I N G )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1027:17: H A V I N G
             {
             mH(); 
 
@@ -1336,8 +1342,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_GROUP;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1027:14: ( G R O U P )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1027:16: G R O U P
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1028:14: ( G R O U P )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1028:16: G R O U P
             {
             mG(); 
 
@@ -1370,8 +1376,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_BY;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1028:11: ( B Y )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1028:13: B Y
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1029:11: ( B Y )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1029:13: B Y
             {
             mB(); 
 
@@ -1395,8 +1401,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_IN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1029:11: ( I N )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1029:13: I N
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1030:11: ( I N )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1030:13: I N
             {
             mI(); 
 
@@ -1420,8 +1426,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_OUT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1030:12: ( O U T )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1030:14: O U T
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1031:12: ( O U T )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1031:14: O U T
             {
             mO(); 
 
@@ -1448,8 +1454,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_AND;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1031:12: ( A N D )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1031:14: A N D
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1032:12: ( A N D )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1032:14: A N D
             {
             mA(); 
 
@@ -1476,8 +1482,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_OR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1032:11: ( O R )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1032:13: O R
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1033:11: ( O R )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1033:13: O R
             {
             mO(); 
 
@@ -1501,8 +1507,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_NOT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1033:12: ( N O T )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1033:14: N O T
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1034:12: ( N O T )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1034:14: N O T
             {
             mN(); 
 
@@ -1529,8 +1535,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_AS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1034:11: ( A S )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1034:13: A S
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1035:11: ( A S )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1035:13: A S
             {
             mA(); 
 
@@ -1552,8 +1558,8 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "KEYWORD_SUM"
     public final void mKEYWORD_SUM() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1035:21: ( S U M )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1035:23: S U M
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1036:21: ( S U M )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1036:23: S U M
             {
             mS(); 
 
@@ -1577,8 +1583,8 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "KEYWORD_MIN"
     public final void mKEYWORD_MIN() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1036:21: ( M I N )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1036:23: M I N
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1037:21: ( M I N )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1037:23: M I N
             {
             mM(); 
 
@@ -1602,8 +1608,8 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "KEYWORD_MAX"
     public final void mKEYWORD_MAX() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1037:21: ( M A X )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1037:23: M A X
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1038:21: ( M A X )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1038:23: M A X
             {
             mM(); 
 
@@ -1627,8 +1633,8 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "KEYWORD_AVG"
     public final void mKEYWORD_AVG() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1038:21: ( A V G )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1038:23: A V G
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1039:21: ( A V G )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1039:23: A V G
             {
             mA(); 
 
@@ -1652,8 +1658,8 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "KEYWORD_COUNT"
     public final void mKEYWORD_COUNT() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1039:23: ( C O U N T )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1039:25: C O U N T
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1040:23: ( C O U N T )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1040:25: C O U N T
             {
             mC(); 
 
@@ -1685,8 +1691,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_DISTINCT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1040:17: ( D I S T I N C T )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1040:19: D I S T I N C T
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1041:17: ( D I S T I N C T )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1041:19: D I S T I N C T
             {
             mD(); 
 
@@ -1728,8 +1734,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_CONNECTION;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1042:19: ( C O N N E C T I O N )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1042:21: C O N N E C T I O N
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1043:19: ( C O N N E C T I O N )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1043:21: C O N N E C T I O N
             {
             mC(); 
 
@@ -1777,8 +1783,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_SCHEMA;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1043:15: ( S C H E M A )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1043:17: S C H E M A
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1044:15: ( S C H E M A )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1044:17: S C H E M A
             {
             mS(); 
 
@@ -1814,8 +1820,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_TABLE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1044:14: ( T A B L E )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1044:16: T A B L E
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1045:14: ( T A B L E )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1045:16: T A B L E
             {
             mT(); 
 
@@ -1848,8 +1854,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_FUNCTION;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1045:17: ( F U N C T I O N )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1045:19: F U N C T I O N
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1046:17: ( F U N C T I O N )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1046:19: F U N C T I O N
             {
             mF(); 
 
@@ -1891,8 +1897,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_BEGIN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1046:14: ( B E G I N )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1046:16: B E G I N
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1047:14: ( B E G I N )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1047:16: B E G I N
             {
             mB(); 
 
@@ -1925,8 +1931,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_END;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1047:12: ( E N D )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1047:14: E N D
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1048:12: ( E N D )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1048:14: E N D
             {
             mE(); 
 
@@ -1953,8 +1959,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_VAR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1048:12: ( V A R )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1048:14: V A R
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1049:12: ( V A R )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1049:14: V A R
             {
             mV(); 
 
@@ -1981,8 +1987,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_URL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1050:12: ( U R L )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1050:14: U R L
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1051:12: ( U R L )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1051:14: U R L
             {
             mU(); 
 
@@ -2009,8 +2015,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_USER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1051:13: ( U S E R )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1051:15: U S E R
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1052:13: ( U S E R )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1052:15: U S E R
             {
             mU(); 
 
@@ -2040,8 +2046,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_PASSWD;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1052:15: ( P A S S W O R D )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1052:17: P A S S W O R D
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1053:15: ( P A S S W O R D )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1053:17: P A S S W O R D
             {
             mP(); 
 
@@ -2083,8 +2089,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = KEYWORD_STORE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1053:14: ( S T O R E )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1053:16: S T O R E
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1054:14: ( S T O R E )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1054:16: S T O R E
             {
             mS(); 
 
@@ -2117,8 +2123,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = TYPE_VARCHAR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1055:13: ( V A R C H A R )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1055:15: V A R C H A R
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1056:13: ( V A R C H A R )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1056:15: V A R C H A R
             {
             mV(); 
 
@@ -2157,10 +2163,10 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = TYPE_INTEGER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1056:13: ( ( I N T | I N T E G E R ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1056:15: ( I N T | I N T E G E R )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1057:13: ( ( I N T | I N T E G E R ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1057:15: ( I N T | I N T E G E R )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1056:15: ( I N T | I N T E G E R )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1057:15: ( I N T | I N T E G E R )
             int alt2=2;
             int LA2_0 = input.LA(1);
 
@@ -2205,7 +2211,7 @@ public class FunSQLLexer extends Lexer {
             }
             switch (alt2) {
                 case 1 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1056:16: I N T
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1057:16: I N T
                     {
                     mI(); 
 
@@ -2219,7 +2225,7 @@ public class FunSQLLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1056:24: I N T E G E R
+                    // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1057:24: I N T E G E R
                     {
                     mI(); 
 
@@ -2264,8 +2270,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = TYPE_DECIMAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1057:13: ( D E C I M A L )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1057:15: D E C I M A L
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1058:13: ( D E C I M A L )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1058:15: D E C I M A L
             {
             mD(); 
 
@@ -2304,8 +2310,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = TYPE_DATE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1058:10: ( D A T E )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1058:12: D A T E
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1059:10: ( D A T E )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1059:12: D A T E
             {
             mD(); 
 
@@ -2335,11 +2341,11 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = LITERAL_STRING;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1061:5: ( ( QUOTED_STRING ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1062:5: ( QUOTED_STRING )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1062:5: ( ( QUOTED_STRING ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1063:5: ( QUOTED_STRING )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1062:5: ( QUOTED_STRING )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1062:6: QUOTED_STRING
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1063:5: ( QUOTED_STRING )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1063:6: QUOTED_STRING
             {
             mQUOTED_STRING(); 
 
@@ -2363,10 +2369,10 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = LITERAL_DECIMAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1066:5: ( ( DIGIT )+ DOT ( DIGIT )* )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1067:5: ( DIGIT )+ DOT ( DIGIT )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1067:5: ( ( DIGIT )+ DOT ( DIGIT )* )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1068:5: ( DIGIT )+ DOT ( DIGIT )*
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1067:5: ( DIGIT )+
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1068:5: ( DIGIT )+
             int cnt3=0;
             loop3:
             do {
@@ -2408,7 +2414,7 @@ public class FunSQLLexer extends Lexer {
             mDOT(); 
 
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1067:18: ( DIGIT )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1068:18: ( DIGIT )*
             loop4:
             do {
                 int alt4=2;
@@ -2458,10 +2464,10 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = LITERAL_INTEGER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1071:5: ( ( DIGIT )+ )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1072:5: ( DIGIT )+
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1072:5: ( ( DIGIT )+ )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1073:5: ( DIGIT )+
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1072:5: ( DIGIT )+
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1073:5: ( DIGIT )+
             int cnt5=0;
             loop5:
             do {
@@ -2516,16 +2522,16 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = IDENTIFIER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1076:5: ( ( CHAR ( CHAR | DIGIT | '_' | '$' | '#' )* ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1077:5: ( CHAR ( CHAR | DIGIT | '_' | '$' | '#' )* )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1077:5: ( ( CHAR ( CHAR | DIGIT | '_' | '$' | '#' )* ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1078:5: ( CHAR ( CHAR | DIGIT | '_' | '$' | '#' )* )
             {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1077:5: ( CHAR ( CHAR | DIGIT | '_' | '$' | '#' )* )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1077:7: CHAR ( CHAR | DIGIT | '_' | '$' | '#' )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1078:5: ( CHAR ( CHAR | DIGIT | '_' | '$' | '#' )* )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1078:7: CHAR ( CHAR | DIGIT | '_' | '$' | '#' )*
             {
             mCHAR(); 
 
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1077:12: ( CHAR | DIGIT | '_' | '$' | '#' )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1078:12: ( CHAR | DIGIT | '_' | '$' | '#' )*
             loop6:
             do {
                 int alt6=2;
@@ -2578,8 +2584,8 @@ public class FunSQLLexer extends Lexer {
         try {
             int _type = IGNORE_CHAR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1081:12: ( ( WS | CONTROL_CHAR ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1081:14: ( WS | CONTROL_CHAR )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1082:12: ( ( WS | CONTROL_CHAR ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1082:14: ( WS | CONTROL_CHAR )
             {
             if ( (input.LA(1) >= '\t' && input.LA(1) <= '\r')||input.LA(1)==' ' ) {
                 input.consume();
@@ -2607,8 +2613,8 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "WS"
     public final void mWS() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1083:12: ( ( ' ' ) )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1083:14: ( ' ' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1084:12: ( ( ' ' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1084:14: ( ' ' )
             {
             if ( input.LA(1)==' ' ) {
                 input.consume();
@@ -2633,7 +2639,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "CONTROL_CHAR"
     public final void mCONTROL_CHAR() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1084:22: ( ( '\\r' | '\\t' | '\\u000B' | '\\f' | '\\n' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1085:22: ( ( '\\r' | '\\t' | '\\u000B' | '\\f' | '\\n' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( (input.LA(1) >= '\t' && input.LA(1) <= '\r') ) {
@@ -2659,13 +2665,13 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "QUOTED_STRING"
     public final void mQUOTED_STRING() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1085:23: ( QUOTE_SINGLE (~ QUOTE_SINGLE )* QUOTE_SINGLE )
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1085:25: QUOTE_SINGLE (~ QUOTE_SINGLE )* QUOTE_SINGLE
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1086:23: ( QUOTE_SINGLE (~ QUOTE_SINGLE )* QUOTE_SINGLE )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1086:25: QUOTE_SINGLE (~ QUOTE_SINGLE )* QUOTE_SINGLE
             {
             mQUOTE_SINGLE(); 
 
 
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1085:38: (~ QUOTE_SINGLE )*
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1086:38: (~ QUOTE_SINGLE )*
             loop7:
             do {
                 int alt7=2;
@@ -2715,7 +2721,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "DIGIT"
     public final void mDIGIT() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1086:17: ( '0' .. '9' )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1087:17: ( '0' .. '9' )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
@@ -2741,7 +2747,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "CHAR"
     public final void mCHAR() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1087:15: ( ( 'A' .. 'Z' | 'a' .. 'z' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1088:15: ( ( 'A' .. 'Z' | 'a' .. 'z' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
@@ -2767,7 +2773,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "A"
     public final void mA() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1089:11: ( ( 'a' | 'A' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1090:11: ( ( 'a' | 'A' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='A'||input.LA(1)=='a' ) {
@@ -2793,7 +2799,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "B"
     public final void mB() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1090:11: ( ( 'b' | 'B' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1091:11: ( ( 'b' | 'B' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='B'||input.LA(1)=='b' ) {
@@ -2819,7 +2825,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "C"
     public final void mC() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1091:11: ( ( 'c' | 'C' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1092:11: ( ( 'c' | 'C' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='C'||input.LA(1)=='c' ) {
@@ -2845,7 +2851,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "D"
     public final void mD() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1092:11: ( ( 'd' | 'D' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1093:11: ( ( 'd' | 'D' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='D'||input.LA(1)=='d' ) {
@@ -2871,7 +2877,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "E"
     public final void mE() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1093:11: ( ( 'e' | 'E' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1094:11: ( ( 'e' | 'E' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='E'||input.LA(1)=='e' ) {
@@ -2897,7 +2903,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "F"
     public final void mF() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1094:11: ( ( 'f' | 'F' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1095:11: ( ( 'f' | 'F' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='F'||input.LA(1)=='f' ) {
@@ -2923,7 +2929,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "G"
     public final void mG() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1095:11: ( ( 'g' | 'G' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1096:11: ( ( 'g' | 'G' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='G'||input.LA(1)=='g' ) {
@@ -2949,7 +2955,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "H"
     public final void mH() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1096:11: ( ( 'h' | 'H' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1097:11: ( ( 'h' | 'H' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='H'||input.LA(1)=='h' ) {
@@ -2975,7 +2981,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "I"
     public final void mI() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1097:11: ( ( 'i' | 'I' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1098:11: ( ( 'i' | 'I' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='I'||input.LA(1)=='i' ) {
@@ -3001,7 +3007,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "J"
     public final void mJ() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1098:11: ( ( 'j' | 'J' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1099:11: ( ( 'j' | 'J' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='J'||input.LA(1)=='j' ) {
@@ -3027,7 +3033,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "K"
     public final void mK() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1099:11: ( ( 'k' | 'K' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1100:11: ( ( 'k' | 'K' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='K'||input.LA(1)=='k' ) {
@@ -3053,7 +3059,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "L"
     public final void mL() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1100:11: ( ( 'l' | 'L' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1101:11: ( ( 'l' | 'L' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='L'||input.LA(1)=='l' ) {
@@ -3079,7 +3085,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "M"
     public final void mM() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1101:11: ( ( 'm' | 'M' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1102:11: ( ( 'm' | 'M' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='M'||input.LA(1)=='m' ) {
@@ -3105,7 +3111,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "N"
     public final void mN() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1102:11: ( ( 'n' | 'N' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1103:11: ( ( 'n' | 'N' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='N'||input.LA(1)=='n' ) {
@@ -3131,7 +3137,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "O"
     public final void mO() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1103:11: ( ( 'o' | 'O' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1104:11: ( ( 'o' | 'O' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='O'||input.LA(1)=='o' ) {
@@ -3157,7 +3163,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "P"
     public final void mP() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1104:11: ( ( 'p' | 'P' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1105:11: ( ( 'p' | 'P' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='P'||input.LA(1)=='p' ) {
@@ -3183,7 +3189,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "Q"
     public final void mQ() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1105:11: ( ( 'q' | 'Q' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1106:11: ( ( 'q' | 'Q' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='Q'||input.LA(1)=='q' ) {
@@ -3209,7 +3215,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "R"
     public final void mR() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1106:11: ( ( 'r' | 'R' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1107:11: ( ( 'r' | 'R' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='R'||input.LA(1)=='r' ) {
@@ -3235,7 +3241,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "S"
     public final void mS() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1107:11: ( ( 's' | 'S' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1108:11: ( ( 's' | 'S' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='S'||input.LA(1)=='s' ) {
@@ -3261,7 +3267,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "T"
     public final void mT() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1108:11: ( ( 't' | 'T' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1109:11: ( ( 't' | 'T' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='T'||input.LA(1)=='t' ) {
@@ -3287,7 +3293,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "U"
     public final void mU() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1109:11: ( ( 'u' | 'U' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1110:11: ( ( 'u' | 'U' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='U'||input.LA(1)=='u' ) {
@@ -3313,7 +3319,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "V"
     public final void mV() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1110:11: ( ( 'v' | 'V' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1111:11: ( ( 'v' | 'V' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='V'||input.LA(1)=='v' ) {
@@ -3339,7 +3345,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "W"
     public final void mW() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1111:11: ( ( 'w' | 'W' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1112:11: ( ( 'w' | 'W' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='W'||input.LA(1)=='w' ) {
@@ -3365,7 +3371,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "X"
     public final void mX() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1112:11: ( ( 'x' | 'X' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1113:11: ( ( 'x' | 'X' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='X'||input.LA(1)=='x' ) {
@@ -3391,7 +3397,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "Y"
     public final void mY() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1113:11: ( ( 'y' | 'Y' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1114:11: ( ( 'y' | 'Y' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='Y'||input.LA(1)=='y' ) {
@@ -3417,7 +3423,7 @@ public class FunSQLLexer extends Lexer {
     // $ANTLR start "Z"
     public final void mZ() throws RecognitionException {
         try {
-            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1114:11: ( ( 'z' | 'Z' ) )
+            // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:1115:11: ( ( 'z' | 'Z' ) )
             // /Users/cbinnig/Workspace/XDB/src/org/xdb/funsql/compile/antlr/FunSQL.g:
             {
             if ( input.LA(1)=='Z'||input.LA(1)=='z' ) {

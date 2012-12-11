@@ -15,6 +15,11 @@ public abstract class AbstractClient {
 	// Helpers
 	protected Logger logger;
 
+	// getter and setter
+
+	public String getUrl() {
+		return url;
+	}	
 		
 	/**
 	 * Create error

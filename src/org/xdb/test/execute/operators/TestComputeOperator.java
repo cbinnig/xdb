@@ -13,7 +13,7 @@ public class TestComputeOperator extends TestCase {
 	@Test
 	public void test1Op() throws Exception {
 
-		Config.useQueryTrackerComputeConnection = false;
+		Config.COMPUTE_SIGNAL2QUERY_TRACKER = false;
 		//operator
 		final MySQLExecuteOperator op = new MySQLExecuteOperator(new Identifier("1"));
 		op.addOpenSQL("CREATE TEMPORARY TABLE REGION ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) " +
@@ -35,12 +35,12 @@ public class TestComputeOperator extends TestCase {
 		//close op
 		closeOperator(op);
 
-		Config.useQueryTrackerComputeConnection = true;
+		Config.COMPUTE_SIGNAL2QUERY_TRACKER = true;
 	}
 
 	@Test
 	public void test2Ops() throws Exception {
-		Config.useQueryTrackerComputeConnection = false; 
+		Config.COMPUTE_SIGNAL2QUERY_TRACKER = false; 
 		//first op
 		final MySQLExecuteOperator op1 = new MySQLExecuteOperator(new Identifier("1"));
 
@@ -77,7 +77,7 @@ public class TestComputeOperator extends TestCase {
 		closeOperator(op1);
 		closeOperator(op2);
 
-		Config.useQueryTrackerComputeConnection = true;
+		Config.COMPUTE_SIGNAL2QUERY_TRACKER = true;
 	}
 
 	protected void executeOperator(final AbstractExecuteOperator op){

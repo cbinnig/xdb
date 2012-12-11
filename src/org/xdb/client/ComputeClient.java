@@ -20,15 +20,9 @@ import org.xdb.utils.Identifier;
 public class ComputeClient extends AbstractClient{
 	// constructor
 	public ComputeClient() {
-		logger = XDBLog.getLogger(this.getClass().getName());
-		port = Config.COMPUTE_PORT;
-		url = Config.COMPUTE_URL;
-	}
-
-	public ComputeClient(final String url, final int port) {
-		logger = XDBLog.getLogger(this.getClass().getName());
-		this.port = port;
-		this.url = url;
+		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.port = Config.COMPUTE_PORT;
+		this.url = Config.COMPUTE_URL;
 	}
 
 	/**
@@ -42,7 +36,7 @@ public class ComputeClient extends AbstractClient{
 		Error err = new Error();
 
 		try {
-			server = new Socket(url, port);
+			server = new Socket(url, this.port);
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 
@@ -78,7 +72,7 @@ public class ComputeClient extends AbstractClient{
 
 
 		try {
-			server = new Socket(url, Config.COMPUTE_PORT);
+			server = new Socket(url, this.port);
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 			final ReadySignal signal = new ReadySignal(sourceOpId, destOpId);
@@ -148,7 +142,7 @@ public class ComputeClient extends AbstractClient{
 		final CloseSignal signal = new CloseSignal(operatorId);
 
 		try {
-			server = new Socket(url, Config.COMPUTE_PORT);
+			server = new Socket(url, this.port);
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 

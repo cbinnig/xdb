@@ -61,15 +61,6 @@ public abstract class AbstractExecuteOperator implements Serializable {
 		this.operatorId = nodeId;
 	}
 
-	public AbstractExecuteOperator(Identifier operatorId, String dbname,
-			String dbuser, String dbpasswd) {
-		this(operatorId);
-
-		this.dbname = dbname;
-		this.dbuser = dbuser;
-		this.dbpasswd = dbpasswd;
-	}
-
 	// getters and setters
 	public Identifier getOperatorId() {
 		return operatorId;
