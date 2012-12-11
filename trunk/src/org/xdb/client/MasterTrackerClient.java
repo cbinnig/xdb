@@ -22,7 +22,6 @@ import org.xdb.utils.Tuple;
  */
 public class MasterTrackerClient extends AbstractClient{
 	// constructor
-	// constructor
 	public MasterTrackerClient() {
 		logger = XDBLog.getLogger(this.getClass().getName());
 		port = Config.MASTERTRACKER_PORT;

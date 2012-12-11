@@ -27,68 +27,78 @@ public class QueryTrackerNode {
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 		this.masterTrackerClient = new MasterTrackerClient();
 		this.description = new QueryTrackerNodeDesc(Config.QUERYTRACKER_URL);
-		
+
 		final Error err = masterTrackerClient.registerNode(description);
-		if(err.isError()){
+		if (err.isError()) {
 			throw new IllegalArgumentException(err.toString());
 		}
 	}
 
-	//getters and setters
+	// getters and setters
 	public ComputeClient getComputeClient() {
 		return computeClient;
 	}
 
 	// methods
-	
+
 	/**
 	 * Execute given tracker plan
+	 * 
 	 * @param plan
 	 * @return
 	 */
 	public Error executePlan(final QueryTrackerPlan plan) {
 		plan.assignTracker(this);
-		
+
+		// 1. deploy plan on compute nodes
 		Error err = plan.deployPlan();
-		if(err.isError()){
+		if (err.isError()) {
 			plan.cleanPlanOnError();
 			return err;
 		}
-		
+
+		// 2. execute plan
 		err = plan.executePlan();
-		if(err.isError()){
+		if (err.isError()) {
 			plan.cleanPlanOnError();
 			return err;
 		}
-		
+
+		// 3. release compute node resources
 		err = masterTrackerClient.noticeFreeSlots(plan.getSlots());
-		if(err.isError()){
+		if (err.isError()) {
 			plan.cleanPlanOnError();
 			return err;
 		}
-		
-		err = plan.cleanPlan();
-		if(err.isError()){
-			plan.cleanPlanOnError();
-			return err;
+
+		// 4. clean result tables
+		if (Config.COMPUTE_CLEAN_RESULTS) {
+			err = plan.cleanPlan();
+			if (err.isError()) {
+				plan.cleanPlanOnError();
+				return err;
+			}
 		}
-		
+
 		return err;
 	}
 
 	/**
 	 * Method used to request ComputeNode-Slots from MasterTracker
+	 * 
 	 * @param requiredSlots
 	 * @return
 	 */
 	public Tuple<Map<String, MutableInteger>, Error> requestComputeSlots(
 			final Map<String, MutableInteger> requiredSlots) {
-		final Tuple<Map<String, MutableInteger>, Error> tuple = masterTrackerClient.requestComputeNodes(requiredSlots);
+		final Tuple<Map<String, MutableInteger>, Error> tuple = masterTrackerClient
+				.requestComputeNodes(requiredSlots);
 		return tuple;
 	}
 
 	/**
-	 * Signal operator that input is ready 
+	 * Signal operator that input is ready
+	 * 
 	 * @param op
 	 * @return
 	 */
@@ -100,8 +110,9 @@ public class QueryTrackerNode {
 			if (consumer != null) {
 				logger.log(Level.INFO,
 						"Send READY_SIGNAL from operator " + op.getOperatorId()
-						+ " to consumer: " + consumer);
-				err = computeClient.executeOperator(op.getOperatorId(), consumer);
+								+ " to consumer: " + consumer);
+				err = computeClient.executeOperator(op.getOperatorId(),
+						consumer);
 				if (err.isError()) {
 					return err;
 				}

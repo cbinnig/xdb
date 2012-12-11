@@ -1,6 +1,10 @@
 package org.xdb.execute;
 
 import java.net.InetAddress;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +19,7 @@ import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.client.QueryTrackerClient;
+import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
@@ -22,6 +27,7 @@ import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
+
 
 /**
  * Responsible to keep track of operators: - installs new operators - executes
@@ -39,17 +45,20 @@ public class ComputeNode {
 	private final Map<Identifier, HashSet<Identifier>> readySignals;
 	private final Lock readySignalsLock = new ReentrantLock();
 
-	//computing slots
+	// computing slots
 	private final ComputeNodeDesc computeNodeDesc;
 
-	// Helpers
-	private final Logger logger;
+	// Clients
 	private final ComputeClient computeClient;
 	private final MasterTrackerClient mTrackerClient;
 	private final QueryTrackerClient queryTrackerClient;
+	
+	// Helpers
+	private final Logger logger;
+	private Error err = new Error();
 
 	// constructors
-	public ComputeNode() throws Exception  {
+	public ComputeNode() throws Exception {
 		operators = Collections
 				.synchronizedMap(new HashMap<Identifier, AbstractExecuteOperator>());
 		readySignals = Collections
@@ -58,17 +67,20 @@ public class ComputeNode {
 		logger = XDBLog.getLogger(this.getClass().getName());
 		computeClient = new ComputeClient();
 		mTrackerClient = new MasterTrackerClient();
-		if (Config.useQueryTrackerComputeConnection) { 
-			queryTrackerClient = new QueryTrackerClient(Config.QUERYTRACKER_URL, Config.QUERYTRACKER_PORT);
-		} else {
+		if (Config.COMPUTE_SIGNAL2QUERY_TRACKER) {
+			queryTrackerClient = new QueryTrackerClient(
+					Config.QUERYTRACKER_URL, Config.QUERYTRACKER_PORT);
+		}
+		else{
 			queryTrackerClient = null;
 		}
 
 		final InetAddress addr = InetAddress.getLocalHost();
-		computeNodeDesc = new ComputeNodeDesc(addr.getHostAddress(), Config.COMPUTE_SLOTS);
+		computeNodeDesc = new ComputeNodeDesc(addr.getHostAddress(),
+				Config.COMPUTE_SLOTS);
 
 		final Error err = mTrackerClient.registerNode(computeNodeDesc);
-		if(err.isError()){
+		if (err.isError()) {
 			throw new IllegalArgumentException(err.toString());
 		}
 	}
@@ -80,8 +92,6 @@ public class ComputeNode {
 	 * @return
 	 */
 	public Error openOperator(final AbstractExecuteOperator op) {
-		Error err = new Error();
-
 		operators.put(op.getOperatorId(), op);
 
 		// open operator
@@ -99,7 +109,6 @@ public class ComputeNode {
 	 * @return
 	 */
 	public Error signalOperator(final ReadySignal signal) {
-		Error err = new Error();
 		final Identifier source = signal.getSource();
 		final Identifier consumer = signal.getConsumer();
 
@@ -112,7 +121,7 @@ public class ComputeNode {
 
 		logger.log(Level.INFO,
 				"Received READY_SIGNAL for operator: " + op.getOperatorId()
-				+ " from source: " + source);
+						+ " from source: " + source);
 
 		// Add source to sources
 		boolean execute = false;
@@ -148,8 +157,6 @@ public class ComputeNode {
 	 * @return
 	 */
 	public Error closeOperator(final CloseSignal signal) {
-		Error err = new Error();
-
 		// execute operator
 		final AbstractExecuteOperator op = operators.get(signal.getConsumer());
 		if (op != null) {
@@ -178,25 +185,27 @@ public class ComputeNode {
 		}
 
 		// send READY signal to QueryTracker
-		if (queryTrackerClient != null && Config.useQueryTrackerComputeConnection) {
-			logger.log(Level.INFO, "Send Ready-Signal from operator " + op.getOperatorId() + " to QueryTracker");
+		if (queryTrackerClient != null && Config.COMPUTE_SIGNAL2QUERY_TRACKER) {
+			logger.log(Level.INFO,
+					"Send READY_SIGNA from operator " + op.getOperatorId()
+							+ " to QueryTracker "+queryTrackerClient.getUrl());
 			err = queryTrackerClient.operatorReady(op);
-		}
-		
-		// TODO: Remove direct signaling
-		// send READY signal to consumer
-		final Set<OperatorDesc> consumers = op.getConsumers();
-		for (final OperatorDesc consumer : consumers) {
-			if (consumer != null) {
-				logger.log(Level.INFO,
-						"Send READY_SIGNAL from operator " + op.getOperatorId()
-						+ " to consumer: " + consumer);
+		} 
+		// send READY signal directly to consumer on local node
+		else {
+			final Set<OperatorDesc> consumers = op.getConsumers();
+			for (final OperatorDesc consumer : consumers) {
+				if (consumer != null) {
+					logger.log(Level.INFO, "Send READY_SIGNAL from operator "
+							+ op.getOperatorId() + " to consumer: " + consumer);
 
-				err = computeClient.executeOperator(op.getOperatorId(), consumer);
-				if (err.isError()) {
-					return err;
+					err = computeClient.executeOperator(op.getOperatorId(),
+							consumer);
+					if (err.isError()) {
+						return err;
+					}
+
 				}
-
 			}
 		}
 
@@ -211,5 +220,46 @@ public class ComputeNode {
 	private synchronized void removeOperator(final AbstractExecuteOperator op) {
 		operators.remove(op.getOperatorId());
 		readySignals.remove(op.getOperatorId());
+	}
+	
+	/**
+	 * Starts up compute node
+	 * @return
+	 */
+	public Error startup() {
+
+		
+		// open connection and compile/execute statements
+		try {
+
+			Class.forName(Config.COMPUTE_DRIVER_CLASS);
+			Connection conn = DriverManager.getConnection(Config.COMPUTE_DB_URL,
+					Config.COMPUTE_DB_USER, Config.COMPUTE_DB_PASSWD);
+			Statement stmt = conn.createStatement();
+			stmt.execute("DROP DATABASE "+Config.COMPUTE_DB_NAME);
+			stmt.execute("CREATE DATABASE "+Config.COMPUTE_DB_NAME);
+			stmt.close();
+			conn.close();
+
+		} catch (SQLException e) {
+			this.err = createMySQLError(e);
+		} catch (Exception e) {
+			this.err = createMySQLError(e);
+		}
+
+		return this.err;
+	}
+	
+	/**
+	 * Create MYSQL_ERROR from an exception
+	 * 
+	 * @param e
+	 *            Exception
+	 * @return Error
+	 */
+	protected Error createMySQLError(Exception e) {
+		String[] args = { e.toString() + "," + e.getCause() };
+		Error err = new Error(EnumError.MYSQL_ERROR, args);
+		return err;
 	}
 }

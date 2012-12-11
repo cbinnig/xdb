@@ -39,6 +39,9 @@ public abstract class AbstractServer {
 	 * Starts server thread on local node
 	 */
 	public synchronized void startServer() {
+		if(this.err.isError())
+			return;
+		
 		serverThread = new ServerThread(this);
 		serverThread.start();
 

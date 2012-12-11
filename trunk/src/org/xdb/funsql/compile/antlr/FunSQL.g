@@ -48,11 +48,11 @@ tokens {
     COLON               =   ':';
 }
 
-/*@rulecatch {
+@rulecatch {
     catch (RecognitionException e) {
         throw e;
     }
-}*/
+}
 
 @parser::header { 
 package org.xdb.funsql.compile.antlr; 
@@ -63,7 +63,7 @@ import org.xdb.funsql.compile.tokens.*;
 import org.xdb.funsql.statement.*;
 }
 
-/*@parser::members {
+@parser::members {
   @Override
   protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow) throws RecognitionException {
     throw new MismatchedTokenException(ttype, input);
@@ -73,18 +73,18 @@ import org.xdb.funsql.statement.*;
   public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow) throws RecognitionException {
     throw e;
   }
-}*/
+}
 
 @lexer::header { 
 package org.xdb.funsql.compile.antlr;
 }
 
-/*@lexer::members {
+@lexer::members {
     @Override
     public void reportError(RecognitionException e) {
         throw new RuntimeException(e);
     }
-}*/  
+}  
 
 /*------------------------------------------------------------------
  * PARSER RULES
@@ -1005,7 +1005,8 @@ tokenCompOperator
     LESS_EQUAL1 |
     LESS_EQUAL2 |
     GREATER_EQUAL1 |
-    GREATER_EQUAL2
+    GREATER_EQUAL2 |
+    GREATER_THAN
     )
     ;
     

@@ -26,12 +26,6 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 		super(operatorId);
 	}
 
-	public MySQLExecuteOperator(final Identifier operatorId, final String dbname, final String dbuser,
-			final String dbpasswd) {
-
-		super(operatorId, dbname, dbuser, dbpasswd);
-	}
-
 	// getters and setters
 	public void addExecuteSQL(final String dml) {
 		//System.out.println(dml);

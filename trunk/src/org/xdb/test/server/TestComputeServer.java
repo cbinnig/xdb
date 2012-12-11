@@ -20,7 +20,7 @@ public class TestComputeServer extends ComputeServerTestCase {
 
 	@Test
 	public void test1Node() throws Exception {
-		Config.useQueryTrackerComputeConnection = false;
+		Config.COMPUTE_SIGNAL2QUERY_TRACKER = false;
 
 		// operator
 		final MySQLExecuteOperator op = new MySQLExecuteOperator(new Identifier("1"));
@@ -44,13 +44,13 @@ public class TestComputeServer extends ComputeServerTestCase {
 		// clean up
 		assertNoError(client.closeOperator(nodes[0], op.getOperatorId()));
 
-		Config.useQueryTrackerComputeConnection = true;
+		Config.COMPUTE_SIGNAL2QUERY_TRACKER = true;
 	}
 
 
 	@Test
 	public void test2Nodes() throws Exception {
-		Config.useQueryTrackerComputeConnection = false;
+		Config.COMPUTE_SIGNAL2QUERY_TRACKER = false;
 
 		// first op
 		final MySQLExecuteOperator op1 = new MySQLExecuteOperator(new Identifier("1"));
@@ -91,6 +91,6 @@ public class TestComputeServer extends ComputeServerTestCase {
 		assertNoError(client.closeOperator(nodes[0], op1.getOperatorId()));
 		assertNoError(client.closeOperator(nodes[1], op2.getOperatorId()));
 
-		Config.useQueryTrackerComputeConnection = true;
+		Config.COMPUTE_SIGNAL2QUERY_TRACKER = true;
 	}
 }

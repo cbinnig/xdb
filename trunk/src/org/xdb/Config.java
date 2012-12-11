@@ -30,7 +30,9 @@ public class Config implements Serializable {
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
 	public static int COMPUTE_SLOTS = 32;
 	public static String COMPUTE_URL = "127.0.0.1";
-
+	public static boolean COMPUTE_SIGNAL2QUERY_TRACKER = true;
+	public static boolean COMPUTE_CLEAN_RESULTS = true;
+	
 	// Compile Server
 	public static String METADATA_DRIVER_CLASS = "com.mysql.jdbc.Driver";
 	public static String METADATA_DB_URL = "jdbc:mysql://127.0.0.1/xdb_schema";
@@ -71,8 +73,7 @@ public class Config implements Serializable {
 	public static boolean TRACE_OPTIMIZED_PLAN = false;
 	public static boolean TRACE_TRACKER_PLAN = false;
 	
-	// Debugging and Testing
-	public static boolean useQueryTrackerComputeConnection = true;
+	
 
 	// load properties from file
 	static {
@@ -85,7 +86,7 @@ public class Config implements Serializable {
 				"MASTERTRACKER_URL", "MASTERTRACKER_PORT", "QUERYTRACKER_URL",
 				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS" };
 
-		String[] boolProperties = { "TRACE_COMPILE_PLAN",
+		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS", "TRACE_COMPILE_PLAN",
 				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN" };
 
 		String CONFIG_FILE = "./config/xdb.conf";
@@ -121,7 +122,6 @@ public class Config implements Serializable {
 				for(char bit: ruleBitSet.toCharArray()){
 					OPTIMIZER_ACTIVE_RULES.set(i++, (bit=='1')?true:false);
 				}
-				System.out.println(OPTIMIZER_ACTIVE_RULES.toString());
 			}
 
 		} catch (Exception e) {
