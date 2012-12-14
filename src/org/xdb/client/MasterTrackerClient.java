@@ -3,7 +3,6 @@ package org.xdb.client;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.xdb.Config;
@@ -28,13 +27,12 @@ public class MasterTrackerClient extends AbstractClient{
 		url = Config.MASTERTRACKER_URL;
 	}
 
-	public MasterTrackerClient(final String url, final int port) {
-		logger = XDBLog.getLogger(this.getClass().getName());
-		this.port = port;
-		this.url = url;
-	}
-
-
+	/**
+	 * Register a compute node at the master tracker server 
+	 * 
+	 * @param desc
+	 * @return
+	 */
 	public Error registerNode(final ComputeNodeDesc desc) {
 		Error err = new Error();
 		final RegisterSignal<ComputeNodeDesc> signal = new RegisterSignal<ComputeNodeDesc>(desc);
@@ -63,7 +61,7 @@ public class MasterTrackerClient extends AbstractClient{
 	}
 
 	/**
-	 * Method to register new QueryTrackerNodes at the MasterTrackerServer
+	 * Register new query tracker node at the master tracker server
 	 * @param desc
 	 * @return
 	 */
@@ -94,6 +92,11 @@ public class MasterTrackerClient extends AbstractClient{
 		return err;
 	}
 
+	/**
+	 * Execute compile plan using master tracker server
+	 * @param plan
+	 * @return
+	 */
 	public Error executePlan(final CompilePlan plan) {
 		Error err = new Error();
 
@@ -120,6 +123,12 @@ public class MasterTrackerClient extends AbstractClient{
 		return err;
 	}
 
+	/**
+	 * Request compute nodes from master tracker server for execution
+	 * 
+	 * @param requiredNodes 
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public Tuple<Map<String, MutableInteger>, Error> requestComputeNodes(final Map<String, MutableInteger> requiredNodes) {
 		Error err = new Error();
@@ -144,7 +153,12 @@ public class MasterTrackerClient extends AbstractClient{
 		return new Tuple<Map<String, MutableInteger>, Error>(computeNodes, err);
 	}
 
-	public Error noticeFreeSlots(final HashMap<String, MutableInteger> slots) {
+	/**
+	 * Return free slots to master tracker server
+	 * @param slots
+	 * @return
+	 */
+	public Error noticeFreeSlots(final Map<String, MutableInteger> slots) {
 		Error err = new Error();
 		try {
 			server = new Socket(url, port);

@@ -18,7 +18,7 @@ public class QueryTrackerServer extends AbstractServer {
 
 	private final QueryTrackerNode tracker;
 
-	public QueryTrackerServer() {
+	public QueryTrackerServer() throws Exception{
 		super();
 
 		port = Config.QUERYTRACKER_PORT;
@@ -72,8 +72,9 @@ public class QueryTrackerServer extends AbstractServer {
 
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws Exception {
 		final QueryTrackerServer server = new QueryTrackerServer();
 		server.startServer();
 	}

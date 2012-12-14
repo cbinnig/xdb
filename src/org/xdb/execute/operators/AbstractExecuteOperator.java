@@ -24,6 +24,9 @@ public abstract class AbstractExecuteOperator implements Serializable {
 
 	// connection
 	protected transient Connection conn;
+	
+	// query tracker URL
+	protected String queryTracker;
 
 	// database parameters
 	protected String dburl = Config.COMPUTE_DB_URL;
@@ -62,6 +65,14 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	}
 
 	// getters and setters
+	public void setQueryTracker(String url){
+		this.queryTracker = url;
+	}
+	
+	public String getQueryTracker(){
+		return this.queryTracker;
+	}
+	
 	public Identifier getOperatorId() {
 		return operatorId;
 	}

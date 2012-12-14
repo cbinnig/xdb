@@ -37,7 +37,7 @@ public class MasterTrackerNode {
 	// running plans by plan identifier
 	private final HashMap<Identifier, QueryTrackerPlan> runningPlans = new HashMap<Identifier, QueryTrackerPlan>();
 
-	// running plans with executing tracker identifier
+	// running plans with executing query tracker url
 	private final HashMap<Identifier, String> planAssignment = new HashMap<Identifier, String>();
 
 	// logger

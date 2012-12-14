@@ -33,6 +33,9 @@ public abstract class AbstractResourceScheduler {
 		switch(Config.RESOURCE_SCHEDULER){
 		case SIMPLE_SCHEDULER:
 			return new SimpleResourceScheduler(plan);
+		case LOCALITY_AWARE_SCHEDULER:
+			return new LocalityAwareScheduler(plan);
+		
 		}
 		return new SimpleResourceScheduler(plan);
 	}

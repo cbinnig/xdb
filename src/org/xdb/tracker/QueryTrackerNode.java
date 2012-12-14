@@ -1,5 +1,6 @@
 package org.xdb.tracker;
 
+import java.net.InetAddress;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -22,11 +23,13 @@ public class QueryTrackerNode {
 	private final QueryTrackerNodeDesc description;
 	private final Logger logger;
 
-	public QueryTrackerNode() {
+	public QueryTrackerNode() throws Exception{
 
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 		this.masterTrackerClient = new MasterTrackerClient();
-		this.description = new QueryTrackerNodeDesc(Config.QUERYTRACKER_URL);
+		
+		final InetAddress addr = InetAddress.getLocalHost();
+		this.description = new QueryTrackerNodeDesc(addr.getHostAddress());
 
 		final Error err = masterTrackerClient.registerNode(description);
 		if (err.isError()) {
@@ -37,6 +40,10 @@ public class QueryTrackerNode {
 	// getters and setters
 	public ComputeClient getComputeClient() {
 		return computeClient;
+	}
+	
+	public String getUrl(){
+		return this.description.getUrl();
 	}
 
 	// methods

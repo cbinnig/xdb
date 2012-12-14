@@ -69,8 +69,16 @@ public abstract class AbstractTrackerOperator implements Serializable {
 		inTableDesc.put(tableName, tableDesc);
 	}
 
+	public Collection<TableDesc> getInTableSources(){
+		return this.inTableDesc.values();
+	}
+	
 	public void addInTable(final String tableName, final StringTemplate tableDDL) {
 		inTables.put(tableName, tableDDL);
+	}
+	
+	public Collection<StringTemplate> getInTables() {
+		return inTables.values();
 	}
 	
 	public void addOutTable(final String tableName, final StringTemplate tableDDL) {
@@ -206,9 +214,5 @@ public abstract class AbstractTrackerOperator implements Serializable {
 		final Identifier newOperId = operatorId.clone();
 		newOperId.append(operDesc.getOperatorID().toString());
 		return newOperId;
-	}
-	
-	public Collection<StringTemplate> getInTables() {
-		return inTables.values();
 	}
 }
