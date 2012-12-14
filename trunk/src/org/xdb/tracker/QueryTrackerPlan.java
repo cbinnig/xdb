@@ -86,7 +86,7 @@ public class QueryTrackerPlan implements Serializable {
 		return Collections.unmodifiableMap(operators);
 	}
 	
-	public HashMap<String, MutableInteger> getSlots() {
+	public Map<String, MutableInteger> getSlots() {
 		return slots;
 	}
 	
@@ -108,6 +108,14 @@ public class QueryTrackerPlan implements Serializable {
 
 	public HashSet<Identifier> getRoots() {
 		return roots;
+	}
+	
+	public Set<Identifier> getSources(Identifier opId){
+		return this.sources.get(opId);
+	}
+	
+	public Set<Identifier> getConsumers(Identifier opId){
+		return this.consumers.get(opId);
 	}
 
 	public Error getLastError() {
@@ -371,7 +379,8 @@ public class QueryTrackerPlan implements Serializable {
 			// create executable operator and set consumers / sources
 			final AbstractExecuteOperator deployOper = oper.genDeployOperator(
 					deployOperDesc, currentDeployment);
-
+			deployOper.setQueryTracker(this.tracker.getUrl());
+			
 			for (final Identifier consumerId : consumers.get(operId)) {
 				final OperatorDesc consumerDesc = currentDeployment
 						.get(consumerId);

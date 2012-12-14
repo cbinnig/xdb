@@ -9,13 +9,13 @@ import org.xdb.utils.Identifier;
 import org.xdb.utils.MutableInteger;
 
 /**
- * Simple resource scheduler
+ * Simple resource scheduler which assigns compute slots randomly to operators 
  * 
  * @author cbinnig
  * 
  */
 public class SimpleResourceScheduler extends AbstractResourceScheduler {
-	private Map<String, MutableInteger> slots;
+	private Map<String, MutableInteger> slots = new HashMap<String, MutableInteger>();
 	
 	protected SimpleResourceScheduler(final QueryTrackerPlan plan) {
 		super(plan);
@@ -59,6 +59,6 @@ public class SimpleResourceScheduler extends AbstractResourceScheduler {
 
 	@Override
 	public void assignSlots(Map<String, MutableInteger> slots) {
-		this.slots = slots;
+		this.slots.putAll(slots);
 	}
 }

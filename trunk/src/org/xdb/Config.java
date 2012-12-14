@@ -32,7 +32,7 @@ public class Config implements Serializable {
 	public static String COMPUTE_URL = "127.0.0.1";
 	public static boolean COMPUTE_SIGNAL2QUERY_TRACKER = true;
 	public static boolean COMPUTE_CLEAN_RESULTS = true;
-	
+
 	// Compile Server
 	public static String METADATA_DRIVER_CLASS = "com.mysql.jdbc.Driver";
 	public static String METADATA_DB_URL = "jdbc:mysql://127.0.0.1/xdb_schema";
@@ -46,8 +46,8 @@ public class Config implements Serializable {
 	public static String COMPILE_URL = "127.0.0.1";
 	public static String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
 	public static BitSet OPTIMIZER_ACTIVE_RULES = new BitSet();
-	
-	static{
+
+	static {
 		OPTIMIZER_ACTIVE_RULES.set(0, true);
 		OPTIMIZER_ACTIVE_RULES.set(1, true);
 		OPTIMIZER_ACTIVE_RULES.set(2, true);
@@ -61,7 +61,7 @@ public class Config implements Serializable {
 	public static int QUERYTRACKER_PORT = 55558;
 	public static int QUERYTRACKER_SLOTS = 32;
 	public static String QUERYTRACKER_URL = "127.0.0.1";
-	public static EnumResourceScheduler RESOURCE_SCHEDULER = EnumResourceScheduler.SIMPLE_SCHEDULER;
+	public static EnumResourceScheduler RESOURCE_SCHEDULER = EnumResourceScheduler.LOCALITY_AWARE_SCHEDULER;
 
 	public static String LOG_FILE = "./log/xdb.log";
 	public static Level LOG_LEVEL = Level.SEVERE;
@@ -72,22 +72,24 @@ public class Config implements Serializable {
 	public static boolean TRACE_COMPILE_PLAN = false;
 	public static boolean TRACE_OPTIMIZED_PLAN = false;
 	public static boolean TRACE_TRACKER_PLAN = false;
-	
-	
 
 	// load properties from file
 	static {
 		load();
 	}
 
+	/**
+	 * Load user configuration from file and override default values
+	 */
 	private static void load() {
 		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
 				"COMPUTE_SLOTS", "COMPILE_URL", "COMPILE_PORT",
 				"MASTERTRACKER_URL", "MASTERTRACKER_PORT", "QUERYTRACKER_URL",
 				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS" };
 
-		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS", "TRACE_COMPILE_PLAN",
-				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN" };
+		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS",
+				"TRACE_COMPILE_PLAN", "TRACE_OPTIMIZED_PLAN",
+				"TRACE_TRACKER_PLAN" };
 
 		String CONFIG_FILE = "./config/xdb.conf";
 		Properties props;
@@ -95,32 +97,34 @@ public class Config implements Serializable {
 		try {
 			props.load(new FileReader(CONFIG_FILE));
 			for (String intProperty : intProperties) {
-				if (props.containsKey(intProperty)){
+				if (props.containsKey(intProperty)) {
 					Config.class.getField(intProperty)
 							.setInt(null,
 									Integer.parseInt(props.get(intProperty)
 											.toString()));
 				}
 			}
-			
+
 			for (String boolProperty : boolProperties) {
-				if (props.containsKey(boolProperty)){
-					Config.class.getField(boolProperty)
-							.setBoolean(null,
-									Boolean.parseBoolean(props.get(boolProperty)
-											.toString()));;
+				if (props.containsKey(boolProperty)) {
+					Config.class.getField(boolProperty).setBoolean(
+							null,
+							Boolean.parseBoolean(props.get(boolProperty)
+									.toString()));
+					;
 				}
 			}
 
-			if (props.containsKey("LOG_LEVEL")){
+			if (props.containsKey("LOG_LEVEL")) {
 				LOG_LEVEL = Level.parse(props.getProperty("LOG_LEVEL"));
 			}
-			
-			if(props.containsKey("OPTIMIZER_ACTIVE_RULES")){
+
+			if (props.containsKey("OPTIMIZER_ACTIVE_RULES")) {
 				String ruleBitSet = props.getProperty("OPTIMIZER_ACTIVE_RULES");
-				int i=0;
-				for(char bit: ruleBitSet.toCharArray()){
-					OPTIMIZER_ACTIVE_RULES.set(i++, (bit=='1')?true:false);
+				int i = 0;
+				for (char bit : ruleBitSet.toCharArray()) {
+					OPTIMIZER_ACTIVE_RULES
+							.set(i++, (bit == '1') ? true : false);
 				}
 			}
 

@@ -67,7 +67,9 @@ public class ComputeNode {
 		logger = XDBLog.getLogger(this.getClass().getName());
 		computeClient = new ComputeClient();
 		mTrackerClient = new MasterTrackerClient();
+		
 		if (Config.COMPUTE_SIGNAL2QUERY_TRACKER) {
+			//TODO: use correct url of query tracker
 			queryTrackerClient = new QueryTrackerClient(
 					Config.QUERYTRACKER_URL, Config.QUERYTRACKER_PORT);
 		}

@@ -15,20 +15,18 @@ import org.xdb.server.CompileServer;
  */
 public class CompileClient extends AbstractClient{
 
-	// constructor
+	// constructors
 	public CompileClient() {
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 		this.port = Config.COMPILE_PORT;
 		this.url = Config.COMPILE_URL;
 	}
-	
-	public CompileClient(String url, int port) {
-		this.logger = XDBLog.getLogger(this.getClass().getName());
-		this.port = port;
-		this.url = url;
-	}
 
-	
+	/**
+	 * Execute a given FunSQL statement on compile server
+	 * @param stmt
+	 * @return
+	 */
 	public Error executeStmt(String stmt) {
 		Error err = new Error();
 		ClientStmt clientStmt = new ClientStmt(stmt);

@@ -7,20 +7,30 @@ import java.util.logging.Logger;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 
+/**
+ * Abstract client implementation to talk to server components via sockets
+ * 
+ * @author cbinnig
+ * 
+ */
 public abstract class AbstractClient {
+	// Server Socket
 	protected Socket server;
+
+	// Port for Socket
 	protected int port;
+
+	// URL of server
 	protected String url;
-	
+
 	// Helpers
 	protected Logger logger;
 
 	// getter and setter
-
 	public String getUrl() {
 		return url;
-	}	
-		
+	}
+
 	/**
 	 * Create error
 	 * 

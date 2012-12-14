@@ -26,8 +26,7 @@ public class ComputeClient extends AbstractClient{
 	}
 
 	/**
-	 * Installs operator on node
-	 * 
+	 * Installs operator on given node (URL)
 	 * @param url
 	 * @param op
 	 * @return

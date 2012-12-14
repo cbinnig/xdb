@@ -12,14 +12,13 @@ import org.xdb.server.QueryTrackerServer;
 import org.xdb.tracker.QueryTrackerPlan;
 
 /**
- * Client for QueryTrackerServer
+ * Client to talk to Query Tracker Server
  * 
  * @author Timo Jacobs
  */
 public class QueryTrackerClient extends AbstractClient{
 
-	private ObjectInputStream in = null;
-
+	// constructors
 	public QueryTrackerClient(final String url) {
 		this(url, Config.QUERYTRACKER_PORT);
 	}
@@ -30,6 +29,11 @@ public class QueryTrackerClient extends AbstractClient{
 		this.url = url;
 	}
 
+	/**
+	 * Execute query tracker plan using query tracker server
+	 * @param plan
+	 * @return
+	 */
 	public Error executePlan(final QueryTrackerPlan plan) {
 		Error err = new Error();
 
@@ -43,7 +47,7 @@ public class QueryTrackerClient extends AbstractClient{
 			out.writeObject(plan);
 			out.flush();
 
-			in = new ObjectInputStream(
+			final ObjectInputStream in = new ObjectInputStream(
 					server.getInputStream());
 			err = (Error) in.readObject();
 
@@ -56,10 +60,17 @@ public class QueryTrackerClient extends AbstractClient{
 		return err;
 	}
 
+	/**
+	 * Signal query tracker that operator is ready 
+	 * 
+	 * @param op
+	 * @return
+	 */
 	public Error operatorReady(final AbstractExecuteOperator op) {
 		Error err = new Error();
 		try {
 			server = new Socket(url, port);
+			
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 
