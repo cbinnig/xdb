@@ -317,7 +317,7 @@ public class QueryTrackerPlan implements Serializable {
 	
 	/**
 	 * Prepare deployment of plan by assigning operators
-	 * to compute nodes 
+	 * to compute nodes using a resource scheduler
 	 */
 	private void prepareDeployment(){
 		for (final Identifier leave : leaves) {
@@ -336,28 +336,28 @@ public class QueryTrackerPlan implements Serializable {
 	private void prepareDeployment(final Identifier operId) {
 
 		// operator already deployed
-		if (currentDeployment.containsKey(operId)) {
+		if (this.currentDeployment.containsKey(operId)) {
 			return;
 		}
 
-		// identify best used node
+		// identify best slot using a resource scheduler
 		String assignedSlot = this.resourceScheduler.getSlot(operId);
 		if(assignedSlot == null){
 			String args[] = {"No slot could be assigned for operator "+operId.toString()};
-			this.err = new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, args);
+			this.err = new Error(EnumError.TRACKER_GENERIC, args);
 			return;
 		}
 
-		// generate deployment description from plan operator
+		// generate deployment description from operator
 		final Identifier deployOperId = operId.clone();
 		deployOperId.append(lastDeployOperId++);
 		final OperatorDesc deployOperDesc = new OperatorDesc(deployOperId,
 				assignedSlot);
 
-		// add to current deployment description
+		// add to operator and deployment description to current deployment 
 		currentDeployment.put(operId, deployOperDesc);
 
-		// prepare deployment of consumers
+		// prepare deployment of all consumers
 		for (final Identifier consumerId : consumers.get(operId)) {
 			prepareDeployment(consumerId);
 		}
@@ -365,36 +365,41 @@ public class QueryTrackerPlan implements Serializable {
 
 
 	/**
-	 * Distributes plan using a given deployment description
+	 * Distributes plan to assigned compute nodes
+	 * using a given deployment description
 	 * 
 	 * @param currentDeployment
 	 */
 	private void distributePlan() {
-		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
+		// distribute all operators in deployment
+		for (final Entry<Identifier, OperatorDesc> entry : this.currentDeployment
 				.entrySet()) {
 			final Identifier operId = entry.getKey();
 			final OperatorDesc deployOperDesc = entry.getValue();
 			final AbstractTrackerOperator oper = operators.get(operId);
 
-			// create executable operator and set consumers / sources
+			// create executable operator and set query tracker URL
 			final AbstractExecuteOperator deployOper = oper.genDeployOperator(
 					deployOperDesc, currentDeployment);
-			deployOper.setQueryTracker(this.tracker.getUrl());
+			deployOper.setQueryTracker(this.tracker.getDescription());
 			
+			// set consumers of operator
 			for (final Identifier consumerId : consumers.get(operId)) {
 				final OperatorDesc consumerDesc = currentDeployment
 						.get(consumerId);
 				deployOper.addConsumer(consumerDesc);
 			}
 
+			// set sources of operator
 			for (final Identifier sourceId : sources.get(operId)) {
 				final OperatorDesc sourceDesc = currentDeployment.get(sourceId);
 				deployOper.addSource(sourceDesc);
 			}
 
-			// deploy operator
+			// distribute operator to compute node
 			err = computeClient.openOperator(deployOperDesc.getOperatorNode(),
 					deployOper);
+			
 			if (err.isError())
 				return;
 		}

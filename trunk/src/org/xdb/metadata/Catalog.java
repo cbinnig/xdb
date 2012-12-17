@@ -158,7 +158,7 @@ public class Catalog {
 			String tableName, String attName) {
 		String[] args = { tableName, attName };
 		Error lastError = new Error(
-				EnumError.CREATE_TABLE_DUPLICATE_ATTRIBUTES, args);
+				EnumError.CATALOG_TABLE_DUP_ATTS, args);
 		return lastError;
 	}
 

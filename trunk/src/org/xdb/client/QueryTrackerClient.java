@@ -20,17 +20,14 @@ public class QueryTrackerClient extends AbstractClient{
 
 	// constructors
 	public QueryTrackerClient(final String url) {
-		this(url, Config.QUERYTRACKER_PORT);
-	}
-
-	public QueryTrackerClient(final String url, final int port) {
-		logger = XDBLog.getLogger(this.getClass().getName());
-		this.port = port;
+		this.port =  Config.QUERYTRACKER_PORT;
 		this.url = url;
+		
+		this.logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
 	/**
-	 * Execute query tracker plan using query tracker server
+	 * Execute query tracker plan on query tracker 
 	 * @param plan
 	 * @return
 	 */
@@ -61,7 +58,7 @@ public class QueryTrackerClient extends AbstractClient{
 	}
 
 	/**
-	 * Signal query tracker that operator is ready 
+	 * Signal query tracker that a given operator is ready 
 	 * 
 	 * @param op
 	 * @return

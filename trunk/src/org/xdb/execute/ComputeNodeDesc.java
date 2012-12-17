@@ -4,6 +4,11 @@ import java.io.Serializable;
 
 import org.xdb.Config;
 
+/**
+ * Compute node description 
+ * @author cbinnig
+ *
+ */
 public class ComputeNodeDesc implements Serializable {
 
 	private static final long serialVersionUID = 995523462711933305L;
@@ -18,11 +23,6 @@ public class ComputeNodeDesc implements Serializable {
 	public ComputeNodeDesc(String url) {
 		this.url = url;
 		this.slots = Config.COMPUTE_SLOTS;
-	}
-
-	public ComputeNodeDesc(String url, Integer slots) {
-		this.url = url;
-		this.slots = slots;
 	}
 
 	// getters and setters

@@ -3,7 +3,7 @@ package org.xdb.error;
 import java.io.Serializable;
 
 /**
- * Error implementation
+ * XDB Error implementation
  * 
  * @author cbinnig
  * 
@@ -15,6 +15,7 @@ public class Error implements Serializable {
 	private EnumError type = EnumError.NO_ERROR;
 	private String[] args = null;
 
+	// constructors
 	public Error() {
 	}
 
@@ -23,6 +24,7 @@ public class Error implements Serializable {
 		this.args = args;
 	}
 
+	// methods
 	public boolean isError() {
 		return this.type != EnumError.NO_ERROR;
 	}

@@ -30,8 +30,11 @@ import org.xdb.utils.Identifier;
 
 
 /**
- * Responsible to keep track of operators: - installs new operators - executes
- * operators - closes operators on one node
+ * Responsible to keep track of operators: 
+ * - installs new operators 
+ * - executes operators 
+ * - closes operators 
+ * on compute node
  * 
  * @author cbinnig
  * 
@@ -42,51 +45,68 @@ public class ComputeNode {
 	private final Map<Identifier, AbstractExecuteOperator> operators;
 
 	// Map of consumer -> sources which are ready
-	private final Map<Identifier, HashSet<Identifier>> readySignals;
+	private final Map<Identifier, HashSet<Identifier>> receivedReadySignals;
 	private final Lock readySignalsLock = new ReentrantLock();
 
-	// computing slots
+	// Compute node slot description (i.e., available threads on node)
 	private final ComputeNodeDesc computeNodeDesc;
 
-	// Clients
+	// Clients for communication
 	private final ComputeClient computeClient;
 	private final MasterTrackerClient mTrackerClient;
-	private final QueryTrackerClient queryTrackerClient;
 	
 	// Helpers
 	private final Logger logger;
-	private Error err = new Error();
 
 	// constructors
 	public ComputeNode() throws Exception {
-		operators = Collections
+		this.operators = Collections
 				.synchronizedMap(new HashMap<Identifier, AbstractExecuteOperator>());
-		readySignals = Collections
+		this.receivedReadySignals = Collections
 				.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());
 
-		logger = XDBLog.getLogger(this.getClass().getName());
-		computeClient = new ComputeClient();
-		mTrackerClient = new MasterTrackerClient();
-		
-		if (Config.COMPUTE_SIGNAL2QUERY_TRACKER) {
-			//TODO: use correct url of query tracker
-			queryTrackerClient = new QueryTrackerClient(
-					Config.QUERYTRACKER_URL, Config.QUERYTRACKER_PORT);
-		}
-		else{
-			queryTrackerClient = null;
-		}
-
 		final InetAddress addr = InetAddress.getLocalHost();
-		computeNodeDesc = new ComputeNodeDesc(addr.getHostAddress(),
-				Config.COMPUTE_SLOTS);
+		computeNodeDesc = new ComputeNodeDesc(addr.getHostAddress());
 
+		this.computeClient = new ComputeClient();
+		this.mTrackerClient = new MasterTrackerClient();
 		final Error err = mTrackerClient.registerNode(computeNodeDesc);
 		if (err.isError()) {
 			throw new IllegalArgumentException(err.toString());
 		}
+		
+		logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
+
+	/**
+	 * Starts up compute node and drops all temporary
+	 * tables of compute DB by recreating the database
+	 * @return
+	 */
+	public Error startup() {
+		// recreate tmp database of compute node
+		Error err = new Error();
+		try {
+
+			Class.forName(Config.COMPUTE_DRIVER_CLASS);
+			Connection conn = DriverManager.getConnection(Config.COMPUTE_DB_URL,
+					Config.COMPUTE_DB_USER, Config.COMPUTE_DB_PASSWD);
+			Statement stmt = conn.createStatement();
+			stmt.execute("DROP DATABASE "+Config.COMPUTE_DB_NAME);
+			stmt.execute("CREATE DATABASE "+Config.COMPUTE_DB_NAME);
+			stmt.close();
+			conn.close();
+
+		} catch (SQLException e) {
+			err = createMySQLError(e);
+		} catch (Exception e) {
+			err = createMySQLError(e);
+		}
+
+		return err;
+	}
+	
 	/**
 	 * Installs a new operator and prepares operator for execution
 	 * 
@@ -94,6 +114,8 @@ public class ComputeNode {
 	 * @return
 	 */
 	public Error openOperator(final AbstractExecuteOperator op) {
+		Error err = new Error();
+
 		operators.put(op.getOperatorId(), op);
 
 		// open operator
@@ -104,17 +126,19 @@ public class ComputeNode {
 	}
 
 	/**
-	 * Receives signals of inputs which are ready and executes operator when all
-	 * inputs are ready
+	 * Receives signals of input operators which are ready and 
+	 * executes consuming operator if all inputs are ready
 	 * 
 	 * @param signal
 	 * @return
 	 */
 	public Error signalOperator(final ReadySignal signal) {
+		Error err = new Error();
+
 		final Identifier source = signal.getSource();
 		final Identifier consumer = signal.getConsumer();
 
-		// Get node
+		// Get signaled operator
 		AbstractExecuteOperator op = null;
 		op = operators.get(consumer);
 		if (op == null) {
@@ -125,26 +149,26 @@ public class ComputeNode {
 				"Received READY_SIGNAL for operator: " + op.getOperatorId()
 						+ " from source: " + source);
 
-		// Add source to sources
+		// Add signaling source to list of finished sources
 		boolean execute = false;
-		readySignalsLock.lock();
+		this.readySignalsLock.lock();
 		HashSet<Identifier> sourceIds = null;
-		if (!readySignals.containsKey(consumer)) {
+		if (!this.receivedReadySignals.containsKey(consumer)) {
 			sourceIds = new HashSet<Identifier>();
-			readySignals.put(source, sourceIds);
+			this.receivedReadySignals.put(source, sourceIds);
 		} else {
-			sourceIds = readySignals.get(source);
+			sourceIds = this.receivedReadySignals.get(source);
 		}
 		sourceIds.add(source);
 
 		if (sourceIds.containsAll(op.getSourceIds())) {
-			logger.log(Level.INFO, "All signals received to execute operator: "
+			logger.log(Level.INFO, "All READY_SIGNALs received for operator: "
 					+ op.getOperatorId());
 			execute = true;
 		}
 		readySignalsLock.unlock();
 
-		// execute operator and send signal to consumer
+		// execute operator 
 		if (execute) {
 			err = executeOperator(op);
 		}
@@ -159,6 +183,8 @@ public class ComputeNode {
 	 * @return
 	 */
 	public Error closeOperator(final CloseSignal signal) {
+		Error err = new Error();
+
 		// execute operator
 		final AbstractExecuteOperator op = operators.get(signal.getConsumer());
 		if (op != null) {
@@ -186,14 +212,15 @@ public class ComputeNode {
 			return err;
 		}
 
-		// send READY signal to QueryTracker
+		// send READY_SIGNAL to QueryTracker
+		QueryTrackerClient queryTrackerClient = op.getQueryTrackerClient();
 		if (queryTrackerClient != null && Config.COMPUTE_SIGNAL2QUERY_TRACKER) {
 			logger.log(Level.INFO,
-					"Send READY_SIGNA from operator " + op.getOperatorId()
-							+ " to QueryTracker "+queryTrackerClient.getUrl());
+					"Send READY_SIGNAL from operator " + op.getOperatorId()
+							+ " to Query Tracker "+queryTrackerClient.getUrl());
 			err = queryTrackerClient.operatorReady(op);
 		} 
-		// send READY signal directly to consumer on local node
+		// send READY_SIGNAL directly to consumer on local node using w/o query tracker
 		else {
 			final Set<OperatorDesc> consumers = op.getConsumers();
 			for (final OperatorDesc consumer : consumers) {
@@ -206,7 +233,6 @@ public class ComputeNode {
 					if (err.isError()) {
 						return err;
 					}
-
 				}
 			}
 		}
@@ -220,36 +246,8 @@ public class ComputeNode {
 	 * @param op
 	 */
 	private synchronized void removeOperator(final AbstractExecuteOperator op) {
-		operators.remove(op.getOperatorId());
-		readySignals.remove(op.getOperatorId());
-	}
-	
-	/**
-	 * Starts up compute node
-	 * @return
-	 */
-	public Error startup() {
-
-		
-		// open connection and compile/execute statements
-		try {
-
-			Class.forName(Config.COMPUTE_DRIVER_CLASS);
-			Connection conn = DriverManager.getConnection(Config.COMPUTE_DB_URL,
-					Config.COMPUTE_DB_USER, Config.COMPUTE_DB_PASSWD);
-			Statement stmt = conn.createStatement();
-			stmt.execute("DROP DATABASE "+Config.COMPUTE_DB_NAME);
-			stmt.execute("CREATE DATABASE "+Config.COMPUTE_DB_NAME);
-			stmt.close();
-			conn.close();
-
-		} catch (SQLException e) {
-			this.err = createMySQLError(e);
-		} catch (Exception e) {
-			this.err = createMySQLError(e);
-		}
-
-		return this.err;
+		this.operators.remove(op.getOperatorId());
+		this.receivedReadySignals.remove(op.getOperatorId());
 	}
 	
 	/**
@@ -259,7 +257,7 @@ public class ComputeNode {
 	 *            Exception
 	 * @return Error
 	 */
-	protected Error createMySQLError(Exception e) {
+	private Error createMySQLError(Exception e) {
 		String[] args = { e.toString() + "," + e.getCause() };
 		Error err = new Error(EnumError.MYSQL_ERROR, args);
 		return err;

@@ -16,40 +16,56 @@ import org.xdb.logging.XDBLog;
 import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
 
+/**
+ * Query tracker node which executes multiple
+ * query tracker plans
+ * @author cbinnig
+ *
+ */
 public class QueryTrackerNode {
 	private final ComputeClient computeClient = new ComputeClient();
 
 	private final MasterTrackerClient masterTrackerClient;
 	private final QueryTrackerNodeDesc description;
+	
+	// logger
 	private final Logger logger;
 
 	public QueryTrackerNode() throws Exception{
-
-		this.logger = XDBLog.getLogger(this.getClass().getName());
-		this.masterTrackerClient = new MasterTrackerClient();
-		
 		final InetAddress addr = InetAddress.getLocalHost();
 		this.description = new QueryTrackerNodeDesc(addr.getHostAddress());
 
+		this.masterTrackerClient = new MasterTrackerClient();		
 		final Error err = masterTrackerClient.registerNode(description);
+		
 		if (err.isError()) {
 			throw new IllegalArgumentException(err.toString());
 		}
+		
+		this.logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
 	// getters and setters
+	/**
+	 * Returns compute client of query tracker node
+	 * @return
+	 */
 	public ComputeClient getComputeClient() {
 		return computeClient;
 	}
 	
-	public String getUrl(){
-		return this.description.getUrl();
+	/**
+	 * Returns URL of query tracker node
+	 * @return
+	 */
+	public QueryTrackerNodeDesc getDescription(){
+		return this.description;
 	}
 
 	// methods
 
 	/**
-	 * Execute given tracker plan
+	 * Execute a given tracker plan
 	 * 
 	 * @param plan
 	 * @return
@@ -98,25 +114,27 @@ public class QueryTrackerNode {
 	 */
 	public Tuple<Map<String, MutableInteger>, Error> requestComputeSlots(
 			final Map<String, MutableInteger> requiredSlots) {
-		final Tuple<Map<String, MutableInteger>, Error> tuple = masterTrackerClient
+		
+		final Tuple<Map<String, MutableInteger>, Error> tuple = this.masterTrackerClient
 				.requestComputeNodes(requiredSlots);
+		
 		return tuple;
 	}
 
 	/**
-	 * Signal operator that input is ready
+	 * Signal consumers of a given operator that their input sources are ready
 	 * 
 	 * @param op
 	 * @return
 	 */
 	public Error operatorReady(final AbstractExecuteOperator op) {
 		Error err = new Error();
-		// Send READY Signal to Customers
+		// Send READY Signal to all Customers
 		final Set<OperatorDesc> consumers = op.getConsumers();
 		for (final OperatorDesc consumer : consumers) {
 			if (consumer != null) {
 				logger.log(Level.INFO,
-						"Send READY_SIGNAL from operator " + op.getOperatorId()
+						"Send READY_SIGNAL from Query Tracker " + this.description.getUrl()
 								+ " to consumer: " + consumer);
 				err = computeClient.executeOperator(op.getOperatorId(),
 						consumer);
