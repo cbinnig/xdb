@@ -10,23 +10,28 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.Config;
+import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
+import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.utils.Identifier;
 
 /**
- * Abstract operator implementation with an iterator interface
+ * Abstract executable operator implementation with an iterator interface
+ * - open: prepare input and output tables
+ * - execute: execute code
+ * - close: drop input and output tables
  * 
  * @author cbinnig
  */
 public abstract class AbstractExecuteOperator implements Serializable {
 	private static final long serialVersionUID = -3874534068048724293L;
 
-	// connection
+	// connection to compute DB
 	protected transient Connection conn;
 	
 	// query tracker URL
-	protected String queryTracker;
+	protected QueryTrackerNodeDesc queryTracker;
 
 	// database parameters
 	protected String dburl = Config.COMPUTE_DB_URL;
@@ -54,9 +59,9 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	protected Vector<String> closeSQLs = new Vector<String>();
 	protected transient Vector<PreparedStatement> closeStmts;
 
-	// last error
+	// helper
 	protected Error err = new Error();
-	
+	private transient QueryTrackerClient queryTrackerClient;
 	
 	// constructors
 	public AbstractExecuteOperator(Identifier nodeId) {
@@ -65,12 +70,12 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	}
 
 	// getters and setters
-	public void setQueryTracker(String url){
-		this.queryTracker = url;
+	public void setQueryTracker(QueryTrackerNodeDesc queryTracker){
+		this.queryTracker = queryTracker;
 	}
 	
-	public String getQueryTracker(){
-		return this.queryTracker;
+	public QueryTrackerClient getQueryTrackerClient(){
+		return this.queryTrackerClient;
 	}
 	
 	public Identifier getOperatorId() {
@@ -141,6 +146,12 @@ public abstract class AbstractExecuteOperator implements Serializable {
 			for (PreparedStatement stmt : this.openStmts) {
 				//System.out.println("Execute stmt "+ stmt.toString());
 				stmt.execute();
+			}
+			
+			// initialize client for query tracker
+			if(queryTracker!=null){
+				this.queryTrackerClient = new QueryTrackerClient(
+						this.queryTracker.getUrl());
 			}
 
 		} catch (SQLException e) {

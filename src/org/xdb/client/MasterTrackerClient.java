@@ -93,7 +93,7 @@ public class MasterTrackerClient extends AbstractClient{
 	}
 
 	/**
-	 * Execute compile plan using master tracker server
+	 * Execute given compile plan using master tracker 
 	 * @param plan
 	 * @return
 	 */
@@ -124,7 +124,7 @@ public class MasterTrackerClient extends AbstractClient{
 	}
 
 	/**
-	 * Request compute nodes from master tracker server for execution
+	 * Request compute nodes from master tracker for execution
 	 * 
 	 * @param requiredNodes 
 	 * @return

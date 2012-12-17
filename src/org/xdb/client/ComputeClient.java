@@ -17,7 +17,7 @@ import org.xdb.utils.Identifier;
 /**
  * Client to talk to Compute Server.
  */
-public class ComputeClient extends AbstractClient{
+public class ComputeClient extends AbstractClient {
 	// constructor
 	public ComputeClient() {
 		this.logger = XDBLog.getLogger(this.getClass().getName());
@@ -27,6 +27,7 @@ public class ComputeClient extends AbstractClient{
 
 	/**
 	 * Installs operator on given node (URL)
+	 * 
 	 * @param url
 	 * @param op
 	 * @return
@@ -69,7 +70,6 @@ public class ComputeClient extends AbstractClient{
 			final Identifier destOpId) {
 		Error err = new Error();
 
-
 		try {
 			server = new Socket(url, this.port);
 			final ObjectOutputStream out = new ObjectOutputStream(
@@ -80,7 +80,6 @@ public class ComputeClient extends AbstractClient{
 			out.flush();
 			out.writeObject(signal);
 			out.flush();
-
 
 			final ObjectInputStream in = new ObjectInputStream(
 					server.getInputStream());
@@ -101,13 +100,14 @@ public class ComputeClient extends AbstractClient{
 	 * @param dest
 	 * @return
 	 */
-	public Error executeOperator(final Identifier sourceOpId, final OperatorDesc dest) {
+	public Error executeOperator(final Identifier sourceOpId,
+			final OperatorDesc dest) {
 		return this.executeOperator(sourceOpId, dest.getOperatorNode(),
 				dest.getOperatorID());
 	}
 
 	/**
-	 * Send ready signal to operator on node w/o a source operator
+	 * Send ready signal to a leaf operator on node w/o a source operator
 	 * 
 	 * @param node
 	 * @param op
@@ -119,7 +119,7 @@ public class ComputeClient extends AbstractClient{
 	}
 
 	/**
-	 * Send ready signal to operator on node w/o a source operator
+	 * Send ready signal to a leaf operator on node w/o a source operator
 	 * 
 	 * @param url
 	 * @param destOpId

@@ -128,7 +128,7 @@ public class MasterTrackerNode {
 	public Error executePlan(final QueryTrackerPlan plan) {
 		if (plan == null) {
 			String[] args = { "No query tracker plan provided" };
-			return new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, args);
+			return new Error(EnumError.TRACKER_GENERIC, args);
 		}
 
 		// tracing
@@ -140,7 +140,7 @@ public class MasterTrackerNode {
 		final String slot = getFreeQueryTrackerSlot();
 		if (slot == null) {
 			String[] args = { "No query tracker slot provided" };
-			return new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC, args);
+			return new Error(EnumError.TRACKER_GENERIC, args);
 		}
 		this.err = this.executeOnQueryTracker(slot, plan);
 
@@ -258,7 +258,7 @@ public class MasterTrackerNode {
 
 			if (required.intValue() > 0) {
 				String[] args = { "Not enough free compute slots available" };
-				this.err = new Error(EnumError.TRACKER_PLAN_INVALID_GENERIC,
+				this.err = new Error(EnumError.TRACKER_GENERIC,
 						args);
 				break;
 			}

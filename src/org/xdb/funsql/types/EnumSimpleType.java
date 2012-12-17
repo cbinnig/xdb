@@ -44,7 +44,7 @@ public enum EnumSimpleType implements Cloneable {
 
 	public static Error createTypeNotExistsErr(String att) {
 		String args[] = { att };
-		Error error = new Error(EnumError.CREATE_TABLE_TYPE_NOT_EXISTS, args);
+		Error error = new Error(EnumError.CATALOG_TYPE_NOT_EXISTS, args);
 		return error;
 	}
 

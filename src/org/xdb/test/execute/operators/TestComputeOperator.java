@@ -6,10 +6,10 @@ import org.junit.Test;
 import org.xdb.Config;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.MySQLExecuteOperator;
-import org.xdb.test.TestCase;
+import org.xdb.test.ComputeServerTestCase;
 import org.xdb.utils.Identifier;
 
-public class TestComputeOperator extends TestCase {
+public class TestComputeOperator extends ComputeServerTestCase {
 	@Test
 	public void test1Op() throws Exception {
 

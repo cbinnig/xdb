@@ -1,7 +1,7 @@
 package org.xdb.error;
 
 /**
- * Enumeration for error numbers and messages
+ * Central enumeration for all errors in XDB and messages
  * @author cbinnig
  *
  */
@@ -11,16 +11,16 @@ public enum EnumError {
 	SERVER_ERROR,
 	CLIENT_ERROR,
 	COMPUTE_CMD_INVALID,
-	COMPILER_UNDEFINED_ERROR,
 	CATALOG_NOT_AVAILABLE,
 	CATALOG_OBJECT_ALREADY_EXISTS,
 	CATALOG_OBJECT_NOT_EXISTS,
 	CATALOG_OBJECT_VALUE_TOO_LONG,
-	CREATE_TABLE_DUPLICATE_ATTRIBUTES,
-	CREATE_TABLE_TYPE_NOT_EXISTS,
+	CATALOG_TABLE_DUP_ATTS,
+	CATALOG_TYPE_NOT_EXISTS,
 	STORE_NOT_EXISTS,
 	STORE_CONNECTION_ERROR,
 	STORE_EXECUTION_ERROR,
+	COMPILER_UNDEFINED_ERROR,
 	COMPILER_GENERIC,
 	COMPILER_TYPE_ERROR,
 	COMPILER_SELECT_EXPRESSION_NOT_SUPPORTED,
@@ -34,7 +34,7 @@ public enum EnumError {
 	COMPILER_FUNCTION_NO_OUT_PARAM,
 	COMPILER_FUNCTION_VAR_NOT_DECLARED,
 	COMPILER_SELECT_DATATYPE_MISMATCH,
-	TRACKER_PLAN_INVALID_GENERIC;
+	TRACKER_GENERIC;
 	
 	public static String toString(EnumError error, String[] args){
 		String msg = "";
@@ -70,10 +70,10 @@ public enum EnumError {
 		case CATALOG_OBJECT_VALUE_TOO_LONG:
 			msg =  "Catalog: Value \"<arg0>\" of catalog object \"<arg1>\" too long!";
 			break;
-		case CREATE_TABLE_DUPLICATE_ATTRIBUTES:
+		case CATALOG_TABLE_DUP_ATTS:
 			msg =  "CREATE TABLE: Duplicate attribute definition for attribute \"<arg0>\" in table  \"<arg1>\"  not allowed ";
 			break;
-		case CREATE_TABLE_TYPE_NOT_EXISTS:
+		case CATALOG_TYPE_NOT_EXISTS:
 			msg =  "CREATE TABLE: Type for attribute \"<arg0>\" does not exist.";
 			break;
 		case STORE_NOT_EXISTS:
@@ -124,12 +124,12 @@ public enum EnumError {
 		case COMPILER_SELECT_DATATYPE_MISMATCH:
 			msg= "Compiler: Type \"<arg0>\" can not be promoted into \"<arg1>\" not declared!";
 			break;
-		case TRACKER_PLAN_INVALID_GENERIC:
+		case TRACKER_GENERIC:
 			msg = "Tracker: Error \"<arg0>\"";
 			break;
 		}
 		
-		//replace args
+		//replace arguments in error message
 		if(args!=null){
 			for(int i=0; i<args.length; ++i){
 				msg = msg.replaceAll("<arg"+i+">", args[i]);
