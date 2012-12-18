@@ -6,27 +6,28 @@ import org.xdb.utils.Identifier;
 
 /**
  * Operator specification with URL of compute node and operator ID
+ * 
  * @author cbinnig
- *
+ * 
  */
 public class OperatorDesc implements Serializable {
-	
+
 	private static final long serialVersionUID = -7230252328170776355L;
-	
-	//operator ID
+
+	// operator ID
 	private Identifier operatorID;
-	
-	//operator URL
+
+	// operator URL
 	private String operatorNode;
-	
-	//constructors
+
+	// constructors
 	public OperatorDesc(Identifier operatorID, String operatorNode) {
 		super();
 		this.operatorID = operatorID;
 		this.operatorNode = operatorNode;
 	}
 
-	//getter and setters
+	// getter and setters
 	public Identifier getOperatorID() {
 		return operatorID;
 	}
@@ -34,16 +35,16 @@ public class OperatorDesc implements Serializable {
 	public String getOperatorNode() {
 		return operatorNode;
 	}
-	
-	//methods
+
+	// methods
 	@Override
-	public int hashCode(){
+	public int hashCode() {
 		return this.operatorID.hashCode();
 	}
-	
+
 	@Override
-	public String toString(){
-		return "("+this.operatorNode+","+this.operatorID+")";
+	public String toString() {
+		return "(" + this.operatorNode + "," + this.operatorID + ")";
 	}
-	
+
 }

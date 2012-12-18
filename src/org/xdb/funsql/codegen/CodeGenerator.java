@@ -28,24 +28,35 @@ import org.xdb.error.Error;
  * 
  */
 public class CodeGenerator {
+	// constants
 	private static final String TAB1 = "TAB1";
 	private static final String SQL1 = "SQL1";
 	public static final String OUT_SUFFIX = "OUT";
 
+	// compile plan
 	private CompilePlan compilePlan;
+
+	// generated query tracker plan
 	private QueryTrackerPlan qtPlan = new QueryTrackerPlan();
 
+	// sources / consumers in query tracker plan: operator Id -> operator IDs
 	private Map<Identifier, Set<Identifier>> sources = new HashMap<Identifier, Set<Identifier>>();
 	private Map<Identifier, Set<Identifier>> consumers = new HashMap<Identifier, Set<Identifier>>();
 
+	// mapping: compile operator ID -> tracker operator ID
 	private Map<Identifier, Identifier> compileOp2trackerOp = new HashMap<Identifier, Identifier>();
+
+	// roots of sub-plans in compile plan: each sub-plan results in one tracker
+	// operator
 	private List<AbstractCompileOperator> splitCompileOps;
 
+	// templates for SQL code generation
 	private final StringTemplate sqlDMLTemplate = new StringTemplate(
 			"INSERT INTO <<" + TAB1 + ">> (<" + SQL1 + ">)");
 	private final StringTemplate sqlDDLTemplate = new StringTemplate("<<"
 			+ TAB1 + ">> <" + SQL1 + ">");
 
+	// last error
 	private Error err;
 
 	// constructor
@@ -67,18 +78,22 @@ public class CodeGenerator {
 	 * @return
 	 */
 	public Error generate() {
-		// split compile plan and generate tracker operators
+		// split compile plan into sub-plans
 		this.splitCompileOps = extractSplitOps();
+
+		// for each sub-plan (which has splitOp as root) generate a tracker
+		// operator
 		for (AbstractCompileOperator splitCompileOp : splitCompileOps) {
 			AbstractTrackerOperator trackerOp;
 			try {
 				trackerOp = generateTrackerOp(splitCompileOp);
 			} catch (URISyntaxException e) {
-				String[] args = {e.toString()};
+				String[] args = { e.toString() };
 				this.err = new Error(EnumError.COMPILER_GENERIC, args);
 				return this.err;
 			}
 
+			// add mapping: compile operator -> tracker operator
 			this.compileOp2trackerOp.put(splitCompileOp.getOperatorId(),
 					trackerOp.getOperatorId());
 		}
@@ -98,18 +113,21 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Generates a tracker operator for each materialized sub-plan
+	 * Generates a tracker operator for each sub-plan (given as root of sub-plan
+	 * in compile plan)
 	 * 
 	 * @param compileOp
 	 * @return
-	 * @throws URISyntaxException 
+	 * @throws URISyntaxException
 	 */
 	private AbstractTrackerOperator generateTrackerOp(
 			AbstractCompileOperator compileOp) throws URISyntaxException {
+
+		// generate a new MySQL operator
 		MySQLTrackerOperator trackerOp = new MySQLTrackerOperator();
 		this.qtPlan.addOperator(trackerOp);
 
-		// add execute DML statement
+		// generate execute DML statement
 		String outTable = compileOp.getOperatorId().clone().append(OUT_SUFFIX)
 				.toString();
 		String executeDML = generateExecuteDML(compileOp);
@@ -131,28 +149,36 @@ public class CodeGenerator {
 			TableOperator inputTableOp = null;
 			String inDDL = null;
 			String inTable = inputCompileOp.getOperatorId().clone().toString();
-			
+
+			// if leaf of sub-plan is a table: use other table name with "_" as
+			// prefix
 			if (inputCompileOp.getType().equals(EnumOperator.TABLE)) {
 				inputTableOp = (TableOperator) inputCompileOp;
 				inTable = TableOperator.TABLE_PREFIX + inTable;
 				inDDL = inputTableOp.getTable().toSqlString();
 			}
-			else{
+			// else leaf of sub-plan is an intermediate result
+			else {
 				inDDL = generateResultDDL(inputCompileOp);
 			}
-			
+
+			// generate input DDL
 			args.put(SQL1, inDDL);
 			args.put(TAB1, inTable);
-
-			inDDL = this.sqlDDLTemplate.toString(args);	
+			inDDL = this.sqlDDLTemplate.toString(args);
 			trackerOp.addInTable(inTable, new StringTemplate(inDDL));
 
+			// if: leaf of sub-plan is a table: add catalog info (table name and
+			// URL)
 			if (inputCompileOp.getType().equals(EnumOperator.TABLE)) { // table
 				URI connURI = URI.create(inputTableOp.getConnection().getUrl());
 				TableDesc tableDesc = new TableDesc(inputTableOp.getTable()
 						.getSourceName(), connURI);
 				trackerOp.setInTableSource(inTable, tableDesc);
-			} else { // other operators
+			}
+			// else: use intermediate result as table (with _OUT suffix) and
+			// register dependency
+			else {
 				String inTableRemote = inputCompileOp.getOperatorId().clone()
 						.append(OUT_SUFFIX).toString();
 				Identifier inTrackerOpId = this.compileOp2trackerOp
@@ -179,20 +205,28 @@ public class CodeGenerator {
 		addTrackerDependency(this.consumers, toOp, fromOp);
 	}
 
-	private void addTrackerDependency(Map<Identifier, Set<Identifier>> sources,
-			Identifier fromOp, Identifier toOp) {
-		Set<Identifier> sourceIds;
-		if (!sources.containsKey(toOp)) {
-			sourceIds = new HashSet<Identifier>();
-			sources.put(toOp, sourceIds);
+	/**
+	 * Register dependency
+	 * 
+	 * @param dependencies
+	 * @param fromOp
+	 * @param toOp
+	 */
+	private void addTrackerDependency(
+			Map<Identifier, Set<Identifier>> dependencies, Identifier fromOp,
+			Identifier toOp) {
+		Set<Identifier> opIds;
+		if (!dependencies.containsKey(toOp)) {
+			opIds = new HashSet<Identifier>();
+			dependencies.put(toOp, opIds);
 		} else {
-			sourceIds = sources.get(toOp);
+			opIds = dependencies.get(toOp);
 		}
-		sourceIds.add(fromOp);
+		opIds.add(fromOp);
 	}
 
 	/**
-	 * Get input operators for given split Operator
+	 * Get input operators for given split Operator (i.e., root of sub-plan)
 	 * 
 	 * @param compileOp
 	 * @return
@@ -208,7 +242,7 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Get input operators for given split Operator
+	 * Get input operators for given compile operator (recursively called)
 	 * 
 	 * @param inputOps
 	 * @param compileOp
@@ -227,7 +261,8 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Generate DDL statement to store result of operator
+	 * Generate DDL statement to store output of a tracker operator from result
+	 * description of compile operator (i.e., root of sub-plan)
 	 * 
 	 * @param compileOp
 	 * @return
@@ -255,7 +290,9 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Extract operators which are materialized from compile plan
+	 * Extract root operators of sub-plans in compile plan which are
+	 * materialized (i.e., operators that have multiple consumers or that are
+	 * explicitly marked as materialized)
 	 * 
 	 * @return
 	 */
