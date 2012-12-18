@@ -17,45 +17,48 @@ import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 
 /**
- * Extracts operators which should be materialized
- * from leaves to roots
+ * Extracts operators which should be materialized from leaves to roots (i.e.,
+ * operators that have multiple consumers or that are explicitly marked as
+ * materialized). Compile plan is analyzed using a bottom-up traversal.
+ * 
  * @author cbinnig
- *
+ * 
  */
 public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 
+	// roots of sub-plans
 	private Vector<AbstractCompileOperator> splitOps = new Vector<AbstractCompileOperator>();
-	private Error err = new Error();
 	
+	// last error
+	private Error err = new Error();
+
 	// constructor
 	public SplitPlanVisitor(AbstractCompileOperator root) {
 		super(root);
 	}
-	
+
 	// getter and setter
 	public List<AbstractCompileOperator> getSplitOps() {
 		return splitOps;
 	}
-	
+
 	// methods
-	public void reset(AbstractCompileOperator root){
+	public void reset(AbstractCompileOperator root) {
 		this.treeRoot = root;
 	}
 
 	/**
 	 * Analyze parents of operator and decide if split is required
+	 * 
 	 * @param op
 	 */
-	private void doSplit(AbstractCompileOperator op){
+	private void doSplit(AbstractCompileOperator op) {
 		/*
-		 * Split plan if
-		 * - an operator has no parent (i.e, it is a root)
-		 * - an operator has > 1 parents 
-		 * - an operator is marked to be materialized
+		 * Split plan if - an operator has no parent (i.e, it is a root) - an
+		 * operator has > 1 parents - an operator is marked to be materialized
 		 */
-		if(op.getResult().isMaterialized() 
-				|| op.getParents().size()!=1){
-			if(!this.splitOps.contains(op))
+		if (op.getResult().isMaterialized() || op.getParents().size() != 1) {
+			if (!this.splitOps.contains(op))
 				this.splitOps.add(op);
 		}
 	}
@@ -102,7 +105,7 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 		doSplit(ro);
 		return err;
 	}
-	
+
 	@Override
 	public Error visitSQLUnary(SQLUnary sqlOp) {
 		doSplit(sqlOp);

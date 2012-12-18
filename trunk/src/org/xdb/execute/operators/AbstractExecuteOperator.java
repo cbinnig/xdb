@@ -17,10 +17,9 @@ import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.utils.Identifier;
 
 /**
- * Abstract executable operator implementation with an iterator interface
- * - open: prepare input and output tables
- * - execute: execute code
- * - close: drop input and output tables
+ * Abstract executable operator implementation with an iterator interface -
+ * open: prepare input and output tables - execute: execute code - close: drop
+ * input and output tables
  * 
  * @author cbinnig
  */
@@ -29,7 +28,7 @@ public abstract class AbstractExecuteOperator implements Serializable {
 
 	// connection to compute DB
 	protected transient Connection conn;
-	
+
 	// query tracker URL
 	protected QueryTrackerNodeDesc queryTracker;
 
@@ -62,7 +61,7 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	// helper
 	protected Error err = new Error();
 	private transient QueryTrackerClient queryTrackerClient;
-	
+
 	// constructors
 	public AbstractExecuteOperator(Identifier nodeId) {
 		super();
@@ -70,14 +69,14 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	}
 
 	// getters and setters
-	public void setQueryTracker(QueryTrackerNodeDesc queryTracker){
+	public void setQueryTracker(QueryTrackerNodeDesc queryTracker) {
 		this.queryTracker = queryTracker;
 	}
-	
-	public QueryTrackerClient getQueryTrackerClient(){
+
+	public QueryTrackerClient getQueryTrackerClient() {
 		return this.queryTrackerClient;
 	}
-	
+
 	public Identifier getOperatorId() {
 		return operatorId;
 	}
@@ -111,10 +110,6 @@ public abstract class AbstractExecuteOperator implements Serializable {
 		this.sources.add(source);
 	}
 
-	public Error getLastError() {
-		return this.err;
-	}
-
 	// methods
 	/**
 	 * Open operator
@@ -133,23 +128,23 @@ public abstract class AbstractExecuteOperator implements Serializable {
 
 			// compile open and close statements
 			for (String ddl : this.openSQLs) {
-				//System.out.println(ddl);
+				// System.out.println(ddl);
 				this.openStmts.add(this.conn.prepareStatement(ddl));
 			}
 
 			for (String ddl : this.closeSQLs) {
-				//System.out.println(ddl);
+				// System.out.println(ddl);
 				this.closeStmts.add(this.conn.prepareStatement(ddl));
 			}
 
 			// execute openStmts
 			for (PreparedStatement stmt : this.openStmts) {
-				//System.out.println("Execute stmt "+ stmt.toString());
+				// System.out.println("Execute stmt "+ stmt.toString());
 				stmt.execute();
 			}
-			
-			// initialize client for query tracker
-			if(queryTracker!=null){
+
+			// initialize client for communication with query tracker
+			if (queryTracker != null) {
 				this.queryTrackerClient = new QueryTrackerClient(
 						this.queryTracker.getUrl());
 			}
@@ -163,6 +158,7 @@ public abstract class AbstractExecuteOperator implements Serializable {
 		if (this.err.isError())
 			return this.err;
 
+		// call operator specific open method
 		this.err = openOperator();
 		return this.err;
 	}
@@ -180,6 +176,7 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 * @return
 	 */
 	public Error execute() {
+		// Call operator specific execute method
 		this.err = executeOperator();
 
 		if (this.err.isError())
@@ -204,9 +201,10 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 * Close connection and remove prepared statements
 	 */
 	public Error close() {
+		// execute close statements
 		try {
 			for (PreparedStatement stmt : this.closeStmts) {
-				//System.out.println("Execute stmt "+ stmt.toString());
+				// System.out.println("Execute stmt "+ stmt.toString());
 				stmt.execute();
 			}
 		} catch (SQLException e) {
@@ -216,10 +214,13 @@ public abstract class AbstractExecuteOperator implements Serializable {
 		if (this.err.isError())
 			return this.err;
 
+		// clean up statements
+		this.openStmts.clear();
+		this.closeStmts.clear();
+
+		// close connection
 		try {
 			this.conn.close();
-			this.openStmts.clear();
-			this.closeStmts.clear();
 		} catch (Exception e) {
 			this.err = createMySQLError(e);
 		}
@@ -227,6 +228,7 @@ public abstract class AbstractExecuteOperator implements Serializable {
 		if (this.err.isError())
 			return this.err;
 
+		// call operator specific close method
 		this.err = this.closeOperator();
 		return this.err;
 	}

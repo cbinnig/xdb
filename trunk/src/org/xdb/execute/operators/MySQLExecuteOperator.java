@@ -28,11 +28,31 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 
 	// getters and setters
 	public void addExecuteSQL(final String dml) {
-		//System.out.println(dml);
+		// System.out.println(dml);
 		executeSQLs.add(dml);
 	}
 
 	// methods
+	@Override
+	/**
+	 * Prepare statements for execution
+	 */
+	protected Error openOperator() {
+
+		executeStmts = new Vector<PreparedStatement>();
+
+		// compile statements
+		try {
+
+			for (final String dml : executeSQLs) {
+				// System.out.println(dml);
+				executeStmts.add(conn.prepareStatement(dml));
+			}
+		} catch (final SQLException e) {
+			err = createMySQLError(e);
+		}
+		return err;
+	}
 
 	@Override
 	/**
@@ -51,28 +71,7 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 
 	@Override
 	/**
-	 * Open connection to node and prepare statements for execution
-	 */
-	protected Error openOperator() {
-
-		executeStmts = new Vector<PreparedStatement>();
-
-		// compile statements
-		try {
-
-			for (final String dml : executeSQLs) {
-				//System.out.println(dml);
-				executeStmts.add(conn.prepareStatement(dml));
-			}
-		} catch (final SQLException e) {
-			err = createMySQLError(e);
-		}
-		return err;
-	}
-
-	@Override
-	/**
-	 * Close connection and remove prepared statements 
+	 * Clear prepared statements 
 	 */
 	protected Error closeOperator() {
 		executeStmts.clear();
