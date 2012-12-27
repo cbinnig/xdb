@@ -1,3 +1,6 @@
+CREATE DATABASE `xdb_test`;
+USE `xdb_test`;
+
 -- MySQL dump 10.13  Distrib 5.6.5-m8, for osx10.6 (i386)
 --
 -- Host: localhost    Database: xdb_test
