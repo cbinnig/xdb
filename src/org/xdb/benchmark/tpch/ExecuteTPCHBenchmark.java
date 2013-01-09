@@ -1,12 +1,19 @@
-package org.xdb.test.tpch;
+package org.xdb.benchmark.tpch;
 
-import org.junit.Test;
 import org.xdb.client.CompileClient;
-import org.xdb.test.XDBTestCase;
 import org.xdb.error.Error;
+import org.xdb.server.CompileServer;
+import org.xdb.server.ComputeServer;
+import org.xdb.server.MasterTrackerServer;
+import org.xdb.server.QueryTrackerServer;
 
-public class TestTPCH extends XDBTestCase {
+public class ExecuteTPCHBenchmark {
 	private CompileClient client = new CompileClient();
+	private CompileServer compileServer;
+	private MasterTrackerServer mTrackerServer;
+	private QueryTrackerServer qTrackerServer;
+	private ComputeServer computeServer;
+	
 	private String[] schemaDDLs = {
 			"CREATE CONNECTION TPCH " +
 			"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
@@ -81,25 +88,83 @@ public class TestTPCH extends XDBTestCase {
 			
 	};
 	
-	@Override
-	public void setUp(){
-		super.setUp();
-		this.createSchema();
+	public static void main(String args[]){
+		int numberoftimes = 1;
+		if(args.length!=0){
+			numberoftimes = Integer.parseInt(args[0]);
+		}
+		new ExecuteTPCHBenchmark(numberoftimes);
 	}
 	
-	private void createSchema(){
-		for(String schemaDDL: this.schemaDDLs){
-			executeStmt(schemaDDL);
+	private ExecuteTPCHBenchmark(int numberoftimes) {
+		prepare();
+		execute(numberoftimes);
+		cleanup();
+
+	}
+
+	public void execute(int numberoftimes) {
+		for(int i = 0; i < numberoftimes; i++){
+			try{
+				this.executeQ1();
+				this.executeQ3();
+				this.executeQ5();
+				this.executeQ6();
+				this.executeQ10();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 	}
-	
-	private void executeStmt(String stmt){
+
+	private void prepare() {
+		try {
+			CompileServer.deleteCatalog();
+			
+			compileServer = new CompileServer();
+			compileServer.startServer();
+			compileServer.getError().isError();
+
+			mTrackerServer = new MasterTrackerServer();
+			mTrackerServer.startServer();
+
+			qTrackerServer = new QueryTrackerServer();
+			qTrackerServer.startServer();
+
+			computeServer = new ComputeServer();
+			computeServer.startServer();
+
+			createSchema();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void cleanup() {
+		compileServer.stopServer();
+		mTrackerServer.stopServer();
+		qTrackerServer.stopServer();
+		computeServer.stopServer();
+	}
+
+	private void createSchema() {
+		for (String schemaDDL : this.schemaDDLs) {
+			try {
+				executeStmt(schemaDDL);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void executeStmt(String stmt) throws Exception {
 		Error error = client.executeStmt(stmt);
-		this.assertNoError(error);
+		if (error.isError())
+			throw new Exception();
 	}
 	
-	@Test
-	public void testQ1(){
+	public void executeQ1() throws Exception{
 		String q1 = 
 				"select	l_returnflag,	" +
 				"l_linestatus,	" +
@@ -118,7 +183,7 @@ public class TestTPCH extends XDBTestCase {
 		executeStmt(q1);
 	}
 	
-	public void testQ3(){
+	public void executeQ3() throws Exception{
 		String q3 = "" +
 				"select l_orderkey, " +
 				"sum(l_extendedprice*(1-l_discount)) as revenue, " +
@@ -136,31 +201,8 @@ public class TestTPCH extends XDBTestCase {
 		
 		this.executeStmt(q3);
 	}
-	public void testQ5(){
+	public void executeQ5() throws Exception{
 		
-		/*
-		 * 
-		 * Select 
-n_name,
-sum(l_extendedprice * (1-l_discount)) as revenue
-from 
-customer,
-orders,
-lineitem,
-supplier,
-nation,
-region
-where c_custkey = o_custkey
-and l_orderkey = o_orderkey
-and l_suppkey = s_suppkey
-and c_nationkey = s_nationkey
-and s_nationkey = n_nationkey
-and n_regionkey = r_regionkey
-and r_name = 'ASIA'
-and o_orderdate > DATE('1994-01-01 00:00:00')
-and o_orderdate < DATE('1995-01-01 00:00:00')
-group by n_name;
-		 */
 		String q5 = "Select n_name, " +
 					"sum(l_extendedprice * (1-l_discount)) as revenue " +
 					"from customer, orders, lineitem, supplier, nation, region " +
@@ -179,17 +221,7 @@ group by n_name;
 	}
 	
 	
-	public void testQ6(){
-		/*select
-	sum(l_extendedprice * l_discount) as revenue
-from
-	lineitem
-where
-	l_shipdate >= date '1994-01-01'
-	and l_shipdate < date '1994-01-01' + interval '1' year
-	and l_discount between 0.0 and 0.7
-	and l_quantity < 24;
-	*/
+	public void executeQ6() throws Exception{
 		
 		String q6 = "select sum(l_extendedprice * l_discount) as revenue " +
 				"from lineitem " +
@@ -198,40 +230,10 @@ where
 				"and l_discount >= 0.0 " +
 				"and l_discount < 0.9 " +
 				"and l_quantity < 24; ";
-		this.executeStmt(q6);	
-		
+		this.executeStmt(q6);			
 	}
 	
-	public void testQ10(){/*
-	select
-	c_custkey,
-	c_name,
-	sum(l_extendedprice * (1 - l_discount)) as revenue,
-	c_acctbal,
-	n_name,
-	c_address,
-	c_phone,
-	c_comment
-from
-	customer,
-	orders,
-	lineitem,
-	nation
-where
-	c_custkey = o_custkey
-	and l_orderkey = o_orderkey
-	and o_orderdate >= date '1994-01-01'
-	and o_orderdate < date '1994-04-01'
-	and l_returnflag = 'R'
-	and c_nationkey = n_nationkey
-group by
-	c_custkey,
-	c_name,
-	c_acctbal,
-	c_phone,
-	n_name,
-	c_address,
-	c_comment;*/
+	public void executeQ10() throws Exception{
 		String q10 = "select "+
 						"c_custkey, "+
 						"c_name, "+
@@ -263,8 +265,5 @@ group by
 						"c_comment;" ;
 		this.executeStmt(q10);
 	}
-	@Override
-	public void tearDown(){
-		super.tearDown();
-	}
+
 }
