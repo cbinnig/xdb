@@ -93,7 +93,8 @@ public class ExecuteTPCHBenchmarkXDB extends ExecuteTPCHBenchmark{
 		if(args.length!=0){
 			numberoftimes = Integer.parseInt(args[0]);
 		}
-		new ExecuteTPCHBenchmarkXDB(numberoftimes);
+		ExecuteTPCHBenchmarkXDB bench = new ExecuteTPCHBenchmarkXDB(numberoftimes);
+		bench.run();
 	}
 	
 	public ExecuteTPCHBenchmarkXDB(int numberoftimes) {
@@ -198,6 +199,7 @@ public class ExecuteTPCHBenchmarkXDB extends ExecuteTPCHBenchmark{
 		
 		this.executeStmt(q3);
 	}
+	
 	public void executeQ5() throws Exception{
 		
 		String q5 = "Select n_name, " +
@@ -213,8 +215,7 @@ public class ExecuteTPCHBenchmarkXDB extends ExecuteTPCHBenchmark{
 					"and o_orderdate > date '1994-01-01' "+
 					"and o_orderdate < date '1995-01-01' "+
 					"group by n_name;";
-		//this.executeStmt(q5);
-		
+		this.executeStmt(q5);
 	}
 	
 	

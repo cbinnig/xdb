@@ -1,13 +1,15 @@
 package org.xdb.benchmark.tpch;
 
 public abstract class ExecuteTPCHBenchmark {
-	
-	
-
+	private int numberoftimes = 1;
 	
 	public ExecuteTPCHBenchmark(int numberoftimes) {
+		this.numberoftimes  = numberoftimes;
+	}
+	
+	public void run(){
 		prepare();
-		execute(numberoftimes);
+		execute(this.numberoftimes);
 		cleanup();
 	}
 
