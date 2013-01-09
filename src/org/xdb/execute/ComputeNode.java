@@ -93,7 +93,7 @@ public class ComputeNode {
 			Connection conn = DriverManager.getConnection(Config.COMPUTE_DB_URL,
 					Config.COMPUTE_DB_USER, Config.COMPUTE_DB_PASSWD);
 			Statement stmt = conn.createStatement();
-			stmt.execute("DROP DATABASE "+Config.COMPUTE_DB_NAME);
+			stmt.execute("DROP DATABASE IF EXISTS "+Config.COMPUTE_DB_NAME);
 			stmt.execute("CREATE DATABASE "+Config.COMPUTE_DB_NAME);
 			stmt.close();
 			conn.close();

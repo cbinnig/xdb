@@ -54,7 +54,31 @@ public class TestTPCH extends XDBTestCase {
 			"O_CLERK          VARCHAR,  " +
 			"O_SHIPPRIORITY   INTEGER, " +
 			"O_COMMENT        VARCHAR" +
+			") IN CONNECTION TPCH;",
+			
+			"CREATE TABLE SUPPLIER ( " +
+			"S_SUPPKEY INTEGER, " +
+			"S_NAME VARCHAR, " +
+			"S_ADDRESS VARCHAR, " +
+			"S_NATIONKEY INTEGER, " +
+			"S_PHONE VARCHAR, " +
+			"S_ACCTBAL DECIMAL, " +
+			"S_COMMENT VARCHAR" +
+			") IN CONNECTION TPCH;",
+			
+			"CREATE TABLE NATION (  " +
+			"N_NATIONKEY INTEGER, " +
+			"N_NAME VARCHAR," +
+			"N_REGIONKEY INTEGER," +
+			"N_COMMENT VARCHAR" +
+			") IN CONNECTION TPCH;",
+			
+			"CREATE TABLE REGION ( " +
+			"R_REGIONKEY INTEGER," +
+			"R_NAME VARCHAR," +
+			"R_COMMENT VARCHAR" +
 			") IN CONNECTION TPCH;"
+			
 	};
 	
 	@Override
@@ -111,6 +135,47 @@ public class TestTPCH extends XDBTestCase {
 				"group by l_orderkey, o_orderdate, o_shippriority";
 		
 		this.executeStmt(q3);
+	}
+	public void testQ5(){
+		
+		/*
+		 * 
+		 * Select 
+n_name,
+sum(l_extendedprice * (1-l_discount)) as revenue
+from 
+customer,
+orders,
+lineitem,
+supplier,
+nation,
+region
+where c_custkey = o_custkey
+and l_orderkey = o_orderkey
+and l_suppkey = s_suppkey
+and c_nationkey = s_nationkey
+and s_nationkey = n_nationkey
+and n_regionkey = r_regionkey
+and r_name = 'ASIA'
+and o_orderdate > DATE('1994-01-01 00:00:00')
+and o_orderdate < DATE('1995-01-01 00:00:00')
+group by n_name;
+		 */
+		String q5 = "Select n_name, " +
+					"sum(l_extendedprice * (1-l_discount)) as revenue " +
+					"from customer, orders, lineitem, supplier, nation, region " +
+					"where c_custkey = o_custkey " +
+					"and l_orderkey = o_orderkey " +
+					"and l_suppkey = s_suppkey  " +
+					"and c_nationkey = s_nationkey " +
+					"and s_nationkey = n_nationkey " +
+					"and n_regionkey = r_regionkey " +
+					"and r_name = 'ASIA' " +
+					"and o_orderdate > date '1994-01-01' "+
+					"and o_orderdate < date '1995-01-01' "+
+					"group by n_name;";
+		//this.executeStmt(q5);
+		
 	}
 	@Override
 	public void tearDown(){

@@ -1,5 +1,6 @@
 package org.xdb.funsql.statement;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +36,8 @@ import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
 import org.xdb.store.EnumStore;
+import org.xdb.utils.FlagElem;
+import org.xdb.utils.FlaggedElemVector;
 import org.xdb.utils.Identifier;
 
 public class SelectStmt extends AbstractServerStmt {
@@ -277,6 +280,7 @@ public class SelectStmt extends AbstractServerStmt {
 		return err;
 	}
 
+	
 	/**
 	 * Create join plan for from clause
 	 * 
@@ -312,19 +316,44 @@ public class SelectStmt extends AbstractServerStmt {
 			Collection<AbstractPredicate> predicates = this.tWherePredicate
 					.splitAnd();
 			HashMap<String, TableOperator> tableOps = new HashMap<String, TableOperator>();
-
 			// find all equi-join predicates
 			int joinPreds = 0;
+	
+			//init new data structure with helper classes
+			AbstractPredicate predicate_t = null;
+			//convert HashSet into vector
+			Vector<AbstractPredicate> predicates_vector = new Vector<AbstractPredicate>();
+			Vector<AbstractCompileOperator> joinOps = new Vector<AbstractCompileOperator>();
+			
 			for (AbstractPredicate predicate : predicates) {
-
-				if (predicate.isEquiJoinPredicate()) {
+				predicates_vector.add(predicate);
+			}
+			//init necessary 
+			FlagElem<AbstractPredicate> f_predicate;
+			FlaggedElemVector<AbstractPredicate> f_predicates_vector = new FlaggedElemVector<AbstractPredicate>(
+					predicates_vector);
+			
+			int index = 0;
+			//checker for first element
+			boolean first = true;
+			while (f_predicates_vector.hasfalseElems()) {
+				// get the flagged predicate
+				f_predicate = f_predicates_vector.getFlaggedElem(index);
+				
+				// check wether this predicate was already used then continue
+				if (f_predicate.isFlag()) {
+					index = (index + 1) % f_predicates_vector.getSize();
+					continue;
+				}
+				// get predicate without flag
+				predicate_t = f_predicate.getElem();
+				if (predicate_t.isEquiJoinPredicate()) {
 					// found join predicate
-					joinPreds++;
 
 					// get join attributes
 					TokenAttribute[] joinAtts = new TokenAttribute[2];
 					int i = 0;
-					for (TokenAttribute tAttr : predicate.getAttributes()) {
+					for (TokenAttribute tAttr : predicate_t.getAttributes()) {
 						joinAtts[i] = tAttr;
 						i++;
 					}
@@ -337,6 +366,59 @@ public class SelectStmt extends AbstractServerStmt {
 					TableOperator rightTableOp = tableOps.get(tRightTable
 							.getName().hashKey());
 
+					// now check when if last op is null and is equijoin
+					// operator
+					// if no table operators exist for those elements there is no need for checking for
+					// joint ops because the table was never accessed and consequently no conflict can arise
+					
+					if (leftTableOp == null && rightTableOp == null) {
+						// case one both are not accessed yet
+						// if first ok when not continue
+						if (!first) {
+							index = (index + 1) % f_predicates_vector.getSize();
+							continue;
+						}
+						first = false;
+					} else if ((leftTableOp == null && rightTableOp != null)
+							|| (leftTableOp != null && rightTableOp == null)) {
+						// case two one is already accessed
+						if (joinOps.size() != 0) {
+							// check wether a suitable join is available
+							// find the highest level join op for a a already accessed Table
+							boolean tester = true;
+							AbstractCompileOperator op;
+							// Could also be done recusive in seperate method
+							if (leftTableOp != null) {
+								op = leftTableOp;
+							} else {
+								op = rightTableOp;
+							}
+							while (tester) {
+								if (op.getParents().size() == 0) {
+									break;
+								} else {
+									op = op.getParents().get(0);
+								}
+							}
+							lastOp = op;
+						}// size Checker
+					} else {
+						// case three both are accessed
+
+						// predicate is not a join predicate any more, but a
+						// selection
+						f_predicates_vector.setUsed(index);
+						selectionPreds.add(predicate_t);
+						index = (index + 1) % f_predicates_vector.getSize();
+						continue;
+
+					}// used check
+
+					// set this predicate ot be userd
+					f_predicates_vector.setUsed(index);
+
+					// join pred is used so increment it for last check
+					joinPreds++;
 					// left table not yet in join path?
 					boolean newLeftTable = false;
 					if (leftTableOp == null) {
@@ -383,13 +465,18 @@ public class SelectStmt extends AbstractServerStmt {
 								joinAtts[0], joinAtts[1]);
 					}
 					plan.addOperator(joinOp, false);
+					//add a lastOp to list
+					joinOps.add(joinOp);
 					lastOp = joinOp;
+
 				} else {
 					// keep remaining predicates!
-					selectionPreds.add(predicate);
+					selectionPreds.add(predicate_t);
+					f_predicates_vector.setUsed(index);
 				}
+				index = (index + 1) % f_predicates_vector.getSize();
 			}
-
+		
 			if (joinPreds + 1 != this.tTables.size()) {
 				return FunSQLCompiler
 						.createGenericCompileErr("Cartesian product not in SQL statement supported!");
