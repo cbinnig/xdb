@@ -25,6 +25,7 @@ import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
+import org.xdb.logging.XDBExecuteTimeMeasurement;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
 
@@ -57,6 +58,8 @@ public class ComputeNode {
 	
 	// Helpers
 	private final Logger logger;
+	private final XDBExecuteTimeMeasurement timeMeasure;
+	
 
 	// constructors
 	public ComputeNode() throws Exception {
@@ -76,6 +79,7 @@ public class ComputeNode {
 		}
 		
 		logger = XDBLog.getLogger(this.getClass().getName());
+		timeMeasure = XDBExecuteTimeMeasurement.getXDBExecuteTimeMeasurement("querytimes");
 	}
 
 
@@ -115,7 +119,7 @@ public class ComputeNode {
 	 */
 	public Error openOperator(final AbstractExecuteOperator op) {
 		Error err = new Error();
-
+		
 		operators.put(op.getOperatorId(), op);
 
 		// open operator
@@ -206,12 +210,22 @@ public class ComputeNode {
 	private Error executeOperator(final AbstractExecuteOperator op) {
 		Error err = new Error();
 
+		//measure Time
+	
+		timeMeasure.start(op.getOperatorId().toString());
 		// execute operator
+	
 		err = op.execute();
+		
+		timeMeasure.stop(op.getOperatorId().toString());
+		
 		if (err.isError()) {
 			return err;
 		}
-
+		
+	
+			
+		
 		// send READY_SIGNAL to QueryTracker
 		QueryTrackerClient queryTrackerClient = op.getQueryTrackerClient();
 		if (queryTrackerClient != null && Config.COMPUTE_SIGNAL2QUERY_TRACKER) {
@@ -225,11 +239,14 @@ public class ComputeNode {
 			final Set<OperatorDesc> consumers = op.getConsumers();
 			for (final OperatorDesc consumer : consumers) {
 				if (consumer != null) {
+					
+				
 					logger.log(Level.INFO, "Send READY_SIGNAL from operator "
 							+ op.getOperatorId() + " to consumer: " + consumer);
 
 					err = computeClient.executeOperator(op.getOperatorId(),
 							consumer);
+					
 					if (err.isError()) {
 						return err;
 					}

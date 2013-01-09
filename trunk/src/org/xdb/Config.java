@@ -73,6 +73,9 @@ public class Config implements Serializable {
 	public static boolean TRACE_COMPILE_PLAN_HEADER = false;
 	public static boolean TRACE_OPTIMIZED_PLAN = false;
 	public static boolean TRACE_TRACKER_PLAN = false;
+	
+	//Measurements
+	public static boolean MEASURE_QUERY_EXECUTION_TIME = false;
 
 	// load properties from file
 	static {
@@ -90,7 +93,7 @@ public class Config implements Serializable {
 
 		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS",
 				"TRACE_COMPILE_PLAN", "TRACE_COMPILE_PLAN_HEADER",
-				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN" };
+				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN", "MEASURE_QUERY_EXECUTION_TIME" };
 
 		String CONFIG_FILE = "./config/xdb.conf";
 		Properties props;
