@@ -12,6 +12,7 @@ import org.xdb.client.MasterTrackerClient;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
+import org.xdb.logging.XDBExecuteTimeMeasurement;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
@@ -27,6 +28,7 @@ public class QueryTrackerNode {
 
 	private final MasterTrackerClient masterTrackerClient;
 	private final QueryTrackerNodeDesc description;
+	private final XDBExecuteTimeMeasurement timeMeasure;
 	
 	// logger
 	private final Logger logger;
@@ -43,6 +45,7 @@ public class QueryTrackerNode {
 		}
 		
 		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.timeMeasure = XDBExecuteTimeMeasurement.getXDBExecuteTimeMeasurement("planexecution");
 	}
 
 	// getters and setters
@@ -71,8 +74,12 @@ public class QueryTrackerNode {
 	 * @return
 	 */
 	public Error executePlan(final QueryTrackerPlan plan) {
+		
+		//measure time of Plan execution
+	 	
+	 	this.timeMeasure.start(plan.getPlanId().toString());
+		
 		plan.assignTracker(this);
-
 		// 1. deploy plan on compute nodes
 		Error err = plan.deployPlan();
 		if (err.isError()) {
@@ -102,7 +109,7 @@ public class QueryTrackerNode {
 				return err;
 			}
 		}
-
+		this.timeMeasure.stop(plan.getPlanId().toString());
 		return err;
 	}
 
