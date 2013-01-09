@@ -3,7 +3,6 @@ package org.xdb.benchmark.tpch;
 import java.sql.SQLException;
 
 import org.xdb.logging.XDBExecuteTimeMeasurement;
-import org.xdb.store.MySQLStore;
 
 public class ExecuteTPCHBenchmarkMYSQL extends ExecuteTPCHBenchmark {
 	private SimpleMYSQLConnection conn;
@@ -14,12 +13,12 @@ public class ExecuteTPCHBenchmarkMYSQL extends ExecuteTPCHBenchmark {
 		if(args.length!=0){
 			numberoftimes = Integer.parseInt(args[0]);
 		}
-		new ExecuteTPCHBenchmarkMYSQL(numberoftimes);
+		ExecuteTPCHBenchmarkMYSQL bench = new ExecuteTPCHBenchmarkMYSQL(numberoftimes);
+		bench.run();
 	}
 	
 	public ExecuteTPCHBenchmarkMYSQL(int numberoftimes) {
 		super(numberoftimes);
-		
 	}
 
 	@Override
@@ -31,7 +30,7 @@ public class ExecuteTPCHBenchmarkMYSQL extends ExecuteTPCHBenchmark {
 
 	@Override
 	protected void execute(int numberoftimes) {
-		for(int i = 0; i <numberoftimes; i++){
+		for(int i = 0; i < numberoftimes; i++){
 			try{
 				this.executeQ10();
 			}catch(SQLException e){

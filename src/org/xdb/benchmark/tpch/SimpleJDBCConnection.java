@@ -4,10 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.logging.Level;
-
-import org.xdb.error.Error;
-import org.xdb.store.AbstractStore;
 
 public abstract class SimpleJDBCConnection {
 	
