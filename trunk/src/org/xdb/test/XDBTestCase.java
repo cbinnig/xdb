@@ -32,10 +32,11 @@ public class XDBTestCase extends TestCase {
 			
 			qTrackerServer = new QueryTrackerServer();
 			qTrackerServer.startServer();
-			assertNoError(mTrackerServer.getError());
-			
+			assertNoError(qTrackerServer.getError());
+		
 			computeServer = new ComputeServer();
 			computeServer.startServer();
+			
 			assertNoError(computeServer.getError());
 			
 		} catch (Exception e) {

@@ -45,7 +45,7 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 		try {
 
 			for (final String dml : executeSQLs) {
-				// System.out.println(dml);
+				System.out.println(dml);
 				executeStmts.add(conn.prepareStatement(dml));
 			}
 		} catch (final SQLException e) {
@@ -63,9 +63,12 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 			for (final PreparedStatement stmt : executeStmts) {
 				stmt.execute();
 			}
+			System.out.println("Done");
 		} catch (final SQLException e) {
+			System.out.println(e.getMessage());
 			err = createMySQLError(e);
 		}
+		
 		return err;
 	}
 
