@@ -31,7 +31,7 @@ public class Optimizer {
 
 		// tracing
 		if (Config.TRACE_COMPILE_PLAN)
-			this.compilePlan.traceGraph(compilePlan.getClass()
+			this.compilePlan.tracePlan(compilePlan.getClass()
 					.getCanonicalName() + "_COMPILED");
 
 		// rewrite: push down selection
@@ -50,7 +50,7 @@ public class Optimizer {
 
 		// tracing
 		if (Config.TRACE_OPTIMIZED_PLAN)
-			this.compilePlan.traceGraph(compilePlan.getClass()
+			this.compilePlan.tracePlan(compilePlan.getClass()
 					.getCanonicalName() + "_OPTIMIZED");
 
 		// rewrite: combine unary operators
@@ -62,7 +62,7 @@ public class Optimizer {
 
 		// tracing
 		if (Config.TRACE_OPTIMIZED_PLAN)
-			this.compilePlan.traceGraph(compilePlan.getClass()
+			this.compilePlan.tracePlan(compilePlan.getClass()
 					.getCanonicalName() + "_COMBINED");
 
 		return err;

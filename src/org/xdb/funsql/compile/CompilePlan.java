@@ -1,6 +1,5 @@
 package org.xdb.funsql.compile;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,18 +8,17 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.logging.XDBLog;
+import org.xdb.utils.Dotty;
 import org.xdb.utils.Identifier;
 
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphFactory;
 import com.oy.shared.lm.graph.GraphNode;
-import com.oy.shared.lm.out.GRAPHtoDOTtoGIF;
 
 /**
  * Represents a compiled plan which can be used for optimization and code
@@ -174,7 +172,7 @@ public class CompilePlan implements Serializable {
 	/**
 	 * Generates a visual graph representation of the compile plan
 	 */
-	public Error traceGraph(String fileName) {
+	public Error tracePlan(String fileName) {
 		fileName += this.planId;
 		Error error = new Error();
 		Graph graph = GraphFactory.newGraph();
@@ -185,20 +183,10 @@ public class CompilePlan implements Serializable {
 			AbstractCompileOperator rootOp = this.operators.get(root);
 			node.getInfo().setCaption(rootOp.getType().toString());
 			nodes.put(root, node);
-			rootOp.traceGraph(graph, nodes);
+			rootOp.traceOperator(graph, nodes);
 		}
 
-		// output graph to *.gif
-		final String path = Config.DOT_TRACE_PATH;
-		final String dotFileName = path + fileName + ".dot";
-		final String gifFileName = path + fileName + ".gif";
-		final String exeFileName = Config.DOT_EXE;
-		try {
-			GRAPHtoDOTtoGIF.transform(graph, dotFileName, gifFileName,
-					exeFileName);
-		} catch (IOException e) {
-			return FunSQLCompiler.createGenericCompileErr(e.getMessage());
-		}
+		Dotty.dot2Img(graph, fileName);
 		return error;
 	}
 }

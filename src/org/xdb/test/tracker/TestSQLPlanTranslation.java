@@ -85,12 +85,12 @@ public class TestSQLPlanTranslation extends CompileServerTestCase {
 					+ "WHERE R1.A1=1; \n"
 				+ "END; ");
 		this.assertNoError(compiler.getLastError());
-		fStmt.getPlan().traceGraph(this.getClass().getName()+"_Compiler");
+		fStmt.getPlan().tracePlan(this.getClass().getName()+"_Compiler");
 		this.assertNoError(fStmt.execute());
 		
 		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(fStmt.getPlan());
 		Assert.assertNotNull(qPlan);
-		qPlan.traceGraph(this.getClass().getName()+"_Tracker");
+		qPlan.tracePlan(this.getClass().getName()+"_Tracker");
 		
 		assertEquals(qPlan.getOperators().size(), 3);
 	}

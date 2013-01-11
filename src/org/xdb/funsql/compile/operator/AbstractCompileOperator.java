@@ -208,7 +208,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 * @param g
 	 * @return
 	 */
-	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes) {
+	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes) {
 		Error err = new Error();
 		GraphNode node = nodes.get(this.operatorId);
 

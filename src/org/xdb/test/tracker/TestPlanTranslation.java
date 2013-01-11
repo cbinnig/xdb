@@ -93,7 +93,7 @@ public class TestPlanTranslation extends TestCase {
 		
 		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(plan);
 		Assert.assertNotNull(qPlan);
-		qPlan.traceGraph(this.getClass().getName());
+		qPlan.tracePlan(this.getClass().getName());
 		
 		assertEquals(qPlan.getOperators().size(), 1);
 		
@@ -151,7 +151,7 @@ public class TestPlanTranslation extends TestCase {
 		
 		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(plan);
 		Assert.assertNotNull(qPlan);
-		qPlan.traceGraph(this.getClass().getName());
+		qPlan.tracePlan(this.getClass().getName());
 		
 		assertEquals(qPlan.getOperators().size(), 1);
 		
@@ -215,7 +215,7 @@ public class TestPlanTranslation extends TestCase {
 		
 		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(plan);
 		Assert.assertNotNull(qPlan);
-		qPlan.traceGraph(this.getClass().getName());
+		qPlan.tracePlan(this.getClass().getName());
 		
 		assertEquals(qPlan.getOperators().size(), 1);
 		
@@ -319,7 +319,7 @@ public class TestPlanTranslation extends TestCase {
 		
 		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(plan);
 		Assert.assertNotNull(qPlan);
-		qPlan.traceGraph(this.getClass().getName());
+		qPlan.tracePlan(this.getClass().getName());
 		
 		assertEquals(qPlan.getOperators().size(), 1);
 	}

@@ -51,7 +51,7 @@ public class TestOptimizeSQL extends CompileServerTestCase {
 							+ "WHERE R1.B=R2.B AND R2.B=R3.B AND R1.C=1");
 			this.assertNoError(compiler.getLastError());
 
-			selectStmt.getPlan().traceGraph(this.getClass().getName());
+			selectStmt.getPlan().tracePlan(this.getClass().getName());
 		}
 
 	

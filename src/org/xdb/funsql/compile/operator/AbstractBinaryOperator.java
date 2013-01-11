@@ -80,8 +80,8 @@ public abstract class AbstractBinaryOperator extends AbstractCompileOperator {
 	public abstract void renameForPushDown(Collection<TokenAttribute> selAtts, int child);
 	
 	@Override
-	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
-		Error err = super.traceGraph(g, nodes);
+	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes){
+		Error err = super.traceOperator(g, nodes);
 		
 		//edges and children
 		GraphNode node = nodes.get(this.operatorId);
@@ -92,7 +92,7 @@ public abstract class AbstractBinaryOperator extends AbstractCompileOperator {
 			GraphNode child = g.addNode();
 			g.addEdge(node, child);
 			nodes.put(leftChildOp.operatorId, child);
-			leftChildOp.traceGraph(g, nodes);
+			leftChildOp.traceOperator(g, nodes);
 		}
 		else{
 			GraphNode child = nodes.get(leftChildOp.operatorId);
@@ -103,7 +103,7 @@ public abstract class AbstractBinaryOperator extends AbstractCompileOperator {
 			GraphNode child = g.addNode();
 			g.addEdge(node, child);
 			nodes.put(rightChildOp.operatorId, child);
-			rightChildOp.traceGraph(g, nodes);
+			rightChildOp.traceOperator(g, nodes);
 		}
 		else{
 			GraphNode child = nodes.get(rightChildOp.operatorId);

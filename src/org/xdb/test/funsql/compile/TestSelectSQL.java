@@ -48,21 +48,21 @@ public class TestSelectSQL extends CompileServerTestCase {
 		SelectStmt selectStmt = (SelectStmt) compiler
 				.compile("SELECT R1.A+1 AS A1 FROM R AS R1 WHERE R1.C=1");
 		this.assertNoError(compiler.getLastError());
-		selectStmt.getPlan().traceGraph(this.getClass().getName());
+		selectStmt.getPlan().tracePlan(this.getClass().getName());
 		
 		selectStmt = (SelectStmt) compiler
 				.compile("SELECT R1.A AS A1, R2.A AS A2 "
 						+ "FROM R AS R1, R AS R2 "
 						+ "WHERE R1.B=R2.B AND R1.C=1");
 		this.assertNoError(compiler.getLastError());
-		selectStmt.getPlan().traceGraph(this.getClass().getName());
+		selectStmt.getPlan().tracePlan(this.getClass().getName());
 		
 		selectStmt = (SelectStmt) compiler
 				.compile("SELECT R1.A AS A1, R2.A "
 						+ "FROM R AS R1, R AS R2, R AS R3 "
 						+ "WHERE R1.B=R2.B AND R2.B=R3.B AND R1.C=1");
 		this.assertNoError(compiler.getLastError());
-		selectStmt.getPlan().traceGraph(this.getClass().getName());
+		selectStmt.getPlan().tracePlan(this.getClass().getName());
 		
 		
 		selectStmt = (SelectStmt) compiler
@@ -71,6 +71,6 @@ public class TestSelectSQL extends CompileServerTestCase {
 						+ "GROUP BY B "
 						+ "HAVING AVG(A)>=1");
 		this.assertNoError(compiler.getLastError());
-		selectStmt.getPlan().traceGraph(this.getClass().getName());
+		selectStmt.getPlan().tracePlan(this.getClass().getName());
 	}
 }

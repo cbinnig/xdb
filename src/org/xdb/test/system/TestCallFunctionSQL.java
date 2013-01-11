@@ -74,7 +74,7 @@ public class TestCallFunctionSQL extends XDBTestCase {
 					+ "WHERE R1.A1=1; \n"
 				+ "END; ");
 		this.assertNoError(compiler.getLastError());
-		fStmt.getPlan().traceGraph(this.getClass().getName());
+		fStmt.getPlan().tracePlan(this.getClass().getName());
 		this.assertNoError(fStmt.execute());
 		
 		CallFunctionStmt callFStmt = (CallFunctionStmt) compiler.compile("CALL FUNCTION f1;");

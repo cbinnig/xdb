@@ -110,8 +110,8 @@ public class TableOperator extends AbstractCompileOperator {
 
 	
 	@Override
-	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
-		Error err = super.traceGraph(g, nodes);
+	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes){
+		Error err = super.traceOperator(g, nodes);
 		
 		GraphNode node = nodes.get(this.operatorId);
 		node.getInfo().setFooter(this.table.getName() +" AS "+ this.tableName.toSqlString());

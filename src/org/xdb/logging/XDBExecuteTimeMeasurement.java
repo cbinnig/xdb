@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.logging.Logger;
 
 import org.xdb.Config;
 

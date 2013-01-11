@@ -82,7 +82,7 @@ public class TestOptimizeLargeSQL extends CompileServerTestCase {
 
 		AbstractPredicate pred = sel2.getPredicate().clone();
 		sel.setPredicate(pred);
-		selectStmt.getPlan().traceGraph(this.getClass().getName());
+		selectStmt.getPlan().tracePlan(this.getClass().getName());
 
 		ResultDesc desc = new ResultDesc();
 		for (TokenAttribute att : sel2.getResult().getAttributes()) {
@@ -112,7 +112,7 @@ public class TestOptimizeLargeSQL extends CompileServerTestCase {
 		opti.optimize();
 
 		selectStmt.getPlan()
-				.traceGraph(this.getClass().getName() + "Optimized");
+				.tracePlan(this.getClass().getName() + "Optimized");
 
 	}
 
