@@ -58,7 +58,7 @@ public class FunctionCall extends AbstractCompileOperator {
 	
 	
 	@Override
-	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes){
+	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes){
 		Error err = new Error();
 		
 		return err;

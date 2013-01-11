@@ -9,6 +9,7 @@ import java.util.Vector;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.MySQLExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
@@ -101,8 +102,9 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		
-		for(StringTemplate temp : executeSQLs) {
-			builder.append(temp.toString());
+		for(StringTemplate exeSQL : executeSQLs) {
+			builder.append(exeSQL.toString());
+			builder.append(AbstractToken.NEWLINE);
 		}
 		
 		return builder.toString();

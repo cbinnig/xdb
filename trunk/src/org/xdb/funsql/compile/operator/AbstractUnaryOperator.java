@@ -104,8 +104,8 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 	}
 
 	@Override
-	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes) {
-		Error err = super.traceGraph(g, nodes);
+	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes) {
+		Error err = super.traceOperator(g, nodes);
 	
 		// edges and children
 		GraphNode node = nodes.get(this.operatorId);
@@ -115,7 +115,7 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 			GraphNode child = g.addNode();
 			g.addEdge(node, child);
 			nodes.put(childOp.operatorId, child);
-			childOp.traceGraph(g, nodes);
+			childOp.traceOperator(g, nodes);
 		} else {
 			GraphNode child = nodes.get(childOp.operatorId);
 			g.addEdge(node, child);

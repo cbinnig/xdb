@@ -1,6 +1,5 @@
 package org.xdb.tracker;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,6 +7,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.Set;
 
 import org.xdb.Config;
@@ -16,9 +17,10 @@ import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
-import org.xdb.funsql.compile.FunSQLCompiler;
+import org.xdb.logging.XDBLog;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
 import org.xdb.tracker.scheduler.AbstractResourceScheduler;
+import org.xdb.utils.Dotty;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
@@ -26,7 +28,6 @@ import org.xdb.utils.Tuple;
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphFactory;
 import com.oy.shared.lm.graph.GraphNode;
-import com.oy.shared.lm.out.GRAPHtoDOTtoGIF;
 
 /**
  * Plan implementation for query tracker. This plan is used to compute 
@@ -58,23 +59,28 @@ public class QueryTrackerPlan implements Serializable {
 	private transient ComputeClient computeClient = null;
 	private transient AbstractResourceScheduler resourceScheduler = null;
 	
-	// plan info
+	// plan 
 	private final HashMap<Identifier, AbstractTrackerOperator> operators = new HashMap<Identifier, AbstractTrackerOperator>();
 	private final HashMap<Identifier, Set<Identifier>> consumers = new HashMap<Identifier, Set<Identifier>>();
 	private final HashMap<Identifier, Set<Identifier>> sources = new HashMap<Identifier, Set<Identifier>>();
 	private final HashSet<Identifier> roots = new HashSet<Identifier>();
 	private final HashSet<Identifier> leaves = new HashSet<Identifier>();
+	
+	// deployment 
+	private final HashMap<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
 	private final HashMap<String, MutableInteger> slots = new HashMap<String, MutableInteger>();
+	private final HashMap<Identifier, AbstractExecuteOperator> executeOperatos = new HashMap<Identifier, AbstractExecuteOperator>();
 	
-	// deployment info
-	private HashMap<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
-	
+	// logger
+	private transient Logger logger;
+		
 	// last error
 	private Error err = new Error();
 
 	// constructor
 	public QueryTrackerPlan() {
 		this.planId = new Identifier(lastPlanId++);
+		this.logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
 	// getter and setter
@@ -133,6 +139,7 @@ public class QueryTrackerPlan implements Serializable {
 		this.tracker = tracker;
 		this.computeClient = tracker.getComputeClient();
 		this.resourceScheduler = AbstractResourceScheduler.createScheduler(this);
+		this.logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
 	/**
@@ -283,6 +290,14 @@ public class QueryTrackerPlan implements Serializable {
 
 		// distribute plan to compute nodes
 		distributePlan();
+		
+		// trace execution plan
+		if (Config.TRACE_EXECUTE_PLAN) {
+			this.err = this.traceDeployment(this.getClass().getCanonicalName()
+					+ "_EXECUTE");
+		}
+		
+		// error handling
 		if (err.isError()) {
 			for (final OperatorDesc deployOperDesc : currentDeployment.values()) {
 				computeClient.closeOperator(deployOperDesc);
@@ -379,36 +394,77 @@ public class QueryTrackerPlan implements Serializable {
 			final AbstractTrackerOperator oper = operators.get(operId);
 
 			// create executable operator and set query tracker URL
-			final AbstractExecuteOperator deployOper = oper.genDeployOperator(
+			final AbstractExecuteOperator execOper = oper.genDeployOperator(
 					deployOperDesc, currentDeployment);
-			deployOper.setQueryTracker(this.tracker.getDescription());
+			execOper.setQueryTracker(this.tracker.getDescription());
 			
 			// set consumers of operator
 			for (final Identifier consumerId : consumers.get(operId)) {
 				final OperatorDesc consumerDesc = currentDeployment
 						.get(consumerId);
-				deployOper.addConsumer(consumerDesc);
+				execOper.addConsumer(consumerDesc);
 			}
 
 			// set sources of operator
 			for (final Identifier sourceId : sources.get(operId)) {
 				final OperatorDesc sourceDesc = currentDeployment.get(sourceId);
-				deployOper.addSource(sourceDesc);
+				execOper.addSource(sourceDesc);
 			}
 
-			// distribute operator to compute node
+			// deploy operator to compute node
 			err = computeClient.openOperator(deployOperDesc.getOperatorNode(),
-					deployOper);
+					execOper);
+			
+			// add operator to deployment
+			this.executeOperatos.put(operId, execOper);
 			
 			if (err.isError())
 				return;
 		}
 	}
+	
+	/**
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	public Error traceDeployment(String fileName) {
+		fileName += planId;
+		final Error error = new Error();
+		final Graph graph = GraphFactory.newGraph();
+
+		final HashMap<Identifier, GraphNode> nodes = new HashMap<Identifier, GraphNode>();
+
+		// add nodes to plan
+		for (Identifier opId : this.executeOperatos.keySet()) {
+			GraphNode node = graph.addNode();
+			AbstractExecuteOperator op = this.executeOperatos.get(opId);
+			String sql = op.toString();
+			node.getInfo().setCaption(sql);
+			logger.log(Level.INFO, sql);
+			nodes.put(opId, node);
+		}
+
+		// add edges to plan
+		for (Map.Entry<Identifier, Set<Identifier>> entry : this.sources
+				.entrySet()) {
+			Identifier fromId = entry.getKey();
+			GraphNode from = nodes.get(fromId);
+
+			for (Identifier toId : entry.getValue()) {
+				GraphNode to = nodes.get(toId);
+				graph.addEdge(from, to);
+			}
+		}
+
+		Dotty.dot2Img(graph, fileName);
+		return error;
+	}
 
 	/**
-	 * Generates a visual graph representation of the compile plan
+	 * Generates a visual graph representation of the query tracker plan
 	 */
-	public Error traceGraph(String fileName) {
+	public Error tracePlan(String fileName) {
 		fileName += planId;
 		final Error error = new Error();
 		final Graph graph = GraphFactory.newGraph();
@@ -437,17 +493,7 @@ public class QueryTrackerPlan implements Serializable {
 			}
 		}
 
-		// output graph to *.gif
-		final String path = Config.DOT_TRACE_PATH;
-		final String dotFileName = path + fileName + ".dot";
-		final String gifFileName = path + fileName + ".gif";
-		final String exeFileName = Config.DOT_EXE;
-		try {
-			GRAPHtoDOTtoGIF.transform(graph, dotFileName, gifFileName,
-					exeFileName);
-		} catch (final IOException e) {
-			return FunSQLCompiler.createGenericCompileErr(e.getMessage());
-		}
+		Dotty.dot2Img(graph, fileName);
 		return error;
 	}
 }

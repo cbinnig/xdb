@@ -132,8 +132,9 @@ public class MasterTrackerNode {
 		}
 
 		// tracing
-		if (Config.TRACE_TRACKER_PLAN)
-			plan.traceGraph(plan.getClass().getCanonicalName()+"_EXECUTE");
+		if (Config.TRACE_TRACKER_PLAN){
+			plan.tracePlan(plan.getClass().getCanonicalName()+"_TRACKER");
+		}
 
 		logger.log(Level.INFO, "Got new plan for execution: " + plan);
 

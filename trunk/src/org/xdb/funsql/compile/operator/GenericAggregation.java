@@ -103,8 +103,8 @@ public class GenericAggregation extends AbstractUnaryOperator {
 	}
 
 	@Override
-	public Error traceGraph(Graph g, HashMap<Identifier, GraphNode> nodes) {
-		Error err = super.traceGraph(g, nodes);
+	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes) {
+		Error err = super.traceOperator(g, nodes);
 		if (err.isError())
 			return err;
 

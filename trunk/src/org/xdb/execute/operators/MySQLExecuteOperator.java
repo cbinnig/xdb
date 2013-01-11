@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.Vector;
 
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.utils.Identifier;
 
 /**
@@ -78,5 +79,27 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 		executeStmts.clear();
 
 		return err;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		for(String openSQL : this.openSQLs) {
+			builder.append(openSQL.toString());
+			builder.append(AbstractToken.NEWLINE);
+		}
+		
+		for(String exeSQL : this.executeSQLs) {
+			builder.append(exeSQL.toString());
+			builder.append(AbstractToken.NEWLINE);
+		}
+		
+		for(String closeSQL : this.closeSQLs) {
+			builder.append(closeSQL.toString());
+			builder.append(AbstractToken.NEWLINE);
+		}
+		
+		return builder.toString();
 	}
 }
