@@ -26,7 +26,7 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 	public void addExecuteSQL(StringTemplate dml) {
 		this.executeSQLs.add(dml);
 	}
-	
+
 	public Collection<StringTemplate> getExecuteSQLs() {
 		return executeSQLs;
 	}
@@ -34,12 +34,11 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 	// methods
 
 	@Override
-	public AbstractExecuteOperator genDeployOperator(
-			OperatorDesc operDesc, Map<Identifier, OperatorDesc> currentDeployment) {
+	public AbstractExecuteOperator genDeployOperator(OperatorDesc operDesc,
+			Map<Identifier, OperatorDesc> currentDeployment) {
 
 		Identifier deployOperId = operDesc.getOperatorID();
-		MySQLExecuteOperator deployOper = new MySQLExecuteOperator(
-				deployOperId);
+		MySQLExecuteOperator deployOper = new MySQLExecuteOperator(deployOperId);
 
 		HashMap<String, String> args = new HashMap<String, String>();
 
@@ -47,36 +46,42 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 		for (String tableName : this.inTables.keySet()) {
 			TableDesc inTableDesc = this.inTableDesc.get(tableName);
 			String deployTableName = genDeployTableName(tableName, deployOperId);
-			
-			if(inTableDesc.isTemp()){ //temporary table for intermediate results
-				OperatorDesc sourceOp = currentDeployment.get(inTableDesc.getOperatorID());
+
+			if (inTableDesc.isTemp()) { // temporary table for intermediate
+										// results
+				OperatorDesc sourceOp = currentDeployment.get(inTableDesc
+						.getOperatorID());
 				String sourceURL = sourceOp.getOperatorNode();
 				String sourceTableName = inTableDesc.getTableName();
 				Identifier sourceOperId = sourceOp.getOperatorID();
-				
+
 				String deployTableDDL = this.genDeployInputTableDDL(tableName,
 						deployOperId, sourceTableName, sourceOperId, sourceURL);
 				deployOper.addOpenSQL(deployTableDDL);
-				args.put(tableName, "SELECT * FROM "+deployTableName);
-			}
-			else{ //table is stored in an XDB instance
+				args.put(tableName, "SELECT * FROM " + deployTableName);
+			} else { // table is stored in an XDB instance
 				URI connURI = inTableDesc.getURI();
 				String sourceTableName = inTableDesc.getTableName();
 				String sourceURL = connURI.getHost();
 				String sourceDB = connURI.getPath().substring(1);
-				
-				String deployTableDDL = this.genDeployInputTableDDL(tableName,
-						deployOperId, sourceTableName, sourceDB, sourceURL);
+
+				String deployTableDDL = this.genDeployInputTableDDL(
+							tableName, deployOperId, sourceTableName, sourceDB,
+							sourceURL);
 				deployOper.addOpenSQL(deployTableDDL);
+				
+				if(sourceURL.equals("127.0.0.1")){
+					deployTableName = sourceDB + "." + sourceTableName;
+				}
 				args.put(tableName, deployTableName);
 			}
 		}
 
 		for (String tableName : this.outTables.keySet()) {
-			
+
 			String deployTableDDL = this.genDeployOutputTableDDL(tableName,
 					deployOperId);
-			
+
 			String deployTableName = genDeployTableName(tableName, deployOperId);
 			deployOper.addOpenSQL(deployTableDDL);
 			args.put(tableName, deployTableName);
@@ -89,24 +94,26 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 
 		// generate DDLs to close operator
 		for (String tableName : this.inTables.keySet()) {
-			deployOper.addCloseSQL(genDropDeployTableDDL(tableName, deployOperId));
+			deployOper.addCloseSQL(genDropDeployTableDDL(tableName,
+					deployOperId));
 		}
-		
+
 		for (String tableName : this.outTables.keySet()) {
-			deployOper.addCloseSQL(genDropDeployTableDDL(tableName, deployOperId));
+			deployOper.addCloseSQL(genDropDeployTableDDL(tableName,
+					deployOperId));
 		}
 
 		return deployOper;
 	}
-	
+
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		
-		for(StringTemplate exeSQL : executeSQLs) {
+
+		for (StringTemplate exeSQL : executeSQLs) {
 			builder.append(exeSQL.toString());
 			builder.append(AbstractToken.NEWLINE);
 		}
-		
+
 		return builder.toString();
 	}
 }
