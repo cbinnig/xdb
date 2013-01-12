@@ -58,7 +58,15 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 				String deployTableDDL = this.genDeployInputTableDDL(tableName,
 						deployOperId, sourceTableName, sourceOperId, sourceURL);
 				deployOper.addOpenSQL(deployTableDDL);
+				
+				//TODO: Check if URL is equal to local host or 
+				//if deployed URL is equal to URL of table?
+				//If yes, then do not use federated table
+				if(sourceURL.equals("127.0.0.1")){
+					deployTableName = sourceTableName;
+				}
 				args.put(tableName, "SELECT * FROM " + deployTableName);
+				
 			} else { // table is stored in an XDB instance
 				URI connURI = inTableDesc.getURI();
 				String sourceTableName = inTableDesc.getTableName();
@@ -70,6 +78,9 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 							sourceURL);
 				deployOper.addOpenSQL(deployTableDDL);
 				
+				//TODO: Check if URL is equal to local host or 
+				//if deployed URL is equal to URL of table?
+				//If yes, then do not use federated table
 				if(sourceURL.equals("127.0.0.1")){
 					deployTableName = sourceDB + "." + sourceTableName;
 				}
