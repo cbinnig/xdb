@@ -2,7 +2,6 @@ package org.xdb.funsql.optimize;
 
 import java.util.HashSet;
 
-import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractBottomUpTreeVisitor;
@@ -13,6 +12,7 @@ import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.utils.Identifier;
@@ -25,6 +25,9 @@ import org.xdb.utils.Identifier;
  * 
  */
 public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
+	//TODO remove
+
+	
 	private SQLUnary sqlUnaryOp = null;
 	private int parentIdx = 0;
 	private boolean isLastOp = false;
@@ -47,9 +50,7 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 		this.sqlUnaryOp = new SQLUnary(op.getChild());
 		this.plan.addOperator(this.sqlUnaryOp, false);
 		this.sqlUnaryOp.cut();
-		
 		this.parentIdx = op.getChild().findParent(op);
-		
 		this.isLastOp = false;
 		this.combinedOps.clear();
 	}
@@ -128,6 +129,8 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 	
 	private void paste(GenericProjection gp){
 		// add result description
+		
+	
 		this.sqlUnaryOp.addResult(gp.getResult());
 		
 		// replace projection by combined operator
@@ -138,7 +141,8 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 			int childIdx = parent.findChild(gp);
 			parent.setChild(childIdx, this.sqlUnaryOp);
 		}
-		
+		this.sqlUnaryOp.addParents(gp.getParents());
+	
 		// remove link to old parent 
 		this.sqlUnaryOp.getChild().setParent(parentIdx, this.sqlUnaryOp);
 		
@@ -147,7 +151,9 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 			this.plan.removeOperator(opId);
 		}
 		
+
 		// reset SQLUnary operator
+
 		this.sqlUnaryOp = null;
 	}
 	
@@ -175,8 +181,18 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitSQLUnary(SQLUnary sqlOp) {
-		String[] args = { "SQLUnary operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
+		// DO nothing because already combined from other root node
+
+		Error e = new Error();
 		return e;
+	}
+
+	@Override
+	public Error visitSQLJoin(SQLJoin ej) {
+		if(this.sqlUnaryOp != null){
+			this.plan.removeOperator(this.sqlUnaryOp.getOperatorId());
+			this.sqlUnaryOp = null;
+		}
+		return err;
 	}
 }

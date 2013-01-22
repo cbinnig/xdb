@@ -1,5 +1,8 @@
 package org.xdb.funsql.optimize;
 
+
+import java.util.BitSet;
+
 import org.xdb.Config;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
@@ -26,39 +29,50 @@ public class Optimizer {
 	 * 
 	 * @return
 	 */
-	public Error optimize() {
+	public Error optimize(BitSet optimizeRule ) {
 		Error err = new Error();
-
+	
 		// tracing
 		if (Config.TRACE_COMPILE_PLAN)
 			this.compilePlan.tracePlan(compilePlan.getClass()
 					.getCanonicalName() + "_COMPILED");
 
 		// rewrite: push down selection
-		if (Config.OPTIMIZER_ACTIVE_RULES.get(0)) {
+		if (optimizeRule.get(0)) {
 			err = pushSelections();
 			if (err.isError())
 				return err;
 		}
 
 		// rewrite: combine selections
-		if (Config.OPTIMIZER_ACTIVE_RULES.get(1)) {
+		if (optimizeRule.get(1)) {
 			err = combineSelections();
 			if (err.isError())
 				return err;
 		}
-
+		
 		// tracing
 		if (Config.TRACE_OPTIMIZED_PLAN)
 			this.compilePlan.tracePlan(compilePlan.getClass()
 					.getCanonicalName() + "_OPTIMIZED");
 
+		// rewrite: combine joins
+		if (optimizeRule.get(3)) {
+			err = combineJoins();
+			if (err.isError())
+				return err;
+		}
+		
 		// rewrite: combine unary operators
-		if (Config.OPTIMIZER_ACTIVE_RULES.get(2)) {
+		if (optimizeRule.get(2)) {
 			err = combineUnaryOps();
 			if (err.isError())
 				return err;
 		}
+	
+
+
+		
 
 		// tracing
 		if (Config.TRACE_OPTIMIZED_PLAN)
@@ -112,6 +126,25 @@ public class Optimizer {
 		return err;
 	}
 
+	/**
+	 * Combines selection operators in plan
+	 * 
+	 * @return
+	 */
+	private Error combineJoins() {
+		Error err = new Error();
+		for (AbstractCompileOperator root :  this.compilePlan.getRoots()) {
+			JoinCombineVisitor combineVisitor = new JoinCombineVisitor(
+					root, this.compilePlan);
+			err = combineVisitor.visit();
+
+			if (err.isError())
+				return err;
+		}
+		return err;
+	}
+	
+	
 	/**
 	 * Combines selection operators in plan
 	 * 

@@ -1,6 +1,8 @@
 package org.xdb.funsql.compile.analyze.operator;
 
 
+import java.util.Vector;
+
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 
@@ -19,12 +21,11 @@ public abstract class AbstractTopDownTreeVisitor extends AbstractTreeVisitor {
 		if(this.stop)
 			return e;
 		
-		for(AbstractCompileOperator child: absOp.getChildren()){
-			e = this.visit(child);
+		for(int i = 0; i < absOp.getChildren().size(); i ++){
+			e = this.visit(absOp.getChildren().get(i));
 			if(e.isError())
 				return e;
 		}
-		
 		return e;
 	}
 }

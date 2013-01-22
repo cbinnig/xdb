@@ -45,12 +45,18 @@ public class Config implements Serializable {
 	public static int COMPILE_PORT = 55556;
 	public static String COMPILE_URL = "127.0.0.1";
 	public static String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
-	public static BitSet OPTIMIZER_ACTIVE_RULES = new BitSet();
+	public static BitSet OPTIMIZER_ACTIVE_RULES_FUNCTION = new BitSet();
+	public static BitSet OPTIMIZER_ACTIVE_RULES_SELECT = new BitSet();
 
 	static {
-		OPTIMIZER_ACTIVE_RULES.set(0, true);
-		OPTIMIZER_ACTIVE_RULES.set(1, true);
-		OPTIMIZER_ACTIVE_RULES.set(2, true);
+		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(0, true);
+		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(1, true);
+		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(2, true);
+		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(3, true);
+		OPTIMIZER_ACTIVE_RULES_SELECT.set(0, false);
+		OPTIMIZER_ACTIVE_RULES_SELECT.set(1, true);
+		OPTIMIZER_ACTIVE_RULES_SELECT.set(2, true);
+		OPTIMIZER_ACTIVE_RULES_SELECT.set(3, true);
 	}
 
 	// Master Tracker Server
@@ -125,11 +131,19 @@ public class Config implements Serializable {
 				LOG_LEVEL = Level.parse(props.getProperty("LOG_LEVEL"));
 			}
 
-			if (props.containsKey("OPTIMIZER_ACTIVE_RULES")) {
-				String ruleBitSet = props.getProperty("OPTIMIZER_ACTIVE_RULES");
+			if (props.containsKey("OPTIMIZER_ACTIVE_RULES_FUNCTION")) {
+				String ruleBitSet = props.getProperty("OPTIMIZER_ACTIVE_RULES_FUNCTION");
 				int i = 0;
 				for (char bit : ruleBitSet.toCharArray()) {
-					OPTIMIZER_ACTIVE_RULES
+					OPTIMIZER_ACTIVE_RULES_FUNCTION
+							.set(i++, (bit == '1') ? true : false);
+				}
+			}
+			if (props.containsKey("OPTIMIZER_ACTIVE_RULES_SELECT")) {
+				String ruleBitSet = props.getProperty("OPTIMIZER_ACTIVE_RULES_SELECT");
+				int i = 0;
+				for (char bit : ruleBitSet.toCharArray()) {
+					OPTIMIZER_ACTIVE_RULES_SELECT
 							.set(i++, (bit == '1') ? true : false);
 				}
 			}

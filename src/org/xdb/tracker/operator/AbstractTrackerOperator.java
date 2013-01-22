@@ -10,6 +10,7 @@ import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
+import org.xdb.error.Error;
 
 public abstract class AbstractTrackerOperator implements Serializable {
 
@@ -51,6 +52,10 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	// flag for root operator
 	protected boolean isRoot = false;
 
+	// Error handling
+	protected Error err = new Error();
+	
+
 	// constructors
 	public AbstractTrackerOperator() {
 		super();
@@ -59,6 +64,10 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	// getters and setters
 	public void setIsRoot(final boolean isRoot){
 		this.isRoot = isRoot;
+	}
+
+	public Error getError() {
+		return err;
 	}
 
 	public boolean isRoot(){

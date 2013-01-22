@@ -98,7 +98,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 		return this.results.size();
 	}
 
-	public void setChilren(Vector<AbstractCompileOperator> sources) {
+	public void setChildren(Vector<AbstractCompileOperator> sources) {
 		this.children = sources;
 	}
 

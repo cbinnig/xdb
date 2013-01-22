@@ -81,6 +81,9 @@ public class CodeGenerator {
 		// split compile plan into sub-plans
 		this.splitCompileOps = extractSplitOps();
 
+		if(this.err.isError())
+			return this.err;
+		
 		// for each sub-plan (which has splitOp as root) generate a tracker
 		// operator
 		for (AbstractCompileOperator splitCompileOp : splitCompileOps) {
@@ -300,7 +303,10 @@ public class CodeGenerator {
 		SplitPlanVisitor splitVisitor = new SplitPlanVisitor(null);
 		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
 			splitVisitor.reset(root);
-			splitVisitor.visit();
+			this.err = splitVisitor.visit();
+			
+			if(err.isError())
+				return null;
 		}
 
 		return splitVisitor.getSplitOps();
