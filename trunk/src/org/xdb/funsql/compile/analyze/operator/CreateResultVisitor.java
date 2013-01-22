@@ -13,6 +13,7 @@ import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.ResultDesc;
+import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.AbstractToken;
@@ -142,6 +143,43 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 	public Error visitSQLUnary(SQLUnary sqlOp) {
 		String[] args = { "SQLUnary operators are currently not supported" };
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
+		return e;
+	}
+
+	@Override
+	public Error visitSQLJoin(SQLJoin ej) {
+		Error e = new Error();
+		// combine result description
+		
+		ResultDesc rDesc = new ResultDesc();
+		
+		for(AbstractCompileOperator child : ej.getChildren()){
+			for(TokenAttribute att: child.getResult().getAttributes()){
+				rDesc.addAttribute(att);
+			}
+			for(EnumSimpleType type: child.getResult().getTypes()){
+				rDesc.addType(type);
+			}
+		}
+		
+		/*
+		ResultDesc leftDesc = ej.getLeftChild().getResult().clone();
+		ResultDesc rightDesc = ej.getRightChild().getResult().clone();
+		
+		//copy from right to left
+		for(TokenAttribute att: rightDesc.getAttributes()){
+			leftDesc.addAttribute(att);
+		}
+		for(EnumSimpleType type: rightDesc.getTypes()){
+			leftDesc.addType(type);
+		}
+		*/ 
+		//set new table names
+		for(TokenAttribute att: rDesc.getAttributes()){
+			att.setTable(ej.getOperatorId().toString());
+		}
+		
+		ej.addResult(rDesc);
 		return e;
 	}
 }

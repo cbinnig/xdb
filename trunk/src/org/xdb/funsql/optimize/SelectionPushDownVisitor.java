@@ -12,6 +12,7 @@ import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractBinaryOperator;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
+import org.xdb.funsql.compile.operator.AbstractJoinOperator;
 import org.xdb.funsql.compile.operator.AbstractUnaryOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
@@ -19,6 +20,7 @@ import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
@@ -283,7 +285,59 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 			}
 		}
 	}
+	/**
+	 * pushDown selection over binary operator
+	 * 
+	 * @param op
+	 */
+	private void pushDown(AbstractJoinOperator op) {
+		// TODO found selection
+		/*if (this.cutSelection != null) {
+			Vector<TokenAttribute> leftChildAtts = op.getLeftChild()
+					.getResult().getAttributes();
+			Vector<TokenAttribute> rightChildAtts = op.getRightChild()
+					.getResult().getAttributes();
 
+			AbstractPredicate predicate = this.cutSelection.getPredicate();
+
+			Collection<TokenAttribute> selAtts = predicate.getAttributes();
+			Collection<TokenAttribute> newLeftAtts = TokenAttribute
+					.clone(selAtts);
+			op.renameForPushDown(newLeftAtts, LEFT_CHILD_IDX);
+			Collection<TokenAttribute> newRightAtts = TokenAttribute
+					.clone(selAtts);
+			op.renameForPushDown(newRightAtts, RIGHT_CHILD_IDX);
+
+			// wait
+			if (this.doWaitNextVisit && this.wait(op)) {
+				return;
+			}
+			// push down on left side
+			else if (leftChildAtts.containsAll(newLeftAtts)) {
+				op.renameForPushDown(selAtts, LEFT_CHILD_IDX);
+				this.pasteInfo.clear();
+				this.pasteInfo.put(op, LEFT_CHILD_IDX);
+				this.nextChildIdx = LEFT_CHILD_IDX;
+				return;
+			}
+			// push down on right side
+			else if (rightChildAtts.containsAll(newRightAtts)) {
+				op.renameForPushDown(selAtts, RIGHT_CHILD_IDX);
+				this.pasteInfo.clear();
+				this.pasteInfo.put(op, RIGHT_CHILD_IDX);
+				this.nextChildIdx = RIGHT_CHILD_IDX;
+				return;
+			}
+			// stop pushdown
+			else {
+				this.paste();
+				return;
+			}
+			
+		
+		}*/
+		return;
+	}
 	/**
 	 * pushDown selection over unary operator
 	 * 
@@ -319,6 +373,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 		}
 	}
 
+	
 	/**
 	 * Pastes selection into plan with given paste info
 	 */
@@ -336,5 +391,11 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 		this.cutSelection = null;
 		this.modifiedPlan = true;
 		this.stop();
+	}
+
+	@Override
+	public Error visitSQLJoin(SQLJoin ej) {
+		this.pushDown(ej);
+		return err;
 	}
 }

@@ -59,9 +59,12 @@ public class EquiJoin extends AbstractBinaryOperator {
 		final List<String> rAttributes = getRightChild().getResultTableAttributes();
 		final List<String> aliasVec = getResultAttributes();
 		
+	//	final List<String> lAliases = getLeftChild().getResultAttributes();
+	//	final List<String> rAliases = getRightChild().getResultAttributes();;
+		
 		final List<String> lAliases = aliasVec.subList(0, lAttributes.size());
 		final List<String> rAliases = aliasVec.subList(lAttributes.size(), aliasVec.size());
-		
+	
 		vars.put("RESULT", SetUtils.buildAliasString(lAttributes, lAliases)+","+SetUtils.buildAliasString(rAttributes, rAliases));
 		
 		vars.put("OP1", getLeftChild().getOperatorId().toString());

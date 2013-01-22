@@ -396,6 +396,10 @@ public class QueryTrackerPlan implements Serializable {
 			// create executable operator and set query tracker URL
 			final AbstractExecuteOperator execOper = oper.genDeployOperator(
 					deployOperDesc, currentDeployment);
+			this.err = oper.getError();
+			if(this.err.isError())
+				return;
+			
 			execOper.setQueryTracker(this.tracker.getDescription());
 			
 			// set consumers of operator

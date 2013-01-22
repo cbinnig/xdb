@@ -14,9 +14,12 @@ import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.ResultDesc;
+import org.xdb.funsql.compile.operator.SQLJoin;
+
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.utils.TokenPair;
 
 public class RenameOperatorVisitor extends AbstractBottomUpTreeVisitor {
 
@@ -93,4 +96,23 @@ public class RenameOperatorVisitor extends AbstractBottomUpTreeVisitor {
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
+
+	@Override
+	public Error visitSQLJoin(SQLJoin sj) {
+		
+		Vector<TokenPair> tokenpairs = sj.getJointokens();
+		
+		for (TokenPair tokenPair : tokenpairs) {
+			TokenAttribute leftAtt = tokenPair.getLeftTokenAttribute();
+			leftAtt.setName(ResultDesc.createResultAtt(leftAtt.getTable().getName().toSqlString(), leftAtt.getName().toSqlString()));
+			leftAtt.setTable(tokenPair.getLeftTableName());
+			
+			TokenAttribute rightAtt = tokenPair.getRightTokenAttribute();
+			rightAtt.setName(ResultDesc.createResultAtt(rightAtt.getTable().getName().toSqlString(), leftAtt.getName().toSqlString()));
+			rightAtt.setTable(tokenPair.getRightTableName());
+		}
+
+		return new Error();
+	}
+	
 }

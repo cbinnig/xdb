@@ -1,6 +1,8 @@
 package org.xdb.tracker.operator;
 
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,12 +61,21 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 						deployOperId, sourceTableName, sourceOperId, sourceURL);
 				deployOper.addOpenSQL(deployTableDDL);
 				
-				//TODO: Check if URL is equal to local host or 
+				//Check if URL is equal to local host or 
 				//if deployed URL is equal to URL of table?
 				//If yes, then do not use federated table
-				if(sourceURL.equals("127.0.0.1")){
+				InetAddress sourceAddress = null;
+				try {
+					sourceAddress =InetAddress.getByName(sourceURL);
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//check if federated engine is necessary
+				if(sourceAddress.isAnyLocalAddress()|| sourceAddress.isLoopbackAddress()){
 					deployTableName = sourceTableName;
 				}
+	
 				args.put(tableName, "SELECT * FROM " + deployTableName);
 				
 			} else { // table is stored in an XDB instance
@@ -78,12 +89,27 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 							sourceURL);
 				deployOper.addOpenSQL(deployTableDDL);
 				
-				//TODO: Check if URL is equal to local host or 
+				//Check if URL is equal to local host or 
 				//if deployed URL is equal to URL of table?
 				//If yes, then do not use federated table
-				if(sourceURL.equals("127.0.0.1")){
+				//is local and if is Currentdeployment = source URL
+				InetAddress sourceAddress = null;
+				try {
+					sourceAddress =InetAddress.getByName(sourceURL);
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				}
+				
+				//Check first if its's running on localhost
+				//Second check if soure Table has the same URL as the current Node
+				if(sourceAddress.isAnyLocalAddress()|| sourceAddress.isLoopbackAddress()){
+					deployTableName = sourceDB + "." + sourceTableName;
+				}else if (sourceURL.equals(operDesc.getOperatorNode())){
 					deployTableName = sourceDB + "." + sourceTableName;
 				}
+				/*if(sourceURL.equals("127.0.0.1")){
+					deployTableName = sourceDB + "." + sourceTableName;
+				}*/
 				args.put(tableName, deployTableName);
 			}
 		}

@@ -84,6 +84,15 @@ public class CompilePlan implements Serializable {
 		return rootOps;
 	}
 	
+	public void setRoots(Collection<AbstractCompileOperator> roots){
+		this.roots.clear();
+		
+		for (AbstractCompileOperator abstractCompileOperator : roots) {
+			this.roots.add(abstractCompileOperator.getOperatorId());
+		}
+	
+	}
+	
 	public AbstractCompileOperator getRoot(int i){
 		return this.operators.get(this.roots.get(i));
 	}

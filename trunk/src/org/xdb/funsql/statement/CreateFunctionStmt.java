@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Vector;
 
+import org.xdb.Config;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
@@ -233,7 +234,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	public Error optimize() {
 		Error err = new Error();
 		Optimizer opti = new Optimizer(this.functionPlan);
-		err = opti.optimize();
+		err = opti.optimize(Config.OPTIMIZER_ACTIVE_RULES_FUNCTION);
 		return err;
 	}
 }

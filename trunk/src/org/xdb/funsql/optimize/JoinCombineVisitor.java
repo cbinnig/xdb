@@ -1,6 +1,7 @@
 package org.xdb.funsql.optimize;
 
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractTopDownTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
@@ -12,83 +13,89 @@ import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
-import org.xdb.funsql.compile.predicate.AbstractPredicate;
-import org.xdb.funsql.compile.predicate.ComplexPredicate;
-import org.xdb.funsql.compile.predicate.EnumPredicateType;
-import org.xdb.funsql.compile.tokens.TokenAttribute;
 
-public class SelectionCombineVisitor extends AbstractTopDownTreeVisitor {
+public class JoinCombineVisitor extends AbstractTopDownTreeVisitor {
+	
 	private AbstractCompileOperator lastOp = null;
 	private Error err = new Error();
+	private CompilePlan plan;
 	
-	public SelectionCombineVisitor(AbstractCompileOperator root) {
+	public JoinCombineVisitor(AbstractCompileOperator root, CompilePlan plan) {
 		super(root);
+		this.plan = plan;
 	}
 
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
-		this.lastOp = ej;
-		return err;
+		//check if it's null then do nothing just change the last op
+		if(this.lastOp != null){
+			if(this.lastOp.getType().equals(EnumOperator.EQUI_JOIN)){
+			
+				//create new sql join
+				SQLJoin sqljoin =  new SQLJoin((EquiJoin)this.lastOp);
+				
+				//merge equi Join into sql jlin
+				sqljoin.mergeChildJoinOp(ej);
+				// remove operators
+				this.plan.replaceOperator(this.lastOp.getOperatorId(), sqljoin, false);
+				this.plan.removeOperator(ej.getOperatorId());
+ 
+				this.lastOp = sqljoin;
+
+				return this.err;
+			} else if(this.lastOp.getType().equals(EnumOperator.SQL_JOIN)){
+				//merge new equi join into existing sql join
+				((SQLJoin)this.lastOp).mergeChildJoinOp(ej);
+			}else {
+				this.lastOp = ej;
+			}
+		}else{
+			this.lastOp = ej;
+		}
+		
+		return this.err;
 	}
 
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
-		//combine two subsequent selections
-		if(this.lastOp.getType() == EnumOperator.GENERIC_SELECTION){
-			//cut last selection
-			GenericSelection lastSel = (GenericSelection)this.lastOp;
-			lastSel.cut();
-			
-			//create new conjunctive predicate
-			AbstractPredicate selPred = gs.getPredicate();
-			AbstractPredicate lastSelPred = lastSel.getPredicate();
-			TokenAttribute.renameTable(lastSelPred.getAttributes(), gs.getChild().getOperatorId().toString());
-			ComplexPredicate newSelPred = new ComplexPredicate(EnumPredicateType.AND_PREDICATE);
-			newSelPred.setPredicate1(selPred);
-			newSelPred.addAnd();
-			newSelPred.addPredicate2(lastSelPred);
-			
-			//set predicate as new predicate
-			gs.setPredicate(newSelPred);
-		}
 		this.lastOp = gs;
-		return err;
+		return new Error();
 	}
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
 		this.lastOp = sa;
-		return err;
+		return new Error();
 	}
 
 	@Override
 	public Error visitGenericProjection(GenericProjection gp) {
 		this.lastOp = gp;
-		return err;
+		return new Error();
 	}
 
 	@Override
 	public Error visitTableOperator(TableOperator to) {
 		this.lastOp = to;
-		return err;
+		return new Error();
 	}
 
 	@Override
 	public Error visitRename(Rename ro) {
 		this.lastOp = ro;
-		return err;
+		return new Error();
 	}
 
 	@Override
-	public Error visitSQLUnary(SQLUnary sqlOp) {
-		this.lastOp = sqlOp;
-		return err;
+	public Error visitSQLUnary(SQLUnary absOp) {
+		this.lastOp = absOp;
+		return new Error();
 	}
 
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
 		this.lastOp = ej;
-		return err;
+		return new Error();
 	}
 
 }

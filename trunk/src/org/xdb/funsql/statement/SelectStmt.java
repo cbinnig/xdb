@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Vector;
 
+import org.xdb.Config;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
@@ -796,7 +797,7 @@ public class SelectStmt extends AbstractServerStmt {
 	public Error optimize() {
 		Error err = new Error();
 		Optimizer opti = new Optimizer(this.plan);
-		opti.optimize();
+		opti.optimize(Config.OPTIMIZER_ACTIVE_RULES_SELECT);
 		return err;
 	}
 

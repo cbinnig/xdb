@@ -3,6 +3,7 @@ package org.xdb.test.funsql.compile;
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.xdb.Config;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.operator.EquiJoin;
@@ -109,7 +110,7 @@ public class TestOptimizeLargeSQL extends CompileServerTestCase {
 
 		//Optimize plan
 		Optimizer opti = new Optimizer(selectStmt.getPlan());
-		opti.optimize();
+		opti.optimize(Config.OPTIMIZER_ACTIVE_RULES_FUNCTION);
 
 		selectStmt.getPlan()
 				.tracePlan(this.getClass().getName() + "Optimized");
