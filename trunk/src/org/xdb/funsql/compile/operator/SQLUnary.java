@@ -29,6 +29,8 @@ public class SQLUnary extends AbstractUnaryOperator {
 			"SELECT <SELECT> ");
 	private final StringTemplate fromTemplate = new StringTemplate(
 			"FROM (<<OP1>>) AS <OP1> ");
+	private final StringTemplate fromTemplate2 = new StringTemplate(
+			"FROM <<OP1>> AS <OP1> ");
 	private final StringTemplate whereTemplate = new StringTemplate(
 			" WHERE <WHERE> ");
 	private final StringTemplate groupTemplate = new StringTemplate(
@@ -97,8 +99,15 @@ public class SQLUnary extends AbstractUnaryOperator {
 
 		// from clause
 		vars.clear();
+		//whether use table or other complex template
 		vars.put("OP1", getChild().getOperatorId().toString());
-		sqlStmt.append(fromTemplate.toString(vars));
+		if(getChild().getType().equals(EnumOperator.TABLE)){
+			sqlStmt.append(fromTemplate2.toString(vars));
+		}else {
+			sqlStmt.append(fromTemplate.toString(vars));
+		}
+
+		
 
 		// where clause
 		if (this.wherePred != null) {

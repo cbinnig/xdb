@@ -53,6 +53,7 @@ public class CodeGenerator {
 	// templates for SQL code generation
 	private final StringTemplate sqlDMLTemplate = new StringTemplate(
 			"INSERT INTO <<" + TAB1 + ">> (<" + SQL1 + ">)");
+
 	private final StringTemplate sqlDDLTemplate = new StringTemplate("<<"
 			+ TAB1 + ">> <" + SQL1 + ">");
 
@@ -78,9 +79,12 @@ public class CodeGenerator {
 	 * @return
 	 */
 	public Error generate() {
+		
+		
 		// split compile plan into sub-plans
 		this.splitCompileOps = extractSplitOps();
-
+		//renameOps to original for joins
+		renameOps();
 		if(this.err.isError())
 			return this.err;
 		
@@ -137,7 +141,12 @@ public class CodeGenerator {
 		HashMap<String, String> args = new HashMap<String, String>();
 		args.put(SQL1, executeDML);
 		args.put(TAB1, outTable);
+		//check type if table then other Template without brackets
+
+	
 		executeDML = this.sqlDMLTemplate.toString(args);
+		
+	
 		trackerOp.addExecuteSQL(new StringTemplate(executeDML));
 
 		// add out table DDL statement
@@ -285,10 +294,17 @@ public class CodeGenerator {
 		StringTemplate sqlTemplate = new StringTemplate(compileOp.toSqlString());
 		for (AbstractCompileOperator childOp : compileOp.getChildren()) {
 			if (!this.splitCompileOps.contains(childOp)) {
-				args.put(childOp.getOperatorId().toString(),
-						this.generateExecuteDML(childOp));
+				//Modification changed Code to check wether this is a Table or not
+				if(childOp.getType().equals(EnumOperator.TABLE)){
+					args.put(childOp.getOperatorId().toString(),
+							this.generateExecuteDML(childOp));
+				} else {
+					args.put(childOp.getOperatorId().toString(),
+						"("+this.generateExecuteDML(childOp)+")");
+				}
 			}
 		}
+		
 		return sqlTemplate.toString(args);
 	}
 
@@ -310,5 +326,20 @@ public class CodeGenerator {
 		}
 
 		return splitVisitor.getSplitOps();
+	}
+	
+	private void renameOps() {
+		RenameAttributesVisitor renameVisitor;
+		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
+			renameVisitor = new RenameAttributesVisitor(root);
+			this.err = renameVisitor.visit();
+			
+			if(err.isError())
+			 return;
+		}
+		//Trace
+		this.compilePlan.tracePlan(compilePlan.getClass()
+				.getCanonicalName() + "_RENAMED");
+
 	}
 }

@@ -24,7 +24,7 @@ public class TableOperator extends AbstractCompileOperator {
 	private Table table = null;
 	
 	private final StringTemplate sqlTemplate = 
-			new StringTemplate("SELECT <RESULTS> FROM <<OP1>> AS <OP1>");
+			new StringTemplate("<<OP1>>");
 	
 	//constructors
 	public TableOperator(TokenIdentifier tableName){
@@ -95,16 +95,19 @@ public class TableOperator extends AbstractCompileOperator {
 	
 	@Override
 	public String toSqlString() {
+		
+		
 		HashMap<String, String> vars = new HashMap<String, String>();
 		final String opDummy = TABLE_PREFIX+getOperatorId().toString();
 		vars.put("OP1", opDummy);
 		
 		//get all table attributes and match them in order
-		final Vector<String> attrs = new Vector<String>();
+		/*final Vector<String> attrs = new Vector<String>();
 		for(Attribute attr : table.getAttributes()) {
 			attrs.add(opDummy + "." + attr.getName());
-		}
-		vars.put("RESULTS", SetUtils.buildAliasString(attrs, getResultAttributes()));
+		}*/
+	//	vars.put("RESULTS", SetUtils.buildAliasString(attrs, getResultAttributes()));
+		//System.out.println(sqlTemplate.toString(vars));
 		return sqlTemplate.toString(vars);
 	}
 
@@ -120,6 +123,6 @@ public class TableOperator extends AbstractCompileOperator {
 
 	@Override
 	public void renameAttributes(String oldId, String newId) {
-		//nothing to do
+	
 	}
 }

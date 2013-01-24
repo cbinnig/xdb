@@ -180,7 +180,7 @@ public class SQLJoin extends AbstractJoinOperator {
 			
 		}
 
-		String templateString = "SELECT <RESULT> FROM (<<OP1>>) AS <OP1>";
+		String templateString = "SELECT <RESULT> FROM <<OP1>> AS <OP1>";
 		vars.put("RESULT", results);
 		//put join params into map
 		int idx = 1;
@@ -188,7 +188,7 @@ public class SQLJoin extends AbstractJoinOperator {
 			vars.put("OP"+idx, key);
 			vars.put("JATT"+idx, joinParams.get(key)  );
 			if(idx > 1)
-				templateString =  templateString +" INNER JOIN (<<OP"+(idx)+">>) AS <OP"+(idx)+"> ON <JATT"+(idx-1)+"> = <JATT"+(idx)+">";
+				templateString =  templateString +" INNER JOIN <<OP"+(idx)+">> AS <OP"+(idx)+"> ON <JATT"+(idx-1)+"> = <JATT"+(idx)+">";
 			idx++;
 		}
 
