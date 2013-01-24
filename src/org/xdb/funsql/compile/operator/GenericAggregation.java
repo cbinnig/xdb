@@ -26,7 +26,7 @@ public class GenericAggregation extends AbstractUnaryOperator {
 	private Vector<TokenIdentifier> aliases;
 	
 	private final StringTemplate sqlTemplate = 
-			new StringTemplate("SELECT <RESULT> FROM (<<OP1>>) AS <OP1>"+
+			new StringTemplate("SELECT <RESULT> FROM <<OP1>> AS <OP1>"+
 					" GROUP BY <GROUP_ATTRS>");
 	
 	//constructors

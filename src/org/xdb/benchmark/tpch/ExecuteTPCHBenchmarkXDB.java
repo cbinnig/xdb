@@ -215,7 +215,7 @@ public class ExecuteTPCHBenchmarkXDB extends ExecuteTPCHBenchmark{
 					"and o_orderdate > date '1994-01-01' "+
 					"and o_orderdate < date '1995-01-01' "+
 					"group by n_name;";
-		this.executeStmt(q5);
+		//this.executeStmt(q5);
 	}
 	
 	

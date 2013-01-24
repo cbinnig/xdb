@@ -10,6 +10,7 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
+import org.xdb.utils.TokenPair;
 
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
@@ -20,9 +21,7 @@ public class EquiJoin extends AbstractBinaryOperator {
 	private TokenAttribute leftTokenAttribute;
 	private TokenAttribute rightTokenAttribute;
 	
-	private final StringTemplate sqlTemplate = new StringTemplate(
-			"SELECT <RESULT> FROM (<<OP1>>) AS <OP1> INNER JOIN (<<OP2>>) AS <OP2>" +
-			" ON <JATT1> = <JATT2>");
+
 
 	//constructors
 	public EquiJoin(AbstractCompileOperator leftChild, AbstractCompileOperator rightChild,
@@ -67,11 +66,59 @@ public class EquiJoin extends AbstractBinaryOperator {
 	
 		vars.put("RESULT", SetUtils.buildAliasString(lAttributes, lAliases)+","+SetUtils.buildAliasString(rAttributes, rAliases));
 		
+		/*//need to check wether the children are tables or not
+	
 		vars.put("OP1", getLeftChild().getOperatorId().toString());
 		vars.put("OP2", getRightChild().getOperatorId().toString());
-		
+
 		vars.put("JATT1", getLeftTokenAttribute().toSqlString());
-		vars.put("JATT2", getRightTokenAttribute().toSqlString());
+		vars.put("JATT2", getRightTokenAttribute().toSqlString());*/
+	
+		//TODO Refine
+		HashMap<String,String> joinParams= new HashMap<String, String>();
+
+	
+		joinParams.put(getLeftChild().getOperatorId().toString(), getLeftTokenAttribute().toString());
+		joinParams.put(getRightChild().getOperatorId().toString(), getRightTokenAttribute().toString());
+
+		
+		String templateString = "";
+		vars.put("RESULT", SetUtils.buildAliasString(lAttributes, lAliases)+","+SetUtils.buildAliasString(rAttributes, rAliases));
+	
+		int idx = 1;
+		for(AbstractCompileOperator child :this.getChildren()){
+
+			vars.put("OP"+idx,child.getOperatorId().toString());
+			vars.put("JATT"+idx, joinParams.get(child.getOperatorId().toString())  );
+			if(idx > 1){ 
+				if(child.getType().equals(EnumOperator.TABLE)){
+					templateString =  templateString +" INNER JOIN <<OP"+(idx)+">> AS <OP"+(idx)+"> ON <JATT"+(idx-1)+"> = <JATT"+(idx)+">";
+				} else {
+					templateString =  templateString +" INNER JOIN (<<OP"+(idx)+">>) AS <OP"+(idx)+"> ON <JATT"+(idx-1)+"> = <JATT"+(idx)+">";
+				}
+				
+			} else {
+				if(child.getType().equals(EnumOperator.TABLE)){
+					templateString = templateString + "SELECT <RESULT> FROM <<OP1>> AS <OP1>";
+				} else {
+					templateString = templateString + "SELECT <RESULT> FROM (<<OP1>>) AS <OP1>";
+				}
+			}
+			idx++;
+		}
+	/*
+		//int idx = 1;
+		for (String key : joinParams.keySet()) {
+			vars.put("OP"+idx, key);
+			vars.put("JATT"+idx, joinParams.get(key)  );
+			
+			if(idx > 1)
+				templateString =  templateString +" INNER JOIN <<OP"+(idx)+">> AS <OP"+(idx)+"> ON <JATT"+(idx-1)+"> = <JATT"+(idx)+">";
+			idx++;
+		}*/
+		StringTemplate sqlTemplate = new StringTemplate(templateString);
+			
+		
 		
 		return sqlTemplate.toString(vars);
 	}

@@ -99,20 +99,9 @@ public class RenameOperatorVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitSQLJoin(SQLJoin sj) {
-		
-		Vector<TokenPair> tokenpairs = sj.getJointokens();
-		
-		for (TokenPair tokenPair : tokenpairs) {
-			TokenAttribute leftAtt = tokenPair.getLeftTokenAttribute();
-			leftAtt.setName(ResultDesc.createResultAtt(leftAtt.getTable().getName().toSqlString(), leftAtt.getName().toSqlString()));
-			leftAtt.setTable(tokenPair.getLeftTableName());
-			
-			TokenAttribute rightAtt = tokenPair.getRightTokenAttribute();
-			rightAtt.setName(ResultDesc.createResultAtt(rightAtt.getTable().getName().toSqlString(), leftAtt.getName().toSqlString()));
-			rightAtt.setTable(tokenPair.getRightTableName());
-		}
-
-		return new Error();
+		String[] args = { "SQLJoin operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
+		return e;
 	}
 	
 }

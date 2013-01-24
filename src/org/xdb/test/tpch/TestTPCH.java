@@ -263,6 +263,13 @@ group by
 						"c_comment;" ;
 		this.executeStmt(q10);
 	}
+	
+	public void testSimpleAggregation(){
+		String test = "Select l_suppkey " +
+					"from lineitem " +
+					"group by L_SUPPKEY;";
+		this.executeStmt(test);
+	}
 	@Override
 	public void tearDown(){
 		super.tearDown();

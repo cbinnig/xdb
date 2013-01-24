@@ -21,6 +21,9 @@ public class GenericSelection extends AbstractUnaryOperator {
 	private final StringTemplate sqlTemplate = 
 			new StringTemplate("SELECT <RESULTS> FROM (<<OP1>>) AS <OP1> WHERE <PRED>");
 	
+	private final StringTemplate sqlTemplate2 = 
+			new StringTemplate("SELECT <RESULTS> FROM <<OP1>> AS <OP1> WHERE <PRED>");
+	
 	//constructors
 	public GenericSelection(AbstractCompileOperator child) {
 		super(child);
@@ -43,7 +46,12 @@ public class GenericSelection extends AbstractUnaryOperator {
 		vars.put("RESULTS", SetUtils.buildAliasString(getChild().getResultTableAttributes(), getResultAttributes()));
 		vars.put("OP1", getChild().getOperatorId().toString());
 		vars.put("PRED", predicate.toSqlString());
-		return sqlTemplate.toString(vars);
+		if (this.getChild().getType().equals(EnumOperator.TABLE)){
+			return sqlTemplate2.toString(vars);
+		}else {
+			return sqlTemplate.toString(vars);
+		}
+	
 	}
 	
 	@Override
