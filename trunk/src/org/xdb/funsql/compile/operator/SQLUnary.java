@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import org.xdb.error.Error;
+import org.xdb.funsql.codegen.ReReNameExpressionVisitor;
+import org.xdb.funsql.codegen.ReReNamePredicateVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.SimpleExpression;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
@@ -27,6 +30,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 	// templates for SQL generation
 	private final StringTemplate selectTemplate = new StringTemplate(
 			"SELECT <SELECT> ");
+
 	private final StringTemplate fromTemplate = new StringTemplate(
 			"FROM (<<OP1>>) AS <OP1> ");
 	private final StringTemplate fromTemplate2 = new StringTemplate(
@@ -110,34 +114,48 @@ public class SQLUnary extends AbstractUnaryOperator {
 		
 
 		// where clause
-		if (this.wherePred != null) {
-			vars.clear();
-			vars.put("WHERE", this.wherePred.toSqlString());
-			sqlStmt.append(whereTemplate.toString(vars));
-		}
-
+		sqlStmt.append(getWhereClause());
 		// having clause
-		if (this.havingPred != null) {
-			vars.clear();
-			vars.put("HAVING", this.havingPred.toSqlString());
-			sqlStmt.append(havingTemplate.toString(vars));
-		}
 
+		sqlStmt.append(getHavingClause());
 		// group-by clause
+
+		sqlStmt.append(getGroupByClause());
+		return sqlStmt.toString();
+	}
+
+	
+	public String getHavingClause(){
+		final HashMap<String, String> vars = new HashMap<String, String>();
+		if (this.havingPred != null) {
+			vars.put("HAVING", this.havingPred.toSqlString());
+			return havingTemplate.toString(vars);
+		}
+		return "";
+	}
+	
+	public String getWhereClause(){
+		final HashMap<String, String> vars = new HashMap<String, String>();
+		if (this.wherePred != null) { 
+			vars.put("WHERE", this.wherePred.toSqlString());
+			return whereTemplate.toString(vars);
+		}
+		return "";
+	}
+	
+	public String getGroupByClause(){
+		final HashMap<String, String> vars = new HashMap<String, String>();
 		if (this.groupExpressions.size() > 0) {
-			vars.clear();
 			final Vector<String> groupExprVec = new Vector<String>(
 					this.groupExpressions.size());
 			for (AbstractExpression exp : this.groupExpressions) {
 				groupExprVec.add(exp.toSqlString());
 			}
 			vars.put("GROUP", SetUtils.buildString(groupExprVec));
-			sqlStmt.append(groupTemplate.toString(vars));
+			return(groupTemplate.toString(vars));
 		}
-
-		return sqlStmt.toString();
+		return "";
 	}
-
 	/**
 	 * Adds a selection operator to the combined operator
 	 * 
@@ -274,4 +292,105 @@ public class SQLUnary extends AbstractUnaryOperator {
 	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
 		// Nothing to do
 	}
+	
+	
+	
+	@Override
+	public boolean renameOperator(HashMap<String, String> renamedAttributes,
+			Vector<String> renamedOps) {
+		boolean renamed = super.renameOperator(renamedAttributes,renamedOps);
+		Error e;
+		for(AbstractExpression expr: this.aggExpressions){
+			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(expr, renamedAttributes);
+			e = renameVisitor.visit();
+			//TODO Error handling
+		}
+		for(AbstractExpression expr: this.groupExpressions){
+			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(expr, renamedAttributes);
+			e = renameVisitor.visit();
+			//TODO Error handling
+		}
+		
+		for(AbstractExpression expr: this.selectExpressions){
+			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(expr, renamedAttributes);
+			e = renameVisitor.visit();
+			//TODO Error handling
+		}
+		
+		//rename predicates based on already renamed attributes
+		ReReNamePredicateVisitor rPv ;
+		if(this.wherePred != null) {
+			rPv = new ReReNamePredicateVisitor(this.wherePred, renamedAttributes);
+			rPv.visit();
+		}
+
+	
+		if(this.havingPred != null) {
+			rPv = new ReReNamePredicateVisitor(this.havingPred, renamedAttributes);
+			rPv.visit();
+		}
+
+		return renamed;
+	}
+
+	//getters and setters
+	public Vector<AbstractExpression> getSelectExpressions() {
+		return selectExpressions;
+	}
+
+	public void setSelectExpressions(Vector<AbstractExpression> selectExpressions) {
+		this.selectExpressions = selectExpressions;
+	}
+
+	public Vector<TokenIdentifier> getSelectAliases() {
+		return selectAliases;
+	}
+
+	public void setSelectAliases(Vector<TokenIdentifier> selectAliases) {
+		this.selectAliases = selectAliases;
+	}
+
+	public Vector<AbstractExpression> getAggExpressions() {
+		return aggExpressions;
+	}
+
+	public void setAggExpressions(Vector<AbstractExpression> aggExpressions) {
+		this.aggExpressions = aggExpressions;
+	}
+
+	public AbstractPredicate getWherePred() {
+		return wherePred;
+	}
+
+	public void setWherePred(AbstractPredicate wherePred) {
+		this.wherePred = wherePred;
+	}
+
+	public AbstractPredicate getHavingPred() {
+		return havingPred;
+	}
+
+	public void setHavingPred(AbstractPredicate havingPred) {
+		this.havingPred = havingPred;
+	}
+
+	public Vector<AbstractExpression> getGroupExpressions() {
+		return groupExpressions;
+	}
+
+	public void setGroupExpressions(Vector<AbstractExpression> groupExpressions) {
+		this.groupExpressions = groupExpressions;
+	}
+
+	public Map<TokenIdentifier, AbstractExpression> getReplaceExprMap() {
+		return replaceExprMap;
+	}
+
+	public void setReplaceExprMap(
+			Map<TokenIdentifier, AbstractExpression> replaceExprMap) {
+		this.replaceExprMap = replaceExprMap;
+	}
+	
+	
+
 }

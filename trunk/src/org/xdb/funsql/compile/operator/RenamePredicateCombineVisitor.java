@@ -1,6 +1,4 @@
-package org.xdb.funsql.codegen;
-
-import java.util.HashMap;
+package org.xdb.funsql.compile.operator;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.predicate.AbstractPredicateVisitor;
@@ -9,17 +7,11 @@ import org.xdb.funsql.compile.predicate.ComplexPredicate;
 import org.xdb.funsql.compile.predicate.SimplePredicate;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
-/**
- * @author a.c.mueller
- * This Class is a visitor that rename all predicates to enable more efficient table op handling
- */
-public class ReReNamePredicateVisitor extends AbstractPredicateVisitor {
-
+public class RenamePredicateCombineVisitor extends AbstractPredicateVisitor {
 	private Error e = new Error();
-	private HashMap<String, String> renamedAttributes;
-	public ReReNamePredicateVisitor(AbstractPredicate pred, HashMap<String, String> renamedAttributes) {
+	public RenamePredicateCombineVisitor(AbstractPredicate pred) {
 		super(pred);
-		this.renamedAttributes = renamedAttributes;
+		
 	}
 
 	@Override
@@ -45,6 +37,7 @@ public class ReReNamePredicateVisitor extends AbstractPredicateVisitor {
 	@Override
 	public Error visitNotPredicate(ComplexPredicate cp) {
 		//renamePredicate(cp);
+	
 		visit(cp.getPredicate1());
 		for(AbstractPredicate absP : cp.getPredicates2()){
 			visit(absP);
@@ -59,13 +52,11 @@ public class ReReNamePredicateVisitor extends AbstractPredicateVisitor {
 	}
 	
 	public void renamePredicate(AbstractPredicate absP){
-		String newName ="";
+
 		//rename Attributes
 		for(TokenAttribute at :absP.getAttributes()) {
-			newName = renamedAttributes.get(at.getName());
-			//if no new name found it wasn't renamed so continue
-			if(newName == null) continue;
-			at.setName(newName);
+			at.resetTable();
+	
 		}
 	}
 

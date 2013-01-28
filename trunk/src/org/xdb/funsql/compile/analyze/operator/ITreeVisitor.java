@@ -8,6 +8,7 @@ import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.SQLCombined;
 import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
@@ -24,4 +25,5 @@ public interface ITreeVisitor{
 	Error visitTableOperator(TableOperator to);
 	Error visitRename(Rename ro);
 	Error visitSQLUnary(SQLUnary absOp);
+	Error visitSQLCombined(SQLCombined absOp);
 }

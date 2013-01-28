@@ -14,6 +14,7 @@ import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.SQLCombined;
 import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
@@ -45,17 +46,6 @@ public class RenameAttributesVisitor extends AbstractBottomUpTreeVisitor {
 	public Error visitEquiJoin(EquiJoin ej) {	 	
 	
 		//rename join Predicates
-		String newName;
-
-		if(this.renamedOps.contains(ej.getLeftTokenAttribute().getTable().getName())){
-			newName = renamedAttributes.get(ej.getLeftTokenAttribute().getName());
-			ej.getLeftTokenAttribute().setName(newName);
-		}
-	
-		if(this.renamedOps.contains(ej.getRightTokenAttribute().getTable().getName())){
-			newName = renamedAttributes.get(ej.getRightTokenAttribute().getName());
-			ej.getRightTokenAttribute().setName(newName);
-		}
 			
 		//Rename ResultSet
 		renameResultSet(ej);
@@ -64,23 +54,6 @@ public class RenameAttributesVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
-
-		// rename join Tokens
-		String newName = null;
-		for(TokenPair tP : ej.getJointokens()){ 
-			//rename left Token
-			if(this.renamedOps.contains(tP.getLeftTokenAttribute().getTable().getName())){
-				newName = renamedAttributes.get(tP.getLeftTokenAttribute().getName());
-				tP.getLeftTokenAttribute().setName(newName);
-			}
-			//rename right Token
-			if(this.renamedOps.contains(tP.getRightTokenAttribute().getTable().getName())){
-				newName = renamedAttributes.get(tP.getRightTokenAttribute().getName());
-				tP.getRightTokenAttribute().setName(newName);
-			}
-		}
-		//  change ResultDescripion from sqlJoin Operator
-		
 		renameResultSet(ej);
 		return e;
 	}
@@ -147,6 +120,13 @@ public class RenameAttributesVisitor extends AbstractBottomUpTreeVisitor {
 		return e;
 	}
 	
+	@Override
+	public Error visitSQLCombined(SQLCombined absOp) {
+		renameResultSet(absOp);
+		
+		return e;
+	}
+	
 
 	/**
 	 * This Method renames the result set of a given operator. The idiviual Attributes
@@ -155,16 +135,8 @@ public class RenameAttributesVisitor extends AbstractBottomUpTreeVisitor {
 	 * @param ej AbstractCompileOperator Opertor to rename the resultset for
 	 */
 	private void renameResultSet(AbstractCompileOperator ej) {
-		String newName;
-		boolean renamed = false;
-		for(TokenAttribute tA : ej.getResult().getAttributes()){
-			newName = renamedAttributes.get(tA.getName().getName());
-			// if no new name was found there is no need to rename, because not accessd
-			// table op
-			if(newName == null) continue;
-			renamed= true;
-			tA.setName(newName);
-		}
+		// call operator method
+		boolean renamed = ej.renameOperator(renamedAttributes,renamedOps);
 		// if one element was renamed than add the opp to renamed ops
 		if(renamed){
 			this.renamedOps.add(ej.getOperatorId().toString());
@@ -199,6 +171,4 @@ public class RenameAttributesVisitor extends AbstractBottomUpTreeVisitor {
 		oldName = oldName.replaceFirst(tableName+"_", "");
 		return oldName;
 	}
-
-
 }

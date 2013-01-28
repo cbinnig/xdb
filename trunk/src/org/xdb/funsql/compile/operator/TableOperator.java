@@ -1,15 +1,11 @@
 package org.xdb.funsql.compile.operator;
 
 import java.util.HashMap;
-import java.util.Vector;
-
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
-import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Table;
 import org.xdb.utils.Identifier;
-import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
 
 import com.oy.shared.lm.graph.Graph;

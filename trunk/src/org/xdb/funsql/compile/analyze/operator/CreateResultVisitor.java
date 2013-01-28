@@ -13,6 +13,7 @@ import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.ResultDesc;
+import org.xdb.funsql.compile.operator.SQLCombined;
 import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
@@ -145,6 +146,8 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
+	
+	
 
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
@@ -180,6 +183,13 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 		}
 		
 		ej.addResult(rDesc);
+		return e;
+	}
+
+	@Override
+	public Error visitSQLCombined(SQLCombined absOp) {
+		String[] args = { "SQLUnary operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
 }

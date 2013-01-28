@@ -42,14 +42,12 @@ public class SQLJoin extends AbstractJoinOperator {
 		
 		setOperatorId(equiJoin.operatorId);
 		//redirect parents from equi Join to sql Join
-		//TODO problem with more than one parent
+		
 		for(AbstractCompileOperator parentOp : this.parents) {
 			int childOpIdx = parentOp.getChildren().indexOf(equiJoin);
 			parentOp.setChild(childOpIdx, this);
 		}
-		/*AbstractCompileOperator parentOp =  this.parents.get(0);
-		int childOpIdx = parentOp.getChildren().indexOf(equiJoin);
-		parentOp.setChild(childOpIdx, this);*/
+
 		
 		// redirect the children 
 		int parentOpIdx;
@@ -70,6 +68,7 @@ public class SQLJoin extends AbstractJoinOperator {
 		TokenPair newJoinToken = new TokenPair(equiJoin.getLeftTokenAttribute(), equiJoin.getRightTokenAttribute());
 		// because the old equijoin op is not existing anymore rebuild 
 		// the tokenpair where it occures in
+	
 		newJoinToken.setLeftTableName(equiJoin.getLeftChild().getOperatorId().toString());
 		newJoinToken.setRightTableName(equiJoin.getRightChild().getOperatorId().toString());
 		
@@ -119,9 +118,7 @@ public class SQLJoin extends AbstractJoinOperator {
 	
 	
 	
-	public Vector<TokenPair> getJointokens() {
-		return jointokens;
-	}
+
 
 	/**
 	 * Method that return the source table for a join attribute
@@ -168,22 +165,7 @@ public class SQLJoin extends AbstractJoinOperator {
 			results = SetUtils.buildAliasString(child.getResultTableAttributes(),child.getResultAttributes())+"," + results;
 		}
 		results = results.substring(0, results.lastIndexOf(','));
-
 	
-	
-		// build up HashMap with table name and join attributes
-		HashMap<String,String> joinParams= new HashMap<String, String>();
-		
-		
-		//build two vectors with join params and table name
-		Vector<TokenAttribute> joinattributes =  new Vector<TokenAttribute>();
-		for (TokenPair tokenPair : this.getJointokens()) {
-			joinattributes.add(tokenPair.getLeftTokenAttribute());
-			joinattributes.add(tokenPair.getRightTokenAttribute());
-			joinParams.put(tokenPair.getLeftTableName(), tokenPair.getLeftTokenAttribute().toString());
-			joinParams.put(tokenPair.getRightTableName(), tokenPair.getRightTokenAttribute().toString());
-			
-		}
 
 		String templateString = "";
 		vars.put("RESULT", results);

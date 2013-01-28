@@ -8,6 +8,7 @@ import java.util.Vector;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 
@@ -231,5 +232,19 @@ public abstract class AbstractCompileOperator implements Serializable {
 		node.getInfo().setCaption(this.toString());
 
 		return err;
+	}
+	
+	public boolean renameOperator(HashMap<String, String> renamedAttributes, Vector<String> renamedOps){
+		String newName;
+		boolean renamed = false;
+		for(TokenAttribute tA : getResult().getAttributes()){
+			newName = renamedAttributes.get(tA.getName().getName());
+			// if no new name was found there is no need to rename, because not accessd
+			// table op
+			if(newName == null) continue;
+			renamed= true;
+			tA.setName(newName);
+		}
+		return renamed;
 	}
 }

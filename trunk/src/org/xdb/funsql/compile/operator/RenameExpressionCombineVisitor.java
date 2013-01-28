@@ -1,6 +1,4 @@
-package org.xdb.funsql.codegen;
-
-import java.util.HashMap;
+package org.xdb.funsql.compile.operator;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.expression.AbstractExpressionVisitor;
@@ -8,19 +6,13 @@ import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.AggregationExpression;
 import org.xdb.funsql.compile.expression.ComplexExpression;
 import org.xdb.funsql.compile.expression.SimpleExpression;
-import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
-/**
- * @author a.c.mueller
- * A Visitor that renames all expressions to allow simple more effiecient Table handling
- *
- */
-public class ReReNameExpressionVisitor extends AbstractExpressionVisitor {
-	private HashMap<String, String> renamedAttributes;
-	public ReReNameExpressionVisitor(AbstractExpression expr, HashMap<String, String> renamedAttributes) {
+public class RenameExpressionCombineVisitor extends AbstractExpressionVisitor {
+
+	public RenameExpressionCombineVisitor(AbstractExpression expr) {
 		super(expr);
-		this.renamedAttributes = renamedAttributes;
+
 	}
 
 	@Override
@@ -28,11 +20,8 @@ public class ReReNameExpressionVisitor extends AbstractExpressionVisitor {
 		Error e = new Error();
 		if(se.isAttribute()){
 			TokenAttribute att = se.getAttribute();
-			String newName= renamedAttributes.get(att.getName());
-			if(newName == null)
-				return e;
-				
-			att.setName(newName);
+			if(att.getTable()!=null);
+				att.resetTable();
 		}
 		return e;
 	}
@@ -51,7 +40,7 @@ public class ReReNameExpressionVisitor extends AbstractExpressionVisitor {
 	public Error visitSignedExpression(ComplexExpression ce) {
 		return visitComplexExpression(ce);
 	}
-	
+
 	private Error visitComplexExpression(ComplexExpression ce) {
 		Error e = new Error();
 		
@@ -73,5 +62,4 @@ public class ReReNameExpressionVisitor extends AbstractExpressionVisitor {
 	public Error visitAggregationExpression(AggregationExpression ce) {
 		return visit(ce.getExpression());
 	}
-
 }

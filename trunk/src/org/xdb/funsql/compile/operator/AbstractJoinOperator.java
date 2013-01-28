@@ -25,6 +25,9 @@ public abstract class AbstractJoinOperator extends AbstractCompileOperator  {
 		
 	
 	}
+	public Vector<TokenPair> getJointokens() {
+		return jointokens;
+	}
 	
 	public void addChildren(AbstractCompileOperator child){
 		this.children.add(child);
@@ -56,5 +59,32 @@ public abstract class AbstractJoinOperator extends AbstractCompileOperator  {
 		}
 		return err;
 	}
-
+	
+	public void renameJoinTokens(HashMap<String,String> renamedAttributes, Vector<String> renamedOps){
+		String newName;
+		for(TokenPair tP : getJointokens()){ 
+			//rename left Token
+			if(renamedOps.contains(tP.getLeftTokenAttribute().getTable().getName())){
+				newName = renamedAttributes.get(tP.getLeftTokenAttribute().getName());
+				tP.getLeftTokenAttribute().setName(newName);
+			}
+			//rename right Token
+			if(renamedOps.contains(tP.getRightTokenAttribute().getTable().getName())){
+				newName = renamedAttributes.get(tP.getRightTokenAttribute().getName());
+				tP.getRightTokenAttribute().setName(newName);
+			}
+		}
+	}
+	
+	@Override
+	public boolean renameOperator(HashMap<String, String> renamedAttributes,
+			Vector<String> renamedOps) {
+		boolean renamed = false;
+		// call super Method
+		renamed=  super.renameOperator(renamedAttributes, renamedOps);
+		// rename Join Tokens
+		this.renameJoinTokens(renamedAttributes, renamedOps);
+		//return
+		return renamed;
+	}
 }
