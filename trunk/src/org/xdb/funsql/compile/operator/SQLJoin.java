@@ -174,21 +174,32 @@ public class SQLJoin extends AbstractJoinOperator {
 		// build up HashMap with table name and join attributes
 		HashMap<String,String> joinParams= new HashMap<String, String>();
 		
+		
+		//build two vectors with join params and table name
+		Vector<TokenAttribute> joinattributes =  new Vector<TokenAttribute>();
 		for (TokenPair tokenPair : this.getJointokens()) {
+			joinattributes.add(tokenPair.getLeftTokenAttribute());
+			joinattributes.add(tokenPair.getRightTokenAttribute());
 			joinParams.put(tokenPair.getLeftTableName(), tokenPair.getLeftTokenAttribute().toString());
 			joinParams.put(tokenPair.getRightTableName(), tokenPair.getRightTokenAttribute().toString());
 			
 		}
 
-		String templateString = "SELECT <RESULT> FROM <<OP1>> AS <OP1>";
+		String templateString = "";
 		vars.put("RESULT", results);
 		//put join params into map
-		int idx = 1;
-		for (String key : joinParams.keySet()) {
-			vars.put("OP"+idx, key);
-			vars.put("JATT"+idx, joinParams.get(key)  );
-			if(idx > 1)
-				templateString =  templateString +" INNER JOIN <<OP"+(idx)+">> AS <OP"+(idx)+"> ON <JATT"+(idx-1)+"> = <JATT"+(idx)+">";
+		int idx = 0;
+		for (TokenPair tokenPair : this.getJointokens()) {
+			if( idx > 0 ){
+				templateString =  templateString +" INNER JOIN <<OP"+(idx)+">> AS <OP"+(idx)+"> ON <JATT"+(idx)+"> = <JATT"+(idx+1)+">";
+			} else {
+				templateString = "SELECT <RESULT> FROM <<OP0>> AS <OP0>  INNER JOIN <<OP1>> AS <OP1> ON <JATT0> = <JATT1>";
+			}
+			vars.put("OP"+idx, tokenPair.getLeftTableName());
+			vars.put("JATT"+idx, tokenPair.getLeftTokenAttribute().toString() );
+			idx++;
+			vars.put("OP"+idx, tokenPair.getRightTableName());
+			vars.put("JATT"+idx, tokenPair.getRightTokenAttribute().toString()  );	
 			idx++;
 		}
 
