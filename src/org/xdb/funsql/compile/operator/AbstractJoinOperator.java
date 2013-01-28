@@ -22,6 +22,7 @@ public abstract class AbstractJoinOperator extends AbstractCompileOperator  {
 
 	public AbstractJoinOperator(AbstractCompileOperator toCopy) {
 		super(toCopy);
+		
 	
 	}
 	
