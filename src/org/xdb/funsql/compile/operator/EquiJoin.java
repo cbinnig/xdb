@@ -10,8 +10,6 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
-import org.xdb.utils.TokenPair;
-
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
@@ -106,16 +104,7 @@ public class EquiJoin extends AbstractBinaryOperator {
 			}
 			idx++;
 		}
-	/*
-		//int idx = 1;
-		for (String key : joinParams.keySet()) {
-			vars.put("OP"+idx, key);
-			vars.put("JATT"+idx, joinParams.get(key)  );
-			
-			if(idx > 1)
-				templateString =  templateString +" INNER JOIN <<OP"+(idx)+">> AS <OP"+(idx)+"> ON <JATT"+(idx-1)+"> = <JATT"+(idx)+">";
-			idx++;
-		}*/
+
 		StringTemplate sqlTemplate = new StringTemplate(templateString);
 			
 		
@@ -147,4 +136,23 @@ public class EquiJoin extends AbstractBinaryOperator {
 	public void renameForPushDown(Collection<TokenAttribute> selAtts, int childIdx) {
 		TokenAttribute.renameTable(selAtts, this.getChild(childIdx).getOperatorId().toString());
 	}
+
+	@Override
+	public boolean renameOperator(HashMap<String, String> renamedAttributes,
+			Vector<String> renamedOps) {
+		String newName;
+		// rename join tokens
+		if(renamedOps.contains(getLeftTokenAttribute().getTable().getName())){
+			newName = renamedAttributes.get(getLeftTokenAttribute().getName());
+			getLeftTokenAttribute().setName(newName);
+		}
+	
+		if(renamedOps.contains(getRightTokenAttribute().getTable().getName())){
+			newName = renamedAttributes.get(getRightTokenAttribute().getName());
+			getRightTokenAttribute().setName(newName);
+		}
+		return super.renameOperator(renamedAttributes, renamedOps);
+	}
+	
+	
 }

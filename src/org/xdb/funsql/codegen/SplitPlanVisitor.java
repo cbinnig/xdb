@@ -13,6 +13,7 @@ import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.SQLCombined;
 import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
@@ -116,6 +117,12 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
 		doSplit(ej);
+		return err;
+	}
+
+	@Override
+	public Error visitSQLCombined(SQLCombined absOp) {
+		doSplit(absOp);
 		return err;
 	}
 }

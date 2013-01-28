@@ -14,6 +14,7 @@ import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.ResultDesc;
+import org.xdb.funsql.compile.operator.SQLCombined;
 import org.xdb.funsql.compile.operator.SQLJoin;
 
 import org.xdb.funsql.compile.operator.SQLUnary;
@@ -100,6 +101,13 @@ public class RenameOperatorVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitSQLJoin(SQLJoin sj) {
 		String[] args = { "SQLJoin operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
+		return e;
+	}
+
+	@Override
+	public Error visitSQLCombined(SQLCombined absOp) {
+		String[] args = { "SQLUnary operators are currently not supported" };
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}

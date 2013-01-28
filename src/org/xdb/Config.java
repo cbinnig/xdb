@@ -53,10 +53,12 @@ public class Config implements Serializable {
 		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(1, true);
 		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(2, true);
 		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(3, true);
+		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(4, true);
 		OPTIMIZER_ACTIVE_RULES_SELECT.set(0, false);
 		OPTIMIZER_ACTIVE_RULES_SELECT.set(1, true);
 		OPTIMIZER_ACTIVE_RULES_SELECT.set(2, true);
 		OPTIMIZER_ACTIVE_RULES_SELECT.set(3, true);
+		OPTIMIZER_ACTIVE_RULES_SELECT.set(4, true);
 	}
 
 	// Master Tracker Server
@@ -76,7 +78,7 @@ public class Config implements Serializable {
 	public static String DOT_EXE = "dot";
 	public static String DOT_TRACE_PATH = "./log/";
 	public static boolean TRACE_COMPILE_PLAN = false;
-	public static boolean TRACE_COMPILE_PLAN_HEADER = false;
+	public static boolean TRACE_COMPILE_PLAN_HEADER = true;
 	public static boolean TRACE_OPTIMIZED_PLAN = false;
 	public static boolean TRACE_TRACKER_PLAN = false;
 	public static boolean TRACE_EXECUTE_PLAN = false;

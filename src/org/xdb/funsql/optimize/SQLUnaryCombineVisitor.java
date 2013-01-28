@@ -2,6 +2,7 @@ package org.xdb.funsql.optimize;
 
 import java.util.HashSet;
 
+import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractBottomUpTreeVisitor;
@@ -12,6 +13,7 @@ import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.SQLCombined;
 import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
@@ -181,7 +183,6 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitSQLUnary(SQLUnary sqlOp) {
-		// DO nothing because already combined from other root node
 
 		Error e = new Error();
 		return e;
@@ -194,5 +195,12 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 			this.sqlUnaryOp = null;
 		}
 		return err;
+	}
+
+	@Override
+	public Error visitSQLCombined(SQLCombined absOp) {
+		String[] args = { "SQLCombined operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
+		return e;
 	}
 }

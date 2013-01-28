@@ -10,6 +10,7 @@ import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.SQLCombined;
 import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
@@ -58,6 +59,8 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 			return visitRename((Rename) absOp);
 		case SQL_UNARY:
 			return visitSQLUnary((SQLUnary)absOp);
+		case SQL_COMBINED:
+			return visitSQLCombined((SQLCombined)absOp);
 		case TABLE:
 			return visitTableOperator((TableOperator) absOp);
 		default:

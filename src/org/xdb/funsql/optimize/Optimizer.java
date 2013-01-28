@@ -70,10 +70,17 @@ public class Optimizer {
 				return err;
 		}
 	
+		if (Config.TRACE_OPTIMIZED_PLAN)
+			this.compilePlan.tracePlan(compilePlan.getClass()
+					.getCanonicalName() + "_NOTMERGED");
 
-
+		// rewrite combine unary and sqljoin operators into sqlcombined operator
+		if (optimizeRule.get(4)) {
+			err = combineSQLOps();
+				if(err.isError())
+					return err;
+		}
 		
-
 		// tracing
 		if (Config.TRACE_OPTIMIZED_PLAN)
 			this.compilePlan.tracePlan(compilePlan.getClass()
@@ -127,7 +134,7 @@ public class Optimizer {
 	}
 
 	/**
-	 * Combines selection operators in plan
+	 * Combines join operators in plan
 	 * 
 	 * @return
 	 */
@@ -154,6 +161,24 @@ public class Optimizer {
 		Error err = new Error();
 		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
 			SQLUnaryCombineVisitor combineVisitor = new SQLUnaryCombineVisitor(
+					root, this.compilePlan);
+			err = combineVisitor.visit();
+
+			if (err.isError())
+				return err;
+		}
+		return err;
+	}
+	
+	/**
+	 * Combines selection operators in plan
+	 * 
+	 * @return
+	 */
+	private Error combineSQLOps() {
+		Error err = new Error();
+		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
+			SQLCombineVisitor combineVisitor = new SQLCombineVisitor(
 					root, this.compilePlan);
 			err = combineVisitor.visit();
 

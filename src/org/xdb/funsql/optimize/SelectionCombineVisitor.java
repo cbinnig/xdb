@@ -1,5 +1,6 @@
 package org.xdb.funsql.optimize;
 
+import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.AbstractTopDownTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
@@ -9,6 +10,7 @@ import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.SQLCombined;
 import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
@@ -89,6 +91,13 @@ public class SelectionCombineVisitor extends AbstractTopDownTreeVisitor {
 	public Error visitSQLJoin(SQLJoin ej) {
 		this.lastOp = ej;
 		return err;
+	}
+
+	@Override
+	public Error visitSQLCombined(SQLCombined absOp) {
+		String[] args = { "SQLCombined operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
+		return e;
 	}
 
 }

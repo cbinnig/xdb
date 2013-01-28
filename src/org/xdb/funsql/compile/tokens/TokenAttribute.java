@@ -44,6 +44,10 @@ public class TokenAttribute extends AbstractTokenOperand{
 		this.table = new TokenTable(table);
 	}
 	
+	public void resetTable(){
+		this.table = null;
+	}
+	
 	public void setTable(TokenIdentifier table) {
 		this.table = new TokenTable(table);
 	}
