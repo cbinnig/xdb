@@ -155,7 +155,7 @@ and l_orderkey = o_orderkey
 and l_suppkey = s_suppkey
 and c_nationkey = s_nationkey
 and s_nationkey = n_nationkey
-and n_regionkey = r_regionkey
+and r_regionkey = n_regionkey
 and r_name = 'ASIA'
 and o_orderdate > DATE('1994-01-01 00:00:00')
 and o_orderdate < DATE('1995-01-01 00:00:00')
@@ -167,14 +167,14 @@ group by n_name;
 					"where c_custkey = o_custkey " +
 					"and l_orderkey = o_orderkey " +
 					"and l_suppkey = s_suppkey  " +
-					"and c_nationkey = s_nationkey " +
-					"and s_nationkey = n_nationkey " +
-					"and n_regionkey = r_regionkey " +
+					"and s_nationkey = c_nationkey " +
+					"and n_nationkey = s_nationkey " +
+					"and r_regionkey = n_regionkey " +
 					"and r_name = 'ASIA' " +
 					"and o_orderdate > date '1994-01-01' "+
 					"and o_orderdate < date '1995-01-01' "+
 					"group by n_name;";
-		//this.executeStmt(q5);
+		this.executeStmt(q5);
 		
 	}
 	

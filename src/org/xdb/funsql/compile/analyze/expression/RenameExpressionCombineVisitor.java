@@ -1,13 +1,17 @@
-package org.xdb.funsql.compile.operator;
+package org.xdb.funsql.compile.analyze.expression;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.analyze.expression.AbstractExpressionVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.AggregationExpression;
 import org.xdb.funsql.compile.expression.ComplexExpression;
 import org.xdb.funsql.compile.expression.SimpleExpression;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
+/**
+ * Visitor that eleminates the duplciate table name from expressions
+ * @author mueller
+ *
+ */
 public class RenameExpressionCombineVisitor extends AbstractExpressionVisitor {
 
 	public RenameExpressionCombineVisitor(AbstractExpression expr) {

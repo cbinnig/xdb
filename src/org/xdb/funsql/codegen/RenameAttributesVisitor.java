@@ -4,11 +4,9 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.analyze.expression.RenameExpressionVisitor;
 import org.xdb.funsql.compile.analyze.operator.AbstractBottomUpTreeVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -19,12 +17,10 @@ import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
-import org.xdb.utils.Identifier;
-import org.xdb.utils.TokenPair;
 
 /**
  * @author a.c.mueller
- * This class is a tree visitor that visits the complete compile plan befor it's split into
+ * This class is a tree visitor that visits the complete compile plan before it's split into
  * tracker plans. The purpose of this plan is to rerename some operators which directly
  * access tables, in order so realize a table entering without subselects
  * 

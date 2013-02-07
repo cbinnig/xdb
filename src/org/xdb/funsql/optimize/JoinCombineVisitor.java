@@ -16,6 +16,12 @@ import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 
+/**
+ * This class merges several equijoin operators into one single sql join operator,
+ * to avoid uncessary materialization of intermediary results
+ * @author A.C.Mueller
+ *
+ */
 public class JoinCombineVisitor extends AbstractTopDownTreeVisitor {
 	
 	private AbstractCompileOperator lastOp = null;
@@ -31,25 +37,11 @@ public class JoinCombineVisitor extends AbstractTopDownTreeVisitor {
 	public Error visitEquiJoin(EquiJoin ej) {
 		//check if it's null then do nothing just change the last op
 		if(this.lastOp != null){
-			if(this.lastOp.getType().equals(EnumOperator.EQUI_JOIN)){
-				/*
-				//create new sql join
-				SQLJoin sqljoin =  new SQLJoin((EquiJoin)this.lastOp);
-				
-				//merge equi Join into sql jlin
-				sqljoin.mergeChildJoinOp(ej);
-				// remove operators
-				this.plan.replaceOperator(this.lastOp.getOperatorId(), sqljoin, false);
-				this.plan.removeOperator(ej.getOperatorId());
- 
-				this.lastOp = sqljoin;
-
-				return this.err;
-				*/  
-			} else if(this.lastOp.getType().equals(EnumOperator.SQL_JOIN)){
+			 if(this.lastOp.getType().equals(EnumOperator.SQL_JOIN)){
 				//merge new equi join into existing sql join
 				((SQLJoin)this.lastOp).mergeChildJoinOp(ej);
 			}else {
+				//create new sql join
 				SQLJoin sqljoin =  new SQLJoin((EquiJoin)ej);
 				this.plan.replaceOperator(ej.getOperatorId(), sqljoin, false);
 				this.lastOp = sqljoin;

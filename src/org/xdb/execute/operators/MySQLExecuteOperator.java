@@ -62,9 +62,7 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 			for (final PreparedStatement stmt : executeStmts) {
 				stmt.execute();
 			}
-			System.out.println("Done");
 		} catch (final SQLException e) {
-			System.out.println(e.getMessage());
 			err = createMySQLError(e);
 		}
 		
