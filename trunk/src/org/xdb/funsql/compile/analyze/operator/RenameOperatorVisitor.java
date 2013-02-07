@@ -107,7 +107,7 @@ public class RenameOperatorVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitSQLCombined(SQLCombined absOp) {
-		String[] args = { "SQLUnary operators are currently not supported" };
+		String[] args = { "SQLCombined operators are currently not supported" };
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}

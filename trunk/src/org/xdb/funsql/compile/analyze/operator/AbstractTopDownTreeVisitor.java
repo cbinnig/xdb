@@ -1,8 +1,6 @@
 package org.xdb.funsql.compile.analyze.operator;
 
 
-import java.util.Vector;
-
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 

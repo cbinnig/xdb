@@ -233,16 +233,28 @@ public abstract class AbstractCompileOperator implements Serializable {
 
 		return err;
 	}
-	
-	public boolean renameOperator(HashMap<String, String> renamedAttributes, Vector<String> renamedOps){
+
+	/**
+	 * Rename all necessary field of given Operator is used for rerenaming of
+	 * operators attributes who acess table to avoid intermediary result
+	 * materialization
+	 * 
+	 * @param renamedAttributes
+	 * @param renamedOps
+	 * @return boolean to verify if some elements of this operator were renamed
+	 */
+	public boolean renameOperator(HashMap<String, String> renamedAttributes,
+			Vector<String> renamedOps) {
 		String newName;
 		boolean renamed = false;
-		for(TokenAttribute tA : getResult().getAttributes()){
+		for (TokenAttribute tA : getResult().getAttributes()) {
 			newName = renamedAttributes.get(tA.getName().getName());
-			// if no new name was found there is no need to rename, because not accessd
+			// if no new name was found there is no need to rename, because not
+			// accessd
 			// table op
-			if(newName == null) continue;
-			renamed= true;
+			if (newName == null)
+				continue;
+			renamed = true;
 			tA.setName(newName);
 		}
 		return renamed;

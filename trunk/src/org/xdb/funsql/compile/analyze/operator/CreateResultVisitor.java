@@ -56,7 +56,7 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 		for(TokenAttribute att: leftDesc.getAttributes()){
 			att.setTable(ej.getOperatorId().toString());
 		}
-		
+
 		ej.addResult(leftDesc);
 		return e;
 	}
@@ -151,45 +151,17 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
-		Error e = new Error();
-		// combine result description
-		
-		ResultDesc rDesc = new ResultDesc();
-		
-		for(AbstractCompileOperator child : ej.getChildren()){
-			for(TokenAttribute att: child.getResult().getAttributes()){
-				rDesc.addAttribute(att);
-			}
-			for(EnumSimpleType type: child.getResult().getTypes()){
-				rDesc.addType(type);
-			}
-		}
-		
-		/*
-		ResultDesc leftDesc = ej.getLeftChild().getResult().clone();
-		ResultDesc rightDesc = ej.getRightChild().getResult().clone();
-		
-		//copy from right to left
-		for(TokenAttribute att: rightDesc.getAttributes()){
-			leftDesc.addAttribute(att);
-		}
-		for(EnumSimpleType type: rightDesc.getTypes()){
-			leftDesc.addType(type);
-		}
-		*/ 
-		//set new table names
-		for(TokenAttribute att: rDesc.getAttributes()){
-			att.setTable(ej.getOperatorId().toString());
-		}
-		
-		ej.addResult(rDesc);
+		String[] args = { "SQLJoin operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
 
 	@Override
 	public Error visitSQLCombined(SQLCombined absOp) {
-		String[] args = { "SQLUnary operators are currently not supported" };
+		String[] args = { "SQLCombinedOperators are currently not supported" };
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
+	
+	
 }

@@ -16,6 +16,14 @@ import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 
+/**
+ * This class visits the current plan and combines sqljoin and sqlunary operators to a s
+ * sqlcombined operator. This done for the purpose to avoid materialization due to operator
+ * calling.
+ * 
+ * @author A.C.Mueller
+ *
+ */
 public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
 
 	private AbstractCompileOperator lastop = null;
@@ -28,8 +36,9 @@ public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
 
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
-		// TODO Auto-generated method stub
-		return err;
+		String[] args = { "EquiJoin operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
+		return e;
 	}
 
 	@Override
@@ -40,14 +49,12 @@ public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
 
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
-		// TODO Auto-generated method stub
 		this.lastop = gs;
 		return err;
 	}
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
-		// TODO Auto-generated method stub
 		this.lastop = sa;
 		return err;
 	}
@@ -81,9 +88,6 @@ public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
 		
 			this.compileplan.removeOperator(this.lastop.getOperatorId());
 		} 
-		
-		// TODO other cases
-		
 		return err;
 	}
 

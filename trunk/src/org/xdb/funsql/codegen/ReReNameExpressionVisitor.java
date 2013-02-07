@@ -8,12 +8,11 @@ import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.AggregationExpression;
 import org.xdb.funsql.compile.expression.ComplexExpression;
 import org.xdb.funsql.compile.expression.SimpleExpression;
-import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 /**
  * @author a.c.mueller
- * A Visitor that renames all expressions to allow simple more effiecient Table handling
+ * A Visitor that renames all expressions to allow simple more efficient Table handling
  *
  */
 public class ReReNameExpressionVisitor extends AbstractExpressionVisitor {

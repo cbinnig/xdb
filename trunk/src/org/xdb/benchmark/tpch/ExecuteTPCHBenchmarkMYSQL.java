@@ -128,10 +128,10 @@ public class ExecuteTPCHBenchmarkMYSQL extends ExecuteTPCHBenchmark {
 		"and o_orderdate < DATE('1995-01-01 00:00:00') "+
 		"group by n_name; ";
 		
-		//this.measurement.start("q5");
-		//this.executeStatement(q5);
+		this.measurement.start("q5");
+		this.executeStatement(q5);
 		
-		//this.measurement.stop("q5");
+		this.measurement.stop("q5");
 	}
 	
 	private void executeQ6() throws SQLException{
@@ -178,8 +178,4 @@ public class ExecuteTPCHBenchmarkMYSQL extends ExecuteTPCHBenchmark {
 		
 		this.measurement.stop("q10");
 	} 
-	
-
-	
-
 }

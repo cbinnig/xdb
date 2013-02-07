@@ -118,8 +118,8 @@ public class CheckOperatorVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
-		Error e = new Error();
-
+		String[] args = { "SQLJoin operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
 

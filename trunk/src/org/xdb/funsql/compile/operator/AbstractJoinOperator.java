@@ -12,11 +12,13 @@ import org.xdb.utils.TokenPair;
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
+/**
+ * Abstract class which is the super class of n-way joins
+ * @author A.C.Mueller
+ *
+ */
 public abstract class AbstractJoinOperator extends AbstractCompileOperator  {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -1718233853455161907L;
 	protected Vector<TokenPair> jointokens = new Vector<TokenPair>();
 
