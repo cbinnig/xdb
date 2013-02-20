@@ -144,6 +144,7 @@ public class RenameAttributesVisitor extends AbstractBottomUpTreeVisitor {
 	 * @param tableOp Table to Rename
 	 */
 	private void renameTableOp(TableOperator tableOp) {
+		//TODO check for federated tables
 		String newName= null;
 		//add to renamed list
 		this.renamedOps.add(tableOp.getOperatorId().toString());

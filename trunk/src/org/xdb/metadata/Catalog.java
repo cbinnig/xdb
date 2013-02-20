@@ -20,6 +20,10 @@ public class Catalog {
 	private static HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
 	private static HashMap<String, Connection> connectionsByName = new HashMap<String, Connection>();
 
+	
+	private static HashMap<Long, Partition> partitions = new HashMap<Long, Partition>();
+	private static HashMap<Long, Partition> partitionsByName = new HashMap<Long, Partition>();
+	
 	private static HashMap<Long, Schema> schemas = new HashMap<Long, Schema>();
 	private static HashMap<String, Schema> schemasByName = new HashMap<String, Schema>();
 
@@ -39,17 +43,22 @@ public class Catalog {
 					Config.METADATA_PASSWORD);
 
 			Error lastError = Error.NO_ERROR;
-
+	
 			lastError = Catalog.executeUpdate(Attribute.sqlDeleteAll());
 			if (lastError != Error.NO_ERROR) {
 				return lastError;
 			}
-
+			
+			lastError = Catalog.executeUpdate(Partition.sqlDeleteAll());
+			if (lastError != Error.NO_ERROR) {
+				return lastError;
+			}
+			
 			lastError = Catalog.executeUpdate(Table.sqlDeleteAll());
 			if (lastError != Error.NO_ERROR) {
 				return lastError;
 			}
-
+		
 			lastError = Catalog.executeUpdate(Schema.sqlDeleteAll());
 			if (lastError != Error.NO_ERROR) {
 				return lastError;
@@ -83,12 +92,13 @@ public class Catalog {
 			Catalog.conn = DriverManager.getConnection(
 					Config.METADATA_DB_URL, Config.METADATA_USER,
 					Config.METADATA_PASSWORD);
-
+			Catalog.initPartitions();
 			Catalog.initConnections();
 			Catalog.initSchemas();
 			Catalog.initTables();
 			Catalog.initAttributes();
 			Catalog.initFunctions();
+		
 
 			lastError = Catalog.checkCatalog();
 			if (lastError != Error.NO_ERROR) {
@@ -110,6 +120,8 @@ public class Catalog {
 		Catalog.tablesByName.clear();
 		Catalog.functions.clear();
 		Catalog.functionsByName.clear();
+		Catalog.partitions.clear();
+		Catalog.partitionsByName.clear();
 
 		try {
 			Catalog.conn.close();
@@ -180,7 +192,34 @@ public class Catalog {
 		}
 		return Error.NO_ERROR;
 	}
-
+	// to deal with partitions
+	private static synchronized void initPartitions() throws Exception {
+		Statement stmt = null;
+		ResultSet rs = null;
+		stmt = Catalog.conn.createStatement();
+		rs = stmt.executeQuery(Partition.sqlSelectMaxOid());
+		if (rs.next()) {
+			Partition.LAST_OID(rs.getLong(1));
+		}
+		
+		stmt = Catalog.conn.createStatement();
+		rs = stmt.executeQuery(Partition.sqlSelectAll());
+		while (rs.next()) {
+			// add attribute to catalog
+			long oid = rs.getLong(1);
+			String source_name = rs.getString(2);
+			String source_schema = rs.getString(3);
+			String source_partition_name = rs.getString(4);
+			long tableOid = rs.getLong(5);
+			String partition_name = rs.getString(6);
+			long connection_oid = rs.getLong(7);
+			Partition part = new Partition(oid, source_name, source_schema, source_partition_name, tableOid, partition_name,connection_oid);
+			Catalog.addPartition(part);
+			
+		}
+		
+	}
+	
 	private static synchronized void initAttributes() throws Exception {
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -190,6 +229,7 @@ public class Catalog {
 		if (rs.next()) {
 			Attribute.LAST_OID(rs.getLong(1));
 		}
+
 
 		stmt = Catalog.conn.createStatement();
 		rs = stmt.executeQuery(Attribute.sqlSelectAll());
@@ -315,11 +355,30 @@ public class Catalog {
 		
 		return lastError;
 	}
-
 	public static synchronized Error dropAttribute(Attribute att) {
 		Error lastError = Catalog.executeUpdate(att.sqlDelete());
 		if (lastError == Error.NO_ERROR) {
 			Catalog.removeAttribute(att);
+		}
+		return lastError;
+	}
+	public static synchronized Error createPartition(Partition part) {
+		if (Catalog.partitions.containsKey(part.getOid())) {
+			return createObjectAlreadyExistsErr(part);
+		}
+
+		Error lastError = Catalog.executeUpdate(part.sqlInsert());
+		if (lastError == Error.NO_ERROR) {
+			Catalog.addPartition(part);
+		}
+		
+		return lastError;
+	}
+
+	public static synchronized Error dropPartition(Partition part) {
+		Error lastError = Catalog.executeUpdate(part.sqlDelete());
+		if (lastError == Error.NO_ERROR) {
+			Catalog.removePartition(part);
 		}
 		return lastError;
 	}
@@ -378,6 +437,9 @@ public class Catalog {
 
 	public static synchronized Error dropTable(Table table) {
 		// drop attributes
+		
+
+		
 		Error lastError = Error.NO_ERROR;
 		for (Attribute att : table.getAttributes()) {
 			lastError = Catalog.dropAttribute(att);
@@ -387,6 +449,14 @@ public class Catalog {
 			Catalog.removeAttribute(att);
 		}
 
+		//drop partitions
+		for(Partition part : table.getPartitions()) {
+			lastError = Catalog.dropPartition(part);
+			if (lastError != Error.NO_ERROR)
+				return lastError;
+			Catalog.removePartition(part);
+		}
+		
 		// drop table
 		lastError = Catalog.executeUpdate(table.sqlDelete());
 		if (lastError == Error.NO_ERROR) {
@@ -422,6 +492,15 @@ public class Catalog {
 	public static synchronized void removeAttribute(Attribute att) {
 		Catalog.attributes.remove(att.getOid());
 	}
+	
+	public static synchronized void addPartition(Partition part) {
+		Catalog.partitions.put(part.getOid(), part);
+	}
+
+	public static synchronized void removePartition(Partition part) {
+		Catalog.partitions.remove(part.getOid());
+	}
+
 
 	public static synchronized void addConnection(Connection conn) {
 		Catalog.connections.put(conn.getOid(), conn);
@@ -467,6 +546,9 @@ public class Catalog {
 		return Catalog.attributes.get(oid);
 	}
 
+	public static synchronized Partition getPartition(long oid) {
+		return Catalog.partitions.get(oid);
+	}
 	public static synchronized Connection getConnection(long oid) {
 		return Catalog.connections.get(oid);
 	}

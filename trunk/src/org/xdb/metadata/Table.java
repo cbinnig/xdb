@@ -15,14 +15,18 @@ CREATE TABLE "SYSTEM"."TABLE"
   "SOURCE_NAME" character varying(255) NOT NULL,
   "SOURCE_SCHEMA" character varying(255) NOT NULL,
   "SCHEMA_OID" bigint NOT NULL,
-  "CONNECTION_OID" bigint NOT NULL
+  "PART" BOOLEAN NOT NULL,
+  "PART_TYPE" character varying(255),
+  "PART_DETAILS" character varying(255),
+  "CONNECTION_OID" bigint
 )
  */
 public class Table extends AbstractDatabaseObject {
 	private static final long serialVersionUID = 1756002524307128228L;
 
 	private static final String TABLE_NAME = AbstractToken.toSqlIdentifier("TABLE");
-	private static final String[] ATTRIBUTES = {"OID", "NAME", "SOURCE_NAME", "SOURCE_SCHEMA", "SCHEMA_OID", "CONNECTION_OID"};
+	
+	private static final String[] ATTRIBUTES = {"OID", "NAME", "SOURCE_NAME", "SOURCE_SCHEMA", "SCHEMA_OID","PART","PART_TYPE","PART_DETAILS", "CONNECTION_OID"};
 	private static final String ALL_ATTRIBUTES = AbstractToken.toSqlIdentifierList(ATTRIBUTES);
 	private static long LAST_OID = 0;
 	private static long LAST_TEMP_OID = -1l;
@@ -31,15 +35,29 @@ public class Table extends AbstractDatabaseObject {
 	
 	private String sourceName;
 	private String sourceSchema;
+	
 	private Long schemaOid=-1l;
 	private Long connectionOid;
 	private HashMap<Long, Attribute> attributes = new HashMap<Long, Attribute>(); 
-	
+	private HashMap<Long, Partition> partitions = new HashMap<Long, Partition>();
+	//parameters for partioning 
+	private String partitionType;
+	private String partitionDetails;
+	private boolean partioned;
 	private Table(){
 		super();
 		this.objectType = EnumDatabaseObject.TABLE;
 	}
 	
+	/**
+	 * Constructor used to initialize non-partioned table
+	 * @param oid
+	 * @param name
+	 * @param sourceName
+	 * @param sourceSchema
+	 * @param schemaOid
+	 * @param connectionOid
+	 */
 	public Table(Long oid, String name, String sourceName, String sourceSchema, Long schemaOid, Long connectionOid) {
 		super(oid, name);
 		this.sourceName = sourceName;
@@ -48,9 +66,29 @@ public class Table extends AbstractDatabaseObject {
 		this.connectionOid = connectionOid;
 		this.objectType = EnumDatabaseObject.TABLE;
 	}
+	
+	/**
+	 * Constructor used to initialize a partioned table with different 
+	 * @param oid
+	 * @param name
+	 * @param sourceName
+	 * @param sourceSchema
+	 * @param schemaOid
+	 */
+	public Table(Long oid, String name, String sourceName, String sourceSchema, Long schemaOid) {
+		super(oid, name);
+		this.sourceName = sourceName;
+		this.sourceSchema = sourceSchema;
+		this.schemaOid = schemaOid;
+		this.objectType = EnumDatabaseObject.TABLE;
+	}
 
 	public Table(String name, String sourceName, String sourceSchema, Long schemaOid, Long connectionOid) {
 		this(++LAST_OID, name, sourceName, sourceSchema, schemaOid, connectionOid);
+	}
+	
+	public Table(String name, String sourceName, String sourceSchema, Long schemaOid) {
+		this(++LAST_OID, name, sourceName, sourceSchema, schemaOid);
 	}
 	
 	public Table(String name) {
@@ -112,6 +150,14 @@ public class Table extends AbstractDatabaseObject {
 		return attributes.values();
 	}
 	
+	public void addPartition(Partition partition){
+		this.partitions.put(partition.getOid(), partition);
+	}
+	
+	public Collection<Partition> getPartitions(){
+		return this.partitions.values();
+	}
+	
 	public Attribute getAttribute(String name) {
 		for(Attribute att: this.attributes.values()){
 			if(att.getName().equals(name)){
@@ -159,6 +205,15 @@ public class Table extends AbstractDatabaseObject {
 		insertSql.append(AbstractToken.toSqlLiteral(this.sourceSchema));
 		insertSql.append(AbstractToken.COMMA);
 		insertSql.append(this.schemaOid);
+		insertSql.append(AbstractToken.COMMA);
+		//PART
+		insertSql.append(AbstractToken.toSqlLiteral(this.partioned));
+		//PART_TYPE
+		insertSql.append(AbstractToken.COMMA);
+		insertSql.append(AbstractToken.toSqlLiteral(this.partitionType));
+		//PART_DETAILS
+		insertSql.append(AbstractToken.COMMA);
+		insertSql.append(AbstractToken.toSqlLiteral(this.partitionDetails));
 		insertSql.append(AbstractToken.COMMA);
 		insertSql.append(this.connectionOid);
 		insertSql.append(AbstractToken.RBRACE);

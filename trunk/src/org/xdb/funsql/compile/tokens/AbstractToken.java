@@ -71,13 +71,22 @@ public abstract class AbstractToken implements Serializable{
 	 */
 	public abstract String toSqlString();
 	
-	
+	//encode boolean as 0 or 1
+	public static String toSqlLiteral(boolean value){
+		if(!value) return "0";
+		return "1";
+	}
 	public static String toSqlLiteral(String value){
+		
+		if(value !=null) {
 		StringBuffer literal = new StringBuffer();
 		literal.append(SINGLE_QUOTE);
 		literal.append(value);
 		literal.append(SINGLE_QUOTE);
 		return literal.toString();
+		} else {
+			return null;
+		}
 	}
 	
 	public static String toSqlIdentifier(String value){
