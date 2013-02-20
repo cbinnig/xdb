@@ -272,10 +272,57 @@ createTableStatement returns [CreateTableStmt stmt]
                 	$stmt.setSourceTable($table2.table);
                 }
                 )?
+                ((
                 KEYWORD_IN KEYWORD_CONNECTION
                 connection1=tokenIdentifier {
                 	$stmt.setConnection($connection1.identifier);
                 }
+                )
+                |
+                (
+                KEYWORD_PARTITIONED KEYWORD_BY 
+                method=identifierText
+                {
+                	$stmt.setPartitionMethod($method.text);
+                }
+                (
+                LPAREN
+                pcolumn1=identifierText
+                {
+                	$stmt.addPartitionColumn($pcolumn1.text);
+                }
+                (
+                COMMA
+                pcolumn2=identifierText
+                {
+                	$stmt.addPartitionColumn($pcolumn2.text);
+                }
+                )*
+                RPAREN
+                )?
+                LPAREN
+                p1=identifierText
+                {
+                	$stmt.addPartition($p1.text);
+                }
+                KEYWORD_IN KEYWORD_CONNECTION
+                c1=tokenIdentifier {
+                	$stmt.addConnection($c1.identifier);
+                }
+                (
+                COMMA
+                p2=identifierText
+                {
+                	$stmt.addPartition($p2.text);
+                }
+                KEYWORD_IN KEYWORD_CONNECTION
+                c2=tokenIdentifier {
+                	$stmt.addConnection($c2.identifier);
+                }
+                )*
+                RPAREN
+                ))
+                
         )
         ;
 
@@ -812,11 +859,11 @@ tokenAssignment returns [TokenAssignment ass]
 		 COLON		 
 		 var1 = tokenVariable{
 		 $ass.setReference(true);
-		 $ass.setVar(var1);
+		 $ass.setVar($var1.variable);
 		 }
 		 EQUAL1
 		 selstmt1=selectStatement{
-		 $ass.setSelStmt(selstmt1.stmt);
+		 $ass.setSelStmt($selstmt1.stmt);
 		 }
 		 )
 		 |
@@ -824,11 +871,11 @@ tokenAssignment returns [TokenAssignment ass]
 		 KEYWORD_VAR
 		 var2 = tokenVariable{		 
 		 $ass.setReference(false);
-		 $ass.setVar(var2);
+		 $ass.setVar($var2.variable);
 		 }
 		 EQUAL1
 		 selstmt2=selectStatement{
-		 $ass.setSelStmt(selstmt2.stmt);
+		 $ass.setSelStmt($selstmt2.stmt);
 		 }		 
 		 )		
 	 )
@@ -1040,7 +1087,8 @@ fragment KEYWORD_AVG: A V G;
 fragment KEYWORD_COUNT: C O U N T;
 KEYWORD_DISTINCT: D I S T I N C T;
 
-KEYWORD_CONNECTION: C O N N E C T I O N;	 
+KEYWORD_CONNECTION: C O N N E C T I O N;
+KEYWORD_PARTITIONED: P A R T I O N E D;			 
 KEYWORD_SCHEMA: S C H E M A;
 KEYWORD_TABLE: T A B L E;
 KEYWORD_FUNCTION: F U N C T I O N;	

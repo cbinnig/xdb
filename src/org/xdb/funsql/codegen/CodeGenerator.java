@@ -83,6 +83,7 @@ public class CodeGenerator {
 		
 		// split compile plan into sub-plans
 		this.splitCompileOps = extractSplitOps();
+		
 		//renameOps to original for joins
 		renameOps();
 		if(this.err.isError())

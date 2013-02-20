@@ -45,6 +45,7 @@ public class QueryTrackerNode {
 		}
 
 		this.logger = XDBLog.getLogger(this.getClass().getName());
+		//get timeMeasure Compoment for Query time Tracking
 		this.timeMeasure = XDBExecuteTimeMeasurement
 				.getXDBExecuteTimeMeasurement("planexecution");
 	}

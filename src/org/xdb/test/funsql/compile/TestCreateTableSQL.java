@@ -28,8 +28,59 @@ public class TestCreateTableSQL extends CompileServerTestCase {
 		String createTableStmt = 
 				"CREATE TABLE \"testTable\"( "+
 				"  A INT," +
-				"  B VARCHAR" +
+				"  B VARCHAR " +
 				") IN CONNECTION \"testConnection\"";
+		
+		stmt = compiler.compile(createTableStmt);
+		this.assertNoError(compiler.getLastError());
+		Assert.assertNotNull(stmt);
+		this.execute(stmt);
+		
+		String dropConnSql = "DROP TABLE \"testTable\"";
+		stmt = compiler.compile(dropConnSql);
+		this.assertNoError(compiler.getLastError());
+		Assert.assertNotNull(stmt);
+		this.execute(stmt);
+	}
+	
+	@Test
+	public void testSimpleCreatePartionedTable() {
+		FunSQLCompiler compiler = new FunSQLCompiler();
+		
+		//create connection -> no error
+		String createConnSql1 = 
+				"CREATE CONNECTION \"testConnection1\" " +
+				"URL 'jdbc:mysql://127.0.0.1/xdb_tmp' " +
+				"USER 'xroot' " +
+				"PASSWORD 'xroot' " +
+				"STORE 'XDB' ";
+		
+		String createConnSql2 = 
+				"CREATE CONNECTION \"testConnection2\" " +
+				"URL 'jdbc:mysql://127.0.0.1/xdb_tmp' " +
+				"USER 'xroot' " +
+				"PASSWORD 'xroot' " +
+				"STORE 'XDB' ";
+		
+		AbstractServerStmt stmt = compiler.compile(createConnSql1);
+		this.assertNoError(compiler.getLastError());
+		Assert.assertNotNull(stmt);
+		this.execute(stmt);
+		
+		
+		AbstractServerStmt stmt2 = compiler.compile(createConnSql2);
+		this.assertNoError(compiler.getLastError());
+		Assert.assertNotNull(stmt2);
+		this.execute(stmt2);
+		
+		
+		String createTableStmt = 
+				"CREATE TABLE \"testTable\"( "+
+				"  A INT," +
+				"  B VARCHAR" +
+				") PARTIONED BY RANDOM ( A ) ( " +
+				" \"P1\" IN CONNECTION  \"testConnection1\"," +
+				" \"P2\" IN CONNECTION  \"testConnection2\")";
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
