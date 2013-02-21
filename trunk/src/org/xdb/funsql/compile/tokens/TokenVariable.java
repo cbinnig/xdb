@@ -16,7 +16,10 @@ public class TokenVariable extends AbstractToken{
 
 	@Override
 	public String toSqlString() {
-		return this.name;
+		if(this.isReferenced)
+			return (":"+this.name);
+		else
+			return this.name;
 	}
 	
 	//getter and setter
