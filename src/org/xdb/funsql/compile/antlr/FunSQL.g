@@ -351,29 +351,45 @@ createFunctionStatement returns [CreateFunctionStmt stmt]
                 function1=tokenFunction{
                 	$stmt.setFunction($function1.function);
                 }
-                LPAREN
-                (
-                KEYWORD_OUT
+            	LPAREN
+	        (
+                KEYWORD_IN
                 var1=tokenVariable{
-               		$stmt.addOutParam(var1);
-		}
-		KEYWORD_TABLE
+               		$stmt.addInParam(var1);
+				}
+				KEYWORD_TABLE
+				COMMA
+		)*
+		(           
+                KEYWORD_OUT
+                var2=tokenVariable{
+               		$stmt.addInParam(var2);
+				}
+				KEYWORD_TABLE
 		)
 		(
-		COMMA
-		KEYWORD_OUT
-                var2=tokenVariable{
-               		$stmt.addOutParam(var2);
-		}
-		KEYWORD_TABLE
+			COMMA
+			KEYWORD_OUT
+            var2=tokenVariable{
+           		$stmt.addOutParam(var2);
+			}
+			KEYWORD_TABLE
 		)*
 		RPAREN
 		KEYWORD_BEGIN
 		(
+		(
 		ass1=tokenAssignment{
                 	$stmt.addAssignment(ass1.getVar(), ass1.getSelStmt());
                 	$stmt.addAssignment(ass1);
-                }                
+                }  
+                )
+                |
+                (
+                call1 = tokenFunctionCall{
+                	$stmt.addFunctionCall(call1);                	
+                }
+                )              
 		)*
 		KEYWORD_END                
 	)
@@ -882,6 +898,39 @@ tokenAssignment returns [TokenAssignment ass]
 	  SEMI	 
 	 ;
 
+tokenFunctionCall returns [TokenFunctionCall call] 
+	@init{
+	 	$call=new TokenFunctionCall();
+	 }
+	 :
+	 (
+		 KEYWORD_CALL
+		 fun1=tokenFunction{
+		 $call.setFun(fun1);
+		 }
+		 LPAREN
+		 (
+			 COLON		 
+			 var1 = tokenVariable{
+			 $call.addInVar(var1);
+			 }	
+		 )*	 
+		 (
+			 KEYWORD_VAR
+			 var2 = tokenVariable{		
+			 $call.addOutVar(var2);
+			 }
+		 )*
+		 (
+		 	 COMMA
+			 KEYWORD_VAR
+			 var3 = tokenVariable{		
+			 $call.addOutVar(var3);
+			 }
+		 )?
+		 RPAREN
+	 )	
+	 ;
         
 tokenIdentifier returns [TokenIdentifier identifier]
 	@init{

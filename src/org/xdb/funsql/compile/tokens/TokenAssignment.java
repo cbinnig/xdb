@@ -4,7 +4,12 @@ import org.xdb.funsql.statement.SelectStmt;
 
 // VAR v1 = <select-Stmt>;
 // :v2 = <select-Stmt>;
-public class TokenAssignment extends AbstractToken{
+public class TokenAssignment extends AbstractTokenFunctionPart{
+	
+	public TokenAssignment() {
+		super(EnumFunctionPartType.ASSIGNMENT);
+	}
+
 	private static final long serialVersionUID = 6953876003543489236L;
 	private TokenVariable var;
 	private SelectStmt selstmt;
@@ -13,10 +18,10 @@ public class TokenAssignment extends AbstractToken{
 	@Override
 	public String toSqlString() {
 		StringBuffer sqlString = new StringBuffer();
-		sqlString.append(this.var.toSqlString());
-		sqlString.append(AbstractToken.EQUAL1);
-		sqlString.append(this.selstmt.getStmtString());
-		sqlString.append(AbstractToken.SEMI);
+			sqlString.append(this.var.toSqlString());
+			sqlString.append(AbstractToken.EQUAL1);
+			sqlString.append(this.selstmt.getStmtString());
+			sqlString.append(AbstractToken.SEMI);
 		return sqlString.toString();
 	}
 
@@ -46,7 +51,8 @@ public class TokenAssignment extends AbstractToken{
 	public void setReference(boolean isReference) {
 		this.isReference = isReference;
 	}
-	
+
+
 	public String hashKey(){
 		return this.var.hashKey();
 	}

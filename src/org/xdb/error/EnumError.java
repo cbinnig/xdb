@@ -33,6 +33,8 @@ public enum EnumError {
 	COMPILER_FUNCTION_OUT_NOT_INITIALISED,
 	COMPILER_FUNCTION_NO_OUT_PARAM,
 	COMPILER_FUNCTION_VAR_NOT_DECLARED,
+	COMPILER_FUNCTION_CALL_IN_NOT_INITIALISED,
+	COMPILER_FUNCTION_CALLED_FUNCTION_DOES_NOT_EXIST,
 	COMPILER_SELECT_DATATYPE_MISMATCH,
 	TRACKER_GENERIC;
 	
@@ -114,6 +116,12 @@ public enum EnumError {
 			break;
 		case COMPILER_FUNCTION_OUT_NOT_INITIALISED:
 			msg= "Compiler: Output parameter \"<arg0>\" not initialised!";
+			break;
+		case COMPILER_FUNCTION_CALL_IN_NOT_INITIALISED:
+			msg= "Compiler: Input parameter \"<arg0>\" of Function Call \"<arg1>\" not initialised!";
+			break;
+		case COMPILER_FUNCTION_CALLED_FUNCTION_DOES_NOT_EXIST:
+			msg= "Compiler: Called Function \"<arg0>\" does not exist!";
 			break;
 		case COMPILER_FUNCTION_NO_OUT_PARAM:
 			msg= "Compiler: No output parameter!";

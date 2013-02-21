@@ -48,6 +48,9 @@ public abstract class AbstractToken implements Serializable{
 	public static final String MAX = "MAX";
 	public static final String AS = "AS";
 	
+	public static final String CALL = "CALL";
+	public static final String VAR = "VAR";
+		
 	public static final String NEWLINE = "\n";
 	
 	@Override
