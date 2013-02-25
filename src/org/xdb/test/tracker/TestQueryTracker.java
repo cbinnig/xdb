@@ -142,4 +142,5 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		// verify results
 		assertEquals(5, actualCnt); 
 	}
+	
 }

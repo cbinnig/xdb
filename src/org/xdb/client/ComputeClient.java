@@ -20,9 +20,13 @@ import org.xdb.utils.Identifier;
 public class ComputeClient extends AbstractClient {
 	// constructor
 	public ComputeClient() {
+		this(Config.COMPUTE_URL, Config.COMPUTE_PORT);
+	}
+	
+	public ComputeClient(final String url, final int port) {
 		this.logger = XDBLog.getLogger(this.getClass().getName());
-		this.port = Config.COMPUTE_PORT;
-		this.url = Config.COMPUTE_URL;
+		this.port = port;
+		this.url = url;
 	}
 
 	/**
