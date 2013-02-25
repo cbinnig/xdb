@@ -1,5 +1,6 @@
 package org.xdb.benchmark.tpch;
 
+import org.xdb.Config;
 import org.xdb.client.CompileClient;
 import org.xdb.error.Error;
 import org.xdb.server.CompileServer;
@@ -128,7 +129,7 @@ public class ExecuteTPCHBenchmarkXDB extends ExecuteTPCHBenchmark{
 			qTrackerServer = new QueryTrackerServer();
 			qTrackerServer.startServer();
 
-			computeServer = new ComputeServer();
+			computeServer = new ComputeServer(Config.COMPUTE_URL, Config.COMPUTE_PORT);
 			computeServer.startServer();
 
 

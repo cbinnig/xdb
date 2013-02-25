@@ -2,6 +2,7 @@ package org.xdb.test;
 
 import junit.framework.Assert;
 
+import org.xdb.Config;
 import org.xdb.server.CompileServer;
 import org.xdb.server.ComputeServer;
 import org.xdb.server.MasterTrackerServer;
@@ -34,7 +35,7 @@ public class XDBTestCase extends TestCase {
 			qTrackerServer.startServer();
 			assertNoError(qTrackerServer.getError());
 		
-			computeServer = new ComputeServer();
+			computeServer = new ComputeServer(Config.COMPUTE_URL, Config.COMPUTE_PORT);
 			computeServer.startServer();
 			
 			assertNoError(computeServer.getError());

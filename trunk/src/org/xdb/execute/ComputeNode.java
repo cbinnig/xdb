@@ -62,7 +62,7 @@ public class ComputeNode {
 	
 
 	// constructors
-	public ComputeNode() throws Exception {
+	public ComputeNode(final String url, final int port) throws Exception {
 		this.operators = Collections
 				.synchronizedMap(new HashMap<Identifier, AbstractExecuteOperator>());
 		this.receivedReadySignals = Collections
@@ -71,7 +71,7 @@ public class ComputeNode {
 		final InetAddress addr = InetAddress.getLocalHost();
 		computeNodeDesc = new ComputeNodeDesc(addr.getHostAddress());
 
-		this.computeClient = new ComputeClient();
+		this.computeClient = new ComputeClient(url, port);
 		this.mTrackerClient = new MasterTrackerClient();
 		final Error err = mTrackerClient.registerNode(computeNodeDesc);
 		if (err.isError()) {

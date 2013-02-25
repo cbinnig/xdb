@@ -87,11 +87,11 @@ public class ComputeServer extends AbstractServer {
 	private final ComputeNode compute;
 
 	// constructors
-	public ComputeServer() throws Exception {
+	public ComputeServer(final String url, final int port) throws Exception {
 		super();
 
-		port = Config.COMPUTE_PORT;
-		compute = new ComputeNode();
+		this.port = port;
+		compute = new ComputeNode(url, port);
 		
 		this.err = compute.startup();
 	}
@@ -113,7 +113,7 @@ public class ComputeServer extends AbstractServer {
 	 * @throws UnknownHostException 
 	 */
 	public static void main(final String[] args) throws Exception {
-		final ComputeServer server = new ComputeServer();
+		final ComputeServer server = new ComputeServer(Config.COMPUTE_URL, Config.COMPUTE_PORT);
 		server.startServer();
 	}
 }

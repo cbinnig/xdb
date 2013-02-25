@@ -32,10 +32,13 @@ public class QueryTrackerNode {
 
 	// logger
 	private final Logger logger;
-
+	
 	public QueryTrackerNode() throws Exception {
-		final InetAddress addr = InetAddress.getLocalHost();
-		this.description = new QueryTrackerNodeDesc(addr.getHostAddress());
+		this(InetAddress.getLocalHost().getHostAddress());
+	}
+
+	public QueryTrackerNode(final String address) throws Exception {
+		this.description = new QueryTrackerNodeDesc(address);
 
 		this.masterTrackerClient = new MasterTrackerClient();
 		final Error err = masterTrackerClient.registerNode(description);
