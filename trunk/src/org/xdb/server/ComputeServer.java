@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNode;
+import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
@@ -91,7 +92,7 @@ public class ComputeServer extends AbstractServer {
 		super();
 
 		this.port = port;
-		compute = new ComputeNode(url, port);
+		compute = new ComputeNode(new ComputeNodeSlot(url, port));
 		
 		this.err = compute.startup();
 	}

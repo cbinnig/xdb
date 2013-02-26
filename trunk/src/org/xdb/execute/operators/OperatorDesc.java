@@ -2,6 +2,7 @@ package org.xdb.execute.operators;
 
 import java.io.Serializable;
 
+import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.utils.Identifier;
 
 /**
@@ -18,10 +19,10 @@ public class OperatorDesc implements Serializable {
 	private Identifier operatorID;
 
 	// operator URL
-	private String operatorNode;
+	private ComputeNodeSlot operatorNode;
 
 	// constructors
-	public OperatorDesc(Identifier operatorID, String operatorNode) {
+	public OperatorDesc(Identifier operatorID, ComputeNodeSlot operatorNode) {
 		super();
 		this.operatorID = operatorID;
 		this.operatorNode = operatorNode;
@@ -32,7 +33,7 @@ public class OperatorDesc implements Serializable {
 		return operatorID;
 	}
 
-	public String getOperatorNode() {
+	public ComputeNodeSlot getOperatorNode() {
 		return operatorNode;
 	}
 

@@ -15,6 +15,7 @@ import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
+import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.logging.XDBLog;
@@ -68,7 +69,7 @@ public class QueryTrackerPlan implements Serializable {
 	
 	// deployment 
 	private final HashMap<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
-	private final HashMap<String, MutableInteger> slots = new HashMap<String, MutableInteger>();
+	private final HashMap<ComputeNodeSlot, MutableInteger> slots = new HashMap<ComputeNodeSlot, MutableInteger>();
 	private final HashMap<Identifier, AbstractExecuteOperator> executeOperatos = new HashMap<Identifier, AbstractExecuteOperator>();
 	
 	// logger
@@ -92,7 +93,7 @@ public class QueryTrackerPlan implements Serializable {
 		return Collections.unmodifiableMap(operators);
 	}
 	
-	public Map<String, MutableInteger> getSlots() {
+	public Map<ComputeNodeSlot, MutableInteger> getSlots() {
 		return slots;
 	}
 	
@@ -247,7 +248,6 @@ public class QueryTrackerPlan implements Serializable {
 		for (final Identifier leaveId : leaves) {
 			final OperatorDesc leaveDesc = currentDeployment.get(leaveId);
 			err = computeClient.executeOperator(leaveDesc);
-
 			if (err.isError()) {
 				return err;
 			}
@@ -261,7 +261,6 @@ public class QueryTrackerPlan implements Serializable {
 			if (!planOp.isRoot()) {
 				final OperatorDesc operDesc = entry.getValue();
 				err = computeClient.closeOperator(operDesc);
-
 				if (err.isError()) {
 					return err;
 				}
@@ -318,11 +317,11 @@ public class QueryTrackerPlan implements Serializable {
 		final Map<String, MutableInteger> requiredSlots = resourceScheduler.calcRequiredSlots();
 
 		//as master tracker for slots
-		final Tuple<Map<String, MutableInteger>, Error> resultRequest = tracker
+		final Tuple<Map<ComputeNodeSlot, MutableInteger>, Error> resultRequest = tracker
 				.requestComputeSlots(requiredSlots);
 
 		//read result
-		final Map<String, MutableInteger> allocatedSlots = resultRequest.getObject1();
+		final Map<ComputeNodeSlot, MutableInteger> allocatedSlots = resultRequest.getObject1();
 		err = resultRequest.getObject2();
 		
 		//assign slots
@@ -356,7 +355,7 @@ public class QueryTrackerPlan implements Serializable {
 		}
 
 		// identify best slot using a resource scheduler
-		String assignedSlot = this.resourceScheduler.getSlot(operId);
+		ComputeNodeSlot assignedSlot = this.resourceScheduler.getSlot(operId);
 		if(assignedSlot == null){
 			String args[] = {"No slot could be assigned for operator "+operId.toString()};
 			this.err = new Error(EnumError.TRACKER_GENERIC, args);

@@ -53,7 +53,7 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 										// results
 				OperatorDesc sourceOp = currentDeployment.get(inTableDesc
 						.getOperatorID());
-				String sourceURL = sourceOp.getOperatorNode();
+				String sourceURL = sourceOp.getOperatorNode().getHost();
 				String sourceTableName = inTableDesc.getTableName();
 				Identifier sourceOperId = sourceOp.getOperatorID();
 

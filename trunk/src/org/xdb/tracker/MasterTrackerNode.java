@@ -14,6 +14,7 @@ import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
+import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
@@ -22,8 +23,8 @@ import org.xdb.utils.MutableInteger;
 
 public class MasterTrackerNode {
 	// compute slots
-	private final Map<String, Integer> computeSlots = Collections
-			.synchronizedMap(new HashMap<String, Integer>());;
+	private final Map<ComputeNodeSlot, Integer> computeSlots = Collections
+			.synchronizedMap(new HashMap<ComputeNodeSlot, Integer>());;
 
 	// query tracker slots
 	private final List<String> queryTrackerSlots = Collections
@@ -69,7 +70,7 @@ public class MasterTrackerNode {
 	public int getNoFreeComputeSlots() {
 		int n = 0;
 
-		for (final Entry<String, Integer> entry : computeSlots.entrySet()) {
+		for (final Entry<ComputeNodeSlot, Integer> entry : computeSlots.entrySet()) {
 			n += entry.getValue();
 		}
 
@@ -193,26 +194,26 @@ public class MasterTrackerNode {
 	 *            wish-list of compute-slots
 	 * @return assigned compute-slots
 	 */
-	public Map<String, MutableInteger> getComputeSlots(
+	public Map<ComputeNodeSlot, MutableInteger> getComputeSlots(
 			final Map<String, MutableInteger> requiredSlots) {
-
-		final HashMap<String, MutableInteger> allocatedSlots = new HashMap<String, MutableInteger>();
+		final HashMap<ComputeNodeSlot, MutableInteger> allocatedSlots = new HashMap<ComputeNodeSlot, MutableInteger>();
 
 		// First handle wish list-slots
 		for (final Entry<String, MutableInteger> reqSlot : requiredSlots
 				.entrySet()) {
-			if (computeSlots.containsKey(reqSlot.getKey())) {
-				final int available = computeSlots.get(reqSlot.getKey());
+			final ComputeNodeSlot k = getKey(computeSlots, reqSlot.getKey());
+			if (k != null) {
+				final int available = computeSlots.get(k);
 				final MutableInteger required = reqSlot.getValue();
 				final int difference = available - required.intValue();
 				if (difference >= 0) {
-					allocatedSlots.put(reqSlot.getKey(), required.clone());
-					computeSlots.put(reqSlot.getKey(), difference);
+					allocatedSlots.put(k, required.clone());
+					computeSlots.put(k, difference);
 					required.setValue(0);
 				} else {
-					allocatedSlots.put(reqSlot.getKey(), new MutableInteger(
+					allocatedSlots.put(k, new MutableInteger(
 							available));
-					computeSlots.put(reqSlot.getKey(), 0);
+					computeSlots.put(k, 0);
 					required.setValue(required.substract(available));
 				}
 			}
@@ -223,7 +224,7 @@ public class MasterTrackerNode {
 		for (final Entry<String, MutableInteger> reqSlot : requiredSlots
 				.entrySet()) {
 			final MutableInteger required = reqSlot.getValue();
-			for (final Entry<String, Integer> computeSlot : computeSlots
+			for (final Entry<ComputeNodeSlot, Integer> computeSlot : computeSlots
 					.entrySet()) {
 				final int available = computeSlot.getValue();
 				final int difference = available - required.intValue();
@@ -264,7 +265,6 @@ public class MasterTrackerNode {
 				break;
 			}
 		}
-
 		return allocatedSlots;
 	}
 
@@ -305,8 +305,8 @@ public class MasterTrackerNode {
 	 * 
 	 * @param freeNodes
 	 */
-	public void addFreeComputeSlots(final Map<String, MutableInteger> freeNodes) {
-		for (final Entry<String, MutableInteger> node : freeNodes.entrySet()) {
+	public void addFreeComputeSlots(final Map<ComputeNodeSlot, MutableInteger> freeNodes) {
+		for (final Entry<ComputeNodeSlot, MutableInteger> node : freeNodes.entrySet()) {
 			Integer num = computeSlots.get(node.getKey());
 			if (num == null) {
 				num = 0;
@@ -314,5 +314,14 @@ public class MasterTrackerNode {
 			num += node.getValue().intValue();
 			computeSlots.put(node.getKey(), num);
 		}
+	}
+	
+	private static final ComputeNodeSlot getKey(final Map<ComputeNodeSlot, ?> map1, final String key) {
+		for (ComputeNodeSlot k : map1.keySet()) {
+			if (k.getHost().equals(key)) {
+				return k;
+			}
+		}
+		return null;
 	}
 }
