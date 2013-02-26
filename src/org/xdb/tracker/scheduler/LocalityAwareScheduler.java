@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.xdb.Config;
+import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.TableDesc;
 import org.xdb.utils.Identifier;
@@ -25,7 +27,7 @@ public class LocalityAwareScheduler extends AbstractResourceScheduler {
 	private Map<String, MutableInteger> wishSlots = new HashMap<String, MutableInteger>();
 
 	// assigned slots which are actually available: compute slot URL -> count
-	private Map<String, MutableInteger> assignedSlots = new HashMap<String, MutableInteger>();
+	private Map<ComputeNodeSlot, MutableInteger> assignedSlots = new HashMap<ComputeNodeSlot, MutableInteger>();
 
 	public LocalityAwareScheduler(QueryTrackerPlan plan) {
 		super(plan);
@@ -98,6 +100,7 @@ public class LocalityAwareScheduler extends AbstractResourceScheduler {
 			if(sourceUrl == null)
 				sourceUrl = AbstractResourceScheduler.RANDOM;
 			
+			
 			this.wishLocations.put(opId, sourceUrl);
 			if (!this.wishSlots.containsKey(sourceUrl)) {
 				MutableInteger count = new MutableInteger(1);
@@ -115,29 +118,38 @@ public class LocalityAwareScheduler extends AbstractResourceScheduler {
 	}
 
 	@Override
-	public void assignSlots(Map<String, MutableInteger> slots) {
+	public void assignSlots(Map<ComputeNodeSlot, MutableInteger> slots) {
 		this.assignedSlots.putAll(slots);
 	}
 
 	@Override
-	public String getSlot(Identifier opId) {
+	public ComputeNodeSlot getSlot(Identifier opId) {
 		// get slot URL for operator
 		String wishUrl = this.wishLocations.get(opId);
-		if (!this.assignedSlots.containsKey(wishUrl)) {
-			for (String otherUrl : this.assignedSlots.keySet()) {
-				wishUrl = otherUrl;
+		
+		ComputeNodeSlot newWishUrl = null;
+		for (ComputeNodeSlot otherUrl : this.assignedSlots.keySet()) {
+			if (otherUrl.getHost().equals(wishUrl)) {
+				newWishUrl = otherUrl;
 				break;
 			}
+			if (newWishUrl == null) {
+				newWishUrl = otherUrl;
+			}
 		}
-
+		for (ComputeNodeSlot otherUrl : this.assignedSlots.keySet()) {
+			newWishUrl = otherUrl;
+			break;
+		}
+			
 		// decrement count
-		MutableInteger count = this.assignedSlots.get(wishUrl);
+		MutableInteger count = this.assignedSlots.get(newWishUrl);
 		count.dec();
 		if (count.intValue() == 0) {
-			this.assignedSlots.remove(wishUrl);
+			this.assignedSlots.remove(newWishUrl);
 		}
 
-		return wishUrl;
+		return newWishUrl;
 	}
 
 }

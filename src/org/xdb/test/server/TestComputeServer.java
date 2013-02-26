@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import org.junit.Test;
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
+import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.execute.operators.MySQLExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.test.ComputeServerTestCase;
@@ -12,7 +13,7 @@ import org.xdb.utils.Identifier;
 
 public class TestComputeServer extends ComputeServerTestCase {
 	//private String[] nodes = {"192.168.178.42", "192.168.178.20"};
-	private final String[] nodes = {"127.0.0.1", "127.0.0.1"};
+	private final ComputeNodeSlot[] nodes = {new ComputeNodeSlot("127.0.0.1", Config.COMPUTE_PORT), new ComputeNodeSlot("127.0.0.1", Config.COMPUTE_PORT)};
 
 	public TestComputeServer() {
 		super();

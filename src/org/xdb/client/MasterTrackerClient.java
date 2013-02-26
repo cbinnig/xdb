@@ -8,6 +8,7 @@ import java.util.Map;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
+import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.MasterTrackerServer;
@@ -130,9 +131,9 @@ public class MasterTrackerClient extends AbstractClient{
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Tuple<Map<String, MutableInteger>, Error> requestComputeNodes(final Map<String, MutableInteger> requiredNodes) {
+	public Tuple<Map<ComputeNodeSlot, MutableInteger>, Error> requestComputeNodes(final Map<String, MutableInteger> requiredNodes) {
 		Error err = new Error();
-		Map<String, MutableInteger> computeNodes = null;
+		Map<ComputeNodeSlot, MutableInteger> computeNodes = null;
 		try {
 			server = new Socket(url, port);
 			final ObjectOutputStream out = new ObjectOutputStream(
@@ -142,7 +143,7 @@ public class MasterTrackerClient extends AbstractClient{
 			out.writeInt(MasterTrackerServer.CMD_REQUEST_COMPUTE_NODE);
 			out.writeObject(requiredNodes);
 			out.flush();
-			computeNodes = (Map<String, MutableInteger>) in.readObject();
+			computeNodes = (Map<ComputeNodeSlot, MutableInteger>) in.readObject();
 			err = (Error) in.readObject();
 
 			server.close();
@@ -150,7 +151,7 @@ public class MasterTrackerClient extends AbstractClient{
 		} catch (final Exception e) {
 			err = createClientError(e);
 		}
-		return new Tuple<Map<String, MutableInteger>, Error>(computeNodes, err);
+		return new Tuple<Map<ComputeNodeSlot, MutableInteger>, Error>(computeNodes, err);
 	}
 
 	/**
@@ -158,7 +159,7 @@ public class MasterTrackerClient extends AbstractClient{
 	 * @param slots
 	 * @return
 	 */
-	public Error noticeFreeSlots(final Map<String, MutableInteger> slots) {
+	public Error noticeFreeSlots(final Map<ComputeNodeSlot, MutableInteger> slots) {
 		Error err = new Error();
 		try {
 			server = new Socket(url, port);

@@ -10,10 +10,12 @@ import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.error.Error;
+import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.logging.XDBExecuteTimeMeasurement;
 import org.xdb.logging.XDBLog;
+import org.xdb.tracker.scheduler.AbstractResourceScheduler;
 import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
 
@@ -24,7 +26,7 @@ import org.xdb.utils.Tuple;
  * 
  */
 public class QueryTrackerNode {
-	private final ComputeClient computeClient = new ComputeClient();
+	private final ComputeClient computeClient;
 
 	private final MasterTrackerClient masterTrackerClient;
 	private final QueryTrackerNodeDesc description;
@@ -32,12 +34,16 @@ public class QueryTrackerNode {
 
 	// logger
 	private final Logger logger;
+
+	private QueryTrackerPlan plan;
 	
 	public QueryTrackerNode() throws Exception {
 		this(InetAddress.getLocalHost().getHostAddress());
 	}
 
 	public QueryTrackerNode(final String address) throws Exception {
+		
+		this.computeClient = new ComputeClient();
 		this.description = new QueryTrackerNodeDesc(address);
 
 		this.masterTrackerClient = new MasterTrackerClient();
@@ -81,6 +87,7 @@ public class QueryTrackerNode {
 	 * @return
 	 */
 	public Error executePlan(final QueryTrackerPlan plan) {
+		this.plan = plan;
 
 		// measure time of Plan execution
 
@@ -126,10 +133,10 @@ public class QueryTrackerNode {
 	 * @param requiredSlots
 	 * @return
 	 */
-	public Tuple<Map<String, MutableInteger>, Error> requestComputeSlots(
+	public Tuple<Map<ComputeNodeSlot, MutableInteger>, Error> requestComputeSlots(
 			final Map<String, MutableInteger> requiredSlots) {
 
-		final Tuple<Map<String, MutableInteger>, Error> tuple = this.masterTrackerClient
+		final Tuple<Map<ComputeNodeSlot, MutableInteger>, Error> tuple = this.masterTrackerClient
 				.requestComputeNodes(requiredSlots);
 
 		return tuple;
@@ -142,11 +149,13 @@ public class QueryTrackerNode {
 	 * @return
 	 */
 	public Error operatorReady(final AbstractExecuteOperator op) {
+		AbstractResourceScheduler scheduler = AbstractResourceScheduler.createScheduler(plan);
 		Error err = new Error();
 		// Send READY Signal to all Customers
 		final Set<OperatorDesc> consumers = op.getConsumers();
 		for (final OperatorDesc consumer : consumers) {
 			if (consumer != null) {
+				consumer.getOperatorNode();
 				logger.log(Level.INFO, "Send READY_SIGNAL from Query Tracker "
 						+ this.description.getUrl() + " to consumer: "
 						+ consumer);

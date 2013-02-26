@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
+import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.tracker.MasterTrackerNode;
 import org.xdb.tracker.QueryTrackerNodeDesc;
@@ -71,7 +72,7 @@ public class MasterTrackerServer extends AbstractServer {
 					break;
 				case CMD_NOTICE_FREE_COMPUTE_NODES:
 					@SuppressWarnings("unchecked")
-					final Map<String, MutableInteger> freeNodes = (Map<String, MutableInteger>) in
+					final Map<ComputeNodeSlot, MutableInteger> freeNodes = (Map<ComputeNodeSlot, MutableInteger>) in
 							.readObject();
 					tracker.addFreeComputeSlots(freeNodes);
 					err = tracker.getLastError();

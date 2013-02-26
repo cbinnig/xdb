@@ -14,19 +14,19 @@ public class ComputeNodeDesc implements Serializable {
 	private static final long serialVersionUID = 995523462711933305L;
 
 	// URL of compute node
-	private String url;
+	private ComputeNodeSlot url;
 
 	// slots of compute node
 	private Integer slots;
 
 	// constructors
-	public ComputeNodeDesc(String url) {
+	public ComputeNodeDesc(ComputeNodeSlot url) {
 		this.url = url;
 		this.slots = Config.COMPUTE_SLOTS;
 	}
 
 	// getters and setters
-	public String getUrl() {
+	public ComputeNodeSlot getUrl() {
 		return url;
 	}
 
