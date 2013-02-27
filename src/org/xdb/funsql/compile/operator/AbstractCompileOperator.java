@@ -9,6 +9,7 @@ import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.metadata.Connection;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 
@@ -24,6 +25,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 	protected EnumOperator type;
 	protected Vector<AbstractCompileOperator> children = new Vector<AbstractCompileOperator>();
 	protected Vector<AbstractCompileOperator> parents = new Vector<AbstractCompileOperator>();
+	protected Connection wishedConnection = null;
 
 	// unique operator id
 	protected Identifier operatorId;
@@ -57,6 +59,14 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 */
 	public Vector<AbstractCompileOperator> getParents() {
 		return this.parents;
+	}
+	
+	/**
+	 * Get wished connection.
+	 * @return wished connection, null if not set
+	 */
+	public Connection getWishedConnection() {
+		return this.wishedConnection;
 	}
 
 	public Identifier getOperatorId() {
@@ -121,6 +131,10 @@ public abstract class AbstractCompileOperator implements Serializable {
 
 	public void addParent(AbstractCompileOperator parent) {
 		this.parents.add(parent);
+	}
+	
+	public void setWishedConnection(final Connection conn) {
+		this.wishedConnection = conn;
 	}
 
 	// methods
