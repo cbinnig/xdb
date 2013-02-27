@@ -60,8 +60,8 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 				String deployTableDDL = this.genDeployInputTableDDL(tableName,
 						deployOperId, sourceTableName, sourceOperId, sourceURL);
 				deployOper.addOpenSQL(deployTableDDL);
-				
-				//Check if URL is equal to local host or 
+
+				//Check if URL is equal to local host or
 				//if deployed URL is equal to URL of table?
 				//If yes, then do not use federated table
 				InetAddress sourceAddress = null;
@@ -71,13 +71,15 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+
+				//this needs more work: use low level table name instead of xdb
 				//check if federated engine is necessary
-				if(sourceAddress.isAnyLocalAddress()|| sourceAddress.isLoopbackAddress()){
-					deployTableName = sourceTableName;
-				}
-	
+				//if(sourceAddress.isAnyLocalAddress()|| sourceAddress.isLoopbackAddress()){
+				//	deployTableName = sourceTableName;
+				//}
+
 				args.put(tableName, "SELECT * FROM " + deployTableName);
-				
+
 			} else { // table is stored in an XDB instance
 				URI connURI = inTableDesc.getURI();
 				String sourceTableName = inTableDesc.getTableName();
@@ -88,8 +90,8 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 							tableName, deployOperId, sourceTableName, sourceDB,
 							sourceURL);
 				deployOper.addOpenSQL(deployTableDDL);
-				
-				//Check if URL is equal to local host or 
+
+				//Check if URL is equal to local host or
 				//if deployed URL is equal to URL of table?
 				//If yes, then do not use federated table
 				//is local and if is Currentdeployment = source URL
@@ -99,7 +101,7 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				}
-				
+
 				//Check first if its's running on localhost
 				//Second check if soure Table has the same URL as the current Node
 				if(sourceAddress.isAnyLocalAddress()|| sourceAddress.isLoopbackAddress()){
