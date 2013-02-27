@@ -7,19 +7,24 @@ import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CreateFunctionStmt;
 import org.xdb.test.CompileServerTestCase;
-import org.xdb.tracker.MasterTrackerNode;
+import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 
 public class TestSQLPlanTranslation extends CompileServerTestCase {
 	
-	private MasterTrackerNode mTracker;
+	private QueryTrackerNode qTracker;
 	@Override
 	/**
 	 * Setup common statements (connect, drop, ...)
 	 */
 	public void setUp() {
 		super.setUp();
-		this.mTracker = new MasterTrackerNode();
+		try {
+			this.qTracker = new QueryTrackerNode();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	@Test
@@ -88,10 +93,10 @@ public class TestSQLPlanTranslation extends CompileServerTestCase {
 		fStmt.getPlan().tracePlan(this.getClass().getName()+"_Compiler");
 		this.assertNoError(fStmt.execute());
 		
-		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(fStmt.getPlan());
+		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(fStmt.getPlan());
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName()+"_Tracker");
 		
-		assertEquals(qPlan.getOperators().size(), 3);
+		assertEquals(qPlan.getOperators().size(), 2);
 	}
 }

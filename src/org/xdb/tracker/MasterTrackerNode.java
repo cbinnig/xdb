@@ -15,7 +15,6 @@ import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.ComputeNodeSlot;
-import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
@@ -36,7 +35,7 @@ public class MasterTrackerNode {
 	private final Map<String, QueryTrackerClient> queryTrackerClients = new HashMap<String, QueryTrackerClient>();
 
 	// running plans by plan identifier
-	private final HashMap<Identifier, QueryTrackerPlan> runningPlans = new HashMap<Identifier, QueryTrackerPlan>();
+	private final HashMap<Identifier, CompilePlan> runningPlans = new HashMap<Identifier, CompilePlan>();
 
 	// running plans with executing query tracker url
 	private final HashMap<Identifier, String> planAssignment = new HashMap<Identifier, String>();
@@ -87,46 +86,16 @@ public class MasterTrackerNode {
 	}
 
 	// methods
+
+
+
 	/**
-	 * Generates query tracker plan from compile plan and executes query tracker
-	 * plan using a query tracker
+	 * Determines query tracker and hands over compile plan for execution
 	 * 
 	 * @param plan
 	 * @return
 	 */
 	public Error executePlan(final CompilePlan plan) {
-		logger.log(Level.INFO, "Got new compileplan: " + plan);
-
-		final QueryTrackerPlan qtp = generateQueryTrackerPlan(plan);
-		if (this.err.isError())
-			return err;
-
-		return executePlan(qtp);
-	}
-
-	/**
-	 * Transform a CompilePlan to into multiple QueryTrackerPlans
-	 * 
-	 * @param plan
-	 * @return
-	 */
-	public QueryTrackerPlan generateQueryTrackerPlan(
-			final CompilePlan compilePlan) {
-		CodeGenerator codeGen = new CodeGenerator(compilePlan);
-		err = codeGen.generate();
-		if (err.isError())
-			return null;
-
-		return codeGen.getQueryTrackerPlan();
-	}
-
-	/**
-	 * Determines query tracker and hands over query tracker plan for execution
-	 * 
-	 * @param plan
-	 * @return
-	 */
-	public Error executePlan(final QueryTrackerPlan plan) {
 		if (plan == null) {
 			String[] args = { "No query tracker plan provided" };
 			return new Error(EnumError.TRACKER_GENERIC, args);
@@ -134,7 +103,7 @@ public class MasterTrackerNode {
 
 		// tracing
 		if (Config.TRACE_TRACKER_PLAN){
-			plan.tracePlan(plan.getClass().getCanonicalName()+"_TRACKER");
+			plan.tracePlan(plan.getClass().getCanonicalName()+"MASTER_TRACKER");
 		}
 
 		logger.log(Level.INFO, "Got new plan for execution: " + plan);
@@ -167,20 +136,21 @@ public class MasterTrackerNode {
 	}
 
 	/**
-	 * Executes query tracker plan on given query tracker
+	 * Executes compile plan on given query tracker
 	 * 
 	 * @param tracker
 	 * @param plan
 	 * @return
 	 */
 	private Error executeOnQueryTracker(final String tracker,
-			final QueryTrackerPlan plan) {
+			final CompilePlan plan) {
 
 		runningPlans.put(plan.getPlanId(), plan);
 		planAssignment.put(plan.getPlanId(), tracker);
 
 		final QueryTrackerClient client = this.queryTrackerClients.get(tracker);
 
+		// execute plan
 		this.err = client.executePlan(plan);
 
 		return this.err;

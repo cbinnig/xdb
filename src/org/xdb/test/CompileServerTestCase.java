@@ -2,8 +2,8 @@ package org.xdb.test;
 
 import org.xdb.server.CompileServer;
 
-public class CompileServerTestCase extends TestCase {
-	private CompileServer server;
+public class CompileServerTestCase extends XDBTestCase {
+	
 	
 	public CompileServerTestCase() {
 		super();
@@ -11,15 +11,10 @@ public class CompileServerTestCase extends TestCase {
 
 	@Override
 	public void setUp() {
-		assertNoError(CompileServer.deleteCatalog());
+		super.setUp();
+		//assertNoError(CompileServer.deleteCatalog());
 
-		server = new CompileServer();
-		server.startServer();
-		assertNoError(server.getError());
 	}
 	
-	@Override
-	public void tearDown(){
-		server.stopServer();
-	}
+
 }

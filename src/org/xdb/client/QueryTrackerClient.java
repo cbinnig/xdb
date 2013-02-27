@@ -7,9 +7,9 @@ import java.net.Socket;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
+import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.QueryTrackerServer;
-import org.xdb.tracker.QueryTrackerPlan;
 
 /**
  * Client to talk to Query Tracker Server
@@ -31,7 +31,7 @@ public class QueryTrackerClient extends AbstractClient{
 	 * @param plan
 	 * @return
 	 */
-	public Error executePlan(final QueryTrackerPlan plan) {
+	public Error executePlan(final CompilePlan plan) {
 		Error err = new Error();
 
 		try {

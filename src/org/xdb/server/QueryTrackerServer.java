@@ -8,8 +8,8 @@ import java.net.Socket;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
+import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.tracker.QueryTrackerNode;
-import org.xdb.tracker.QueryTrackerPlan;
 
 public class QueryTrackerServer extends AbstractServer {
 
@@ -47,8 +47,10 @@ public class QueryTrackerServer extends AbstractServer {
 			try {
 				switch (cmd) {
 				case CMD_EXECUTE_PLAN:
-					final QueryTrackerPlan plan = (QueryTrackerPlan) in.readObject();
-					err = tracker.executePlan(plan);
+					//got new compile plan
+					final CompilePlan cplan = (CompilePlan) in.readObject();
+					
+					err = tracker.executePlan(cplan);
 					break;
 				case CMD_OPERATOR_READY:
 					final AbstractExecuteOperator op = (AbstractExecuteOperator) in.readObject();

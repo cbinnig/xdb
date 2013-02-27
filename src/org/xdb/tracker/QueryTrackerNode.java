@@ -13,6 +13,8 @@ import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
+import org.xdb.funsql.codegen.CodeGenerator;
+import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBExecuteTimeMeasurement;
 import org.xdb.logging.XDBLog;
 import org.xdb.tracker.scheduler.AbstractResourceScheduler;
@@ -36,6 +38,7 @@ public class QueryTrackerNode {
 	private final Logger logger;
 
 	private QueryTrackerPlan plan;
+	private CompilePlan cplan;
 	
 	public QueryTrackerNode() throws Exception {
 		this(InetAddress.getLocalHost().getHostAddress());
@@ -77,23 +80,55 @@ public class QueryTrackerNode {
 	public QueryTrackerNodeDesc getDescription() {
 		return this.description;
 	}
-
-	// methods
-
+	
+	
 	/**
-	 * Execute a given tracker plan
+	 * Transforms a CompilePlan to into multiple QueryTrackerPlans
 	 * 
 	 * @param plan
 	 * @return
 	 */
-	public Error executePlan(final QueryTrackerPlan plan) {
-		this.plan = plan;
+	public QueryTrackerPlan generateQueryTrackerPlan(
+			final CompilePlan compilePlan) {
+		Error err = new Error();
+		CodeGenerator codeGen = new CodeGenerator(compilePlan);
+		err = codeGen.generate();
+		if (err.isError())
+			return null;
 
+		return codeGen.getQueryTrackerPlan();
+	}
+
+
+	// methods
+
+	/**
+	 * Execute a given compile plan
+	 * 
+	 * @param plan
+	 * @return
+	 */
+	public Error executePlan(final CompilePlan cplan) {
+		logger.log(Level.INFO, "Got new compileplan: " + plan);
+		
+		this.cplan = cplan;
+		// TODO parallize and optimize  Plan
+		
+		//rebuild cplan to QTP
+		this.plan = generateQueryTrackerPlan(this.cplan);
+
+		// tracing
+		if (Config.TRACE_TRACKER_PLAN){
+			plan.tracePlan(plan.getClass().getCanonicalName()+"MASTER_TRACKER");
+		}
 		// measure time of Plan execution
 
 		this.timeMeasure.start(plan.getPlanId().toString());
 
 		plan.assignTracker(this);
+		//0. New Steps according to rebuild
+
+		
 		// 1. deploy plan on compute nodes
 		Error err = plan.deployPlan();
 		if (err.isError()) {
