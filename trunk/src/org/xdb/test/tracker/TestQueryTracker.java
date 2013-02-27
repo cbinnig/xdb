@@ -142,7 +142,7 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 		// verify results
 		assertEquals(5, actualCnt); 
 	}
-	
+
 	@Test
 	public void testPlan2OpsDistributed() throws Exception {
 //		final QueryTrackerNode qTracker1 = new QueryTrackerNode("localhost", "localhost", 55544);

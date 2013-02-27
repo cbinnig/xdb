@@ -24,20 +24,31 @@ import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Table;
+import org.xdb.server.MasterTrackerServer;
 import org.xdb.store.EnumStore;
 import org.xdb.test.TestCase;
-import org.xdb.tracker.MasterTrackerNode;
+import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 
 public class TestPlanTranslation extends TestCase {
 
-	private MasterTrackerNode mTracker;
+	private QueryTrackerNode qTracker;
+	private MasterTrackerServer mTrackerServer;
 	@Override
 	/**
 	 * Setup common statements (connect, drop, ...)
 	 */
 	public void setUp() {
-		this.mTracker = new MasterTrackerNode();
+		try {
+			mTrackerServer = new MasterTrackerServer();
+			mTrackerServer.startServer();
+			assertNoError(mTrackerServer.getError());
+			
+			
+			this.qTracker = new QueryTrackerNode();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -91,7 +102,7 @@ public class TestPlanTranslation extends TestCase {
 		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
-		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(plan);
+		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan);
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
@@ -149,7 +160,7 @@ public class TestPlanTranslation extends TestCase {
 		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
-		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(plan);
+		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan);
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
@@ -213,7 +224,7 @@ public class TestPlanTranslation extends TestCase {
 		table.addAttribute(new Attribute("b", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
-		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(plan);
+		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan);
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
@@ -317,10 +328,15 @@ public class TestPlanTranslation extends TestCase {
 		rTable.addAttribute(new Attribute("c", EnumSimpleType.SQL_INTEGER, 0L));
 		rTableOp.setTable(rTable);
 		
-		QueryTrackerPlan qPlan = mTracker.generateQueryTrackerPlan(plan);
+		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan);
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
 		assertEquals(qPlan.getOperators().size(), 1);
+	}
+	
+	@Override
+	public void tearDown(){
+		mTrackerServer.stopServer();
 	}
 }

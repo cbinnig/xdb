@@ -1,6 +1,5 @@
 package org.xdb.execute;
 
-import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
