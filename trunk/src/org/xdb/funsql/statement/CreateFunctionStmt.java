@@ -198,8 +198,6 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 			// check parameters and add them to cache
 			e = checkParameters();
 			
-			//check FunctionCalls
-			e = checkCallParameters();
 			if (e.isError())
 				return e;
 		}
@@ -224,13 +222,28 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 				
 			//function call
 			}else if(tfp.getType().equals(EnumFunctionPartType.FUNCTION_CALL)){
-				//TokenFunctionCall tfc = (TokenFunctionCall) tfp;
-				//Function fun = this.calls.get(tfc.getFun());
-				//TODO:add plan to compiled plans and build table from result
+				TokenFunctionCall tfc = (TokenFunctionCall) tfp;
+				//check FunctionCalls
+				e = checkCallParameters(tfc);
+				if (e.isError())
+					return e;
+				CompilePlan plan = this.fCache.getPlan(tfc.getFun().getName().toString());
+				if(plan == null){
+					CallFunctionStmt stmt = new CallFunctionStmt(tfc.getFun().getName().toString());
+					stmt.compile();
+					plan = this.fCache.getPlan(tfc.getFun().getName().toString());	
+				}
+				//adds plans of called functions
+				for(TokenVariable otv: tfc.getOutVars()){
+					this.compilePlans.put(otv.hashKey(), plan);
+					Table tableType = this.buildTableType(otv, plan.getRoot(0).getResult());
+					this.varSymbols.put(otv.hashKey(), tableType);
+				}
+				
 			}
 		}
 
-		// step 3: build compile plan from select plans
+		// step 3a: build compile plan from select plans
 		for (TokenAssignment ta : this.tAssignments) {
 			SelectStmt stmt = ta.getSelStmt();
 			CompilePlan stmtPlan = stmt.getPlan();
@@ -247,6 +260,23 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 				this.functionPlan.addRootId(stmtPlan.getRootId(0));
 			}
 		}
+		
+		//step 3b
+		for(TokenFunctionCall tfc: this.tcalls){
+			CompilePlan callPlan = this.compilePlans.get(tfc);
+			//replace in params with subplans
+			for(TokenVariable var: tfc.getInVars()){
+				CompilePlan varPlan = this.compilePlans.get(var.hashKey());
+				callPlan.replaceVariable(var.hashKey(), varPlan.getRoot(0));
+			}
+			//add plans of called functions to functionPlan
+			this.functionPlan.addSubPlan(callPlan);
+			for(TokenVariable var: tfc.getOutVars()){
+				if (this.outParamKeys.contains(var)) {
+					this.functionPlan.addRootId(callPlan.getRootId(0));
+				}
+			}
+		}
 
 		// step 4: check catalog object
 		this.function = new Function(this.tFun.getName().toString(),
@@ -261,16 +291,12 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		return e;
 	}
 
-	private Error checkCallParameters() {
+	private Error checkCallParameters(TokenFunctionCall call) {
 		Error e = new Error();
 		// check Input Parameters of a FunctionCall
-		if (!this.tcalls.isEmpty()) {
-			for (TokenFunctionCall call : this.tcalls) {
-				for (TokenVariable ivar: call.getInVars())
-				if (!this.assignments.containsKey(ivar)) {
-					e = this.createInputFunctionCallParameterIsNotInitialisedErr(ivar, call.getFun());
-				}
-			}
+		for (TokenVariable ivar: call.getInVars())
+		if (!this.assignments.containsKey(ivar)) {
+			e = this.createInputFunctionCallParameterIsNotInitialisedErr(ivar, call.getFun());
 		}
 		return e;
 	}
@@ -286,6 +312,10 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		return table;
 	}
 
+	/**
+	 * checks if the outgoing parameters are filled in the function
+	 * @return Error if they are not filled
+	 */
 	private Error checkParameters() {
 		Error e = new Error();
 		// check Parameters
