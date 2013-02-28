@@ -100,9 +100,10 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 
 		final StringTemplate q2DML = new StringTemplate(
 				"INSERT INTO <R3> <R2> ");
-
-		op2.addInTable("R2", r2DDL);
+		
 		op2.addExecuteSQL(q2DML);
+		op2.addInTable("R2", r2DDL);
+		
 		op2.addOutTable("R3", r3DDL);
 		qPlan.addOperator(op2);
 		
