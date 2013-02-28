@@ -386,6 +386,7 @@ public class QueryTrackerPlan implements Serializable {
 	 */
 	private void distributePlan() {
 		// distribute all operators in deployment
+		
 		for (final Entry<Identifier, OperatorDesc> entry : this.currentDeployment
 				.entrySet()) {
 			final Identifier operId = entry.getKey();

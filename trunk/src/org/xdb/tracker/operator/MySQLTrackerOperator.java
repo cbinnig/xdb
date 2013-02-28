@@ -55,6 +55,7 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 						.getOperatorID());
 				String sourceURL = sourceOp.getOperatorNode().getHost();
 				String sourceTableName = inTableDesc.getTableName();
+		
 				Identifier sourceOperId = sourceOp.getOperatorID();
 
 				String deployTableDDL = this.genDeployInputTableDDL(tableName,
@@ -68,15 +69,17 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 				try {
 					sourceAddress =InetAddress.getByName(sourceURL);
 				} catch (UnknownHostException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
 				//this needs more work: use low level table name instead of xdb
 				//check if federated engine is necessary
-				//if(sourceAddress.isAnyLocalAddress()|| sourceAddress.isLoopbackAddress()){
-				//	deployTableName = sourceTableName;
-				//}
+				if(sourceAddress.isAnyLocalAddress()|| sourceAddress.isLoopbackAddress()){
+					//get desc of source Table
+					Identifier sourceDeployOperId = sourceOp.getOperatorID();
+					//set different deploymentname
+					deployTableName = genDeployTableName(sourceTableName, sourceDeployOperId);
+				}
 
 				args.put(tableName, "SELECT * FROM " + deployTableName);
 
