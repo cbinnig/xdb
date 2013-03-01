@@ -363,14 +363,14 @@ createFunctionStatement returns [CreateFunctionStmt stmt]
 		(           
                 KEYWORD_OUT
                 var2=tokenVariable{
-               		$stmt.addInParam(var2);
+               		$stmt.addOutParam(var2);
 				}
 				KEYWORD_TABLE
 		)
 		(
 			COMMA
 			KEYWORD_OUT
-            var2=tokenVariable{
+         	var2=tokenVariable{
            		$stmt.addOutParam(var2);
 			}
 			KEYWORD_TABLE
@@ -391,7 +391,8 @@ createFunctionStatement returns [CreateFunctionStmt stmt]
                 }
                 )              
 		)*
-		KEYWORD_END                
+		KEYWORD_END   
+		SEMI             
 	)
 	;
 	
@@ -893,7 +894,21 @@ tokenAssignment returns [TokenAssignment ass]
 		 selstmt2=selectStatement{
 		 $ass.setSelStmt($selstmt2.stmt);
 		 }		 
-		 )		
+		 )
+		 |
+		 (
+		 KEYWORD_VAR
+		 var3 = tokenVariable{		 
+		 $ass.setReference(false);
+		 $ass.setVar($var3.variable);
+		 }
+		 EQUAL1
+		 )	
+		 COLON		 
+		 var4 = tokenVariable{
+		 $ass.setReference(true);
+		 $ass.setVar($var4.variable);
+		 }	
 	 )
 	  SEMI	 
 	 ;
@@ -905,6 +920,7 @@ tokenFunctionCall returns [TokenFunctionCall call]
 	 :
 	 (
 		 KEYWORD_CALL
+		 KEYWORD_FUNCTION
 		 fun1=tokenFunction{
 		 $call.setFun(fun1);
 		 }
@@ -920,15 +936,16 @@ tokenFunctionCall returns [TokenFunctionCall call]
 			 var2 = tokenVariable{		
 			 $call.addOutVar(var2);
 			 }
+			 COMMA
 		 )*
-		 (
-		 	 COMMA
+		 (		 	 
 			 KEYWORD_VAR
 			 var3 = tokenVariable{		
 			 $call.addOutVar(var3);
 			 }
-		 )?
+		 )
 		 RPAREN
+		 SEMI	
 	 )	
 	 ;
         
