@@ -3,8 +3,10 @@ package org.xdb.funsql.compile.analyze;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import org.xdb.funsql.compile.CompilePlan;
+import org.xdb.funsql.compile.tokens.TokenVariable;
 
 public final class FunctionCache {
 	//Singleton
@@ -12,6 +14,7 @@ public final class FunctionCache {
 	
 	//cached CompilePlans
 	private Map<String, CompilePlan> plans;
+	private Map<String, Vector<TokenVariable>> inVars;
 	
 	public synchronized static FunctionCache getCache(){
 		if(cache == null){
@@ -51,6 +54,14 @@ public final class FunctionCache {
 		return this.plans.containsKey(functionKey);
 	}
 	
+	public Vector<TokenVariable> getInVars(String functionkey) {
+		return this.inVars.get(functionkey);
+	}
+
+	public void addInVars(String functionkey, Vector<TokenVariable> vars) {
+		this.inVars.put(functionkey, vars);
+	}
+
 	/**
 	 * Clear Cache
 	 */

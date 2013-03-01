@@ -97,6 +97,6 @@ public class TestSQLPlanTranslation extends CompileServerTestCase {
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName()+"_Tracker");
 		
-		assertEquals(qPlan.getOperators().size(), 2);
+		assertEquals(qPlan.getOperators().size(), 3);
 	}
 }

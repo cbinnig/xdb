@@ -11,8 +11,8 @@ public class TokenFunctionCall  extends AbstractTokenFunctionPart{
 
 	private static final long serialVersionUID = 4600903022238163726L;
 	private TokenFunction fun;
-	private Vector<TokenVariable> inVars;
-	private Vector<TokenVariable> outVars;
+	private Vector<TokenVariable> inVars= new Vector<TokenVariable>();
+	private Vector<TokenVariable> outVars = new Vector<TokenVariable>();
 
 	@Override
 	public String toSqlString() {

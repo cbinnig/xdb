@@ -227,17 +227,19 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 				e = checkCallParameters(tfc);
 				if (e.isError())
 					return e;
-				CompilePlan plan = this.fCache.getPlan(tfc.getFun().getName().toString());
+				CompilePlan plan = this.fCache.getPlan(this.calls.get(tfc.getFun()).hashKey());
 				if(plan == null){
 					CallFunctionStmt stmt = new CallFunctionStmt(tfc.getFun().getName().toString());
 					stmt.compile();
-					plan = this.fCache.getPlan(tfc.getFun().getName().toString());	
+					plan = this.fCache.getPlan(this.calls.get(tfc.getFun()).hashKey());	
 				}
 				//adds plans of called functions
+				int i= 0;//number of outVar to fetch the right resultDesc
 				for(TokenVariable otv: tfc.getOutVars()){
-					this.compilePlans.put(otv.hashKey(), plan);
-					Table tableType = this.buildTableType(otv, plan.getRoot(0).getResult());
+					this.compilePlans.put(otv.hashKey(), plan);					
+					Table tableType = this.buildTableType(otv, plan.getRoot(i).getResult());
 					this.varSymbols.put(otv.hashKey(), tableType);
+					i++;
 				}
 				
 			}
@@ -263,11 +265,16 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		
 		//step 3b
 		for(TokenFunctionCall tfc: this.tcalls){
-			CompilePlan callPlan = this.compilePlans.get(tfc);
-			//replace in params with subplans
-			for(TokenVariable var: tfc.getInVars()){
-				CompilePlan varPlan = this.compilePlans.get(var.hashKey());
-				callPlan.replaceVariable(var.hashKey(), varPlan.getRoot(0));
+			CompilePlan callPlan = this.fCache.getPlan(this.calls.get(tfc.getFun()).hashKey());//plan of called function
+			//replace in parameters of called function with subplans of the variables in present function
+			if(!tfc.getInVars().isEmpty()){
+				int i = 0;
+				for(TokenVariable cVar: this.fCache.getInVars(this.calls.get(tfc.getFun()).hashKey())){
+					TokenVariable uVar = tfc.getInVars().get(i);
+					CompilePlan varPlan = this.compilePlans.get(uVar.hashKey());
+					callPlan.replaceVariable(cVar.hashKey(), varPlan.getRoot(0));
+					i++;
+				}
 			}
 			//add plans of called functions to functionPlan
 			this.functionPlan.addSubPlan(callPlan);
@@ -287,6 +294,8 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 
 		// step 5: add CompilePlan to cache
 		this.fCache.addPlan(this.function.hashKey(), this.functionPlan);
+		if(!this.inParameters.isEmpty())
+			this.fCache.addInVars(this.function.hashKey(), this.inParameters);
 
 		return e;
 	}
