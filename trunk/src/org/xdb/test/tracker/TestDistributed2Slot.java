@@ -7,72 +7,26 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.xdb.execute.operators.OperatorDesc;
-import org.xdb.test.QueryTrackerServerTestCase;
+import org.xdb.test.Distributed2SlotQueryTrackerTestCase;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.MySQLTrackerOperator;
 import org.xdb.tracker.operator.TableDesc;
+import org.xdb.tracker.scheduler.AbstractResourceScheduler;
+import org.xdb.tracker.scheduler.EnumResourceScheduler;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
-public class TestQueryTracker extends QueryTrackerServerTestCase {
+public class TestDistributed2Slot extends Distributed2SlotQueryTrackerTestCase {
 
-	public TestQueryTracker() {
+	public TestDistributed2Slot() {
 		super();
 	}
-
-	@Test
-	public void testPlan1Op() throws Exception {
-		final QueryTrackerNode qTracker = new QueryTrackerNode();
-		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
-		qPlan.assignTracker(qTracker);
-
-		final MySQLTrackerOperator op1 = new MySQLTrackerOperator();
-
-		// add output DDLs
-		final StringTemplate r1DDL = new StringTemplate(
-				"<R1> (R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152))");
-		op1.addOutTable("R1", r1DDL);
-
-		// add execution DMLs
-		final StringTemplate q1DML = new StringTemplate(
-				"INSERT INTO <R1> SELECT * FROM tpch_s01.REGION ");
-		op1.addExecuteSQL(q1DML);
-
-
-		// add operator to plan w/o sources and consumers
-		qPlan.addOperator(op1);
-
-		// deploy, execute and clean plan
-		org.xdb.error.Error err = qPlan.deployPlan();
-		if(err.isError())
-			qPlan.cleanPlanOnError();
-		this.assertNoError(err);
-		
-		final Map<Identifier, OperatorDesc> currentDeployment = qPlan.getCurrentDeployment();
-		err = qPlan.executePlan();
-		if(err.isError())
-			qPlan.cleanPlanOnError();
-		this.assertNoError(err);
-		
-
-		// read result
-		Identifier deployOp1Id = currentDeployment.get(op1.getOperatorId()).getOperatorID();
-		final ResultSet rs = this.executeComputeQuery("SELECT COUNT(*) FROM "+deployOp1Id+"_R1");
-		int actualCnt = 0;
-		if (rs.next()) {
-			actualCnt = rs.getInt(1);
-		}
-
-		this.assertNoError(qPlan.cleanPlan());
-
-		// verify results
-		assertEquals(5, actualCnt);
-	}
-
 	
 	@Test
-	public void testPlan2Ops() throws Exception {
+	public void testPlan2OpsDistributed() throws Exception {
+		System.out.println("Starting Distributed Test");
+		AbstractResourceScheduler.changeScheduler(EnumResourceScheduler.SIMPLE_SCHEDULER);
 		final QueryTrackerNode qTracker = new QueryTrackerNode();
 		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);
@@ -142,6 +96,8 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 
 		// verify results
 		assertEquals(5, actualCnt); 
+		System.out.println("End of Distributed Test");
+		AbstractResourceScheduler.resetScheduler();
 	}
 
 }

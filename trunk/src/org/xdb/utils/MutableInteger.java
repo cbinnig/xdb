@@ -70,7 +70,7 @@ public class MutableInteger extends Number {
 	}
 
 	public MutableInteger substract(final Integer value) {
-		this.value+=value;
+		this.value-=value;
 		return this;
 	}
 

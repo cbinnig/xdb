@@ -168,9 +168,11 @@ public class MasterTrackerNode {
 			final Map<String, MutableInteger> requiredSlots) {
 		final HashMap<ComputeNodeSlot, MutableInteger> allocatedSlots = new HashMap<ComputeNodeSlot, MutableInteger>();
 
+		System.out.println("required");
 		// First handle wish list-slots
 		for (final Entry<String, MutableInteger> reqSlot : requiredSlots
 				.entrySet()) {
+			System.out.println(reqSlot.getValue().intValue() + " slots on " + reqSlot.getKey());
 			final ComputeNodeSlot k = getKey(computeSlots, reqSlot.getKey());
 			if (k != null) {
 				final int available = computeSlots.get(k);
@@ -184,7 +186,7 @@ public class MasterTrackerNode {
 					allocatedSlots.put(k, new MutableInteger(
 							available));
 					computeSlots.put(k, 0);
-					required.setValue(required.substract(available));
+					required.substract(available);
 				}
 			}
 		}
@@ -218,7 +220,7 @@ public class MasterTrackerNode {
 								new MutableInteger(available));
 					}
 					computeSlot.setValue(0);
-					required.setValue(required.substract(available));
+					required.substract(available);
 				}
 			}
 		}
@@ -235,6 +237,13 @@ public class MasterTrackerNode {
 				break;
 			}
 		}
+		
+		// TODO Entfernen
+		System.out.println("allocated");
+		for (Entry<ComputeNodeSlot, MutableInteger> entry : allocatedSlots.entrySet()) {
+			System.out.println(entry.getValue().intValue() + " slots on " + entry.getKey().getHost() + ":" + entry.getKey().getPort());
+		}
+		// TODO End Entfernen
 		return allocatedSlots;
 	}
 
@@ -266,6 +275,11 @@ public class MasterTrackerNode {
 
 		logger.log(Level.INFO, "Added compute slots: " + desc);
 		computeSlots.put(desc.getUrl(), desc.getSlots());
+		System.out.println("Mastertracker: registered ComputeNode");
+		System.out.println("now " + computeSlots.size() + " nodes");
+		for (Entry<ComputeNodeSlot, Integer> node : computeSlots.entrySet()) {
+			System.out.println(node.getKey().getHost() + ":" + node.getKey().getPort() + " -> " + node.getValue());
+		}
 
 		return err;
 	}

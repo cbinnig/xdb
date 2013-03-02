@@ -89,10 +89,14 @@ public class ComputeServer extends AbstractServer {
 
 	// constructors
 	public ComputeServer(final String url, final int port) throws Exception {
+		this(url, port, Config.COMPUTE_SLOTS);
+	}
+	
+	public ComputeServer(final String url, final int port, final int slots) throws Exception {
 		super();
 
 		this.port = port;
-		compute = new ComputeNode(new ComputeNodeSlot(url, port));
+		compute = new ComputeNode(new ComputeNodeSlot(url, port), slots);
 		
 		this.err = compute.startup();
 	}
