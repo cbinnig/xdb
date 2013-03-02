@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.xdb.Config;
 import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.TableDesc;

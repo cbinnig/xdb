@@ -299,7 +299,8 @@ public class SQLUnary extends AbstractUnaryOperator {
 	public boolean renameOperator(HashMap<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
 		boolean renamed = super.renameOperator(renamedAttributes,renamedOps);
-		Error e;
+		@SuppressWarnings("unused")
+		Error e = null;
 		for(AbstractExpression expr: this.aggExpressions){
 			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(expr, renamedAttributes);
 			e = renameVisitor.visit();
