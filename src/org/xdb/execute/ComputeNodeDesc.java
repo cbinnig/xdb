@@ -17,12 +17,12 @@ public class ComputeNodeDesc implements Serializable {
 	private ComputeNodeSlot url;
 
 	// slots of compute node
-	private Integer slots;
+	private int slots;
 
 	// constructors
-	public ComputeNodeDesc(ComputeNodeSlot url) {
+	public ComputeNodeDesc(ComputeNodeSlot url, int slots) {
 		this.url = url;
-		this.slots = Config.COMPUTE_SLOTS;
+		this.slots = slots;
 	}
 
 	// getters and setters
@@ -30,7 +30,7 @@ public class ComputeNodeDesc implements Serializable {
 		return url;
 	}
 
-	public Integer getSlots() {
+	public int getSlots() {
 		return slots;
 	}
 	

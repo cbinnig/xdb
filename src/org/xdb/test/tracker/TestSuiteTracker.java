@@ -11,6 +11,7 @@ public class TestSuiteTracker extends TestSuite
     suite.addTestSuite( TestQueryTracker.class );
     suite.addTestSuite( TestPlanTranslation.class );
     suite.addTestSuite( TestSQLPlanTranslation.class );
+    suite.addTestSuite( TestDistributed2Slot.class );
     return suite;
   }
 }

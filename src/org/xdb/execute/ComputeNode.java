@@ -61,13 +61,13 @@ public class ComputeNode {
 	
 
 	// constructors
-	public ComputeNode(final ComputeNodeSlot url) throws Exception {
+	public ComputeNode(final ComputeNodeSlot url, final int slots) throws Exception {
 		this.operators = Collections
 				.synchronizedMap(new HashMap<Identifier, AbstractExecuteOperator>());
 		this.receivedReadySignals = Collections
 				.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());
 
-		computeNodeDesc = new ComputeNodeDesc(url);
+		computeNodeDesc = new ComputeNodeDesc(url, slots);
 
 		this.computeClient = new ComputeClient(url);
 		this.mTrackerClient = new MasterTrackerClient();
@@ -206,6 +206,7 @@ public class ComputeNode {
 	 * @return
 	 */
 	private Error executeOperator(final AbstractExecuteOperator op) {
+		System.out.println("Executing Operator " + op.getOperatorId() + " on Node " + computeNodeDesc.getUrl().getHost() + ":" + computeNodeDesc.getUrl().getPort());
 		Error err = new Error();
 
 		//measure Time

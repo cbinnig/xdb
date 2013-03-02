@@ -19,6 +19,7 @@ public abstract class AbstractResourceScheduler {
 	
 	protected final QueryTrackerPlan plan;
 	protected EnumResourceScheduler type;
+	private static EnumResourceScheduler usedScheduler = Config.RESOURCE_SCHEDULER;
 	
 	//constructor
 	public AbstractResourceScheduler(final QueryTrackerPlan plan) {
@@ -31,7 +32,7 @@ public abstract class AbstractResourceScheduler {
 	 * @return
 	 */
 	public static AbstractResourceScheduler createScheduler(final QueryTrackerPlan plan){
-		switch(Config.RESOURCE_SCHEDULER){
+		switch(usedScheduler){
 		case SIMPLE_SCHEDULER:
 			return new SimpleResourceScheduler(plan);
 		case LOCALITY_AWARE_SCHEDULER:
@@ -39,6 +40,20 @@ public abstract class AbstractResourceScheduler {
 		
 		}
 		return new SimpleResourceScheduler(plan);
+	}
+	
+	/**
+	 * Changes the used scheduler
+	 */
+	public static void changeScheduler(EnumResourceScheduler newScheduler) {
+		usedScheduler = newScheduler;
+	}
+	
+	/**
+	 * Resets the used scheduler to the original one
+	 */
+	public static void resetScheduler() {
+		usedScheduler = Config.RESOURCE_SCHEDULER;
 	}
 	
 	/**
