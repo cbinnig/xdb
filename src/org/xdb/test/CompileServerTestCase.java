@@ -1,6 +1,5 @@
 package org.xdb.test;
 
-import org.xdb.server.CompileServer;
 
 public class CompileServerTestCase extends XDBTestCase {
 	
@@ -12,8 +11,6 @@ public class CompileServerTestCase extends XDBTestCase {
 	@Override
 	public void setUp() {
 		super.setUp();
-		//assertNoError(CompileServer.deleteCatalog());
-
 	}
 	
 

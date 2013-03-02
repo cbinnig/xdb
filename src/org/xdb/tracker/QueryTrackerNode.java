@@ -17,7 +17,6 @@ import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBExecuteTimeMeasurement;
 import org.xdb.logging.XDBLog;
-import org.xdb.tracker.scheduler.AbstractResourceScheduler;
 import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
 
@@ -184,7 +183,6 @@ public class QueryTrackerNode {
 	 * @return
 	 */
 	public Error operatorReady(final AbstractExecuteOperator op) {
-		AbstractResourceScheduler scheduler = AbstractResourceScheduler.createScheduler(plan);
 		Error err = new Error();
 		// Send READY Signal to all Customers
 		final Set<OperatorDesc> consumers = op.getConsumers();
