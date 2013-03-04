@@ -201,7 +201,6 @@ public class ComputeNode {
 	 * @return
 	 */
 	private Error executeOperator(final AbstractExecuteOperator op) {
-		System.out.println("Executing Operator " + op.getOperatorId() + " on Node " + computeNodeDesc.getUrl().getHost() + ":" + computeNodeDesc.getUrl().getPort());
 		Error err = new Error();
 
 		//measure Time

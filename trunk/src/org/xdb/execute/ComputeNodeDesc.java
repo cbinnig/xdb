@@ -43,4 +43,17 @@ public class ComputeNodeDesc implements Serializable {
 		value.append(")");
 		return value.toString();
 	}
+	
+	@Override
+	public int hashCode(){
+		return this.url.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o){
+		ComputeNodeDesc desc = (ComputeNodeDesc)o;
+		if(desc.url.equals(this.url))
+			return true;
+		return false;
+	}
 }
