@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
+import org.xdb.error.Error;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.test.DistributedQueryTrackerTestCase;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.MySQLTrackerOperator;
 import org.xdb.tracker.operator.TableDesc;
-import org.xdb.tracker.scheduler.AbstractResourceScheduler;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
@@ -69,7 +69,7 @@ public class TestDistributed2Slot extends DistributedQueryTrackerTestCase {
 		op2.setInTableSource("R2", new TableDesc("R1", op1.getOperatorId()));
 
 		// deploy and execute plan
-		org.xdb.error.Error err = qPlan.deployPlan();
+		Error err = qPlan.deployPlan();
 		if(err.isError())
 			qPlan.cleanPlanOnError();
 		this.assertNoError(err);
@@ -93,7 +93,5 @@ public class TestDistributed2Slot extends DistributedQueryTrackerTestCase {
 
 		// verify results
 		assertEquals(5, actualCnt); 
-		AbstractResourceScheduler.resetScheduler();
 	}
-
 }
