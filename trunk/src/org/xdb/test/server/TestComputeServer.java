@@ -33,7 +33,7 @@ public class TestComputeServer extends ComputeServerTestCase {
 				+ ":"
 				+ Config.COMPUTE_DB_PASSWD
 				+ "@"
-				+ nodes[0] + "/tpch_s01/REGION';");
+				+ nodes[0].getHost() + "/tpch_s01/REGION';");
 
 		op.addOpenSQL("CREATE TABLE R1 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) ENGINE=MEMORY;");
 		op.addExecuteSQL("INSERT INTO R1 SELECT * FROM REGION WHERE R_NAME LIKE 'A%';");
@@ -68,7 +68,7 @@ public class TestComputeServer extends ComputeServerTestCase {
 				+ ":"
 				+ Config.COMPUTE_DB_PASSWD
 				+ "@"
-				+ nodes[0] + "/tpch_s01/REGION';");
+				+ nodes[0].getHost() + "/tpch_s01/REGION';");
 		op1.addOpenSQL("CREATE TABLE R1 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) ENGINE=MEMORY;");
 		op1.addExecuteSQL("INSERT INTO R1 SELECT * FROM REGION WHERE R_NAME LIKE 'A%';");
 		op1.addCloseSQL("DROP TABLE R1");
@@ -84,7 +84,7 @@ public class TestComputeServer extends ComputeServerTestCase {
 				+ ":"
 				+ Config.COMPUTE_DB_PASSWD
 				+ "@"
-				+ nodes[0] + "/" + Config.COMPUTE_DB_NAME + "/R1';");
+				+ nodes[0].getHost() + "/" + Config.COMPUTE_DB_NAME + "/R1';");
 
 		op2.addOpenSQL("CREATE TABLE R3 ( R_REGIONKEY INTEGER NOT NULL, R_NAME CHAR(25) NOT NULL, R_COMMENT VARCHAR(152)) ENGINE=MEMORY;");
 

@@ -13,7 +13,6 @@ import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.MySQLTrackerOperator;
 import org.xdb.tracker.operator.TableDesc;
 import org.xdb.tracker.scheduler.AbstractResourceScheduler;
-import org.xdb.tracker.scheduler.EnumResourceScheduler;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
@@ -25,7 +24,6 @@ public class TestDistributed2Slot extends DistributedQueryTrackerTestCase {
 	
 	@Test
 	public void testPlan2OpsDistributed() throws Exception {
-		AbstractResourceScheduler.changeScheduler(EnumResourceScheduler.SIMPLE_SCHEDULER);
 		final QueryTrackerNode qTracker = new QueryTrackerNode();
 		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);

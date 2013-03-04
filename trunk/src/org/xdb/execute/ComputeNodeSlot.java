@@ -33,7 +33,7 @@ public class ComputeNodeSlot implements Serializable {
 	
 	@Override
 	public String toString() {
-		return host;
+		return host+":"+port;
 	}
 	
 	@Override
