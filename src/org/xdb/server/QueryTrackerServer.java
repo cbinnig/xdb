@@ -10,6 +10,7 @@ import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.tracker.QueryTrackerNode;
+import org.xdb.tracker.QueryTrackerNodeDesc;
 
 public class QueryTrackerServer extends AbstractServer {
 
@@ -70,6 +71,10 @@ public class QueryTrackerServer extends AbstractServer {
 	protected void handle(final Socket client) {
 		final Handler handler = new Handler(client);
 		handler.start();
+	}
+	
+	public QueryTrackerNodeDesc getDescription() {
+		return this.tracker.getDescription();
 	}
 
 	/**

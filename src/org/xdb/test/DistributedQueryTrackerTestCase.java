@@ -8,14 +8,14 @@ import org.xdb.server.ComputeServer;
 import org.xdb.server.MasterTrackerServer;
 import org.xdb.server.QueryTrackerServer;
 
-public class Distributed2SlotQueryTrackerTestCase extends TestCase {
+public class DistributedQueryTrackerTestCase extends TestCase {
 	private MasterTrackerServer mTrackerServer;
 	private ComputeServer computeServer1;
 	private ComputeServer computeServer2;
 	private QueryTrackerServer qServer;
 	
 	
-	public Distributed2SlotQueryTrackerTestCase() {
+	public DistributedQueryTrackerTestCase() {
 		super();
 	}
 	

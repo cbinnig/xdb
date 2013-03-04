@@ -22,13 +22,17 @@ public class ComputeClient extends AbstractClient {
 
 	// constructor
 	public ComputeClient() {
-		this(new ComputeNodeSlot(Config.COMPUTE_URL, Config.COMPUTE_PORT));
+		this(Config.COMPUTE_URL, Config.COMPUTE_PORT);
 	}
 	
 	public ComputeClient(final ComputeNodeSlot slot) {
+		this(slot.getHost(), slot.getPort());
+	}
+	
+	public ComputeClient(String url, int port){
 		this.logger = XDBLog.getLogger(this.getClass().getName());
-		this.port = slot.getPort();
-		this.url = slot.getHost();
+		this.port = port;
+		this.url = url;
 	}
 
 	/**

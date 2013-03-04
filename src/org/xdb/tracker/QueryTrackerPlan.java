@@ -345,7 +345,6 @@ public class QueryTrackerPlan implements Serializable {
 	 * Prepares deployment for a given operator in plan
 	 * 
 	 * @param operId
-	 * @param currentDeployment
 	 */
 	private void prepareDeployment(final Identifier operId) {
 

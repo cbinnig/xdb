@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.xdb.execute.operators.OperatorDesc;
-import org.xdb.test.Distributed2SlotQueryTrackerTestCase;
+import org.xdb.test.DistributedQueryTrackerTestCase;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.MySQLTrackerOperator;
@@ -17,7 +17,7 @@ import org.xdb.tracker.scheduler.EnumResourceScheduler;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
-public class TestDistributed2Slot extends Distributed2SlotQueryTrackerTestCase {
+public class TestDistributed2Slot extends DistributedQueryTrackerTestCase {
 
 	public TestDistributed2Slot() {
 		super();
