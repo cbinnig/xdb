@@ -2,8 +2,6 @@ package org.xdb.execute;
 
 import java.io.Serializable;
 
-import org.xdb.Config;
-
 /**
  * Compute node description 
  * @author cbinnig

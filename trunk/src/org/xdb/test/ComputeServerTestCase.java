@@ -6,11 +6,13 @@ import org.xdb.Config;
 import org.xdb.server.CompileServer;
 import org.xdb.server.ComputeServer;
 import org.xdb.server.MasterTrackerServer;
+import org.xdb.server.QueryTrackerServer;
 
 public class ComputeServerTestCase extends TestCase {
 	
-	private MasterTrackerServer mTrackerServer;
-	private ComputeServer computeServer;
+	protected MasterTrackerServer mTrackerServer;
+	protected QueryTrackerServer qTrackerServer;
+	protected ComputeServer computeServer;
 	
 	public ComputeServerTestCase() {
 		super();
@@ -25,6 +27,10 @@ public class ComputeServerTestCase extends TestCase {
 			mTrackerServer.startServer();
 			assertNoError(mTrackerServer.getError());
 			
+			qTrackerServer = new QueryTrackerServer();
+			qTrackerServer.startServer();
+			assertNoError(qTrackerServer.getError());
+		
 			computeServer = new ComputeServer(Config.COMPUTE_URL, Config.COMPUTE_PORT);
 			computeServer.startServer();
 			assertNoError(computeServer.getError());
@@ -36,6 +42,7 @@ public class ComputeServerTestCase extends TestCase {
 	@Override
 	public void tearDown(){
 		mTrackerServer.stopServer();
+		qTrackerServer.stopServer();
 		computeServer.stopServer();
 	}
 }

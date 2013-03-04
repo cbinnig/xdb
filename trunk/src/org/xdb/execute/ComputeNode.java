@@ -8,20 +8,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.xdb.Config;
-import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
-import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
 import org.xdb.logging.XDBExecuteTimeMeasurement;
@@ -52,7 +49,6 @@ public class ComputeNode {
 	private final ComputeNodeDesc computeNodeDesc;
 
 	// Clients for communication
-	private final ComputeClient computeClient;
 	private final MasterTrackerClient mTrackerClient;
 	
 	// Helpers
@@ -69,7 +65,6 @@ public class ComputeNode {
 
 		computeNodeDesc = new ComputeNodeDesc(url, slots);
 
-		this.computeClient = new ComputeClient(url);
 		this.mTrackerClient = new MasterTrackerClient();
 		final Error err = mTrackerClient.registerNode(computeNodeDesc);
 		if (err.isError()) {
@@ -222,37 +217,14 @@ public class ComputeNode {
 			return err;
 		}
 		
-	
-			
 		
 		// send READY_SIGNAL to QueryTracker
 		QueryTrackerClient queryTrackerClient = op.getQueryTrackerClient();
-		if (queryTrackerClient != null && Config.COMPUTE_SIGNAL2QUERY_TRACKER) {
-			logger.log(Level.INFO,
+		logger.log(Level.INFO,
 					"Send READY_SIGNAL from operator " + op.getOperatorId()
 							+ " to Query Tracker "+queryTrackerClient.getUrl());
-			err = queryTrackerClient.operatorReady(op);
-		} 
-		// send READY_SIGNAL directly to consumer on local node using w/o query tracker
-		else {
-			final Set<OperatorDesc> consumers = op.getConsumers();
-			for (final OperatorDesc consumer : consumers) {
-				if (consumer != null) {
-					
-				
-					logger.log(Level.INFO, "Send READY_SIGNAL from operator "
-							+ op.getOperatorId() + " to consumer: " + consumer);
-
-					err = computeClient.executeOperator(op.getOperatorId(),
-							consumer);
-					
-					if (err.isError()) {
-						return err;
-					}
-				}
-			}
-		}
-
+		err = queryTrackerClient.operatorReady(op);
+		
 		return err;
 	}
 

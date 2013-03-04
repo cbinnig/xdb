@@ -30,7 +30,6 @@ public class Config implements Serializable {
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
 	public static int COMPUTE_SLOTS = 32;
 	public static String COMPUTE_URL = "127.0.0.1";
-	public static boolean COMPUTE_SIGNAL2QUERY_TRACKER = true;
 	public static boolean COMPUTE_CLEAN_RESULTS = true;
 
 	// Compile Server

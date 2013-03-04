@@ -9,10 +9,10 @@ import org.xdb.server.MasterTrackerServer;
 import org.xdb.server.QueryTrackerServer;
 
 public class XDBTestCase extends TestCase {
-	private CompileServer compileServer;
-	private MasterTrackerServer mTrackerServer;
-	private QueryTrackerServer qTrackerServer;
-	private ComputeServer computeServer;
+	protected CompileServer compileServer;
+	protected MasterTrackerServer mTrackerServer;
+	protected QueryTrackerServer qTrackerServer;
+	protected ComputeServer computeServer;
 	
 	public XDBTestCase() {
 		super();

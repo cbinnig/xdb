@@ -29,15 +29,16 @@ public class MasterTrackerNode {
 	private final List<String> queryTrackerSlots = Collections
 			.synchronizedList(new Vector<String>());
 
+	// last query tracker slot
 	private int lastQueryTrackerSlot = 0;
 
-	// query tracker clients for each registered query tracker
+	// one query tracker clients for each registered query tracker
 	private final Map<String, QueryTrackerClient> queryTrackerClients = new HashMap<String, QueryTrackerClient>();
 
 	// running plans by plan identifier
 	private final HashMap<Identifier, CompilePlan> runningPlans = new HashMap<Identifier, CompilePlan>();
 
-	// running plans with executing query tracker url
+	// assigned query trackers for plan
 	private final HashMap<Identifier, String> planAssignment = new HashMap<Identifier, String>();
 
 	// logger
