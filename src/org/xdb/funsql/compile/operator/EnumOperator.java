@@ -12,5 +12,6 @@ public enum EnumOperator implements Serializable {
 	RENAME,
 	SQL_UNARY,
 	SQL_JOIN,
-	SQL_COMBINED
+	SQL_COMBINED,
+	UNION
 }
