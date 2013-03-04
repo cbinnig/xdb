@@ -25,7 +25,6 @@ public class TestDistributed2Slot extends DistributedQueryTrackerTestCase {
 	
 	@Test
 	public void testPlan2OpsDistributed() throws Exception {
-		System.out.println("Starting Distributed Test");
 		AbstractResourceScheduler.changeScheduler(EnumResourceScheduler.SIMPLE_SCHEDULER);
 		final QueryTrackerNode qTracker = new QueryTrackerNode();
 		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
@@ -96,7 +95,6 @@ public class TestDistributed2Slot extends DistributedQueryTrackerTestCase {
 
 		// verify results
 		assertEquals(5, actualCnt); 
-		System.out.println("End of Distributed Test");
 		AbstractResourceScheduler.resetScheduler();
 	}
 
