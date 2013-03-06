@@ -110,10 +110,13 @@ public class QueryTrackerNode {
 	public Error executePlan(final CompilePlan cplan) {
 		logger.log(Level.INFO, "Got new compileplan: " + plan);
 		
+		//initialize compile plan after receiving plan form master tracker server
 		this.cplan = cplan;
-		// TODO parallize and optimize  Plan
+		this.cplan.init();
 		
-		//rebuild cplan to QTP
+		// TODO parallelize and optimize Plan
+		
+		//build query tracker plan from compile plan
 		this.plan = generateQueryTrackerPlan(this.cplan);
 
 		// tracing

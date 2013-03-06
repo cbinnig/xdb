@@ -8,10 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.xdb.Config;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.TableOperator;
+import org.xdb.funsql.optimize.JoinCombineVisitor;
+import org.xdb.funsql.optimize.SQLCombineVisitor;
+import org.xdb.funsql.optimize.SQLUnaryCombineVisitor;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
 import org.xdb.tracker.operator.MySQLTrackerOperator;
@@ -46,9 +50,8 @@ public class CodeGenerator {
 	// mapping: compile operator ID -> tracker operator ID
 	private Map<Identifier, Identifier> compileOp2trackerOp = new HashMap<Identifier, Identifier>();
 
-	// roots of sub-plans in compile plan: each sub-plan results in one tracker
-	// operator
-	private List<AbstractCompileOperator> splitCompileOps;
+	// roots of sub-plans: each sub-plan results in one tracker operator
+	private List<Identifier> splitOpIds;
 
 	// templates for SQL code generation
 	private final StringTemplate sqlDMLTemplate = new StringTemplate(
@@ -79,19 +82,27 @@ public class CodeGenerator {
 	 * @return
 	 */
 	public Error generate() {
-		
-		
 		// split compile plan into sub-plans
-		this.splitCompileOps = extractSplitOps();
-		
-		//renameOps to original for joins
-		renameOps();
-		if(this.err.isError())
+		this.splitOpIds = extractSplitOps();
+
+		// optimize plan for code generation
+		this.optimize();
+		if (this.err.isError())
 			return this.err;
-		
-		// for each sub-plan (which has splitOp as root) generate a tracker
-		// operator
-		for (AbstractCompileOperator splitCompileOp : splitCompileOps) {
+
+		// rename attributes to original names
+		this.rename();
+		if (this.err.isError())
+			return this.err;
+
+		// Trace
+		if (Config.TRACE_CODEGEN_PLAN)
+			this.compilePlan.tracePlan(compilePlan.getClass()
+					.getCanonicalName() + "_CODEGEN");
+
+		// for each sub-plan generate a tracker operator
+		for (Identifier splitOpId : splitOpIds) {
+			AbstractCompileOperator splitCompileOp = this.compilePlan.getOperators(splitOpId);
 			AbstractTrackerOperator trackerOp;
 			try {
 				trackerOp = generateTrackerOp(splitCompileOp);
@@ -142,12 +153,10 @@ public class CodeGenerator {
 		HashMap<String, String> args = new HashMap<String, String>();
 		args.put(SQL1, executeDML);
 		args.put(TAB1, outTable);
-		//check type if table then other Template without brackets
+		// check type if table then other Template without brackets
 
-	
 		executeDML = this.sqlDMLTemplate.toString(args);
-		
-	
+
 		trackerOp.addExecuteSQL(new StringTemplate(executeDML));
 
 		// add out table DDL statement
@@ -263,7 +272,7 @@ public class CodeGenerator {
 	private void getInputOps(Set<AbstractCompileOperator> inputOps,
 			AbstractCompileOperator compileOp) {
 
-		if (this.splitCompileOps.contains(compileOp) || compileOp.isLeaf()) {
+		if (this.splitOpIds.contains(compileOp.getOperatorId()) || compileOp.isLeaf()) {
 			inputOps.add(compileOp);
 			return;
 		}
@@ -294,18 +303,18 @@ public class CodeGenerator {
 		HashMap<String, String> args = new HashMap<String, String>();
 		StringTemplate sqlTemplate = new StringTemplate(compileOp.toSqlString());
 		for (AbstractCompileOperator childOp : compileOp.getChildren()) {
-			if (!this.splitCompileOps.contains(childOp)) {
-				//Modification changed Code to check wether this is a Table or not
-				if(childOp.getType().equals(EnumOperator.TABLE)){
+			if (!this.splitOpIds.contains(childOp.getOperatorId())) {
+				// generate code: use no "(...)" for tables
+				if (childOp.getType().equals(EnumOperator.TABLE)) {
 					args.put(childOp.getOperatorId().toString(),
 							this.generateExecuteDML(childOp));
 				} else {
 					args.put(childOp.getOperatorId().toString(),
-						"("+this.generateExecuteDML(childOp)+")");
+							"(" + this.generateExecuteDML(childOp) + ")");
 				}
 			}
 		}
-		
+
 		return sqlTemplate.toString(args);
 	}
 
@@ -316,31 +325,100 @@ public class CodeGenerator {
 	 * 
 	 * @return
 	 */
-	private List<AbstractCompileOperator> extractSplitOps() {
+	private List<Identifier> extractSplitOps() {
 		SplitPlanVisitor splitVisitor = new SplitPlanVisitor(null);
 		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
 			splitVisitor.reset(root);
 			this.err = splitVisitor.visit();
-			
-			if(err.isError())
+
+			if (err.isError())
 				return null;
 		}
 
-		return splitVisitor.getSplitOps();
+		return splitVisitor.getSplitOpIds();
 	}
-	
-	private void renameOps() {
+
+	/**
+	 * Renames attributes to original names in table
+	 */
+	private void rename() {
 		RenameAttributesVisitor renameVisitor;
 		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
 			renameVisitor = new RenameAttributesVisitor(root);
 			this.err = renameVisitor.visit();
-			
-			if(err.isError())
-			 return;
-		}
-		//Trace
-		this.compilePlan.tracePlan(compilePlan.getClass()
-				.getCanonicalName() + "_RENAMED");
 
+			if (err.isError())
+				return;
+		}
+	}
+
+	/**
+	 * Optimize compile plan for MySQL code generation
+	 */
+	private void optimize() {
+		if (!Config.CODEGEN_OPTIMIZE)
+			return;
+
+		for (Identifier splitOpId : this.splitOpIds) {
+			//get splitOp from compile plan as root for optimization
+			AbstractCompileOperator splitOp = this.compilePlan.getOperators(splitOpId);
+			this.err = combineJoins(splitOp);
+			if (this.err.isError())
+				return;
+
+			//get splitOp again since it might have be replaced
+			splitOp = this.compilePlan.getOperators(splitOpId);
+			this.err = combineUnaryOps(splitOp);
+			if (this.err.isError())
+				return;
+
+			//get splitOp again since it might have be replaced
+			splitOp = this.compilePlan.getOperators(splitOpId);
+			this.err = combineSQLOps(splitOp);
+			if (this.err.isError())
+				return;
+		}
+	}
+
+	/**
+	 * Combine operators in plan to SQLJoinOps
+	 * 
+	 * @return
+	 */
+	private Error combineJoins(AbstractCompileOperator root) {
+		Error err = new Error();
+		JoinCombineVisitor combineVisitor = new JoinCombineVisitor(root,
+				this.compilePlan);
+		err = combineVisitor.visit();
+
+		return err;
+	}
+
+	/**
+	 * Combine operators in plan to SQLUnaryOps
+	 * 
+	 * @return
+	 */
+	private Error combineUnaryOps(AbstractCompileOperator root) {
+		Error err = new Error();
+		SQLUnaryCombineVisitor combineVisitor = new SQLUnaryCombineVisitor(
+				root, this.compilePlan);
+		err = combineVisitor.visit();
+
+		return err;
+	}
+
+	/**
+	 * Combine operators in plan to SQLOps
+	 * 
+	 * @return
+	 */
+	private Error combineSQLOps(AbstractCompileOperator root) {
+		Error err = new Error();
+		SQLCombineVisitor combineVisitor = new SQLCombineVisitor(root,
+				this.compilePlan);
+		err = combineVisitor.visit();
+
+		return err;
 	}
 }
