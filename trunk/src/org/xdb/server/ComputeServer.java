@@ -10,7 +10,6 @@ import java.util.logging.Level;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNode;
-import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
@@ -88,15 +87,15 @@ public class ComputeServer extends AbstractServer {
 	private final ComputeNode compute;
 
 	// constructors
-	public ComputeServer(final String url, final int port) throws Exception {
-		this(url, port, Config.COMPUTE_SLOTS);
+	public ComputeServer(final int port) throws Exception {
+		this( port, Config.COMPUTE_SLOTS);
 	}
 	
-	public ComputeServer(final String url, final int port, final int slots) throws Exception {
+	public ComputeServer(final int port, final int slots) throws Exception {
 		super();
 
 		this.port = port;
-		compute = new ComputeNode(new ComputeNodeSlot(url, port), slots);
+		compute = new ComputeNode(port, slots);
 		
 		this.err = compute.startup();
 	}
@@ -118,7 +117,7 @@ public class ComputeServer extends AbstractServer {
 	 * @throws UnknownHostException 
 	 */
 	public static void main(final String[] args) throws Exception {
-		final ComputeServer server = new ComputeServer(Config.COMPUTE_URL, Config.COMPUTE_PORT);
+		final ComputeServer server = new ComputeServer( Config.COMPUTE_PORT );
 		server.startServer();
 	}
 }

@@ -19,6 +19,10 @@ public class Config implements Serializable {
 
 	private static final long serialVersionUID = -3628108255115350359L;
 
+	// General 
+	public static String LOCALHOST = "127.0.0.1";
+	public static String CONFIG_FILE = "./config/xdb.conf";
+	
 	// Compute Server
 	public static String COMPUTE_DRIVER_CLASS = "com.mysql.jdbc.Driver";
 	public static String COMPUTE_DB_URL = "jdbc:mysql://127.0.0.1/";
@@ -29,7 +33,6 @@ public class Config implements Serializable {
 	public static int COMPUTE_PORT = 55555;
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
 	public static int COMPUTE_SLOTS = 32;
-	public static String COMPUTE_URL = "127.0.0.1";
 	public static boolean COMPUTE_CLEAN_RESULTS = true;
 
 	// Compile Server
@@ -45,7 +48,7 @@ public class Config implements Serializable {
 	public static String COMPILE_URL = "127.0.0.1";
 	public static String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
 
-	// Optimizer rules
+	// Compile Server: Optimizer 
 	public static BitSet OPTIMIZER_ACTIVE_RULES_FUNCTION = new BitSet();
 	public static BitSet OPTIMIZER_ACTIVE_RULES_SELECT = new BitSet();
 
@@ -62,8 +65,6 @@ public class Config implements Serializable {
 		OPTIMIZER_ACTIVE_RULES_SELECT.set(4, true);
 	}
 
-	// Code generation
-	public static boolean CODEGEN_OPTIMIZE = true;
 
 	// Master Tracker Server
 	public static int MASTERTRACKER_PORT = 55557;
@@ -72,9 +73,12 @@ public class Config implements Serializable {
 	// Query Tracker Server
 	public static int QUERYTRACKER_PORT = 55558;
 	public static int QUERYTRACKER_SLOTS = 32;
-	public static String QUERYTRACKER_URL = "127.0.0.1";
 	public static EnumResourceScheduler RESOURCE_SCHEDULER = EnumResourceScheduler.LOCALITY_AWARE_SCHEDULER;
 
+	// Query Tracker Server: Code generation
+	public static boolean CODEGEN_OPTIMIZE = true;
+		
+	// Logging
 	public static String LOG_FILE = "./log/xdb.log";
 	public static Level LOG_LEVEL = Level.SEVERE;
 
@@ -88,10 +92,10 @@ public class Config implements Serializable {
 	public static boolean TRACE_TRACKER_PLAN = false;
 	public static boolean TRACE_EXECUTE_PLAN = false;
 
-	// Measurements
+	// Performance logging
 	public static boolean MEASURE_QUERY_EXECUTION_TIME = false;
 
-	// load properties from file
+	// Load xdb.conf
 	static {
 		load();
 	}
@@ -111,7 +115,6 @@ public class Config implements Serializable {
 				"TRACE_EXECUTE_PLAN", "TRACE_CODEGEN_PLAN",
 				"MEASURE_QUERY_EXECUTION_TIME", "CODEGEN_OPTIMIZE" };
 
-		String CONFIG_FILE = "./config/xdb.conf";
 		Properties props;
 		props = new Properties();
 		try {

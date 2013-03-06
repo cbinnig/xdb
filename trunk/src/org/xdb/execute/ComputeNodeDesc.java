@@ -1,58 +1,59 @@
 package org.xdb.execute;
 
-import java.io.Serializable;
+import org.xdb.server.AbstractNodeDesc;
 
 /**
- * Compute node description 
+ * Describes the properties of a ComputeNode (i.e., URL, port and slots)
+ * 
  * @author cbinnig
- *
+ * 
  */
-public class ComputeNodeDesc implements Serializable {
+public class ComputeNodeDesc extends AbstractNodeDesc {
 
 	private static final long serialVersionUID = 995523462711933305L;
 
 	// URL of compute node
-	private ComputeNodeSlot url;
+	private ComputeNodeSlot slotDesc;
 
 	// slots of compute node
 	private int slots;
 
 	// constructors
-	public ComputeNodeDesc(ComputeNodeSlot url, int slots) {
-		this.url = url;
-		this.slots = slots;
+	public ComputeNodeDesc(ComputeNodeSlot slotDesc, int slots) {
+		super(slotDesc.getHost(), slots);
+		this.slotDesc = slotDesc;
+	}
+	
+	public ComputeNodeDesc(String url, int port, int slots) {
+		this(new ComputeNodeSlot(url, port), slots);
 	}
 
 	// getters and setters
-	public ComputeNodeSlot getUrl() {
-		return url;
+	public ComputeNodeSlot getSlotDesc() {
+		return slotDesc;
 	}
 
-	public int getSlots() {
-		return slots;
-	}
-	
 	// methods
-	@Override 
-	public String toString(){
+	@Override
+	public String toString() {
 		StringBuffer value = new StringBuffer();
 		value.append("(");
-		value.append(this.url);
+		value.append(this.slotDesc);
 		value.append(",");
 		value.append(this.slots);
 		value.append(")");
 		return value.toString();
 	}
-	
+
 	@Override
-	public int hashCode(){
-		return this.url.hashCode();
+	public int hashCode() {
+		return this.slotDesc.hashCode();
 	}
-	
+
 	@Override
-	public boolean equals(Object o){
-		ComputeNodeDesc desc = (ComputeNodeDesc)o;
-		if(desc.url.equals(this.url))
+	public boolean equals(Object o) {
+		ComputeNodeDesc desc = (ComputeNodeDesc) o;
+		if (desc.slotDesc.equals(this.slotDesc))
 			return true;
 		return false;
 	}

@@ -1,5 +1,6 @@
 package org.xdb.execute;
 
+import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -57,13 +58,14 @@ public class ComputeNode {
 	
 
 	// constructors
-	public ComputeNode(final ComputeNodeSlot url, final int slots) throws Exception {
+	public ComputeNode(final int port, final int slots) throws Exception {
 		this.operators = Collections
 				.synchronizedMap(new HashMap<Identifier, AbstractExecuteOperator>());
 		this.receivedReadySignals = Collections
 				.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());
 
-		computeNodeDesc = new ComputeNodeDesc(url, slots);
+		String url = InetAddress.getLocalHost().getHostAddress();
+		computeNodeDesc = new ComputeNodeDesc(url, port, slots);
 
 		this.mTrackerClient = new MasterTrackerClient();
 		final Error err = mTrackerClient.registerNode(computeNodeDesc);

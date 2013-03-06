@@ -27,24 +27,32 @@ import org.xdb.utils.Tuple;
  * 
  */
 public class QueryTrackerNode {
+	
+	// clients to talk to other nodes
 	private final ComputeClient computeClient;
-
 	private final MasterTrackerClient masterTrackerClient;
+	
+	// description of self node
 	private final QueryTrackerNodeDesc description;
+	
+	// plans (compile and Execute
+	private QueryTrackerPlan plan;
+	private CompilePlan cplan;
+
+	// helper to measure execution time
 	private final XDBExecuteTimeMeasurement timeMeasure;
 
 	// logger
 	private final Logger logger;
 
-	private QueryTrackerPlan plan;
-	private CompilePlan cplan;
 	
+	// constructors
 	public QueryTrackerNode() throws Exception {
 		this(InetAddress.getLocalHost().getHostAddress());
 	}
 
 	public QueryTrackerNode(final String address) throws Exception {
-		
+
 		this.computeClient = new ComputeClient();
 		this.description = new QueryTrackerNodeDesc(address);
 
@@ -56,7 +64,7 @@ public class QueryTrackerNode {
 		}
 
 		this.logger = XDBLog.getLogger(this.getClass().getName());
-		//get timeMeasure Compoment for Query time Tracking
+		// get timeMeasure Compoment for Query time Tracking
 		this.timeMeasure = XDBExecuteTimeMeasurement
 				.getXDBExecuteTimeMeasurement("planexecution");
 	}
@@ -79,8 +87,7 @@ public class QueryTrackerNode {
 	public QueryTrackerNodeDesc getDescription() {
 		return this.description;
 	}
-	
-	
+
 	/**
 	 * Transforms a CompilePlan to into multiple QueryTrackerPlans
 	 * 
@@ -98,7 +105,6 @@ public class QueryTrackerNode {
 		return codeGen.getQueryTrackerPlan();
 	}
 
-
 	// methods
 
 	/**
@@ -109,28 +115,29 @@ public class QueryTrackerNode {
 	 */
 	public Error executePlan(final CompilePlan cplan) {
 		logger.log(Level.INFO, "Got new compileplan: " + plan);
-		
-		//initialize compile plan after receiving plan form master tracker server
+
+		// initialize compile plan after receiving plan form master tracker
+		// server
 		this.cplan = cplan;
 		this.cplan.init();
-		
+
 		// TODO parallelize and optimize Plan
-		
-		//build query tracker plan from compile plan
+
+		// build query tracker plan from compile plan
 		this.plan = generateQueryTrackerPlan(this.cplan);
 
 		// tracing
-		if (Config.TRACE_TRACKER_PLAN){
-			plan.tracePlan(plan.getClass().getCanonicalName()+"MASTER_TRACKER");
+		if (Config.TRACE_TRACKER_PLAN) {
+			plan.tracePlan(plan.getClass().getCanonicalName()
+					+ "MASTER_TRACKER");
 		}
 		// measure time of Plan execution
 
 		this.timeMeasure.start(plan.getPlanId().toString());
 
 		plan.assignTracker(this);
-		//0. New Steps according to rebuild
+		// 0. New Steps according to rebuild
 
-		
 		// 1. deploy plan on compute nodes
 		Error err = plan.deployPlan();
 		if (err.isError()) {
