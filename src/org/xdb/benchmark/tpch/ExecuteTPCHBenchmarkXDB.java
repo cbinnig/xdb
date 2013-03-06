@@ -129,7 +129,7 @@ public class ExecuteTPCHBenchmarkXDB extends ExecuteTPCHBenchmark{
 			qTrackerServer = new QueryTrackerServer();
 			qTrackerServer.startServer();
 
-			computeServer = new ComputeServer(Config.COMPUTE_URL, Config.COMPUTE_PORT);
+			computeServer = new ComputeServer(Config.COMPUTE_PORT);
 			computeServer.startServer();
 
 

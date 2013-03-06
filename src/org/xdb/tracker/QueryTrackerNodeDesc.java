@@ -1,35 +1,31 @@
 package org.xdb.tracker;
 
-import java.io.Serializable;
-
 import org.xdb.Config;
+import org.xdb.server.AbstractNodeDesc;
 
-public class QueryTrackerNodeDesc implements Serializable {
+/**
+ * Describes the properties of a QueryTrackerNode (i.e., URL and slots)
+ * 
+ * @author cbinnig
+ * 
+ */
+public class QueryTrackerNodeDesc extends AbstractNodeDesc {
 
 	private static final long serialVersionUID = -3489640841708710463L;
-	private final String url;
-	private final int slots;
-
+	
+	// constructors
 	public QueryTrackerNodeDesc(final String url) {
 		this(url, Config.QUERYTRACKER_SLOTS);
 	}
 
 	public QueryTrackerNodeDesc(final String url, final int slots) {
-		this.url = url;
-		this.slots = slots;
+		super(url, slots);
 	}
 
+	// methods
 
-	public String getUrl() {
-		return url;
-	}
-
-	public int getSlots() {
-		return slots;
-	}
-
-	@Override 
-	public String toString(){
+	@Override
+	public String toString() {
 		final StringBuffer value = new StringBuffer();
 		value.append("(");
 		value.append(url);

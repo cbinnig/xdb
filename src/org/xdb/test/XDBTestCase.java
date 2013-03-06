@@ -35,7 +35,7 @@ public class XDBTestCase extends TestCase {
 			qTrackerServer.startServer();
 			assertNoError(qTrackerServer.getError());
 		
-			computeServer = new ComputeServer(Config.COMPUTE_URL, Config.COMPUTE_PORT);
+			computeServer = new ComputeServer(Config.COMPUTE_PORT);
 			computeServer.startServer();
 			
 			assertNoError(computeServer.getError());

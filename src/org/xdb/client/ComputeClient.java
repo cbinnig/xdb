@@ -22,7 +22,7 @@ public class ComputeClient extends AbstractClient {
 
 	// constructor
 	public ComputeClient() {
-		this(Config.COMPUTE_URL, Config.COMPUTE_PORT);
+		this(Config.LOCALHOST, Config.COMPUTE_PORT);
 	}
 	
 	public ComputeClient(final ComputeNodeSlot slot) {

@@ -2,7 +2,6 @@ package org.xdb.test;
 
 import junit.framework.Assert;
 
-import org.xdb.Config;
 import org.xdb.server.CompileServer;
 import org.xdb.server.ComputeServer;
 import org.xdb.server.MasterTrackerServer;
@@ -32,11 +31,11 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 			qServer.startServer();
 			assertNoError(qServer.getError());
 			
-			computeServer1 = new ComputeServer(Config.COMPUTE_URL, 55620, 1);
+			computeServer1 = new ComputeServer(55620, 1);
 			computeServer1.startServer();
 			assertNoError(computeServer1.getError());
 			
-			computeServer2 = new ComputeServer(Config.COMPUTE_URL, 55621, 1);
+			computeServer2 = new ComputeServer(55621, 1);
 			computeServer2.startServer();
 			assertNoError(computeServer2.getError());
 			
