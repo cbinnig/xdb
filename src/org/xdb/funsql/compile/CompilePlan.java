@@ -111,6 +111,14 @@ public class CompilePlan implements Serializable {
 	}
 
 	// methods
+	
+	/**
+	 * Initialize transient attributes after shipping
+	 */
+	public void init(){
+		this.logger = XDBLog.getLogger(this.getClass().getName());
+	}
+	
 	/**
 	 * Removes operator from plan
 	 * @param opId

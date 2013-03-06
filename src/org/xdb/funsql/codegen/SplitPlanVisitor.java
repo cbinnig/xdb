@@ -17,6 +17,7 @@ import org.xdb.funsql.compile.operator.SQLCombined;
 import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
+import org.xdb.utils.Identifier;
 
 /**
  * Extracts operators which should be materialized from leaves to roots (i.e.,
@@ -29,7 +30,7 @@ import org.xdb.funsql.compile.operator.TableOperator;
 public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 
 	// roots of sub-plans
-	private Vector<AbstractCompileOperator> splitOps = new Vector<AbstractCompileOperator>();
+	private Vector<Identifier> splitOpIds = new Vector<Identifier>();
 	
 	// last error
 	private Error err = new Error();
@@ -40,8 +41,8 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 	}
 
 	// getter and setter
-	public List<AbstractCompileOperator> getSplitOps() {
-		return splitOps;
+	public List<Identifier> getSplitOpIds() {
+		return splitOpIds;
 	}
 
 	// methods
@@ -60,8 +61,8 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 		 * operator has > 1 parents - an operator is marked to be materialized
 		 */
 		if (op.getResult().isMaterialized() || op.getParents().size() != 1) {
-			if (!this.splitOps.contains(op))
-				this.splitOps.add(op);
+			if (!this.splitOpIds.contains(op.getOperatorId()))
+				this.splitOpIds.add(op.getOperatorId());
 		}
 	}
 

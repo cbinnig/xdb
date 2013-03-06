@@ -44,6 +44,8 @@ public class Config implements Serializable {
 	public static int COMPILE_PORT = 55556;
 	public static String COMPILE_URL = "127.0.0.1";
 	public static String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
+
+	// Optimizer rules
 	public static BitSet OPTIMIZER_ACTIVE_RULES_FUNCTION = new BitSet();
 	public static BitSet OPTIMIZER_ACTIVE_RULES_SELECT = new BitSet();
 
@@ -59,6 +61,9 @@ public class Config implements Serializable {
 		OPTIMIZER_ACTIVE_RULES_SELECT.set(3, true);
 		OPTIMIZER_ACTIVE_RULES_SELECT.set(4, true);
 	}
+
+	// Code generation
+	public static boolean CODEGEN_OPTIMIZE = true;
 
 	// Master Tracker Server
 	public static int MASTERTRACKER_PORT = 55557;
@@ -79,10 +84,11 @@ public class Config implements Serializable {
 	public static boolean TRACE_COMPILE_PLAN = false;
 	public static boolean TRACE_COMPILE_PLAN_HEADER = false;
 	public static boolean TRACE_OPTIMIZED_PLAN = false;
+	public static boolean TRACE_CODEGEN_PLAN = false;
 	public static boolean TRACE_TRACKER_PLAN = false;
 	public static boolean TRACE_EXECUTE_PLAN = false;
-	
-	//Measurements
+
+	// Measurements
 	public static boolean MEASURE_QUERY_EXECUTION_TIME = false;
 
 	// load properties from file
@@ -101,8 +107,9 @@ public class Config implements Serializable {
 
 		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS",
 				"TRACE_COMPILE_PLAN", "TRACE_COMPILE_PLAN_HEADER",
-				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN", 
-				"TRACE_EXECUTE_PLAN", "MEASURE_QUERY_EXECUTION_TIME" };
+				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN",
+				"TRACE_EXECUTE_PLAN", "TRACE_CODEGEN_PLAN",
+				"MEASURE_QUERY_EXECUTION_TIME", "CODEGEN_OPTIMIZE" };
 
 		String CONFIG_FILE = "./config/xdb.conf";
 		Properties props;
@@ -133,19 +140,21 @@ public class Config implements Serializable {
 			}
 
 			if (props.containsKey("OPTIMIZER_ACTIVE_RULES_FUNCTION")) {
-				String ruleBitSet = props.getProperty("OPTIMIZER_ACTIVE_RULES_FUNCTION");
+				String ruleBitSet = props
+						.getProperty("OPTIMIZER_ACTIVE_RULES_FUNCTION");
 				int i = 0;
 				for (char bit : ruleBitSet.toCharArray()) {
-					OPTIMIZER_ACTIVE_RULES_FUNCTION
-							.set(i++, (bit == '1') ? true : false);
+					OPTIMIZER_ACTIVE_RULES_FUNCTION.set(i++,
+							(bit == '1') ? true : false);
 				}
 			}
 			if (props.containsKey("OPTIMIZER_ACTIVE_RULES_SELECT")) {
-				String ruleBitSet = props.getProperty("OPTIMIZER_ACTIVE_RULES_SELECT");
+				String ruleBitSet = props
+						.getProperty("OPTIMIZER_ACTIVE_RULES_SELECT");
 				int i = 0;
 				for (char bit : ruleBitSet.toCharArray()) {
-					OPTIMIZER_ACTIVE_RULES_SELECT
-							.set(i++, (bit == '1') ? true : false);
+					OPTIMIZER_ACTIVE_RULES_SELECT.set(i++, (bit == '1') ? true
+							: false);
 				}
 			}
 
