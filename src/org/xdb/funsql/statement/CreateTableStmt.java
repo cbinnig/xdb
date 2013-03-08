@@ -1,7 +1,9 @@
 package org.xdb.funsql.statement;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 
 import org.xdb.error.Error;
@@ -15,6 +17,7 @@ import org.xdb.metadata.Catalog;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Partition;
+import org.xdb.metadata.PartitionToConnection;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
 import org.xdb.metadata.TableToConnection;
@@ -32,10 +35,11 @@ public class CreateTableStmt extends AbstractServerStmt {
 	
 	private Vector<TokenAttribute> tpartitionAttributes = new Vector<TokenAttribute>();
 	private Vector<TokenTable> tpartitionTables = new Vector<TokenTable>();
-	private Vector<TokenIdentifier> tpartitionConnections = new Vector<TokenIdentifier>();
 	private Vector<TokenIdentifier> tConnections = new Vector<TokenIdentifier>();
 	private Vector<Connection> connections = new Vector<Connection>();
+	private Vector<PartitionToConnection>  partToConnections = new Vector<PartitionToConnection>();
 	
+	private HashMap<String,List<TokenIdentifier>>tpartitionToConnection = new HashMap<String, List<TokenIdentifier>>();
 	private Schema schema = null;
 	private Table table = null;
 	private HashMap<String, Attribute> attributes = new HashMap<String, Attribute>();
@@ -67,8 +71,19 @@ public class CreateTableStmt extends AbstractServerStmt {
 		this.tpartitionAttributes.add(new TokenAttribute(column));
 	}
 	
-	public void addPConnection(TokenIdentifier c2){
-		this.tpartitionConnections.add(c2);
+	public void addPConnection(String partition, TokenIdentifier conn){
+		List<TokenIdentifier> values = this.tpartitionToConnection.get(partition);
+		
+		if(values == null){
+			values = new ArrayList<TokenIdentifier>();
+		}
+		if(! values.contains(conn)){
+			values.add(conn);
+			this.tpartitionToConnection.put(partition, values);
+		}else {
+			//TODO error handling
+		}
+		
 	}
 	public void addAttribute(String attribute) {
 		this.tAttributes.add(new TokenAttribute(attribute));
@@ -179,24 +194,31 @@ public class CreateTableStmt extends AbstractServerStmt {
 			String connectionKey;
 			Connection tempConnection;
 			for(int i = 0; i <  this.tpartitionTables.size(); i ++){
-				//get connection for this partition
-				connectionKey = this.tpartitionConnections.get(i).hashKey();
-				tempConnection = Catalog.getConnection(connectionKey);
-				if (tempConnection == null) {
-					return Catalog.createObjectNotExistsErr(this.tConnection.getName(),
-							EnumDatabaseObject.CONNECTION);
-				}
 				
-				// Partition was twice in so throw error
 				sourceTable = this.tpartitionTables.get(i);
 				if(this.partitions.containsKey(sourceTable.getName().toString())){
 					return Catalog.createTableContainsDupAttErr(this.table.getName(), sourceTable.getName().toString());
 				}
-				newPart = new Partition(this.tSourceTable.getName().toString(),  this.tSourceTable.getSchema().getName().toString(), sourceTable.getName().toString(), this.table.getOid(), sourceTable.getName().toString(),tempConnection.getOid());
+				newPart = new Partition(this.tSourceTable.getName().toString(),  this.tSourceTable.getSchema().getName().toString(), sourceTable.getName().toString(), this.table.getOid(), sourceTable.getName().toString());
 		
 				//put on hashmap and add to table
 				this.partitions.put(sourceTable.getName().toString(), newPart);
 				this.table.addPartition(newPart);
+				
+				//get connections for partition
+				
+				List<TokenIdentifier> tconnections = this.tpartitionToConnection.get(this.tpartitionTables.get(i).getName());
+				// realize n to m Relationship of partitions to connections
+				for (TokenIdentifier tokenIdentifier : tconnections) {
+					//get connection for this partition
+					tempConnection = Catalog.getConnection(	tokenIdentifier.hashKey());
+					if (tempConnection == null) {
+						return Catalog.createObjectNotExistsErr(this.tConnection.getName(),
+								EnumDatabaseObject.CONNECTION);
+					}
+					
+					this.partToConnections.add(new PartitionToConnection(newPart.getOid(), tempConnection.getOid()));
+				}
 			}
 		}else {
 			//not partioned so call standard constructor for table
@@ -258,6 +280,12 @@ public class CreateTableStmt extends AbstractServerStmt {
 		//add partition
 		for(Partition partition: this.partitions.values()){
 			lastError = Catalog.createPartition(partition);
+			if(lastError!=Error.NO_ERROR)
+				return lastError;
+		}
+		// Partition to Connection
+		for(PartitionToConnection partoCo : this.partToConnections){
+			lastError = Catalog.createPartitionToConnection(partoCo);
 			if(lastError!=Error.NO_ERROR)
 				return lastError;
 		}

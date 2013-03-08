@@ -28,6 +28,10 @@ public class Catalog {
 	private static HashMap<Long, List<TableToConnection>> tableToConnByTableOid = new HashMap<Long, List<TableToConnection>>();
 	private static HashMap<Long, List<TableToConnection>> tableToConnByConnOid = new HashMap<Long, List<TableToConnection>>();
 
+	private static HashMap<Long, List<PartitionToConnection>> partitionToConnByPartOid = new HashMap<Long, List<PartitionToConnection>>();
+	private static HashMap<Long, List<PartitionToConnection>> partitionToConnByConnOid = new HashMap<Long, List<PartitionToConnection>>();
+
+	
 	private static HashMap<Long, Schema> schemas = new HashMap<Long, Schema>();
 	private static HashMap<String, Schema> schemasByName = new HashMap<String, Schema>();
 
@@ -48,6 +52,11 @@ public class Catalog {
 			Error lastError = Error.NO_ERROR;
 
 			lastError = Catalog.executeUpdate(TableToConnection.sqlDeleteAll());
+			if (lastError != Error.NO_ERROR) {
+				return lastError;
+			}
+
+			lastError = Catalog.executeUpdate(PartitionToConnection.sqlDeleteAll());
 			if (lastError != Error.NO_ERROR) {
 				return lastError;
 			}
@@ -100,6 +109,7 @@ public class Catalog {
 			Catalog.conn = DriverManager.getConnection(Config.METADATA_DB_URL,
 					Config.METADATA_USER, Config.METADATA_PASSWORD);
 			Catalog.initConnectionToTable();
+			Catalog.initPartitionToConnection();
 			Catalog.initPartitions();
 			Catalog.initConnections();
 			Catalog.initSchemas();
@@ -131,6 +141,8 @@ public class Catalog {
 		Catalog.partitionsByName.clear();
 		Catalog.tableToConnByConnOid.clear();
 		Catalog.tableToConnByTableOid.clear();
+		Catalog.partitionToConnByConnOid.clear();
+		Catalog.partitionToConnByPartOid.clear();
 
 		try {
 			Catalog.conn.close();
@@ -221,10 +233,8 @@ public class Catalog {
 			String source_partition_name = rs.getString(4);
 			long tableOid = rs.getLong(5);
 			String partition_name = rs.getString(6);
-			long connection_oid = rs.getLong(7);
 			Partition part = new Partition(oid, source_name, source_schema,
-					source_partition_name, tableOid, partition_name,
-					connection_oid);
+					source_partition_name, tableOid, partition_name);
 			Catalog.addPartition(part);
 
 		}
@@ -269,6 +279,22 @@ public class Catalog {
 			TableToConnection tableToConnec = new TableToConnection(t_oid,
 					c_oid);
 			Catalog.addTableToConnection(tableToConnec);
+		}
+	}
+	
+
+	private static synchronized void initPartitionToConnection() throws Exception {
+		Statement stmt = null;
+		ResultSet rs = null;
+
+		stmt = Catalog.conn.createStatement();
+		rs = stmt.executeQuery(PartitionToConnection.sqlSelectAll());
+		while (rs.next()) {
+			long p_oid = rs.getLong(1);
+			long c_oid = rs.getLong(2);
+			PartitionToConnection tableToConnec = new PartitionToConnection(p_oid,
+					c_oid);
+			Catalog.addPartitionToConnection(tableToConnec);
 		}
 	}
 
@@ -402,7 +428,28 @@ public class Catalog {
 	}
 
 	public static synchronized Error dropPartition(Partition part) {
-		Error lastError = Catalog.executeUpdate(part.sqlDelete());
+		//first drop Partition to Connection
+		ArrayList<PartitionToConnection> paToCosTmp = (ArrayList<PartitionToConnection>) Catalog.partitionToConnByPartOid
+				.get(part.getOid());
+		//replicated partition
+		Error lastError = new Error();
+		if(paToCosTmp != null){
+			// copy to avoid errors
+			@SuppressWarnings("unchecked")
+			ArrayList<PartitionToConnection> paToCos = (ArrayList<PartitionToConnection>) paToCosTmp.clone();
+			PartitionToConnection paToCo;
+			
+			for(int i = 0; i < paToCos.size(); i++){
+				paToCo = paToCos.get(i);
+				Catalog.dropPartitionToConnection(paToCo);
+			}
+			
+			if (lastError.isError()){
+				return lastError;
+			}
+		}
+	
+		lastError = Catalog.executeUpdate(part.sqlDelete());
 		if (lastError == Error.NO_ERROR) {
 			Catalog.removePartition(part);
 		}
@@ -429,15 +476,39 @@ public class Catalog {
 		return lastError;
 	}
 
+	
+	public static synchronized Error createPartitionToConnection(
+			PartitionToConnection partToConn) {
+		if (Catalog.partitionToConnByPartOid
+				.containsKey(partToConn.getPartition_oid())
+				&& Catalog.tableToConnByConnOid.containsKey(partToConn
+						.getConnection_oid())) {
+			return createObjectAlreadyExistsErr(partToConn);
+		}
+
+		Error lastError = Catalog.executeUpdate(partToConn.sqlInsert());
+		if (lastError == Error.NO_ERROR) {
+			Catalog.addPartitionToConnection(partToConn);
+		}
+		return lastError;
+	}
+	
+	public static synchronized Error dropPartitionToConnection(
+			PartitionToConnection partToConn) {
+		Error lastError = Catalog.executeUpdate(partToConn.sqlDelete());
+		if (!lastError.isError() ) {
+			Catalog.removePartitionToConnection(partToConn);
+		}
+		return lastError;
+	}
 	public static synchronized Error createTableToConnection(
 			TableToConnection tableToConn) {
-		if (Catalog.tableToConnByConnOid
+		if (Catalog.tableToConnByTableOid
 				.containsKey(tableToConn.getTable_oid())
 				&& Catalog.tableToConnByConnOid.containsKey(tableToConn
 						.getConnection_oid())) {
 			return createObjectAlreadyExistsErr(tableToConn);
 		}
-		// Catalog.addTableToConnection(tableToConn);
 
 		Error lastError = Catalog.executeUpdate(tableToConn.sqlInsert());
 		if (lastError == Error.NO_ERROR) {
@@ -503,7 +574,7 @@ public class Catalog {
 			for (int i = 0; i < taToCos.size(); i++) {
 				tableToConnection = taToCos.get(i);
 				lastError = Catalog.dropTableToConnection(tableToConnection);
-				if (lastError != Error.NO_ERROR)
+				if (lastError.isError())
 					return lastError;
 			}
 		}
@@ -511,7 +582,7 @@ public class Catalog {
 		// drop attributes
 		for (Attribute att : table.getAttributes()) {
 			lastError = Catalog.dropAttribute(att);
-			if (lastError != Error.NO_ERROR)
+			if (lastError.isError())
 				return lastError;
 
 			Catalog.removeAttribute(att);
@@ -520,7 +591,7 @@ public class Catalog {
 		// drop partitions
 		for (Partition part : table.getPartitions()) {
 			lastError = Catalog.dropPartition(part);
-			if (lastError != Error.NO_ERROR)
+			if (lastError.isError())
 				return lastError;
 			Catalog.removePartition(part);
 		}
@@ -567,6 +638,55 @@ public class Catalog {
 
 	public static synchronized void removePartition(Partition part) {
 		Catalog.partitions.remove(part.getOid());
+	}
+	
+	
+
+	public static synchronized void addPartitionToConnection(
+			PartitionToConnection paToCo) {
+		List<PartitionToConnection> values1 = Catalog.partitionToConnByConnOid
+				.get(paToCo.getConnection_oid());
+		if (values1 == null) {
+			values1 = new ArrayList<PartitionToConnection>();
+		}
+		values1.add(paToCo);
+		Catalog.partitionToConnByConnOid.put(paToCo.getConnection_oid(), values1);
+
+		List<PartitionToConnection> values2 = Catalog.partitionToConnByPartOid
+				.get(paToCo.getPartition_oid());
+		if (values2 == null) {
+			values2 = new ArrayList<PartitionToConnection>();
+		}
+		values2.add(paToCo);
+		Catalog.partitionToConnByPartOid.put(paToCo.getPartition_oid(), values2);
+	}
+
+	
+	public static synchronized void removePartitionToConnection(
+			PartitionToConnection paToCo) {
+		List<PartitionToConnection> values1 = Catalog.partitionToConnByConnOid
+				.get(paToCo.getConnection_oid());
+		values1.remove(paToCo);
+		if (values1 != null) {
+			if (values1.size() == 0) {
+				Catalog.partitionToConnByConnOid.remove(paToCo.getConnection_oid());
+			} else {
+				Catalog.partitionToConnByConnOid.put(paToCo.getConnection_oid(),
+						values1);
+			}
+		}
+		List<PartitionToConnection> values2 = Catalog.partitionToConnByPartOid
+				.get(paToCo.getPartition_oid());
+		if (values2 != null) {
+			values2.remove(paToCo);
+			if (values1.size() == 0) {
+				Catalog.partitionToConnByPartOid.remove(paToCo.getPartition_oid());
+			} else {
+				Catalog.partitionToConnByPartOid.put(paToCo.getPartition_oid(),
+						values2);
+			}
+		}
+
 	}
 
 	public static synchronized void addTableToConnection(

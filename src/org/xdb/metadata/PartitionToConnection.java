@@ -1,45 +1,37 @@
 package org.xdb.metadata;
 
-
 import org.xdb.funsql.compile.tokens.AbstractToken;
 
-/**
- * Class that represents a relationship relation between the connection and the
- * table relation in order to allow N to M Relationships
- * 
- * @author a.c.mueller
- * 
- */
-public class TableToConnection extends AbstractDatabaseObject {
+public class PartitionToConnection extends AbstractDatabaseObject {
 
-	private static final long serialVersionUID = -2341486004909008455L;
-	/*
-	 * CREATE TABLE `TABLETOCONNECTION` ( `T_OID` bigint NOT NULL, `C_OID`
-	 * bigint NOT NULL );
-	 */
+	private static final long serialVersionUID = 3279427982175338162L;
 
+	
 	private static final String TABLE_NAME = AbstractToken
-			.toSqlIdentifier("TABLETOCONNECTION");
-	private static final String[] ATTRIBUTES = { "T_OID", "C_OID" };
+			.toSqlIdentifier("PARTITIONTOCONNECTION");
+	private static final String[] ATTRIBUTES = { "P_OID", "C_OID" };
 	private static final String ALL_ATTRIBUTES = AbstractToken
 			.toSqlIdentifierList(ATTRIBUTES);
 
-	private Long table_oid;
+	private Long partition_oid;
 	private Long connection_oid;
-
-	private static  TableToConnection prototype = new  TableToConnection();
-	public TableToConnection(){
+	
+	private static PartitionToConnection prototype = new PartitionToConnection();
+	
+	
+	public PartitionToConnection() {
 		super();
-		this.objectType = EnumDatabaseObject.TABLETOCONNECTION;
+		this.objectType = EnumDatabaseObject.PARTITIONTOCONNECTION;
 	}
 	
-	public TableToConnection(Long table_oid, Long connection_oid) {
-		super();
-		this.table_oid = table_oid;
-		this.connection_oid = connection_oid;
-		this.objectType = EnumDatabaseObject.TABLETOCONNECTION;
-	}
+	
 
+	public PartitionToConnection(Long partion_oid, Long connection_oid) {
+		super();
+		this.partition_oid = partion_oid;
+		this.connection_oid = connection_oid;
+	}
+	
 	@Override
 	public String sqlInsert() {
 		StringBuffer insertSql = new StringBuffer();
@@ -58,7 +50,7 @@ public class TableToConnection extends AbstractDatabaseObject {
 		insertSql.append(AbstractToken.VALUES);
 		insertSql.append(AbstractToken.BLANK);
 		insertSql.append(AbstractToken.LBRACE);
-		insertSql.append(this.table_oid);
+		insertSql.append(this.partition_oid);
 		insertSql.append(AbstractToken.COMMA);
 		insertSql.append(this.connection_oid);
 		insertSql.append(AbstractToken.RBRACE);
@@ -78,26 +70,9 @@ public class TableToConnection extends AbstractDatabaseObject {
 
 	@Override
 	public String hashKey() {
-		String hash = table_oid + "." + connection_oid;
-		return hash;
-	}
-
-	public Long getTable_oid() {
-		return table_oid;
-	}
-
-	public Long getConnection_oid() {
-		return connection_oid;
-	}
-
-	protected static String sqlDeleteAll() {
-		return prototype.interalSqlDeleteAll();
+		return partition_oid+"."+connection_oid;
 	}
 	
-	protected static String sqlSelectAll() {
-		return prototype.internalSqlSelectAll();
-	}
-	//Override because no OID is used for Relationship relations
 	public String sqlDelete(){
 		StringBuffer selectSql = new StringBuffer();
 		selectSql.append(AbstractToken.DELETE);
@@ -110,11 +85,11 @@ public class TableToConnection extends AbstractDatabaseObject {
 		selectSql.append(AbstractToken.BLANK);
 		selectSql.append(AbstractToken.WHERE);
 		selectSql.append(AbstractToken.BLANK);
-		selectSql.append("T_OID");
+		selectSql.append("P_OID");
 		selectSql.append(AbstractToken.BLANK);
 		selectSql.append(AbstractToken.EQUAL1);
 		selectSql.append(AbstractToken.BLANK);
-		selectSql.append(this.getTable_oid());
+		selectSql.append(this.getPartition_oid());
 		selectSql.append(AbstractToken.BLANK);
 		selectSql.append(AbstractToken.AND);
 		selectSql.append(AbstractToken.BLANK);
@@ -124,5 +99,38 @@ public class TableToConnection extends AbstractDatabaseObject {
 		selectSql.append(AbstractToken.BLANK);
 		selectSql.append(this.getConnection_oid());
 		return selectSql.toString();
+	}
+
+	// getters and setters
+
+	public Long getPartition_oid() {
+		return partition_oid;
+	}
+
+
+
+	public void setPartition_oid(Long partition_oid) {
+		this.partition_oid = partition_oid;
+	}
+
+
+
+	public Long getConnection_oid() {
+		return connection_oid;
+	}
+
+
+
+	public void setConnection_oid(Long connection_oid) {
+		this.connection_oid = connection_oid;
+	}
+
+	
+	protected static String sqlDeleteAll() {
+		return prototype.interalSqlDeleteAll();
+	}
+	
+	protected static String sqlSelectAll() {
+		return prototype.internalSqlSelectAll();
 	}
 }
