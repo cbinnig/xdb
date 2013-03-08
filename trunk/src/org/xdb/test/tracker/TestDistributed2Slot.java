@@ -19,12 +19,12 @@ import org.xdb.utils.StringTemplate;
 public class TestDistributed2Slot extends DistributedQueryTrackerTestCase {
 
 	public TestDistributed2Slot() {
-		super();
+		super(2);
 	}
 	
 	@Test
 	public void testPlan2OpsDistributed() throws Exception {
-		final QueryTrackerNode qTracker = new QueryTrackerNode();
+		final QueryTrackerNode qTracker = this.qServer.getNode();
 		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);
 

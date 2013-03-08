@@ -15,9 +15,6 @@ public class ComputeNodeDesc extends AbstractNodeDesc {
 	// URL of compute node
 	private ComputeNodeSlot slotDesc;
 
-	// slots of compute node
-	private int slots;
-
 	// constructors
 	public ComputeNodeDesc(ComputeNodeSlot slotDesc, int slots) {
 		super(slotDesc.getHost(), slots);

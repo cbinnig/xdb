@@ -162,7 +162,7 @@ public class MasterTrackerNode {
 	 *            wish-list of compute-slots
 	 * @return assigned compute-slots
 	 */
-	public Map<ComputeNodeSlot, MutableInteger> getComputeSlots(
+	public synchronized Map<ComputeNodeSlot, MutableInteger> getComputeSlots(
 			final Map<String, MutableInteger> requiredSlots) {
 
 		final HashMap<ComputeNodeSlot, MutableInteger> allocatedSlots = new HashMap<ComputeNodeSlot, MutableInteger>();
@@ -251,7 +251,7 @@ public class MasterTrackerNode {
 	 * @param desc
 	 * @return
 	 */
-	public Error registerQueryTrackerNode(final QueryTrackerNodeDesc desc) {
+	public synchronized Error registerQueryTrackerNode(final QueryTrackerNodeDesc desc) {
 		final Error err = new Error();
 
 		logger.log(Level.INFO, "Added QueryTrackerNode: " + desc);
@@ -268,7 +268,7 @@ public class MasterTrackerNode {
 	 * @param desc
 	 *            ComputeNodeDesc
 	 */
-	public Error registerComputeNode(final ComputeNodeDesc desc) {
+	public synchronized Error registerComputeNode(final ComputeNodeDesc desc) {
 		final Error err = new Error();
 
 		logger.log(Level.INFO, "Added compute slots: " + desc);
@@ -292,7 +292,7 @@ public class MasterTrackerNode {
 	 * 
 	 * @param freeNodes
 	 */
-	public void addFreeComputeSlots(
+	public synchronized void addFreeComputeSlots(
 			final Map<ComputeNodeSlot, MutableInteger> freeNodes) {
 		for (final Entry<ComputeNodeSlot, MutableInteger> node : freeNodes
 				.entrySet()) {
