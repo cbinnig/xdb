@@ -287,58 +287,16 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 		}
 	}
 	/**
-	 * pushDown selection over binary operator
+	 * pushDown selection over SQLJoin or SQLCombined
 	 * 
 	 * @param op
 	 */
 	private void pushDown(AbstractJoinOperator op) {
-		// TODO found selection
-		/*if (this.cutSelection != null) {
-			Vector<TokenAttribute> leftChildAtts = op.getLeftChild()
-					.getResult().getAttributes();
-			Vector<TokenAttribute> rightChildAtts = op.getRightChild()
-					.getResult().getAttributes();
-
-			AbstractPredicate predicate = this.cutSelection.getPredicate();
-
-			Collection<TokenAttribute> selAtts = predicate.getAttributes();
-			Collection<TokenAttribute> newLeftAtts = TokenAttribute
-					.clone(selAtts);
-			op.renameForPushDown(newLeftAtts, LEFT_CHILD_IDX);
-			Collection<TokenAttribute> newRightAtts = TokenAttribute
-					.clone(selAtts);
-			op.renameForPushDown(newRightAtts, RIGHT_CHILD_IDX);
-
-			// wait
-			if (this.doWaitNextVisit && this.wait(op)) {
-				return;
-			}
-			// push down on left side
-			else if (leftChildAtts.containsAll(newLeftAtts)) {
-				op.renameForPushDown(selAtts, LEFT_CHILD_IDX);
-				this.pasteInfo.clear();
-				this.pasteInfo.put(op, LEFT_CHILD_IDX);
-				this.nextChildIdx = LEFT_CHILD_IDX;
-				return;
-			}
-			// push down on right side
-			else if (rightChildAtts.containsAll(newRightAtts)) {
-				op.renameForPushDown(selAtts, RIGHT_CHILD_IDX);
-				this.pasteInfo.clear();
-				this.pasteInfo.put(op, RIGHT_CHILD_IDX);
-				this.nextChildIdx = RIGHT_CHILD_IDX;
-				return;
-			}
-			// stop pushdown
-			else {
-				this.paste();
-				return;
-			}
-			
-		
-		}*/
+		String[] args = {"Operator of type "+op.getType()+" not supported"};
+		this.err = new Error(EnumError.COMPILER_GENERIC, args);
 		return;
 	}
+	
 	/**
 	 * pushDown selection over unary operator
 	 * 

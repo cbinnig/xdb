@@ -19,8 +19,6 @@ public class EquiJoin extends AbstractBinaryOperator {
 	private TokenAttribute leftTokenAttribute;
 	private TokenAttribute rightTokenAttribute;
 	
-
-
 	//constructors
 	public EquiJoin(AbstractCompileOperator leftChild, AbstractCompileOperator rightChild,
 			TokenAttribute leftTokenAttribute, TokenAttribute rightTokenAttribute) {
@@ -72,10 +70,7 @@ public class EquiJoin extends AbstractBinaryOperator {
 		vars.put("JATT1", getLeftTokenAttribute().toSqlString());
 		vars.put("JATT2", getRightTokenAttribute().toSqlString());*/
 	
-		//TODO Refine
 		HashMap<String,String> joinParams= new HashMap<String, String>();
-
-	
 		joinParams.put(getLeftChild().getOperatorId().toString(), getLeftTokenAttribute().toString());
 		joinParams.put(getRightChild().getOperatorId().toString(), getRightTokenAttribute().toString());
 

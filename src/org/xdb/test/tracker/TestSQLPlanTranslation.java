@@ -22,8 +22,8 @@ public class TestSQLPlanTranslation extends CompileServerTestCase {
 		try {
 			this.qTracker = new QueryTrackerNode();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Assert.assertTrue(true);
 		}
 	}
 	

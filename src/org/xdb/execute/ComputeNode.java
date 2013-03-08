@@ -145,7 +145,7 @@ public class ComputeNode {
 		}
 
 		logger.log(Level.INFO,
-				"Received READY_SIGNAL for operator: " + op.getOperatorId()
+				"Received READY_SIGNAL for operator: " + consumer
 						+ " from source: " + source);
 
 		// Add signaling source to list of finished sources
@@ -154,9 +154,9 @@ public class ComputeNode {
 		HashSet<Identifier> sourceIds = null;
 		if (!this.receivedReadySignals.containsKey(consumer)) {
 			sourceIds = new HashSet<Identifier>();
-			this.receivedReadySignals.put(source, sourceIds);
+			this.receivedReadySignals.put(consumer, sourceIds);
 		} else {
-			sourceIds = this.receivedReadySignals.get(source);
+			sourceIds = this.receivedReadySignals.get(consumer);
 		}
 		sourceIds.add(source);
 
@@ -205,15 +205,16 @@ public class ComputeNode {
 	private Error executeOperator(final AbstractExecuteOperator op) {
 		Error err = new Error();
 
-		//measure Time
-	
+		// start timer
 		timeMeasure.start(op.getOperatorId().toString());
+		
 		// execute operator
-	
 		err = op.execute();
 		
+		// stop timer
 		timeMeasure.stop(op.getOperatorId().toString());
 		
+		// check for errors 
 		if (err.isError()) {
 			return err;
 		}

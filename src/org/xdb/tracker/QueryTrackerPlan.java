@@ -31,12 +31,12 @@ import com.oy.shared.lm.graph.GraphFactory;
 import com.oy.shared.lm.graph.GraphNode;
 
 /**
- * Plan implementation for query tracker. This plan is used to compute 
- * its deployment using a given resource scheduler. Using this deployment
- * the plan can be executed the deployed resources (i.e., compute nodes)
+ * Plan implementation for query tracker. This plan is used to compute its
+ * deployment using a given resource scheduler. Using this deployment the plan
+ * can be executed the deployed resources (i.e., compute nodes)
  * 
  * @author cbinnig
- *
+ * 
  */
 public class QueryTrackerPlan implements Serializable {
 
@@ -59,22 +59,22 @@ public class QueryTrackerPlan implements Serializable {
 	private transient QueryTrackerNode tracker = null;
 	private transient ComputeClient computeClient = null;
 	private transient AbstractResourceScheduler resourceScheduler = null;
-	
-	// plan 
+
+	// plan
 	private final HashMap<Identifier, AbstractTrackerOperator> operators = new HashMap<Identifier, AbstractTrackerOperator>();
 	private final HashMap<Identifier, Set<Identifier>> consumers = new HashMap<Identifier, Set<Identifier>>();
 	private final HashMap<Identifier, Set<Identifier>> sources = new HashMap<Identifier, Set<Identifier>>();
 	private final HashSet<Identifier> roots = new HashSet<Identifier>();
 	private final HashSet<Identifier> leaves = new HashSet<Identifier>();
-	
-	// deployment 
+
+	// deployment
 	private final HashMap<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
 	private final HashMap<ComputeNodeSlot, MutableInteger> slots = new HashMap<ComputeNodeSlot, MutableInteger>();
 	private final HashMap<Identifier, AbstractExecuteOperator> executeOperatos = new HashMap<Identifier, AbstractExecuteOperator>();
-	
+
 	// logger
 	private transient Logger logger;
-		
+
 	// last error
 	private Error err = new Error();
 
@@ -92,11 +92,11 @@ public class QueryTrackerPlan implements Serializable {
 	public Map<Identifier, AbstractTrackerOperator> getOperatorMapping() {
 		return Collections.unmodifiableMap(operators);
 	}
-	
+
 	public Map<ComputeNodeSlot, MutableInteger> getSlots() {
 		return slots;
 	}
-	
+
 	public HashMap<Identifier, OperatorDesc> getCurrentDeployment() {
 		return currentDeployment;
 	}
@@ -116,12 +116,12 @@ public class QueryTrackerPlan implements Serializable {
 	public HashSet<Identifier> getRoots() {
 		return roots;
 	}
-	
-	public Set<Identifier> getSources(Identifier opId){
+
+	public Set<Identifier> getSources(Identifier opId) {
 		return this.sources.get(opId);
 	}
-	
-	public Set<Identifier> getConsumers(Identifier opId){
+
+	public Set<Identifier> getConsumers(Identifier opId) {
 		return this.consumers.get(opId);
 	}
 
@@ -130,22 +130,25 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	// methods
-	
+
 	/**
-	 * Assigns a query tracker node to a query tracker plan
-	 * when it is handed over from master tracker
+	 * Assigns a query tracker node to a query tracker plan when it is handed
+	 * over from master tracker
+	 * 
 	 * @param tracker
 	 */
 	public void assignTracker(final QueryTrackerNode tracker) {
 		this.tracker = tracker;
 		this.computeClient = tracker.getComputeClient();
-		this.resourceScheduler = AbstractResourceScheduler.createScheduler(this);
+		this.resourceScheduler = AbstractResourceScheduler
+				.createScheduler(this);
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
 	/**
-	 * Adds operator to plan and marks it as new root and leaf
-	 * without sources and consumers
+	 * Adds operator to plan and marks it as new root and leaf without sources
+	 * and consumers
+	 * 
 	 * @param op
 	 */
 	public void addOperator(final AbstractTrackerOperator op) {
@@ -163,8 +166,8 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	/**
-	 * Sets sources of an operator and changes status to be 
-	 * no leaf anymore if sources is not empty
+	 * Sets sources of an operator and changes status to be no leaf anymore if
+	 * sources is not empty
 	 * 
 	 * @param operId
 	 * @param opSources
@@ -178,8 +181,9 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	/**
-	 * Sets consumers of an operator and changes status to be 
-	 * no root anymore if consumers is not empty
+	 * Sets consumers of an operator and changes status to be no root anymore if
+	 * consumers is not empty
+	 * 
 	 * @param operId
 	 * @param opConsumers
 	 */
@@ -193,10 +197,10 @@ public class QueryTrackerPlan implements Serializable {
 			operator.setIsRoot(false);
 		}
 	}
-	
+
 	/**
-	 * Closes all operators in the plan that are no root operators
-	 * (i.e., result tables are kept)
+	 * Closes all operators in the plan that are no root operators (i.e., result
+	 * tables are kept)
 	 * 
 	 * @param currentDeployment
 	 */
@@ -219,8 +223,8 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	/**
-	 * Closes all operators on error
-	 * (i.e., all intermediate results are dropped)
+	 * Closes all operators on error (i.e., all intermediate results are
+	 * dropped)
 	 * 
 	 * @return
 	 */
@@ -245,18 +249,19 @@ public class QueryTrackerPlan implements Serializable {
 		}
 
 		// start execution on leave operators
+		// TODO: currently calls are executed sequential and not in parallel => change to parallel execution
 		for (final Identifier leaveId : leaves) {
-			final OperatorDesc leaveDesc = currentDeployment.get(leaveId);
-			err = computeClient.executeOperator(leaveDesc);
+			final OperatorDesc leaveOpDesc = currentDeployment.get(leaveId);
+			err = computeClient.executeOperator(leaveOpDesc);
 			if (err.isError()) {
 				return err;
 			}
 		}
 
-		// close operators which are not root operators
+		// close operators which are NO roots 
 		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
 				.entrySet()) {
-			final AbstractTrackerOperator planOp = operators
+			final AbstractTrackerOperator planOp = this.operators
 					.get(entry.getKey());
 			if (!planOp.isRoot()) {
 				final OperatorDesc operDesc = entry.getValue();
@@ -289,13 +294,13 @@ public class QueryTrackerPlan implements Serializable {
 
 		// distribute plan to compute nodes
 		distributePlan();
-		
+
 		// trace execution plan
 		if (Config.TRACE_EXECUTE_PLAN) {
 			this.err = this.traceDeployment(this.getClass().getCanonicalName()
 					+ "_EXECUTE");
 		}
-		
+
 		// error handling
 		if (err.isError()) {
 			for (final OperatorDesc deployOperDesc : currentDeployment.values()) {
@@ -313,27 +318,29 @@ public class QueryTrackerPlan implements Serializable {
 	 * Requests computation slots from master tracker
 	 */
 	private void requestSlots() {
-		//create wish-list of compute slots
-		final Map<String, MutableInteger> requiredSlots = resourceScheduler.calcRequiredSlots();
+		// create wish-list of compute slots
+		final Map<String, MutableInteger> requiredSlots = resourceScheduler
+				.calcRequiredSlots();
 
-		//as master tracker for slots
+		// as master tracker for slots
 		final Tuple<Map<ComputeNodeSlot, MutableInteger>, Error> resultRequest = tracker
 				.requestComputeSlots(requiredSlots);
 
-		//read result
-		final Map<ComputeNodeSlot, MutableInteger> allocatedSlots = resultRequest.getObject1();
+		// read result
+		final Map<ComputeNodeSlot, MutableInteger> allocatedSlots = resultRequest
+				.getObject1();
 		err = resultRequest.getObject2();
-		
-		//assign slots
+
+		// assign slots
 		this.slots.putAll(allocatedSlots);
 		this.resourceScheduler.assignSlots(slots);
 	}
-	
+
 	/**
-	 * Prepare deployment of plan by assigning operators
-	 * to compute nodes using a resource scheduler
+	 * Prepare deployment of plan by assigning operators to compute nodes using
+	 * a resource scheduler
 	 */
-	private void prepareDeployment(){
+	private void prepareDeployment() {
 		for (final Identifier leave : leaves) {
 			prepareDeployment(leave);
 			if (err.isError())
@@ -355,8 +362,9 @@ public class QueryTrackerPlan implements Serializable {
 
 		// identify best slot using a resource scheduler
 		ComputeNodeSlot assignedSlot = this.resourceScheduler.getSlot(operId);
-		if(assignedSlot == null){
-			String args[] = {"No slot could be assigned for operator "+operId.toString()};
+		if (assignedSlot == null) {
+			String args[] = { "No slot could be assigned for operator "
+					+ operId.toString() };
 			this.err = new Error(EnumError.TRACKER_GENERIC, args);
 			return;
 		}
@@ -367,7 +375,7 @@ public class QueryTrackerPlan implements Serializable {
 		final OperatorDesc deployOperDesc = new OperatorDesc(deployOperId,
 				assignedSlot);
 
-		// add to operator and deployment description to current deployment 
+		// add to operator and deployment description to current deployment
 		currentDeployment.put(operId, deployOperDesc);
 
 		// prepare deployment of all consumers
@@ -376,16 +384,15 @@ public class QueryTrackerPlan implements Serializable {
 		}
 	}
 
-
 	/**
-	 * Distributes plan to assigned compute nodes
-	 * using a given deployment description
+	 * Distributes plan to assigned compute nodes using a given deployment
+	 * description
 	 * 
 	 * @param currentDeployment
 	 */
 	private void distributePlan() {
 		// distribute all operators in deployment
-		
+
 		for (final Entry<Identifier, OperatorDesc> entry : this.currentDeployment
 				.entrySet()) {
 			final Identifier operId = entry.getKey();
@@ -396,11 +403,11 @@ public class QueryTrackerPlan implements Serializable {
 			final AbstractExecuteOperator execOper = oper.genDeployOperator(
 					deployOperDesc, currentDeployment);
 			this.err = oper.getError();
-			if(this.err.isError())
+			if (this.err.isError())
 				return;
-			
+
 			execOper.setQueryTracker(this.tracker.getDescription());
-			
+
 			// set consumers of operator
 			for (final Identifier consumerId : consumers.get(operId)) {
 				final OperatorDesc consumerDesc = currentDeployment
@@ -417,15 +424,15 @@ public class QueryTrackerPlan implements Serializable {
 			// deploy operator to compute node
 			err = computeClient.openOperator(deployOperDesc.getOperatorNode(),
 					execOper);
-			
+
 			// add operator to deployment
 			this.executeOperatos.put(operId, execOper);
-			
+
 			if (err.isError())
 				return;
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param fileName

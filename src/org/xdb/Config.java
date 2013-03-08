@@ -30,7 +30,7 @@ public class Config implements Serializable {
 	public static String COMPUTE_DB_USER = "xroot";
 	public static String COMPUTE_DB_PASSWD = "xroot";
 	public static Identifier COMPUTE_NOOP_ID = new Identifier("NOOP");
-	public static int COMPUTE_PORT = 55555;
+	public static int COMPUTE_PORT = 55700;
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
 	public static int COMPUTE_SLOTS = 32;
 	public static boolean COMPUTE_CLEAN_RESULTS = true;
@@ -44,7 +44,7 @@ public class Config implements Serializable {
 	public static String METADATA_OID_NAME = "OID";
 	public static int METADATA_TEMP_OID = -1;
 
-	public static int COMPILE_PORT = 55556;
+	public static int COMPILE_PORT = 55500;
 	public static String COMPILE_URL = "127.0.0.1";
 	public static String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
 
@@ -67,11 +67,11 @@ public class Config implements Serializable {
 
 
 	// Master Tracker Server
-	public static int MASTERTRACKER_PORT = 55557;
+	public static int MASTERTRACKER_PORT = 55501;
 	public static String MASTERTRACKER_URL = "127.0.0.1";
 
 	// Query Tracker Server
-	public static int QUERYTRACKER_PORT = 55558;
+	public static int QUERYTRACKER_PORT = 55600;
 	public static int QUERYTRACKER_SLOTS = 32;
 	public static EnumResourceScheduler RESOURCE_SCHEDULER = EnumResourceScheduler.LOCALITY_AWARE_SCHEDULER;
 
