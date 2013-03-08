@@ -39,7 +39,7 @@ public class DropConnectionStmt extends AbstractServerStmt {
 
 	@Override
 	public Error execute() {
-		return Catalog.dropConncection(this.connection);
+		return Catalog.dropConnection(this.connection);
 	}
 
 }

@@ -26,7 +26,7 @@ public class Table extends AbstractDatabaseObject {
 
 	private static final String TABLE_NAME = AbstractToken.toSqlIdentifier("TABLE");
 	
-	private static final String[] ATTRIBUTES = {"OID", "NAME", "SOURCE_NAME", "SOURCE_SCHEMA", "SCHEMA_OID","PART","PART_TYPE","PART_DETAILS", "CONNECTION_OID"};
+	private static final String[] ATTRIBUTES = {"OID", "NAME", "SOURCE_NAME", "SOURCE_SCHEMA", "SCHEMA_OID","PART","PART_TYPE","PART_DETAILS"};
 	private static final String ALL_ATTRIBUTES = AbstractToken.toSqlIdentifierList(ATTRIBUTES);
 	private static long LAST_OID = 0;
 	private static long LAST_TEMP_OID = -1l;
@@ -37,9 +37,10 @@ public class Table extends AbstractDatabaseObject {
 	private String sourceSchema;
 	
 	private Long schemaOid=-1l;
-	private Long connectionOid;
+
 	private HashMap<Long, Attribute> attributes = new HashMap<Long, Attribute>(); 
 	private HashMap<Long, Partition> partitions = new HashMap<Long, Partition>();
+	private HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
 	//parameters for partioning 
 	private String partitionType;
 	private String partitionDetails;
@@ -49,23 +50,7 @@ public class Table extends AbstractDatabaseObject {
 		this.objectType = EnumDatabaseObject.TABLE;
 	}
 	
-	/**
-	 * Constructor used to initialize non-partioned table
-	 * @param oid
-	 * @param name
-	 * @param sourceName
-	 * @param sourceSchema
-	 * @param schemaOid
-	 * @param connectionOid
-	 */
-	public Table(Long oid, String name, String sourceName, String sourceSchema, Long schemaOid, Long connectionOid) {
-		super(oid, name);
-		this.sourceName = sourceName;
-		this.sourceSchema = sourceSchema;
-		this.schemaOid = schemaOid;
-		this.connectionOid = connectionOid;
-		this.objectType = EnumDatabaseObject.TABLE;
-	}
+
 	
 	/**
 	 * Constructor used to initialize a partioned table with different 
@@ -82,14 +67,24 @@ public class Table extends AbstractDatabaseObject {
 		this.schemaOid = schemaOid;
 		this.objectType = EnumDatabaseObject.TABLE;
 	}
-
-	public Table(String name, String sourceName, String sourceSchema, Long schemaOid, Long connectionOid) {
-		this(++LAST_OID, name, sourceName, sourceSchema, schemaOid, connectionOid);
-	}
 	
+	public Table(Long oid, String name, String sourceName, String sourceSchema, Long schemaOid, Long connectionID) {
+		super(oid, name);
+		this.sourceName = sourceName;
+		this.sourceSchema = sourceSchema;
+		this.schemaOid = schemaOid;
+		this.objectType = EnumDatabaseObject.TABLE;
+
+	}
+
 	public Table(String name, String sourceName, String sourceSchema, Long schemaOid) {
 		this(++LAST_OID, name, sourceName, sourceSchema, schemaOid);
 	}
+	
+	public Table(String name, String sourceName, String sourceSchema, Long schemaOid, Long connectionID) {
+		this(++LAST_OID, name, sourceName, sourceSchema, schemaOid, connectionID );
+	}
+	
 	
 	public Table(String name) {
 		super(LAST_TEMP_OID--, name);
@@ -128,11 +123,26 @@ public class Table extends AbstractDatabaseObject {
 	}
 
 	public Long getConnectionOid() {
-		return connectionOid;
+		// not replicated
+
+		for(Connection connec : this.connections.values()){
+			return connec.getOid();
+		}
+		return (long) -1;
 	}
 	
-	public void setConnectionOid(Long connectionOid) {
-		this.connectionOid = connectionOid;
+	private void addConnection(Long connectionOid, Connection connection) {
+		this.connections.put(connectionOid, connection);
+	}
+	
+	public void addConnection(Connection connection){
+		this.addConnection(connection.getOid(), connection);
+	}
+	
+	public void addConnections(Collection<Connection> connections){
+		for (Connection connection : connections) {
+			this.addConnection(connection);
+		}
 	}
 	
 	public void addAttribute(Attribute attribute){
@@ -214,8 +224,6 @@ public class Table extends AbstractDatabaseObject {
 		//PART_DETAILS
 		insertSql.append(AbstractToken.COMMA);
 		insertSql.append(AbstractToken.toSqlLiteral(this.partitionDetails));
-		insertSql.append(AbstractToken.COMMA);
-		insertSql.append(this.connectionOid);
 		insertSql.append(AbstractToken.RBRACE);
 		return insertSql.toString();
 	}

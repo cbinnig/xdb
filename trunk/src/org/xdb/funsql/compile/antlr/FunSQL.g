@@ -233,6 +233,7 @@ dropConnectionStatement returns [DropConnectionStmt stmt]
         )
         ;
 
+
 createTableStatement returns [CreateTableStmt stmt]
         @init{
         	$stmt = new CreateTableStmt();
@@ -272,12 +273,22 @@ createTableStatement returns [CreateTableStmt stmt]
                 	$stmt.setSourceTable($table2.table);
                 }
                 )?
-                ((
+                (((
                 KEYWORD_IN KEYWORD_CONNECTION
                 connection1=tokenIdentifier {
-                	$stmt.setConnection($connection1.identifier);
+                	$stmt.addConnection($connection1.identifier);
                 }
-                )
+                )|( 
+                KEYWORD_REPLICATED KEYWORD_IN KEYWORD_CONNECTION 
+                connectionR1=tokenIdentifier {
+                	$stmt.addConnection($connectionR1.identifier);
+                }
+                ( COMMA 
+                 connectionR2=tokenIdentifier {
+                	$stmt.addConnection($connectionR2.identifier);
+                }
+                )*
+                ))
                 |
                 (
                 KEYWORD_PARTITIONED KEYWORD_BY 
@@ -307,7 +318,7 @@ createTableStatement returns [CreateTableStmt stmt]
                 }
                 KEYWORD_IN KEYWORD_CONNECTION
                 c1=tokenIdentifier {
-                	$stmt.addConnection($c1.identifier);
+                	$stmt.addPConnection($c1.identifier);
                 }
                 (
                 COMMA
@@ -317,7 +328,7 @@ createTableStatement returns [CreateTableStmt stmt]
                 }
                 KEYWORD_IN KEYWORD_CONNECTION
                 c2=tokenIdentifier {
-                	$stmt.addConnection($c2.identifier);
+                	$stmt.addPConnection($c2.identifier);
                 }
                 )*
                 RPAREN
@@ -325,6 +336,7 @@ createTableStatement returns [CreateTableStmt stmt]
                 
         )
         ;
+
 
 dropTableStatement returns [DropTableStmt stmt]
         @init{
@@ -1155,6 +1167,7 @@ KEYWORD_DISTINCT: D I S T I N C T;
 
 KEYWORD_CONNECTION: C O N N E C T I O N;
 KEYWORD_PARTITIONED: P A R T I O N E D;			 
+KEYWORD_REPLICATED: R E P L I C A T E D;	
 KEYWORD_SCHEMA: S C H E M A;
 KEYWORD_TABLE: T A B L E;
 KEYWORD_FUNCTION: F U N C T I O N;	

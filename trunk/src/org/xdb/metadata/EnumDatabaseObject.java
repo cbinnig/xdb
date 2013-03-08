@@ -6,5 +6,6 @@ public enum EnumDatabaseObject {
 	SCHEMA,
 	TABLE,
 	FUNCTION,
-	PARTITION
+	PARTITION,
+	TABLETOCONNECTION
 }

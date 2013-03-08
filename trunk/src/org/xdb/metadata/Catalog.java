@@ -3,7 +3,9 @@ package org.xdb.metadata;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,10 +22,12 @@ public class Catalog {
 	private static HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
 	private static HashMap<String, Connection> connectionsByName = new HashMap<String, Connection>();
 
-	
 	private static HashMap<Long, Partition> partitions = new HashMap<Long, Partition>();
 	private static HashMap<Long, Partition> partitionsByName = new HashMap<Long, Partition>();
-	
+
+	private static HashMap<Long, List<TableToConnection>> tableToConnByTableOid = new HashMap<Long, List<TableToConnection>>();
+	private static HashMap<Long, List<TableToConnection>> tableToConnByConnOid = new HashMap<Long, List<TableToConnection>>();
+
 	private static HashMap<Long, Schema> schemas = new HashMap<Long, Schema>();
 	private static HashMap<String, Schema> schemasByName = new HashMap<String, Schema>();
 
@@ -32,33 +36,37 @@ public class Catalog {
 
 	private static HashMap<Long, Function> functions = new HashMap<Long, Function>();
 	private static HashMap<String, Function> functionsByName = new HashMap<String, Function>();
-	
+
 	private static Logger log = XDBLog.getLogger(Catalog.class.getName());
-	
+
 	public static synchronized Error delete() {
 		try {
 			Class.forName(Config.METADATA_DRIVER_CLASS);
-			Catalog.conn = DriverManager.getConnection(
-					Config.METADATA_DB_URL, Config.METADATA_USER,
-					Config.METADATA_PASSWORD);
+			Catalog.conn = DriverManager.getConnection(Config.METADATA_DB_URL,
+					Config.METADATA_USER, Config.METADATA_PASSWORD);
 
 			Error lastError = Error.NO_ERROR;
-	
+
+			lastError = Catalog.executeUpdate(TableToConnection.sqlDeleteAll());
+			if (lastError != Error.NO_ERROR) {
+				return lastError;
+			}
+
 			lastError = Catalog.executeUpdate(Attribute.sqlDeleteAll());
 			if (lastError != Error.NO_ERROR) {
 				return lastError;
 			}
-			
+
 			lastError = Catalog.executeUpdate(Partition.sqlDeleteAll());
 			if (lastError != Error.NO_ERROR) {
 				return lastError;
 			}
-			
+
 			lastError = Catalog.executeUpdate(Table.sqlDeleteAll());
 			if (lastError != Error.NO_ERROR) {
 				return lastError;
 			}
-		
+
 			lastError = Catalog.executeUpdate(Schema.sqlDeleteAll());
 			if (lastError != Error.NO_ERROR) {
 				return lastError;
@@ -68,7 +76,7 @@ public class Catalog {
 			if (lastError != Error.NO_ERROR) {
 				return lastError;
 			}
-			
+
 			lastError = Catalog.executeUpdate(Function.sqlDeleteAll());
 			if (lastError != Error.NO_ERROR) {
 				return lastError;
@@ -76,7 +84,7 @@ public class Catalog {
 
 			Catalog.conn.close();
 			Catalog.unload();
-			
+
 		} catch (Exception e) {
 			return createCatalogNotAvailableErr(e);
 		}
@@ -89,16 +97,15 @@ public class Catalog {
 
 		try {
 			Class.forName(Config.METADATA_DRIVER_CLASS);
-			Catalog.conn = DriverManager.getConnection(
-					Config.METADATA_DB_URL, Config.METADATA_USER,
-					Config.METADATA_PASSWORD);
+			Catalog.conn = DriverManager.getConnection(Config.METADATA_DB_URL,
+					Config.METADATA_USER, Config.METADATA_PASSWORD);
+			Catalog.initConnectionToTable();
 			Catalog.initPartitions();
 			Catalog.initConnections();
 			Catalog.initSchemas();
 			Catalog.initTables();
 			Catalog.initAttributes();
 			Catalog.initFunctions();
-		
 
 			lastError = Catalog.checkCatalog();
 			if (lastError != Error.NO_ERROR) {
@@ -122,13 +129,15 @@ public class Catalog {
 		Catalog.functionsByName.clear();
 		Catalog.partitions.clear();
 		Catalog.partitionsByName.clear();
+		Catalog.tableToConnByConnOid.clear();
+		Catalog.tableToConnByTableOid.clear();
 
 		try {
 			Catalog.conn.close();
 		} catch (Exception e) {
 			return createCatalogNotAvailableErr(e);
 		}
-		
+
 		return Error.NO_ERROR;
 	}
 
@@ -169,15 +178,14 @@ public class Catalog {
 	public static synchronized Error createTableContainsDupAttErr(
 			String tableName, String attName) {
 		String[] args = { tableName, attName };
-		Error lastError = new Error(
-				EnumError.CATALOG_TABLE_DUP_ATTS, args);
+		Error lastError = new Error(EnumError.CATALOG_TABLE_DUP_ATTS, args);
 		return lastError;
 	}
 
 	private static synchronized Error checkCatalog() {
 		if (Catalog.getSchema(Config.COMPILE_DEFAULT_SCHEMA) == null) {
-			return Catalog.createObjectNotExistsErr(Config.COMPILE_DEFAULT_SCHEMA,
-					EnumDatabaseObject.SCHEMA);
+			return Catalog.createObjectNotExistsErr(
+					Config.COMPILE_DEFAULT_SCHEMA, EnumDatabaseObject.SCHEMA);
 		}
 		return Error.NO_ERROR;
 	}
@@ -192,6 +200,7 @@ public class Catalog {
 		}
 		return Error.NO_ERROR;
 	}
+
 	// to deal with partitions
 	private static synchronized void initPartitions() throws Exception {
 		Statement stmt = null;
@@ -201,7 +210,7 @@ public class Catalog {
 		if (rs.next()) {
 			Partition.LAST_OID(rs.getLong(1));
 		}
-		
+
 		stmt = Catalog.conn.createStatement();
 		rs = stmt.executeQuery(Partition.sqlSelectAll());
 		while (rs.next()) {
@@ -213,13 +222,15 @@ public class Catalog {
 			long tableOid = rs.getLong(5);
 			String partition_name = rs.getString(6);
 			long connection_oid = rs.getLong(7);
-			Partition part = new Partition(oid, source_name, source_schema, source_partition_name, tableOid, partition_name,connection_oid);
+			Partition part = new Partition(oid, source_name, source_schema,
+					source_partition_name, tableOid, partition_name,
+					connection_oid);
 			Catalog.addPartition(part);
-			
+
 		}
-		
+
 	}
-	
+
 	private static synchronized void initAttributes() throws Exception {
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -229,7 +240,6 @@ public class Catalog {
 		if (rs.next()) {
 			Attribute.LAST_OID(rs.getLong(1));
 		}
-
 
 		stmt = Catalog.conn.createStatement();
 		rs = stmt.executeQuery(Attribute.sqlSelectAll());
@@ -244,6 +254,21 @@ public class Catalog {
 
 			// add attribute to table
 			Catalog.tables.get(tableOid).addAttribute(att);
+		}
+	}
+
+	private static synchronized void initConnectionToTable() throws Exception {
+		Statement stmt = null;
+		ResultSet rs = null;
+
+		stmt = Catalog.conn.createStatement();
+		rs = stmt.executeQuery(TableToConnection.sqlSelectAll());
+		while (rs.next()) {
+			long t_oid = rs.getLong(1);
+			long c_oid = rs.getLong(2);
+			TableToConnection tableToConnec = new TableToConnection(t_oid,
+					c_oid);
+			Catalog.addTableToConnection(tableToConnec);
 		}
 	}
 
@@ -310,15 +335,13 @@ public class Catalog {
 			String sourceName = rs.getString(3);
 			String sourceSchema = rs.getString(4);
 			long schemaOid = rs.getLong(5);
-			long connectionOid = rs.getLong(6);
 
 			Table table = new Table(oid, name, sourceName, sourceSchema,
-					schemaOid, connectionOid);
+					schemaOid);
 			Catalog.addTable(table);
 		}
 	}
-	
-	
+
 	private static synchronized void initFunctions() throws Exception {
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -337,8 +360,9 @@ public class Catalog {
 			long schemaOid = rs.getLong(3);
 			int language = rs.getInt(4);
 			String source = rs.getString(5);
-			
-			Function function = new Function(oid, name, schemaOid, language, source);
+
+			Function function = new Function(oid, name, schemaOid, language,
+					source);
 			Catalog.addFunction(function);
 		}
 	}
@@ -352,9 +376,10 @@ public class Catalog {
 		if (lastError == Error.NO_ERROR) {
 			Catalog.addAttribute(att);
 		}
-		
+
 		return lastError;
 	}
+
 	public static synchronized Error dropAttribute(Attribute att) {
 		Error lastError = Catalog.executeUpdate(att.sqlDelete());
 		if (lastError == Error.NO_ERROR) {
@@ -362,6 +387,7 @@ public class Catalog {
 		}
 		return lastError;
 	}
+
 	public static synchronized Error createPartition(Partition part) {
 		if (Catalog.partitions.containsKey(part.getOid())) {
 			return createObjectAlreadyExistsErr(part);
@@ -371,7 +397,7 @@ public class Catalog {
 		if (lastError == Error.NO_ERROR) {
 			Catalog.addPartition(part);
 		}
-		
+
 		return lastError;
 	}
 
@@ -395,10 +421,36 @@ public class Catalog {
 		return lastError;
 	}
 
-	public static synchronized Error dropConncection(Connection conn) {
+	public static synchronized Error dropConnection(Connection conn) {
 		Error lastError = Catalog.executeUpdate(conn.sqlDelete());
 		if (lastError == Error.NO_ERROR) {
 			Catalog.removeConnection(conn);
+		}
+		return lastError;
+	}
+
+	public static synchronized Error createTableToConnection(
+			TableToConnection tableToConn) {
+		if (Catalog.tableToConnByConnOid
+				.containsKey(tableToConn.getTable_oid())
+				&& Catalog.tableToConnByConnOid.containsKey(tableToConn
+						.getConnection_oid())) {
+			return createObjectAlreadyExistsErr(tableToConn);
+		}
+		// Catalog.addTableToConnection(tableToConn);
+
+		Error lastError = Catalog.executeUpdate(tableToConn.sqlInsert());
+		if (lastError == Error.NO_ERROR) {
+			Catalog.addTableToConnection(tableToConn);
+		}
+		return lastError;
+	}
+
+	public static synchronized Error dropTableToConnection(
+			TableToConnection conn) {
+		Error lastError = Catalog.executeUpdate(conn.sqlDelete());
+		if (lastError == Error.NO_ERROR) {
+			Catalog.removeTableToConnection(conn);
 		}
 		return lastError;
 	}
@@ -436,11 +488,27 @@ public class Catalog {
 	}
 
 	public static synchronized Error dropTable(Table table) {
-		// drop attributes
-		
 
-		
+		// drop Table to Connections entry
 		Error lastError = Error.NO_ERROR;
+		ArrayList<TableToConnection> taToCosTmp = (ArrayList<TableToConnection>) Catalog.tableToConnByTableOid
+				.get(table.getOid());
+	
+		// check if replicated table
+		if (taToCosTmp != null) {
+			@SuppressWarnings("unchecked")
+			ArrayList<TableToConnection> taToCos = (ArrayList<TableToConnection>) taToCosTmp
+					.clone();
+			TableToConnection tableToConnection;
+			for (int i = 0; i < taToCos.size(); i++) {
+				tableToConnection = taToCos.get(i);
+				lastError = Catalog.dropTableToConnection(tableToConnection);
+				if (lastError != Error.NO_ERROR)
+					return lastError;
+			}
+		}
+
+		// drop attributes
 		for (Attribute att : table.getAttributes()) {
 			lastError = Catalog.dropAttribute(att);
 			if (lastError != Error.NO_ERROR)
@@ -449,14 +517,14 @@ public class Catalog {
 			Catalog.removeAttribute(att);
 		}
 
-		//drop partitions
-		for(Partition part : table.getPartitions()) {
+		// drop partitions
+		for (Partition part : table.getPartitions()) {
 			lastError = Catalog.dropPartition(part);
 			if (lastError != Error.NO_ERROR)
 				return lastError;
 			Catalog.removePartition(part);
 		}
-		
+
 		// drop table
 		lastError = Catalog.executeUpdate(table.sqlDelete());
 		if (lastError == Error.NO_ERROR) {
@@ -464,7 +532,7 @@ public class Catalog {
 		}
 		return lastError;
 	}
-	
+
 	public static synchronized Error createFunction(Function function) {
 		if (Catalog.functions.containsKey(function.getOid())) {
 			return createObjectAlreadyExistsErr(function);
@@ -492,7 +560,7 @@ public class Catalog {
 	public static synchronized void removeAttribute(Attribute att) {
 		Catalog.attributes.remove(att.getOid());
 	}
-	
+
 	public static synchronized void addPartition(Partition part) {
 		Catalog.partitions.put(part.getOid(), part);
 	}
@@ -501,6 +569,51 @@ public class Catalog {
 		Catalog.partitions.remove(part.getOid());
 	}
 
+	public static synchronized void addTableToConnection(
+			TableToConnection taToCo) {
+		List<TableToConnection> values1 = Catalog.tableToConnByConnOid
+				.get(taToCo.getConnection_oid());
+		if (values1 == null) {
+			values1 = new ArrayList<TableToConnection>();
+		}
+		values1.add(taToCo);
+		Catalog.tableToConnByConnOid.put(taToCo.getConnection_oid(), values1);
+
+		List<TableToConnection> values2 = Catalog.tableToConnByTableOid
+				.get(taToCo.getTable_oid());
+		if (values2 == null) {
+			values2 = new ArrayList<TableToConnection>();
+		}
+		values2.add(taToCo);
+		Catalog.tableToConnByTableOid.put(taToCo.getTable_oid(), values2);
+	}
+
+	public static synchronized void removeTableToConnection(
+			TableToConnection taToCo) {
+		List<TableToConnection> values1 = Catalog.tableToConnByConnOid
+				.get(taToCo.getConnection_oid());
+		values1.remove(taToCo);
+		if (values1 != null) {
+			if (values1.size() == 0) {
+				Catalog.tableToConnByConnOid.remove(taToCo.getConnection_oid());
+			} else {
+				Catalog.tableToConnByConnOid.put(taToCo.getConnection_oid(),
+						values1);
+			}
+		}
+		List<TableToConnection> values2 = Catalog.tableToConnByTableOid
+				.get(taToCo.getTable_oid());
+		if (values2 != null) {
+			values2.remove(taToCo);
+			if (values1.size() == 0) {
+				Catalog.tableToConnByTableOid.remove(taToCo.getTable_oid());
+			} else {
+				Catalog.tableToConnByTableOid.put(taToCo.getTable_oid(),
+						values2);
+			}
+		}
+
+	}
 
 	public static synchronized void addConnection(Connection conn) {
 		Catalog.connections.put(conn.getOid(), conn);
@@ -531,7 +644,7 @@ public class Catalog {
 		Catalog.tables.remove(table.getOid());
 		Catalog.tablesByName.remove(table.hashKey());
 	}
-	
+
 	public static synchronized void addFunction(Function function) {
 		Catalog.functions.put(function.getOid(), function);
 		Catalog.functionsByName.put(function.hashKey(), function);
@@ -549,6 +662,7 @@ public class Catalog {
 	public static synchronized Partition getPartition(long oid) {
 		return Catalog.partitions.get(oid);
 	}
+
 	public static synchronized Connection getConnection(long oid) {
 		return Catalog.connections.get(oid);
 	}
@@ -572,12 +686,26 @@ public class Catalog {
 	public static synchronized Table getTable(String key) {
 		return Catalog.tablesByName.get(key);
 	}
-	
+
 	public static synchronized Function getFunction(long oid) {
 		return Catalog.functions.get(oid);
 	}
 
 	public static synchronized Function getFunction(String key) {
 		return Catalog.functionsByName.get(key);
+	}
+
+	// needed Interface operations
+	public static List<Connection> getConnectionsForTable(String tablename) {
+		Table table = Catalog.tablesByName.get(tablename);
+
+		List<TableToConnection> taToCo = tableToConnByTableOid.get(table
+				.getOid());
+
+		List<Connection> connections = new ArrayList<Connection>();
+		for (TableToConnection ttc : taToCo) {
+			connections.add(Catalog.connections.get(ttc.getConnection_oid()));
+		}
+		return connections;
 	}
 }

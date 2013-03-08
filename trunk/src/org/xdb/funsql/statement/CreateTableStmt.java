@@ -17,6 +17,7 @@ import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Partition;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
+import org.xdb.metadata.TableToConnection;
 
 public class CreateTableStmt extends AbstractServerStmt {
 	private TokenTable tTable;
@@ -32,8 +33,9 @@ public class CreateTableStmt extends AbstractServerStmt {
 	private Vector<TokenAttribute> tpartitionAttributes = new Vector<TokenAttribute>();
 	private Vector<TokenTable> tpartitionTables = new Vector<TokenTable>();
 	private Vector<TokenIdentifier> tpartitionConnections = new Vector<TokenIdentifier>();
-
-	private Connection connection = null;
+	private Vector<TokenIdentifier> tConnections = new Vector<TokenIdentifier>();
+	private Vector<Connection> connections = new Vector<Connection>();
+	
 	private Schema schema = null;
 	private Table table = null;
 	private HashMap<String, Attribute> attributes = new HashMap<String, Attribute>();
@@ -45,11 +47,10 @@ public class CreateTableStmt extends AbstractServerStmt {
 	}
 	
 	public CreateTableStmt(String table, String sourceSchema,
-			String sourceTable, String connection) {
+			String sourceTable) {
 		this();
 		this.tTable = new TokenTable(table);
 		this.tSourceTable = new TokenTable(sourceTable);
-		this.tConnection = new TokenIdentifier(connection);
 	}
 
 	//getters and setters
@@ -66,7 +67,7 @@ public class CreateTableStmt extends AbstractServerStmt {
 		this.tpartitionAttributes.add(new TokenAttribute(column));
 	}
 	
-	public void addConnection(TokenIdentifier c2){
+	public void addPConnection(TokenIdentifier c2){
 		this.tpartitionConnections.add(c2);
 	}
 	public void addAttribute(String attribute) {
@@ -75,6 +76,14 @@ public class CreateTableStmt extends AbstractServerStmt {
 	
 	public void addAttribute(TokenAttribute attribute) {
 		this.tAttributes.add(attribute);
+	}
+	
+	public void addConnection(TokenIdentifier ti){
+		this.tConnections.add(ti);
+	}
+	
+	public void addConnection(String connec){
+		this.addConnection(new TokenIdentifier(connec));
 	}
 
 	public void addType(TokenDataType type) {
@@ -117,23 +126,27 @@ public class CreateTableStmt extends AbstractServerStmt {
 		this.tSourceTable = tSourceTable;
 	}
 
-	public void setConnection(TokenIdentifier tConnection) {
-		this.tConnection = tConnection;
-	}
 
 	@Override
 	public Error compile() {
 		//check if connection exists
 		if(this.partitionMethod!=null) this.partioned = true;
 		//quick hack 
-		if (this.tConnection!=null) {
-		String connectionKey = this.tConnection.hashKey();
-		this.connection = Catalog.getConnection(connectionKey);
-		if (this.connection == null) {
-			return Catalog.createObjectNotExistsErr(this.tConnection.getName(),
-					EnumDatabaseObject.CONNECTION);
+		//not partioned build up Table To Connection
+		if(! this.partioned){
+			String connectionKey;
+			for (TokenIdentifier cti : this.tConnections){
+				connectionKey = cti.hashKey();
+				Connection connection = Catalog.getConnection(connectionKey);
+				this.connections.add(connection);
+				if (connection == null) {
+					return Catalog.createObjectNotExistsErr(this.tConnection.getName(),
+							EnumDatabaseObject.CONNECTION);
+				}
+				
+			}
 		}
-		}
+
 		//check if schema exists
 		String schemaKey = this.tTable.getSchema().hashKey();
 		this.schema = Catalog.getSchema(schemaKey);
@@ -190,7 +203,10 @@ public class CreateTableStmt extends AbstractServerStmt {
 			this.table = new Table(this.tTable.getName().toString(),
 					this.tSourceTable.getName().toString(), 
 					this.tSourceTable.getSchema().getName().toString(),
-					this.schema.getOid(), this.connection.getOid());
+					this.schema.getOid());
+			
+			// add connections to Table
+			this.table.addConnections(this.connections);
 			lastError = this.table.checkObject();
 			if(lastError!=Error.NO_ERROR)
 				return lastError;
@@ -239,9 +255,18 @@ public class CreateTableStmt extends AbstractServerStmt {
 			if(lastError!=Error.NO_ERROR)
 				return lastError;
 		}
-		
+		//add partition
 		for(Partition partition: this.partitions.values()){
 			lastError = Catalog.createPartition(partition);
+			if(lastError!=Error.NO_ERROR)
+				return lastError;
+		}
+		
+		//add Table To Connection
+		TableToConnection taToCo = null;
+		for(Connection connection: this.connections){
+			taToCo = new TableToConnection(table.getOid(), connection.getOid());
+			lastError = Catalog.createTableToConnection(taToCo);
 			if(lastError!=Error.NO_ERROR)
 				return lastError;
 		}

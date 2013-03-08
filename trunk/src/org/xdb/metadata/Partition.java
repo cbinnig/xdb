@@ -18,7 +18,7 @@ import org.xdb.funsql.compile.tokens.AbstractToken;
  *
  */
 
-//TODO enhance with connection
+
 public class Partition extends AbstractDatabaseObject {
 
 	private static final long serialVersionUID = 4916057015536997054L;
