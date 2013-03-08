@@ -316,20 +316,34 @@ createTableStatement returns [CreateTableStmt stmt]
                 {
                 	$stmt.addPartition($p1.text);
                 }
-                KEYWORD_IN KEYWORD_CONNECTION
+                ( (KEYWORD_IN KEYWORD_CONNECTION
                 c1=tokenIdentifier {
-                	$stmt.addPConnection($c1.identifier);
+                	$stmt.addPConnection($p1.text,$c1.identifier);
+                })|
+                (KEYWORD_REPLICATED KEYWORD_IN KEYWORD_CONNECTION
+                 c2=tokenIdentifier {
+                	$stmt.addPConnection($p1.text,$c2.identifier);
                 }
+                (COMMA  c3=tokenIdentifier {
+                	$stmt.addPConnection($p1.text,$c3.identifier);
+                })?))
                 (
                 COMMA
                 p2=identifierText
                 {
                 	$stmt.addPartition($p2.text);
                 }
-                KEYWORD_IN KEYWORD_CONNECTION
+               ( (KEYWORD_IN KEYWORD_CONNECTION
                 c2=tokenIdentifier {
-                	$stmt.addPConnection($c2.identifier);
+                	$stmt.addPConnection($p2.text,$c2.identifier);
+                })|
+                (KEYWORD_REPLICATED KEYWORD_IN KEYWORD_CONNECTION
+                 c2=tokenIdentifier {
+                	$stmt.addPConnection($p2.text,$c2.identifier);
                 }
+                (COMMA  c3=tokenIdentifier {
+                	$stmt.addPConnection($p2.text,$c3.identifier);
+                })?))
                 )*
                 RPAREN
                 ))

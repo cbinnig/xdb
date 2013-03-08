@@ -1,5 +1,8 @@
 package org.xdb.metadata;
 
+import java.util.Collection;
+import java.util.HashMap;
+
 import org.xdb.funsql.compile.tokens.AbstractToken;
 
 	/*
@@ -25,7 +28,7 @@ public class Partition extends AbstractDatabaseObject {
 
 	private static final String TABLE_NAME = AbstractToken.toSqlIdentifier("PARTITION");
 	
-	private static final String[] ATTRIBUTES = {"OID", "TABLE_OID", "SOURCE_NAME", "SOURCE_SCHEMA", "SOURCE_PARTITION_NAME","PARTITION_NAME" , "CONNECTION_OID"};
+	private static final String[] ATTRIBUTES = {"OID", "TABLE_OID", "SOURCE_NAME", "SOURCE_SCHEMA", "SOURCE_PARTITION_NAME","PARTITION_NAME"};
 	private static final String ALL_ATTRIBUTES = AbstractToken.toSqlIdentifierList(ATTRIBUTES);
 	private static long LAST_OID = 0;
 	private static long LAST_TEMP_OID = -1l;
@@ -34,8 +37,9 @@ public class Partition extends AbstractDatabaseObject {
 	private String source_schema;
 	private String source_partition_name;
 	private long table_oid;
-	private long connection_oid;
-
+	
+	private HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
+	
 	private static Partition prototype = new Partition();
 
 	private Partition(){
@@ -44,19 +48,23 @@ public class Partition extends AbstractDatabaseObject {
 	}
 	
 	public Partition(Long oid, String source_name, String source_schema,
-			String source_partition_name, long table_oid, String partition_name, long connection_oid) {
+			String source_partition_name, long table_oid, String partition_name) {
 		super(oid, partition_name);
 
 		this.source_name = source_name;
 		this.source_schema = source_schema;
 		this.source_partition_name = source_partition_name;
 		this.table_oid = table_oid;
-		this.connection_oid = connection_oid;
+		
+	
 	}
+
+	
 	public Partition( String source_name, String source_schema,
-			String source_partition_name, long table_oid, String partition_name, long connection_oid){
-		this(++LAST_OID, source_name, source_schema,source_partition_name, table_oid, partition_name, connection_oid);
+			String source_partition_name, long table_oid, String partition_name){
+		this(++LAST_OID, source_name, source_schema,source_partition_name, table_oid, partition_name);
 	}
+	
 	//Tmp constructor
 	public Partition(String name) {
 		super(LAST_TEMP_OID--, name);
@@ -91,12 +99,26 @@ public class Partition extends AbstractDatabaseObject {
 		insertSql.append(AbstractToken.toSqlLiteral(this.source_partition_name));
 		insertSql.append(AbstractToken.COMMA);
 		insertSql.append(AbstractToken.toSqlLiteral(this.name));
-		insertSql.append(AbstractToken.COMMA);
-		insertSql.append(this.connection_oid);
 		insertSql.append(AbstractToken.RBRACE);
 		return insertSql.toString();
 	}
 
+	
+	
+	private void addConnection(Long connectionOid, Connection connection) {
+		this.connections.put(connectionOid, connection);
+	}
+	
+	public void addConnection(Connection connection){
+		this.addConnection(connection.getOid(), connection);
+	}
+	
+	public void addConnections(Collection<Connection> connections){
+		for (Connection connection : connections) {
+			this.addConnection(connection);
+		}
+	}
+	
 	//getter and setters
 	
 	
@@ -105,13 +127,16 @@ public class Partition extends AbstractDatabaseObject {
 		return TABLE_NAME;
 	}
 
-	public long getConnection_oid() {
-		return connection_oid;
+
+	public Long getConnectionOid() {
+		// not replicated
+
+		for(Connection connec : this.connections.values()){
+			return connec.getOid();
+		}
+		return (long) -1;
 	}
 
-	public void setConnection_oid(long connection_oid) {
-		this.connection_oid = connection_oid;
-	}
 
 	public String getSource_name() {
 		return source_name;
