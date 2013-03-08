@@ -26,6 +26,14 @@ public class QueryTrackerServer extends AbstractServer {
 		tracker = new QueryTrackerNode();
 	}
 
+	public QueryTrackerNode getNode(){
+		return this.tracker;
+	}
+	
+	public QueryTrackerNodeDesc getDescription() {
+		return this.tracker.getDescription();
+	}
+
 
 	private class Handler extends AbstractHandler {
 		// constructor
@@ -73,10 +81,6 @@ public class QueryTrackerServer extends AbstractServer {
 		handler.start();
 	}
 	
-	public QueryTrackerNodeDesc getDescription() {
-		return this.tracker.getDescription();
-	}
-
 	/**
 	 * @param args
 	 * @throws Exception 

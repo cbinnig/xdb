@@ -2,20 +2,21 @@ package org.xdb.test;
 
 import junit.framework.Assert;
 
+import org.xdb.Config;
 import org.xdb.server.CompileServer;
 import org.xdb.server.ComputeServer;
 import org.xdb.server.MasterTrackerServer;
 import org.xdb.server.QueryTrackerServer;
 
 public class DistributedQueryTrackerTestCase extends TestCase {
-	private MasterTrackerServer mTrackerServer;
-	private ComputeServer computeServer1;
-	private ComputeServer computeServer2;
-	private QueryTrackerServer qServer;
+	protected MasterTrackerServer mTrackerServer;
+	protected ComputeServer[] computeServers;
+	protected QueryTrackerServer qServer;
 	
 	
-	public DistributedQueryTrackerTestCase() {
+	public DistributedQueryTrackerTestCase(int numberOfComputeServer) {
 		super();
+		this.computeServers = new ComputeServer[numberOfComputeServer];
 	}
 	
 	@Override
@@ -31,14 +32,12 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 			qServer.startServer();
 			assertNoError(qServer.getError());
 			
-			computeServer1 = new ComputeServer(55620, 1);
-			computeServer1.startServer();
-			assertNoError(computeServer1.getError());
-			
-			computeServer2 = new ComputeServer(55621, 1);
-			computeServer2.startServer();
-			assertNoError(computeServer2.getError());
-			
+			for(int i=0; i<this.computeServers.length; ++i){
+				computeServers[i] = new ComputeServer(Config.COMPUTE_PORT+i, 1);
+				computeServers[i].startServer();
+				assertNoError(computeServers[i].getError());
+			}
+
 		} catch (Exception e) {
 			Assert.assertTrue(e.toString(), false);
 		}
@@ -48,7 +47,8 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 	public void tearDown(){
 		mTrackerServer.stopServer();
 		qServer.stopServer();
-		computeServer1.stopServer();
-		computeServer2.stopServer();
+		for(int i=0; i<this.computeServers.length; ++i){
+			this.computeServers[i].stopServer();
+		}
 	}
 }
