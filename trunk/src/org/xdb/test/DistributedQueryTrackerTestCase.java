@@ -12,15 +12,21 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 	protected MasterTrackerServer mTrackerServer;
 	protected ComputeServer[] computeServers;
 	protected QueryTrackerServer qServer;
-	
+	private int numberOfSlots;
 	
 	public DistributedQueryTrackerTestCase(int numberOfComputeServer) {
+		this(numberOfComputeServer, 1);
+	}
+	
+	public DistributedQueryTrackerTestCase(int numberOfComputeServer, int numberOfSlots) {
 		super();
 		this.computeServers = new ComputeServer[numberOfComputeServer];
+		this.numberOfSlots = numberOfSlots;
 	}
 	
 	@Override
 	public void setUp(){
+		
 		assertNoError(CompileServer.deleteCatalog());
 
 		try {
@@ -33,7 +39,7 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 			assertNoError(qServer.getError());
 			
 			for(int i=0; i<this.computeServers.length; ++i){
-				computeServers[i] = new ComputeServer(Config.COMPUTE_PORT+i, 1);
+				computeServers[i] = new ComputeServer(Config.COMPUTE_PORT+i, numberOfSlots);
 				computeServers[i].startServer();
 				assertNoError(computeServers[i].getError());
 			}

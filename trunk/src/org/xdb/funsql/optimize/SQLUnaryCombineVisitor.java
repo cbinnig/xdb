@@ -27,9 +27,7 @@ import org.xdb.utils.Identifier;
  * 
  */
 public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
-	//TODO remove
-
-	
+		
 	private SQLUnary sqlUnaryOp = null;
 	private int parentIdx = 0;
 	private boolean isLastOp = false;

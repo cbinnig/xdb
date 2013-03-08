@@ -191,7 +191,6 @@ public class CreateTableStmt extends AbstractServerStmt {
 			//check table Partition
 			Partition newPart =null;
 			TokenTable  sourceTable = null;
-			String connectionKey;
 			Connection tempConnection;
 			for(int i = 0; i <  this.tpartitionTables.size(); i ++){
 				
