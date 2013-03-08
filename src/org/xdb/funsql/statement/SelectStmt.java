@@ -500,6 +500,8 @@ public class SelectStmt extends AbstractServerStmt {
 
 		// set connection
 		if (!table.isTemp()) {
+	
+			//TODO rebuild to select best connection
 			Connection conn = Catalog.getConnection(table.getConnectionOid());
 			tableOp.setConnection(conn);
 			if (!conn.getStore().equals(EnumStore.XDB)) {
