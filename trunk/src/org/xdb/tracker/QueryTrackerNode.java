@@ -23,7 +23,8 @@ import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
 
 /**
- * Query tracker node which executes multiple query tracker plans
+ * Query tracker node executes and monitors multiple 
+ * query tracker plan
  * 
  * @author cbinnig
  * 
@@ -34,10 +35,10 @@ public class QueryTrackerNode {
 	private final ComputeClient computeClient;
 	private final MasterTrackerClient masterTrackerClient;
 
-	// description of self node
+	// self-description of query tracker
 	private final QueryTrackerNodeDesc description;
 
-	// plans (compile and Execute
+	// query tracker plans 
 	private Map<Identifier, QueryTrackerPlan> qPlans = new HashMap<Identifier, QueryTrackerPlan>();
 	
 	// helper to measure execution time
@@ -58,7 +59,6 @@ public class QueryTrackerNode {
 
 		this.masterTrackerClient = new MasterTrackerClient();
 		final Error err = masterTrackerClient.registerNode(description);
-
 		if (err.isError()) {
 			throw new IllegalArgumentException(err.toString());
 		}
@@ -87,7 +87,7 @@ public class QueryTrackerNode {
 	}
 
 	/**
-	 * Returns URL of query tracker node
+	 * Returns self-description of query tracker
 	 * 
 	 * @return
 	 */
@@ -95,8 +95,10 @@ public class QueryTrackerNode {
 		return this.description;
 	}
 
+	// methods
+
 	/**
-	 * Transforms a CompilePlan to into a QueryTrackerPlan
+	 * Generates query tracker plan from compile plan
 	 * 
 	 * @param plan
 	 * @return
@@ -111,9 +113,7 @@ public class QueryTrackerNode {
 
 		return codeGen.getQueryTrackerPlan();
 	}
-
-	// methods
-
+	
 	/**
 	 * Execute a given compile plan
 	 * 
@@ -123,57 +123,56 @@ public class QueryTrackerNode {
 	public Error executePlan(final CompilePlan cplan) {
 		logger.log(Level.INFO, "Got new compileplan: " + cplan.getPlanId());
 
-		// initialize compile plan after receiving plan 
+		// initialize compile plan after shipping plan 
 		cplan.init();
 
 		// build query tracker plan from compile plan
-		QueryTrackerPlan plan = generateQueryTrackerPlan(cplan);
+		QueryTrackerPlan qplan = generateQueryTrackerPlan(cplan);
 		
-		// tracing
+		// trace query tracker plan
 		if (Config.TRACE_TRACKER_PLAN) {
-			plan.tracePlan(plan.getClass().getCanonicalName()
-					+ "MASTER_TRACKER");
+			qplan.tracePlan(qplan.getClass().getCanonicalName()
+					+ "QUERY_TRACKER");
 		}
 		
-		// measure time of Plan execution
-		this.timeMeasure.start(plan.getPlanId().toString());
-
-		// 0. assign tracker to plan
-		plan.assignTracker(this);
+		// 0. assign query tracker to query tracker plan
+		qplan.assignTracker(this);
 		
-		// 1. deploy plan on compute nodes
-		Error err = plan.deployPlan();
+		// 1. deploy query tracker plan on compute nodes
+		Error err = qplan.deployPlan();
 		if (err.isError()) {
-			plan.cleanPlanOnError();
+			qplan.cleanPlanOnError();
 			return err;
 		}
 
-		// 2. execute plan
-		err = plan.executePlan();
+		// 2. execute query tracker plan
+		this.timeMeasure.start(qplan.getPlanId().toString());
+		err = qplan.executePlan();
+		this.timeMeasure.stop(qplan.getPlanId().toString());
 		if (err.isError()) {
-			plan.cleanPlanOnError();
+			qplan.cleanPlanOnError();
 			return err;
 		}
 
-		// 3. release compute node resources
-		err = masterTrackerClient.noticeFreeSlots(plan.getSlots());
+		// 3. release compute nodes
+		err = masterTrackerClient.noticeFreeSlots(qplan.getSlots());
 		if (err.isError()) {
-			plan.cleanPlanOnError();
+			qplan.cleanPlanOnError();
 			return err;
 		}
 
-		// 4. clean result tables
+		// 4. clean query tracker plan
 		if (Config.COMPUTE_CLEAN_RESULTS) {
-			err = plan.cleanPlan();
+			err = qplan.cleanPlan();
 		} else {
-			err = plan.cleanPlanWithoutRoots();
+			err = qplan.cleanPlanWithoutRoots();
 		}
+		
 		if (err.isError()) {
-			plan.cleanPlanOnError();
+			qplan.cleanPlanOnError();
 			return err;
 		}
-
-		this.timeMeasure.stop(plan.getPlanId().toString());
+		
 		return err;
 	}
 
