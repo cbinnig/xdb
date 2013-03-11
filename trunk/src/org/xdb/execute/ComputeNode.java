@@ -26,13 +26,9 @@ import org.xdb.logging.XDBExecuteTimeMeasurement;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
 
-
 /**
- * Responsible to keep track of operators: 
- * - installs new operators 
- * - executes operators 
- * - closes operators 
- * on compute node
+ * Responsible to keep track of operators: - installs new operators - executes
+ * operators - closes operators on compute node
  * 
  * @author cbinnig
  * 
@@ -51,11 +47,10 @@ public class ComputeNode {
 
 	// Clients for communication
 	private final MasterTrackerClient mTrackerClient;
-	
+
 	// Helpers
 	private final Logger logger;
 	private final XDBExecuteTimeMeasurement timeMeasure;
-	
 
 	// constructors
 	public ComputeNode(final int port, final int slots) throws Exception {
@@ -72,15 +67,16 @@ public class ComputeNode {
 		if (err.isError()) {
 			throw new IllegalArgumentException(err.toString());
 		}
-		
+
 		logger = XDBLog.getLogger(this.getClass().getName());
-		timeMeasure = XDBExecuteTimeMeasurement.getXDBExecuteTimeMeasurement("querytimes");
+		timeMeasure = XDBExecuteTimeMeasurement
+				.getXDBExecuteTimeMeasurement("querytimes");
 	}
 
-
 	/**
-	 * Starts up compute node and drops all temporary
-	 * tables of compute DB by recreating the database
+	 * Starts up compute node and drops all temporary tables of compute DB by
+	 * recreating the database
+	 * 
 	 * @return
 	 */
 	public Error startup() {
@@ -89,11 +85,12 @@ public class ComputeNode {
 		try {
 
 			Class.forName(Config.COMPUTE_DRIVER_CLASS);
-			Connection conn = DriverManager.getConnection(Config.COMPUTE_DB_URL,
-					Config.COMPUTE_DB_USER, Config.COMPUTE_DB_PASSWD);
+			Connection conn = DriverManager.getConnection(
+					Config.COMPUTE_DB_URL, Config.COMPUTE_DB_USER,
+					Config.COMPUTE_DB_PASSWD);
 			Statement stmt = conn.createStatement();
-			stmt.execute("DROP DATABASE IF EXISTS "+Config.COMPUTE_DB_NAME);
-			stmt.execute("CREATE DATABASE "+Config.COMPUTE_DB_NAME);
+			stmt.execute("DROP DATABASE IF EXISTS " + Config.COMPUTE_DB_NAME);
+			stmt.execute("CREATE DATABASE " + Config.COMPUTE_DB_NAME);
 			stmt.close();
 			conn.close();
 
@@ -105,7 +102,7 @@ public class ComputeNode {
 
 		return err;
 	}
-	
+
 	/**
 	 * Installs a new operator and prepares operator for execution
 	 * 
@@ -114,7 +111,7 @@ public class ComputeNode {
 	 */
 	public Error openOperator(final AbstractExecuteOperator op) {
 		Error err = new Error();
-		
+
 		operators.put(op.getOperatorId(), op);
 
 		// open operator
@@ -125,8 +122,8 @@ public class ComputeNode {
 	}
 
 	/**
-	 * Receives signals of input operators which are ready and 
-	 * executes consuming operator if all inputs are ready
+	 * Receives signals of input operators which are ready and executes
+	 * consuming operator if all inputs are ready
 	 * 
 	 * @param signal
 	 * @return
@@ -144,9 +141,8 @@ public class ComputeNode {
 			return err;
 		}
 
-		logger.log(Level.INFO,
-				"Received READY_SIGNAL for operator: " + consumer
-						+ " from source: " + source);
+		logger.log(Level.INFO, "Received READY_SIGNAL for operator: "
+				+ consumer + " from source: " + source);
 
 		// Add signaling source to list of finished sources
 		boolean execute = false;
@@ -167,9 +163,10 @@ public class ComputeNode {
 		}
 		readySignalsLock.unlock();
 
-		// execute operator 
+		// execute operator
 		if (execute) {
-			err = executeOperator(op);
+			OperatorExecutor executor = new OperatorExecutor(op);
+			executor.start();
 		}
 
 		return err;
@@ -202,32 +199,48 @@ public class ComputeNode {
 	 * @param op
 	 * @return
 	 */
-	private Error executeOperator(final AbstractExecuteOperator op) {
-		Error err = new Error();
+	private class OperatorExecutor extends Thread {
+		private AbstractExecuteOperator op;
 
-		// start timer
-		timeMeasure.start(op.getOperatorId().toString());
-		
-		// execute operator
-		err = op.execute();
-		
-		// stop timer
-		timeMeasure.stop(op.getOperatorId().toString());
-		
-		// check for errors 
-		if (err.isError()) {
+		public OperatorExecutor(AbstractExecuteOperator op) {
+			super();
+			this.op = op;
+		}
+
+		private Error executeOperator(final AbstractExecuteOperator op) {
+			Error err = new Error();
+
+			// start timer
+			timeMeasure.start(op.getOperatorId().toString());
+
+			// execute operator
+			err = op.execute();
+
+			// stop timer
+			timeMeasure.stop(op.getOperatorId().toString());
+
+			// check for errors
+			if (err.isError()) {
+				return err;
+			}
+
+			// send READY_SIGNAL to QueryTracker
+			QueryTrackerClient queryTrackerClient = op.getQueryTrackerClient();
+			logger.log(
+					Level.INFO,
+					"Send READY_SIGNAL from operator " + op.getOperatorId()
+							+ " to Query Tracker "
+							+ queryTrackerClient.getUrl());
+			err = queryTrackerClient.operatorReady(op);
+
 			return err;
 		}
-		
-		
-		// send READY_SIGNAL to QueryTracker
-		QueryTrackerClient queryTrackerClient = op.getQueryTrackerClient();
-		logger.log(Level.INFO,
-					"Send READY_SIGNAL from operator " + op.getOperatorId()
-							+ " to Query Tracker "+queryTrackerClient.getUrl());
-		err = queryTrackerClient.operatorReady(op);
-		
-		return err;
+
+		@Override
+		public void run() {
+			this.executeOperator(op);
+
+		}
 	}
 
 	/**
@@ -239,7 +252,7 @@ public class ComputeNode {
 		this.operators.remove(op.getOperatorId());
 		this.receivedReadySignals.remove(op.getOperatorId());
 	}
-	
+
 	/**
 	 * Create MYSQL_ERROR from an exception
 	 * 

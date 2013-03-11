@@ -23,7 +23,7 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 
 	@Test
 	public void testPlan1Op() throws Exception {
-		final QueryTrackerNode qTracker = new QueryTrackerNode();
+		final QueryTrackerNode qTracker = this.qServer.getNode();
 		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);
 
@@ -73,7 +73,7 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 	
 	@Test
 	public void testPlan2Ops() throws Exception {
-		final QueryTrackerNode qTracker = new QueryTrackerNode();
+		final QueryTrackerNode qTracker = this.qServer.getNode();
 		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);
 

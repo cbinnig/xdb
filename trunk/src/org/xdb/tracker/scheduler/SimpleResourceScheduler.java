@@ -29,7 +29,7 @@ public class SimpleResourceScheduler extends AbstractResourceScheduler {
 		final Map<String, MutableInteger> requiredSlots = new HashMap<String, MutableInteger>();
 
 		// request one slot per operator
-		final MutableInteger numSlots = new MutableInteger(plan.getOperators()
+		final MutableInteger numSlots = new MutableInteger(plan.getTrackerOperators()
 				.size());
 
 		// slot can be on any compute node

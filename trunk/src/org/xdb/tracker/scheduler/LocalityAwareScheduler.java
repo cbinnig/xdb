@@ -70,7 +70,7 @@ public class LocalityAwareScheduler extends AbstractResourceScheduler {
 					}
 				}
 			} else {
-				for (TableDesc inTable : this.plan.getOperator(opId)
+				for (TableDesc inTable : this.plan.getTrackerOperator(opId)
 						.getInTableSources()) {
 					String sourceUrl = inTable.getURI().getHost().toString();
 					

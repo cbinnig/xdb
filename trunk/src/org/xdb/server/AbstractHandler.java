@@ -39,7 +39,7 @@ public abstract class AbstractHandler extends Thread {
 			err = handle(out, in);
 			// send response
 			out.writeObject(err);
-		} catch (final IOException e) {
+		} catch (final Exception e) {
 			err = createServerError(e);
 		}
 

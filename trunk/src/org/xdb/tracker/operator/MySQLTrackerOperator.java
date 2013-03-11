@@ -53,7 +53,7 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 										// results
 				OperatorDesc sourceOp = currentDeployment.get(inTableDesc
 						.getOperatorID());
-				String sourceURL = sourceOp.getOperatorNode().getHost();
+				String sourceURL = sourceOp.getComputeSlot().getHost();
 				String sourceTableName = inTableDesc.getTableName();
 		
 				Identifier sourceOperId = sourceOp.getOperatorID();
@@ -109,7 +109,7 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 				//Second check if soure Table has the same URL as the current Node
 				if(sourceAddress.isAnyLocalAddress()|| sourceAddress.isLoopbackAddress()){
 					deployTableName = sourceDB + "." + sourceTableName;
-				}else if (sourceURL.equals(operDesc.getOperatorNode())){
+				}else if (sourceURL.equals(operDesc.getComputeSlot())){
 					deployTableName = sourceDB + "." + sourceTableName;
 				}
 				/*if(sourceURL.equals("127.0.0.1")){

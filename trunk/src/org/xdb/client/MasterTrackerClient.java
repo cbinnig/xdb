@@ -39,7 +39,7 @@ public class MasterTrackerClient extends AbstractClient{
 		final RegisterSignal<ComputeNodeDesc> signal = new RegisterSignal<ComputeNodeDesc>(desc);
 
 		try {
-			server = new Socket(url, port);
+			Socket server = new Socket(url, port);
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 
@@ -71,7 +71,7 @@ public class MasterTrackerClient extends AbstractClient{
 		final RegisterSignal<QueryTrackerNodeDesc> signal = new RegisterSignal<QueryTrackerNodeDesc>(desc);
 
 		try {
-			server = new Socket(url, port);
+			Socket server = new Socket(url, port);
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 
@@ -102,7 +102,7 @@ public class MasterTrackerClient extends AbstractClient{
 		Error err = new Error();
 
 		try {
-			server = new Socket(url, port);
+			Socket server = new Socket(url, port);
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 
@@ -135,7 +135,7 @@ public class MasterTrackerClient extends AbstractClient{
 		Error err = new Error();
 		Map<ComputeNodeSlot, MutableInteger> computeNodes = null;
 		try {
-			server = new Socket(url, port);
+			Socket server = new Socket(url, port);
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 			final ObjectInputStream in = new ObjectInputStream(server.getInputStream());
@@ -162,7 +162,7 @@ public class MasterTrackerClient extends AbstractClient{
 	public Error noticeFreeSlots(final Map<ComputeNodeSlot, MutableInteger> slots) {
 		Error err = new Error();
 		try {
-			server = new Socket(url, port);
+			Socket server = new Socket(url, port);
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 			final ObjectInputStream in = new ObjectInputStream(server.getInputStream());

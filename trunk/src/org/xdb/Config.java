@@ -81,6 +81,7 @@ public class Config implements Serializable {
 	// Logging
 	public static String LOG_FILE = "./log/xdb.log";
 	public static Level LOG_LEVEL = Level.SEVERE;
+	public static boolean MEASURE_QUERY_EXECUTION_TIME = false;
 
 	// Tracing
 	public static String DOT_EXE = "dot";
@@ -91,9 +92,6 @@ public class Config implements Serializable {
 	public static boolean TRACE_CODEGEN_PLAN = false;
 	public static boolean TRACE_TRACKER_PLAN = false;
 	public static boolean TRACE_EXECUTE_PLAN = false;
-
-	// Performance logging
-	public static boolean MEASURE_QUERY_EXECUTION_TIME = false;
 
 	// Load xdb.conf
 	static {
