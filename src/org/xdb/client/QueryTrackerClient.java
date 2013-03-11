@@ -35,7 +35,7 @@ public class QueryTrackerClient extends AbstractClient{
 		Error err = new Error();
 
 		try {
-			server = new Socket(url, port);
+			Socket server = new Socket(url, port);
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 
@@ -66,7 +66,7 @@ public class QueryTrackerClient extends AbstractClient{
 	public Error operatorReady(final AbstractExecuteOperator op) {
 		Error err = new Error();
 		try {
-			server = new Socket(url, port);
+			Socket server = new Socket(url, port);
 			
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());

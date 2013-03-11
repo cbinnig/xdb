@@ -46,7 +46,7 @@ public class ComputeClient extends AbstractClient {
 		Error err = new Error();
 
 		try {
-			server = new Socket(url.getHost(), url.getPort());
+			Socket server = new Socket(url.getHost(), url.getPort());
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 
@@ -82,7 +82,7 @@ public class ComputeClient extends AbstractClient {
 		
 
 		try {
-			server = new Socket(url.getHost(), url.getPort());
+			Socket server = new Socket(url.getHost(), url.getPort());
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 			final ReadySignal signal = new ReadySignal(sourceOpId, destOpId);
@@ -113,7 +113,7 @@ public class ComputeClient extends AbstractClient {
 	 */
 	public Error executeOperator(final Identifier sourceOpId,
 			final OperatorDesc dest) {
-		return this.executeOperator(sourceOpId, dest.getOperatorNode(),
+		return this.executeOperator(sourceOpId, dest.getComputeSlot(),
 				dest.getOperatorID());
 	}
 
@@ -126,7 +126,7 @@ public class ComputeClient extends AbstractClient {
 	 */
 	public Error executeOperator(final OperatorDesc dest) {
 		return this.executeOperator(Config.COMPUTE_NOOP_ID,
-				dest.getOperatorNode(), dest.getOperatorID());
+				dest.getComputeSlot(), dest.getOperatorID());
 	}
 
 	/**
@@ -152,7 +152,7 @@ public class ComputeClient extends AbstractClient {
 		final CloseSignal signal = new CloseSignal(operatorId);
 
 		try {
-			server = new Socket(url.getHost(), url.getPort());
+			Socket server = new Socket(url.getHost(), url.getPort());
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
 
@@ -182,6 +182,6 @@ public class ComputeClient extends AbstractClient {
 	 * @return
 	 */
 	public Error closeOperator(final OperatorDesc dest) {
-		return this.closeOperator(dest.getOperatorNode(), dest.getOperatorID());
+		return this.closeOperator(dest.getComputeSlot(), dest.getOperatorID());
 	}
 }

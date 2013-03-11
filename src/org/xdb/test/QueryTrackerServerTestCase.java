@@ -9,9 +9,9 @@ import org.xdb.server.MasterTrackerServer;
 import org.xdb.server.QueryTrackerServer;
 
 public class QueryTrackerServerTestCase extends TestCase {
-	private MasterTrackerServer mTrackerServer;
-	private ComputeServer computeServer;
-	private QueryTrackerServer qServer;
+	protected MasterTrackerServer mTrackerServer;
+	protected ComputeServer computeServer;
+	protected QueryTrackerServer qServer;
 	
 	
 	public QueryTrackerServerTestCase() {

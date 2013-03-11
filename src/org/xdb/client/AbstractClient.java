@@ -1,6 +1,5 @@
 package org.xdb.client;
 
-import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,9 +13,7 @@ import org.xdb.error.Error;
  * 
  */
 public abstract class AbstractClient {
-	// Server Socket
-	protected Socket server;
-
+	
 	// Port for Socket
 	protected int port;
 

@@ -69,6 +69,10 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	}
 
 	// getters and setters
+	public Error getLastError(){
+		return this.err;
+	}
+	
 	public void setQueryTracker(QueryTrackerNodeDesc queryTracker) {
 		this.queryTracker = queryTracker;
 	}

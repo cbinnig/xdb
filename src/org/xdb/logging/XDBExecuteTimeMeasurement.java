@@ -56,9 +56,11 @@ public class XDBExecuteTimeMeasurement {
 			this.flush();
 		}
 	}
+	
 	private void flush(){
 		p_writer.flush();
 	}
+	
 	public void close(){
 		p_writer.close();
 	}

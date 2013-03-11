@@ -105,12 +105,16 @@ public class QueryTrackerPlan implements Serializable {
 		return planId;
 	}
 
-	public Collection<AbstractTrackerOperator> getOperators() {
+	public Collection<AbstractTrackerOperator> getTrackerOperators() {
 		return operators.values();
 	}
 
-	public AbstractTrackerOperator getOperator(Identifier opId) {
+	public AbstractTrackerOperator getTrackerOperator(Identifier opId) {
 		return operators.get(opId);
+	}
+	
+	public AbstractExecuteOperator getExecuteOperator(Identifier opId) {
+		return this.executeOperatos.get(opId);
 	}
 
 	public HashSet<Identifier> getRoots() {
@@ -128,6 +132,10 @@ public class QueryTrackerPlan implements Serializable {
 	public Error getLastError() {
 		return err;
 	}
+	
+	public void setLastError(Error err){
+		this.err = err;
+	}
 
 	// methods
 
@@ -139,6 +147,8 @@ public class QueryTrackerPlan implements Serializable {
 	 */
 	public void assignTracker(final QueryTrackerNode tracker) {
 		this.tracker = tracker;
+		this.tracker.addPlan(this);
+		
 		this.computeClient = tracker.getComputeClient();
 		this.resourceScheduler = AbstractResourceScheduler
 				.createScheduler(this);
@@ -197,20 +207,57 @@ public class QueryTrackerPlan implements Serializable {
 			operator.setIsRoot(false);
 		}
 	}
+	
+	/**
+	 * Set tracker operator to status executed
+	 * @param trackerOpId
+	 */
+	public void setTrackerOperatorExecuted(Identifier trackerOpId){
+		this.operators.get(trackerOpId).setExecuted(true);
+	}
+	
+	/**
+	 * Check if all root operators are executed
+	 * @return
+	 */
+	public boolean isExecuted(){
+		for(Identifier rootId: this.roots){
+			if(!this.getTrackerOperator(rootId).isExecuted()){
+				return false;
+			}
+		}
+		return true;
+	}
 
+	/**
+	 * Closes all operators in the plan 
+	 * 
+	 */
+	public Error cleanPlan() {
+		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
+				.entrySet()) {
+			final OperatorDesc operDesc = entry.getValue();
+			err = computeClient.closeOperator(operDesc);
+
+			if (err.isError()) {
+				return err;
+			}
+		}
+		return err;
+	}
+	
 	/**
 	 * Closes all operators in the plan that are no root operators (i.e., result
 	 * tables are kept)
 	 * 
-	 * @param currentDeployment
 	 */
-	public Error cleanPlan() {
-		// close operators which are root operators
+	public Error cleanPlanWithoutRoots() {
+		// close operators which are no root operators
 		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
 				.entrySet()) {
-			final AbstractTrackerOperator planOp = operators
+			final AbstractTrackerOperator trackerOp = operators
 					.get(entry.getKey());
-			if (planOp.isRoot()) {
+			if (!trackerOp.isRoot()) {
 				final OperatorDesc operDesc = entry.getValue();
 				err = computeClient.closeOperator(operDesc);
 
@@ -223,7 +270,8 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	/**
-	 * Closes all operators on error (i.e., all intermediate results are
+	 * Closes all operators on error and ignore errors
+	 * (i.e., all intermediate results are
 	 * dropped)
 	 * 
 	 * @return
@@ -249,7 +297,6 @@ public class QueryTrackerPlan implements Serializable {
 		}
 
 		// start execution on leave operators
-		// TODO: currently calls are executed sequential and not in parallel => change to parallel execution
 		for (final Identifier leaveId : leaves) {
 			final OperatorDesc leaveOpDesc = currentDeployment.get(leaveId);
 			err = computeClient.executeOperator(leaveOpDesc);
@@ -258,17 +305,11 @@ public class QueryTrackerPlan implements Serializable {
 			}
 		}
 
-		// close operators which are NO roots 
-		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
-				.entrySet()) {
-			final AbstractTrackerOperator planOp = this.operators
-					.get(entry.getKey());
-			if (!planOp.isRoot()) {
-				final OperatorDesc operDesc = entry.getValue();
-				err = computeClient.closeOperator(operDesc);
-				if (err.isError()) {
-					return err;
-				}
+		// wait until plan is executed
+		while (!this.isExecuted()) {
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
 			}
 		}
 
@@ -422,7 +463,7 @@ public class QueryTrackerPlan implements Serializable {
 			}
 
 			// deploy operator to compute node
-			err = computeClient.openOperator(deployOperDesc.getOperatorNode(),
+			err = computeClient.openOperator(deployOperDesc.getComputeSlot(),
 					execOper);
 
 			// add operator to deployment

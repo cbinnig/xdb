@@ -52,6 +52,9 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	// flag for root operator
 	protected boolean isRoot = false;
 
+	// flag if operator was executed
+	private boolean isExecuted = false;
+	
 	// Error handling
 	protected Error err = new Error();
 	
@@ -62,7 +65,15 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	}
 
 	// getters and setters
-	public void setIsRoot(final boolean isRoot){
+	public boolean isExecuted() {
+		return isExecuted;
+	}
+
+	public void setExecuted(boolean isExecuted) {
+		this.isExecuted = isExecuted;
+	}
+	
+	public void setIsRoot(boolean isRoot){
 		this.isRoot = isRoot;
 	}
 
@@ -212,16 +223,5 @@ public abstract class AbstractTrackerOperator implements Serializable {
 		final Identifier newTableName = operatorID.clone();
 		newTableName.append(tableName);
 		return newTableName.toString();
-	}
-
-	/**
-	 * Generate operator id for deployment
-	 * @param operDesc
-	 * @return
-	 */
-	public Identifier genDeployOperId(final OperatorDesc operDesc) {
-		final Identifier newOperId = operatorId.clone();
-		newOperId.append(operDesc.getOperatorID().toString());
-		return newOperId;
 	}
 }

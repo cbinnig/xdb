@@ -16,36 +16,36 @@ public class OperatorDesc implements Serializable {
 	private static final long serialVersionUID = -7230252328170776355L;
 
 	// operator ID
-	private Identifier operatorID;
+	private Identifier execOpId;
 
 	// operator URL
-	private ComputeNodeSlot operatorNode;
+	private ComputeNodeSlot computeSlot;
 
 	// constructors
-	public OperatorDesc(Identifier operatorID, ComputeNodeSlot operatorNode) {
+	public OperatorDesc(Identifier execOpId, ComputeNodeSlot computeSlot) {
 		super();
-		this.operatorID = operatorID;
-		this.operatorNode = operatorNode;
+		this.execOpId = execOpId;
+		this.computeSlot = computeSlot;
 	}
 
 	// getter and setters
 	public Identifier getOperatorID() {
-		return operatorID;
+		return execOpId;
 	}
 
-	public ComputeNodeSlot getOperatorNode() {
-		return operatorNode;
+	public ComputeNodeSlot getComputeSlot() {
+		return computeSlot;
 	}
 
 	// methods
 	@Override
 	public int hashCode() {
-		return this.operatorID.hashCode();
+		return this.execOpId.hashCode();
 	}
 
 	@Override
 	public String toString() {
-		return "(" + this.operatorNode + "," + this.operatorID + ")";
+		return "(" + this.computeSlot + "," + this.execOpId + ")";
 	}
 
 }

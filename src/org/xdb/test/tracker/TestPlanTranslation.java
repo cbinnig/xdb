@@ -106,7 +106,7 @@ public class TestPlanTranslation extends TestCase {
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
-		assertEquals(qPlan.getOperators().size(), 1);
+		assertEquals(qPlan.getTrackerOperators().size(), 1);
 		
 	}
 	
@@ -164,7 +164,7 @@ public class TestPlanTranslation extends TestCase {
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
-		assertEquals(qPlan.getOperators().size(), 1);
+		assertEquals(qPlan.getTrackerOperators().size(), 1);
 		
 	}
 	
@@ -228,7 +228,7 @@ public class TestPlanTranslation extends TestCase {
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
-		assertEquals(qPlan.getOperators().size(), 1);
+		assertEquals(qPlan.getTrackerOperators().size(), 1);
 		
 	}
 	
@@ -332,7 +332,7 @@ public class TestPlanTranslation extends TestCase {
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
-		assertEquals(qPlan.getOperators().size(), 1);
+		assertEquals(qPlan.getTrackerOperators().size(), 1);
 	}
 	
 	@Override

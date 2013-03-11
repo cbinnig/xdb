@@ -94,8 +94,8 @@ public abstract class AbstractServer {
 
 			while (!thread.isInterrupted()) {
 				try {
-					Socket client = this.serverSocket.accept();
-					handle(client);
+					Socket clientSocket = this.serverSocket.accept();
+					handle(clientSocket);
 				} catch (Exception e) {
 					//Nothing to do!
 				}

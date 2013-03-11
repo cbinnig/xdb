@@ -9,7 +9,6 @@ public class TestSuiteServer extends TestSuite
   {
     TestSuite suite = new TestSuite( TestSuiteServer.class.getPackage().getName() );
     suite.addTestSuite( TestCompileServer.class );
-    suite.addTestSuite( TestComputeServer.class );
     return suite;
   }
 }

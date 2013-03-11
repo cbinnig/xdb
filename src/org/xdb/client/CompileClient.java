@@ -32,9 +32,9 @@ public class CompileClient extends AbstractClient{
 		ClientStmt clientStmt = new ClientStmt(stmt);
 		
 		try {
-			this.server = new Socket(this.url, this.port);
+			Socket server = new Socket(this.url, this.port);
 			ObjectOutputStream out = new ObjectOutputStream(
-					this.server.getOutputStream());
+					server.getOutputStream());
 
 			out.writeInt(CompileServer.CMD_EXECUTE_WO_RESULT);
 			out.flush();
@@ -42,10 +42,10 @@ public class CompileClient extends AbstractClient{
 			out.flush();
 
 			ObjectInputStream in = new ObjectInputStream(
-					this.server.getInputStream());
+					server.getInputStream());
 			err = (Error) in.readObject();
 
-			this.server.close();
+			server.close();
 
 		} catch (Exception e) {
 			err = createClientError(e);

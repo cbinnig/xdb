@@ -5,6 +5,7 @@
 
 MySQL
 - Install MySQL Community Server (>=version 5.6)
+- Copy /conf/my.cnf to location depending on platform (e.g., /etc/)
 - Import SQL files in sql folder:
   mysql -u root < xdb.sql
   mysql -u root < catalog.sql
@@ -19,4 +20,9 @@ Graphviz:
 
 Antlr:
 - Install newest version of Antlworks for generating the compiler
+
+2. Startup
+---------------
+- Start mysqld_safe at least with option federated (which should be given by my.cnf)
+- Execute test suite (no standalone version yet).
   
