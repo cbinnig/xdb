@@ -19,16 +19,21 @@ import org.xdb.utils.StringTemplate;
 
 /**
  * Tests Q3 on 10 s01 TPC-H database instances using 10 compute nodes
+ * 
+ * if RUN_LOCAL==true all compute nodes are started on local machine
+ * else no compute nodes are started automatically (i.e., must be done manually)
+ * 
  * @author cbinnig
  *
  */
 public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
+	private static boolean RUN_LOCAL = true;
 	private static int NUMBER_COMPUTE_DBS = 10;
 	private static final String RESULT_DDL = "(l_orderkey INTEGER, revenue DECIMAL(65,2), o_orderdate DATE, o_shippriority INTEGER)";
 	
 	// constructor
 	public TestTPCHQ3() {
-		super(NUMBER_COMPUTE_DBS + 1);
+		super(NUMBER_COMPUTE_DBS + 1, RUN_LOCAL);
 	}
 
 	// getter and setter

@@ -19,7 +19,7 @@ import org.xdb.utils.StringTemplate;
 public class TestDistributed2Slot extends DistributedQueryTrackerTestCase {
 
 	public TestDistributed2Slot() {
-		super(2);
+		super(2, true);
 	}
 	
 	@Test

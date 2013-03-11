@@ -109,6 +109,10 @@ public class MasterTrackerServer extends AbstractServer {
 		handler.start();
 	}
 
+	public int getNoFreeQueryTrackerSlots() {
+		return this.tracker.getNoFreeQueryTrackerSlots();
+	}
+	
 	/**
 	 * @param args
 	 */
