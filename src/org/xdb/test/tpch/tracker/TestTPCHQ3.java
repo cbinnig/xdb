@@ -25,7 +25,7 @@ import org.xdb.utils.StringTemplate;
 public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 	private static int NUMBER_COMPUTE_DBS = 10;
 	private static final String RESULT_DDL = "(l_orderkey INTEGER, revenue DECIMAL(65,2), o_orderdate DATE, o_shippriority INTEGER)";
-
+	
 	// constructor
 	public TestTPCHQ3() {
 		super(NUMBER_COMPUTE_DBS + 1);
@@ -66,12 +66,15 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 			q3Ops[i].addOutTable(q3OutTableName, q3OutDDL);
 
 			// DML for sub-query q3
+			//String dbName = "tpch"+(i%4)+"_s01";
+			String dbName = "tpch_s01";
 			StringTemplate q3DML = new StringTemplate("insert into <"
 					+ q3OutTableName + "> select l_orderkey, "
 					+ "sum(l_extendedprice*(1-l_discount)) as revenue, "
 					+ "o_orderdate, " + "o_shippriority "
-					+ "from tpch_s01.customer, " + "tpch_s01.orders, "
-					+ "tpch_s01.lineitem "
+					+ "from "+dbName+".customer, " 
+					+ dbName+".orders, "
+					+ dbName+".lineitem "
 					+ "where c_mktsegment = 'BUILDING' and "
 					+ "c_custkey = o_custkey and "
 					+ "l_orderkey = o_orderkey and "
