@@ -109,8 +109,12 @@ public class MasterTrackerServer extends AbstractServer {
 		handler.start();
 	}
 
-	public int getNoFreeQueryTrackerSlots() {
+	public int getQueryTrackerSlots() {
 		return this.tracker.getNoFreeQueryTrackerSlots();
+	}
+	
+	public int getComputeSlots() {
+		return this.tracker.getNoFreeComputeSlots();
 	}
 	
 	/**

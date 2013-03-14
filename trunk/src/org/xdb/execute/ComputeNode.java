@@ -70,9 +70,13 @@ public class ComputeNode {
 
 		logger = XDBLog.getLogger(this.getClass().getName());
 		timeMeasure = XDBExecuteTimeMeasurement
-				.getXDBExecuteTimeMeasurement("querytimes");
+				.getXDBExecuteTimeMeasurement("op_runtime");
 	}
 
+	public ComputeNodeSlot getComputeSlot(){
+		return this.computeNodeDesc.getSlotDesc();
+	}
+	
 	/**
 	 * Starts up compute node and drops all temporary tables of compute DB by
 	 * recreating the database

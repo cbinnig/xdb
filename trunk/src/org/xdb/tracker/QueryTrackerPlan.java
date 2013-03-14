@@ -18,6 +18,7 @@ import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
+import org.xdb.logging.XDBExecuteTimeMeasurement;
 import org.xdb.logging.XDBLog;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
 import org.xdb.tracker.scheduler.AbstractResourceScheduler;
@@ -74,6 +75,10 @@ public class QueryTrackerPlan implements Serializable {
 	private final Map<ComputeNodeSlot, MutableInteger> slots = new HashMap<ComputeNodeSlot, MutableInteger>();
 	private final Map<Identifier, AbstractExecuteOperator> executeOps = new HashMap<Identifier, AbstractExecuteOperator>();
 
+	// helper to measure execution time
+	private final XDBExecuteTimeMeasurement timeMeasure;
+
+
 	// logger
 	private transient Logger logger;
 
@@ -86,6 +91,9 @@ public class QueryTrackerPlan implements Serializable {
 		this.resourceScheduler = AbstractResourceScheduler
 				.createScheduler(this);
 		this.logger = XDBLog.getLogger(this.getClass().getName());
+
+		this.timeMeasure = XDBExecuteTimeMeasurement
+				.getXDBExecuteTimeMeasurement("plan_time");
 	}
 
 	// getter and setter
@@ -293,6 +301,8 @@ public class QueryTrackerPlan implements Serializable {
 	 * @param currentDeployment
 	 */
 	public Error executePlan() {
+		this.timeMeasure.start(this.getPlanId().toString());
+		
 		if (err.isError()) {
 			return err;
 		}
@@ -314,6 +324,8 @@ public class QueryTrackerPlan implements Serializable {
 			}
 		}
 
+		this.timeMeasure.stop(this.getPlanId().toString());
+		
 		return err;
 	}
 
