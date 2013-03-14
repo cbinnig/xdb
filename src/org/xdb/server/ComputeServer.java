@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNode;
+import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
@@ -108,6 +109,10 @@ public class ComputeServer extends AbstractServer {
 	protected void handle(final Socket client) {
 		final Handler handler = new Handler(client);
 		handler.start();
+	}
+	
+	public ComputeNodeSlot getComputeSlot(){
+		return this.compute.getComputeSlot();
 	}
 
 	/**

@@ -16,7 +16,6 @@ import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
-import org.xdb.logging.XDBExecuteTimeMeasurement;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.MutableInteger;
@@ -41,9 +40,6 @@ public class QueryTrackerNode {
 	// query tracker plans 
 	private Map<Identifier, QueryTrackerPlan> qPlans = new HashMap<Identifier, QueryTrackerPlan>();
 	
-	// helper to measure execution time
-	private final XDBExecuteTimeMeasurement timeMeasure;
-
 	// logger
 	private final Logger logger;
 
@@ -64,8 +60,6 @@ public class QueryTrackerNode {
 		}
 
 		this.logger = XDBLog.getLogger(this.getClass().getName());
-		this.timeMeasure = XDBExecuteTimeMeasurement
-				.getXDBExecuteTimeMeasurement("planexecution");
 	}
 
 	// getters and setters
@@ -146,9 +140,8 @@ public class QueryTrackerNode {
 		}
 
 		// 2. execute query tracker plan
-		this.timeMeasure.start(qplan.getPlanId().toString());
 		err = qplan.executePlan();
-		this.timeMeasure.stop(qplan.getPlanId().toString());
+		
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;

@@ -2,6 +2,7 @@ package org.xdb.test.tpch.tracker;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -20,17 +21,18 @@ import org.xdb.utils.StringTemplate;
 /**
  * Tests Q3 on 10 s01 TPC-H database instances using 10 compute nodes
  * 
- * if RUN_LOCAL==true all compute nodes are started on local machine
- * else no compute nodes are started automatically (i.e., must be done manually)
+ * if RUN_LOCAL==true all compute nodes are started on local machine else no
+ * compute nodes are started automatically (i.e., must be done manually)
  * 
  * @author cbinnig
- *
+ * 
  */
 public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 	private static boolean RUN_LOCAL = true;
 	private static int NUMBER_COMPUTE_DBS = 10;
 	private static final String RESULT_DDL = "(l_orderkey INTEGER, revenue DECIMAL(65,2), o_orderdate DATE, o_shippriority INTEGER)";
-	
+	private static Integer lastExecId = 1;
+
 	// constructor
 	public TestTPCHQ3() {
 		super(NUMBER_COMPUTE_DBS + 1, RUN_LOCAL);
@@ -50,11 +52,41 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 	}
 
 	// methods
-	
 	/**
-	 * Creates MySQLTrackerOperators for all Q3 sub-queries
-	 * that can be executed on one database instance
-	 * and adds them to the Query Tracker Plan
+	 * Creates static deployment for operators in order to execute sub-queries
+	 * locally and union on last node
+	 * 
+	 * @param currentDeployment
+	 */
+	private Map<Identifier, OperatorDesc> createDeployment(
+			MySQLTrackerOperator[] q3Ops, MySQLTrackerOperator q3UnionOp) {
+		Map<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
+
+		// create deployment for sub-queries operator
+		for (int i = 0; i < q3Ops.length; ++i) {
+			MySQLTrackerOperator q3Op = q3Ops[i];
+			Identifier trackerOpId = q3Op.getOperatorId();
+			Identifier execOpId = trackerOpId.clone().append(lastExecId++);
+
+			OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
+					this.computeServers[i].getComputeSlot());
+			currentDeployment.put(trackerOpId, executeOperDesc);
+		}
+
+		// create deployment for union operator
+		Identifier trackerOpId = q3UnionOp.getOperatorId();
+		Identifier execOpId = trackerOpId.clone().append(lastExecId++);
+		OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
+				this.computeServers[this.computeServers.length - 1]
+						.getComputeSlot());
+		currentDeployment.put(trackerOpId, executeOperDesc);
+
+		return currentDeployment;
+	}
+
+	/**
+	 * Creates MySQLTrackerOperators for all Q3 sub-queries that can be executed
+	 * on one database instance and adds them to the Query Tracker Plan
 	 * 
 	 * @param qPlan
 	 * @param q3Ops
@@ -71,16 +103,14 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 			q3Ops[i].addOutTable(q3OutTableName, q3OutDDL);
 
 			// DML for sub-query q3
-			//String dbName = "tpch"+(i%4)+"_s01";
-			String dbName = "tpch_s01";
+			String dbName = "tpch" + (i % 4) + "_s01";
+			// String dbName = "tpch_s01";
 			StringTemplate q3DML = new StringTemplate("insert into <"
 					+ q3OutTableName + "> select l_orderkey, "
 					+ "sum(l_extendedprice*(1-l_discount)) as revenue, "
-					+ "o_orderdate, " + "o_shippriority "
-					+ "from "+dbName+".customer, " 
-					+ dbName+".orders, "
-					+ dbName+".lineitem "
-					+ "where c_mktsegment = 'BUILDING' and "
+					+ "o_orderdate, " + "o_shippriority " + "from " + dbName
+					+ ".customer, " + dbName + ".orders, " + dbName
+					+ ".lineitem " + "where c_mktsegment = 'BUILDING' and "
 					+ "c_custkey = o_custkey and "
 					+ "l_orderkey = o_orderkey and "
 					+ "o_orderdate < date '1995-03-15' and "
@@ -93,9 +123,8 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 	}
 
 	/**
-	 * Creates an instance for MySQLTrackerOperator 
-	 * for the Q3 union query and adds this 
-	 * operator to Query Tracker Plan
+	 * Creates an instance for MySQLTrackerOperator for the Q3 union query and
+	 * adds this operator to Query Tracker Plan
 	 * 
 	 * @param qPlan
 	 * @param q3UnionOp
@@ -142,8 +171,8 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 	}
 
 	/**
-	 * Connects MySQLTrackerOperators in QueryTrackerPlan:
-	 * All Q3 sub-queries are consumed by Q3 union query
+	 * Connects MySQLTrackerOperators in QueryTrackerPlan: All Q3 sub-queries
+	 * are consumed by Q3 union query
 	 * 
 	 * @param qPlan
 	 * @param q3Ops
@@ -170,15 +199,21 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 	}
 
 	/**
-	 * Executes the Query Tracker Plan of Q3 
-	 * and Checks if results size is correct
+	 * Executes the Query Tracker Plan of Q3 and Checks if results size is
+	 * correct
+	 * 
 	 * @param qPlan
 	 * @param q3UnionOp
 	 * @throws SQLException
 	 */
 	private void executeQ3(QueryTrackerPlan qPlan,
-			MySQLTrackerOperator q3UnionOp) throws SQLException {
-		Error err = qPlan.deployPlan();
+			MySQLTrackerOperator[] q3Ops, MySQLTrackerOperator q3UnionOp)
+			throws SQLException {
+
+		Map<Identifier, OperatorDesc> deployment = this.createDeployment(q3Ops,
+				q3UnionOp);
+
+		Error err = qPlan.deployPlan(deployment);
 		if (err.isError())
 			qPlan.cleanPlanOnError();
 		this.assertNoError(err);
@@ -205,7 +240,7 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 		this.assertNoError(qPlan.cleanPlan());
 
 		// verify results
-		assertEquals(1216*NUMBER_COMPUTE_DBS, actualCnt);
+		assertEquals(1216 * NUMBER_COMPUTE_DBS, actualCnt);
 	}
 
 	@Test
@@ -226,7 +261,7 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 		connectQ3Ops(qPlan, q3Ops, q3UnionOp);
 
 		// execute plan
-		executeQ3(qPlan, q3UnionOp);
+		executeQ3(qPlan, q3Ops, q3UnionOp);
 	}
 
 }

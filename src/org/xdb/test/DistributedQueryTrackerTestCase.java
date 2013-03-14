@@ -51,8 +51,8 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 				}
 			}
 			else{
-				System.out.print("Waiting for query tracker server ...");
-				while(this.mTrackerServer.getNoFreeQueryTrackerSlots()<computeServers.length){
+				System.out.print("Waiting for "+computeServers.length+" computer server ...");
+				while(this.mTrackerServer.getComputeSlots()<computeServers.length){
 					System.out.print(".");
 					Thread.sleep(1000);
 				}
