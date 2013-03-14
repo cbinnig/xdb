@@ -96,9 +96,7 @@ public class ComputeServer extends AbstractServer {
 		super();
 
 		this.port = port;
-		compute = new ComputeNode(port, slots);
-		
-		this.err = compute.startup();
+		this.compute = new ComputeNode(port, slots);
 	}
 
 	// methods
@@ -122,7 +120,15 @@ public class ComputeServer extends AbstractServer {
 	 * @throws UnknownHostException 
 	 */
 	public static void main(final String[] args) throws Exception {
-		final ComputeServer server = new ComputeServer( Config.COMPUTE_PORT );
+		int port = Config.COMPUTE_PORT;
+		int slots = Config.COMPUTE_SLOTS;
+		if(args.length>=1){
+			port = Integer.parseInt(args[0]);
+		}
+		if(args.length>=2){
+			slots = Integer.parseInt(args[1]);
+		}
+		final ComputeServer server = new ComputeServer( port, slots );
 		server.startServer();
 	}
 }
