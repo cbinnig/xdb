@@ -24,7 +24,7 @@ public class TestDistributed2Slot extends DistributedQueryTrackerTestCase {
 	
 	@Test
 	public void testPlan2OpsDistributed() throws Exception {
-		final QueryTrackerNode qTracker = this.qServer.getNode();
+		final QueryTrackerNode qTracker = this.getQueryTrackerServer().getNode();
 		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);
 

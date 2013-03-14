@@ -16,8 +16,7 @@ import org.xdb.utils.MutableInteger;
  * 
  */
 public class SimpleResourceScheduler extends AbstractResourceScheduler {
-	private Map<ComputeNodeSlot, MutableInteger> slots = new HashMap<ComputeNodeSlot, MutableInteger>();
-	
+
 	protected SimpleResourceScheduler(final QueryTrackerPlan plan) {
 		super(plan);
 
@@ -40,15 +39,15 @@ public class SimpleResourceScheduler extends AbstractResourceScheduler {
 
 	@Override
 	public ComputeNodeSlot getSlot(Identifier operId) {
-		if(slots == null)
+		if(this.assignedSlots == null)
 			return null;
 
 		ComputeNodeSlot usedNode = null;
-		for (final Entry<ComputeNodeSlot, MutableInteger> availableNode : slots
+		for (final Entry<ComputeNodeSlot, MutableInteger> availableNode : assignedSlots
 				.entrySet()) {
 			if ( availableNode.getValue().intValue() > 0 ) {
 				usedNode = availableNode.getKey();
-				final MutableInteger numOfFreeNodes = slots.get(usedNode);
+				final MutableInteger numOfFreeNodes = assignedSlots.get(usedNode);
 				numOfFreeNodes.dec();
 				return usedNode;
 			}
@@ -56,10 +55,5 @@ public class SimpleResourceScheduler extends AbstractResourceScheduler {
 		
 
 		return null;
-	}
-
-	@Override
-	public void assignSlots(Map<ComputeNodeSlot, MutableInteger> slots) {
-		this.slots.putAll(slots);
 	}
 }

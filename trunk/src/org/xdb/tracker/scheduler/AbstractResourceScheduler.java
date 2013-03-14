@@ -1,6 +1,7 @@
 package org.xdb.tracker.scheduler;
 
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.xdb.Config;
@@ -21,6 +22,10 @@ public abstract class AbstractResourceScheduler {
 	protected EnumResourceScheduler type;
 	private static EnumResourceScheduler usedScheduler = Config.RESOURCE_SCHEDULER;
 	
+	// assigned slots which are actually available: compute slot URL -> count
+	protected Map<ComputeNodeSlot, MutableInteger> assignedSlots = new HashMap<ComputeNodeSlot, MutableInteger>();
+
+		
 	//constructor
 	public AbstractResourceScheduler(final QueryTrackerPlan plan) {
 		this.plan = plan;
@@ -66,7 +71,11 @@ public abstract class AbstractResourceScheduler {
 	 * Assigns available compute slots to operators of plan
 	 * @param slots
 	 */
-	public abstract void assignSlots(final Map<ComputeNodeSlot, MutableInteger> slots);
+	public void assignSlots(Map<ComputeNodeSlot, MutableInteger> slots) {
+		for(Map.Entry<ComputeNodeSlot, MutableInteger> slot: slots.entrySet()){
+			this.assignedSlots.put(slot.getKey(), slot.getValue().clone());
+		}
+	}
 	
 	/**
 	 * Returns assigned compute slot after slots have been assigned

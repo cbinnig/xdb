@@ -25,9 +25,6 @@ public class LocalityAwareScheduler extends AbstractResourceScheduler {
 	// slots that have been requested: compute slot URL -> count
 	private Map<String, MutableInteger> wishSlots = new HashMap<String, MutableInteger>();
 
-	// assigned slots which are actually available: compute slot URL -> count
-	private Map<ComputeNodeSlot, MutableInteger> assignedSlots = new HashMap<ComputeNodeSlot, MutableInteger>();
-
 	public LocalityAwareScheduler(QueryTrackerPlan plan) {
 		super(plan);
 		
@@ -114,11 +111,6 @@ public class LocalityAwareScheduler extends AbstractResourceScheduler {
 				this.calcRequiredSlots(consumerId);
 			}
 		}
-	}
-
-	@Override
-	public void assignSlots(Map<ComputeNodeSlot, MutableInteger> slots) {
-		this.assignedSlots.putAll(slots);
 	}
 
 	@Override

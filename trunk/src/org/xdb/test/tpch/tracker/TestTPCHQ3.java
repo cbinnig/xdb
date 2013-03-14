@@ -19,7 +19,11 @@ import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
 /**
- * Tests Q3 on 10 s01 TPC-H database instances using 10 compute nodes
+ * Tests Q3 on NUMBER_COMPUTE_DBS TPC-H database instances using
+ * NUMBER_COMPUTE_DBS+1 compute nodes
+ * 
+ * - NUMBER_COMPUTE_DBS compute nodes are executing the local sub-queries - 1
+ * query is computing the union over all intermediate results
  * 
  * if RUN_LOCAL==true all compute nodes are started on local machine else no
  * compute nodes are started automatically (i.e., must be done manually)
@@ -29,7 +33,7 @@ import org.xdb.utils.StringTemplate;
  */
 public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 	private static boolean RUN_LOCAL = true;
-	private static int NUMBER_COMPUTE_DBS = 10;
+	private static int NUMBER_COMPUTE_DBS = 2;
 	private static final String RESULT_DDL = "(l_orderkey INTEGER, revenue DECIMAL(65,2), o_orderdate DATE, o_shippriority INTEGER)";
 	private static Integer lastExecId = 1;
 
@@ -69,7 +73,7 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 			Identifier execOpId = trackerOpId.clone().append(lastExecId++);
 
 			OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
-					this.computeServers[i].getComputeSlot());
+					this.getComputeSlot(i));
 			currentDeployment.put(trackerOpId, executeOperDesc);
 		}
 
@@ -77,8 +81,7 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 		Identifier trackerOpId = q3UnionOp.getOperatorId();
 		Identifier execOpId = trackerOpId.clone().append(lastExecId++);
 		OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
-				this.computeServers[this.computeServers.length - 1]
-						.getComputeSlot());
+				this.getComputeSlot(NUMBER_COMPUTE_DBS - 1));
 		currentDeployment.put(trackerOpId, executeOperDesc);
 
 		return currentDeployment;
@@ -103,8 +106,8 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 			q3Ops[i].addOutTable(q3OutTableName, q3OutDDL);
 
 			// DML for sub-query q3
-			String dbName = "tpch" + (i % 4) + "_s01";
-			// String dbName = "tpch_s01";
+			// String dbName = "tpch" + (i % 4) + "_s01";
+			String dbName = "tpch_s01";
 			StringTemplate q3DML = new StringTemplate("insert into <"
 					+ q3OutTableName + "> select l_orderkey, "
 					+ "sum(l_extendedprice*(1-l_discount)) as revenue, "
@@ -210,14 +213,17 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 			MySQLTrackerOperator[] q3Ops, MySQLTrackerOperator q3UnionOp)
 			throws SQLException {
 
+		// create static deployment
 		Map<Identifier, OperatorDesc> deployment = this.createDeployment(q3Ops,
 				q3UnionOp);
 
+		// deploy plan to compute nodes
 		Error err = qPlan.deployPlan(deployment);
 		if (err.isError())
 			qPlan.cleanPlanOnError();
 		this.assertNoError(err);
 
+		// execute plan using query tracker
 		err = qPlan.executePlan();
 		if (err.isError())
 			qPlan.cleanPlanOnError();
@@ -245,7 +251,8 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 
 	@Test
 	public void testQ3() throws Exception {
-		QueryTrackerNode qTracker = this.qServer.getNode();
+		// assign plan to query tracker
+		QueryTrackerNode qTracker = this.getQueryTrackerServer().getNode();
 		QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);
 
@@ -263,5 +270,4 @@ public class TestTPCHQ3 extends DistributedQueryTrackerTestCase {
 		// execute plan
 		executeQ3(qPlan, q3Ops, q3UnionOp);
 	}
-
 }

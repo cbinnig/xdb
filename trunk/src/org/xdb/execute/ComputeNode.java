@@ -36,10 +36,12 @@ import org.xdb.utils.Identifier;
 public class ComputeNode {
 
 	// Map of operatorId -> operator
-	private final Map<Identifier, AbstractExecuteOperator> operators;
+	private final Map<Identifier, AbstractExecuteOperator> operators = Collections
+	.synchronizedMap(new HashMap<Identifier, AbstractExecuteOperator>());;
 
 	// Map of consumer -> sources which are ready
-	private final Map<Identifier, HashSet<Identifier>> receivedReadySignals;
+	private final Map<Identifier, HashSet<Identifier>> receivedReadySignals = Collections
+			.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());;
 	private final Lock readySignalsLock = new ReentrantLock();
 
 	// Compute node slot description (i.e., available threads on node)
@@ -54,23 +56,25 @@ public class ComputeNode {
 
 	// constructors
 	public ComputeNode(final int port, final int slots) throws Exception {
-		this.operators = Collections
-				.synchronizedMap(new HashMap<Identifier, AbstractExecuteOperator>());
-		this.receivedReadySignals = Collections
-				.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());
-
 		String url = InetAddress.getLocalHost().getHostAddress();
-		computeNodeDesc = new ComputeNodeDesc(url, port, slots);
+		this.computeNodeDesc = new ComputeNodeDesc(url, port, slots);
 
+		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.timeMeasure = XDBExecuteTimeMeasurement
+				.getXDBExecuteTimeMeasurement("op_runtime");
+		
+		//register at master tracker
 		this.mTrackerClient = new MasterTrackerClient();
-		final Error err = mTrackerClient.registerNode(computeNodeDesc);
+		Error err = mTrackerClient.registerNode(computeNodeDesc);
 		if (err.isError()) {
 			throw new IllegalArgumentException(err.toString());
 		}
 
-		logger = XDBLog.getLogger(this.getClass().getName());
-		timeMeasure = XDBExecuteTimeMeasurement
-				.getXDBExecuteTimeMeasurement("op_runtime");
+		//startup database
+		err = this.startup();
+		if (err.isError()) {
+			throw new IllegalArgumentException(err.toString());
+		}
 	}
 
 	public ComputeNodeSlot getComputeSlot(){
