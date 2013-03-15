@@ -21,6 +21,7 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 	private ComputeServer[] computeServers;
 	private QueryTrackerServer qTrackerServer;
 	private ComputeNodeSlot[] computeNodeSlots;
+	private int numberOfComputeServer;
 	private int numberOfSlots;
 	private boolean runLocal;
 
@@ -33,8 +34,7 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 	public DistributedQueryTrackerTestCase(int numberOfComputeServer,
 			int numberOfSlots, boolean runLocal) {
 		super();
-		this.computeServers = new ComputeServer[numberOfComputeServer];
-		this.computeNodeSlots = new ComputeNodeSlot[numberOfComputeServer];
+		this.numberOfComputeServer = numberOfComputeServer;
 		this.numberOfSlots = numberOfSlots;
 		this.runLocal = runLocal;
 	}
@@ -47,7 +47,7 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 	public MasterTrackerServer getMasterTrackerServer() {
 		return mTrackerServer;
 	}
-	
+
 	public ComputeNodeSlot getComputeSlot(int i) {
 		return computeNodeSlots[i];
 	}
@@ -69,6 +69,7 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 			assertNoError(qTrackerServer.getError());
 
 			// start or wait for compute servers
+			this.computeServers = new ComputeServer[this.numberOfComputeServer];
 			if (this.runLocal) {
 				for (int i = 0; i < this.computeServers.length; ++i) {
 					computeServers[i] = new ComputeServer(Config.COMPUTE_PORT
@@ -90,7 +91,9 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 			}
 
 			// initialize compute slot info
-			this.computeNodeSlots = this.mTrackerServer.getComputeSlots();
+			this.computeNodeSlots = this.mTrackerServer.getComputeSlots()
+					.keySet()
+					.toArray(new ComputeNodeSlot[this.computeServers.length]);
 
 		} catch (Exception e) {
 			Assert.assertTrue(e.toString(), false);
