@@ -64,9 +64,8 @@ public class MasterTrackerNode {
 		return runningPlans.size();
 	}
 
-	public ComputeNodeSlot[] getComputeSlots() {
-		return this.computeSlots.keySet().toArray(
-				new ComputeNodeSlot[this.computeSlots.size()]);
+	public Map<ComputeNodeSlot, Integer> getComputeSlots() {
+		return this.computeSlots;
 	}
 
 	public int getNoFreeComputeSlots() {

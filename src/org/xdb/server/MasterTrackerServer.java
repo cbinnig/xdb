@@ -117,7 +117,7 @@ public class MasterTrackerServer extends AbstractServer {
 		return this.tracker.getNoFreeComputeSlots();
 	}
 	
-	public ComputeNodeSlot[] getComputeSlots() {
+	public Map<ComputeNodeSlot, Integer> getComputeSlots() {
 		return this.tracker.getComputeSlots();
 	}
 	
