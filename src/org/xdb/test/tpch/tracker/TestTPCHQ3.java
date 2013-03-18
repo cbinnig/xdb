@@ -36,7 +36,7 @@ public class TestTPCHQ3 extends DistributedTPCHTestCase {
 
 	// constructor
 	public TestTPCHQ3() {
-		super(NUMBER_COMPUTE_DBS, RUN_LOCAL, 1216 * NUMBER_COMPUTE_DBS);
+		super(NUMBER_COMPUTE_DBS, RUN_LOCAL, 10 );
 	}
 
 	// methods
@@ -101,7 +101,9 @@ public class TestTPCHQ3 extends DistributedTPCHTestCase {
 					+ "l_orderkey = o_orderkey and "
 					+ "o_orderdate < date '1995-03-15' and "
 					+ "l_shipdate > date '1995-03-15' "
-					+ "group by l_orderkey, o_orderdate, o_shippriority");
+					+ "group by l_orderkey, o_orderdate, o_shippriority "
+					+ "order by revenue desc, o_orderdate "
+					+ "limit 10;");
 			q3Ops[i].addExecuteSQL(q3DML);
 
 			qPlan.addOperator(q3Ops[i]);
@@ -135,7 +137,7 @@ public class TestTPCHQ3 extends DistributedTPCHTestCase {
 		// DML for union query
 		StringBuffer q3UnionTMPDDL = new StringBuffer("INSERT INTO <");
 		q3UnionTMPDDL.append(q3UnionOutTableName);
-		q3UnionTMPDDL.append("> ");
+		q3UnionTMPDDL.append("> SELECT * FROM ( ");
 		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
 			String q3UnionInTableName = getUnionInTableName(i);
 
@@ -145,10 +147,9 @@ public class TestTPCHQ3 extends DistributedTPCHTestCase {
 
 			if (i < NUMBER_COMPUTE_DBS - 1) {
 				q3UnionTMPDDL.append(" UNION ALL ");
-			} else {
-				q3UnionTMPDDL.append(";");
-			}
+			} 
 		}
+		q3UnionTMPDDL.append(") AS q3union order by revenue desc, o_orderdate limit 10");
 		StringTemplate q3UnionDML = new StringTemplate(q3UnionTMPDDL.toString());
 		q3UnionOp.addExecuteSQL(q3UnionDML);
 
