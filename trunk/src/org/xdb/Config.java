@@ -19,10 +19,10 @@ public class Config implements Serializable {
 
 	private static final long serialVersionUID = -3628108255115350359L;
 
-	// General 
+	// General
 	public static String LOCALHOST = "127.0.0.1";
 	public static String CONFIG_FILE = "./config/xdb.conf";
-	
+
 	// Compute Server
 	public static String COMPUTE_DRIVER_CLASS = "com.mysql.jdbc.Driver";
 	public static String COMPUTE_DB_URL = "jdbc:mysql://127.0.0.1/";
@@ -48,7 +48,7 @@ public class Config implements Serializable {
 	public static String COMPILE_URL = "127.0.0.1";
 	public static String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
 
-	// Compile Server: Optimizer 
+	// Compile Server: Optimizer
 	public static BitSet OPTIMIZER_ACTIVE_RULES_FUNCTION = new BitSet();
 	public static BitSet OPTIMIZER_ACTIVE_RULES_SELECT = new BitSet();
 
@@ -65,7 +65,6 @@ public class Config implements Serializable {
 		OPTIMIZER_ACTIVE_RULES_SELECT.set(4, true);
 	}
 
-
 	// Master Tracker Server
 	public static int MASTERTRACKER_PORT = 55501;
 	public static String MASTERTRACKER_URL = "127.0.0.1";
@@ -77,7 +76,7 @@ public class Config implements Serializable {
 
 	// Query Tracker Server: Code generation
 	public static boolean CODEGEN_OPTIMIZE = true;
-		
+
 	// Logging
 	public static String LOG_FILE = "./log/xdb.log";
 	public static Level LOG_LEVEL = Level.SEVERE;
@@ -103,9 +102,10 @@ public class Config implements Serializable {
 	 */
 	private static void load() {
 		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
-				"COMPUTE_SLOTS", "COMPILE_URL", "COMPILE_PORT",
-				"MASTERTRACKER_URL", "MASTERTRACKER_PORT", "QUERYTRACKER_URL",
+				"COMPUTE_SLOTS", "COMPILE_PORT", "MASTERTRACKER_PORT",
 				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS" };
+
+		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL" };
 
 		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS",
 				"TRACE_COMPILE_PLAN", "TRACE_COMPILE_PLAN_HEADER",
@@ -116,6 +116,7 @@ public class Config implements Serializable {
 		Properties props;
 		props = new Properties();
 		try {
+			// Integer
 			props.load(new FileReader(CONFIG_FILE));
 			for (String intProperty : intProperties) {
 				if (props.containsKey(intProperty)) {
@@ -126,6 +127,7 @@ public class Config implements Serializable {
 				}
 			}
 
+			// Boolean
 			for (String boolProperty : boolProperties) {
 				if (props.containsKey(boolProperty)) {
 					Config.class.getField(boolProperty).setBoolean(
@@ -136,6 +138,15 @@ public class Config implements Serializable {
 				}
 			}
 
+			// String
+			for (String stringProperty : stringProperties) {
+				if (props.containsKey(stringProperty)) {
+					Config.class.getField(stringProperty).set(null,
+							props.getProperty(stringProperty));
+				}
+			}
+
+			// Others (LogLevel, Bitmaps)
 			if (props.containsKey("LOG_LEVEL")) {
 				LOG_LEVEL = Level.parse(props.getProperty("LOG_LEVEL"));
 			}

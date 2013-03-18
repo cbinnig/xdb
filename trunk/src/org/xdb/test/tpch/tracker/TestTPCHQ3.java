@@ -29,7 +29,7 @@ import org.xdb.utils.StringTemplate;
  */
 public class TestTPCHQ3 extends DistributedTPCHTestCase {
 	private static boolean RUN_LOCAL = true;
-	private static int NUMBER_COMPUTE_DBS = 10;
+	private static int NUMBER_COMPUTE_DBS = 2;
 	private static final String RESULT_DDL = "(l_orderkey INTEGER, revenue DECIMAL(65,2), o_orderdate DATE, o_shippriority INTEGER)";
 	private static Integer LAST_EXEC_OP_ID = 1;
 	private static final String DB_NAME = "tpch_s01";
