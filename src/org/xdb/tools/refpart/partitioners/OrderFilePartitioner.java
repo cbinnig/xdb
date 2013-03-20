@@ -53,22 +53,22 @@ public class OrderFilePartitioner extends AbstractFilePartitioner {
 
 	@Override
 	protected String getSQLEnd() {
-		return "/*!40000 ALTER TABLE `ORDERS` ENABLE KEYS */;\n" + "UNLOCK TABLES;\n";
+		return "/*!40000 alter table `orders` enable keys */;\n" + "unlock tables;\n";
 	}
 
 	@Override
 	protected String getSQLStart() {
-		return "DROP TABLE IF EXISTS `ORDERS`;\n" + "/*!40101 SET @saved_cs_client     = @@character_set_client */;\n"
-				+ "/*!40101 SET character_set_client = utf8 */;\n" + "CREATE TABLE `ORDERS` (\n"
-				+ "  `O_ORDERKEY` int(11) NOT NULL,\n" + "  `O_CUSTKEY` int(11) NOT NULL,\n"
-				+ "  `O_ORDERSTATUS` char(1) NOT NULL,\n" + "  `O_TOTALPRICE` decimal(15,2) NOT NULL,\n"
-				+ "  `O_ORDERDATE` date NOT NULL,\n" + "  `O_ORDERPRIORITY` char(15) NOT NULL,\n"
-				+ "  `O_CLERK` char(15) NOT NULL,\n" + "  `O_SHIPPRIORITY` int(11) NOT NULL,\n"
-				+ "  `O_COMMENT` varchar(79) NOT NULL,\n" + "  PRIMARY KEY (`O_ORDERKEY`)\n"
-				+ ") ENGINE=InnoDB DEFAULT CHARSET=latin1;\n"
-				+ "/*!40101 SET character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
-				+ "-- Dumping data for table `ORDERS`\n" + "--\n" + "\n" + "LOCK TABLES `ORDERS` WRITE;\n"
-				+ "/*!40000 ALTER TABLE `ORDERS` DISABLE KEYS */;\n" + "INSERT INTO `ORDERS` VALUES ";
+		return "drop table if exists `orders`;\n" + "/*!40101 set @saved_cs_client     = @@character_set_client */;\n"
+				+ "/*!40101 set character_set_client = utf8 */;\n" + "create table `orders` (\n"
+				+ "  `o_orderkey` int(11) not null,\n" + "  `o_custkey` int(11) not null,\n"
+				+ "  `o_orderstatus` char(1) not null,\n" + "  `o_totalprice` decimal(15,2) not null,\n"
+				+ "  `o_orderdate` date not null,\n" + "  `o_orderpriority` char(15) not null,\n"
+				+ "  `o_clerk` char(15) not null,\n" + "  `o_shippriority` int(11) not null,\n"
+				+ "  `o_comment` varchar(79) not null,\n" + "  primary key (`o_orderkey`)\n"
+				+ ") engine=innodb default charset=latin1;\n"
+				+ "/*!40101 set character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
+				+ "-- dumping data for table `orders`\n" + "--\n" + "\n" + "lock tables `orders` write;\n"
+				+ "/*!40000 alter table `orders` disable keys */;\n" + "insert into `orders` values ";
 	}
 
 }

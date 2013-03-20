@@ -45,22 +45,22 @@ public class SupplierFilePartitioner extends AbstractFilePartitioner {
 
 	@Override
 	protected String getSQLEnd() {
-		return "/*!40000 ALTER TABLE `SUPPLIER` ENABLE KEYS */;\n" + "UNLOCK TABLES;";
+		return "/*!40000 alter table `supplier` enable keys */;\n" + "unlock tables;";
 	}
 
 	@Override
 	protected String getSQLStart() {
-		return "DROP TABLE IF EXISTS `SUPPLIER`;\n"
-				+ "/*!40101 SET @saved_cs_client     = @@character_set_client */;\n"
-				+ "/*!40101 SET character_set_client = utf8 */;\n" + "CREATE TABLE `SUPPLIER` (\n"
-				+ "  `S_SUPPKEY` int(11) NOT NULL,\n" + "  `S_NAME` char(25) NOT NULL,\n"
-				+ "  `S_ADDRESS` varchar(40) NOT NULL,\n" + "  `S_NATIONKEY` int(11) NOT NULL,\n"
-				+ "  `S_PHONE` char(15) NOT NULL,\n" + "  `S_ACCTBAL` decimal(15,2) NOT NULL,\n"
-				+ "  `S_COMMENT` varchar(101) NOT NULL,\n" + "  PRIMARY KEY (`S_SUPPKEY`)\n"
-				+ ") ENGINE=InnoDB DEFAULT CHARSET=latin1;\n"
-				+ "/*!40101 SET character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
-				+ "-- Dumping data for table `SUPPLIER`\n" + "--\n" + "\n" + "LOCK TABLES `SUPPLIER` WRITE;\n"
-				+ "/*!40000 ALTER TABLE `SUPPLIER` DISABLE KEYS */;\n" + "INSERT INTO `SUPPLIER` VALUES ";
+		return "drop table if exists `supplier`;\n"
+				+ "/*!40101 set @saved_cs_client     = @@character_set_client */;\n"
+				+ "/*!40101 set character_set_client = utf8 */;\n" + "create table `supplier` (\n"
+				+ "  `s_suppkey` int(11) not null,\n" + "  `s_name` char(25) not null,\n"
+				+ "  `s_address` varchar(40) not null,\n" + "  `s_nationkey` int(11) not null,\n"
+				+ "  `s_phone` char(15) not null,\n" + "  `s_acctbal` decimal(15,2) not null,\n"
+				+ "  `s_comment` varchar(101) not null,\n" + "  primary key (`s_suppkey`)\n"
+				+ ") engine=innodb default charset=latin1;\n"
+				+ "/*!40101 set character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
+				+ "-- dumping data for table `supplier`\n" + "--\n" + "\n" + "lock tables `supplier` write;\n"
+				+ "/*!40000 alter table `supplier` disable keys */;\n" + "insert into `supplier` values ";
 	}
 
 }

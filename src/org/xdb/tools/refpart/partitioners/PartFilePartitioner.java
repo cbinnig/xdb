@@ -48,22 +48,22 @@ public class PartFilePartitioner extends AbstractFilePartitioner {
 
 	@Override
 	protected String getSQLEnd() {
-		return "/*!40000 ALTER TABLE `PART` ENABLE KEYS */;\n" + "UNLOCK TABLES;";
+		return "/*!40000 alter table `part` enable keys */;\n" + "unlock tables;";
 	}
 
 	@Override
 	protected String getSQLStart() {
-		return "DROP TABLE IF EXISTS `PART`;\n" + "/*!40101 SET @saved_cs_client     = @@character_set_client */;\n"
-				+ "/*!40101 SET character_set_client = utf8 */;\n" + "CREATE TABLE `PART` (\n"
-				+ "  `P_PARTKEY` int(11) NOT NULL,\n" + "  `P_NAME` varchar(55) NOT NULL,\n"
-				+ "  `P_MFGR` char(25) NOT NULL,\n" + "  `P_BRAND` char(10) NOT NULL,\n"
-				+ "  `P_TYPE` varchar(25) NOT NULL,\n" + "  `P_SIZE` int(11) NOT NULL,\n"
-				+ "  `P_CONTAINER` char(10) NOT NULL,\n" + "  `P_RETAILPRICE` decimal(15,2) NOT NULL,\n"
-				+ "  `P_COMMENT` varchar(23) NOT NULL,\n" + "  PRIMARY KEY (`P_PARTKEY`)\n"
-				+ ") ENGINE=InnoDB DEFAULT CHARSET=latin1;\n"
-				+ "/*!40101 SET character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
-				+ "-- Dumping data for table `PART`\n" + "--\n" + "\n" + "LOCK TABLES `PART` WRITE;\n"
-				+ "/*!40000 ALTER TABLE `PART` DISABLE KEYS */;\n" + "INSERT INTO `PART` VALUES ";
+		return "drop table if exists `part`;\n" + "/*!40101 set @saved_cs_client     = @@character_set_client */;\n"
+				+ "/*!40101 set character_set_client = utf8 */;\n" + "create table `part` (\n"
+				+ "  `p_partkey` int(11) not null,\n" + "  `p_name` varchar(55) not null,\n"
+				+ "  `p_mfgr` char(25) not null,\n" + "  `p_brand` char(10) not null,\n"
+				+ "  `p_type` varchar(25) not null,\n" + "  `p_size` int(11) not null,\n"
+				+ "  `p_container` char(10) not null,\n" + "  `p_retailprice` decimal(15,2) not null,\n"
+				+ "  `p_comment` varchar(23) not null,\n" + "  primary key (`p_partkey`)\n"
+				+ ") engine=innodb default charset=latin1;\n"
+				+ "/*!40101 set character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
+				+ "-- dumping data for table `part`\n" + "--\n" + "\n" + "lock tables `part` write;\n"
+				+ "/*!40000 alter table `part` disable keys */;\n" + "insert into `part` values ";
 	}
 
 }

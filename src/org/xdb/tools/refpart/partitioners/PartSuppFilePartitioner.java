@@ -48,21 +48,21 @@ public class PartSuppFilePartitioner extends AbstractFilePartitioner {
 
 	@Override
 	protected String getSQLEnd() {
-		return "/*!40000 ALTER TABLE `PARTSUPP` ENABLE KEYS */;\n" + "UNLOCK TABLES;";
+		return "/*!40000 alter table `partsupp` enable keys */;\n" + "unlock tables;";
 	}
 
 	@Override
 	protected String getSQLStart() {
-		return "DROP TABLE IF EXISTS `PARTSUPP`;\n"
-				+ "/*!40101 SET @saved_cs_client     = @@character_set_client */;\n"
-				+ "/*!40101 SET character_set_client = utf8 */;\n" + "CREATE TABLE `PARTSUPP` (\n"
-				+ "  `PS_PARTKEY` int(11) NOT NULL,\n" + "  `PS_SUPPKEY` int(11) NOT NULL,\n"
-				+ "  `PS_AVAILQTY` int(11) NOT NULL,\n" + "  `PS_SUPPLYCOST` decimal(15,2) NOT NULL,\n"
-				+ "  `PS_COMMENT` varchar(199) NOT NULL,\n" + "  PRIMARY KEY (`PS_PARTKEY`,`PS_SUPPKEY`)\n"
-				+ ") ENGINE=InnoDB DEFAULT CHARSET=latin1;\n"
-				+ "/*!40101 SET character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
-				+ "-- Dumping data for table `PARTSUPP`\n" + "--\n" + "\n" + "LOCK TABLES `PARTSUPP` WRITE;\n"
-				+ "/*!40000 ALTER TABLE `PARTSUPP` DISABLE KEYS */;\n" + "INSERT INTO `PARTSUPP` VALUES";
+		return "drop table if exists `partsupp`;\n"
+				+ "/*!40101 set @saved_cs_client     = @@character_set_client */;\n"
+				+ "/*!40101 set character_set_client = utf8 */;\n" + "create table `partsupp` (\n"
+				+ "  `ps_partkey` int(11) not null,\n" + "  `ps_suppkey` int(11) not null,\n"
+				+ "  `ps_availqty` int(11) not null,\n" + "  `ps_supplycost` decimal(15,2) not null,\n"
+				+ "  `ps_comment` varchar(199) not null,\n" + "  primary key (`ps_partkey`,`ps_suppkey`)\n"
+				+ ") engine=innodb default charset=latin1;\n"
+				+ "/*!40101 set character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
+				+ "-- dumping data for table `partsupp`\n" + "--\n" + "\n" + "lock tables `partsupp` write;\n"
+				+ "/*!40000 alter table `partsupp` disable keys */;\n" + "insert into `partsupp` values";
 	}
 
 }

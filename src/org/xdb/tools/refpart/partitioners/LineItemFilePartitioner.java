@@ -67,26 +67,26 @@ public class LineItemFilePartitioner extends AbstractFilePartitioner {
 
 	@Override
 	protected String getSQLEnd() {
-		return "/*!40000 ALTER TABLE `LINEITEM` ENABLE KEYS */;\n" + "UNLOCK TABLES;";
+		return "/*!40000 alter table `lineitem` enable keys */;\n" + "unlock tables;";
 	}
 
 	@Override
 	protected String getSQLStart() {
-		return "DROP TABLE IF EXISTS `LINEITEM`;\n"
-				+ "/*!40101 SET @saved_cs_client     = @@character_set_client */;\n"
-				+ "/*!40101 SET character_set_client = utf8 */;\n" + "CREATE TABLE `LINEITEM` (\n"
-				+ "  `L_ORDERKEY` int(11) NOT NULL,\n" + "  `L_PARTKEY` int(11) NOT NULL,\n"
-				+ "  `L_SUPPKEY` int(11) NOT NULL,\n" + "  `L_LINENUMBER` int(11) NOT NULL,\n"
-				+ "  `L_QUANTITY` decimal(15,2) NOT NULL,\n" + "  `L_EXTENDEDPRICE` decimal(15,2) NOT NULL,\n"
-				+ "  `L_DISCOUNT` decimal(15,2) NOT NULL,\n" + "  `L_TAX` decimal(15,2) NOT NULL,\n"
-				+ "  `L_RETURNFLAG` char(1) NOT NULL,\n" + "  `L_LINESTATUS` char(1) NOT NULL,\n"
-				+ "  `L_SHIPDATE` date NOT NULL,\n" + "  `L_COMMITDATE` date NOT NULL,\n"
-				+ "  `L_RECEIPTDATE` date NOT NULL,\n" + "  `L_SHIPINSTRUCT` char(25) NOT NULL,\n"
-				+ "  `L_SHIPMODE` char(10) NOT NULL,\n" + "  `L_COMMENT` varchar(44) NOT NULL,\n"
-				+ "  PRIMARY KEY (`L_ORDERKEY`,`L_LINENUMBER`)\n" + ") ENGINE=InnoDB DEFAULT CHARSET=latin1;\n"
-				+ "/*!40101 SET character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
-				+ "-- Dumping data for table `LINEITEM`\n" + "--\n" + "\n" + "LOCK TABLES `LINEITEM` WRITE;\n"
-				+ "/*!40000 ALTER TABLE `LINEITEM` DISABLE KEYS */;\n" + "INSERT INTO `LINEITEM` VALUES ";
+		return "drop table if exists `lineitem`;\n"
+				+ "/*!40101 set @saved_cs_client     = @@character_set_client */;\n"
+				+ "/*!40101 set character_set_client = utf8 */;\n" + "create table `lineitem` (\n"
+				+ "  `l_orderkey` int(11) not null,\n" + "  `l_partkey` int(11) not null,\n"
+				+ "  `l_suppkey` int(11) not null,\n" + "  `l_linenumber` int(11) not null,\n"
+				+ "  `l_quantity` decimal(15,2) not null,\n" + "  `l_extendedprice` decimal(15,2) not null,\n"
+				+ "  `l_discount` decimal(15,2) not null,\n" + "  `l_tax` decimal(15,2) not null,\n"
+				+ "  `l_returnflag` char(1) not null,\n" + "  `l_linestatus` char(1) not null,\n"
+				+ "  `l_shipdate` date not null,\n" + "  `l_commitdate` date not null,\n"
+				+ "  `l_receiptdate` date not null,\n" + "  `l_shipinstruct` char(25) not null,\n"
+				+ "  `l_shipmode` char(10) not null,\n" + "  `l_comment` varchar(44) not null,\n"
+				+ "  primary key (`l_orderkey`,`l_linenumber`)\n" + ") engine=innodb default charset=latin1;\n"
+				+ "/*!40101 set character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
+				+ "-- dumping data for table `lineitem`\n" + "--\n" + "\n" + "lock tables `lineitem` write;\n"
+				+ "/*!40000 alter table `lineitem` disable keys */;\n" + "insert into `lineitem` values ";
 	}
 
 }

@@ -36,19 +36,19 @@ public class NationFilePartitioner extends AbstractFilePartitioner {
 
 	@Override
 	protected String getSQLEnd() {
-		return "/*!40000 ALTER TABLE `NATION` ENABLE KEYS */;\n" + "UNLOCK TABLES;\n";
+		return "/*!40000 alter table `nation` enable keys */;\n" + "unlock tables;\n";
 	}
 
 	@Override
 	protected String getSQLStart() {
-		return "DROP TABLE IF EXISTS `NATION`;\n" + "/*!40101 SET @saved_cs_client     = @@character_set_client */;\n"
-				+ "/*!40101 SET character_set_client = utf8 */;\n" + "CREATE TABLE `NATION` (\n"
-				+ "  `N_NATIONKEY` int(11) NOT NULL,\n" + "  `N_NAME` char(25) NOT NULL,\n"
-				+ "  `N_REGIONKEY` int(11) NOT NULL,\n" + "  `N_COMMENT` varchar(152) DEFAULT NULL,\n"
-				+ "  PRIMARY KEY (`N_NATIONKEY`)\n" + ") ENGINE=InnoDB DEFAULT CHARSET=latin1;\n"
-				+ "/*!40101 SET character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
-				+ "-- Dumping data for table `NATION`\n" + "--\n" + "\n" + "LOCK TABLES `NATION` WRITE;\n"
-				+ "/*!40000 ALTER TABLE `NATION` DISABLE KEYS */;\n" + "INSERT INTO `NATION` VALUES ";
+		return "drop table if exists `nation`;\n" + "/*!40101 set @saved_cs_client     = @@character_set_client */;\n"
+				+ "/*!40101 set character_set_client = utf8 */;\n" + "create table `nation` (\n"
+				+ "  `n_nationkey` int(11) not null,\n" + "  `n_name` char(25) not null,\n"
+				+ "  `n_regionkey` int(11) not null,\n" + "  `n_comment` varchar(152) default null,\n"
+				+ "  primary key (`n_nationkey`)\n" + ") engine=innodb default charset=latin1;\n"
+				+ "/*!40101 set character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
+				+ "-- dumping data for table `nation`\n" + "--\n" + "\n" + "lock tables `nation` write;\n"
+				+ "/*!40000 alter table `nation` disable keys */;\n" + "insert into `nation` values ";
 	}
 
 }
