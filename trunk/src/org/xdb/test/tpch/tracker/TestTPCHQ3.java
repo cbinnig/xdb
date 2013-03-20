@@ -23,11 +23,10 @@ import org.xdb.utils.Identifier;
  * 
  */
 public class TestTPCHQ3 extends DistributedTPCHTestCase {
-	private static boolean RUN_LOCAL = true;
 	
 	// constructor
 	public TestTPCHQ3() {
-		super(RUN_LOCAL, 10 );
+		super(10 );
 		this.resultDDL = "(l_orderkey INTEGER, revenue DECIMAL(65,2), o_orderdate DATE, o_shippriority INTEGER)";
 		this.subqueryDML = "select l_orderkey, "
 				+ "sum(l_extendedprice*(1-l_discount)) as revenue, "

@@ -18,7 +18,7 @@ import org.xdb.utils.StringTemplate;
 
 public abstract class DistributedTPCHTestCase extends
 		DistributedQueryTrackerTestCase {
-	
+
 	protected static int NUMBER_COMPUTE_DBS = 2;
 	protected static Integer LAST_EXEC_OP_ID = 1;
 	protected static final String dbName = "tpch_s01";
@@ -28,11 +28,10 @@ public abstract class DistributedTPCHTestCase extends
 	protected String subqueryDML = "";
 	protected String unionPreDML = "SELECT * FROM ";
 	protected String unionPostDML = ";";
-	
+
 	// constructor
-	public DistributedTPCHTestCase(boolean runLocal,
-			int expectedCnt) {
-		super(NUMBER_COMPUTE_DBS, runLocal);
+	public DistributedTPCHTestCase(int expectedCnt) {
+		super(NUMBER_COMPUTE_DBS);
 		this.expectedCnt = expectedCnt;
 	}
 
@@ -51,8 +50,8 @@ public abstract class DistributedTPCHTestCase extends
 
 	// methods
 	/**
-	 * Connects MySQLTrackerOperators in QueryTrackerPlan: All Q3 sub-queries
-	 * are consumed by Q3 union query
+	 * Connects MySQLTrackerOperators in QueryTrackerPlan: All sub-queries are
+	 * consumed by union query
 	 * 
 	 * @param qPlan
 	 * @param subqueryOps
@@ -61,38 +60,38 @@ public abstract class DistributedTPCHTestCase extends
 	protected void connectOps(QueryTrackerPlan qPlan,
 			MySQLTrackerOperator[] subqueryOps, MySQLTrackerOperator unionOp) {
 		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
-			final Set<Identifier> q3OpConsumer = new HashSet<Identifier>();
-			q3OpConsumer.add(unionOp.getOperatorId());
-			qPlan.setConsumers(subqueryOps[i].getOperatorId(), q3OpConsumer);
+			final Set<Identifier> subqueryConsumer = new HashSet<Identifier>();
+			subqueryConsumer.add(unionOp.getOperatorId());
+			qPlan.setConsumers(subqueryOps[i].getOperatorId(), subqueryConsumer);
 		}
 
-		final Set<Identifier> q3UnionOpSources = new HashSet<Identifier>();
+		final Set<Identifier> unionOpSources = new HashSet<Identifier>();
 		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
-			q3UnionOpSources.add(subqueryOps[i].getOperatorId());
-			qPlan.setSources(unionOp.getOperatorId(), q3UnionOpSources);
+			unionOpSources.add(subqueryOps[i].getOperatorId());
+			qPlan.setSources(unionOp.getOperatorId(), unionOpSources);
 
-			String q3OutTableName = getSubqueryOutTableName(i);
-			String q3UnionInTableName = getUnionInTableName(i);
-			unionOp.setInTableSource(q3UnionInTableName, new TableDesc(
-					q3OutTableName, subqueryOps[i].getOperatorId()));
+			String unionOutTableName = getSubqueryOutTableName(i);
+			String unionInTableName = getUnionInTableName(i);
+			unionOp.setInTableSource(unionInTableName, new TableDesc(
+					unionOutTableName, subqueryOps[i].getOperatorId()));
 		}
 	}
-	
+
 	protected void createUnionOp(QueryTrackerPlan qPlan,
 			MySQLTrackerOperator unionOp) {
 		// DDL for output of union
 		String unionOutTableName = getUnionOutTableName();
-		StringTemplate q3UnionOutDDL = new StringTemplate("<"
-				+ unionOutTableName + "> " + resultDDL);
-		unionOp.addOutTable(unionOutTableName, q3UnionOutDDL);
+		StringTemplate unionOutDDL = new StringTemplate("<" + unionOutTableName
+				+ "> " + resultDDL);
+		unionOp.addOutTable(unionOutTableName, unionOutDDL);
 
 		// DDL for all inputs of union
 		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
-			String q3UnionInTableName = getUnionInTableName(i);
-			StringTemplate q3UnionInDDL = new StringTemplate("<"
-					+ q3UnionInTableName + "> " + resultDDL);
+			String unionInTableName = getUnionInTableName(i);
+			StringTemplate unionInDDL = new StringTemplate("<"
+					+ unionInTableName + "> " + resultDDL);
 
-			unionOp.addInTable(q3UnionInTableName, q3UnionInDDL);
+			unionOp.addInTable(unionInTableName, unionInDDL);
 		}
 
 		// DML for union query
@@ -102,28 +101,28 @@ public abstract class DistributedTPCHTestCase extends
 		unionTMPDDL.append(this.unionPreDML);
 		unionTMPDDL.append(" ( ");
 		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
-			String q3UnionInTableName = getUnionInTableName(i);
+			String unionInTableName = getUnionInTableName(i);
 
 			unionTMPDDL.append("(<");
-			unionTMPDDL.append(q3UnionInTableName);
+			unionTMPDDL.append(unionInTableName);
 			unionTMPDDL.append(">)");
 
 			if (i < NUMBER_COMPUTE_DBS - 1) {
 				unionTMPDDL.append(" UNION ALL ");
-			} 
+			}
 		}
 		unionTMPDDL.append(") as uniontmp ");
 		unionTMPDDL.append(this.unionPostDML);
-		StringTemplate q3UnionDML = new StringTemplate(unionTMPDDL.toString());
-		unionOp.addExecuteSQL(q3UnionDML);
+		StringTemplate unionDML = new StringTemplate(unionTMPDDL.toString());
+		unionOp.addExecuteSQL(unionDML);
 
 		// add operator to plan
 		qPlan.addOperator(unionOp);
 	}
-	
+
 	/**
-	 * Creates MySQLTrackerOperators for all sub-queries that can be executed
-	 * on one database instance and adds them to the Query Tracker Plan
+	 * Creates MySQLTrackerOperators for all sub-queries that can be executed on
+	 * one database instance and adds them to the Query Tracker Plan
 	 * 
 	 * @param qPlan
 	 * @param subqueryOps
@@ -141,14 +140,14 @@ public abstract class DistributedTPCHTestCase extends
 
 			// DML for sub-query q5
 			StringTemplate q5DML = new StringTemplate("insert into <"
-					+ q5OutTableName + "> "+this.subqueryDML);
+					+ q5OutTableName + "> " + this.subqueryDML);
 
 			subqueryOps[i].addExecuteSQL(q5DML);
 
 			qPlan.addOperator(subqueryOps[i]);
 		}
 	}
-	
+
 	/**
 	 * Creates static deployment for operators in order to execute sub-queries
 	 * locally and union on last node
@@ -161,8 +160,8 @@ public abstract class DistributedTPCHTestCase extends
 
 		// create deployment for sub-queries operator
 		for (int i = 0; i < subqueryOps.length; ++i) {
-			MySQLTrackerOperator q3Op = subqueryOps[i];
-			Identifier trackerOpId = q3Op.getOperatorId();
+			MySQLTrackerOperator subqueryOp = subqueryOps[i];
+			Identifier trackerOpId = subqueryOp.getOperatorId();
 			Identifier execOpId = trackerOpId.clone().append(LAST_EXEC_OP_ID++);
 
 			OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
@@ -179,7 +178,7 @@ public abstract class DistributedTPCHTestCase extends
 
 		return currentDeployment;
 	}
-	
+
 	/**
 	 * Executes the Query Tracker Plan and Checks if results size is correct
 	 * 
@@ -203,23 +202,30 @@ public abstract class DistributedTPCHTestCase extends
 			qPlan.cleanPlanOnError();
 		this.assertNoError(err);
 
-		// read result
-		String q3UnionOutTableName = getUnionOutTableName();
-		final Map<Identifier, OperatorDesc> currentDeployment = qPlan
-				.getCurrentDeployment();
-		Identifier resultTable = currentDeployment.get(unionOpId)
-				.getOperatorID();
-		final ResultSet rs = this.executeComputeQuery("SELECT COUNT(*) FROM "
-				+ resultTable + "_" + q3UnionOutTableName);
-		int actualCnt = 0;
-		if (rs.next()) {
-			actualCnt = rs.getInt(1);
+		// read result (if run local, else just clean up)
+		if (this.isRunLocal()) {
+			String unionOutTableName = getUnionOutTableName();
+			final Map<Identifier, OperatorDesc> currentDeployment = qPlan
+					.getCurrentDeployment();
+			Identifier resultTable = currentDeployment.get(unionOpId)
+					.getOperatorID();
+			final ResultSet rs = this
+					.executeComputeQuery("SELECT COUNT(*) FROM " + resultTable
+							+ "_" + unionOutTableName);
+			int actualCnt = 0;
+			if (rs.next()) {
+				actualCnt = rs.getInt(1);
+			}
+			
+			// clean plan
+			this.assertNoError(qPlan.cleanPlan());
+
+			// verify results
+			assertEquals(expectedCnt, actualCnt);
 		}
-
-		// clean plan
-		this.assertNoError(qPlan.cleanPlan());
-
-		// verify results
-		assertEquals(expectedCnt, actualCnt);
+		else{
+			// clean plan
+			this.assertNoError(qPlan.cleanPlan());
+		}
 	}
 }

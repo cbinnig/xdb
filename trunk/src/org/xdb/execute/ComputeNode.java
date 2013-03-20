@@ -175,6 +175,7 @@ public class ComputeNode {
 		if (execute) {
 			OperatorExecutor executor = new OperatorExecutor(op);
 			executor.start();
+			err = executor.getLastError();
 		}
 
 		return err;
@@ -209,10 +210,15 @@ public class ComputeNode {
 	 */
 	private class OperatorExecutor extends Thread {
 		private AbstractExecuteOperator op;
-
+		private Error err = new Error();
+		
 		public OperatorExecutor(AbstractExecuteOperator op) {
 			super();
 			this.op = op;
+		}
+		
+		public Error getLastError(){
+			return this.err;
 		}
 
 		private Error executeOperator(final AbstractExecuteOperator op) {
@@ -227,12 +233,7 @@ public class ComputeNode {
 			// stop timer
 			timeMeasure.stop(op.getOperatorId().toString());
 
-			// check for errors
-			if (err.isError()) {
-				return err;
-			}
-
-			// send READY_SIGNAL to QueryTracker
+			// send READY_SIGNAL to QueryTracker who takes care of error handling
 			QueryTrackerClient queryTrackerClient = op.getQueryTrackerClient();
 			logger.log(
 					Level.INFO,
@@ -246,8 +247,7 @@ public class ComputeNode {
 
 		@Override
 		public void run() {
-			this.executeOperator(op);
-
+			this.err = this.executeOperator(op);
 		}
 	}
 

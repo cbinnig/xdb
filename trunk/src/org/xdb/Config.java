@@ -80,7 +80,7 @@ public class Config implements Serializable {
 	// Logging
 	public static String LOG_FILE = "./log/xdb.log";
 	public static Level LOG_LEVEL = Level.SEVERE;
-	public static boolean MEASURE_QUERY_EXECUTION_TIME = false;
+	public static boolean LOG_EXECUTION_TIME = false;
 
 	// Tracing
 	public static String DOT_EXE = "dot";
@@ -92,6 +92,9 @@ public class Config implements Serializable {
 	public static boolean TRACE_TRACKER_PLAN = false;
 	public static boolean TRACE_EXECUTE_PLAN = false;
 
+	// Testing
+	public static boolean TEST_RUN_LOCAL = true;
+	
 	// Load xdb.conf
 	static {
 		load();
@@ -111,7 +114,8 @@ public class Config implements Serializable {
 				"TRACE_COMPILE_PLAN", "TRACE_COMPILE_PLAN_HEADER",
 				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN",
 				"TRACE_EXECUTE_PLAN", "TRACE_CODEGEN_PLAN",
-				"MEASURE_QUERY_EXECUTION_TIME", "CODEGEN_OPTIMIZE" };
+				"LOG_EXECUTION_TIME", "CODEGEN_OPTIMIZE",
+				"TEST_RUN_LOCAL"};
 
 		Properties props;
 		props = new Properties();
