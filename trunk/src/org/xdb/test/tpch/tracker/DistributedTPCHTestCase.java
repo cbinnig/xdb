@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.test.DistributedQueryTrackerTestCase;
@@ -19,9 +20,9 @@ import org.xdb.utils.StringTemplate;
 public abstract class DistributedTPCHTestCase extends
 		DistributedQueryTrackerTestCase {
 
-	protected static int NUMBER_COMPUTE_DBS = 2;
+	protected static int NUMBER_COMPUTE_DBS = Config.TEST_NODE_COUNT;
 	protected static Integer LAST_EXEC_OP_ID = 1;
-	protected static final String dbName = "tpch_s01";
+	protected static final String dbName = Config.TEST_DB_NAME;
 
 	protected int expectedCnt = 0;
 	protected String resultDDL = "";
