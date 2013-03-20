@@ -23,12 +23,10 @@ import org.xdb.utils.Identifier;
  * 
  */
 public class TestTPCHQ5 extends DistributedTPCHTestCase {
-	private static boolean RUN_LOCAL = true;
-	private static int NUMBER_COMPUTE_DBS = 2;
 	
 	// constructor
 	public TestTPCHQ5() {
-		super(RUN_LOCAL, 5);
+		super(5);
 		this.resultDDL = "(n_name CHAR(25), revenue DECIMAL(65,2))";
 		this.subqueryDML = "select " + "n_name, "
 				+ "sum(l_extendedprice * (1-l_discount)) as revenue "

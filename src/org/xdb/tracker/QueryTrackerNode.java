@@ -202,8 +202,10 @@ public class QueryTrackerNode {
 		Identifier trackerOpId = execOpId.getParentId(1);
 		
 		QueryTrackerPlan qPlan = this.qPlans.get(planId);
-		if(err.isError())
+		if(err.isError()){
+			qPlan.setLastError(err);
 			return err;
+		}
 		
 		qPlan.setTrackerOperatorExecuted(trackerOpId);
 		

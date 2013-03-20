@@ -26,17 +26,16 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 	private boolean runLocal;
 
 	// constructors
-	public DistributedQueryTrackerTestCase(int numberOfComputeServer,
-			boolean runLocal) {
-		this(numberOfComputeServer, 1, runLocal);
+	public DistributedQueryTrackerTestCase(int numberOfComputeServer) {
+		this(numberOfComputeServer, 1);
 	}
 
 	public DistributedQueryTrackerTestCase(int numberOfComputeServer,
-			int numberOfSlots, boolean runLocal) {
+			int numberOfSlots) {
 		super();
 		this.numberOfComputeServer = numberOfComputeServer;
 		this.numberOfSlots = numberOfSlots;
-		this.runLocal = runLocal;
+		this.runLocal = Config.TEST_RUN_LOCAL;
 	}
 
 	// getters and setters
@@ -52,6 +51,11 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 		return computeNodeSlots[i];
 	}
 
+	public boolean isRunLocal() {
+		return runLocal;
+	}
+
+	//methods
 	@Override
 	public void setUp() {
 

@@ -44,13 +44,13 @@ public class XDBExecuteTimeMeasurement {
 	}
 	
 	public void start(String id){
-		if(Config.MEASURE_QUERY_EXECUTION_TIME){
+		if(Config.LOG_EXECUTION_TIME){
 			timeMap.put(id, System.currentTimeMillis());
 		}
 	}
 	
 	public void stop(String id){
-		if(Config.MEASURE_QUERY_EXECUTION_TIME){
+		if(Config.LOG_EXECUTION_TIME){
 			long dif = System.currentTimeMillis() - timeMap.get(id);
 			this.logTime(id, dif);
 			this.flush();

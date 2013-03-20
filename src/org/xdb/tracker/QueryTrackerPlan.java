@@ -49,14 +49,14 @@ public class QueryTrackerPlan implements Serializable {
 	// last plan id
 	private static Integer lastPlanId = 1;
 
-	// last tracker operator id
-	private Integer lastTrackerOpId = 1;
-
-	// last execute operator id
-	private Integer lastExecuteOpId = 1;
-
 	// unique plan id
 	private final Identifier planId;
+
+	// last tracker operator id of plan
+	private Integer lastTrackerOpId = 1;
+
+	// last execute operator id of plan
+	private Integer lastExecuteOpId = 1;
 
 	// assigned when plan is handed over to query tracker
 	private transient QueryTrackerNode tracker = null;
@@ -317,7 +317,7 @@ public class QueryTrackerPlan implements Serializable {
 		}
 
 		// wait until plan is executed
-		while (!this.isExecuted()) {
+		while (!this.isExecuted() && !this.err.isError()) {
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
