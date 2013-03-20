@@ -94,7 +94,7 @@ public class Config implements Serializable {
 
 	// Testing
 	public static boolean TEST_RUN_LOCAL = true;
-	public static String TEST_DB_NAME = "tpch";
+	public static String TEST_DB_NAME = "tpch_s01";
 	public static int TEST_NODE_COUNT = 2;
 	
 	// Load xdb.conf

@@ -24,11 +24,12 @@ public abstract class DistributedTPCHTestCase extends
 	protected static Integer LAST_EXEC_OP_ID = 1;
 	protected static final String dbName = Config.TEST_DB_NAME;
 
+	//need to be set by child class
 	protected int expectedCnt = 0;
-	protected String resultDDL = "";
-	protected String subqueryDML = "";
-	protected String unionPreDML = "SELECT * FROM ";
-	protected String unionPostDML = ";";
+	protected String resultDDL = ""; 
+	protected String subqueryDML = ""; 
+	protected String unionPreDML = "SELECT * FROM "; 
+	protected String unionPostDML = ";"; 
 
 	// constructor
 	public DistributedTPCHTestCase(int expectedCnt) {
@@ -78,6 +79,13 @@ public abstract class DistributedTPCHTestCase extends
 		}
 	}
 
+	/**
+	 * Creates a MySQLTrackerOperator as a union over all sub-queries 
+	 * and adds it to the Query Tracker Plan
+	 * 
+	 * @param qPlan
+	 * @param unionOp
+	 */
 	protected void createUnionOp(QueryTrackerPlan qPlan,
 			MySQLTrackerOperator unionOp) {
 		// DDL for output of union
@@ -151,7 +159,7 @@ public abstract class DistributedTPCHTestCase extends
 
 	/**
 	 * Creates static deployment for operators in order to execute sub-queries
-	 * locally and union on last node
+	 * locally and union on first compute node
 	 * 
 	 * @param currentDeployment
 	 */
@@ -181,7 +189,7 @@ public abstract class DistributedTPCHTestCase extends
 	}
 
 	/**
-	 * Executes the Query Tracker Plan and Checks if results size is correct
+	 * Executes the Query Tracker Plan and checks if results size is correct
 	 * 
 	 * @param qPlan
 	 * @param unionOp
