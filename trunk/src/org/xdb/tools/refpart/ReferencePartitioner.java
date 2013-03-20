@@ -42,8 +42,8 @@ public class ReferencePartitioner {
 			System.out.println("Example: ReferencePartitioner 10 /my/input/dir /my/output/dir /my/temp/dir");
 			System.exit(0);
 		}
-		ReferencePartitioner rp = new ReferencePartitioner(Integer.valueOf(args[0]).intValue(), args[1], args[2],
-				args[3]);
+		ReferencePartitioner rp = new ReferencePartitioner(Integer.valueOf(args[1]).intValue(), args[2], args[3],
+				args[4]);
 		rp.execute();
 	}
 	private String inputDir;

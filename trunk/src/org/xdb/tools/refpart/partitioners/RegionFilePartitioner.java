@@ -34,19 +34,19 @@ public class RegionFilePartitioner extends AbstractFilePartitioner {
 
 	@Override
 	protected String getSQLEnd() {
-		return "/*!40000 ALTER TABLE `REGION` ENABLE KEYS */;\n" + "UNLOCK TABLES;\n";
+		return "/*!40000 alter table `region` enable keys */;\n" + "unlock tables;\n";
 	}
 
 	@Override
 	protected String getSQLStart() {
-		return "DROP TABLE IF EXISTS `REGION`;\n" + "/*!40101 SET @saved_cs_client     = @@character_set_client */;\n"
-				+ "/*!40101 SET character_set_client = utf8 */;\n" + "CREATE TABLE `REGION` (\n"
-				+ "  `R_REGIONKEY` int(11) NOT NULL,\n" + "  `R_NAME` char(25) NOT NULL,\n"
-				+ "  `R_COMMENT` varchar(152) DEFAULT NULL,\n" + "  PRIMARY KEY (`R_REGIONKEY`)\n"
-				+ ") ENGINE=InnoDB DEFAULT CHARSET=latin1;\n"
-				+ "/*!40101 SET character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
-				+ "-- Dumping data for table `REGION`\n" + "--\n" + "\n" + "LOCK TABLES `REGION` WRITE;\n"
-				+ "/*!40000 ALTER TABLE `REGION` DISABLE KEYS */;\n" + "INSERT INTO `REGION` VALUES ";
+		return "drop table if exists `region`;\n" + "/*!40101 set @saved_cs_client     = @@character_set_client */;\n"
+				+ "/*!40101 set character_set_client = utf8 */;\n" + "create table `region` (\n"
+				+ "  `r_regionkey` int(11) not null,\n" + "  `r_name` char(25) not null,\n"
+				+ "  `r_comment` varchar(152) default null,\n" + "  primary key (`r_regionkey`)\n"
+				+ ") engine=innodb default charset=latin1;\n"
+				+ "/*!40101 set character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
+				+ "-- dumping data for table `region`\n" + "--\n" + "\n" + "lock tables `region` write;\n"
+				+ "/*!40000 alter table `region` disable keys */;\n" + "insert into `region` values ";
 	}
 
 }

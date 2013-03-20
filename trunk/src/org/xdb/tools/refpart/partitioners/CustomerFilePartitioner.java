@@ -47,22 +47,22 @@ public class CustomerFilePartitioner extends AbstractFilePartitioner {
 
 	@Override
 	protected String getSQLEnd() {
-		return "/*!40000 ALTER TABLE `CUSTOMER` ENABLE KEYS */;\n" + "UNLOCK TABLES;";
+		return "/*!40000 alter table `customer` enable keys */;\n" + "unlock tables;";
 	}
 
 	@Override
 	protected String getSQLStart() {
-		return "DROP TABLE IF EXISTS `CUSTOMER`;\n"
-				+ "/*!40101 SET @saved_cs_client     = @@character_set_client */;\n"
-				+ "/*!40101 SET character_set_client = utf8 */;\n" + "CREATE TABLE `CUSTOMER` (\n"
-				+ "  `C_CUSTKEY` int(11) NOT NULL,\n" + "  `C_NAME` varchar(25) NOT NULL,\n"
-				+ "  `C_ADDRESS` varchar(40) NOT NULL,\n" + "  `C_NATIONKEY` int(11) NOT NULL,\n"
-				+ "  `C_PHONE` char(15) NOT NULL,\n" + "  `C_ACCTBAL` decimal(15,2) NOT NULL,\n"
-				+ "  `C_MKTSEGMENT` char(10) NOT NULL,\n" + "  `C_COMMENT` varchar(117) NOT NULL,\n"
-				+ "  PRIMARY KEY (`C_CUSTKEY`)\n" + ") ENGINE=InnoDB DEFAULT CHARSET=latin1;\n"
-				+ "/*!40101 SET character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
-				+ "-- Dumping data for table `CUSTOMER`\n" + "--\n" + "\n" + "LOCK TABLES `CUSTOMER` WRITE;\n"
-				+ "/*!40000 ALTER TABLE `CUSTOMER` DISABLE KEYS */;" + "INSERT INTO `CUSTOMER` VALUES ";
+		return "drop table if exists `customer`;\n"
+				+ "/*!40101 set @saved_cs_client     = @@character_set_client */;\n"
+				+ "/*!40101 set character_set_client = utf8 */;\n" + "create table `customer` (\n"
+				+ "  `c_custkey` int(11) not null,\n" + "  `c_name` varchar(25) not null,\n"
+				+ "  `c_address` varchar(40) not null,\n" + "  `c_nationkey` int(11) not null,\n"
+				+ "  `c_phone` char(15) not null,\n" + "  `c_acctbal` decimal(15,2) not null,\n"
+				+ "  `c_mktsegment` char(10) not null,\n" + "  `c_comment` varchar(117) not null,\n"
+				+ "  primary key (`c_custkey`)\n" + ") engine=innodb default charset=latin1;\n"
+				+ "/*!40101 set character_set_client = @saved_cs_client */;\n" + "\n" + "--\n"
+				+ "-- dumping data for table `customer`\n" + "--\n" + "\n" + "lock tables `customer` write;\n"
+				+ "/*!40000 alter table `customer` disable keys */;" + "insert into `customer` values ";
 	}
 
 }
