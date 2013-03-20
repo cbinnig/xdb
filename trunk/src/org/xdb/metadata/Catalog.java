@@ -193,6 +193,22 @@ public class Catalog {
 		Error lastError = new Error(EnumError.CATALOG_TABLE_DUP_ATTS, args);
 		return lastError;
 	}
+	
+	public static synchronized Error createPartitionContainsDupAttErr(
+			String tableName, String attName) {
+		String[] args = { tableName, attName };
+		Error lastError = new Error(EnumError.CATALOG_PART_DUP_ATTS, args);
+		return lastError;
+	}
+	
+	public static synchronized Error createPartitionContainsWrongArgumentAttErr(
+			String tableName, String attName) {
+		String[] args = { tableName, attName };
+		Error lastError = new Error(EnumError.CATALOG_PART_WRONG_ATTS, args);
+		return lastError;
+	}
+	
+
 
 	private static synchronized Error checkCatalog() {
 		if (Catalog.getSchema(Config.COMPILE_DEFAULT_SCHEMA) == null) {
