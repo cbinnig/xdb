@@ -183,6 +183,28 @@ public class CreateTableStmt extends AbstractServerStmt {
 			//partitioned call partion table constructor
 			this.table = null;
 			this.table = new Table(this.tTable.getName().toString(), 	this.tSourceTable.getName().toString(), this.tSourceTable.getSchema().getName().toString(), this.schema.getOid());
+			this.table.setPartioned(true);
+			this.table.setPartitionType(this.partitionMethod);
+			
+			Vector<TokenAttribute> scannedpartitionAttributes = new Vector<TokenAttribute>();
+			//build up Partition Details
+			String partdetails = "";
+			for(TokenAttribute ta : this.tpartitionAttributes){
+				//if duplicate throw error
+				if(scannedpartitionAttributes.contains(ta)){
+					return Catalog.createPartitionContainsDupAttErr(this.table.getName(), ta.getName().getName());
+				}
+				
+				if(	!this.tAttributes.contains(ta)){
+					return Catalog.createPartitionContainsDupAttErr(this.table.getName(), ta.getName().getName());
+				}
+				scannedpartitionAttributes.add(ta);
+				
+				partdetails = partdetails +	" " + ta.getName();
+			}
+			
+			
+			this.table.setPartitionDetails(partdetails.trim());
 			//check Error
 			lastError = this.table.checkObject();
 			if(lastError!=Error.NO_ERROR)
@@ -225,7 +247,7 @@ public class CreateTableStmt extends AbstractServerStmt {
 					this.tSourceTable.getName().toString(), 
 					this.tSourceTable.getSchema().getName().toString(),
 					this.schema.getOid());
-			
+			this.table.setPartioned(false);
 			// add connections to Table
 			this.table.addConnections(this.connections);
 			lastError = this.table.checkObject();

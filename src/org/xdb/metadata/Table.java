@@ -1,8 +1,10 @@
 package org.xdb.metadata;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
@@ -45,6 +47,9 @@ public class Table extends AbstractDatabaseObject {
 	private String partitionType;
 	private String partitionDetails;
 	private boolean partioned;
+	
+
+
 	private Table(){
 		super();
 		this.objectType = EnumDatabaseObject.TABLE;
@@ -187,6 +192,51 @@ public class Table extends AbstractDatabaseObject {
 	public String getAllAttributes() {
 		return ALL_ATTRIBUTES;
 	}
+	
+	public String getPartitionType() {
+		return partitionType;
+	}
+
+
+
+	public String getPartitionDetails() {
+		return partitionDetails;
+	}
+
+
+
+	public void setPartitionType(String partitionType) {
+		this.partitionType = partitionType;
+	}
+
+
+
+	public void setPartitionDetails(String partitionDetails) {
+		this.partitionDetails = partitionDetails;
+	}
+	
+	public List<String> getListofPartDetails(){
+		List<String> values = new ArrayList<String>();
+		String[] splitted = this.partitionDetails.split(" ");
+		for (String elem : splitted) {
+			values.add(elem);
+		}
+		return values;
+	}
+
+
+
+	public void setPartioned(boolean partioned) {
+		this.partioned = partioned;
+	}
+
+
+
+	public boolean isPartioned() {
+		return partioned;
+	}
+
+
 	
 	@Override
 	public String sqlInsert() {

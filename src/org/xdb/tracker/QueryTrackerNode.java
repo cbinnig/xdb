@@ -120,6 +120,9 @@ public class QueryTrackerNode {
 		// initialize compile plan after shipping plan 
 		cplan.init();
 
+	
+		
+		
 		// build query tracker plan from compile plan
 		QueryTrackerPlan qplan = generateQueryTrackerPlan(cplan);
 		
