@@ -85,4 +85,30 @@ public class QueryTrackerClient extends AbstractClient{
 		}
 		return err;
 	}
+	
+	/**
+	 * Stop query tracker server
+	 * @return
+	 */
+	public Error stopQueryTrackerServer() {
+		Error err = new Error();
+		try {
+			Socket server = new Socket(url, port);
+			
+			final ObjectOutputStream out = new ObjectOutputStream(
+					server.getOutputStream());
+
+			out.writeInt(QueryTrackerServer.CMD_STOP_SERVER);
+			out.flush();
+			
+			final ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
+			err = (Error) in.readObject();
+			server.close();
+
+		} catch (final Exception e) {
+			err = createClientError(e);
+		}
+		return err;
+	}
 }

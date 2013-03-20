@@ -18,10 +18,17 @@ import org.xdb.logging.XDBLog;
  */
 public abstract class AbstractServer {
 	
+	//CMDs
+	public static final int CMD_STOP_SERVER = 0;
+	
+	// thread
 	protected ServerThread serverThread = null;
+	
+	//network
+	protected ServerSocket serverSocket = null;
 	protected int port = -1;
 	
-	protected ServerSocket serverSocket = null;
+	//helper
 	protected Logger logger;
 	protected Error err = new Error();
 

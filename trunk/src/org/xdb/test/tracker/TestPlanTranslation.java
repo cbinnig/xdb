@@ -24,31 +24,23 @@ import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Table;
-import org.xdb.server.MasterTrackerServer;
 import org.xdb.store.EnumStore;
-import org.xdb.test.TestCase;
+import org.xdb.test.XDBTestCase;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 
-public class TestPlanTranslation extends TestCase {
+public class TestPlanTranslation extends XDBTestCase {
 
 	private QueryTrackerNode qTracker;
-	private MasterTrackerServer mTrackerServer;
+	
 	@Override
 	/**
 	 * Setup common statements (connect, drop, ...)
 	 */
 	public void setUp() {
-		try {
-			mTrackerServer = new MasterTrackerServer();
-			mTrackerServer.startServer();
-			assertNoError(mTrackerServer.getError());
-			
-			
-			this.qTracker = new QueryTrackerNode();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		super.setUp();
+		
+		this.qTracker = this.qTrackerServer.getNode();
 	}
 	
 	
@@ -333,10 +325,5 @@ public class TestPlanTranslation extends TestCase {
 		qPlan.tracePlan(this.getClass().getName());
 		
 		assertEquals(qPlan.getTrackerOperators().size(), 1);
-	}
-	
-	@Override
-	public void tearDown(){
-		mTrackerServer.stopServer();
 	}
 }

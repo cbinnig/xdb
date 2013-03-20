@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.xdb.Config;
+import org.xdb.client.ComputeClient;
+import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.ComputeNodeSlot;
@@ -125,6 +127,21 @@ public class MasterTrackerServer extends AbstractServer {
 		return this.tracker.getNoComputeServers();
 	}
 
+	//methods
+	public synchronized void stopServer() {
+		super.stopServer();
+		
+		//stop all compute servers
+		ComputeClient computeClient = new ComputeClient();
+		for(ComputeNodeSlot computeSlot: this.tracker.getComputeSlots().keySet()){
+			computeClient.stopComputeServer(computeSlot);
+		}
+		
+		//stop all query tracker servers
+		for(QueryTrackerClient qTClient: this.tracker.getQueryTrackerClients().values()){
+			qTClient.stopQueryTrackerServer();
+		}
+	}
 	
 	/**
 	 * @param args

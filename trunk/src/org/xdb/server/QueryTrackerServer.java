@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.logging.Level;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
@@ -55,6 +56,10 @@ public class QueryTrackerServer extends AbstractServer {
 			final int cmd = in.readInt();
 			try {
 				switch (cmd) {
+				case CMD_STOP_SERVER:
+					logger.log(Level.INFO, "Received CMD_STOP_SERVER");
+					QueryTrackerServer.this.stopServer();
+					break;
 				case CMD_EXECUTE_PLAN:
 					//got new compile plan
 					final CompilePlan cplan = (CompilePlan) in.readObject();
