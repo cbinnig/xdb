@@ -67,6 +67,10 @@ public class MasterTrackerNode {
 	public Map<ComputeNodeSlot, Integer> getComputeSlots() {
 		return this.computeSlots;
 	}
+	
+	public Map<String, QueryTrackerClient> getQueryTrackerClients(){
+		return this.queryTrackerClients;
+	}
 
 	public int getNoFreeComputeSlots() {
 		return this.freeComputeSlots;

@@ -174,6 +174,37 @@ public class ComputeClient extends AbstractClient {
 		return err;
 	}
 
+	
+	/**
+	 * Stop compute server
+	 * @param url
+	 * @param operatorId
+	 * @return
+	 */
+	public Error stopComputeServer(final ComputeNodeSlot url) {
+		Error err = new Error();
+		
+		try {
+			Socket server = new Socket(url.getHost(), url.getPort());
+			final ObjectOutputStream out = new ObjectOutputStream(
+					server.getOutputStream());
+
+			out.writeInt(ComputeServer.CMD_STOP_SERVER);
+			out.flush();
+
+			final ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
+			err = (Error) in.readObject();
+
+			server.close();
+
+		} catch (final Exception e) {
+			err = createClientError(e);
+		}
+
+		return err;
+	}
+	
 	/**
 	 * Close operator on node
 	 * 
