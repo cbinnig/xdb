@@ -10,14 +10,7 @@ import org.xdb.tracker.operator.MySQLTrackerOperator;
 import org.xdb.utils.Identifier;
 
 /**
- * Tests Q5 on NUMBER_COMPUTE_DBS TPC-H database instances using
- * NUMBER_COMPUTE_DBS+1 compute nodes
- * 
- * - NUMBER_COMPUTE_DBS compute nodes are executing the local sub-queries - 1
- * query is computing the union over all intermediate results
- * 
- * if RUN_LOCAL==true all compute nodes are started on local machine else no
- * compute nodes are started automatically (i.e., must be done manually)
+ * Tests Q5 on multiple compute nodes
  * 
  * @author cbinnig
  * 
