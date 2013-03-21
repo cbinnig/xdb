@@ -13,6 +13,7 @@ import org.xdb.Config;
 import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.utils.Identifier;
 
@@ -255,5 +256,25 @@ public abstract class AbstractExecuteOperator implements Serializable {
 		String[] args = { e.toString() + "," + e.getCause() };
 		Error err = new Error(EnumError.MYSQL_ERROR, args);
 		return err;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append(this.getClass().getCanonicalName());
+		builder.append(AbstractToken.NEWLINE);
+		
+		for(String openSQL : this.openSQLs) {
+			builder.append(openSQL.toString());
+			builder.append(AbstractToken.NEWLINE);
+		}
+		
+		for(String closeSQL : this.closeSQLs) {
+			builder.append(closeSQL.toString());
+			builder.append(AbstractToken.NEWLINE);
+		}
+		
+		return builder.toString();
 	}
 }
