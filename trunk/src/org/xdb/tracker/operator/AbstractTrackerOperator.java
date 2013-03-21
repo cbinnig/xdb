@@ -1,6 +1,9 @@
 package org.xdb.tracker.operator;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -122,6 +125,99 @@ public abstract class AbstractTrackerOperator implements Serializable {
 			OperatorDesc operDesc, Map<Identifier, OperatorDesc> currentDeployment);
 
 	/**
+	 * Creates input and output tables for a given execute operator
+	 * and returns table names of deployment
+	 * 
+	 * @param execOp
+	 * @param operDesc
+	 * @param currentDeployment
+	 * @return
+	 */
+	protected Map<String, String> genInputAndOutput(AbstractExecuteOperator execOp,
+			OperatorDesc operDesc, Map<Identifier, OperatorDesc> currentDeployment) {
+
+		Identifier deployOperId = operDesc.getOperatorID();
+		String deployURL = operDesc.getComputeSlot().getHost();
+		
+		HashMap<String, String> args = new HashMap<String, String>();
+
+		// generate DDLs to open operator: input tables
+		for (String tableName : this.inTables.keySet()) {
+			TableDesc inTableDesc = this.inTableDesc.get(tableName);
+			String deployTableName = genDeployTableName(tableName, deployOperId);
+
+			
+			if (inTableDesc.isTemp()) { // input table is a intermediate result  
+				
+				OperatorDesc sourceOp = currentDeployment.get(inTableDesc
+						.getOperatorID());
+				String sourceURL = sourceOp.getComputeSlot().getHost();
+				String sourceTableName = inTableDesc.getTableName();
+		
+				Identifier sourceOperId = sourceOp.getOperatorID();
+
+				String deployTableDDL = this.genDeployInputTableDDL(tableName,
+						deployOperId, sourceTableName, sourceOperId, sourceURL);
+				execOp.addOpenSQL(deployTableDDL);
+
+				//if URL of source operator is local then use directly its output  
+				if(isLocalInput(sourceURL, deployURL)){
+					//get description of source Table
+					Identifier sourceDeployOperId = sourceOp.getOperatorID();
+					//set different deployment name
+					deployTableName = genDeployTableName(sourceTableName, sourceDeployOperId);
+				}
+
+				args.put(tableName, "SELECT * FROM " + deployTableName);
+
+			} else { // input table is stored in an XDB instance
+				URI connURI = inTableDesc.getURI();
+				String sourceTableName = inTableDesc.getTableName();
+				String sourceURL = connURI.getHost();
+				String sourceDB = connURI.getPath().substring(1);
+
+				String deployTableDDL = this.genDeployInputTableDDL(
+							tableName, deployOperId, sourceTableName, sourceDB,
+							sourceURL);
+				execOp.addOpenSQL(deployTableDDL);
+
+				//if URL of table is local then use directly its output  
+				if(isLocalInput(sourceURL, deployURL)){
+					deployTableName = sourceDB + "." + sourceTableName;
+				}else if (sourceURL.equals(operDesc.getComputeSlot())){
+					deployTableName = sourceDB + "." + sourceTableName;
+				}
+				
+				args.put(tableName, deployTableName);
+			}
+		}
+
+		// generate DDLs to open operator: output tables
+		for (String tableName : this.outTables.keySet()) {
+
+			String deployTableDDL = this.genDeployOutputTableDDL(tableName,
+					deployOperId);
+
+			String deployTableName = genDeployTableName(tableName, deployOperId);
+			execOp.addOpenSQL(deployTableDDL);
+			args.put(tableName, deployTableName);
+		}
+
+		// generate DDLs to close operator
+		for (String tableName : this.inTables.keySet()) {
+			execOp.addCloseSQL(genDropDeployTableDDL(tableName,
+					deployOperId));
+		}
+
+		for (String tableName : this.outTables.keySet()) {
+			execOp.addCloseSQL(genDropDeployTableDDL(tableName,
+					deployOperId));
+		}
+
+		return args;
+	}
+	
+	/**
 	 * Generate SQL DDL to deploy partitioned in-memory output table
 	 * 
 	 * @param tableName
@@ -198,6 +294,32 @@ public abstract class AbstractTrackerOperator implements Serializable {
 		return tableDDL.toString();
 	}
 
+	/**
+	 * Checks if sourceURL and deployURL are the same 
+	 * or if sourceURL is loop back
+	 * @param sourceURL
+	 * @param deployURL
+	 * @return
+	 */
+	protected boolean isLocalInput(String sourceURL, String deployURL){
+		InetAddress sourceAddress = null;
+		InetAddress deployAddress = null;
+		try {
+			sourceAddress = InetAddress.getByName(sourceURL);
+			deployAddress = InetAddress.getByName(deployURL);
+		} catch (UnknownHostException e) {
+			return false;
+		}
+
+		if(sourceAddress.equals(deployAddress)){
+			return true;
+		}
+		else if(sourceAddress.isLoopbackAddress()){
+			return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Generate DDL to drop a table
 	 * @param tableName
