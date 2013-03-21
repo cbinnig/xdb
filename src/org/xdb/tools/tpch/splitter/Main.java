@@ -1,4 +1,4 @@
-package org.xdb.tpch.splitter;
+package org.xdb.tools.tpch.splitter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
