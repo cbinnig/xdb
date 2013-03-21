@@ -29,7 +29,7 @@ public class Config implements Serializable {
 	public static String COMPUTE_DB_NAME = "xdb_tmp";
 	public static String COMPUTE_DB_USER = "xroot";
 	public static String COMPUTE_DB_PASSWD = "xroot";
-	public static Identifier COMPUTE_NOOP_ID = new Identifier("NOOP");
+	public static final Identifier COMPUTE_NOOP_ID = new Identifier("NOOP");
 	public static int COMPUTE_PORT = 55700;
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
 	public static int COMPUTE_SLOTS = 32;
@@ -55,14 +55,14 @@ public class Config implements Serializable {
 	static {
 		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(0, true);
 		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(1, true);
-		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(2, true);
-		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(3, true);
-		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(4, true);
+		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(2, false);
+		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(3, false);
+		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(4, false);
 		OPTIMIZER_ACTIVE_RULES_SELECT.set(0, false);
 		OPTIMIZER_ACTIVE_RULES_SELECT.set(1, true);
-		OPTIMIZER_ACTIVE_RULES_SELECT.set(2, true);
-		OPTIMIZER_ACTIVE_RULES_SELECT.set(3, true);
-		OPTIMIZER_ACTIVE_RULES_SELECT.set(4, true);
+		OPTIMIZER_ACTIVE_RULES_SELECT.set(2, false);
+		OPTIMIZER_ACTIVE_RULES_SELECT.set(3, false);
+		OPTIMIZER_ACTIVE_RULES_SELECT.set(4, false);
 	}
 
 	// Master Tracker Server

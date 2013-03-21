@@ -22,8 +22,7 @@ import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
 
 /**
- * Query tracker node executes and monitors multiple 
- * query tracker plan
+ * Query tracker node executes and monitors multiple query tracker plan
  * 
  * @author cbinnig
  * 
@@ -37,9 +36,9 @@ public class QueryTrackerNode {
 	// self-description of query tracker
 	private final QueryTrackerNodeDesc description;
 
-	// query tracker plans 
+	// query tracker plans
 	private Map<Identifier, QueryTrackerPlan> qPlans = new HashMap<Identifier, QueryTrackerPlan>();
-	
+
 	// logger
 	private final Logger logger;
 
@@ -65,12 +64,13 @@ public class QueryTrackerNode {
 	// getters and setters
 	/**
 	 * Adds plan to monitored plans
+	 * 
 	 * @param plan
 	 */
-	public void addPlan(QueryTrackerPlan plan){
+	public void addPlan(QueryTrackerPlan plan) {
 		this.qPlans.put(plan.getPlanId(), plan);
 	}
-	
+
 	/**
 	 * Returns compute client of query tracker node
 	 * 
@@ -97,17 +97,28 @@ public class QueryTrackerNode {
 	 * @param plan
 	 * @return
 	 */
-	public QueryTrackerPlan generateQueryTrackerPlan(
+	public Tuple<QueryTrackerPlan, Error> generateQueryTrackerPlan(
 			final CompilePlan compilePlan) {
 		Error err = new Error();
 		CodeGenerator codeGen = new CodeGenerator(compilePlan);
 		err = codeGen.generate();
 		if (err.isError())
-			return null;
+			return new Tuple<QueryTrackerPlan, Error>(null, err);
 
-		return codeGen.getQueryTrackerPlan();
+		QueryTrackerPlan qplan = codeGen.getQueryTrackerPlan();
+
+		// trace query tracker plan
+		if (Config.TRACE_TRACKER_PLAN) {
+			qplan.tracePlan(qplan.getClass().getCanonicalName()
+					+ "QUERY_TRACKER");
+		}
+
+		// assign query tracker to query tracker plan
+		qplan.assignTracker(this);
+
+		return new Tuple<QueryTrackerPlan, Error>(qplan, err);
 	}
-	
+
 	/**
 	 * Execute a given compile plan
 	 * 
@@ -117,26 +128,20 @@ public class QueryTrackerNode {
 	public Error executePlan(final CompilePlan cplan) {
 		logger.log(Level.INFO, "Got new compileplan: " + cplan.getPlanId());
 
-		// initialize compile plan after shipping plan 
+		// initialize compile plan after shipping plan from master
 		cplan.init();
 
-	
-		
-		
-		// build query tracker plan from compile plan
-		QueryTrackerPlan qplan = generateQueryTrackerPlan(cplan);
-		
-		// trace query tracker plan
-		if (Config.TRACE_TRACKER_PLAN) {
-			qplan.tracePlan(qplan.getClass().getCanonicalName()
-					+ "QUERY_TRACKER");
+		// 0. build query tracker plan from compile plan
+		Tuple<QueryTrackerPlan, Error> qPlanErr = generateQueryTrackerPlan(cplan);
+		QueryTrackerPlan qplan = qPlanErr.getObject1();
+		Error err = qPlanErr.getObject2();
+		if (err.isError()) {
+			qplan.cleanPlanOnError();
+			return err;
 		}
-		
-		// 0. assign query tracker to query tracker plan
-		qplan.assignTracker(this);
-		
+
 		// 1. deploy query tracker plan on compute nodes
-		Error err = qplan.deployPlan();
+		err = qplan.deployPlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;
@@ -144,7 +149,6 @@ public class QueryTrackerNode {
 
 		// 2. execute query tracker plan
 		err = qplan.executePlan();
-		
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;
@@ -158,17 +162,12 @@ public class QueryTrackerNode {
 		}
 
 		// 4. clean query tracker plan
-		if (Config.COMPUTE_CLEAN_RESULTS) {
-			err = qplan.cleanPlan();
-		} else {
-			err = qplan.cleanPlanWithoutRoots();
-		}
-		
+		err = qplan.cleanPlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;
 		}
-		
+
 		return err;
 	}
 
@@ -195,20 +194,20 @@ public class QueryTrackerNode {
 	 */
 	public Error operatorReady(final AbstractExecuteOperator execOp) {
 		Error err = execOp.getLastError();
-		
+
 		// get trackerOpId and set status to executed if no error occurred
 		Identifier execOpId = execOp.getOperatorId();
 		Identifier planId = execOpId.getParentId(0);
 		Identifier trackerOpId = execOpId.getParentId(1);
-		
+
 		QueryTrackerPlan qPlan = this.qPlans.get(planId);
-		if(err.isError()){
+		if (err.isError()) {
 			qPlan.setLastError(err);
 			return err;
 		}
-		
+
 		qPlan.setTrackerOperatorExecuted(trackerOpId);
-		
+
 		// send READY Signal to all consumers
 		final Set<OperatorDesc> consumers = execOp.getConsumers();
 		for (final OperatorDesc consumer : consumers) {
@@ -219,7 +218,7 @@ public class QueryTrackerNode {
 						+ consumer);
 				err = computeClient.executeOperator(execOp.getOperatorId(),
 						consumer);
-				
+
 				if (err.isError())
 					return err;
 			}

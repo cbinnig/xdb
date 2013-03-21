@@ -93,7 +93,7 @@ public class TestSQLPlanTranslation extends CompileServerTestCase {
 		fStmt.getPlan().tracePlan(this.getClass().getName()+"_Compiler");
 		this.assertNoError(fStmt.execute());
 		
-		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(fStmt.getPlan());
+		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(fStmt.getPlan()).getObject1();
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName()+"_Tracker");
 		

@@ -239,34 +239,18 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	/**
-	 * Closes all operators in the plan
+	 * Closes all operators in the plan. Result
+	 * tables are kept if configuration is set accordingly
+	 * 
 	 * 
 	 */
 	public Error cleanPlan() {
-		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
-				.entrySet()) {
-			final OperatorDesc operDesc = entry.getValue();
-			err = computeClient.closeOperator(operDesc);
-
-			if (err.isError()) {
-				return err;
-			}
-		}
-		return err;
-	}
-
-	/**
-	 * Closes all operators in the plan that are no root operators (i.e., result
-	 * tables are kept)
-	 * 
-	 */
-	public Error cleanPlanWithoutRoots() {
 		// close operators which are no root operators
 		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
 				.entrySet()) {
 			final AbstractTrackerOperator trackerOp = trackerOps.get(entry
 					.getKey());
-			if (!trackerOp.isRoot()) {
+			if (!trackerOp.isRoot() || Config.COMPUTE_CLEAN_RESULTS) {
 				final OperatorDesc operDesc = entry.getValue();
 				err = computeClient.closeOperator(operDesc);
 
