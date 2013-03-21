@@ -94,7 +94,7 @@ public class TestPlanTranslation extends XDBTestCase {
 		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
-		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan);
+		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan).getObject1();
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
@@ -152,7 +152,7 @@ public class TestPlanTranslation extends XDBTestCase {
 		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
-		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan);
+		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan).getObject1();
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
@@ -216,7 +216,7 @@ public class TestPlanTranslation extends XDBTestCase {
 		table.addAttribute(new Attribute("b", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
-		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan);
+		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan).getObject1();
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
@@ -320,7 +320,7 @@ public class TestPlanTranslation extends XDBTestCase {
 		rTable.addAttribute(new Attribute("c", EnumSimpleType.SQL_INTEGER, 0L));
 		rTableOp.setTable(rTable);
 		
-		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan);
+		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan).getObject1();
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
