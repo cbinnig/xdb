@@ -196,7 +196,7 @@ public abstract class DistributedTPCHTestCase extends
 	 * @throws SQLException
 	 */
 	protected void executeQuery(QueryTrackerPlan qPlan,
-			Map<Identifier, OperatorDesc> deployment, Identifier unionOpId)
+			Map<Identifier, OperatorDesc> deployment, Identifier resultOpId, String resultTableName)
 			throws SQLException {
 
 		// deploy plan to compute nodes
@@ -213,21 +213,20 @@ public abstract class DistributedTPCHTestCase extends
 
 		// read result (if run local, else just clean up)
 		if (this.isRunLocal()) {
-			String unionOutTableName = getUnionOutTableName();
 			final Map<Identifier, OperatorDesc> currentDeployment = qPlan
 					.getCurrentDeployment();
-			Identifier resultTable = currentDeployment.get(unionOpId)
+			Identifier resultTable = currentDeployment.get(resultOpId)
 					.getOperatorID();
 			final ResultSet rs = this
 					.executeComputeQuery("SELECT COUNT(*) FROM " + resultTable
-							+ "_" + unionOutTableName);
+							+ "_" + resultTableName);
 			int actualCnt = 0;
 			if (rs.next()) {
 				actualCnt = rs.getInt(1);
 			}
 			
 			// clean plan
-			this.assertNoError(qPlan.cleanPlan());
+			this.assertNoError(qPlan.cleanPlanWithoutRoots());
 
 			// verify results
 			assertEquals(expectedCnt, actualCnt);

@@ -60,6 +60,6 @@ public class TestTPCHQ3 extends DistributedTPCHTestCase {
 		// create deployment and execute plan
 		Map<Identifier, OperatorDesc> deployment = this.createDeployment(q3Ops,
 				q3UnionOp);
-		executeQuery(qPlan, deployment, q3UnionOp.getOperatorId());
+		executeQuery(qPlan, deployment, q3UnionOp.getOperatorId(), getUnionOutTableName());
 	}
 }

@@ -83,21 +83,13 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		
-		for(String openSQL : this.openSQLs) {
-			builder.append(openSQL.toString());
-			builder.append(AbstractToken.NEWLINE);
-		}
+		builder.append(super.toString());
 		
 		for(String exeSQL : this.executeSQLs) {
 			builder.append(exeSQL.toString());
 			builder.append(AbstractToken.NEWLINE);
 		}
-		
-		for(String closeSQL : this.closeSQLs) {
-			builder.append(closeSQL.toString());
-			builder.append(AbstractToken.NEWLINE);
-		}
-		
+
 		return builder.toString();
 	}
 }
