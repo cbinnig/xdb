@@ -226,7 +226,7 @@ public abstract class DistributedTPCHTestCase extends
 			}
 			
 			// clean plan
-			this.assertNoError(qPlan.cleanPlanWithoutRoots());
+			this.assertNoError(qPlan.cleanPlan());
 
 			// verify results
 			assertEquals(expectedCnt, actualCnt);
