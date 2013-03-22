@@ -56,6 +56,9 @@ public class ComputeServer extends AbstractServer {
 					logger.log(Level.INFO, "Received CMD_STOP_SERVER");
 					ComputeServer.this.stopServer();
 					break;
+				case CMD_PING_SERVER:
+					logger.log(Level.INFO, "Received CMD_PING_SERVER");
+					break;
 				case CMD_OPEN_OP:
 					final AbstractExecuteOperator op = (AbstractExecuteOperator) in.readObject();
 					logger.log(Level.INFO, "Received operator:" + op.getOperatorId());

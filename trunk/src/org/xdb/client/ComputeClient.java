@@ -1,9 +1,5 @@
 package org.xdb.client;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeSlot;
@@ -24,12 +20,12 @@ public class ComputeClient extends AbstractClient {
 	public ComputeClient() {
 		this(Config.LOCALHOST, Config.COMPUTE_PORT);
 	}
-	
+
 	public ComputeClient(final ComputeNodeSlot slot) {
 		this(slot.getHost(), slot.getPort());
 	}
-	
-	public ComputeClient(String url, int port){
+
+	public ComputeClient(String url, int port) {
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 		this.port = port;
 		this.url = url;
@@ -42,30 +38,11 @@ public class ComputeClient extends AbstractClient {
 	 * @param op
 	 * @return
 	 */
-	public Error openOperator(final ComputeNodeSlot url, final AbstractExecuteOperator op) {
-		Error err = new Error();
-
-		try {
-			Socket server = new Socket(url.getHost(), url.getPort());
-			final ObjectOutputStream out = new ObjectOutputStream(
-					server.getOutputStream());
-
-			out.writeInt(ComputeServer.CMD_OPEN_OP);
-			out.flush();
-			out.writeObject(op);
-			out.flush();
-
-			final ObjectInputStream in = new ObjectInputStream(
-					server.getInputStream());
-			err = (Error) in.readObject();
-
-			server.close();
-
-		} catch (final Exception e) {
-			err = createClientError(e);
-		}
-
-		return err;
+	public Error openOperator(final ComputeNodeSlot url,
+			final AbstractExecuteOperator op) {
+		Object[] args = { op };
+		return this.executeCmd(url.getHost(), url.getPort(),
+				ComputeServer.CMD_OPEN_OP, args);
 	}
 
 	/**
@@ -76,32 +53,12 @@ public class ComputeClient extends AbstractClient {
 	 * @param destOpId
 	 * @return
 	 */
-	public Error executeOperator(final Identifier sourceOpId, final ComputeNodeSlot url,
-			final Identifier destOpId) {
-		Error err = new Error();
-		
-
-		try {
-			Socket server = new Socket(url.getHost(), url.getPort());
-			final ObjectOutputStream out = new ObjectOutputStream(
-					server.getOutputStream());
-			final ReadySignal signal = new ReadySignal(sourceOpId, destOpId);
-
-			out.writeInt(ComputeServer.CMD_READY_SIGNAL);
-			out.flush();
-			out.writeObject(signal);
-			out.flush();
-
-			final ObjectInputStream in = new ObjectInputStream(
-					server.getInputStream());
-			err = (Error) in.readObject();
-
-			server.close();
-		} catch (final Exception e) {
-			err = createClientError(e);
-		}
-
-		return err;
+	public Error executeOperator(final Identifier sourceOpId,
+			final ComputeNodeSlot url, final Identifier destOpId) {
+		final ReadySignal signal = new ReadySignal(sourceOpId, destOpId);
+		Object[] args = { signal };
+		return this.executeCmd(url.getHost(), url.getPort(),
+				ComputeServer.CMD_READY_SIGNAL, args);
 	}
 
 	/**
@@ -136,7 +93,8 @@ public class ComputeClient extends AbstractClient {
 	 * @param destOpId
 	 * @return
 	 */
-	public Error executeOperator(final ComputeNodeSlot url, final Identifier destOpId) {
+	public Error executeOperator(final ComputeNodeSlot url,
+			final Identifier destOpId) {
 		return this.executeOperator(Config.COMPUTE_NOOP_ID, url, destOpId);
 	}
 
@@ -147,64 +105,14 @@ public class ComputeClient extends AbstractClient {
 	 * @param op
 	 * @return
 	 */
-	public Error closeOperator(final ComputeNodeSlot url, final Identifier operatorId) {
-		Error err = new Error();
+	public Error closeOperator(final ComputeNodeSlot url,
+			final Identifier operatorId) {
 		final CloseSignal signal = new CloseSignal(operatorId);
-
-		try {
-			Socket server = new Socket(url.getHost(), url.getPort());
-			final ObjectOutputStream out = new ObjectOutputStream(
-					server.getOutputStream());
-
-			out.writeInt(ComputeServer.CMD_CLOSE_SIGNAL);
-			out.flush();
-			out.writeObject(signal);
-			out.flush();
-
-			final ObjectInputStream in = new ObjectInputStream(
-					server.getInputStream());
-			err = (Error) in.readObject();
-
-			server.close();
-
-		} catch (final Exception e) {
-			err = createClientError(e);
-		}
-
-		return err;
+		Object[] args = { signal };
+		return this.executeCmd(url.getHost(), url.getPort(),
+				ComputeServer.CMD_CLOSE_SIGNAL, args);
 	}
 
-	
-	/**
-	 * Stop compute server
-	 * @param url
-	 * @param operatorId
-	 * @return
-	 */
-	public Error stopComputeServer(final ComputeNodeSlot url) {
-		Error err = new Error();
-		
-		try {
-			Socket server = new Socket(url.getHost(), url.getPort());
-			final ObjectOutputStream out = new ObjectOutputStream(
-					server.getOutputStream());
-
-			out.writeInt(ComputeServer.CMD_STOP_SERVER);
-			out.flush();
-
-			final ObjectInputStream in = new ObjectInputStream(
-					server.getInputStream());
-			err = (Error) in.readObject();
-
-			server.close();
-
-		} catch (final Exception e) {
-			err = createClientError(e);
-		}
-
-		return err;
-	}
-	
 	/**
 	 * Close operator on node
 	 * 
@@ -214,5 +122,29 @@ public class ComputeClient extends AbstractClient {
 	 */
 	public Error closeOperator(final OperatorDesc dest) {
 		return this.closeOperator(dest.getComputeSlot(), dest.getOperatorID());
+	}
+	
+	/**
+	 * Stop compute server
+	 * 
+	 * @param url
+	 * @param operatorId
+	 * @return
+	 */
+	public Error stopComputeServer(final ComputeNodeSlot url) {
+		Object[] args = {};
+		return this.executeCmd(url.getHost(), url.getPort(),
+				ComputeServer.CMD_STOP_SERVER, args);
+	}
+	
+	/**
+	 * Ping compute server
+	 * @param url
+	 * @return
+	 */
+	public Error pingComputeServer(final ComputeNodeSlot url) {
+		Object[] args = {};
+		return this.executeCmd(url.getHost(), url.getPort(),
+				ComputeServer.CMD_PING_SERVER, args);
 	}
 }

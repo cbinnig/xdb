@@ -58,7 +58,7 @@ public class QueryTrackerPlan implements Serializable {
 	// last execute operator id of plan
 	private Integer lastExecuteOpId = 1;
 
-	// assigned when plan is handed over to query tracker
+	// initialized when plan is assigned to query tracker
 	private transient QueryTrackerNode tracker = null;
 	private transient ComputeClient computeClient = null;
 	private transient AbstractResourceScheduler resourceScheduler = null;
@@ -69,12 +69,12 @@ public class QueryTrackerPlan implements Serializable {
 	private final Map<Identifier, Set<Identifier>> sources = new HashMap<Identifier, Set<Identifier>>();
 	private final Set<Identifier> roots = new HashSet<Identifier>();
 	private final Set<Identifier> leaves = new HashSet<Identifier>();
-
+	
 	// execution plan
 	private final Map<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
 	private final Map<ComputeNodeSlot, MutableInteger> slots = new HashMap<ComputeNodeSlot, MutableInteger>();
 	private final Map<Identifier, AbstractExecuteOperator> executeOps = new HashMap<Identifier, AbstractExecuteOperator>();
-
+	
 	// helper to measure execution time
 	private final XDBExecuteTimeMeasurement timeMeasure;
 
@@ -293,6 +293,7 @@ public class QueryTrackerPlan implements Serializable {
 
 		// start execution on leave operators
 		for (final Identifier leaveId : leaves) {
+			
 			final OperatorDesc leaveOpDesc = currentDeployment.get(leaveId);
 			err = computeClient.executeOperator(leaveOpDesc);
 			if (err.isError()) {
@@ -300,7 +301,7 @@ public class QueryTrackerPlan implements Serializable {
 			}
 		}
 
-		// wait until plan is executed
+		// wait until plan is executed or error occurred
 		while (!this.isExecuted() && !this.err.isError()) {
 			try {
 				Thread.sleep(10);
