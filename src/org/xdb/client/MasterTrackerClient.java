@@ -20,7 +20,7 @@ import org.xdb.utils.Tuple;
 /**
  * Client to talk to Master Tracker Server.
  */
-public class MasterTrackerClient extends AbstractClient{
+public class MasterTrackerClient extends AbstractClient {
 	// constructor
 	public MasterTrackerClient() {
 		logger = XDBLog.getLogger(this.getClass().getName());
@@ -29,121 +29,68 @@ public class MasterTrackerClient extends AbstractClient{
 	}
 
 	/**
-	 * Register a compute node at the master tracker server 
+	 * Register a compute node at the master tracker server
 	 * 
 	 * @param desc
 	 * @return
 	 */
 	public Error registerNode(final ComputeNodeDesc desc) {
-		Error err = new Error();
-		final RegisterSignal<ComputeNodeDesc> signal = new RegisterSignal<ComputeNodeDesc>(desc);
-
-		try {
-			Socket server = new Socket(url, port);
-			final ObjectOutputStream out = new ObjectOutputStream(
-					server.getOutputStream());
-
-			out.writeInt(MasterTrackerServer.CMD_REGISTER_COMPUTE_NODE);
-			out.flush();
-			out.writeObject(signal);
-			out.flush();
-
-			final ObjectInputStream in = new ObjectInputStream(
-					server.getInputStream());
-			err = (Error) in.readObject();
-
-			server.close();
-
-		} catch (final Exception e) {
-			err = createClientError(e);
-		}
-
-		return err;
+		final RegisterSignal<ComputeNodeDesc> signal = new RegisterSignal<ComputeNodeDesc>(
+				desc);
+		Object[] args = { signal };
+		return this.executeCmd(this.url, this.port,
+				MasterTrackerServer.CMD_REGISTER_COMPUTE_NODE, args);
 	}
 
 	/**
 	 * Register new query tracker node at the master tracker server
+	 * 
 	 * @param desc
 	 * @return
 	 */
 	public Error registerNode(final QueryTrackerNodeDesc desc) {
-		Error err = new Error();
-		final RegisterSignal<QueryTrackerNodeDesc> signal = new RegisterSignal<QueryTrackerNodeDesc>(desc);
-
-		try {
-			Socket server = new Socket(url, port);
-			final ObjectOutputStream out = new ObjectOutputStream(
-					server.getOutputStream());
-
-			out.writeInt(MasterTrackerServer.CMD_REGISTER_QUERYTRACKER_NODE);
-			out.flush();
-			out.writeObject(signal);
-			out.flush();
-
-			final ObjectInputStream in = new ObjectInputStream(
-					server.getInputStream());
-			err = (Error) in.readObject();
-
-			server.close();
-
-		} catch (final Exception e) {
-			err = createClientError(e);
-		}
-
-		return err;
+		final RegisterSignal<QueryTrackerNodeDesc> signal = new RegisterSignal<QueryTrackerNodeDesc>(
+				desc);
+		Object[] args = { signal };
+		return this.executeCmd(this.url, this.port,
+				MasterTrackerServer.CMD_REGISTER_QUERYTRACKER_NODE, args);
 	}
 
 	/**
-	 * Execute given compile plan using master tracker 
+	 * Execute given compile plan using master tracker
+	 * 
 	 * @param plan
 	 * @return
 	 */
 	public Error executePlan(final CompilePlan plan) {
-		Error err = new Error();
-
-		try {
-			Socket server = new Socket(url, port);
-			final ObjectOutputStream out = new ObjectOutputStream(
-					server.getOutputStream());
-
-			out.writeInt(MasterTrackerServer.CMD_EXECUTE_PLAN);
-			out.flush();
-			out.writeObject(plan);
-			out.flush();
-
-			final ObjectInputStream in = new ObjectInputStream(
-					server.getInputStream());
-			err = (Error) in.readObject();
-
-			server.close();
-
-		} catch (final Exception e) {
-			err = createClientError(e);
-		}
-
-		return err;
+		Object[] args = { plan };
+		return this.executeCmd(this.url, this.port,
+				MasterTrackerServer.CMD_EXECUTE_PLAN, args);
 	}
 
 	/**
 	 * Request compute nodes from master tracker for execution
 	 * 
-	 * @param requiredNodes 
+	 * @param requiredNodes
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Tuple<Map<ComputeNodeSlot, MutableInteger>, Error> requestComputeNodes(final Map<String, MutableInteger> requiredNodes) {
+	public Tuple<Map<ComputeNodeSlot, MutableInteger>, Error> requestComputeNodes(
+			final Map<String, MutableInteger> requiredNodes) {
 		Error err = new Error();
 		Map<ComputeNodeSlot, MutableInteger> computeNodes = null;
 		try {
 			Socket server = new Socket(url, port);
 			final ObjectOutputStream out = new ObjectOutputStream(
 					server.getOutputStream());
-			final ObjectInputStream in = new ObjectInputStream(server.getInputStream());
+			final ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
 
 			out.writeInt(MasterTrackerServer.CMD_REQUEST_COMPUTE_NODE);
 			out.writeObject(requiredNodes);
 			out.flush();
-			computeNodes = (Map<ComputeNodeSlot, MutableInteger>) in.readObject();
+			computeNodes = (Map<ComputeNodeSlot, MutableInteger>) in
+					.readObject();
 			err = (Error) in.readObject();
 
 			server.close();
@@ -151,31 +98,20 @@ public class MasterTrackerClient extends AbstractClient{
 		} catch (final Exception e) {
 			err = createClientError(e);
 		}
-		return new Tuple<Map<ComputeNodeSlot, MutableInteger>, Error>(computeNodes, err);
+		return new Tuple<Map<ComputeNodeSlot, MutableInteger>, Error>(
+				computeNodes, err);
 	}
 
 	/**
 	 * Return free slots to master tracker server
+	 * 
 	 * @param slots
 	 * @return
 	 */
-	public Error noticeFreeSlots(final Map<ComputeNodeSlot, MutableInteger> slots) {
-		Error err = new Error();
-		try {
-			Socket server = new Socket(url, port);
-			final ObjectOutputStream out = new ObjectOutputStream(
-					server.getOutputStream());
-			final ObjectInputStream in = new ObjectInputStream(server.getInputStream());
-
-			out.writeInt(MasterTrackerServer.CMD_NOTICE_FREE_COMPUTE_NODES);
-			out.writeObject(slots);
-			out.flush();
-			err = (Error) in.readObject();
-			server.close();
-
-		} catch (final Exception e) {
-			err = createClientError(e);
-		}
-		return err;
+	public Error noticeFreeSlots(
+			final Map<ComputeNodeSlot, MutableInteger> slots) {
+		Object[] args = { slots };
+		return this.executeCmd(this.url, this.port,
+				MasterTrackerServer.CMD_NOTICE_FREE_COMPUTE_NODES, args);
 	}
 }
