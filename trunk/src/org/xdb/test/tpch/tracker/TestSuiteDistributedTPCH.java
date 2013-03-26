@@ -10,6 +10,8 @@ public class TestSuiteDistributedTPCH extends TestSuite
   public static Test suite()
   {
     TestSuite suite = new TestSuite( TestSuiteDistributedTPCH.class.getPackage().getName() );
+    suite.addTestSuite( TestTPCHQ1.class );
+    suite.addTestSuite( TestTPCHQ2.class );
     suite.addTestSuite( TestTPCHQ3.class );
     suite.addTestSuite( TestTPCHQ5.class );
     suite.addTestSuite( TestTPCHBasketAnalysis.class );

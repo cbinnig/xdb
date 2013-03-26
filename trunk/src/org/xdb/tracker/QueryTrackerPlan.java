@@ -480,6 +480,9 @@ public class QueryTrackerPlan implements Serializable {
 			// deploy operator to compute node
 			this.err = computeClient.openOperator(
 					executeOpDesc.getComputeSlot(), execOp);
+			if (this.err.isError())
+				return;
+
 			this.executeOps.put(trackerOpId, execOp);
 		}
 	}

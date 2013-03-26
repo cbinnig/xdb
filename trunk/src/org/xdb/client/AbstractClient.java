@@ -38,8 +38,6 @@ public abstract class AbstractClient {
 	 * @return
 	 */
 	protected Error createClientError(Exception e) {
-		e.printStackTrace();
-
 		String[] args = { e.toString() };
 		Error err = new Error(EnumError.CLIENT_ERROR, args);
 		logger.log(Level.SEVERE, err.toString());
