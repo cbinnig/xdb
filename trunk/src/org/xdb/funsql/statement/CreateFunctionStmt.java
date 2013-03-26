@@ -243,6 +243,16 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 					Table tableType = this.buildTableType(otv, plan.getRoot(0).getResult());
 					this.varSymbols.put(otv.hashKey(), tableType);
 				}
+				//add FunctionCall Operator to callPlan
+				Vector<AbstractCompileOperator> roots = (Vector<AbstractCompileOperator>) plan.getRoots();
+				FunctionCall fc = new FunctionCall(tfc.getFun(), roots , tfc.getOutVars().size());
+				for(int i=0; i < plan.getRoots().size(); i++){
+					fc.addResult(plan.getRoot(i).getResult());
+				}
+				plan.addOperator(fc, true);
+				for (AbstractCompileOperator id: roots){
+					plan.removeRootId(id.getOperatorId());
+				}
 				
 			}
 		}
@@ -279,17 +289,6 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 					callPlan.replaceVariable(cVar.hashKey(), varPlan.getRoot(0));
 					i++;
 				}
-			}
-			
-			//add FunctionCall Operator to callPlan
-			Vector<AbstractCompileOperator> roots = (Vector<AbstractCompileOperator>) callPlan.getRoots();
-			FunctionCall fc = new FunctionCall(tfc.getFun(), roots , tfc.getOutVars().size());
-			for(int i=0; i < callPlan.getRoots().size(); i++){
-				fc.addResult(callPlan.getRoot(i).getResult());
-			}
-			callPlan.addOperator(fc, true);
-			for (AbstractCompileOperator id: roots){
-				callPlan.removeRootId(id.getOperatorId());
 			}
 						
 			//add plans of called functions to functionPlan
@@ -346,6 +345,12 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	private Error checkParameters() {
 		Error e = new Error();
 		// check Parameters
+		if(this.inParameters.size() > 0){
+			for (TokenVariable var : this.inParameters){				
+				//Table tableType = this.buildTableType(var, .getRoot(0).getResult());
+				//this.varSymbols.put(var.hashKey(), tableType);
+			}
+		}
 		if (this.outParameters.size() > 0) {
 			for (TokenVariable var : this.outParameters) {
 				if (!this.assignments.containsKey(var)) {
@@ -358,7 +363,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 			return e;
 		} else {
 			return this.createNoOutputParameterErr();
-		}
+		}		
 	}
 
 	private Error createOutputParameterIsNotInitialisedErr(TokenVariable tv) {
