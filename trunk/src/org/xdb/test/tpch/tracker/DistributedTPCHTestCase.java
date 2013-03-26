@@ -228,8 +228,10 @@ public abstract class DistributedTPCHTestCase extends
 			// clean plan
 			this.assertNoError(qPlan.cleanPlan());
 
-			// verify results
-			assertEquals(expectedCnt, actualCnt);
+			if (expectedCnt > 0){
+				// verify results
+				assertEquals(expectedCnt, actualCnt);
+			}
 		}
 		else{
 			// clean plan
