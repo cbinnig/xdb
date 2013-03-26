@@ -40,10 +40,7 @@ public class TestTPCHQ1 extends DistributedTPCHTestCase {
 				"	l_shipdate <= '1998-12-01' - interval 119 day " + 
 				"group by " + 
 				"	l_returnflag, " + 
-				"	l_linestatus " + 
-				"order by " + 
-				"	l_returnflag, " + 
-				"	l_linestatus;";
+				"	l_linestatus ";
 		
 		this.unionPreDML = "SELECT l_returnflag, l_linestatus, sum(sum_qty), sum(sum_base_price), sum(sum_disc_price), sum(sum_charge), avg(avg_qty), avg(avg_price), avg(avg_disc), sum(count_order) FROM ";
 		this.unionPostDML = "group by l_returnflag, l_linestatus order by l_returnflag, l_linestatus;";
