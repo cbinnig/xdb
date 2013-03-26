@@ -101,6 +101,10 @@ public class CompilePlan implements Serializable {
 		this.roots.add(root);
 	}
 	
+	public void removeRootId(Identifier root){
+		this.roots.remove(root);
+	}
+	
 	public void addSubPlan(CompilePlan plan) {
 		this.operators.putAll(plan.operators);
 		this.leaves.addAll(plan.leaves);

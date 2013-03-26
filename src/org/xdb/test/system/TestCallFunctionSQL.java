@@ -1,10 +1,7 @@
 package org.xdb.test.system;
 
 import junit.framework.Assert;
-
 import org.junit.Test;
-import org.xdb.error.EnumError;
-import org.xdb.error.Error;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CallFunctionStmt;
@@ -87,7 +84,7 @@ public class TestCallFunctionSQL extends XDBTestCase {
 	@Test
 	public void testComplexCall() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
-		compiler.doOptimize(true);
+		compiler.doOptimize(false);
 		
 		// create connection -> no error
 		String dropConnSql = "DROP CONNECTION \"testConnection\"";
@@ -151,18 +148,15 @@ public class TestCallFunctionSQL extends XDBTestCase {
 		this.assertNoError(fStmt.execute());
 		
 		// execute CreateFunction
-		@SuppressWarnings("unused")
 		CreateFunctionStmt fCallStmt = (CreateFunctionStmt) compiler.compile(""
 				+ "CREATE FUNCTION f2( OUT o1 TABLE) \n" 
 				+ "BEGIN \n" +
 				"CALL FUNCTION f1 ( VAR v1, VAR v2); \n"					
 				+ ":o1 = SELECT A FROM :v1; \n"
 				+ "END; ");
-		String[] args = { "SQLUnary operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		this.assertError(e);
-		//fCallStmt.getPlan().tracePlan(this.getClass().getName());
-		//this.assertNoError(fCallStmt.execute());
+		this.assertNoError(compiler.getLastError());
+		fCallStmt.getPlan().tracePlan(this.getClass().getName()+"_complex");
+		this.assertNoError(fCallStmt.execute());
 		
 	}
 }

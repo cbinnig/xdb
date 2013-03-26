@@ -1,27 +1,30 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenFunction;
 import org.xdb.utils.Identifier;
 
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
-public class FunctionCall extends AbstractCompileOperator {
+public class FunctionCall extends AbstractUnaryOperator {
 
 	private static final long serialVersionUID = -7332127330583927641L;
 	private Vector<AbstractCompileOperator> children;
 	private TokenFunction function;
 	
 	//constructors
-	public FunctionCall(TokenFunction function, int inputNumber, int resultNumber) {
-		super(resultNumber);
-		
-		this.children = new Vector<AbstractCompileOperator>(inputNumber);
+	public FunctionCall(TokenFunction function, Vector<AbstractCompileOperator> children, int resultNumber) {
+		super(children, resultNumber);		
+		this.children = children;
 		this.function = function;
+		
+		this.setType(EnumOperator.FUNCTION_CALL);
 	}
 	
 	//getters and setters
@@ -34,7 +37,7 @@ public class FunctionCall extends AbstractCompileOperator {
 	}
 	
 	public void addChild(int i, AbstractCompileOperator child){
-		this.children.set(i, child);
+		this.children.set(i, child);		
 		child.addParent(this);
 	}
 	
@@ -48,7 +51,7 @@ public class FunctionCall extends AbstractCompileOperator {
 	
 	@Override
 	public String toSqlString() {
-		return null;
+		return this.function.toSqlString();//TODO
 	}
 	
 	@Override
@@ -59,13 +62,23 @@ public class FunctionCall extends AbstractCompileOperator {
 	
 	@Override
 	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes){
-		Error err = new Error();
+		Error err = super.traceOperator(g, nodes);
+		if(err.isError())
+			return err;
 		
+		GraphNode node = nodes.get(this.operatorId);
+		node.getInfo().setFooter(this.function.getName().toString());
 		return err;
 	}
 
 	@Override
 	public void renameAttributes(String oldId, String newId) {
 		//Nothing to do
+	}
+
+	@Override
+	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
+		// TODO Auto-generated method stub
+		
 	}
 }

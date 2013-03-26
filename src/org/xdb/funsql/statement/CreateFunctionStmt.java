@@ -9,6 +9,8 @@ import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.FunctionCache;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
+import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.tokens.AbstractTokenFunctionPart;
 import org.xdb.funsql.compile.tokens.EnumFunctionPartType;
@@ -181,7 +183,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 			this.function = Catalog.getFunction(this.tFun.hashKey(schema
 					.getOid()));
 			if (this.function != null) {
-				return Catalog.createObjectAlreadyExistsErr(this.function);// update?
+				return Catalog.createObjectAlreadyExistsErr(this.function);//TODO:update?
 			}
 			
 			//check if functions which are called exist
@@ -232,19 +234,21 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 					CallFunctionStmt stmt = new CallFunctionStmt(tfc.getFun().getName().toString());
 					stmt.compile();
 					plan = this.fCache.getPlan(this.calls.get(tfc.getFun()).hashKey());	
-				}
+					
+				}	
+				
 				//adds plans of called functions
-				int i= 0;//number of outVar to fetch the right resultDesc
 				for(TokenVariable otv: tfc.getOutVars()){
-					this.compilePlans.put(otv.hashKey(), plan);					
-					Table tableType = this.buildTableType(otv, plan.getRoot(i).getResult());
+					this.compilePlans.put(otv.hashKey(), plan);	
+					Table tableType = this.buildTableType(otv, plan.getRoot(0).getResult());
 					this.varSymbols.put(otv.hashKey(), tableType);
-					i++;
 				}
 				
 			}
 		}
-
+		
+		//step 3: build compile plan
+		
 		// step 3a: build compile plan from select plans
 		for (TokenAssignment ta : this.tAssignments) {
 			SelectStmt stmt = ta.getSelStmt();
@@ -256,14 +260,14 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 				stmtPlan.replaceVariable(varKey, varPlan.getRoot(0));
 			}
 
-			// add stmtPlan to functionPlan
+			// add stmtPlan to functionPlan			
 			this.functionPlan.addSubPlan(stmtPlan);
 			if (this.outParamKeys.contains(ta.getVar())) {
 				this.functionPlan.addRootId(stmtPlan.getRootId(0));
 			}
 		}
 		
-		//step 3b
+		//step 3b	
 		for(TokenFunctionCall tfc: this.tcalls){
 			CompilePlan callPlan = this.fCache.getPlan(this.calls.get(tfc.getFun()).hashKey());//plan of called function
 			//replace in parameters of called function with subplans of the variables in present function
@@ -276,23 +280,37 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 					i++;
 				}
 			}
+			
+			//add FunctionCall Operator to callPlan
+			Vector<AbstractCompileOperator> roots = (Vector<AbstractCompileOperator>) callPlan.getRoots();
+			FunctionCall fc = new FunctionCall(tfc.getFun(), roots , tfc.getOutVars().size());
+			for(int i=0; i < callPlan.getRoots().size(); i++){
+				fc.addResult(callPlan.getRoot(i).getResult());
+			}
+			callPlan.addOperator(fc, true);
+			for (AbstractCompileOperator id: roots){
+				callPlan.removeRootId(id.getOperatorId());
+			}
+						
 			//add plans of called functions to functionPlan
 			this.functionPlan.addSubPlan(callPlan);
 			for(TokenVariable var: tfc.getOutVars()){
-				if (this.outParamKeys.contains(var)) {
-					this.functionPlan.addRootId(callPlan.getRootId(0));
+				if (this.outParamKeys.contains(var)) {						
+					this.functionPlan.addRootId(callPlan.getRootId(0));					
 				}
+				
 			}
+			
+			
 		}
-
+		
 		// step 4: check catalog object
 		this.function = new Function(this.tFun.getName().toString(),
 				schema.getOid(), this.tFun.getLanguage(), stmtString);
 		e = this.function.checkObject();
 		if (e.isError())
 			return e;
-
-		// step 5: add CompilePlan to cache
+				
 		this.fCache.addPlan(this.function.hashKey(), this.functionPlan);
 		if(!this.inParameters.isEmpty())
 			this.fCache.addInVars(this.function.hashKey(), this.inParameters);
@@ -331,7 +349,10 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		if (this.outParameters.size() > 0) {
 			for (TokenVariable var : this.outParameters) {
 				if (!this.assignments.containsKey(var)) {
-					e = this.createOutputParameterIsNotInitialisedErr(var);
+					for(TokenFunctionCall call: this.tcalls){
+						if(!call.getOutVars().contains(var))
+							e = this.createOutputParameterIsNotInitialisedErr(var);
+					}
 				}
 			}
 			return e;
