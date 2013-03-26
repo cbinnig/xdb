@@ -346,7 +346,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		Error e = new Error();
 		// check Parameters
 		if(this.inParameters.size() > 0){
-			for (TokenVariable var : this.inParameters){				
+			for (@SuppressWarnings("unused") TokenVariable var : this.inParameters){				
 				//Table tableType = this.buildTableType(var, .getRoot(0).getResult());
 				//this.varSymbols.put(var.hashKey(), tableType);
 			}
