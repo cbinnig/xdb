@@ -63,6 +63,8 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 			return visitSQLCombined((SQLCombined)absOp);
 		case TABLE:
 			return visitTableOperator((TableOperator) absOp);
+		case FUNCTION_CALL:
+			return visitFunctionCall((FunctionCall) absOp);
 		default:
 			String[] args = {"AbstractTreeVisitor: Operator of type "+absOp.getType()+" not supported"};
 			e = new Error(EnumError.COMPILER_GENERIC, args);

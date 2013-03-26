@@ -3,6 +3,7 @@ package org.xdb.funsql.compile.operator;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -24,6 +25,13 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 
 		this.children.add(child);
 		child.addParent(this);
+	}
+	public AbstractUnaryOperator(Vector<AbstractCompileOperator> fchildren, int resultNumber) {
+		super(resultNumber);
+		for (AbstractCompileOperator child: fchildren){
+			this.children.add(child);
+			child.addParent(this);
+		}		
 	}
 
 	// getters and setters
@@ -106,19 +114,21 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 	@Override
 	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
-	
+
 		// edges and children
 		GraphNode node = nodes.get(this.operatorId);
-		AbstractCompileOperator childOp = this.children.get(0);
+		for (int i = 0; i < this.children.size(); i++) {
+			AbstractCompileOperator childOp = this.children.get(i);
 
-		if (!nodes.containsKey(childOp.operatorId)) {
-			GraphNode child = g.addNode();
-			g.addEdge(node, child);
-			nodes.put(childOp.operatorId, child);
-			childOp.traceOperator(g, nodes);
-		} else {
-			GraphNode child = nodes.get(childOp.operatorId);
-			g.addEdge(node, child);
+			if (!nodes.containsKey(childOp.operatorId)) {
+				GraphNode child = g.addNode();
+				g.addEdge(node, child);
+				nodes.put(childOp.operatorId, child);
+				childOp.traceOperator(g, nodes);
+			} else {
+				GraphNode child = nodes.get(childOp.operatorId);
+				g.addEdge(node, child);
+			}
 		}
 		return err;
 	}
