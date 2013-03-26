@@ -19,7 +19,7 @@ public class TestTPCHQ2 extends DistributedTPCHTestCase {
 	
 	// constructor
 	public TestTPCHQ2() {
-		super(100);
+		super(-1);
 
 		this.resultDDL = "(s_acctbal DECIMAL(65,2), s_name CHAR(25), n_name CHAR(25), p_partkey INTEGER, p_mfgr CHAR(25), s_address VARCHAR(40), " +
 		 "s_phone CHAR(15), s_comment VARCHAR(101))";
