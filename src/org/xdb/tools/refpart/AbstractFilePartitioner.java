@@ -140,12 +140,16 @@ public abstract class AbstractFilePartitioner {
 		if (outputWriterList != null) {
 			String sqlEnd = getSQLEnd();
 			for (BufferedWriter writer : outputWriterList) {
-				if (sqlEnd != null && !sqlEnd.isEmpty()) {
-					writer.write(";\n");
-					writer.write(sqlEnd);
+				if (writer != null){
+					if (sqlEnd != null && !sqlEnd.isEmpty()) {
+						writer.write(";\n");
+						writer.write(sqlEnd);
+					}
+					writer.close();
 				}
-				writer.close();
 			}
+			outputWriterList.clear();
+			outputWriterList = null;
 		}
 	}
 
@@ -194,6 +198,7 @@ public abstract class AbstractFilePartitioner {
 			createDebug(logger, "Start with partition: " + partition);
 			HashSet<Integer> hashList = readHashFile(inputHashFile, partition);
 			processInputFile(inputFile, hashList, partition);
+			closeOutputWriters();
 		}
 	}
 
