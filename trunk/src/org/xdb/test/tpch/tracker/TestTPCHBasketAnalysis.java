@@ -16,8 +16,8 @@ import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
 /**
- * Run a basket analysis using a UDF to determine the string similarity 
- * of two products in the same order.
+ * Run a basket analysis using a UDF to determine the string similarity of two
+ * products in the same order.
  * 
  * Idea: Only suggest products which have a similar "type".
  * 
@@ -35,13 +35,13 @@ public class TestTPCHBasketAnalysis extends DistributedTPCHTestCase {
 		this.subqueryDML = "select l1.l_partkey as p1_key, l2.l_partkey as p2_key, "
 				+ "p1.p_type as p1_type, p2.p_type as p2_type, count(*) as frequency "
 				+ "from "
-				+ dbName
+				+ "<TPCH_DB_NAME>"
 				+ ".lineitem l1, "
-				+ dbName
+				+ "<TPCH_DB_NAME>"
 				+ ".lineitem l2, "
-				+ dbName
+				+ "<TPCH_DB_NAME>"
 				+ ".part p1, "
-				+ dbName
+				+ "<TPCH_DB_NAME>"
 				+ ".part p2 "
 				+ "where l1.l_orderkey = l2.l_orderkey "
 				+ "and l1.l_partkey = p1.p_partkey "
@@ -65,7 +65,7 @@ public class TestTPCHBasketAnalysis extends DistributedTPCHTestCase {
 		qPlan.assignTracker(qTracker);
 
 		// create one operator per database node
-		MySQLTrackerOperator[] subqueryOps = new MySQLTrackerOperator[NUMBER_COMPUTE_DBS];
+		MySQLTrackerOperator[] subqueryOps = new MySQLTrackerOperator[this.numberOfSubops];
 		createSubqueryOps(qPlan, subqueryOps);
 
 		// create union operator to collect results from all compute nodes
@@ -98,7 +98,8 @@ public class TestTPCHBasketAnalysis extends DistributedTPCHTestCase {
 			Map<Identifier, OperatorDesc> deployment,
 			AbstractTrackerOperator unionOp) {
 
-		LevenshteinTrackerOp udfOp = new LevenshteinTrackerOp(UDF_IN_TABLE, UDF_OUT_TABLE);
+		LevenshteinTrackerOp udfOp = new LevenshteinTrackerOp(UDF_IN_TABLE,
+				UDF_OUT_TABLE);
 		qPlan.addOperator(udfOp);
 
 		// add input and output tables
@@ -106,8 +107,8 @@ public class TestTPCHBasketAnalysis extends DistributedTPCHTestCase {
 				+ "> " + resultDDL);
 		udfOp.addOutTable(UDF_OUT_TABLE, udfOutDDL);
 
-		StringTemplate udfInDDL = new StringTemplate("<" + UDF_IN_TABLE
-				+ "> " + resultDDL);
+		StringTemplate udfInDDL = new StringTemplate("<" + UDF_IN_TABLE + "> "
+				+ resultDDL);
 		udfOp.addInTable(UDF_IN_TABLE, udfInDDL);
 
 		// connect to unionOp to udfOp
@@ -125,7 +126,7 @@ public class TestTPCHBasketAnalysis extends DistributedTPCHTestCase {
 
 		// create deployment
 		Identifier trackerOpId = udfOp.getOperatorId();
-		Identifier execOpId = trackerOpId.clone().append(LAST_EXEC_OP_ID++);
+		Identifier execOpId = trackerOpId.clone().append(nextExecOpId());
 		OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
 				this.getComputeSlot(0));
 		deployment.put(trackerOpId, executeOperDesc);

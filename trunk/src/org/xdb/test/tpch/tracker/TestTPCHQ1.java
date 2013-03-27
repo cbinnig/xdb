@@ -34,7 +34,7 @@ public class TestTPCHQ1 extends DistributedTPCHTestCase {
 				"	avg(l_extendedprice) as avg_price, " + 
 				"	avg(l_discount) as avg_disc, " + 
 				"	count(*) as count_order " + 
-				"from "  + dbName + 
+				"from <TPCH_DB_NAME>" + 
 				".lineitem " + 
 				"where " + 
 				"	l_shipdate <= '1998-12-01' - interval 119 day " + 
@@ -55,7 +55,7 @@ public class TestTPCHQ1 extends DistributedTPCHTestCase {
 		qPlan.assignTracker(qTracker);
 
 		// create one q1 operator per simulated database nodes
-		MySQLTrackerOperator[] q1Ops = new MySQLTrackerOperator[NUMBER_COMPUTE_DBS];
+		MySQLTrackerOperator[] q1Ops = new MySQLTrackerOperator[this.numberOfSubops];
 		createSubqueryOps(qPlan, q1Ops);
 
 		// create union operator to collect results from all compute nodes
