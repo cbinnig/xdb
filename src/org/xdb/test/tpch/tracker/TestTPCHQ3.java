@@ -23,8 +23,8 @@ public class TestTPCHQ3 extends DistributedTPCHTestCase {
 		this.resultDDL = "(l_orderkey INTEGER, revenue DECIMAL(65,2), o_orderdate DATE, o_shippriority INTEGER)";
 		this.subqueryDML = "select l_orderkey, "
 				+ "sum(l_extendedprice*(1-l_discount)) as revenue, "
-				+ "o_orderdate, " + "o_shippriority " + "from " + dbName
-				+ ".customer, " + dbName + ".orders, " + dbName
+				+ "o_orderdate, " + "o_shippriority " + "from <TPCH_DB_NAME>"
+				+ ".customer, <TPCH_DB_NAME>.orders, <TPCH_DB_NAME>"
 				+ ".lineitem " + "where c_mktsegment = 'BUILDING' and "
 				+ "c_custkey = o_custkey and "
 				+ "l_orderkey = o_orderkey and "
@@ -47,7 +47,7 @@ public class TestTPCHQ3 extends DistributedTPCHTestCase {
 		qPlan.assignTracker(qTracker);
 
 		// create one q3 operator per simulated database nodes
-		MySQLTrackerOperator[] q3Ops = new MySQLTrackerOperator[NUMBER_COMPUTE_DBS];
+		MySQLTrackerOperator[] q3Ops = new MySQLTrackerOperator[this.numberOfSubops];
 		createSubqueryOps(qPlan, q3Ops);
 
 		// create union operator to collect results from all compute nodes

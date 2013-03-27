@@ -33,11 +33,11 @@ public class TestTPCHQ2 extends DistributedTPCHTestCase {
 				"	s_phone," + 
 				"	s_comment " + 
 				"from " + 
-				dbName +".part," + 
-				dbName +".supplier," + 
-				dbName +".partsupp," + 
-				dbName +".nation," + 
-				dbName +".region " + 
+				"<TPCH_DB_NAME>.part," + 
+				"<TPCH_DB_NAME>.supplier," + 
+				"<TPCH_DB_NAME>.partsupp," + 
+				"<TPCH_DB_NAME>.nation," + 
+				"<TPCH_DB_NAME>.region " + 
 				"where" + 
 				"	p_partkey = ps_partkey" + 
 				"	and s_suppkey = ps_suppkey" + 
@@ -50,10 +50,10 @@ public class TestTPCHQ2 extends DistributedTPCHTestCase {
 				"		select" + 
 				"			min(ps_supplycost)" + 
 				"		from " + 
-				dbName +".partsupp," + 
-				dbName +".supplier," + 
-				dbName +".nation," + 
-				dbName +".region" + 
+				"<TPCH_DB_NAME>.partsupp," + 
+				"<TPCH_DB_NAME>.supplier," + 
+				"<TPCH_DB_NAME>.nation," + 
+				"<TPCH_DB_NAME>.region" + 
 				"		where " + 
 				"			p_partkey = ps_partkey" + 
 				"			and s_suppkey = ps_suppkey" + 
@@ -75,7 +75,7 @@ public class TestTPCHQ2 extends DistributedTPCHTestCase {
 		qPlan.assignTracker(qTracker);
 
 		// create one q1 operator per simulated database nodes
-		MySQLTrackerOperator[] q2Ops = new MySQLTrackerOperator[NUMBER_COMPUTE_DBS];
+		MySQLTrackerOperator[] q2Ops = new MySQLTrackerOperator[this.numberOfSubops];
 		createSubqueryOps(qPlan, q2Ops);
 
 		// create union operator to collect results from all compute nodes

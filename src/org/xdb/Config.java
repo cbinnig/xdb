@@ -96,6 +96,7 @@ public class Config implements Serializable {
 	public static boolean TEST_RUN_LOCAL = true;
 	public static String TEST_DB_NAME = "tpch_s01";
 	public static int TEST_NODE_COUNT = 2;
+	public static int TEST_SLOTS_PER_NODE = 1;
 	
 	// Load xdb.conf
 	static {
@@ -108,7 +109,8 @@ public class Config implements Serializable {
 	private static void load() {
 		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
 				"COMPUTE_SLOTS", "COMPILE_PORT", "MASTERTRACKER_PORT",
-				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS","TEST_NODE_COUNT" };
+				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS","TEST_NODE_COUNT", 
+				"TEST_SLOTS_PER_NODE" };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL", "TEST_DB_NAME" };
 

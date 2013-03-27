@@ -27,7 +27,7 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 
 	// constructors
 	public DistributedQueryTrackerTestCase(int numberOfComputeServer) {
-		this(numberOfComputeServer, 1);
+		this(numberOfComputeServer, Config.TEST_SLOTS_PER_NODE);
 	}
 
 	public DistributedQueryTrackerTestCase(int numberOfComputeServer,

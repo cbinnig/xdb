@@ -20,24 +20,33 @@ import org.xdb.utils.StringTemplate;
 public abstract class DistributedTPCHTestCase extends
 		DistributedQueryTrackerTestCase {
 
-	protected static int NUMBER_COMPUTE_DBS = Config.TEST_NODE_COUNT;
-	protected static Integer LAST_EXEC_OP_ID = 1;
-	protected static final String dbName = Config.TEST_DB_NAME;
+	// static fields
+	private static final int NUMBER_COMPUTE_DBS = Config.TEST_NODE_COUNT
+			* Config.TEST_SLOTS_PER_NODE; 
+	private static final String TPCH_DB_NAME = Config.TEST_DB_NAME;
+	private static Integer LAST_EXEC_OP_ID = 1;
 
-	//need to be set by child class
+	// test into
+	protected int numberOfSubops = NUMBER_COMPUTE_DBS;
+	
+	// need to be set by child class
 	protected int expectedCnt = 0;
-	protected String resultDDL = ""; 
-	protected String subqueryDML = ""; 
-	protected String unionPreDML = "SELECT * FROM "; 
-	protected String unionPostDML = ";"; 
+	protected String resultDDL = "";
+	protected String subqueryDML = "";
+	protected String unionPreDML = "SELECT * FROM ";
+	protected String unionPostDML = ";";
 
 	// constructor
 	public DistributedTPCHTestCase(int expectedCnt) {
-		super(NUMBER_COMPUTE_DBS);
+		super(Config.TEST_NODE_COUNT);
 		this.expectedCnt = expectedCnt;
 	}
 
 	// getters and setters
+	protected int nextExecOpId() {
+		return LAST_EXEC_OP_ID++;
+	}
+
 	protected String getSubqueryOutTableName(int i) {
 		return "SUBQ_OUT" + i;
 	}
@@ -80,8 +89,8 @@ public abstract class DistributedTPCHTestCase extends
 	}
 
 	/**
-	 * Creates a MySQLTrackerOperator as a union over all sub-queries 
-	 * and adds it to the Query Tracker Plan
+	 * Creates a MySQLTrackerOperator as a union over all sub-queries and adds
+	 * it to the Query Tracker Plan
 	 * 
 	 * @param qPlan
 	 * @param unionOp
@@ -134,26 +143,37 @@ public abstract class DistributedTPCHTestCase extends
 	 * one database instance and adds them to the Query Tracker Plan
 	 * 
 	 * @param qPlan
-	 * @param subqueryOps
+	 * @param subOps
 	 */
 	protected void createSubqueryOps(QueryTrackerPlan qPlan,
-			MySQLTrackerOperator[] subqueryOps) {
+			MySQLTrackerOperator[] subOps) {
 		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
-			subqueryOps[i] = new MySQLTrackerOperator();
+			subOps[i] = new MySQLTrackerOperator();
 
-			// DDL for output of sub-query q5
-			String q5OutTableName = getSubqueryOutTableName(i);
-			StringTemplate q5OutDDL = new StringTemplate("<" + q5OutTableName
+			// DDL for output of sub-query operator
+			String subOpOutTableName = getSubqueryOutTableName(i);
+			StringTemplate subOpOutDDL = new StringTemplate("<" + subOpOutTableName
 					+ "> " + resultDDL);
-			subqueryOps[i].addOutTable(q5OutTableName, q5OutDDL);
+			subOps[i].addOutTable(subOpOutTableName, subOpOutDDL);
 
-			// DML for sub-query q5
-			StringTemplate q5DML = new StringTemplate("insert into <"
-					+ q5OutTableName + "> " + this.subqueryDML);
+			// DML for sub-query operators
+			StringTemplate subqueryDMLTempl = new StringTemplate(this.subqueryDML);
+			HashMap<String, String> args = new HashMap<String, String>();
+			
+			// name of database must be different if we have multiple slots (i.e., databases) per node
+			// however if we run local, we just use the normal database name of the configuration
+			String dbName = TPCH_DB_NAME;
+			if(!this.isRunLocal() && Config.TEST_SLOTS_PER_NODE>1){
+				dbName = TPCH_DB_NAME+((i%Config.TEST_SLOTS_PER_NODE)+1);
+			}
+			args.put("TPCH_DB_NAME", dbName);
+			
+			StringTemplate subqueryDML = new StringTemplate("insert into <"
+					+ subOpOutTableName + "> " + subqueryDMLTempl.toString(args));
 
-			subqueryOps[i].addExecuteSQL(q5DML);
+			subOps[i].addExecuteSQL(subqueryDML);
 
-			qPlan.addOperator(subqueryOps[i]);
+			qPlan.addOperator(subOps[i]);
 		}
 	}
 
@@ -168,19 +188,19 @@ public abstract class DistributedTPCHTestCase extends
 		Map<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
 
 		// create deployment for sub-queries operator
-		for (int i = 0; i < subqueryOps.length; ++i) {
+		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
 			MySQLTrackerOperator subqueryOp = subqueryOps[i];
 			Identifier trackerOpId = subqueryOp.getOperatorId();
-			Identifier execOpId = trackerOpId.clone().append(LAST_EXEC_OP_ID++);
+			Identifier execOpId = trackerOpId.clone().append(nextExecOpId());
 
 			OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
-					this.getComputeSlot(i));
+					this.getComputeSlot(i/Config.TEST_SLOTS_PER_NODE));
 			currentDeployment.put(trackerOpId, executeOperDesc);
 		}
 
 		// create deployment for union operator
 		Identifier trackerOpId = unionOp.getOperatorId();
-		Identifier execOpId = trackerOpId.clone().append(LAST_EXEC_OP_ID++);
+		Identifier execOpId = trackerOpId.clone().append(nextExecOpId());
 		OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
 				this.getComputeSlot(0));
 		currentDeployment.put(trackerOpId, executeOperDesc);
@@ -196,8 +216,8 @@ public abstract class DistributedTPCHTestCase extends
 	 * @throws SQLException
 	 */
 	protected void executeQuery(QueryTrackerPlan qPlan,
-			Map<Identifier, OperatorDesc> deployment, Identifier resultOpId, String resultTableName)
-			throws SQLException {
+			Map<Identifier, OperatorDesc> deployment, Identifier resultOpId,
+			String resultTableName) throws SQLException {
 
 		// deploy plan to compute nodes
 		Error err = qPlan.deployPlan(deployment);
@@ -224,16 +244,15 @@ public abstract class DistributedTPCHTestCase extends
 			if (rs.next()) {
 				actualCnt = rs.getInt(1);
 			}
-			
+
 			// clean plan
 			this.assertNoError(qPlan.cleanPlan());
 
-			if (expectedCnt > 0){
+			if (expectedCnt > 0) {
 				// verify results
 				assertEquals(expectedCnt, actualCnt);
 			}
-		}
-		else{
+		} else {
 			// clean plan
 			this.assertNoError(qPlan.cleanPlan());
 		}
