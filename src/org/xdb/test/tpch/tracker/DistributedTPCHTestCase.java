@@ -1,6 +1,7 @@
 package org.xdb.test.tpch.tracker;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -207,6 +208,32 @@ public abstract class DistributedTPCHTestCase extends
 
 		return currentDeployment;
 	}
+	
+	private static String prettyPrintResultSet(ResultSet resultSet, int rowCount) throws SQLException{
+		StringBuilder returnValue = new StringBuilder();
+		ResultSetMetaData rsmd = resultSet.getMetaData();
+		int columnCount = rsmd.getColumnCount();
+		for (int j = 1; j <= columnCount; j++) {
+			returnValue.append(rsmd.getColumnName(j));
+			if (j < columnCount) {
+				returnValue.append('|');
+			}
+		}
+		returnValue.append("\n");
+		
+		int i = 0;
+		while (resultSet.next() && i < rowCount){
+			for (int j = 1; j <= rsmd.getColumnCount(); j++) {
+				returnValue.append(resultSet.getString(j));
+				if (j < columnCount) {
+					returnValue.append('|');
+				}
+			}
+			returnValue.append("\n");
+			i++;
+		}
+		return returnValue.toString();
+	}
 
 	/**
 	 * Executes the Query Tracker Plan and checks if results size is correct
@@ -245,13 +272,18 @@ public abstract class DistributedTPCHTestCase extends
 				actualCnt = rs.getInt(1);
 			}
 
-			// clean plan
-			this.assertNoError(qPlan.cleanPlan());
-
 			if (expectedCnt > 0) {
 				// verify results
 				assertEquals(expectedCnt, actualCnt);
 			}
+			if (actualCnt>0){
+				final ResultSet results = this.executeComputeQuery("SELECT * FROM " + resultTable + "_" + resultTableName);
+				System.out.println(prettyPrintResultSet(results, 10));
+			}
+
+			// clean plan
+			this.assertNoError(qPlan.cleanPlan());
+
 		} else {
 			// clean plan
 			this.assertNoError(qPlan.cleanPlan());
