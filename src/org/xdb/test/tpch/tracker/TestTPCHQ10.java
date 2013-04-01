@@ -51,9 +51,10 @@ public class TestTPCHQ10 extends DistributedTPCHTestCase {
 				"	c_address," + 
 				"	c_comment " + 
 				"order by" + 
-				"	revenue desc;";
+				"	revenue desc " +
+				"limit 20;";
 		this.unionPreDML = "SELECT c_custkey, c_name, sum(revenue), c_acctbal, n_name, c_address, c_phone, c_comment FROM ";
-		this.unionPostDML = "group by c_custkey, c_name, c_acctbal, c_phone, n_name, c_address, c_comment";
+		this.unionPostDML = "group by c_custkey, c_name, c_acctbal, c_phone, n_name, c_address, c_comment limit 20";
 	}
 
 	// methods
