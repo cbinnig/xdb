@@ -137,7 +137,7 @@ As a running example, we use a basket analysis over the TPC-H database schema, w
 Figure \ref{fig:xdb:exec} gives an overview of the different compilation and execution steps for this example:
 
 \begin{enumerate}
-\item Figure \ref{fig:xdb:exec1} shows an initial compile-plan produced by the compilation server before optimization (e.g., selections are not yet pushed down). This compile-plan is optimized in the compile server resulting in a compile-plan shown in Figure \ref{fig:xdb:exec2} (without splitting the compile-plan into sub-plans).
+\item Figure \ref{fig:xdb:exec1} shows an initial compile-plan produced by the compilation server before optimization (e.g., selections are not yet pushed down). This compile-plan is optimized in the compile server resulting in a compile-plan shown in Figure \ref{fig:xdb:exec2} (without splitting the compile-plan into sub-plans). The potimized plan shows that the selection and aggregation operators could be pushed beneath the white-box UDF operator.
 \item Figure \ref{fig:xdb:exec2} additionally shows for the optimized compile-plan the sub-plans produced by the plan tracker (called tracker-plan). Each of the sub-plans is executed incrementally by the plan tracker starting with sub-plan 1 and ending with sub-plan 3.
 \item For execution, each of the sub-plans in Figure \ref{fig:xdb:exec2} is parallelized and optimized individually leveraging the partitioning scheme of the database. For example, sub-plan 1 in Figure \ref{fig:xdb:exec2} is first parallelized and deployed to compute servers 1 and 2 based on the partitioning information annotated to the input tables. Assume that table \emph{lineitem} is partitioned by the attribute \emph{l\_orderkey} into two parts (i.e, part 1 and 2) such that the join in sub-plan 1 can be executed locally on each compute server. The resulting partial execution-plans for sub-plan 1 are shown by the lower two plans in in Figure \ref{fig:xdb:exec3}, which materialize their results locally into tables \emph{t1} and \emph{t2} (e.g., using memory tables in MySQL). The sub-plans 2 and 3 are executed in a similar way. Assume that the table \emph{part} is reference partitioned by the table \emph{lineitem}. In that case, the partial execution-plans for this sub-plan again can be executed locally on the compute servers 1 and 2 reading the materialized results \emph{t1} and \emph{t2}. The execution-plans for sub-plan 2 are shown in the middle of Figure \ref{fig:xdb:exec3}). Finally, the last partial execution-plan generated for sub-plan 3 reduces the degree of parallelism to one node (i.e., compute server 1). Therefore, the this partial execution-plan must read the input table \emph{t4} remotely from compute server 2 (e.g., using a federated table in MySQL). 
 \end{enumerate}
@@ -154,13 +154,13 @@ In the following, we discuss how the compilation and execution process of XDB he
 \label{sec:perf}
 
 In this section, we present an initial experimental evaluation of XDB based on MySQL 5.6 as the underlying database. Our initial prototype of XDB is build using Java 1.6 and was executed on a cluster with 8 virtualized nodes for this experiment.  
-For each of the virtualized cluster nodes, we used the following hardware configuration: Intel Xeon X5650 with 2.67 GHz (2 CPU Cores), 8 GB RAM and a 80 GB HDD. Additionally each virtualized node was running the following software stack: Xen as a VM monitor, CentOS 6, Cloudera CDH 4.5 Free Edition including Hive, MySQL 5.6.10 (using InnoDB as the default storage engine and read committed as the default isolation level) and Java 1.6.
+For each of the virtualized cluster nodes, we used the following configuration : Intel Xeon X5650 with 2.67 GHz (1 CPU Core), 8 GB RAM and 80 GB HDD. Each virtualized node was running the following software stack: Xen as a VM monitor, CentOS 6, Cloudera CDH 4.5 Free Edition including Hive, MySQL 5.6.10 (using InnoDB as the default storage engine and read committed as the default isolation level) and Java 1.6.
 
 In order to show the efficiency of XDB, we executed the TPC-H queries 3 and 5 on the scaling factor 30 and compared the runtime of XDB to the runtime of the Hive installation on the cluster. For XDB, we partitioned the\emph{lineitem} table into 8 parts using a hash-based partitioning scheme and all other tables using a reference-based partitioning scheme such that all joins could be executed locally on each node. The results of this experiment can be seen by the left two bar groups of Figure \ref{fig:perf}. As a result, we can see for both TPC-H queries show a speed-up factor of approximately 6. 
  
 \begin{figure}[ht] 
 \hspace{-4ex}
-\epsfig{file=exp/exp1.eps,scale=0.37}
+\epsfig{file=exp/exp1.eps,scale=0.33}
 \vspace{-4ex}
 \caption{XDB vs. Hive (TPC-H SF=30)}
 \vspace{-1ex}
