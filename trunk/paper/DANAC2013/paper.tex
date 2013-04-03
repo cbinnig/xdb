@@ -1,0 +1,191 @@
+\documentclass{sig-alternate}
+
+\usepackage[tight,TABTOPCAP]{subfigure}
+\usepackage{listings}
+\lstset{language=SQL, frame=single,basicstyle=\scriptsize,numberstyle=\footnotesize}
+\lstset{numbers=left, numberstyle=\tiny, numbersep=5pt}
+\lstset{morekeywords={function,in,out,var,type, begin, end}}
+
+\begin{document}
+
+\title{XDB - An Elastic, Robust and Flexible Database Architecture for Big Data (Vision Paper)}
+
+\numberofauthors{3}
+
+\author{
+% 1st. author
+\alignauthor
+Carsten Binnig, Alexander C. M\"uller\\
+       \affaddr{University of Mannheim}\\
+% 2nd. author
+\alignauthor
+Sven Listing\\
+       \affaddr{GSRN Mannheim \& \\ADTECH - A Division of AOL Networks}\\
+\and
+% 3rd. author
+\alignauthor
+Timo Jacobs, Stephan Pfistner, Larissa Schmidt, Rene Sichler\\
+      \affaddr{DHBW Mannheim}\\
+}
+
+\maketitle
+\begin{abstract}
+
+Hadoop is currently the de facto standard for analyzing Big Data. Its advantages over traditional databases are its simple but flexible parallel programming model, the ability to scale to thousands of nodes as well as the robustness of its execution model. However, while highly scalable and robust, Hadoop is inherently inefficient: First, Hadoop materializes each intermediate result to achieve its high reliability, resulting in poor single query performance. Second, Hadoop uses a layered design that separates storage from execution, making data locality a substantial problem. Finally, data structures like indexes to avoid expensive scans and efficient operations such as joins are missing. 
+
+This paper describes a vision of a novel elastic, robust and flexible database system called XDB and presents an initial prototype build on top of MySQL. Compared to existing approaches that focus on fixing the shortcomings of Hadoop, we take a different approach by designing XDB as middleware for an existing open-source database system to benefit from the database's maturity. Our hypothesis is, that XDB can outperform Hadoop by at least one order of magnitude in performance while providing the same properties with regard to elasticity and robustness of the execution model as well as flexibility of the programming model. Our initial experiments presented in this paper confirm this hypothesis.
+
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Hadoop: Being Big but NOT Efficient}
+\label{sec:intro:hadoop}
+
+MapReduce, in particular the open-source implementation Hadoop, is currently the de facto standard for analyzing Big Data \cite{MapReduce:CACM:08, Hadoop:OReilly:09}. Its advantages over traditional parallel database systems are the ability to scale to thousands of nodes as well as the robustness of the execution model (e.g. dealing with strugglers and node failures), which are both essential when analyzing Big Data. Other reasons why Hadoop became widely adopted are a simple but extensible (agile) programming model consisting of two second-order functions (i.e., map and reduce), low costs (i.e., open-source), and the ability to read data in any data format. High-level optimizable programming languages for composing MapReduce programs (e.g., Hive \cite{Hive:ICDE:2010}, PigLatin \cite{Pig:PVLDB:2009}) further quelled arguments in favor of Hadoop. However, while highly scalable, Hadoop is inherently inefficient:
+
+\begin{itemize}
+\item First, Hadoop materializes each intermediate result of a map or a reduce function either locally or into its distributed file system (HDFS). This execution model results in a poor single query performance with high resource consumption. 
+\item Second, data locality is a huge problem since the storage layer is separated from the computation layer: When data is loaded in HDFS it is randomly partitioned often resulting in expensive operations, which copy data over the network.
+\item Finally, efficient operations as well as index structures to read data selectively from disk are missing. Hadoop only provides unary operators and needs to read all data from disk. Thus, the first map function typically selects the relevant data by scanning all input data. Moreover, join operations are unnatural in Hadoop since binary operators are not supported leading to inefficient workarounds. 
+\end{itemize}
+
+\subsection{XDB: Being Big AND Efficient }
+\label{sec:intro:xdb}
+
+In this paper, we describe an architecture of a novel elastic and robust database management system called XDB. XDB combines the major benefits of traditional relational databases and Hadoop. While databases provide efficient techniques for query execution that have matured over many decades, they lack scalability and robustness properties that are provided by Hadoop for big data analytics. Furthermore, SQL makes it cumbersome to express more advanced analytical and machine learning tasks or to use semi-structured or unstructured data, whereas the flexibility of the map-reduce programming model is one of Hadoop's strengths.
+	
+In contrast to other work, which mainly focuses on providing solutions to the shortcomings of Hadoop (such as Hadoop++ \cite{HadoopPP:PVLDB:2010}, HAIL \cite{HAIL:PVLDB:2012} or HadoopDB \cite{HadoopDB:SIGMOD:2010}), we are different in our approach by providing a middleware for an existing open-source database like MySQL or PostgreSQL in order to benefit from the maturity of the underlying database and its efficient query processing techniques such as efficient relational operators (e.g., hash joins) and different types of indexes. It is important to note that we do not change the database system itself, so that XDB can benefit from new versions and features provided by the underlying database system. Finally, XDB is able to leverage external data sources that support semi-structured or unstructured data as well. \\
+
+\subsection{XDB: Key Objectives}
+\label{sec:intro:obj}
+
+Key to XDB are the following novel extensions: a flexible programming model as well as elastic and robust query execution techniques implemented in the middleware layer. Our hypothesis is, that based on these extensions XDB can outperform Hadoop and other big data systems by at least one order of magnitude in performance while providing the same characteristics that make Hadoop attractive for Big Data analytics. 
+
+In order to achieve these goals, XDB is going to explore the following three key objectives: \\
+
+{\bf Objective 1: Elastic Optimization and Execution}
+In contrast to relational databases, where the execution-plan is fix after compilation, execution-plans in XDB are optimized and executed incrementally. This is beneficial for complex analytical tasks, where it is hard to come up with one optimal execution-plan before execution: In the world of Big Data, a minor error in the cardinality estimation might result in a totally inefficient execution-plan. By incrementally executing and re-optimizing an execution-plan, XDB can detect these estimation errors during runtime and then adopt the execution-plan to the actual cardinality information. Moreover, the same technique is also beneficial, to adjust long-running execution-plans to the number of available nodes. Clusters for Big Data analytics are typically shared between users and resources are granted/revoked depending on concurrent workloads, making fixed plans virtually unusable. \\
+
+{\bf Objective 2:  Robust Execution-Plans}
+The idea is to favor plans, which are more robust and better recoverable over potentially faster plans. In order to achieve this we use a combination of actively replicating sub-plans to make the execution more robust to node failures and stragglers (i.e., slow nodes), and splitting the plan into independent fault-tolerant sub-plans, which materialize their intermediate query results for recovery. A cost-based optimizer has to decide how to trade robustness/fault-tolerance over execution time, i.e., when sub-plans should be replicated and when intermediate results should be materialized.  This is beneficial for long-running queries on Big Data since the all-or-nothing principal of the execution model in relational databases is replaced with a more fine-grained and more fault-tolerant execution model. \\
+
+{\bf Objective 3: Flexible Programming Model} 
+The idea is to move away from the "one-query one-result" pattern of SQL and introduce purely declarative functions (based on SQL), which support multiple input and output parameters as well as a decomposition of big SQL queries into a sequence of smaller queries. The second idea of the programming model is to introduce white-box user-defined functions (UDFs), which declare rules for optimization (e.g., how a selection can be pushed-down over a UDF and how inputs can be partitioned for parallelization). This is in contrast to current UDF implementations in databases, where UDFs are seen as a black box and thus represent a barrier for optimization. Finally, we want to explore how to provide some higher-level programming constructs such as iteration or recursion as well as UDF functions to access unstructured as well as semi-structured data. \\
+
+As a main contribution of this paper, we present our initial architecture of XDB in Section \ref{sec:xdb} that we have build on top of MySQL\footnote{https://code.google.com/p/xdb/} and discuss in Section \ref{sec:exec} the compilation and execution process of XDB in detail (based on MySQL) using a running example. Finally, in Section \ref{sec:perf} we present our initial performance results with our first prototype, which show a maximal speed-up of factor 20 compared to Hive on the same hardware. 
+
+\section{XDB Architecture}
+\label{sec:xdb}
+
+XDB is build as a middleware for an existing database system, which is used to efficiently storing and processing the data. Thus, the database layer is the lowest layer in the  XDB architecture shown in Figure \ref{fig:xdb:architecture}. The layers above form the middleware layer, which extends the database layer by the before-mentioned properties: elasticity, robustness and flexibility. 
+
+In the following we explain the individual components of XDB shown in Figure \ref{fig:xdb:architecture} from the top layer, which accepts an XDB program (i.e., an analytical task) to the bottom layer, which executes the XDB program using the underlying database (e.g., MySQL):\\
+
+\begin{figure}
+\hspace{-4ex}
+\epsfig{file=figures/architecture.eps,scale=0.47}
+\vspace{-4ex}
+\caption{XDB Architecture}
+\label{fig:xdb:architecture}
+\vspace{-2ex}
+
+\end{figure}
+
+{\bf Compiler Server:} The compile server accepts an XDB program written in the programming model of XDB. An XDB program consists of declarative functions (e.g., using a declarative language like FunSQL \cite{FunSQL:DANAC:2012}) and white-box user-defined functions (e.g., using a imperative language like Java). The compiler translates an XDB program into a compile-plan, which basically is a data-flow graph consisting of relational operators (resulting from declarative functions) and white-box user-defined operators (resulting from white-box user-defined functions). The compiler then annotates metadata of the catalog (i.e., schema, replication and partitioning information) to the data sources (i.e., leaves) of the compile-plan. Finally, the optimizer applies different rule-based optimizations to the annotated compile-plan (e.g., selection push-down) whereas white-box user-defined operators define which rules can be applied and thus are no barriers for optimization.\\
+
+{\bf Master Tracker:} The master tracker server is responsible to manage and monitor cluster resources and assign compile-plans to plan trackers for execution. The master monitor component thus assigns a compile-plan that it receives from the compile server to a plan tracker, which is responsible for adaptively executing the compile-plan. Moreover, the master monitor component constantly monitors the available cluster resources of an XDB instance (i.e., available plan trackers and compute servers). The resource manager is responsible to keep track of the resources and handle resource requests from plan trackers. Plan trackers and compute servers register their resources at the master tracker on start up. In case of a node failure the resource manager removes these resources. \\
+
+{\bf Plan Tracker:} The plan tracker is responsible to execute and monitor multiple compile-plans. The most important component of the plan tracker is the adaptive plan executor. This component takes a compile-plan from the master tracker and divides it into partial compile-plans (sub-plans). Each sub-plan is parallelized and executed incrementally. Moreover, individual sub-plans materialize their results for robustness and adaptive parallelization.  The collection of sub-plans created for one compile-plan is called a tracker-plan in XDB. A tracker-plan can thus be seen as a data-flow graph consisting of sub-plans. 
+
+In order to execute a tracker-plan, the plan tracker uses the plan scheduler to assign compute servers to sub-plans. The plan scheduler therefore requests available compute servers from the master tracker and decides in a cost-based manner which compute servers execute which sub-plans. The main optimization goal is to avoid network traffic (i.e., optimize data locality of sub-plans). For execution, the plan tracker generates a partial execution-plan for each sub-plan and can actively deploy it on different compute servers. During code generation the plan tracker decides about the degree of parallelism once all inputs of the sub-plan are available. Thus, later sub-plans can use  exact cardinality information of their inputs. Moreover, by materializing results of sub-plans, individual sub-plans can be re-deployed on a different compute server on node-failure. The plan monitor is responsible to monitor the execution of the sub-plans and to restart them if required. \\
+
+{\bf Compute Server: } Compute servers are responsible for executing partial execution-plans generated for each sub-plan of a tracker-plan. The plan tracker component therefore deploys a partial execution-plan to a compute server once its inputs are available. The plan tracker then signals the compute server to execute the partial execution-plan. After executing the partial execution-plan, the compute server sends a signal back to the plan tracker that the output of a particular partial execution-plan is available and the plan tracker component deploys and executes subsequent sub-plans. 
+
+Each compute server hosts an instance of the underlying database (i.e., MySQL in our prototype), which is the primary source of data. Partial execution-plans that are executed on a compute server are either purely relational and thus can be executed completely inside the underlying database (using SQL) or they result from white-box user-defined functions and thus are  executed outside the database in a separate runtime (i.e., using a JVM, which reads and writes data via JDBC). Both types of execution-plans materialize their output to the underlying database (e.g., memory tables in MySQL). This has the advantage that we can also leverage indexes and partition functions for the intermediate results. For distributed execution XDB uses the concept of remote tables that exist in many databases to access data in a remote instance (e.g., the \emph{federated} engine in MySQL or \emph{dblink} in PostgreSQL). Semi-structured or unstructured data is either supported by data types like XML or BLOB in the underlying database or by using white-box user-defined functions, which read data from any external data source.
+
+\section{XDB Compilation and Execution}
+\label{sec:exec}
+
+\begin{figure*}[ht]
+\hspace{-6ex}
+\subfigure[Compile-Plan]{
+   \epsfig{file=figures/example1.eps,scale=0.5}
+   \label{fig:xdb:exec1}
+ }
+\hspace{-3ex}
+ \subfigure[Tracker-Plan (sub-plans)]{
+   \epsfig{file=figures/example2.eps,scale=0.5}
+   \label{fig:xdb:exec2}
+ }
+\hspace{-2.5ex}
+ \subfigure[Execution-Plan (sub-plans)]{
+   \epsfig{file=figures/example3.eps,scale=0.5}
+   \label{fig:xdb:exec3}
+ }
+\vspace{-3ex}
+\caption{XDB Compilation and Execution Steps}
+\label{fig:xdb:exec}
+\vspace{-2ex}
+\end{figure*}
+
+In this section we show by a running example how the compilation and execution process of XDB supports the objectives mentioned in the introduction: (1) Elastic Optimization and Execution, (2) Robust Execution-Plans and a (3) Flexible Programming Model.
+
+As a running example, we use a basket analysis over the TPC-H database schema, which counts the products (i.e., parts) that are frequently bought together and whose descriptions (i.e., attribute \emph{part.p\_type}) are similar (using a string similarity metric).  As shown in Figure \ref{fig:xdb:exec1} most of the operators in the compile plan for this analysis are relational operators except for one white-box user-defined operator, which filters product pairs by calculating the string similarity metric. 
+Figure \ref{fig:xdb:exec} gives an overview of the different compilation and execution steps for this example:
+
+\begin{enumerate}
+\item Figure \ref{fig:xdb:exec1} shows an initial compile-plan produced by the compilation server before optimization (e.g., selections are not yet pushed down). This compile-plan is optimized in the compile server resulting in a compile-plan shown in Figure \ref{fig:xdb:exec2} (without splitting the compile-plan into sub-plans).
+\item Figure \ref{fig:xdb:exec2} additionally shows for the optimized compile-plan the sub-plans produced by the plan tracker (called tracker-plan). Each of the sub-plans is executed incrementally by the plan tracker starting with sub-plan 1 and ending with sub-plan 3.
+\item For execution, each of the sub-plans in Figure \ref{fig:xdb:exec2} is parallelized and optimized individually leveraging the partitioning scheme of the database. For example, sub-plan 1 in Figure \ref{fig:xdb:exec2} is first parallelized and deployed to compute servers 1 and 2 based on the partitioning information annotated to the input tables. Assume that table \emph{lineitem} is partitioned by the attribute \emph{l\_orderkey} into two parts (i.e, part 1 and 2) such that the join in sub-plan 1 can be executed locally on each compute server. The resulting partial execution-plans for sub-plan 1 are shown by the lower two plans in in Figure \ref{fig:xdb:exec3}, which materialize their results locally into tables \emph{t1} and \emph{t2} (e.g., using memory tables in MySQL). The sub-plans 2 and 3 are executed in a similar way. Assume that the table \emph{part} is reference partitioned by the table \emph{lineitem}. In that case, the partial execution-plans for this sub-plan again can be executed locally on the compute servers 1 and 2 reading the materialized results \emph{t1} and \emph{t2}. The execution-plans for sub-plan 2 are shown in the middle of Figure \ref{fig:xdb:exec3}). Finally, the last partial execution-plan generated for sub-plan 3 reduces the degree of parallelism to one node (i.e., compute server 1). Therefore, the this partial execution-plan must read the input table \emph{t4} remotely from compute server 2 (e.g., using a federated table in MySQL). 
+\end{enumerate}
+
+In the following, we discuss how the compilation and execution process of XDB helps to accomplish the objectives discussed in Section\ref{sec:intro:obj};\\
+
+{\bf Objective 1:  Elastic Optimization and Execution}: The plan tracker splits the compile-plan into sub-plans to enable better optimizer decisions. When splitting the compile-plan into sub-plans, we need to find a good balance between materialization costs vs. better cardinality estimations for parallelization vs. robustness guarantees. Thus, this decision must be implemented in a cost-based optimizer, which takes these facts as inputs. For parallelization,  tables must be partitioned to different compute servers. For partitioning the data XDB can either leverage the partitioning chemes provided by the underlying database or add new techniques in the middleware layer (e.g., adding a reference-based partitioning scheme to MySQL).\\
+
+{\bf Objective 2:  Robust Execution-Plans}: Consequently, when splitting a compile-plan into sub-plans, which materialize their results, each partial execution-plan that is generated for a sub-plan can be re-deployed to another compute server. However, in order to recover from node-failures the input tables (e.g., \emph{lineitem} and \emph{part}) must be replicated. Again, XDB can either leverage replication schemes of the database or implement replication in the middleware as well.\\
+
+{\bf Objective 3:  Flexible Programming Model}: As shown in Figure \ref{fig:xdb:exec}, XDB also support white-box user-defined functions that are no barriers for optimization and parallelization. 
+
+\section{Performance Experiments}
+\label{sec:perf}
+
+In this section, we present an initial experimental evaluation of XDB based on MySQL 5.6 as the underlying database. Our initial prototype of XDB is build using Java 1.6 and was executed on a cluster with 8 virtualized nodes for this experiment.  
+For each of the virtualized cluster nodes, we used the following hardware configuration: Intel Xeon X5650 with 2.67 GHz (2 CPU Cores), 8 GB RAM and a 80 GB HDD. Additionally each virtualized node was running the following software stack: Xen as a VM monitor, CentOS 6, Cloudera CDH 4.5 Free Edition including Hive, MySQL 5.6.10 (using InnoDB as the default storage engine and read committed as the default isolation level) and Java 1.6.
+
+In order to show the efficiency of XDB, we executed the TPC-H queries 3 and 5 on the scaling factor 30 and compared the runtime of XDB to the runtime of the Hive installation on the cluster. For XDB, we partitioned the\emph{lineitem} table into 8 parts using a hash-based partitioning scheme and all other tables using a reference-based partitioning scheme such that all joins could be executed locally on each node. The results of this experiment can be seen by the left two bar groups of Figure \ref{fig:perf}. As a result, we can see for both TPC-H queries show a speed-up factor of approximately 6. 
+ 
+\begin{figure}[ht] 
+\hspace{-4ex}
+\epsfig{file=exp/exp1.eps,scale=0.37}
+\vspace{-3ex}
+\caption{XDB vs. Hive (TPC-H SF=30)}
+\label{fig:perf}
+\end{figure}
+
+In order to show the flexibility of XDB, we executed the basket analysis described in Section \ref{sec:exec}, which includes a white-box user-defined function on XDB and on Hive using the same code for the user-defined function. The result of this experiment can be seen by the right bar group of Figure \ref{fig:perf}. Compared to the purely relational case, we can see a speed-up factor of approximately 20. 
+
+\section{Related Work}
+\label{sec:rel}
+
+Most related to XDB is HadoopDB \cite{HadoopDB:SIGMOD:2010}, which turns the slave nodes of Hadoop into single-node database instances. However, HadoopDB still has many problems mentioned before. First, HadoopDB relies on Hadoop as its major execution environment (i.e., joins are often compiled into inefficient map and reduce operations). Only in its commercial version Hadapt \cite{Hadapt:SIGMOD:2011} presents a component called SideDB, which replaces the Hadoop execution environment by a database to execute operations like joins more efficiently. Second, HadoopDB does not allow re-optimizing queries during runtime. Third, complex functions cannot benefit from HadoopDB's infrastructure and are treated as black boxes. Finally, HadoopDB is invasive to the used software stack. 
+
+Hadoop++ \cite{HadoopPP:PVLDB:2010} and 	Clydesdale \cite{Clydesdale:EDBT:2012} are just two out of many other systems trying to address the shortcomings of Hadoop, by adding better support for structured data, indexes and joins. However, like other systems, Hadoop++ and Clydesdale cannot overcome Hadoop’s inherent limitations (e.g., materializing each intermediate result).
+
+Distributed query processing has also been investigated as part of parallel database systems. XDB builds on top of these techniques and extends them to the new requirements of Big Data analytics. Recently, Osprey \cite{Osprey:EDBT:2012} has been proposed as a scheme for tolerating and recovering from mid-query faults in a distributed shared-nothing database. Furthermore, FTOpt \cite{FOpt:SIGMOD:2011} proposes an optimizer to select the best strategy that minimizes the expected processing time with failures. Even though, these techniques do not consider constantly changing environments where nodes come and go.
+
+\section{Conclusions and Outlook}
+\label{sec:concl}
+
+In this paper we presented our vision of an elastic, robust and flexible database architecture for Big Data called XDB. XDB is implemented as a middleware over an existing database system using its efficient query processing techniques. 
+For execution XDB splits a compile-plan into multiple sub-plans that are optimized and executed incrementally. One the one hand this enables better optimization capabilities based on real cardinality information instead of cardinality estimates which is important when processing big data in parallel to determine an optimal degree of parallelism. One the other hand sub-plans materialize their results to allow XDB to recover from node-failures. Moreover, the middleware supports the execution of white-box user-defined functions that can be optimized and parallelized by XDB as well to support complex analytics and other data formats in XDB as well.
+
+As the main avenue of future work we plan to finish the complete XDB system and evaluate it on many different workloads (e.g., machine learning tasks, ...) and compare it with the various existing systems for big data analytics.
+
+\bibliographystyle{abbrv}
+\small
+\bibliography{sigproc}  % sigproc.bib 
+
+\end{document}
