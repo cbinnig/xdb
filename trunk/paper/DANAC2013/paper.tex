@@ -159,20 +159,20 @@ In the following, we discuss how the compilation and execution process of XDB he
 \label{sec:perf}
 
 In this section we present an initial experimental evaluation of XDB based on MySQL 5.6 as the underlying database. Our initial prototype of XDB is built using Java 1.6 and was executed on a cluster with 8 virtualized nodes for this experiment.  
-For each of the virtualized cluster nodes, we used the following configuration : Intel Xeon X5650 with 2.67 GHz (1 CPU Core), 8 GB RAM and 80 GB HDD. Each virtualized node was running the following software stack: Xen as a VM monitor, CentOS 6, Cloudera CDH 4.5 Free Edition including Hive, MySQL 5.6.10 (using InnoDB as the default storage engine and read committed as the default isolation level) and Java 1.6.
+For each of the virtualized cluster nodes, we used the following configuration: Intel Xeon X5650 with 2.67 GHz (1 CPU Core), 8 GB RAM and 80 GB HDD. Each virtualized node was running the following software stack: Xen as a VM monitor, CentOS 6, Cloudera CDH 4.5 Free Edition including Hive, MySQL 5.6.10 (using InnoDB as the default storage engine and read committed as the default isolation level) and Java 1.6.
 
-In order to show the efficiency of XDB, we executed the TPC-H queries 3 and 5 on the scaling factor 30 and compared the runtime of XDB to the runtime of the Hive installation on the cluster. For XDB, we partitioned the \emph{lineitem} table into 8 parts using a hash-based partitioning scheme and all other tables using a reference based partitioning scheme such that all joins could be executed locally on each node. The results of this experiment can be seen in the two leftmost bar groups of Figure \ref{fig:perf}. As a result, we can see a speed-up factor of approximately 6 for both TPC-H queries.
+In order to show the efficiency of XDB, we executed the TPC-H queries 3, 4 and 5 on the scaling factor 30 and compared the runtime of XDB to the runtime of the Hive installation on the same cluster. For XDB, we partitioned the \emph{lineitem} table into 8 parts using a hash-based partitioning scheme on the attribute \emph{l\_orderkey} and all other tables using a reference based partitioning scheme such that all joins could be executed locally on each node with the partitioned \emph{lineitem} table. For Hive and Hadoop we used the default configuration. The results of this experiment can be seen in the three leftmost bar groups of Figure \ref{fig:perf}. As a result, we can see a speed-up factor of approximately 6 to 10.
  
 \begin{figure}[ht] 
 \hspace{-4ex}
-\epsfig{file=exp/exp1.eps,scale=0.33}
+\epsfig{file=exp/exp1.eps,scale=0.31}
 \vspace{-3ex}
 \caption{XDB vs. Hive (TPC-H SF=30)}
 \vspace{-1ex}
 \label{fig:perf}
 \end{figure}
 
-In order to show the flexibility of XDB, we also executed the basket analysis described in Section \ref{sec:exec}, which includes a white-box user-defined function on XDB and on Hive using the same code for the user-defined function. The result of this experiment can be seen by the right bar group of Figure~\ref{fig:perf}. Compared to the purely relational case, we can see a speed-up factor of approximately 20. 
+In order to show the flexibility of XDB, we also executed the basket analysis described in Section \ref{sec:exec}, which includes a white-box user-defined function on XDB and on Hive using the same code for the user-defined function. The result of this experiment can be seen by the rightmost bar group of Figure~\ref{fig:perf}. Compared to the purely relational case, we can see a speed-up factor of approximately 20. 
 
 \section{Related Work}
 \label{sec:rel}
