@@ -2,7 +2,7 @@ set style data histogram
 set style histogram cluster gap 1
 set style fill solid 1.00 border 0
 
-set xtics ("Query 3" 0, "Query 5" 1, "Basket Analysis" 2)
+set xtics ("Query 3" 0, "Query 4" 1, "Query 5" 2, "Basket Analysis" 3)
 
 set ylabel "Time (in seconds)"    
 set yrange [0:*]
