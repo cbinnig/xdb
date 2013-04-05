@@ -96,7 +96,7 @@ public class MasterTrackerClient extends AbstractClient {
 			server.close();
 
 		} catch (final Exception e) {
-			err = createClientError(e);
+			err = createClientError(url, e);
 		}
 		return new Tuple<Map<ComputeNodeSlot, MutableInteger>, Error>(
 				computeNodes, err);

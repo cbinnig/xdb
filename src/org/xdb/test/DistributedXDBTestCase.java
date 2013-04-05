@@ -16,7 +16,8 @@ import org.xdb.server.QueryTrackerServer;
  * @author cbinnig
  * 
  */
-public class DistributedQueryTrackerTestCase extends TestCase {
+public class DistributedXDBTestCase extends TestCase {
+	protected CompileServer compileServer;
 	private MasterTrackerServer mTrackerServer;
 	private ComputeServer[] computeServers;
 	private QueryTrackerServer qTrackerServer;
@@ -26,11 +27,11 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 	private boolean runLocal;
 
 	// constructors
-	public DistributedQueryTrackerTestCase(int numberOfComputeServer) {
+	public DistributedXDBTestCase(int numberOfComputeServer) {
 		this(numberOfComputeServer, Config.TEST_SLOTS_PER_NODE);
 	}
 
-	public DistributedQueryTrackerTestCase(int numberOfComputeServer,
+	public DistributedXDBTestCase(int numberOfComputeServer,
 			int numberOfSlots) {
 		super();
 		this.numberOfComputeServer = numberOfComputeServer;
@@ -62,6 +63,10 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 		assertNoError(CompileServer.deleteCatalog());
 
 		try {
+			compileServer = new CompileServer();
+			compileServer.startServer();
+			assertNoError(compileServer.getError());
+			
 			// start master tracker server
 			mTrackerServer = new MasterTrackerServer();
 			mTrackerServer.startServer();
@@ -106,12 +111,7 @@ public class DistributedQueryTrackerTestCase extends TestCase {
 
 	@Override
 	public void tearDown() {
+		compileServer.stopServer();
 		mTrackerServer.stopServer();
-		qTrackerServer.stopServer();
-		if (this.runLocal) {
-			for (int i = 0; i < this.computeServers.length; ++i) {
-				this.computeServers[i].stopServer();
-			}
-		}
 	}
 }

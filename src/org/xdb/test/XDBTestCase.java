@@ -37,7 +37,6 @@ public class XDBTestCase extends TestCase {
 		
 			computeServer = new ComputeServer(Config.COMPUTE_PORT);
 			computeServer.startServer();
-			
 			assertNoError(computeServer.getError());
 			
 		} catch (Exception e) {
@@ -49,7 +48,5 @@ public class XDBTestCase extends TestCase {
 	public void tearDown(){
 		compileServer.stopServer();
 		mTrackerServer.stopServer();
-		qTrackerServer.stopServer();
-		computeServer.stopServer();
 	}
 }

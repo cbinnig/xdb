@@ -7,9 +7,9 @@ import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.metadata.Catalog;
 import org.xdb.metadata.Table;
-import org.xdb.test.CompileServerTestCase;
+import org.xdb.test.XDBTestCase;
 
-public class TestCreateTableSQL extends CompileServerTestCase {
+public class TestCreateTableSQL extends XDBTestCase {
 	@Test
 	public void testSimpleCreate() {
 		FunSQLCompiler compiler = new FunSQLCompiler();

@@ -53,11 +53,7 @@ public class QueryTrackerNode {
 		this.description = new QueryTrackerNodeDesc(address);
 
 		this.masterTrackerClient = new MasterTrackerClient();
-		final Error err = masterTrackerClient.registerNode(description);
-		if (err.isError()) {
-			throw new IllegalArgumentException(err.toString());
-		}
-
+		
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
@@ -91,6 +87,9 @@ public class QueryTrackerNode {
 
 	// methods
 
+	public Error startup(){
+		return masterTrackerClient.registerNode(description);
+	}
 	/**
 	 * Generates query tracker plan from compile plan
 	 * 

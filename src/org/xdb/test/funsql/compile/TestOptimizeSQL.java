@@ -6,9 +6,9 @@ import org.junit.Test;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.SelectStmt;
-import org.xdb.test.CompileServerTestCase;
+import org.xdb.test.XDBTestCase;
 
-public class TestOptimizeSQL extends CompileServerTestCase {
+public class TestOptimizeSQL extends XDBTestCase {
 
 		@Test
 		public void testSimpleOptimizer() {

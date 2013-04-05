@@ -16,9 +16,9 @@ import org.xdb.funsql.optimize.Optimizer;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.SelectStmt;
 import org.xdb.funsql.types.EnumSimpleType;
-import org.xdb.test.CompileServerTestCase;
+import org.xdb.test.XDBTestCase;
 
-public class TestOptimizeLargeSQL extends CompileServerTestCase {
+public class TestOptimizeLargeSQL extends XDBTestCase {
 
 	@Test
 	public void testComplexOptimizer() {

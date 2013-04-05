@@ -89,6 +89,13 @@ public class QueryTrackerServer extends AbstractServer {
 		handler.start();
 	}
 	
+	@Override
+	public synchronized void startServer(){
+		super.startServer();
+		
+		this.err = this.tracker.startup();
+	}
+	
 	/**
 	 * @param args
 	 * @throws Exception 
@@ -96,6 +103,11 @@ public class QueryTrackerServer extends AbstractServer {
 	public static void main(final String[] args) throws Exception {
 		final QueryTrackerServer server = new QueryTrackerServer();
 		server.startServer();
+		
+		if(server.getError().isError()){
+			server.stopServer();
+			System.out.println("Compute server error ("+server.getError()+")");
+		}
 	}
 
 }

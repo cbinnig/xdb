@@ -37,8 +37,8 @@ public abstract class AbstractClient {
 	 * @param e
 	 * @return
 	 */
-	protected Error createClientError(Exception e) {
-		String[] args = { e.toString() };
+	protected Error createClientError(String url, Exception e) {
+		String[] args = { "Could not connect to server "+url+": " +e.toString() };
 		Error err = new Error(EnumError.CLIENT_ERROR, args);
 		logger.log(Level.SEVERE, err.toString());
 		return err;
@@ -75,7 +75,7 @@ public abstract class AbstractClient {
 			server.close();
 
 		} catch (final Exception e) {
-			err = createClientError(e);
+			err = createClientError(url, e);
 		}
 
 		return err;

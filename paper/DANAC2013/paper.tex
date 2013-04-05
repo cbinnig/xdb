@@ -47,13 +47,15 @@ Our hypothesis is, that XDB can outperform Hadoop by at least one order of magni
 
 MapReduce, in particular the open-source implementation Hadoop, is currently the de facto standard for analyzing Big Data \cite{MapReduce:CACM:08, Hadoop:OReilly:09}. Its advantages over traditional parallel database systems are the ability to scale to thousands of nodes as well as the robustness of the execution model (e.g. dealing with stragglers and node failures), which are both essential when analyzing Big Data. Other reasons why Hadoop became widely adopted are a simple but extensible (agile) programming model consisting of two second-order functions (i.e., map and reduce), low costs (i.e., open-source), and the ability to read data in any data format. High-level optimizable programming languages for composing MapReduce programs (e.g., Hive \cite{Hive:ICDE:2010}, PigLatin \cite{Pig:PVLDB:2009}) further quelled arguments in favor of Hadoop. However, while highly scalable, Hadoop is inherently inefficient:
 
+\vspace{-1.5ex}
 \begin{itemize}
-\setlength{\itemsep}{-1pt}
+\setlength{\itemsep}{-1.5pt}
 \item First, Hadoop materializes each intermediate result of a map or a reduce function either locally or into its distributed file system (HDFS). This execution model results in a poor single query performance with high resource consumption. 
 \item Second, data locality is a huge problem since the storage layer is separated from the computation layer: When data is loaded in HDFS it is randomly partitioned often resulting in expensive operations, which copy data over the network.
 \item Third, efficient operations as well as index structures to read data selectively from disk are missing. Hadoop only provides unary operators and needs to read all data from disk. Thus, the first map function typically selects the relevant data by scanning all input data. Moreover, join operations are unnatural in Hadoop since binary operators are not supported, leading to inefficient workarounds. 
 \item: FInally, Hadoop only allows a strict sequence of map and reduce operations while intermediate results are re-partitioned after each map-operation (even if it is not needed).
 \end{itemize}
+\vspace{-2ex}
 
 \subsection{XDB: Being Big AND Efficient }
 \label{sec:intro:xdb}
@@ -140,12 +142,14 @@ In this section we show by a running example how the compilation and execution p
 As a running example, we use a basket analysis over the TPC-H database schema, which counts the products (i.e., parts) that are frequently bought together and whose descriptions (i.e., attribute \emph{part.p\_type}) are similar (using a string similarity metric).  As shown in Figure \ref{fig:xdb:exec1} most of the operators in the compile plan for this analysis are relational operators except for one white-box user-defined operator, which filters product pairs by calculating the string similarity metric. 
 Figure \ref{fig:xdb:exec} gives an overview of the different compilation and execution steps for this example:
 
+\vspace{-1.5ex}
 \begin{enumerate}
-\setlength{\itemsep}{-1pt}
+\setlength{\itemsep}{-1.5pt}
 \item Figure \ref{fig:xdb:exec1} shows an initial compile-plan produced by the compilation server before optimization (e.g., selections are not yet pushed down). This compile-plan is optimized in the compile server resulting in a compile-plan shown in Figure \ref{fig:xdb:exec2} (without splitting the compile-plan into sub-plans). The optimized plan shows that the selection and aggregation operators could be pushed beneath the white-box UDF operator.
 \item Figure \ref{fig:xdb:exec2} additionally shows for the optimized compile-plan the sub-plans produced by the plan tracker (called tracker-plan). Each of the sub-plans is executed incrementally by the plan tracker starting with sub-plan 1 and ending with sub-plan 3.
 \item For execution, each of the sub-plans in Figure \ref{fig:xdb:exec2} is parallelized and optimized individually leveraging the partitioning scheme of the database. For example, sub-plan 1 in Figure \ref{fig:xdb:exec2} is first parallelized and deployed to compute servers 1 and 2 based on the partitioning information annotated to the input tables. Assume that table \emph{lineitem} is partitioned by the attribute \emph{l\_orderkey} into two parts (i.e, part 1 and 2) such that the join in sub-plan 1 can be executed locally on each compute server. The resulting partial execution-plans for sub-plan 1 are shown by the lower two plans in Figure~\ref{fig:xdb:exec3}, which materialize their results locally into tables \emph{t1} and \emph{t2} (e.g., using memory tables in MySQL). The sub-plans 2 and 3 are executed in a similar way. Assume that the table \emph{part} is reference partitioned by the table \emph{lineitem}. In that case, the partial execution-plans for this sub-plan again can be executed locally on the compute servers 1 and 2 reading the materialized results \emph{t1} and \emph{t2}. The execution-plans for sub-plan 2 are shown in the middle of Figure~\ref{fig:xdb:exec3}). Finally, the last partial execution-plan generated for sub-plan 3 reduces the degree of parallelism to one node (i.e., compute server 1). Therefore, this partial execution-plan must read the input table~\emph{t4} remotely from compute server~2 (e.g., using a federated table in MySQL). 
 \end{enumerate}
+\vspace{-1.5ex}
 
 In the following, we discuss how the compilation and execution process of XDB helps to accomplish the objectives discussed in Section~\ref{sec:intro:obj}.\\
 
@@ -158,21 +162,21 @@ In the following, we discuss how the compilation and execution process of XDB he
 \section{Performance Experiments}
 \label{sec:perf}
 
-In this section we present an initial experimental evaluation of XDB based on MySQL 5.6 as the underlying database. Our initial prototype of XDB is built using Java 1.6 and was executed on a cluster with 8 virtualized nodes for this experiment.  
-For each of the virtualized cluster nodes, we used the following configuration: Intel Xeon X5650 with 2.67 GHz (1 CPU Core), 8 GB RAM and 80 GB HDD. Each virtualized node was running the following software stack: Xen as a VM monitor, CentOS 6, Cloudera CDH 4.5 Free Edition including Hive, MySQL 5.6.10 (using InnoDB as the default storage engine and read committed as the default isolation level) and Java 1.6.
+In this section we present an initial experimental evaluation of XDB based on MySQL 5.6.10 as the underlying database. Our initial prototype of XDB is built using Java 1.6 and was executed on a cluster with 8 virtualized nodes for this experiment.  
+For each of the virtualized cluster nodes, we used the following configuration: Intel Xeon X5650 with 2.67 GHz (1 CPU Core), 8 GB RAM and 80 GB HDD. Each virtualized node was running the following software stack: Xen as a VM monitor, CentOS 6, Cloudera CDH 4.5 Free Edition including Hive, MySQL 5.6.10 (using InnoDB as the default storage engine and read committed as the default transaction isolation level) as well as Java 1.6.
 
-In order to show the efficiency of XDB, we executed the TPC-H queries 3, 4 and 5 on the scaling factor 30 and compared the runtime of XDB to the runtime of the Hive installation on the same cluster. For XDB, we partitioned the \emph{lineitem} table into 8 parts using a hash-based partitioning scheme on the attribute \emph{l\_orderkey} and all other tables using a reference based partitioning scheme such that all joins could be executed locally on each node with the partitioned \emph{lineitem} table. For Hive and Hadoop we used the default configuration. The results of this experiment can be seen in the three leftmost bar groups of Figure \ref{fig:perf}. As a result, we can see a speed-up factor of approximately 6 to 10.
+In order to show the efficiency of XDB, we executed the TPC-H queries 3, 4 and 5 on the scaling factor $SF=30$ and compared the runtime of XDB to the runtime of the Hive installation on the same cluster. For XDB, we partitioned the \emph{lineitem} table into 8 parts using a hash-based partitioning scheme on the attribute \emph{l\_orderkey} and all other tables using a reference based partitioning scheme such that all joins could be executed locally on each node with the partitioned \emph{lineitem} table. For Hive and Hadoop we used the default configuration. The results of this experiment can be seen in the three leftmost bar groups of Figure \ref{fig:perf}. As a result, we can see a speed-up factor of approximately 6 to 10.
  
 \begin{figure}[ht] 
-\hspace{-4ex}
-\epsfig{file=exp/exp1.eps,scale=0.31}
+\vspace{-2ex}
+\epsfig{file=exp/exp1.eps,scale=0.32}
 \vspace{-3ex}
 \caption{XDB vs. Hive (TPC-H SF=30)}
 \vspace{-1ex}
 \label{fig:perf}
 \end{figure}
 
-In order to show the flexibility of XDB, we also executed the basket analysis described in Section \ref{sec:exec}, which includes a white-box user-defined function on XDB and on Hive using the same code for the user-defined function. The result of this experiment can be seen by the rightmost bar group of Figure~\ref{fig:perf}. Compared to the purely relational case, we can see a speed-up factor of approximately 20. 
+In order to show the flexibility of XDB, we executed the basket analysis as described in Section \ref{sec:exec}, which includes a white-box user-defined function. For comparison, we executed the basket analysis on Hive using the same Java code for computing the string-similarity in the user-defined function. The result of this experiment can be seen by the rightmost bar group of Figure~\ref{fig:perf}. Compared to Hive, XDB shows a speed-up factor of approximately 20 since XDB is to optimize plans which include white-box user-defined functions (i.e., push down selections and aggregations). 
 
 \section{Related Work}
 \label{sec:rel}
@@ -181,9 +185,7 @@ Most related to XDB is HadoopDB \cite{HadoopDB:SIGMOD:2010}, which turns the sla
 
 Hadoop++ \cite{HadoopPP:PVLDB:2010} and 	Clydesdale \cite{Clydesdale:EDBT:2012} are just two out of many other systems trying to address the shortcomings of Hadoop, by adding better support for structured data, indexes and joins. However, like other systems, Hadoop++ and Clydesdale cannot overcome Hadoop's inherent limitations (e.g., materializing each intermediate result).
 
-%Dryad??
-
-Distributed query processing has also been investigated as part of parallel database systems. XDB builds on top of these techniques and extends them to the new requirements of Big Data analytics. Recently, Osprey \cite{Osprey:EDBT:2012} has been proposed as a scheme for tolerating and recovering from mid-query faults in a distributed shared-nothing database. Furthermore, FTOpt \cite{FOpt:SIGMOD:2011} proposes an optimizer to select the best strategy that minimizes the expected processing time with failures. Even though, these techniques do not consider constantly changing environments where nodes come and go.
+Parallel query processing has also been investigated in parallel database systems. XDB builds on top of these techniques and extends them to the new requirements of Big Data analytics. Recently, Osprey \cite{Osprey:EDBT:2012} has been proposed as a scheme for tolerating and recovering from mid-query faults in a distributed shared-nothing database. Furthermore, FTOpt \cite{FOpt:SIGMOD:2011} proposes an optimizer to select the best strategy that minimizes the expected processing time with failures. Even though, these techniques do not consider constantly changing environments where nodes come and go.
 
 \section{Conclusions and Outlook}
 \label{sec:concl}
