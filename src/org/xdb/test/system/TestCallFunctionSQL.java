@@ -152,11 +152,43 @@ public class TestCallFunctionSQL extends XDBTestCase {
 				+ "CREATE FUNCTION f2( OUT o1 TABLE) \n" 
 				+ "BEGIN \n" +
 				"CALL FUNCTION f1 ( VAR v1, VAR v2); \n"					
-				+ ":o1 = SELECT A FROM :v1; \n"
+				+ ":o1 = SELECT R1.A, R2.A2 FROM :v1 as R1, :v2 as R2 " +
+				"WHERE R2.A2 = R1.A; \n"
 				+ "END; ");
 		this.assertNoError(compiler.getLastError());
-		fCallStmt.getPlan().tracePlan(this.getClass().getName()+"_complex");
+		fCallStmt.getPlan().tracePlan(this.getClass().getName()+"_complex_f2");
 		this.assertNoError(fCallStmt.execute());
+		
+		// execute CreateFunction
+		CreateFunctionStmt fCallStmt2 = (CreateFunctionStmt) compiler.compile(""
+				+ "CREATE FUNCTION f3( OUT o1 TABLE) \n" 
+				+ "BEGIN \n" +
+				"CALL FUNCTION f1 ( VAR v1, VAR v2); \n"					
+				+ "VAR v3 = SELECT R1.A, R2.A2 FROM :v1 as R1, :v2 as R2 " +
+				"WHERE R2.A2 = R1.A; \n" +
+				"CALL FUNCTION f1 ( VAR v4, VAR v5); \n"
+				+ ":o1 = SELECT R1.A2 FROM :v3 as R1, :v4 as R2 "
+					+ "WHERE R1.A2=R2.A; \n"
+				+ "END; ");
+		this.assertNoError(compiler.getLastError());
+		fCallStmt2.getPlan().tracePlan(this.getClass().getName()+"_complex_f3");
+		this.assertNoError(fCallStmt2.execute());
+		
+		// execute CreateFunction
+		CreateFunctionStmt fCallStmt3 = (CreateFunctionStmt) compiler.compile(""
+				+ "CREATE FUNCTION f4( OUT o1 TABLE) \n" 
+				+ "BEGIN \n" +
+				"CALL FUNCTION f1 ( VAR v1, VAR v2); \n" +
+				"CALL FUNCTION f3 ( VAR v3); \n"					
+				+ "VAR v4 = SELECT R1.A, R2.A2 FROM :v1 as R1, :v3 as R2 " +
+				"WHERE R2.A2 = R1.A; \n" +
+				"CALL FUNCTION f2 ( VAR v5); \n"
+				+ ":o1 = SELECT R1.A2, R3.A FROM :v2 as R1, :v4 as R2, :v5 as R3 "
+					+ "WHERE R1.A2=R2.A2 AND R2.A=R3.A; \n"
+				+ "END; ");
+		this.assertNoError(compiler.getLastError());
+		fCallStmt3.getPlan().tracePlan(this.getClass().getName()+"_complex_f4");
+		this.assertNoError(fCallStmt3.execute());
 		
 	}
 	

@@ -1,27 +1,25 @@
 package org.xdb.funsql.compile.operator;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Vector;
 
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenFunction;
 import org.xdb.utils.Identifier;
 
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
-public class FunctionCall extends AbstractUnaryOperator {
+public class FunctionCall extends AbstractCompileOperator {
 
 	private static final long serialVersionUID = -7332127330583927641L;
 	private Vector<AbstractCompileOperator> children;
 	private TokenFunction function;
 	
 	//constructors
-	public FunctionCall(TokenFunction function, Vector<AbstractCompileOperator> children, int resultNumber) {
-		super(children, resultNumber);		
-		this.children = children;
+	public FunctionCall(TokenFunction function,int resultNumber) {
+		super(resultNumber);		
+		//this.children = children; TODO
 		this.function = function;
 		
 		this.setType(EnumOperator.FUNCTION_CALL);
@@ -76,9 +74,5 @@ public class FunctionCall extends AbstractUnaryOperator {
 		//Nothing to do
 	}
 
-	@Override
-	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 }
