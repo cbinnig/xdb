@@ -53,7 +53,8 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	//function calls in function body
 	private Vector <TokenFunctionCall> tcalls = new Vector <TokenFunctionCall>();
 	private HashMap <TokenFunction, Function> calls = new HashMap <TokenFunction, Function>();
-
+	private HashMap <String, FunctionCall> callSymbols = new HashMap<String, FunctionCall>();
+	
 	private CompilePlan functionPlan = new CompilePlan();
 
 	// Constructors
@@ -237,21 +238,23 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 					
 				}	
 				
+				//add FunctionCall Operator to functioncall
+				FunctionCall fc = new FunctionCall(tfc.getFun(), tfc.getOutVars().size());
+				for(int i=0; i < plan.getRoots().size(); i++){
+					AbstractCompileOperator op = plan.getRoot(i);
+					for(int j=0; j<op.getResultNumber(); j++){
+						fc.addResult(op.getResult(j));
+					}
+				}
+				
 				//adds plans of called functions
+				int o=0;
 				for(TokenVariable otv: tfc.getOutVars()){
 					this.compilePlans.put(otv.hashKey(), plan);	
-					Table tableType = this.buildTableType(otv, plan.getRoot(0).getResult());
+					Table tableType = this.buildTableType(otv, plan.getRoot(o).getResult(0));
+					o++;
 					this.varSymbols.put(otv.hashKey(), tableType);
-				}
-				//add FunctionCall Operator to callPlan
-				Vector<AbstractCompileOperator> roots = (Vector<AbstractCompileOperator>) plan.getRoots();
-				FunctionCall fc = new FunctionCall(tfc.getFun(), roots , tfc.getOutVars().size());
-				for(int i=0; i < plan.getRoots().size(); i++){
-					fc.addResult(plan.getRoot(i).getResult());
-				}
-				plan.addOperator(fc, true);
-				for (AbstractCompileOperator id: roots){
-					plan.removeRootId(id.getOperatorId());
+					this.callSymbols.put(otv.hashKey(), fc);
 				}
 				
 			}
@@ -267,7 +270,15 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 			// replace variables in stmtPlan
 			for (String varKey : stmt.getUsedVariables()) {
 				CompilePlan varPlan = this.compilePlans.get(varKey);
-				stmtPlan.replaceVariable(varKey, varPlan.getRoot(0));
+				if(this.callSymbols.containsKey(varKey)){
+					FunctionCall fc = callSymbols.get(varKey);
+					fc.addParent(varPlan.getRoot(0));
+					varPlan.addOperator(fc, false);//ID of fc = ID of original plan
+					stmtPlan.replaceVariable(varKey,fc);
+					//adds FunctionCall to tree
+				}
+				else
+					stmtPlan.replaceVariable(varKey, varPlan.getRoot(0));
 			}
 
 			// add stmtPlan to functionPlan			
@@ -281,25 +292,15 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		for(TokenFunctionCall tfc: this.tcalls){
 			CompilePlan callPlan = this.fCache.getPlan(this.calls.get(tfc.getFun()).hashKey());//plan of called function
 			//replace in parameters of called function with subplans of the variables in present function
-			if(!tfc.getInVars().isEmpty()){
+			if(!tfc.getInVars().isEmpty()){//TODO
 				int i = 0;
-				for(TokenVariable cVar: this.fCache.getInVars(this.calls.get(tfc.getFun()).hashKey())){
-					TokenVariable uVar = tfc.getInVars().get(i);
+				for(TokenVariable cVar: this.fCache.getInVars(this.calls.get(tfc.getFun()).hashKey())){//Signatur der Funktion
+					TokenVariable uVar = tfc.getInVars().get(i);//Parameter beim Aufruf
 					CompilePlan varPlan = this.compilePlans.get(uVar.hashKey());
 					callPlan.replaceVariable(cVar.hashKey(), varPlan.getRoot(0));
 					i++;
 				}
-			}
-						
-			//add plans of called functions to functionPlan
-			this.functionPlan.addSubPlan(callPlan);
-			for(TokenVariable var: tfc.getOutVars()){
-				if (this.outParamKeys.contains(var)) {						
-					this.functionPlan.addRootId(callPlan.getRootId(0));					
-				}
-				
-			}
-			
+			}	
 			
 		}
 		
