@@ -44,6 +44,111 @@ public class TestPlanTranslation extends XDBTestCase {
 	}
 	
 	
+
+	
+	@Test
+	public void testSimplePlanTransition() throws Exception {
+		/*
+		 * Test Plan
+		 *   INPUT:
+		 *    tables: R ( a INT, b INT ), S ( c INT )
+		 *    statement: SELECT b, c FROM R INNER JOIN S ON a = c WHERE b > 20
+		 */
+		final CompilePlan plan = new CompilePlan();
+		
+		// tables
+		final TableOperator tableOpR = new TableOperator(new TokenIdentifier("R"));
+		final TableOperator tableOpS = new TableOperator(new TokenIdentifier("S"));
+		
+		tableOpR.setConnection(new Connection("INVALID_CONNECTION", "mysql://127.0.0.1/xdbR", "user", "password", EnumStore.MYSQL));
+		tableOpS.setConnection(new Connection("INVALID_CONNECTION", "mysql://127.0.0.1/xdbS", "user", "password", EnumStore.MYSQL));
+		
+		plan.addOperator(tableOpR, false);
+		plan.addOperator(tableOpS, false);
+		
+		// table fields
+		final TokenAttribute attributeRA = new TokenAttribute(tableOpR.getOperatorId().toString(), "a");
+		final TokenAttribute attributeRB = new TokenAttribute(tableOpR.getOperatorId().toString(), "b");
+		final TokenAttribute attributeSC = new TokenAttribute(tableOpS.getOperatorId().toString(), "c");
+		
+		// equi join
+		final EquiJoin joinOp = new EquiJoin(tableOpR, tableOpS, attributeRA, attributeSC);
+		plan.addOperator(joinOp, false);
+		
+		// select: a > 20
+		final GenericSelection selectOp = new GenericSelection(joinOp);
+		final SimplePredicate selectionPred = new SimplePredicate();
+		selectionPred.setExpr1(new SimpleExpression(attributeRB));
+		selectionPred.setComp(EnumCompOperator.SQL_GREATER_THAN);
+		selectionPred.setExpr2(new SimpleExpression(new TokenIntegerLiteral(20)));
+		selectOp.setPredicate(selectionPred);
+		plan.addOperator(selectOp, false);
+		
+		final TokenAttribute joinAttributeRA = new TokenAttribute(joinOp.getLeftChild().getOperatorId().toString(), "a");
+		final TokenAttribute joinAttributeRB = new TokenAttribute(joinOp.getOperatorId().toString(), "b");
+		final TokenAttribute joinAttributeSC = new TokenAttribute(joinOp.getRightChild().getOperatorId().toString(), "c");
+		
+		// projection
+		final GenericProjection projectionOp = new GenericProjection(selectOp);
+		plan.addOperator(projectionOp, true);
+		
+		final TokenAttribute projectionAttributeB = new TokenAttribute(projectionOp.getOperatorId().toString(), "b");
+		final TokenAttribute projectionAttributeC = new TokenAttribute(projectionOp.getOperatorId().toString(), "c");
+		
+		//add results
+		projectionOp.addExpression(new SimpleExpression(joinAttributeRB));
+		projectionOp.addExpression(new SimpleExpression(joinAttributeSC));
+		final ResultDesc projResult = new ResultDesc(2);
+		projResult.addAttribute(projectionAttributeB);
+		projResult.addType(EnumSimpleType.SQL_INTEGER);
+		projResult.addAttribute(projectionAttributeC);
+		projResult.addType(EnumSimpleType.SQL_INTEGER);
+		projectionOp.addResult(projResult);
+		
+		final ResultDesc selectResult = new ResultDesc(1);
+		selectResult.addAttribute(attributeRB);
+		selectResult.addType(EnumSimpleType.SQL_INTEGER);
+		selectOp.addResult(selectResult);
+		
+		
+		final ResultDesc joinResult = new ResultDesc(3);
+		joinResult.addAttribute(joinAttributeRA);
+		joinResult.addType(EnumSimpleType.SQL_INTEGER);
+		joinResult.addAttribute(joinAttributeRB);
+		joinResult.addType(EnumSimpleType.SQL_INTEGER);
+		joinResult.addAttribute(joinAttributeSC);
+		joinResult.addType(EnumSimpleType.SQL_INTEGER);
+		joinOp.addResult(joinResult);
+		
+		final ResultDesc tableRResult = new ResultDesc(2);
+		tableRResult.addAttribute(attributeRA);
+		tableRResult.addType(EnumSimpleType.SQL_INTEGER);
+		tableRResult.addAttribute(attributeRB);
+		tableRResult.addType(EnumSimpleType.SQL_INTEGER);
+		tableOpR.addResult(tableRResult);
+		
+		final Table tableR = new Table("R", "R", "PUBLIC", 0L, 0L);
+		tableR.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
+		tableR.addAttribute(new Attribute("b", EnumSimpleType.SQL_INTEGER, 0L));
+		tableOpR.setTable(tableR);
+		
+		final ResultDesc tableSResult = new ResultDesc(1);
+		tableSResult.addAttribute(attributeSC);
+		tableSResult.addType(EnumSimpleType.SQL_INTEGER);
+		tableOpS.addResult(tableSResult);
+		
+		final Table tableS = new Table("S", "S", "PUBLIC", 0L, 0L);
+		tableS.addAttribute(new Attribute("c", EnumSimpleType.SQL_INTEGER, 0L));
+		tableOpS.setTable(tableS);
+		
+		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan).getObject1();
+		Assert.assertNotNull(qPlan);
+		qPlan.tracePlan(this.getClass().getName());
+		
+		assertEquals(qPlan.getTrackerOperators().size(), 1);
+	}
+	
+	
 	@Test
 	public void testSimpleProjection() throws Exception {
 		/*
