@@ -7,9 +7,9 @@ import org.xdb.funsql.statement.CreateTableStmt;
 import org.xdb.funsql.statement.DropConnectionStmt;
 import org.xdb.funsql.statement.DropTableStmt;
 import org.xdb.metadata.Catalog;
-import org.xdb.test.CompileServerTestCase;
+import org.xdb.test.XDBTestCase;
 
-public class TestCreateTableStmt extends CompileServerTestCase {
+public class TestCreateTableStmt extends XDBTestCase {
 
 	@Test
 	public void testSimpleCreate() {

@@ -4,9 +4,9 @@ import org.junit.Test;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CreateConnectionStmt;
 import org.xdb.funsql.statement.DropConnectionStmt;
-import org.xdb.test.CompileServerTestCase;
+import org.xdb.test.XDBTestCase;
 
-public class TestCreateConnectionStmt extends CompileServerTestCase {
+public class TestCreateConnectionStmt extends XDBTestCase {
 	@Test
 	public void testDuplicateCreate() {
 		String connectionName = "TestConnection";

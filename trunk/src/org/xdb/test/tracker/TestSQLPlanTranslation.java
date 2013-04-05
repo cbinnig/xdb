@@ -6,26 +6,11 @@ import org.junit.Test;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CreateFunctionStmt;
-import org.xdb.test.CompileServerTestCase;
-import org.xdb.tracker.QueryTrackerNode;
+import org.xdb.test.XDBTestCase;
 import org.xdb.tracker.QueryTrackerPlan;
 
-public class TestSQLPlanTranslation extends CompileServerTestCase {
-	
-	private QueryTrackerNode qTracker;
-	@Override
-	/**
-	 * Setup common statements (connect, drop, ...)
-	 */
-	public void setUp() {
-		super.setUp();
-		try {
-			this.qTracker = new QueryTrackerNode();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.assertTrue(true);
-		}
-	}
+public class TestSQLPlanTranslation extends XDBTestCase {
+
 	
 	@Test
 	public void testSimpleCreate() {
@@ -93,7 +78,7 @@ public class TestSQLPlanTranslation extends CompileServerTestCase {
 		fStmt.getPlan().tracePlan(this.getClass().getName()+"_Compiler");
 		this.assertNoError(fStmt.execute());
 		
-		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(fStmt.getPlan()).getObject1();
+		QueryTrackerPlan qPlan = qTrackerServer.getNode().generateQueryTrackerPlan(fStmt.getPlan()).getObject1();
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName()+"_Tracker");
 		

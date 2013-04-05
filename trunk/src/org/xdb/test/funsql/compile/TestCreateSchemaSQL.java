@@ -5,9 +5,9 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
-import org.xdb.test.CompileServerTestCase;
+import org.xdb.test.XDBTestCase;
 
-public class TestCreateSchemaSQL extends CompileServerTestCase {
+public class TestCreateSchemaSQL extends XDBTestCase {
 	@Test
 	public void testSimpleCreate() {
 		FunSQLCompiler compiler = new FunSQLCompiler();

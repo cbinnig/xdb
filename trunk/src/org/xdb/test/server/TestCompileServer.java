@@ -2,9 +2,9 @@ package org.xdb.test.server;
 
 import org.junit.Test;
 import org.xdb.client.CompileClient;
-import org.xdb.test.CompileServerTestCase;
+import org.xdb.test.XDBTestCase;
 
-public class TestCompileServer extends CompileServerTestCase {
+public class TestCompileServer extends XDBTestCase {
 	@Test
 	public void testSimpleCreate() {
 		CompileClient client = new CompileClient();

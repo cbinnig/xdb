@@ -65,16 +65,6 @@ public class ComputeNode {
 		
 		//register at master tracker
 		this.mTrackerClient = new MasterTrackerClient();
-		Error err = mTrackerClient.registerNode(computeNodeDesc);
-		if (err.isError()) {
-			throw new IllegalArgumentException(err.toString());
-		}
-
-		//startup database
-		err = this.startup();
-		if (err.isError()) {
-			throw new IllegalArgumentException(err.toString());
-		}
 	}
 
 	public ComputeNodeSlot getComputeSlot(){
@@ -88,8 +78,12 @@ public class ComputeNode {
 	 * @return
 	 */
 	public Error startup() {
-		// recreate tmp database of compute node
-		Error err = new Error();
+		//register at master tracker
+		Error err = mTrackerClient.registerNode(computeNodeDesc);
+		if(err.isError())
+			return err;
+		
+		// recreate XDB temporary database of compute node
 		try {
 
 			Class.forName(Config.COMPUTE_DRIVER_CLASS);

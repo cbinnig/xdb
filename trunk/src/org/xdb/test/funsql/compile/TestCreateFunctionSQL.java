@@ -7,9 +7,9 @@ import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CreateFunctionStmt;
 import org.xdb.funsql.statement.DropFunctionStmt;
-import org.xdb.test.CompileServerTestCase;
+import org.xdb.test.XDBTestCase;
 
-public class TestCreateFunctionSQL extends CompileServerTestCase {
+public class TestCreateFunctionSQL extends XDBTestCase {
 
 	@Test
 	public void testSimpleCreate() {

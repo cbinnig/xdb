@@ -117,5 +117,10 @@ public class CompileServer extends AbstractServer {
 	public static void main(final String[] args) {
 		final CompileServer server = new CompileServer();
 		server.startServer();
+		
+		if(server.getError().isError()){
+			server.stopServer();
+			System.out.println("Compute server error ("+server.getError()+")");
+		}
 	}
 }

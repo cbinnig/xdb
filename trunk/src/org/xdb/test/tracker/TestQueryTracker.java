@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.xdb.execute.operators.OperatorDesc;
-import org.xdb.test.QueryTrackerServerTestCase;
+import org.xdb.test.XDBTestCase;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.MySQLTrackerOperator;
@@ -15,7 +15,7 @@ import org.xdb.tracker.operator.TableDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
-public class TestQueryTracker extends QueryTrackerServerTestCase {
+public class TestQueryTracker extends XDBTestCase {
 
 	public TestQueryTracker() {
 		super();
@@ -23,7 +23,7 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 
 	@Test
 	public void testPlan1Op() throws Exception {
-		final QueryTrackerNode qTracker = this.qServer.getNode();
+		final QueryTrackerNode qTracker = this.qTrackerServer.getNode();
 		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);
 
@@ -73,7 +73,7 @@ public class TestQueryTracker extends QueryTrackerServerTestCase {
 	
 	@Test
 	public void testPlan2Ops() throws Exception {
-		final QueryTrackerNode qTracker = this.qServer.getNode();
+		final QueryTrackerNode qTracker = this.qTrackerServer.getNode();
 		final QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);
 

@@ -11,7 +11,7 @@ import java.util.Set;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.OperatorDesc;
-import org.xdb.test.DistributedQueryTrackerTestCase;
+import org.xdb.test.DistributedXDBTestCase;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.MySQLTrackerOperator;
 import org.xdb.tracker.operator.TableDesc;
@@ -19,7 +19,7 @@ import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
 public abstract class DistributedTPCHTestCase extends
-		DistributedQueryTrackerTestCase {
+		DistributedXDBTestCase {
 
 	// static fields
 	private static final int NUMBER_COMPUTE_DBS = Config.TEST_NODE_COUNT

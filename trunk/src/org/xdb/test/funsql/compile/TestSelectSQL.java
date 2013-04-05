@@ -6,9 +6,9 @@ import org.junit.Test;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.SelectStmt;
-import org.xdb.test.CompileServerTestCase;
+import org.xdb.test.XDBTestCase;
 
-public class TestSelectSQL extends CompileServerTestCase {
+public class TestSelectSQL extends XDBTestCase {
 	@Test
 	public void testSimpleSelect() {
 		FunSQLCompiler compiler = new FunSQLCompiler();

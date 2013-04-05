@@ -120,8 +120,15 @@ public class ComputeServer extends AbstractServer {
 		return this.compute.getComputeSlot();
 	}
 
+	@Override
+	public synchronized void startServer(){
+		super.startServer();
+		
+		this.err = this.compute.startup();
+	}
+	
 	/**
-	 * Start server from cmd
+	 * Start server from command line
 	 * 
 	 * @param args
 	 * @throws UnknownHostException 
@@ -137,5 +144,10 @@ public class ComputeServer extends AbstractServer {
 		}
 		final ComputeServer server = new ComputeServer( port, slots );
 		server.startServer();
+		
+		if(server.getError().isError()){
+			server.stopServer();
+			System.out.println("Compute server error ("+server.getError()+")");
+		}
 	}
 }

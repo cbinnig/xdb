@@ -149,6 +149,11 @@ public class MasterTrackerServer extends AbstractServer {
 	public static void main(final String[] args) {
 		final MasterTrackerServer server = new MasterTrackerServer();
 		server.startServer();
+		
+		if(server.getError().isError()){
+			server.stopServer();
+			System.out.println("Compute server error ("+server.getError()+")");
+		}
 	}
 
 }
