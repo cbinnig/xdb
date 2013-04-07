@@ -258,35 +258,29 @@ public abstract class DistributedTPCHTestCase extends
 			qPlan.cleanPlanOnError();
 		this.assertNoError(err);
 
-		// read result (if run local, else just clean up)
-		if (this.isRunLocal()) {
-			final Map<Identifier, OperatorDesc> currentDeployment = qPlan
-					.getCurrentDeployment();
-			Identifier resultTable = currentDeployment.get(resultOpId)
-					.getOperatorID();
-			final ResultSet rs = this
-					.executeComputeQuery("SELECT COUNT(*) FROM " + resultTable
-							+ "_" + resultTableName);
-			int actualCnt = 0;
-			if (rs.next()) {
-				actualCnt = rs.getInt(1);
-			}
-
-			if (expectedCnt > 0) {
-				// verify results
-				assertEquals(expectedCnt, actualCnt);
-			}
-			if (actualCnt>0){
-				final ResultSet results = this.executeComputeQuery("SELECT * FROM " + resultTable + "_" + resultTableName);
-				System.out.println(prettyPrintResultSet(results, 10));
-			}
-
-			// clean plan
-			this.assertNoError(qPlan.cleanPlan());
-
-		} else {
-			// clean plan
-			this.assertNoError(qPlan.cleanPlan());
+		final Map<Identifier, OperatorDesc> currentDeployment = qPlan
+				.getCurrentDeployment();
+		OperatorDesc rootDesc = currentDeployment.get(resultOpId);
+		Identifier resultTable = rootDesc.getOperatorID();
+		String rootUrl = "jdbc:mysql://"+rootDesc.getComputeSlot().getHost()+"/"+Config.COMPUTE_DB_NAME;
+		final ResultSet rs = this
+				.executeComputeQuery(rootUrl, "SELECT COUNT(*) FROM " + resultTable
+						+ "_" + resultTableName);
+		int actualCnt = 0;
+		if (rs.next()) {
+			actualCnt = rs.getInt(1);
 		}
+
+		if (expectedCnt > 0) {
+			// verify results
+			assertEquals(expectedCnt, actualCnt);
+		}
+		if (actualCnt>0){
+			final ResultSet results = this.executeComputeQuery(rootUrl,"SELECT * FROM " + resultTable + "_" + resultTableName);
+			System.out.println(prettyPrintResultSet(results, 10));
+		}
+
+		// clean plan
+		this.assertNoError(qPlan.cleanPlan());
 	}
 }
