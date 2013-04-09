@@ -5,6 +5,7 @@ import java.util.List;
 import org.xdb.logging.XDBLog;
 import org.xdb.tools.refpart.AbstractFilePartitioner;
 import org.xdb.tools.refpart.DefRefPart.WORK_MODE;
+import org.xdb.tools.refpart.util.MurmurHash;
 import org.xdb.tools.refpart.writers.IDRefWriter;
 
 public class OrderFilePartitioner extends AbstractFilePartitioner {
@@ -48,7 +49,7 @@ public class OrderFilePartitioner extends AbstractFilePartitioner {
 
 	@Override
 	protected int getHashValue(List<String> fields) {
-		return Integer.valueOf(fields.get(1)).intValue();
+		return MurmurHash.hash32(fields.get(1));
 	}
 
 	@Override

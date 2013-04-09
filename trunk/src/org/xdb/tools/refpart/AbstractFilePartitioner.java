@@ -19,6 +19,7 @@ import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.tools.refpart.DefRefPart.FILE_MODE;
 import org.xdb.tools.refpart.DefRefPart.WORK_MODE;
+import org.xdb.tools.refpart.util.MurmurHash;
 
 public abstract class AbstractFilePartitioner {
 	protected static void createDebug(Logger logger, String text) {
@@ -231,7 +232,7 @@ public abstract class AbstractFilePartitioner {
 	}
 
 	protected int getHashValue(List<String> fields) {
-		return Integer.valueOf(fields.get(0)).intValue();
+		return MurmurHash.hash32(fields.get(0));
 	}
 
 	protected String getIDValue(List<String> fields) {
