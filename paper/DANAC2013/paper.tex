@@ -53,7 +53,7 @@ MapReduce, in particular the open-source implementation Hadoop, is currently the
 \item First, Hadoop materializes each intermediate result of a map or a reduce function either locally or into its distributed file system (HDFS). This execution model results in a poor single query performance with high resource consumption. 
 \item Second, data locality is a huge problem since the storage layer is separated from the computation layer: When data is loaded in HDFS it is randomly partitioned often resulting in expensive operations, which copy data over the network.
 \item Third, efficient operations as well as index structures to read data selectively from disk are missing. Hadoop only provides unary operators and needs to read all data from disk. Thus, the first map function typically selects the relevant data by scanning all input data. Moreover, join operations are unnatural in Hadoop since binary operators are not supported, leading to inefficient workarounds. 
-\item: FInally, Hadoop only allows a strict sequence of map and reduce operations while intermediate results are re-partitioned after each map-operation (even if it is not needed).
+\item: Finally, Hadoop only allows a strict sequence of map and reduce operations while intermediate results are re-partitioned after each map-operation (even if it is not needed).
 \end{itemize}
 \vspace{-2ex}
 
@@ -176,7 +176,7 @@ In order to show the efficiency of XDB, we executed the TPC-H queries 3, 4 and 5
 \label{fig:perf}
 \end{figure}
 
-In order to show the flexibility of XDB, we executed the basket analysis as described in Section \ref{sec:exec}, which includes a white-box user-defined function. For comparison, we executed the basket analysis on Hive using the same Java code for computing the string-similarity in the user-defined function. The result of this experiment can be seen by the rightmost bar group of Figure~\ref{fig:perf}. Compared to Hive, XDB shows a speed-up factor of approximately 20 since XDB is to optimize plans which include white-box user-defined functions (i.e., push down selections and aggregations). 
+In order to show the flexibility of XDB, we executed the basket analysis as described in Section \ref{sec:exec}, which includes a white-box user-defined function. For comparison, we executed the basket analysis on Hive using the same Java code for computing the string-similarity in the user-defined function. The result of this experiment can be seen by the rightmost bar group of Figure~\ref{fig:perf}. Compared to Hive, XDB shows a speed-up factor of approximately 20 since XDB can optimize plans which include white-box user-defined functions (i.e., push down selections and aggregations over UDFs). 
 
 \section{Related Work}
 \label{sec:rel}
