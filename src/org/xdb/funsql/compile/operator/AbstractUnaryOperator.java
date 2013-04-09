@@ -26,6 +26,16 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 		this.children.add(child);
 		child.addParent(this);
 	}
+
+	/**
+	 * Copy Constructor
+	 * @param toCopy Element to copy
+	 */
+	public AbstractUnaryOperator(AbstractUnaryOperator toCopy){
+		super(toCopy);
+		this.inputNumber = toCopy.inputNumber;
+	}
+
 	public AbstractUnaryOperator(Vector<AbstractCompileOperator> fchildren, int resultNumber) {
 		super(resultNumber);
 		for (AbstractCompileOperator child: fchildren){
@@ -33,6 +43,7 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 			child.addParent(this);
 		}		
 	}
+
 
 	// getters and setters
 	public AbstractCompileOperator getChild() {
@@ -117,9 +128,9 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 
 		// edges and children
 		GraphNode node = nodes.get(this.operatorId);
+
 		for (int i = 0; i < this.children.size(); i++) {
 			AbstractCompileOperator childOp = this.children.get(i);
-
 			if (!nodes.containsKey(childOp.operatorId)) {
 				GraphNode child = g.addNode();
 				g.addEdge(node, child);
@@ -130,6 +141,15 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 				g.addEdge(node, child);
 			}
 		}
+		
 		return err;
 	}
+
+	@Override
+	public AbstractUnaryOperator clone() throws CloneNotSupportedException {
+		AbstractUnaryOperator abs = (AbstractUnaryOperator) super.clone();
+		abs.inputNumber = this.inputNumber;
+		return abs;
+	}
+	
 }

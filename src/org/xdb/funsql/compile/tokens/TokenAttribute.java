@@ -16,6 +16,12 @@ public class TokenAttribute extends AbstractTokenOperand{
 		super(EnumOperandType.ATTRIBUTE);
 	}
 	
+	public TokenAttribute(TokenAttribute toCopy){
+		super(EnumOperandType.ATTRIBUTE);
+		this.name = toCopy.name;
+		this.table = toCopy.table;
+	}
+	
 	public TokenAttribute(String name) {
 		this();
 		this.name = new TokenIdentifier(name);
@@ -90,7 +96,7 @@ public class TokenAttribute extends AbstractTokenOperand{
 	
 	@Override
 	public TokenAttribute clone(){
-		TokenAttribute att = new TokenAttribute(this.table.getName().toString(), this.name.toString());
+		TokenAttribute att = new TokenAttribute(this);
 		return att;
 	}
 	

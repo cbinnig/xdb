@@ -16,7 +16,12 @@ public class TokenPair implements Serializable{
 	private String leftTableName;
 	private String rightTableName;
 
-	
+	public TokenPair(TokenPair toCopy){
+		this.leftTableName = toCopy.leftTableName;
+		this.rightTableName = toCopy.rightTableName;
+		this.leftTokenAttribute = toCopy.leftTokenAttribute.clone();
+		this.rightTokenAttribute = toCopy.rightTokenAttribute.clone();
+	}
 	
 	public String getLeftTableName() {
 		return leftTableName;

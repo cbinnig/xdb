@@ -7,7 +7,7 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.store.EnumStore;
 
-public class Connection extends AbstractDatabaseObject {
+public class Connection extends AbstractDatabaseObject  {
 /*
 CREATE TABLE "SYSTEM"."CONNECTION"
 (
@@ -176,4 +176,7 @@ CREATE TABLE "SYSTEM"."CONNECTION"
 		return urlObject.getScheme() + "://" + user + ":" + passwd + 
 				"@" + urlObject.getHost() + ":" + (urlObject.getPort() == -1 ? 3306 : urlObject.getPort()) + urlObject.getPath();
 	}
+	
+	
 }
+

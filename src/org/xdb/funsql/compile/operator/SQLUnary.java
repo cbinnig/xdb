@@ -70,9 +70,19 @@ public class SQLUnary extends AbstractUnaryOperator {
 		for (TokenAttribute att : child.getResult().getAttributes()) {
 			SimpleExpression expr = new SimpleExpression(att);
 			this.replaceExprMap.put(att.getName(), expr);
+		
+		
 		}
 	}
-
+	/**
+	 * Copy Constructor
+	 * @param toCopy Element to Copy
+	 */
+	public SQLUnary(SQLUnary toCopy){
+		super(toCopy);
+		System.out.println("Blššššd");
+	}
+	
 	public int countOperators() {
 		return this.countOps;
 	}
@@ -392,6 +402,10 @@ public class SQLUnary extends AbstractUnaryOperator {
 		this.replaceExprMap = replaceExprMap;
 	}
 	
-	
+	@Override
+	public SQLUnary clone() throws CloneNotSupportedException {
+		// TODO Auto-generated method stub
+		return (SQLUnary) super.clone();
+	}
 
 }

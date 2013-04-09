@@ -31,6 +31,14 @@ public class Union extends AbstractBinaryOperator {
 		this.type = EnumOperator.UNION;
 		this.distinctMerge = false;
 	}
+	/**
+	 * Copy Constructor
+	 * @param toCopy Element to copy
+	 */
+	public Union(Union union){
+		super(union);
+		//TODO
+	}
 	
 	/**
 	 * Constructs new union operator with chosen value for merge methodology.

@@ -10,7 +10,7 @@ import org.xdb.utils.Identifier;
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
-public class FunctionCall extends AbstractCompileOperator {
+public class FunctionCall extends AbstractCompileOperator implements Cloneable {
 
 	private static final long serialVersionUID = -7332127330583927641L;
 	private Vector<AbstractCompileOperator> children;
@@ -23,6 +23,20 @@ public class FunctionCall extends AbstractCompileOperator {
 		this.function = function;
 		
 		this.setType(EnumOperator.FUNCTION_CALL);
+	}
+	/**
+	 * Copy Constructor
+	 * @param toCopy Element to copy
+	 */
+	public FunctionCall(FunctionCall toCopy){
+		super(toCopy);
+		try {
+			this.function = toCopy.function.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		this.children = toCopy.children;
+		
 	}
 	
 	//getters and setters
@@ -74,5 +88,5 @@ public class FunctionCall extends AbstractCompileOperator {
 		//Nothing to do
 	}
 
-	
+
 }

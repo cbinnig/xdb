@@ -1,6 +1,6 @@
 package org.xdb.funsql.compile.tokens;
 
-public class TokenSchema extends AbstractToken{
+public class TokenSchema extends AbstractToken implements Cloneable{
 	private static final long serialVersionUID = -6833608816316673507L;
 	
 	//attributes
@@ -43,4 +43,14 @@ public class TokenSchema extends AbstractToken{
 	public String hashKey(){
 		return this.name.toString();
 	}
+
+	@Override
+	protected TokenSchema clone() throws CloneNotSupportedException {
+		TokenSchema ts = (TokenSchema) super.clone();
+		ts.name.clone();
+		return ts;
+	}
+	
+
+	
 }

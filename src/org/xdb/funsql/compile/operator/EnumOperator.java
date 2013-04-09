@@ -13,5 +13,6 @@ public enum EnumOperator implements Serializable {
 	SQL_UNARY,
 	SQL_JOIN,
 	SQL_COMBINED,
-	UNION
+	UNION,
+	DATA_EXCHANGE
 }

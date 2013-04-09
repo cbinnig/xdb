@@ -327,7 +327,7 @@ public class CodeGenerator {
 	 */
 	private List<Identifier> extractSplitOps() {
 		SplitPlanVisitor splitVisitor = new SplitPlanVisitor(null);
-		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
+		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
 			splitVisitor.reset(root);
 			this.err = splitVisitor.visit();
 
@@ -343,7 +343,7 @@ public class CodeGenerator {
 	 */
 	private void rename() {
 		RenameAttributesVisitor renameVisitor;
-		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
+		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
 			renameVisitor = new RenameAttributesVisitor(root);
 			this.err = renameVisitor.visit();
 
@@ -365,13 +365,13 @@ public class CodeGenerator {
 			this.err = combineJoins(splitOp);
 			if (this.err.isError())
 				return;
-
+			
 			//get splitOp again since it might have be replaced
 			splitOp = this.compilePlan.getOperators(splitOpId);
 			this.err = combineUnaryOps(splitOp);
 			if (this.err.isError())
 				return;
-
+			
 			//get splitOp again since it might have be replaced
 			splitOp = this.compilePlan.getOperators(splitOpId);
 			this.err = combineSQLOps(splitOp);

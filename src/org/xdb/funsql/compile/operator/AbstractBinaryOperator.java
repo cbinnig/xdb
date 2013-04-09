@@ -11,7 +11,7 @@ import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
 
-public abstract class AbstractBinaryOperator extends AbstractCompileOperator {
+public abstract class AbstractBinaryOperator extends AbstractCompileOperator implements Cloneable{
 
 	private static final long serialVersionUID = -7213914407896295638L;
 	
@@ -28,6 +28,12 @@ public abstract class AbstractBinaryOperator extends AbstractCompileOperator {
 		
 		leftChild.addParent(this);
 		rightChild.addParent(this);
+	}
+	
+	public AbstractBinaryOperator (AbstractBinaryOperator toCopy){
+		super(toCopy);
+		this.leftInputNumber = toCopy.leftInputNumber;
+		this.rightInputNumber = toCopy.rightInputNumber;
 	}
 
 	//getters and setters
@@ -111,4 +117,17 @@ public abstract class AbstractBinaryOperator extends AbstractCompileOperator {
 		}
 		return err;
 	}
+
+
+
+	@Override
+	public AbstractBinaryOperator clone() throws CloneNotSupportedException {
+	
+		AbstractBinaryOperator obj = (AbstractBinaryOperator) super.clone();
+		obj.leftInputNumber = this.leftInputNumber;
+		obj.rightInputNumber = this.rightInputNumber;
+		return obj;
+	}
+	
+	
 }

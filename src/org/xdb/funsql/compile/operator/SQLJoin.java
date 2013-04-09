@@ -55,6 +55,14 @@ public class SQLJoin extends AbstractJoinOperator {
 			child.setParent(parentOpIdx, this);
 		}
 	}
+	
+	/**
+	 * Copy Constructor
+	 * @param toCopy Element to Copy
+	 */
+	public SQLJoin(SQLJoin toCopy){
+		super(toCopy);
+	}
 
 	/**
 	 * Merge Equi Join into an existing SQL Join
@@ -229,5 +237,11 @@ public class SQLJoin extends AbstractJoinOperator {
 			int childIdx) {
 		TokenAttribute.renameTable(selAtts, this.getChild(childIdx)
 				.getOperatorId().toString());
+	}
+	
+	@Override
+	public SQLJoin clone() throws CloneNotSupportedException {
+		// TODO Auto-generated method stub
+		return (SQLJoin) super.clone();
 	}
 }

@@ -40,6 +40,33 @@ public class GenericAggregation extends AbstractUnaryOperator {
 		this.type = EnumOperator.GENERIC_AGGREGATION;
 	}
 	
+	/**
+	 * Copy Constructor
+	 * @param toCopy
+	 */
+	public GenericAggregation(GenericAggregation toCopy){
+		super(toCopy);
+		Vector<AbstractExpression> aev = new Vector<AbstractExpression>();
+		for(AbstractExpression ta :toCopy.aggExprs){
+			aev.add(ta.clone());
+		}
+		this.aggExprs = aev;
+		Vector<AbstractExpression> grouping = new Vector<AbstractExpression>();
+		
+		for(AbstractExpression ae : toCopy.groupExprs){
+			grouping.add(ae.clone());
+		}
+		this.groupExprs = grouping;
+		Vector<TokenIdentifier> alias = new Vector<TokenIdentifier>();
+		
+		for(TokenIdentifier ti : toCopy.aliases){
+			alias.add(ti);
+		}
+		
+		this.aliases = alias;
+		
+	}
+	
 	//getters and setters
 	public void addAlias(TokenIdentifier alias) {
 		aliases.add(alias);
@@ -118,7 +145,7 @@ public class GenericAggregation extends AbstractUnaryOperator {
 		footer.append(AbstractToken.NEWLINE);
 		footer.append("Aliases: ");
 		footer.append(this.aliases.toString());
-		node.getInfo().setFooter(footer.toString());
+		node.getInfo().setFooter(footer.toString() + AbstractToken.NEWLINE + node.getInfo().getFooter());
 		return err;
 	}
 
@@ -144,5 +171,30 @@ public class GenericAggregation extends AbstractUnaryOperator {
 			}
 		}
 		TokenAttribute.rename(selAtts, this.getChild().getOperatorId().toString(), renameMap);
+	}
+	
+	@Override
+	public GenericAggregation clone() throws CloneNotSupportedException {
+		GenericAggregation ga = (GenericAggregation) super.clone();
+		Vector<AbstractExpression> aev = new Vector<AbstractExpression>();
+		for(AbstractExpression ta : this.aggExprs){
+			aev.add(ta.clone());
+		}
+		ga.aggExprs = aev;
+		Vector<AbstractExpression> grouping = new Vector<AbstractExpression>();
+		
+		for(AbstractExpression ae : this.groupExprs){
+			grouping.add(ae.clone());
+		}
+		ga.groupExprs = grouping;
+		Vector<TokenIdentifier> alias = new Vector<TokenIdentifier>();
+		
+		for(TokenIdentifier ti : this.aliases){
+			alias.add(ti);
+		}
+		
+		ga.aliases = alias;
+		
+		return ga;
 	}
 }

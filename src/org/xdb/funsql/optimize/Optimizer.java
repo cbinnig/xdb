@@ -99,7 +99,7 @@ public class Optimizer {
 
 		SelectionPushDownVisitor pushDownVisitor = new SelectionPushDownVisitor(
 				null, compilePlan);
-		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
+		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
 			boolean modified = true;
 
 			while (modified) {
@@ -122,7 +122,7 @@ public class Optimizer {
 	 */
 	private Error combineSelections() {
 		Error err = new Error();
-		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
+		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
 			SelectionCombineVisitor combineVisitor = new SelectionCombineVisitor(
 					root);
 			err = combineVisitor.visit();
@@ -140,7 +140,7 @@ public class Optimizer {
 	 */
 	private Error combineJoins() {
 		Error err = new Error();
-		for (AbstractCompileOperator root :  this.compilePlan.getRoots()) {
+		for (AbstractCompileOperator root :  this.compilePlan.getRootsCollection()) {
 			JoinCombineVisitor combineVisitor = new JoinCombineVisitor(
 					root, this.compilePlan);
 			err = combineVisitor.visit();
@@ -159,7 +159,7 @@ public class Optimizer {
 	 */
 	private Error combineUnaryOps() {
 		Error err = new Error();
-		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
+		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
 			SQLUnaryCombineVisitor combineVisitor = new SQLUnaryCombineVisitor(
 					root, this.compilePlan);
 			err = combineVisitor.visit();
@@ -177,7 +177,7 @@ public class Optimizer {
 	 */
 	private Error combineSQLOps() {
 		Error err = new Error();
-		for (AbstractCompileOperator root : this.compilePlan.getRoots()) {
+		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
 			SQLCombineVisitor combineVisitor = new SQLCombineVisitor(
 					root, this.compilePlan);
 			err = combineVisitor.visit();

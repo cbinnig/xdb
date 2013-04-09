@@ -86,7 +86,7 @@ public class Config implements Serializable {
 	public static String DOT_EXE = "dot";
 	public static String DOT_TRACE_PATH = "./log/";
 	public static boolean TRACE_COMPILE_PLAN = false;
-	public static boolean TRACE_COMPILE_PLAN_HEADER = false;
+	public static boolean TRACE_COMPILE_PLAN_HEADER =false;
 	public static boolean TRACE_OPTIMIZED_PLAN = false;
 	public static boolean TRACE_CODEGEN_PLAN = false;
 	public static boolean TRACE_TRACKER_PLAN = false;
