@@ -2,8 +2,11 @@ package org.xdb.funsql.compile.operator;
 
 import java.util.HashMap;
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
+import org.xdb.metadata.Catalog;
 import org.xdb.metadata.Connection;
+import org.xdb.metadata.Partition;
 import org.xdb.metadata.Table;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
@@ -14,27 +17,45 @@ import com.oy.shared.lm.graph.GraphNode;
 public class TableOperator extends AbstractCompileOperator {
 	private static final long serialVersionUID = 997138204723229392L;
 	public static final String TABLE_PREFIX = "_";
-	//attributes
+	// attributes
 	private TokenIdentifier tableName;
 	private Connection connection = null;
+	private Partition partition = null;
 	private Table table = null;
-	
-	private final StringTemplate sqlTemplate = 
-			new StringTemplate("<<OP1>>");
-	
-	//constructors
-	public TableOperator(TokenIdentifier tableName){
+
+	private final StringTemplate sqlTemplate = new StringTemplate("<<OP1>>");
+
+	// constructors
+	public TableOperator(TokenIdentifier tableName) {
 		super(1);
-		
+
 		this.tableName = tableName;
 		this.type = EnumOperator.TABLE;
 	}
 
-	//getters and setters
-	public ResultDesc getResult(){
+	/**
+	 * Copy Constructor
+	 * 
+	 * @param toCopy
+	 *            Element to copy
+	 */
+	public TableOperator(TableOperator toCopy) {
+		super(toCopy);
+		this.tableName = toCopy.tableName.clone();
+		if (toCopy.connection != null) {
+			this.setConnection(Catalog.getConnection(toCopy.connection.getOid()));
+		}
+		if(toCopy.partition != null){
+			this.setPartition(Catalog.getPartition(toCopy.partition.getOid()));
+		}
+		this.table = Catalog.getTable(toCopy.table.getOid());
+	}
+
+	// getters and setters
+	public ResultDesc getResult() {
 		return this.results.get(0);
 	}
-	
+
 	public String getTableName() {
 		return tableName.getName();
 	}
@@ -62,63 +83,81 @@ public class TableOperator extends AbstractCompileOperator {
 	public void setTable(Table table) {
 		this.table = table;
 	}
-	
-	//methods
-	
+
+	// methods
+
 	/**
-	 * Replace table by other operator, e.g.
-	 * sub-plan
+	 * Replace table by other operator, e.g. sub-plan
 	 * 
 	 * @param newOp
 	 */
-	public void replace(Rename newOp){
-		//replace result description in newOp
+	public void replace(Rename newOp) {
+		// replace result description in newOp
 		newOp.addResult(this.getResult());
 
-		//add newOp to plan
+		// add newOp to plan
 		newOp.addParents(this.getParents());
-		
-		for(AbstractCompileOperator p : this.parents){
+
+		for (AbstractCompileOperator p : this.parents) {
 			int childIdx = p.children.indexOf(this);
 			p.children.set(childIdx, newOp);
 		}
 	}
-	
+
 	@Override
-	public boolean isLeaf(){
+	public boolean isLeaf() {
 		return true;
 	}
-	
+
 	@Override
 	public String toSqlString() {
-		
-		
+
 		HashMap<String, String> vars = new HashMap<String, String>();
-		final String opDummy = TABLE_PREFIX+getOperatorId().toString();
+		final String opDummy = TABLE_PREFIX + getOperatorId().toString();
 		vars.put("OP1", opDummy);
-		
-		//get all table attributes and match them in order
-		/*final Vector<String> attrs = new Vector<String>();
-		for(Attribute attr : table.getAttributes()) {
-			attrs.add(opDummy + "." + attr.getName());
-		}*/
-	//	vars.put("RESULTS", SetUtils.buildAliasString(attrs, getResultAttributes()));
-		//System.out.println(sqlTemplate.toString(vars));
+
+		// get all table attributes and match them in order
+		/*
+		 * final Vector<String> attrs = new Vector<String>(); for(Attribute attr
+		 * : table.getAttributes()) { attrs.add(opDummy + "." + attr.getName());
+		 * }
+		 */
+		// vars.put("RESULTS", SetUtils.buildAliasString(attrs,
+		// getResultAttributes()));
+		// System.out.println(sqlTemplate.toString(vars));
 		return sqlTemplate.toString(vars);
 	}
 
-	
 	@Override
-	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes){
+	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
-		
+
 		GraphNode node = nodes.get(this.operatorId);
-		node.getInfo().setFooter(this.table.getName() +" AS "+ this.tableName.toSqlString());
+		String partitionString = "";
+		if (this.partition != null) {
+			partitionString = AbstractToken.NEWLINE + "Partition: "
+					+ this.partition.getName() + " in connection: "
+					+ this.partition.getConnectionOid();
+		}
+		node.getInfo().setFooter(
+				this.table.getName() + " AS " + this.tableName.toSqlString()
+						+ partitionString + AbstractToken.NEWLINE
+						+ node.getInfo().getFooter());
+
 		return err;
 	}
 
 	@Override
 	public void renameAttributes(String oldId, String newId) {
-	
+
 	}
+
+	public Partition getPartition() {
+		return partition;
+	}
+
+	public void setPartition(Partition partition) {
+		this.partition = partition;
+	}
+
 }

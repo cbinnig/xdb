@@ -2,13 +2,17 @@ package org.xdb.funsql.compile.operator;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.funsql.parallelize.PartitionInfo;
+import org.xdb.metadata.Catalog;
 import org.xdb.metadata.Connection;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
@@ -20,6 +24,10 @@ public abstract class AbstractCompileOperator implements Serializable {
 
 	private static final long serialVersionUID = -5531022011681321483L;
 
+	//partionInformation
+	protected PartitionInfo partitionOutputInfo;
+	protected Set<PartitionInfo> partitionCandiates = new HashSet<PartitionInfo>();
+	
 	// attributes
 	protected Vector<ResultDesc> results;
 	protected EnumOperator type;
@@ -31,18 +39,74 @@ public abstract class AbstractCompileOperator implements Serializable {
 	protected Identifier operatorId;
 
 	// constructors
+	/**
+	 * Copy Constructor
+	 * @param toCopy Element to copy
+	 */
+	@SuppressWarnings("unchecked")
 	public AbstractCompileOperator(AbstractCompileOperator toCopy) {
-		this.children = toCopy.children;
-		this.parents = toCopy.parents;
+		this.children = (Vector<AbstractCompileOperator>) toCopy.children.clone();
+		this.parents = (Vector<AbstractCompileOperator>) toCopy.parents.clone();
 		this.type = toCopy.type;
 		this.results = toCopy.results;
+		
+		Vector<ResultDesc> cloneresults = new Vector<ResultDesc>();
+	
+			for(ResultDesc rd :toCopy.results){
+				if(rd !=null){
+					cloneresults.add(rd.clone());
+				}
+			
+			}
+		
+		this.results = cloneresults;
+		if(toCopy.getWishedConnection()!= null){
+			this.wishedConnection = Catalog.getConnection(toCopy.getWishedConnection().getOid());
+		}
+	
+		if(toCopy.partitionOutputInfo!= null){
+			this.partitionOutputInfo = new PartitionInfo(toCopy.partitionOutputInfo);
+		}
+
 	}
 
+	
 	public AbstractCompileOperator(int resultNumber) {
 		this.results = new Vector<ResultDesc>(resultNumber);
 	}
 
+	
 	// getters and setters
+	
+	
+	/** Gets the partition Info of the Operator, so how many parts the output has and on what column it is partioned
+	 * 
+	 * @return
+	 */
+	public PartitionInfo getPartitionOutputInfo() {
+		return partitionOutputInfo;
+	}
+
+	/** Set the partionInfo for this operator
+	 * @param partitionOutputInfo
+	 */
+	public void setPartitionOutputInfo(PartitionInfo partitionOutputInfo) {
+		this.partitionOutputInfo = partitionOutputInfo;
+	}
+	
+	public void addPartitionCandiate(PartitionInfo pi){
+		this.partitionCandiates.add(pi);
+	}
+	
+	
+	public Set<PartitionInfo> getPartitionCandiates() {
+		return partitionCandiates;
+	}
+
+	public void setPartitionCandiates(Set<PartitionInfo> partitionCandiates) {
+		this.partitionCandiates = partitionCandiates;
+	}
+
 	/**
 	 * Get all source operators.
 	 * 
@@ -51,6 +115,8 @@ public abstract class AbstractCompileOperator implements Serializable {
 	public Vector<AbstractCompileOperator> getChildren() {
 		return this.children;
 	}
+
+
 
 	/**
 	 * Get all destination operators.
@@ -112,9 +178,18 @@ public abstract class AbstractCompileOperator implements Serializable {
 	public void setChildren(Vector<AbstractCompileOperator> sources) {
 		this.children = sources;
 	}
+	
+	public void resetChildren(){
+		this.children = new Vector<AbstractCompileOperator>();
+	}
 
 	public void setChild(int idx, AbstractCompileOperator child) {
 		this.children.set(idx, child);
+	}
+	
+	public void setChild(AbstractCompileOperator oldChild, AbstractCompileOperator newchild) {
+		int oldIndex = this.children.indexOf(oldChild);
+		this.children.set(oldIndex,newchild);
 	}
 
 	public void removeParent(int idx) {
@@ -124,6 +199,12 @@ public abstract class AbstractCompileOperator implements Serializable {
 	public void setParent(int idx, AbstractCompileOperator parent) {
 		this.parents.set(idx, parent);
 	}
+	
+
+	public void setParent(AbstractCompileOperator oldparent, AbstractCompileOperator newparent) {
+		int oldIndex= parents.indexOf(oldparent);
+		this.parents.set(oldIndex, newparent);
+	}
 
 	public void setParents(Vector<AbstractCompileOperator> parents) {
 		this.parents = parents;
@@ -132,6 +213,12 @@ public abstract class AbstractCompileOperator implements Serializable {
 	public void addParent(AbstractCompileOperator parent) {
 		this.parents.add(parent);
 	}
+	
+
+	public void addChild(AbstractCompileOperator child) {
+		this.children.add(child);
+	}
+	
 	
 	public void setWishedConnection(final Connection conn) {
 		this.wishedConnection = conn;
@@ -226,10 +313,17 @@ public abstract class AbstractCompileOperator implements Serializable {
 	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes) {
 		Error err = new Error();
 		GraphNode node = nodes.get(this.operatorId);
-
+		StringBuffer header = new StringBuffer();
 		// header
 		if (Config.TRACE_COMPILE_PLAN_HEADER) {
-			StringBuffer header = new StringBuffer();
+		}
+			header.append("Partition candidates:");
+			header.append(AbstractToken.NEWLINE);
+			for (PartitionInfo pi : this.getPartitionCandiates()) {
+				header.append(pi.toString());
+				header.append(AbstractToken.NEWLINE);
+			}
+			
 			header.append("Parents: ");
 			header.append(this.parents.toString());
 			header.append(AbstractToken.NEWLINE);
@@ -237,14 +331,23 @@ public abstract class AbstractCompileOperator implements Serializable {
 			header.append(this.children.toString());
 			if (this.results.size() == 1) {
 				header.append(AbstractToken.NEWLINE);
-				header.append(this.getResult().toString());
+				if(this.getResult()!=null){
+					header.append(this.getResult().toString());
+				}
+			
 			}
-			node.getInfo().setHeader(header.toString());
-		}
+			header.append(AbstractToken.NEWLINE);
+			
 
+		
+		node.getInfo().setHeader(header.toString());
 		// body
 		node.getInfo().setCaption(this.toString());
-
+		
+		if(this.getPartitionOutputInfo()!= null){
+			node.getInfo().setFooter(this.getPartitionOutputInfo().toString());
+		}
+		
 		return err;
 	}
 

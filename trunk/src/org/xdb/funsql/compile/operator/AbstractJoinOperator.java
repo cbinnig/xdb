@@ -25,7 +25,23 @@ public abstract class AbstractJoinOperator extends AbstractCompileOperator  {
 	public AbstractJoinOperator(AbstractCompileOperator toCopy) {
 		super(toCopy);
 		
+
+	}
+
+	/**
+	 * Copy Constructor
+	 * @param toCopy Element to copy
+	 */
 	
+	public AbstractJoinOperator(AbstractJoinOperator toCopy) {
+		super(toCopy);
+		this.jointokens = new Vector<TokenPair>();
+		
+		for(TokenPair tp : toCopy.jointokens){
+			this.jointokens.add(new TokenPair(tp));
+			
+		}
+
 	}
 	public Vector<TokenPair> getJointokens() {
 		return jointokens;

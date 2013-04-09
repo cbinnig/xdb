@@ -5,6 +5,7 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractTopDownTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
+import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
@@ -97,9 +98,16 @@ public class JoinCombineVisitor extends AbstractTopDownTreeVisitor {
 
 	@Override
 	public Error visitSQLCombined(SQLCombined absOp) {
-		String[] args = { "SQLUnary operators are currently not supported" };
+		/*String[] args = { "SQLUnary operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);*/
+		this.lastOp = absOp;
+		return new Error();
+	}
+
+	@Override
+	public Error visitDataExchange(DataExchangeOperator deOp) {
+		String[] args = { "DataExchange operators are currently not supported" };
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
-
 }

@@ -4,6 +4,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -843,5 +844,10 @@ public class Catalog {
 			connections.add(Catalog.connections.get(ttc.getConnection_oid()));
 		}
 		return connections;
+	}
+	
+	public static Collection<Partition> getPartionsForTable(String tableName){
+		Table table = Catalog.tablesByName.get(tableName);
+		return  table.getPartitions();
 	}
 }

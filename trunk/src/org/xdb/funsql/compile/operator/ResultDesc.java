@@ -20,7 +20,6 @@ public class ResultDesc implements Serializable, Cloneable{
 	private Vector<TokenAttribute> attributes;//attributes
 	private Vector<EnumSimpleType> types;	//sorted types of the attributes, can be accessed by the same number
 	private boolean materialize; //result saved?
-	private PartitionDesc partitionDesc; 
 	
 	//constructors
 	public ResultDesc(){
@@ -78,13 +77,6 @@ public class ResultDesc implements Serializable, Cloneable{
 		this.materialize = materialize;
 	}
 
-	public PartitionDesc getPartitionDesc() {
-		return partitionDesc;
-	}
-
-	public void setPartitionDesc(PartitionDesc partitionDesc) {
-		this.partitionDesc = partitionDesc;
-	}
 	
 	public String toSqlString() {
 		StringBuffer tableBuffer = new StringBuffer(AbstractToken.LBRACE);

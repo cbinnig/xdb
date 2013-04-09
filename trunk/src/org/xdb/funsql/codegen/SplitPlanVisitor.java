@@ -7,6 +7,7 @@ import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.AbstractBottomUpTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
+import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericAggregation;
@@ -125,5 +126,12 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 	public Error visitSQLCombined(SQLCombined absOp) {
 		doSplit(absOp);
 		return err;
+	}
+	
+	@Override
+	public Error visitDataExchange(DataExchangeOperator deOp) {
+		String[] args = { "DataExchange operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
+		return e;
 	}
 }

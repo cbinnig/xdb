@@ -10,6 +10,7 @@ import org.xdb.funsql.compile.analyze.expression.RenameExpressionCombineVisitor;
 import org.xdb.funsql.compile.analyze.predicate.RenamePredicateCombineVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.utils.Identifier;
@@ -64,10 +65,16 @@ public class SQLCombined extends AbstractJoinOperator {
 		this.jointokens = toCopy.jointokens;
 		this.type = EnumOperator.SQL_COMBINED;
 		this.copied = toCopy;
-		// Create a new Combined op on the Basis of a SQL Join op
-
-		// set Parents
-
+	}
+	
+	
+	/**
+	 * Copy Constructor
+	 * @param toCopy Element to copy
+	 */
+	public SQLCombined(SQLCombined toCopy) {
+		super(toCopy);
+		System.out.println("Blššššd");
 	}
 
 	public void mergeSQLUnaryParent(SQLUnary sqlU) {
@@ -106,6 +113,8 @@ public class SQLCombined extends AbstractJoinOperator {
 			this.setParents(new Vector<AbstractCompileOperator>());
 		}
 
+		this.parents = sqlU.parents;
+		
 		idx = -1;
 		for (AbstractCompileOperator absOp : this.getChildren()) {
 			idx = absOp.getParents().indexOf(copied);
@@ -128,7 +137,7 @@ public class SQLCombined extends AbstractJoinOperator {
 			footer = footer + " \n " + tp.getLeftTokenAttribute().toString()
 					+ "=" + tp.getRightTokenAttribute().toString();
 		}
-		node.getInfo().setFooter(footer);
+		node.getInfo().setFooter(footer+ AbstractToken.NEWLINE + node.getInfo().getFooter());
 		return err;
 	}
 
@@ -312,6 +321,12 @@ public class SQLCombined extends AbstractJoinOperator {
 
 	private void setError(Error error) {
 		this.error = error;
+	}
+	
+	@Override
+	public SQLCombined clone() throws CloneNotSupportedException {
+		// TODO Auto-generated method stub
+		return (SQLCombined) super.clone();
 	}
 
 }

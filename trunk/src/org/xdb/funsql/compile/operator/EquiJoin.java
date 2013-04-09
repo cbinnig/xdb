@@ -28,6 +28,15 @@ public class EquiJoin extends AbstractBinaryOperator {
 		this.rightTokenAttribute = rightTokenAttribute;
 		this.type = EnumOperator.EQUI_JOIN;
 	}
+	/**
+	 * Copy Constructor
+	 * @param toCopy Element to copy
+	 */
+	public EquiJoin (EquiJoin ej){
+		super(ej);
+		this.leftTokenAttribute = ej.leftTokenAttribute.clone();
+		this.rightTokenAttribute = ej.rightTokenAttribute.clone();
+	}
 
 	//getters and setters
 	public TokenAttribute getLeftTokenAttribute() {
@@ -115,7 +124,7 @@ public class EquiJoin extends AbstractBinaryOperator {
 			return err;
 		
 		GraphNode node = nodes.get(this.operatorId);
-		node.getInfo().setFooter(this.leftTokenAttribute.toString()+"="+this.rightTokenAttribute.toString());
+		node.getInfo().setFooter(this.leftTokenAttribute.toString()+"="+this.rightTokenAttribute.toString() + "\n" + node.getInfo().getFooter());
 		return err;
 	}
 
@@ -148,6 +157,5 @@ public class EquiJoin extends AbstractBinaryOperator {
 		}
 		return super.renameOperator(renamedAttributes, renamedOps);
 	}
-	
-	
+
 }

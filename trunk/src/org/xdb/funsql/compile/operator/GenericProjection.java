@@ -34,6 +34,28 @@ public class GenericProjection extends AbstractUnaryOperator {
 		aliases = new Vector<TokenIdentifier>();
 		type = EnumOperator.GENERIC_PROJECTION;
 	}
+	/**
+	 * Copy Constructor
+	 * @param toCopy Element to copy
+	 */
+	public GenericProjection(GenericProjection toCopy){
+		super(toCopy);
+
+		
+		Vector<AbstractExpression> aev = new Vector<AbstractExpression>();
+		for(AbstractExpression ta : toCopy.expressions){
+			aev.add(ta.clone());
+		}
+		this.expressions = aev;
+		
+		
+		Vector<TokenIdentifier> alias = new Vector<TokenIdentifier>();
+		
+		for(TokenIdentifier ti : toCopy.aliases){
+			alias.add(ti);
+		}
+		this.aliases = alias;
+	}
 
 	// getters and setters
 	public void addExpression(AbstractExpression expression) {
@@ -87,7 +109,7 @@ public class GenericProjection extends AbstractUnaryOperator {
 		footer.append(AbstractToken.NEWLINE);
 		footer.append("Aliases: ");
 		footer.append(this.aliases.toString());
-		node.getInfo().setFooter(footer.toString());
+		node.getInfo().setFooter(footer.toString() + AbstractToken.NEWLINE + node.getInfo().getFooter());
 		return err;
 	}
 	
@@ -110,5 +132,26 @@ public class GenericProjection extends AbstractUnaryOperator {
 			}
 		}
 		TokenAttribute.rename(selAtts, this.getChild().getOperatorId().toString(), renameMap);
+	}
+	
+	@Override
+	public GenericProjection clone() throws CloneNotSupportedException {
+		
+		GenericProjection gp = (GenericProjection) super.clone();
+		
+		Vector<AbstractExpression> aev = new Vector<AbstractExpression>();
+		for(AbstractExpression ta : this.expressions){
+			aev.add(ta.clone());
+		}
+		gp.expressions = aev;
+		
+		
+		Vector<TokenIdentifier> alias = new Vector<TokenIdentifier>();
+		
+		for(TokenIdentifier ti : this.aliases){
+			alias.add(ti);
+		}
+		gp.aliases = alias;
+		return gp;
 	}
 }

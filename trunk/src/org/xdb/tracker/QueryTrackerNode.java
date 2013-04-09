@@ -129,6 +129,10 @@ public class QueryTrackerNode {
 
 		// initialize compile plan after shipping plan from master
 		cplan.init();
+		//Init parralellizer
+		//Parallelizer parallelizer = new Parallelizer(cplan);
+		//parallelizer.parallelize();
+
 
 		// 0. build query tracker plan from compile plan
 		Tuple<QueryTrackerPlan, Error> qPlanErr = generateQueryTrackerPlan(cplan);

@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
@@ -28,6 +29,14 @@ public class GenericSelection extends AbstractUnaryOperator {
 	public GenericSelection(AbstractCompileOperator child) {
 		super(child);
 		this.type = EnumOperator.GENERIC_SELECTION;
+	}
+	/**
+	 * Copy Constructor
+	 * @param toCopy Element to copy
+	 */
+	public GenericSelection(GenericSelection toCopy){
+		super(toCopy);
+		this.predicate = toCopy.predicate.clone();
 	}
 
 	//getters and setters
@@ -61,7 +70,7 @@ public class GenericSelection extends AbstractUnaryOperator {
 			return err;
 		
 		GraphNode node = nodes.get(this.operatorId);
-		node.getInfo().setFooter(this.predicate.toString());
+		node.getInfo().setFooter(this.predicate.toString()+  AbstractToken.NEWLINE + node.getInfo().getFooter());
 		return err;
 	}
 	
@@ -73,5 +82,13 @@ public class GenericSelection extends AbstractUnaryOperator {
 	@Override
 	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
 		TokenAttribute.renameTable(selAtts, this.getChild().getOperatorId().toString());
+	}
+	
+	@Override
+	public GenericSelection clone() throws CloneNotSupportedException {
+		
+		GenericSelection gs = (GenericSelection) super.clone();
+		gs.predicate = predicate.clone();
+		return gs;
 	}
 }

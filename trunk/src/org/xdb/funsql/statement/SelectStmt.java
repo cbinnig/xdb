@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.Config;
@@ -28,6 +29,8 @@ import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.compile.tokens.TokenSchema;
 import org.xdb.funsql.compile.tokens.TokenTable;
 import org.xdb.funsql.optimize.Optimizer;
+import org.xdb.funsql.parallelize.EnumPartitionType;
+import org.xdb.funsql.parallelize.PartitionInfo;
 import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Catalog;
@@ -280,7 +283,6 @@ public class SelectStmt extends AbstractServerStmt {
 		return err;
 	}
 
-	
 	/**
 	 * Create join plan for from clause
 	 * 
@@ -318,28 +320,28 @@ public class SelectStmt extends AbstractServerStmt {
 			HashMap<String, TableOperator> tableOps = new HashMap<String, TableOperator>();
 			// find all equi-join predicates
 			int joinPreds = 0;
-	
-			//init new data structure with helper classes
+
+			// init new data structure with helper classes
 			AbstractPredicate predicate_t = null;
-			//convert HashSet into vector
+			// convert HashSet into vector
 			Vector<AbstractPredicate> predicates_vector = new Vector<AbstractPredicate>();
 			Vector<AbstractCompileOperator> joinOps = new Vector<AbstractCompileOperator>();
-			
+
 			for (AbstractPredicate predicate : predicates) {
 				predicates_vector.add(predicate);
 			}
-			//init necessary 
+			// init necessary
 			FlagElem<AbstractPredicate> f_predicate;
 			FlaggedElemVector<AbstractPredicate> f_predicates_vector = new FlaggedElemVector<AbstractPredicate>(
 					predicates_vector);
-			
+
 			int index = 0;
-			//checker for first element
+			// checker for first element
 			boolean first = true;
 			while (f_predicates_vector.hasfalseElems()) {
 				// get the flagged predicate
 				f_predicate = f_predicates_vector.getFlaggedElem(index);
-				
+
 				// check wether this predicate was already used then continue
 				if (f_predicate.isFlag()) {
 					index = (index + 1) % f_predicates_vector.getSize();
@@ -368,9 +370,11 @@ public class SelectStmt extends AbstractServerStmt {
 
 					// now check when if last op is null and is equijoin
 					// operator
-					// if no table operators exist for those elements there is no need for checking for
-					// joint ops because the table was never accessed and consequently no conflict can arise
-					
+					// if no table operators exist for those elements there is
+					// no need for checking for
+					// joint ops because the table was never accessed and
+					// consequently no conflict can arise
+
 					if (leftTableOp == null && rightTableOp == null) {
 						// case one both are not accessed yet
 						// if first ok when not continue
@@ -384,7 +388,8 @@ public class SelectStmt extends AbstractServerStmt {
 						// case two one is already accessed
 						if (joinOps.size() != 0) {
 							// check wether a suitable join is available
-							// find the highest level join op for a a already accessed Table
+							// find the highest level join op for a a already
+							// accessed Table
 							boolean tester = true;
 							AbstractCompileOperator op;
 							// Could also be done recusive in seperate method
@@ -465,7 +470,7 @@ public class SelectStmt extends AbstractServerStmt {
 								joinAtts[0], joinAtts[1]);
 					}
 					plan.addOperator(joinOp, false);
-					//add a lastOp to list
+					// add a lastOp to list
 					joinOps.add(joinOp);
 					lastOp = joinOp;
 
@@ -476,7 +481,7 @@ public class SelectStmt extends AbstractServerStmt {
 				}
 				index = (index + 1) % f_predicates_vector.getSize();
 			}
-		
+
 			if (joinPreds + 1 != this.tTables.size()) {
 				return FunSQLCompiler
 						.createGenericCompileErr("Cartesian product not in SQL statement supported!");
@@ -500,15 +505,37 @@ public class SelectStmt extends AbstractServerStmt {
 
 		// set connection
 		if (!table.isTemp()) {
-	
-			//TODO rebuild to select best connection
-			Connection conn = Catalog.getConnection(table.getConnectionOid());
-			tableOp.setConnection(conn);
-			if (!conn.getStore().equals(EnumStore.XDB)) {
-				String args[] = { "Store of type " + conn.getStore()
-						+ " not supported" };
-				return new Error(EnumError.COMPILER_GENERIC, args);
+		// Is Table Partioned?
+		if(table.isPartioned()){
+			//Table is partitioned so add PartitionInfo
+			TokenAttribute ta;
+			Set<TokenAttribute> partAttributes = new HashSet<TokenAttribute>();
+			for(String att :table.getListofPartDetails()){
+				ta = new TokenAttribute(table.getAttribute(att).getName());
+				partAttributes.add(ta);
 			}
+	
+			PartitionInfo pi = new PartitionInfo(partAttributes, EnumPartitionType.valueOf(table.getPartitionType()), table.getPartitions().size());
+			tableOp.setPartitionOutputInfo(pi);
+		} else {
+		
+			// not partioned
+			PartitionInfo pi = new PartitionInfo(EnumPartitionType.NO_PARTITION);
+			tableOp.setPartitionOutputInfo(pi);
+			if (table.getConnectionOid() == -1) {
+				// TODO
+			} else {
+				Connection conn = Catalog.getConnection(table.getConnectionOid());
+				tableOp.setConnection(conn);
+				if (!conn.getStore().equals(EnumStore.XDB)) {
+					String args[] = { "Store of type " + conn.getStore()
+							+ " not supported" };
+					return new Error(EnumError.COMPILER_GENERIC, args);
+				}
+			}
+			
+			
+		}
 		}
 
 		// add table op to plan

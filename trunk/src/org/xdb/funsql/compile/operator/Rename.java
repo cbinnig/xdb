@@ -20,6 +20,14 @@ public class Rename extends AbstractUnaryOperator {
 		super(child);
 		this.type = EnumOperator.RENAME;
 	}
+	
+	/**
+	 * Copy Constructor
+	 * @param toCopy Element to Copy
+	 */
+	public Rename(Rename toCopy){
+		super(toCopy);
+	}
 
 	@Override
 	public String toSqlString() {
@@ -47,5 +55,11 @@ public class Rename extends AbstractUnaryOperator {
 			renameMap.put(this.getResult().getAttribute(i).getName(), this.getChild().getResult().getAttribute(i).getName());
 		}
 		TokenAttribute.rename(selAtts, this.getChild().getOperatorId().toString(), renameMap);
+	}
+	
+	@Override
+	public Rename clone() throws CloneNotSupportedException {
+		
+		return (Rename) super.clone();
 	}
 }

@@ -3,7 +3,7 @@ package org.xdb.funsql.compile.tokens;
 import org.xdb.Config;
 import org.xdb.funsql.statement.EnumLanguage;
 
-public class TokenFunction extends AbstractToken{
+public class TokenFunction extends AbstractToken implements Cloneable {
 	private static final long serialVersionUID = -7374551485124320255L;
 	
 	//attributes
@@ -80,6 +80,14 @@ public class TokenFunction extends AbstractToken{
 		key.append(DOT);
 		key.append(this.name.toString());
 		return key.toString();
+	}
+
+	@Override
+	public TokenFunction clone() throws CloneNotSupportedException {
+		TokenFunction tc =  new TokenFunction(this.name.getName());
+		tc.language = this.language;
+		tc.schema = this.schema.clone();
+		return tc;
 	}
 
 
