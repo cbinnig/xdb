@@ -32,7 +32,7 @@ public class Splitter {
 			BufferedWriter bw = null;
 			try {
 				String fileName = pDestPath.substring(0, pDestPath.lastIndexOf("."));
-				fileName += "-" + i + ".tbl"; 
+				fileName += "_p" + i + ".tbl"; 
 				bw = new BufferedWriter(new FileWriter(fileName));
 			} catch (IOException e) {
 				//Create Error
