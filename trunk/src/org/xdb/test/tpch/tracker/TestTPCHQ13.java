@@ -24,15 +24,14 @@ public class TestTPCHQ13 extends DistributedTPCHTestCase {
 		this.subqueryDML = "SELECT c_count, " + 
 				"       count(*) AS custdist " + 
 				"FROM " + 
-				"    ( SELECT c_custkey, " + 
+				"    ( SELECT c_custkey as custdist, " + 
 				"             count(o_orderkey) as c_count" + 
 				"     FROM <TPCH_DB_NAME>.customer " + 
 				"     LEFT OUTER JOIN <TPCH_DB_NAME>.orders ON c_custkey = o_custkey " + 
 				"     AND o_comment NOT LIKE '%unusual%accounts%' " + 
 				"     GROUP BY c_custkey ) AS c_orders " + 
-				"GROUP BY c_count " + 
-				"ORDER BY custdist DESC, c_count DESC;";
-		this.unionPreDML = "SELECT c_count, sum(c_custkey) FROM ";
+				"GROUP BY c_count;";
+		this.unionPreDML = "SELECT c_count, sum(custdist) FROM ";
 		this.unionPostDML = "group by c_count order by custdist DESC, c_count DESC";
 	}
 
