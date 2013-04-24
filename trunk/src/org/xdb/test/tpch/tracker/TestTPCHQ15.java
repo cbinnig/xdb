@@ -19,17 +19,9 @@ public class TestTPCHQ15 extends DistributedTPCHTestCase {
 
 	// constructor
 	public TestTPCHQ15() {
-		super(1);
+		super(-1);
 		this.resultDDL = "(s_suppkey INTEGER, s_name CHAR(25), s_address CHAR(40), s_phone CHAR(15), total_revenue DECIMAL(65,2))";
-		this.subqueryDML = "CREATE VIEW <TPCH_DB_NAME>.revenue0(supplier_no, total_revenue) AS " + 
-				"SELECT l_suppkey, " + 
-				"       sum(l_extendedprice * (1 - l_discount)) " + 
-				"FROM <TPCH_DB_NAME>.lineitem " + 
-				"WHERE l_shipdate >= '1996-10-01' " + 
-				"    AND l_shipdate < '1997-01-01' " + 
-				"GROUP BY l_suppkey; " + 
-				" " + 
-				"SELECT s_suppkey, " + 
+		this.subqueryDML = "SELECT s_suppkey, " + 
 				"       s_name, " + 
 				"       s_address, " + 
 				"       s_phone, " + 
@@ -39,11 +31,9 @@ public class TestTPCHQ15 extends DistributedTPCHTestCase {
 				"    AND total_revenue = " + 
 				"        ( SELECT max(total_revenue) " + 
 				"         FROM <TPCH_DB_NAME>.revenue0 ) " + 
-				"ORDER BY s_suppkey; " + 
-				" " + 
-				"DROP VIEW revenue0;";
-		this.unionPreDML = "SELECT * FROM ";
-		this.unionPostDML = "ORDER BY s_suppkey";
+				"ORDER BY s_suppkey; ";
+		this.unionPreDML = "SELECT s_suppkey,s_name, s_address, s_phone, sum(total_revenue) as total_revenue FROM ";
+		this.unionPostDML = "GROUP BY s_suppkey ORDER BY s_suppkey";
 	}
 
 	// methods

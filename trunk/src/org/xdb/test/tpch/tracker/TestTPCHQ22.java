@@ -38,7 +38,7 @@ public class TestTPCHQ22 extends DistributedTPCHTestCase {
 				"			) " + 
 				"	) as custsale " + 
 				"group by cntrycode order by cntrycode;";
-		this.unionPreDML = "SELECT cntrycode, sum(numcust) as numcust, sum(c_acctbal) as totacctbal FROM ";
+		this.unionPreDML = "SELECT cntrycode, sum(numcust) as numcust, sum(totacctbal) as totacctbal FROM ";
 		this.unionPostDML = "GROUP BY cntrycode ORDER BY cntrycode;";
 	}
 
