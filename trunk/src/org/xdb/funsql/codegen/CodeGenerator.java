@@ -378,8 +378,6 @@ public class CodeGenerator {
 			if (this.err.isError())
 				return;
 		}
-		
-		this.compilePlan.tracePlan("whatever");
 	}
 
 	/**
