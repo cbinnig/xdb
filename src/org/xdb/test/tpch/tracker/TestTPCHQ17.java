@@ -22,7 +22,7 @@ public class TestTPCHQ17 extends DistributedTPCHTestCase {
 		super(-1);
 		this.resultDDL = "(avg_yearly DECIMAL(65,2))";
 		this.subqueryDML = "select " + 
-				"	sum(l_extendedprice) / 7.0 as avg_yearly " + 
+				"sum(l_extendedprice) / 7.0 as avg_yearly " + 
 				"from " + 
 				"	<TPCH_DB_NAME>.lineitem, " + 
 				"	<TPCH_DB_NAME>.part " + 
