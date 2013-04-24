@@ -42,6 +42,25 @@ public class Partition extends AbstractDatabaseObject {
 	
 	private static Partition prototype = new Partition();
 
+	/**
+	 * Copy Constructor
+	 * @param toCopy
+	 */
+	public Partition(Partition toCopy){
+		super(toCopy);
+		this.source_name = toCopy.source_name;
+		this.source_schema = toCopy.source_schema;
+		this.source_partition_name = toCopy.source_partition_name;
+		this.table_oid = toCopy.table_oid;
+		
+		// Copy HashMap
+		this.connections = new HashMap<Long, Connection>();
+	
+		for(Connection connection :toCopy.connections.values() ){
+			this.connections.put(connection.getOid(), new Connection(connection));
+		}
+	}
+	
 	private Partition(){
 		super();
 		this.objectType = EnumDatabaseObject.PARTITION;

@@ -33,6 +33,15 @@ CREATE TABLE "SYSTEM"."CONNECTION"
 	private String passwd;
 	private EnumStore store;
 	
+	
+	public Connection(Connection toCopy){
+		super(toCopy);
+		this.url = toCopy.url;
+		this.user = toCopy.user;
+		this.passwd = toCopy.passwd;
+		this.store = toCopy.store;
+	}
+	
 	private Connection(){
 		super();
 		this.objectType = EnumDatabaseObject.CONNECTION;

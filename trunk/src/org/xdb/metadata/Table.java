@@ -43,12 +43,44 @@ public class Table extends AbstractDatabaseObject {
 	private HashMap<Long, Attribute> attributes = new HashMap<Long, Attribute>(); 
 	private HashMap<Long, Partition> partitions = new HashMap<Long, Partition>();
 	private HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
+	
+	// Map for Connection to Partition
+	
+	private HashMap<Partition, List<Connection>> partitionToConnection = new HashMap<Partition, List<Connection>>();
+	
 	//parameters for partioning 
 	private String partitionType;
 	private String partitionDetails;
 	private boolean partioned;
 	
 
+	/**
+	 * Copy Constructor
+	 * @param toCopy
+	 */
+	public Table(Table toCopy){
+		super(toCopy);
+		this.partioned = toCopy.partioned;
+		this.partitionDetails = toCopy.partitionDetails;
+		this.partitionDetails = toCopy.partitionDetails;
+		
+		this.sourceName = toCopy.sourceName;
+		this.sourceSchema = toCopy.sourceSchema;
+		
+		this.schemaOid = toCopy.schemaOid;
+		
+		for(Attribute attribute : toCopy.attributes.values()){
+			this.attributes.put(attribute.getOid(), attribute);	
+		}
+		for(Partition partition : toCopy.partitions.values()){
+			this.partitions.put(partition.getOid(), partition);
+		}
+		
+		for(Connection connection: toCopy.connections.values()){
+			this.connections.put(connection.getOid(), connection);
+		}
+		
+	}
 
 	private Table(){
 		super();
@@ -135,6 +167,8 @@ public class Table extends AbstractDatabaseObject {
 		}
 		return (long) -1;
 	}
+	
+
 	
 	private void addConnection(Long connectionOid, Connection connection) {
 		this.connections.put(connectionOid, connection);

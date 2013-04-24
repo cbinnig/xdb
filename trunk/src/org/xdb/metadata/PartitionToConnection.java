@@ -2,6 +2,11 @@ package org.xdb.metadata;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
 
+/**
+ * Class that represents the relationship relation
+ * @author A.C.Mueller
+ *
+ */
 public class PartitionToConnection extends AbstractDatabaseObject {
 
 	private static final long serialVersionUID = 3279427982175338162L;
@@ -132,5 +137,13 @@ public class PartitionToConnection extends AbstractDatabaseObject {
 	
 	protected static String sqlSelectAll() {
 		return prototype.internalSqlSelectAll();
+	}
+	
+	public Connection getConnection(){
+		return Catalog.getConnection(this.connection_oid);
+	}
+	
+	public Partition getPartition(){
+		return Catalog.getPartition(this.partition_oid);
 	}
 }
