@@ -250,6 +250,10 @@ public class CompilePlan implements Serializable {
 	}
 
 
+	/**
+	 * Needs to be replaced!!!!
+	 * @return
+	 */
 	public CompilePlan copy(){
 		 CompilePlan cp = null;
 		 try {

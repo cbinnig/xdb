@@ -19,6 +19,13 @@ public abstract class AbstractDatabaseObject implements Serializable {
 	protected EnumDatabaseObject objectType;
 	
 	protected AbstractDatabaseObject(){	
+	
+	}
+	
+	protected AbstractDatabaseObject(AbstractDatabaseObject toCopy){
+		this.name = toCopy.name;
+		this.oid = toCopy.oid;
+		this.objectType = toCopy.objectType;
 	}
 	
 	public AbstractDatabaseObject(Long oid, String name) {

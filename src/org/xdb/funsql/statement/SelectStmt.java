@@ -507,6 +507,8 @@ public class SelectStmt extends AbstractServerStmt {
 		if (!table.isTemp()) {
 		// Is Table Partioned?
 		if(table.isPartioned()){
+			
+			
 			//Table is partitioned so add PartitionInfo
 			TokenAttribute ta;
 			Set<TokenAttribute> partAttributes = new HashSet<TokenAttribute>();

@@ -27,6 +27,16 @@ public class Attribute extends AbstractDatabaseObject{
 	private EnumSimpleType dataType;
 	private long tableOid = Config.METADATA_TEMP_OID;
 
+	
+	/**
+	 * Copy Constructor
+	 * @param toCopy
+	 */
+	public Attribute(Attribute toCopy) {
+		super(toCopy);
+		this.dataType = toCopy.dataType;
+
+	}
 	private Attribute() {
 		super();
 		this.objectType = EnumDatabaseObject.ATTRIBUTE;

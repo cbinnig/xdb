@@ -48,6 +48,8 @@ public class TableOperator extends AbstractCompileOperator {
 		if(toCopy.partition != null){
 			this.setPartition(Catalog.getPartition(toCopy.partition.getOid()));
 		}
+		
+
 		this.table = Catalog.getTable(toCopy.table.getOid());
 	}
 

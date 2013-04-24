@@ -74,7 +74,7 @@ public class SQLCombined extends AbstractJoinOperator {
 	 */
 	public SQLCombined(SQLCombined toCopy) {
 		super(toCopy);
-		System.out.println("Blššššd");
+
 	}
 
 	public void mergeSQLUnaryParent(SQLUnary sqlU) {

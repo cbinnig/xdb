@@ -146,21 +146,8 @@ public class CreateTableStmt extends AbstractServerStmt {
 	public Error compile() {
 		//check if connection exists
 		if(this.partitionMethod!=null) this.partioned = true;
-		//quick hack 
 		//not partioned build up Table To Connection
-		if(! this.partioned){
-			String connectionKey;
-			for (TokenIdentifier cti : this.tConnections){
-				connectionKey = cti.hashKey();
-				Connection connection = Catalog.getConnection(connectionKey);
-				this.connections.add(connection);
-				if (connection == null) {
-					return Catalog.createObjectNotExistsErr(this.tConnection.getName(),
-							EnumDatabaseObject.CONNECTION);
-				}
-				
-			}
-		}
+
 
 		//check if schema exists
 		String schemaKey = this.tTable.getSchema().hashKey();
@@ -177,10 +164,10 @@ public class CreateTableStmt extends AbstractServerStmt {
 		}
 		// init error
 		Error lastError;
-		//check which table type partioned or not partioned
+		//check which table type partitioned or not partioned
 		//call related constructor
 		if(this.partioned){
-			//partitioned call partion table constructor
+			//partitioned call partition table constructor
 			this.table = null;
 			this.table = new Table(this.tTable.getName().toString(), 	this.tSourceTable.getName().toString(), this.tSourceTable.getSchema().getName().toString(), this.schema.getOid());
 			this.table.setPartioned(true);
@@ -224,7 +211,6 @@ public class CreateTableStmt extends AbstractServerStmt {
 		
 				//put on hashmap and add to table
 				this.partitions.put(sourceTable.getName().toString(), newPart);
-				this.table.addPartition(newPart);
 				
 				//get connections for partition
 				
@@ -239,10 +225,25 @@ public class CreateTableStmt extends AbstractServerStmt {
 					}
 					
 					this.partToConnections.add(new PartitionToConnection(newPart.getOid(), tempConnection.getOid()));
+					newPart.addConnection(tempConnection);
 				}
+				
+				this.table.addPartition(newPart);
+				
 			}
 		}else {
 			//not partioned so call standard constructor for table
+			String connectionKey;
+			for (TokenIdentifier cti : this.tConnections){
+				connectionKey = cti.hashKey();
+				Connection connection = Catalog.getConnection(connectionKey);
+				this.connections.add(connection);
+				if (connection == null) {
+					return Catalog.createObjectNotExistsErr(this.tConnection.getName(),
+							EnumDatabaseObject.CONNECTION);
+				}
+				
+			}
 			this.table = new Table(this.tTable.getName().toString(),
 					this.tSourceTable.getName().toString(), 
 					this.tSourceTable.getSchema().getName().toString(),

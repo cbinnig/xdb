@@ -27,7 +27,16 @@ public class Function extends AbstractDatabaseObject {
 	private String source;
 	
 	
+	
+	
 	//constructors
+	
+	public Function(Function toCopy){
+		super(toCopy);
+		this.source = toCopy.source;
+		this.language = toCopy.language;
+		this.schemaOid = toCopy.schemaOid;
+	}
 	private Function() {
 		super();
 		this.objectType = EnumDatabaseObject.FUNCTION;
