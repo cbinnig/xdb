@@ -44,11 +44,7 @@ public class Table extends AbstractDatabaseObject {
 	private HashMap<Long, Partition> partitions = new HashMap<Long, Partition>();
 	private HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
 	
-	// Map for Connection to Partition
-	
-	private HashMap<Partition, List<Connection>> partitionToConnection = new HashMap<Partition, List<Connection>>();
-	
-	//parameters for partioning 
+	//parameters for partitioning 
 	private String partitionType;
 	private String partitionDetails;
 	private boolean partioned;

@@ -21,32 +21,29 @@ public class TestTPCHQ20 extends DistributedTPCHTestCase {
 	public TestTPCHQ20() {
 		super(-1);
 		this.resultDDL = "(s_name CHAR(25), s_address CHAR(40))";
-		this.subqueryDML = "select " + 
-				"	s_name,	s_address " + 
-				"from " + 
-				"	<TPCH_DB_NAME>.supplier, " + 
-				"	<TPCH_DB_NAME>.nation " + 
-				"where " + 
-				"	s_suppkey in ( " + 
-				"		select ps_suppkey " + 
-				"		from <TPCH_DB_NAME>.partsupp " + 
-				"		where ps_partkey in ( " + 
-				"				select p_partkey " + 
-				"				from <TPCH_DB_NAME>.part " + 
-				"				where p_name like 'sienna%' " + 
-				"			) " + 
-				"			and ps_availqty > ( " + 
-				"				select 0.5 * sum(l_quantity) " + 
-				"				from <TPCH_DB_NAME>.lineitem " + 
-				"				where l_partkey = ps_partkey " + 
-				"					and l_suppkey = ps_suppkey " + 
-				"					and l_shipdate >= date '1994-01-01' " + 
-				"					and l_shipdate < date '1995-01-01' " + 
-				"			) " + 
-				"	) " + 
-				"	and s_nationkey = n_nationkey " + 
-				"	and n_name = 'ETHIOPIA' " + 
-				"order by s_name;";
+		this.subqueryDML = "select  s_name,	s_address " +
+				"from 	<TPCH_DB_NAME>.supplier, <TPCH_DB_NAME>.nation " +
+				"where 	s_suppkey in ( " +
+				" 		    select ps_suppkey " +
+				" 		    from <TPCH_DB_NAME>.partsupp," +
+				"     		(" +
+				" 				       	select l_suppkey, l_partkey, 0.5 * sum(l_quantity) as totalqty " +
+				"						from <TPCH_DB_NAME>.lineitem " +
+				"				 		where l_shipdate >= date '1994-01-01' " +
+				"						and l_shipdate < date '1995-01-01' " +
+				"				       	group by l_suppkey, l_partkey " +
+				"		    ) as tmp " +
+				"		    where ps_partkey in " +
+				"			(" +
+				" 				       	select p_partkey " +
+				"						from <TPCH_DB_NAME>.part " +
+				" 				       	where p_name like 'sienna%' " +
+				"		    )" +
+				"		    and ps_availqty > totalqty " +
+				"		    and tmp.l_partkey = ps_partkey " +
+				"	 	    and tmp.l_suppkey = ps_suppkey) " +
+				"and s_nationkey = n_nationkey 	" +
+				"and n_name = 'ETHIOPIA'";
 		this.unionPreDML = "SELECT distinct s_name,	s_address FROM ";
 		this.unionPostDML = "order by s_name;";
 	}
