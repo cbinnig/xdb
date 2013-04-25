@@ -24,17 +24,20 @@ public class TestTPCHQ17 extends DistributedTPCHTestCase {
 		this.subqueryDML = "select " + 
 				"sum(l_extendedprice) / 7.0 as avg_yearly " + 
 				"from " + 
-				"	<TPCH_DB_NAME>.lineitem, " + 
-				"	<TPCH_DB_NAME>.part " + 
-				"where " + 
-				"	p_partkey = l_partkey " + 
-				"	and p_brand = 'Brand#43' " + 
-				"	and p_container = 'MED CASE' " + 
-				"	and l_quantity < ( " + 
-				"		select 0.2 * avg(l_quantity) " + 
+				"	<TPCH_DB_NAME>.lineitem l, " + 
+				"	<TPCH_DB_NAME>.part p, " +
+				"	( " + 
+				"		select l_partkey, 0.2 * avg(l_quantity) as avg_qty " + 
 				"		from <TPCH_DB_NAME>.lineitem " + 
-				"		where l_partkey = p_partkey " + 
-				"	);";
+				"		group by l_partkey "+
+				"	) as tmp "+
+				"where " + 
+				"	p.p_partkey = l.l_partkey " + 
+				"	and p.p_brand = 'Brand#43' " + 
+				"	and p.p_container = 'MED CASE' " + 
+				"	and l.l_quantity < avg_qty " +
+				"	and tmp.l_partkey = p.p_partkey";
+		
 		this.unionPreDML = "SELECT sum(avg_yearly) FROM ";
 		this.unionPostDML = "";
 	}
