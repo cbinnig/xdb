@@ -27,10 +27,13 @@ public class GetOperatorStackVisitor extends AbstractTopDownTreeVisitor {
 
 	private Error error = new Error();
 
+	private int partititionPartIndex;
+	
 	private Stack<AbstractCompileOperator> operatorStack;
 
-	public GetOperatorStackVisitor(AbstractCompileOperator root) {
+	public GetOperatorStackVisitor(AbstractCompileOperator root,int partititionPartIndex) {
 		super(root);
+		this.partititionPartIndex = partititionPartIndex;
 		operatorStack = new Stack<AbstractCompileOperator>();
 	}
 
@@ -78,8 +81,17 @@ public class GetOperatorStackVisitor extends AbstractTopDownTreeVisitor {
 	public Error visitTableOperator(TableOperator to) {
 		if (to.equals(treeRoot))
 			return error;
+	
 		TableOperator newTo = new TableOperator(to);
+		//newTo.setPart(-1);
 		operatorStack.push(newTo);
+		
+		if(to.getTable().isPartioned()){
+			if(to.getPart() == -1){
+				to.setPart(partititionPartIndex);
+			}
+		}
+
 		return error;
 	}
 

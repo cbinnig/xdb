@@ -22,6 +22,8 @@ public class TableOperator extends AbstractCompileOperator {
 	private Connection connection = null;
 	private Partition partition = null;
 	private Table table = null;
+	
+	private int part = -1;
 
 	private final StringTemplate sqlTemplate = new StringTemplate("<<OP1>>");
 
@@ -43,14 +45,15 @@ public class TableOperator extends AbstractCompileOperator {
 		super(toCopy);
 		this.tableName = toCopy.tableName.clone();
 		if (toCopy.connection != null) {
-			this.setConnection(Catalog.getConnection(toCopy.connection.getOid()));
+			this.setConnection(new Connection(toCopy.getConnection()));
 		}
 		if(toCopy.partition != null){
-			this.setPartition(Catalog.getPartition(toCopy.partition.getOid()));
+			this.setPartition(new Partition(toCopy.getPartition()));
 		}
 		
+		this.part = toCopy.part;
 
-		this.table = Catalog.getTable(toCopy.table.getOid());
+		this.table = new Table(toCopy.table);
 	}
 
 	// getters and setters
@@ -141,10 +144,12 @@ public class TableOperator extends AbstractCompileOperator {
 					+ this.partition.getName() + " in connection: "
 					+ this.partition.getConnectionOid();
 		}
+		
 		node.getInfo().setFooter(
 				this.table.getName() + " AS " + this.tableName.toSqlString()
 						+ partitionString + AbstractToken.NEWLINE
-						+ node.getInfo().getFooter());
+						+ node.getInfo().getFooter() + AbstractToken.NEWLINE 
+						+ "Part : " + this.part);
 
 		return err;
 	}
@@ -162,4 +167,12 @@ public class TableOperator extends AbstractCompileOperator {
 		this.partition = partition;
 	}
 
+	public int getPart() {
+		return part;
+	}
+
+	public void setPart(int part) {
+		this.part = part;
+	}
+	
 }

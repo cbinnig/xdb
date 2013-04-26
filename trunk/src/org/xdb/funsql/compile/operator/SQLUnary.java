@@ -80,7 +80,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 	 */
 	public SQLUnary(SQLUnary toCopy){
 		super(toCopy);
-		System.out.println("Blššššd");
+		
 	}
 	
 	public int countOperators() {

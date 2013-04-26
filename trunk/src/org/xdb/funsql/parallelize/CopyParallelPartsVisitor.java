@@ -7,6 +7,7 @@ import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractBottomUpTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.DataExchangeOperator;
+import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -86,11 +87,11 @@ public class CopyParallelPartsVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {
-		// copy all elements under the de n times
+		// copy all elements under the de n times and annotated the TableOperators with the part
 		for (int i = 0; i < deOp.getInputPartitioning().getParts() - 1; i++) {
-			GetOperatorStackVisitor cp = new GetOperatorStackVisitor(deOp);
+			GetOperatorStackVisitor cp = new GetOperatorStackVisitor(deOp,i);
 			cp.visit();
-			copyStackElements(cp.getOperatorStack(), deOp);
+			copyStackElements(cp.getOperatorStack(), deOp, i+1);
 		}
 		return error;
 	}
@@ -104,7 +105,7 @@ public class CopyParallelPartsVisitor extends AbstractBottomUpTreeVisitor {
 	 * @return
 	 */
 	public Error copyStackElements(Stack<AbstractCompileOperator> opStack,
-			AbstractCompileOperator root) {
+			AbstractCompileOperator root, int part) {
 
 		// build stacks for children
 		Stack<AbstractCompileOperator> childOpStack = new Stack<AbstractCompileOperator>();
@@ -116,6 +117,17 @@ public class CopyParallelPartsVisitor extends AbstractBottomUpTreeVisitor {
 			// get Operator from Stack
 			currentOperator = opStack.pop();
 			// add it to Plan
+			
+			if(currentOperator.getType().equals(EnumOperator.TABLE)){
+				if(((TableOperator)currentOperator).getTable().isPartioned()){
+					//if part already set don't change it, so lookup if changed
+					if(((TableOperator)currentOperator).getPart() == -1){
+						((TableOperator)currentOperator).setPart(part);
+					}
+				
+				}
+			}
+			
 			this.plan.addOperator(currentOperator, false);
 			// check if children are there for the operator and than most add
 			// them to plan and make them child of currentOperator
