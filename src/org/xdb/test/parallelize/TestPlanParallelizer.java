@@ -24,6 +24,8 @@ import org.xdb.test.XDBTestCase;
 
 public class TestPlanParallelizer extends XDBTestCase {
 	private CompileClient client = new CompileClient();
+	
+	/*
 	private String[] schemaDDLs = {
 			"CREATE CONNECTION TPCH1 " +
 			"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
@@ -32,6 +34,107 @@ public class TestPlanParallelizer extends XDBTestCase {
 			"STORE 'XDB';",
 			
 			"CREATE CONNECTION TPCH2 " +
+					"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
+					"USER 'xroot' " +
+					"PASSWORD 'xroot' " +
+					"STORE 'XDB';",
+					
+					
+			"CREATE CONNECTION TPCH3 " +
+					"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
+					"USER 'xroot' " +
+					"PASSWORD 'xroot' " +
+					"STORE 'XDB';",
+			
+			"CREATE TABLE LINEITEM ( " +
+			"L_ORDERKEY    		INTEGER," +
+			"L_PARTKEY     		INTEGER," +
+			"L_SUPPKEY     		INTEGER," +
+			"L_LINENUMBER  		INTEGER," +
+			"L_QUANTITY    		DECIMAL," +
+			"L_EXTENDEDPRICE  	DECIMAL," +
+			"L_DISCOUNT    		DECIMAL," +
+			"L_TAX         		DECIMAL," +
+			"L_RETURNFLAG  		VARCHAR," +
+			"L_LINESTATUS  		VARCHAR," +
+			"L_SHIPDATE    		DATE," +
+			"L_COMMITDATE  		DATE," +
+			"L_RECEIPTDATE 		DATE," +
+			"L_SHIPINSTRUCT 	VARCHAR," +
+			"L_SHIPMODE     	VARCHAR," +
+			"L_COMMENT      	VARCHAR" +
+			") PARTIONED BY HASH(L_ORDERKEY) (" +
+			"\"P1\" IN CONNECTION  \"TPCH1\"," +
+			"\"P2\" IN CONNECTION  \"TPCH2\" )",
+			
+			"CREATE TABLE  CUSTOMER ( " +
+			"C_CUSTKEY     INTEGER, " +
+			"C_NAME        VARCHAR, " +
+			"C_ADDRESS     VARCHAR, " +
+			"C_NATIONKEY   INTEGER, " +
+			"C_PHONE       VARCHAR, " +
+			"C_ACCTBAL     DECIMAL  , " +
+			"C_MKTSEGMENT  VARCHAR, " +
+			"C_COMMENT     VARCHAR" +
+			") PARTIONED BY HASH(C_CUSTKEY) (" +
+			"\"P1\" IN CONNECTION  \"TPCH1\"," +
+			"\"P2\" IN CONNECTION  \"TPCH2\"," +
+			"\"P3\" IN CONNECTION  \"TPCH3\" )",
+			
+			"CREATE TABLE ORDERS  ( " +
+			"O_ORDERKEY       INTEGER, " +
+			"O_CUSTKEY        INTEGER, " +
+			"O_ORDERSTATUS    VARCHAR, " +
+			"O_TOTALPRICE     DECIMAL, " +
+			"O_ORDERDATE      DATE, " +
+			"O_ORDERPRIORITY  VARCHAR, " +
+			"O_CLERK          VARCHAR,  " +
+			"O_SHIPPRIORITY   INTEGER, " +
+			"O_COMMENT        VARCHAR" +
+			")  PARTIONED BY HASH(O_ORDERKEY) (" +
+			"\"P1\" IN CONNECTION  \"TPCH1\"," +
+			"\"P2\" IN CONNECTION  \"TPCH2\" )",
+			
+			"CREATE TABLE SUPPLIER ( " +
+			"S_SUPPKEY INTEGER, " +
+			"S_NAME VARCHAR, " +
+			"S_ADDRESS VARCHAR, " +
+			"S_NATIONKEY INTEGER, " +
+			"S_PHONE VARCHAR, " +
+			"S_ACCTBAL DECIMAL, " +
+			"S_COMMENT VARCHAR" +
+			") IN CONNECTION TPCH1;",
+			
+			"CREATE TABLE NATION (  " +
+			"N_NATIONKEY INTEGER, " +
+			"N_NAME VARCHAR," +
+			"N_REGIONKEY INTEGER," +
+			"N_COMMENT VARCHAR" +
+			") IN CONNECTION TPCH1;",
+			
+			"CREATE TABLE REGION ( " +
+			"R_REGIONKEY INTEGER," +
+			"R_NAME VARCHAR," +
+			"R_COMMENT VARCHAR" +
+			") IN CONNECTION TPCH1;"
+			
+	};*/
+	
+	private String[] schemaDDLs = {
+			"CREATE CONNECTION TPCH1 " +
+			"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
+			"USER 'xroot' " +
+			"PASSWORD 'xroot' " +
+			"STORE 'XDB';",
+			
+			"CREATE CONNECTION TPCH2 " +
+					"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
+					"USER 'xroot' " +
+					"PASSWORD 'xroot' " +
+					"STORE 'XDB';",
+					
+					
+			"CREATE CONNECTION TPCH3 " +
 					"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
 					"USER 'xroot' " +
 					"PASSWORD 'xroot' " +

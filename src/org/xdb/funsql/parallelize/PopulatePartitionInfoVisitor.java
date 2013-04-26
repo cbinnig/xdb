@@ -105,6 +105,7 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 		//set inputPartitionin
 		
 		deOp.setInputPartitioning(deOp.getChild().getPartitionOutputInfo());
+
 		
 		PartitionInfo pi = deOp.getPartitionOutputInfo();
 		//update Count
@@ -112,6 +113,7 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 		
 		// if the deOp and the child have both Hash as Partition Type, then update Parts
 		if(deOp.getChild().getPartitionOutputInfo().getPartitionType().equals((deOp.getPartitionOutputInfo().getPartitionType()))){
+			//deOp.getInputPartitioning().setParts(deOp.getChild().getPartitionOutputInfo().getParts());
 			deOp.getPartitionOutputInfo().setParts(deOp.getChild().getPartitionOutputInfo().getParts());
 		}
 		
@@ -121,15 +123,6 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 			deOp.setPartitionOutputInfo(pi);
 		}
 		
-		
-		
-		if(isRemoveable(deOp.getPartitionOutputInfo(), deOp.getChild().getPartitionOutputInfo())){
-			//remove
-			deOps--;
-			deOp.getChild().setParent(deOp, deOp.getParents().get(0));
-			deOp.getParents().get(0).setChild(deOp, deOp.getChild());
-			this.compilePlan.removeOperator(deOp.getOperatorId());
-		}
 		
 		return  error;
 	}
@@ -151,6 +144,7 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 				//update Children parts, to realize parts relationship
 				updateChildrenPartitionParts(left, right);
 				
+				//left.setPartitionOutputInfo(partitionOutputInfo)
 				//generate Output Partition Info
 				buildJoinOutputPartioning(ej, left, right);
 				//type has to be anything, but not not partioned
@@ -181,9 +175,9 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 					int rightparts = rightpi.getParts();
 					//right = left
 					copied_plan.getOperators(left.getOperatorId()).getPartitionOutputInfo().setParts(rightparts);
-					addVariationToConsideredCompilePlans(copied_plan);
+					//addVariationToConsideredCompilePlans(copied_plan);
 					//left = right
-					right.getPartitionOutputInfo().setParts(leftparts);
+					right.getPartitionOutputInfo().setParts(rightparts);
 					
 				}
 			}
@@ -192,9 +186,31 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 
 	private void buildJoinOutputPartioning(EquiJoin ej,
 			AbstractCompileOperator left, AbstractCompileOperator right) {
-		PartitionInfo pi;
+		PartitionInfo pi = null;
 		PartitionInfo piLeft = left.getPartitionOutputInfo();
 		PartitionInfo piRight = right.getPartitionOutputInfo();
+		/*
+		if(left.getType().equals(EnumOperator.DATA_EXCHANGE) && right.getType().equals(EnumOperator.DATA_EXCHANGE)){
+			CompilePlan newPlan = this.compilePlan.copy();
+			newPlan.getOperators(ej.getOperatorId()).setPartitionOutputInfo(piRight);
+			newPlan.getOperators(left.getOperatorId()).setPartitionOutputInfo(piRight);
+			newPlan.getOperators(right.getOperatorId()).setPartitionOutputInfo(piRight);
+			
+			ej.setPartitionOutputInfo(piLeft);
+			left.setPartitionOutputInfo(piLeft);
+			right.setPartitionOutputInfo(piLeft);
+			
+			addVariationToConsideredCompilePlans(newPlan);
+			
+		}else if(left.getType().equals(EnumOperator.DATA_EXCHANGE)){
+			pi = piLeft;
+			ej.setPartitionOutputInfo(pi);
+		}else if(left.getType().equals(EnumOperator.DATA_EXCHANGE)){
+			pi = piRight;
+			ej.setPartitionOutputInfo(pi);
+		}
+		*/
+	
 		if(piLeft.equals(piRight)){
 			pi = piRight;
 		}else{
@@ -208,7 +224,7 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 				//add left alternative
 				CompilePlan newPlan = this.compilePlan.copy();
 				newPlan.getOperators(ej.getOperatorId()).setPartitionOutputInfo(piLeft);
-				addVariationToConsideredCompilePlans(newPlan);
+				//addVariationToConsideredCompilePlans(newPlan);
 			}else{
 				//only one side is partitioned, or both not
 				if(!piRight.getPartitionType().equals(EnumPartitionType.NO_PARTITION)){
@@ -226,15 +242,11 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 			
 			//copy alternatives
 		}
-
+	
 		ej.setPartitionOutputInfo(pi);
 	}
 	
-	private boolean isRemoveable(PartitionInfo inputOpInfo, PartitionInfo removeOpInfo){	
-		
-		return (inputOpInfo.equals(removeOpInfo));
-	
-	}
+
 	
 	private void addVariationToConsideredCompilePlans(CompilePlan cp){
 		if(this.addVariations){

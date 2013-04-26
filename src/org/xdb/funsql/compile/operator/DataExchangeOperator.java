@@ -91,12 +91,12 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 		
 		GraphNode node = nodes.get(this.operatorId);
 		if(this.getPartitionOutputInfo() != null){
-			node.getInfo().setFooter("Output partitioning: " + this.partitionOutputInfo.toString());
+			node.getInfo().setFooter(node.getInfo().getFooter()+" \n Output partitioning: " + this.partitionOutputInfo.toString());
 
 		}
 		
 		if(this.getInputPartitioning() != null){
-			node.getInfo().setFooter(node.getInfo() + " \n Output partitioning: " + this.getInputPartitioning().toString());
+			node.getInfo().setFooter(node.getInfo().getFooter()+ " \n Input partitioning: " + this.getInputPartitioning().toString());
 
 		}
 		

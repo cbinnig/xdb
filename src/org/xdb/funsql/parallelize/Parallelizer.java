@@ -8,6 +8,9 @@ import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
+import org.xdb.funsql.compile.operator.EnumOperator;
+import org.xdb.funsql.compile.operator.TableOperator;
+import org.xdb.metadata.Partition;
 import org.xdb.utils.Identifier;
 
 public class Parallelizer {
@@ -38,13 +41,45 @@ public class Parallelizer {
 	
 		CompilePlan cp = this.getParalellPlan();
 		long currentTime2 = System.currentTimeMillis();
-		System.out.println("Time for parallization" + (currentTime2 - currentTime1));
+		
 		//duplicate parallel parts of the plan
 		cp = this.copyParalellPart(cp);
+
+		//build realPartition on table objects
+		annotateFinalPartition(cp);
 		
+		System.out.println("Time for parallization" + (currentTime2 - currentTime1));
 		this.compilePlan = cp;
 		//return plan 
 		return this.compilePlan;
+	}
+
+	private void annotateFinalPartition(CompilePlan cp) {
+		HashMap<Long, List<Partition>> mapPartitions = new HashMap<Long, List<Partition>>();
+		
+		for(AbstractCompileOperator absOp :cp.getOperators()){
+			if(absOp.getType().equals(EnumOperator.TABLE)){
+				TableOperator to = (TableOperator) absOp;
+				if(to.getTable().isPartioned()){
+					if(! mapPartitions.containsKey(to.getTable().getOid())){
+						List<Partition> partitions = new ArrayList<Partition>();
+						partitions.addAll(to.getTable().getPartitions());
+						mapPartitions.put(to.getTable().getOid(), partitions);
+					}
+				}
+			}
+		}
+		
+		
+		for(AbstractCompileOperator absOp :cp.getOperators()){
+			if(absOp.getType().equals(EnumOperator.TABLE)){
+				TableOperator to = (TableOperator) absOp;
+				if(to.getTable().isPartioned()){
+					Partition p = mapPartitions.get(to.getTable().getOid()).get(to.getPart());
+					to.setPartition(p);
+				}
+			}
+		}
 	}
 
 
@@ -161,6 +196,7 @@ public class Parallelizer {
 		for (HashMap<Identifier, PartitionInfo> candidate : candidates) {
 			CompilePlan plan =null ;
 			plan = this.compilePlan.copy();
+			plan.init();
 			// set Partition Info in Plan Operators
 			for (Identifier id : candidate.keySet()) {
 				plan.getOperators(id).setPartitionOutputInfo(candidate.get(id));
@@ -169,57 +205,88 @@ public class Parallelizer {
 			deCount= 0;
 			PopulatePartitionInfoVisitor populateInfoVisitor = new PopulatePartitionInfoVisitor(
 					null, plan, this, true);
+			
+			RemoveDataExchangeOpVisitor deOpRemovalVisitor = new RemoveDataExchangeOpVisitor(null, plan);
 			for (AbstractCompileOperator root : plan.getRootsCollection()) {
-
+				
 				populateInfoVisitor.reset(root, plan, this,true);
 				error = populateInfoVisitor.visit();
-			
-				deCount = deCount +populateInfoVisitor.getDeOps();
+				
+				deOpRemovalVisitor.reset(root, plan);
+				error = deOpRemovalVisitor.visit();
+				
+				deCount = deCount +deOpRemovalVisitor.getDeOps();
 				if (error.isError()) {
 					// set this error
 					return;
 				}
+				
 			}
+			
+		
 			// only use those with small operator Size ---> discuss this heuristik
 			if(currentlyBestDeCount == -1){
+				System.out.println(deCount);
+				plan.tracePlan(this.getClass().getName());
 				currentlyBestDeCount = deCount;
 			}else{
 				if(deCount <= currentlyBestDeCount){ 
 					currentlyBestDeCount = deCount;
 					
 					if(deCount < currentlyBestDeCount){
+						System.out.println(deCount);
 						this.possibleCompilePlans = new ArrayList<CompilePlan>();
 					}
 					this.possibleCompilePlans.add(plan);
+					//this.possibleCompilePlans.add(plan);
 				}
 			}
 		}
 		
 		//populate Info in new variations
+
 		for(CompilePlan plan : this.newPossibleCompilePlans){
 			PopulatePartitionInfoVisitor populateInfoVisitor = new PopulatePartitionInfoVisitor(
 					null,plan, this, false);
 			deCount = 0;
+			plan.init();
+			RemoveDataExchangeOpVisitor deOpRemovalVisitor = new RemoveDataExchangeOpVisitor(null, plan);
+			
 			for (AbstractCompileOperator root : plan.getRootsCollection()) {
 
 				populateInfoVisitor.reset(root, plan, this,false);
 				error = populateInfoVisitor.visit();
 			
+				deOpRemovalVisitor.reset(root, plan);
+				error = deOpRemovalVisitor.visit();
+				
 				deCount = deCount +populateInfoVisitor.getDeOps();
 				if (error.isError()) {
 					// set this error
 					return;
 				}
 			}
-			if(deCount <= currentlyBestDeCount){ 
+	
+			//plan.tracePlan("test" +i);
+			/*if(deCount <= currentlyBestDeCount){ 
 				currentlyBestDeCount = deCount;
 				
 				if(deCount < currentlyBestDeCount){
+					System.out.println(deCount);
 					this.possibleCompilePlans = new ArrayList<CompilePlan>();
 				}
 				this.possibleCompilePlans.add(plan);
-			}
+			}*/
+			//this.possibleCompilePlans.add(plan);
 		}
+		
+		int n =0;
+		for(CompilePlan pcp :this.possibleCompilePlans){
+			n++;
+			pcp.tracePlan("possiblePlan"+n);
+		}
+	//	System.out.println(currentlyBestDeCount);
+		System.out.println(this.possibleCompilePlans.size());
 		
 		
 	}

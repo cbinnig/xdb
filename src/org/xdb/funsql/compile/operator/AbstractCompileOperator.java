@@ -12,7 +12,6 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.parallelize.PartitionInfo;
-import org.xdb.metadata.Catalog;
 import org.xdb.metadata.Connection;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
@@ -61,7 +60,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 		
 		this.results = cloneresults;
 		if(toCopy.getWishedConnection()!= null){
-			this.wishedConnection = Catalog.getConnection(toCopy.getWishedConnection().getOid());
+			this.wishedConnection =  new Connection(toCopy.getWishedConnection());
 		}
 	
 		if(toCopy.partitionOutputInfo!= null){
@@ -316,7 +315,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 		StringBuffer header = new StringBuffer();
 		// header
 		if (Config.TRACE_COMPILE_PLAN_HEADER) {
-		}
+		
 			header.append("Partition candidates:");
 			header.append(AbstractToken.NEWLINE);
 			for (PartitionInfo pi : this.getPartitionCandiates()) {
@@ -338,7 +337,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 			}
 			header.append(AbstractToken.NEWLINE);
 			
-
+		}
 		
 		node.getInfo().setHeader(header.toString());
 		// body
@@ -367,8 +366,8 @@ public abstract class AbstractCompileOperator implements Serializable {
 		for (TokenAttribute tA : getResult().getAttributes()) {
 			newName = renamedAttributes.get(tA.getName().getName());
 			// if no new name was found there is no need to rename, because not
-			// accessd
-			// table op
+			// accessed
+			// table operator
 			if (newName == null)
 				continue;
 			renamed = true;
