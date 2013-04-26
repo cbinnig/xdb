@@ -25,9 +25,26 @@ public class DataPartitioner {
 	// them later when writing to the partitions file. 
 	private Map<Integer, BufferedOutputStream> filesMap = new HashMap<Integer, BufferedOutputStream>();   
 	
-	private Set <String> referenceFilePartition = new HashSet<String>();
+	private Set <String> referenceFilePartition; 
 
+	private static int CHUNK_SIZE = 20000000; 
+	
+	private boolean isChunkwiseMode = false; 
+	
+	public Set<String> getReferenceFilePartition(){
+		return referenceFilePartition;
+	} 
+	
+	public void setReferenceFilePartition(int size, int loadFactor){
+		referenceFilePartition = new HashSet<String>(size, loadFactor); 
+		isChunkwiseMode = true; 
+	} 
+	
+	public void setReferenceFilePartition(){ 
 
+		referenceFilePartition = new HashSet<String>();
+	}
+	
 	/**
 	 * @return the filesMap
 	 */
@@ -156,7 +173,7 @@ public class DataPartitioner {
 	 * 
 	 */
 	private void partitionDataByReference(String file, String partitionIndices,
-			String referenceFile, String referenceIndices, int numberOfReferencePartitions) { 
+			String referenceFile, String referenceIndices, int numberOfReferencePartitions, int chunkSize) { 
 
 		String directory = Utils.getFileDirectory(file);
 		String partitionsIndicesList[] = Utils.getKeyIndeicesFromString(partitionIndices.trim()); 
@@ -175,22 +192,26 @@ public class DataPartitioner {
 
 					StringBuffer referenceKeys = new StringBuffer("");
 					for(int j=0;j<referenceIndicesList.length; j++){
-						referenceKeys.append(refLineTokens[Integer.parseInt(referenceIndicesList[j])]);
+						referenceKeys.append(refLineTokens[Integer.parseInt(referenceIndicesList[j])]); 
+						
 					}
+					//System.out.println("Reference Key "+referenceKeys.toString());
 					referenceFilePartition.add(referenceKeys.toString()); 
 					++counter;
-					
-					if(counter%500000 == 0){ 
-						System.out.println("500000 lines has been read...."+counter);
-						//writePartition(file, partitionsIndicesList, i); 
-						//referenceFilePartition.clear();
+					if(isChunkwiseMode){
+						if(counter%20 == 0){ 
+							//System.out.println(chunkSize+" lines has been read...."+counter);
+							writePartition(file, partitionsIndicesList, i);  
+							referenceFilePartition.clear(); 
+							System.out.println(referenceFilePartition.size());
+						}
 					}
 
 				}  
 				System.out.println("Chunk of data has been sent to the file write for partition "+i+"....");
 
 				writePartition(file, partitionsIndicesList, i); 
-				referenceFilePartition.clear(); 
+				referenceFilePartition.clear();  
 				this.filesMap.get(i).close();
 				br.close(); 
 
@@ -216,11 +237,14 @@ public class DataPartitioner {
 
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file)); 
+			System.out.println(file);
 			String line = "";  
+			int count = 0;
+			int inCount = 0;
 			while((line = br.readLine()) != null){ 
 				StringBuffer partitionKey = new StringBuffer("");
 				String [] lineTokens = line.split("\\|");  
-
+				inCount ++;
 				int index;
 				for(int i=0; i<partitionIndicesList.length; i++){ 
 
@@ -230,16 +254,17 @@ public class DataPartitioner {
 				}  
 
 				// If the line match with the reference line, write it to the partition. 
-				if(referenceFilePartition.contains(partitionKey)){
-					
+				if(referenceFilePartition.contains(partitionKey.toString())){
+					//System.out.println(partitionKey.toString() + " Match");
 					filesMap.get(partitionNumber).write(line.getBytes()); 
 					filesMap.get(partitionNumber).write(System.getProperty("line.separator").getBytes());
-				}
-
+					count++;
+				} 
 			}  
 			filesMap.get(partitionNumber).flush(); 
 			//filesMap.get(partitionNumber).close();  
-			System.out.println("Chunk of data to partition number "+partitionNumber+" has been written successfully.");
+			System.out.println("Chunk of data  with size "+count+" to partition number "+partitionNumber+" has been written successfully."); 
+			System.out.println(inCount);
 			br.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -259,6 +284,8 @@ public class DataPartitioner {
 	 */
 	public static void main(String[] args) {
 
+		DataPartitioner dataPartitioner = new DataPartitioner(); 
+
 		Options opt = new Options();
 
 		// Set up the command line options. 
@@ -268,13 +295,15 @@ public class DataPartitioner {
 		opt.addOption("k", true, "The partitioning keys comma-separated string ex, 1,2,4");  
 		opt.addOption("n", true, "The number of partitions desired"); 
 		opt.addOption("rf", true, "The reference table in case of reference partitioning"); 
-		opt.addOption("rk", true, "The keys in the reference table in case of reference partitioning"); 
-
+		opt.addOption("rk", true, "The keys in the reference table in case of reference partitioning");  
+		opt.addOption("c", true, "The chunk size, if not chunk option provided, then the partitoner will work on the complete file");
+        
 		// Some default values. 
 		String file = ""; 
 		String partitionMethod = "hashing"; 
 		String partitionIndices = "0";
-		int numberOfPartitions = 5; 
+		int numberOfPartitions = 3;  
+		int chunkSize = 0;
 
 		try { 
 			// Parsing the command line
@@ -304,9 +333,15 @@ public class DataPartitioner {
 
 			if(cl.hasOption('n')){
 				numberOfPartitions = Integer.parseInt(cl.getOptionValue('n'));
-			}  
-
-			DataPartitioner dataPartitioner = new DataPartitioner(); 
+			} 
+			
+			if(cl.hasOption('c')) {
+				chunkSize = 1000000*Integer.parseInt(cl.getOptionValue('c'));  
+				dataPartitioner.setReferenceFilePartition(chunkSize, 1);
+				
+			} else {
+				dataPartitioner.setReferenceFilePartition();
+			}
 
 			// Handle the case of reference partitioning; read additional 
 			// parameters: reference file and the reference indices (columns)
@@ -324,7 +359,7 @@ public class DataPartitioner {
                 // Create a number of files is the number of the partitions required.
 				dataPartitioner.setFilesMap(file, numberOfPartitions);
 				// Do the reference partitioning  
-                dataPartitioner.partitionDataByReference(file, partitionIndices, referenceFile, referenceIndecis, numberOfPartitions);
+                dataPartitioner.partitionDataByReference(file, partitionIndices, referenceFile, referenceIndecis, numberOfPartitions, chunkSize);
 
 			} else { 
 				// Do the hash partitioning 
