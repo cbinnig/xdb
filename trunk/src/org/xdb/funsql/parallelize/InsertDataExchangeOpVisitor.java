@@ -54,29 +54,34 @@ public class InsertDataExchangeOpVisitor extends AbstractTopDownTreeVisitor {
 		// left side
 		DataExchangeOperator leftDe = new DataExchangeOperator(
 				ej.getLeftChild(), ej.getLeftChild().getResult());
+		
+		//remove EJ from Parent
+		ej.getLeftChild().removeParent(ej);
+		ej.setLeftChild(leftDe);
+		leftDe.addParent(ej);
+
 		PartitionInfo ptLeftNo = new PartitionInfo(
 				EnumPartitionType.NO_PARTITION, 0);
 		leftDe.addPartitionCandiate(ptLeft);
 		leftDe.addPartitionCandiate(ptLeftNo);
 		this.compileplan.addOperator(leftDe, false);
-		// leftDe.addChild(ej.getLeftChild());
-		leftDe.addParent(ej);
-		ej.getLeftChild().setParent(ej, leftDe);
-		ej.setLeftChild(leftDe);
+		
+		//ej.getLeftChild().setParent(ej, leftDe);
 
 		// right side
 		DataExchangeOperator rightDe = new DataExchangeOperator(
 				ej.getRightChild(), ej.getRightChild().getResult());
+		ej.getRightChild().removeParent(ej);
+		ej.setRightChild(rightDe);
+		rightDe.addParent(ej);
+		
 		PartitionInfo ptRightNo = new PartitionInfo(
 				EnumPartitionType.NO_PARTITION, 0);
 		rightDe.addPartitionCandiate(ptRight);
 		rightDe.addPartitionCandiate(ptRightNo);
-
+		
 		this.compileplan.addOperator(rightDe, false);
-		// rightDe.addChild(ej.getRightChild());
-		rightDe.addParent(ej);
-		ej.getRightChild().setParent(ej, rightDe);
-		ej.setRightChild(rightDe);
+
 
 		return error;
 	}
@@ -128,7 +133,7 @@ public class InsertDataExchangeOpVisitor extends AbstractTopDownTreeVisitor {
 		// rebuild tree structure
 		sa.setChild(dataExchange);
 		dataExchange.addParent(sa);
-		dataExchange.getChild().setParent(sa, dataExchange);
+
 		return error;
 	}
 
