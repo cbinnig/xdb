@@ -96,11 +96,11 @@ public class Utils {
 		int hash =0; 
 		String[] lineTokens = line.split("\\|"); 
 	    
-		String keysString = "";
+		StringBuffer keysString = new StringBuffer();
 		for(int i=0; i < keys.length; i++){
-			keysString += lineTokens[i].trim();
+			keysString.append(lineTokens[i].trim() );
 		} 
-		hash = Math.abs(keysString.hashCode()); // return always the positive value of the hash. 
+		hash = Math.abs(keysString.toString().hashCode()); // return always the positive value of the hash. 
         return hash; 
 	}
 	

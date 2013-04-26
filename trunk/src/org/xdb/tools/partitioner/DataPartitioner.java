@@ -9,7 +9,9 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map; 
+import java.util.Set;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.Options;
@@ -21,7 +23,10 @@ public class DataPartitioner {
 
 	// Used to store the buffers for every partitions, so we use 
 	// them later when writing to the partitions file. 
-	private Map<Integer, BufferedOutputStream> filesMap = new HashMap<Integer, BufferedOutputStream>();  
+	private Map<Integer, BufferedOutputStream> filesMap = new HashMap<Integer, BufferedOutputStream>();   
+	
+	private Set <String> referenceFilePartition = new HashSet<String>();
+
 
 	/**
 	 * @return the filesMap
@@ -158,25 +163,35 @@ public class DataPartitioner {
 		String referenceIndicesList[] = Utils.getKeyIndeicesFromString(referenceIndices.trim()); 
 
 		for(int i = 0; i < numberOfReferencePartitions; i++){ 
-			Map <String, String> referenceFilePartition = new HashMap<String, String>();
+			//Set <String> referenceFilePartition = new HashSet<String>();
 
 			try {  
 
 				BufferedReader br = new BufferedReader(new FileReader(directory+"/"+referenceFile+"_p"+i+".tbl")); 
 				String refLine = ""; 
+				int counter = 0; 
 				while ((refLine = br.readLine()) != null) {    
 					String [] refLineTokens = refLine.split("\\|");  
 
-					String referenceKeys = "";
+					StringBuffer referenceKeys = new StringBuffer("");
 					for(int j=0;j<referenceIndicesList.length; j++){
-						referenceKeys += refLineTokens[Integer.parseInt(referenceIndicesList[j])].trim();
+						referenceKeys.append(refLineTokens[Integer.parseInt(referenceIndicesList[j])]);
+					}
+					referenceFilePartition.add(referenceKeys.toString()); 
+					++counter;
+					
+					if(counter%500000 == 0){ 
+						System.out.println("500000 lines has been read...."+counter);
+						//writePartition(file, partitionsIndicesList, i); 
+						//referenceFilePartition.clear();
 					}
 
-					referenceFilePartition.put(referenceKeys, refLine);
-
 				}  
-				writePartition(file, referenceFilePartition, partitionsIndicesList, i); 
+				System.out.println("Chunk of data has been sent to the file write for partition "+i+"....");
+
+				writePartition(file, partitionsIndicesList, i); 
 				referenceFilePartition.clear(); 
+				this.filesMap.get(i).close();
 				br.close(); 
 
 			} catch (Exception e) {
@@ -197,31 +212,34 @@ public class DataPartitioner {
 	 * @param partitionIndicesList the keys (indices) of the columns on which the matching operation based on 
 	 * @param partitionNumber the partition number in order to know to which partition to write. 
 	 */
-	private void writePartition(String file,
-			Map<String, String> referenceFilePartition, String[] partitionIndicesList, int partitionNumber) {
+	private void writePartition(String file, String[] partitionIndicesList, int partitionNumber) {
 
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file)); 
 			String line = "";  
 			while((line = br.readLine()) != null){ 
-				String partitionKey = "";
+				StringBuffer partitionKey = new StringBuffer("");
+				String [] lineTokens = line.split("\\|");  
+
+				int index;
 				for(int i=0; i<partitionIndicesList.length; i++){ 
 
-					int index = Integer.parseInt(partitionIndicesList[i]);
-					partitionKey += line.split("\\|")[index].trim();
+					index = Integer.parseInt(partitionIndicesList[i]);
+					partitionKey.append(lineTokens[index]);
 
 				}  
 
 				// If the line match with the reference line, write it to the partition. 
-				if(referenceFilePartition.get(partitionKey) != null){ 
+				if(referenceFilePartition.contains(partitionKey)){
+					
 					filesMap.get(partitionNumber).write(line.getBytes()); 
 					filesMap.get(partitionNumber).write(System.getProperty("line.separator").getBytes());
 				}
 
 			}  
 			filesMap.get(partitionNumber).flush(); 
-			filesMap.get(partitionNumber).close();  
-			System.out.println("Partition Number "+partitionNumber+" has been written successfully.");
+			//filesMap.get(partitionNumber).close();  
+			System.out.println("Chunk of data to partition number "+partitionNumber+" has been written successfully.");
 			br.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
