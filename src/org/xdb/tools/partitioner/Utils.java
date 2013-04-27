@@ -91,31 +91,39 @@ public class Utils {
 	 * @param keys the indices of the columns  
 	 * @return the hash code of the concatenated values of the columns given by keys array.  
 	 */
-	public static int calculateHash (String line, String [] keys) {
+	public static int calculateHash (String line, Integer [] keys) {
 		
 		int hash =0; 
 		String[] lineTokens = line.split("\\|"); 
 	    
 		StringBuffer keysString = new StringBuffer();
 		for(int i=0; i < keys.length; i++){
-			keysString.append(lineTokens[i].trim() );
+			keysString.append(lineTokens[keys[i]].trim() );
 		} 
-		hash = Math.abs(keysString.toString().hashCode()); // return always the positive value of the hash. 
-        return hash; 
+		hash = keysString.toString().hashCode(); // return always the positive value of the hash. 
+		
+		return hash; 
 	}
 	
 	/**
 	 * @param keysString
 	 * @return
 	 */
-	public static String[] getKeyIndeicesFromString (String keysString){
+	public static Integer[] getKeyIndicesFromString (String keysString){
 		
-		String keyIndices[]; 
+		String[] tmpIndices;
+		
 		if(keysString.length() > 1){
-			keyIndices = keysString.split("\\,"); // if we have more than one key (index) the format is 0,1,2... 
+			tmpIndices = keysString.split("\\,"); // if we have more than one key (index) the format is 0,1,2... 
+			
 		} else {  
-			keyIndices = new String []{keysString}; // if we only have one index. 
+			tmpIndices = new String []{keysString}; // if we only have one index. 
 		}  
+		
+		Integer keyIndices[] = new Integer[tmpIndices.length]; 
+		for(int i=0; i<tmpIndices.length; ++i){
+			keyIndices[i] = Integer.parseInt(tmpIndices[i]);
+		}
 		return keyIndices;
 	}
 }
