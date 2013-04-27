@@ -4,7 +4,6 @@ import java.util.HashMap;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
-import org.xdb.metadata.Catalog;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Partition;
 import org.xdb.metadata.Table;
