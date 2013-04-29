@@ -1,11 +1,11 @@
-package org.xdb.tools.refpart.partitioners;
+package org.xdb.tools.tpch.refpart.partitioners;
 
 import java.util.List;
 
 import org.xdb.logging.XDBLog;
-import org.xdb.tools.refpart.AbstractFilePartitioner;
-import org.xdb.tools.refpart.CombinedPartSuppKey;
-import org.xdb.tools.refpart.DefRefPart.WORK_MODE;
+import org.xdb.tools.tpch.refpart.AbstractFilePartitioner;
+import org.xdb.tools.tpch.refpart.CombinedPartSuppKey;
+import org.xdb.tools.tpch.refpart.DefRefPart.WORK_MODE;
 
 public class PartSuppFilePartitioner extends AbstractFilePartitioner {
 

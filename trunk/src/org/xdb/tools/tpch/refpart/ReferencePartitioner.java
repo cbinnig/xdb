@@ -1,17 +1,17 @@
-package org.xdb.tools.refpart;
+package org.xdb.tools.tpch.refpart;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.xdb.tools.refpart.partitioners.CustomerFilePartitioner;
-import org.xdb.tools.refpart.partitioners.LineItemFilePartitioner;
-import org.xdb.tools.refpart.partitioners.NationFilePartitioner;
-import org.xdb.tools.refpart.partitioners.OrderFilePartitioner;
-import org.xdb.tools.refpart.partitioners.PartFilePartitioner;
-import org.xdb.tools.refpart.partitioners.PartSuppFilePartitioner;
-import org.xdb.tools.refpart.partitioners.RegionFilePartitioner;
-import org.xdb.tools.refpart.partitioners.SupplierFilePartitioner;
+import org.xdb.tools.tpch.refpart.partitioners.CustomerFilePartitioner;
+import org.xdb.tools.tpch.refpart.partitioners.LineItemFilePartitioner;
+import org.xdb.tools.tpch.refpart.partitioners.NationFilePartitioner;
+import org.xdb.tools.tpch.refpart.partitioners.OrderFilePartitioner;
+import org.xdb.tools.tpch.refpart.partitioners.PartFilePartitioner;
+import org.xdb.tools.tpch.refpart.partitioners.PartSuppFilePartitioner;
+import org.xdb.tools.tpch.refpart.partitioners.RegionFilePartitioner;
+import org.xdb.tools.tpch.refpart.partitioners.SupplierFilePartitioner;
 
 /**
  * This tool partitions a set of TPC-H TBL input files into a number of

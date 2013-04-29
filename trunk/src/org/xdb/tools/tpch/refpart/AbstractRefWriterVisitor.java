@@ -1,4 +1,4 @@
-package org.xdb.tools.refpart;
+package org.xdb.tools.tpch.refpart;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
