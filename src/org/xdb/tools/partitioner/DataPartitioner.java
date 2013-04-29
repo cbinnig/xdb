@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,9 +24,10 @@ public class DataPartitioner {
 	// Used to store the buffers for every partitions, so we use
 	// them later when writing to the partitions file.
 	private Map<Integer, BufferedOutputStream> filesMap = new HashMap<Integer, BufferedOutputStream>();
-	private Set<String> referenceKeys = new HashSet<String>(CHUNK_SIZE);
+	private Set<String> referenceKeys = new HashSet<String>(CHUNK_SIZE); 
+	private BitSet writtenLines = new BitSet(CHUNK_SIZE);
 
-	private static int CHUNK_SIZE = 100000;
+	private static int CHUNK_SIZE = 100000; 
 	private static boolean CHUNK_MODE = false;
 	private static String NEW_LINE = System.getProperty("line.separator");
 
@@ -35,7 +37,8 @@ public class DataPartitioner {
 
 	// getters and setters
 	public void setReferenceKeys(int size, int loadFactor) {
-		referenceKeys = new HashSet<String>(size, loadFactor);
+		referenceKeys = new HashSet<String>(size, loadFactor); 
+		writtenLines = new BitSet(size);
 		CHUNK_MODE = true;
 		CHUNK_SIZE = size;
 	}
@@ -87,16 +90,15 @@ public class DataPartitioner {
 		// Return the indices in an array format
 		Integer[] partitionIndices = Utils.getKeyIndicesFromString(indices
 				.trim());
-
 		int hash;
 		int partitionNumber = 0;
 		int numberOfPartitions = this.filesMap.size();
-
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
+
 		String line = "";
 		while ((line = br.readLine()) != null) {
 			hash = Utils.calculateHash(line, partitionIndices);
-			partitionNumber = hash % numberOfPartitions;
+			partitionNumber = (hash % numberOfPartitions + numberOfPartitions) % numberOfPartitions;
 			filesMap.get(partitionNumber).write(line.getBytes());
 			filesMap.get(partitionNumber).write(NEW_LINE.getBytes());
 		}
@@ -106,7 +108,7 @@ public class DataPartitioner {
 			System.out.println("Partition number " + i + " has been written.");
 		}
 		br.close();
-		System.out.println("Hash partitioning done!" + referenceKeys.size());
+		System.out.println("Hash partitioning done!");
 
 	}
 
@@ -181,10 +183,10 @@ public class DataPartitioner {
 
 				StringBuffer referenceKey = new StringBuffer();
 				for (int j = 0; j < referenceIndicesList.length; j++) {
-					referenceKey.append(refLineTokens[referenceIndicesList[j]]);
+					referenceKey.append(refLineTokens[referenceIndicesList[j]].trim());
 
-				}
-				referenceKeys.add(referenceKey.toString());
+				} 	 
+			    referenceKeys.add(referenceKey.toString().trim());
 				++counter;
 				if (CHUNK_MODE && counter % CHUNK_SIZE == 0) {
 					writePartition(file, partitionsIndicesList, i);
@@ -192,12 +194,11 @@ public class DataPartitioner {
 				}
 
 			}
-
 			writePartition(file, partitionsIndicesList, i);
 			referenceKeys.clear();
 			this.filesMap.get(i).close();
+			writtenLines.clear();
 			br.close();
-
 		}
 		System.out.println("Reference partitioning done!");
 
@@ -225,24 +226,32 @@ public class DataPartitioner {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String line = "";
 			int count = 0;
-			while ((line = br.readLine()) != null) {
+			int linesCounter =0;
+			while ((line = br.readLine()) != null) {  	
+				// Check if the line has been written already! 
+				if(writtenLines.get(linesCounter)){
+					linesCounter++;
+					continue;
+				}
 				StringBuffer partitionKey = new StringBuffer("");
 				String[] lineTokens = line.split("\\|");
 				int index;
 				for (int i = 0; i < partitionIndicesList.length; i++) {
 
 					index = partitionIndicesList[i];
-					partitionKey.append(lineTokens[index]);
+					partitionKey.append(lineTokens[index].trim());
 
 				}
 
 				// If the line match with the reference line, write it to the
 				// partition.
-				if (referenceKeys.contains(partitionKey.toString())) {
+				if (referenceKeys.contains(partitionKey.toString().trim())) {
 					filesMap.get(partitionNumber).write(line.getBytes());
-					filesMap.get(partitionNumber).write(NEW_LINE.getBytes());
+					filesMap.get(partitionNumber).write(NEW_LINE.getBytes()); 
+					writtenLines.set(linesCounter);
 					count++;
-				}
+				}  
+				linesCounter++;
 			}
 			filesMap.get(partitionNumber).flush();
 			System.out.println("Chunk of size " + count
