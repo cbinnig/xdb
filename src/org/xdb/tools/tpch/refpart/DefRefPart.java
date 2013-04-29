@@ -1,4 +1,4 @@
-package org.xdb.tools.refpart;
+package org.xdb.tools.tpch.refpart;
 
 public final class DefRefPart {
 	public static enum FILE_MODE {

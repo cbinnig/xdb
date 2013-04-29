@@ -1,9 +1,9 @@
-package org.xdb.tools.refpart.writers;
+package org.xdb.tools.tpch.refpart.writers;
 
 import java.util.List;
 
 import org.xdb.logging.XDBLog;
-import org.xdb.tools.refpart.AbstractRefWriterVisitor;
+import org.xdb.tools.tpch.refpart.AbstractRefWriterVisitor;
 
 public class IDRefWriter extends AbstractRefWriterVisitor {
 

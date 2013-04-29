@@ -1,12 +1,12 @@
-package org.xdb.tools.refpart.partitioners;
+package org.xdb.tools.tpch.refpart.partitioners;
 
 import java.util.List;
 
 import org.xdb.logging.XDBLog;
-import org.xdb.tools.refpart.AbstractFilePartitioner;
-import org.xdb.tools.refpart.DefRefPart.WORK_MODE;
-import org.xdb.tools.refpart.util.MurmurHash;
-import org.xdb.tools.refpart.writers.IDRefWriter;
+import org.xdb.tools.tpch.refpart.AbstractFilePartitioner;
+import org.xdb.tools.tpch.refpart.DefRefPart.WORK_MODE;
+import org.xdb.tools.tpch.refpart.util.MurmurHash;
+import org.xdb.tools.tpch.refpart.writers.IDRefWriter;
 
 public class OrderFilePartitioner extends AbstractFilePartitioner {
 

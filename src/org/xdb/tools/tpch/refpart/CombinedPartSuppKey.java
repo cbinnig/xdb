@@ -1,4 +1,4 @@
-package org.xdb.tools.refpart;
+package org.xdb.tools.tpch.refpart;
 
 public class CombinedPartSuppKey {
 	private long partKey;

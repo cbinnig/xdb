@@ -1,13 +1,13 @@
-package org.xdb.tools.refpart.partitioners;
+package org.xdb.tools.tpch.refpart.partitioners;
 
 import java.util.List;
 
 import org.xdb.logging.XDBLog;
-import org.xdb.tools.refpart.AbstractFilePartitioner;
-import org.xdb.tools.refpart.DefRefPart.WORK_MODE;
-import org.xdb.tools.refpart.writers.LineItemPartRefWriter;
-import org.xdb.tools.refpart.writers.LineItemPartSuppRefWriter;
-import org.xdb.tools.refpart.writers.LineItemSuppRefWriter;
+import org.xdb.tools.tpch.refpart.AbstractFilePartitioner;
+import org.xdb.tools.tpch.refpart.DefRefPart.WORK_MODE;
+import org.xdb.tools.tpch.refpart.writers.LineItemPartRefWriter;
+import org.xdb.tools.tpch.refpart.writers.LineItemPartSuppRefWriter;
+import org.xdb.tools.tpch.refpart.writers.LineItemSuppRefWriter;
 
 public class LineItemFilePartitioner extends AbstractFilePartitioner {
 

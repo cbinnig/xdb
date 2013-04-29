@@ -1,4 +1,4 @@
-package org.xdb.tools.refpart;
+package org.xdb.tools.tpch.refpart;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,9 +17,9 @@ import java.util.logging.Logger;
 
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
-import org.xdb.tools.refpart.DefRefPart.FILE_MODE;
-import org.xdb.tools.refpart.DefRefPart.WORK_MODE;
-import org.xdb.tools.refpart.util.MurmurHash;
+import org.xdb.tools.tpch.refpart.DefRefPart.FILE_MODE;
+import org.xdb.tools.tpch.refpart.DefRefPart.WORK_MODE;
+import org.xdb.tools.tpch.refpart.util.MurmurHash;
 
 public abstract class AbstractFilePartitioner {
 	protected static void createDebug(Logger logger, String text) {

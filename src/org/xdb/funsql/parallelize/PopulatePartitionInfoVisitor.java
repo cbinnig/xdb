@@ -17,6 +17,7 @@ import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
+@SuppressWarnings("unused")
 public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 
 
