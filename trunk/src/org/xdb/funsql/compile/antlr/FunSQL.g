@@ -48,10 +48,8 @@ tokens {
     COLON               =   ':';
 }
 
-@rulecatch {
-    catch (RecognitionException e) {
-        throw e;
-    }
+@lexer::header { 
+package org.xdb.funsql.compile.antlr;
 }
 
 @parser::header { 
@@ -74,17 +72,13 @@ import org.xdb.funsql.statement.*;
     throw e;
   }
 }
-
-@lexer::header { 
-package org.xdb.funsql.compile.antlr;
-}
-
-@lexer::members {
-    @Override
-    public void reportError(RecognitionException e) {
-        throw new RuntimeException(e);
+ 
+@rulecatch {
+    catch (RecognitionException e) {
+    	reportError(e);
+        throw e;
     }
-}  
+}
 
 /*------------------------------------------------------------------
  * PARSER RULES
