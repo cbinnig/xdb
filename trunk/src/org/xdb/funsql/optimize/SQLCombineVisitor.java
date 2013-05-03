@@ -1,6 +1,5 @@
 package org.xdb.funsql.optimize;
 
-import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractBottomUpTreeVisitor;
@@ -37,9 +36,8 @@ public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
 
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
-		String[] args = { "EquiJoin operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		return e;
+		this.lastop = ej;
+		return err;
 	}
 
 	@Override
@@ -100,9 +98,8 @@ public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
 	
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {
-		String[] args = { "DataExchange operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		return e;
+		this.lastop = deOp;
+		return err;
 	}
 
 }

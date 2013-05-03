@@ -130,8 +130,10 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 	
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {
-		String[] args = { "DataExchange operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		return e;
+		//force split to allow automatic partition conversion by
+		//underlying database system
+		deOp.getResult().setMaterialized(true);
+		doSplit(deOp);
+		return err;
 	}
 }

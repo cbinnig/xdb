@@ -3,7 +3,6 @@ package org.xdb.funsql.codegen;
 import java.util.HashMap;
 import java.util.Vector;
 
-import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.AbstractBottomUpTreeVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
@@ -173,8 +172,7 @@ public class RenameAttributesVisitor extends AbstractBottomUpTreeVisitor {
 	
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {
-		String[] args = { "DataExchange operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
+		renameResultSet(deOp);
 		return e;
 	}
 }

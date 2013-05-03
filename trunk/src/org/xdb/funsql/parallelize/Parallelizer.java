@@ -48,7 +48,7 @@ public class Parallelizer {
 		//build realPartition on table objects
 		annotateFinalPartition(cp);
 		
-		System.out.println("Time for parallization" + (currentTime2 - currentTime1));
+		System.out.println("Time for parallization " + (currentTime2 - currentTime1) + "ms");
 		this.compilePlan = cp;
 		//return plan 
 		return this.compilePlan;
