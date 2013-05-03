@@ -48,12 +48,9 @@ public class QueryTrackerNode {
 	}
 
 	public QueryTrackerNode(final String address) throws Exception {
-
 		this.computeClient = new ComputeClient();
 		this.description = new QueryTrackerNodeDesc(address);
-
 		this.masterTrackerClient = new MasterTrackerClient();
-		
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
@@ -87,9 +84,10 @@ public class QueryTrackerNode {
 
 	// methods
 
-	public Error startup(){
+	public Error startup() {
 		return masterTrackerClient.registerNode(description);
 	}
+
 	/**
 	 * Generates query tracker plan from compile plan
 	 * 
@@ -125,16 +123,28 @@ public class QueryTrackerNode {
 	 * @return
 	 */
 	public Error executePlan(final CompilePlan cplan) {
-		logger.log(Level.INFO, "Got new compileplan: " + cplan.getPlanId());
+		logger.log(Level.INFO, "Query tracker " + this.description.getUrl()
+				+ " received compileplan: " + cplan.getPlanId());
 
-		// initialize compile plan after shipping plan from master
+		// initialize compile plan: get logger back
 		cplan.init();
-		//Init parralellizer
-		//Parallelizer parallelizer = new Parallelizer(cplan);
-		//parallelizer.parallelize();
 
+		// TODO: split plan into sub-plans and execute each sub-plan
+		return this.executeSubPlan(cplan);
+	}
 
-		// 0. build query tracker plan from compile plan
+	/**
+	 * Execute a given sub-plan
+	 * 
+	 * @param cplan
+	 * @return
+	 */
+	private Error executeSubPlan(final CompilePlan cplan) {
+		// 1. parallelize compile plan
+		// Parallelizer parallelizer = new Parallelizer(cplan);
+		// parallelizer.parallelize();
+
+		// 2. build query tracker plan from compile plan
 		Tuple<QueryTrackerPlan, Error> qPlanErr = generateQueryTrackerPlan(cplan);
 		QueryTrackerPlan qplan = qPlanErr.getObject1();
 		Error err = qPlanErr.getObject2();
@@ -143,28 +153,28 @@ public class QueryTrackerNode {
 			return err;
 		}
 
-		// 1. deploy query tracker plan on compute nodes
+		// 2. deploy query tracker plan on compute nodes
 		err = qplan.deployPlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;
 		}
 
-		// 2. execute query tracker plan
+		// 3. execute query tracker plan
 		err = qplan.executePlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;
 		}
 
-		// 3. release compute nodes
+		// 4. release compute nodes
 		err = masterTrackerClient.noticeFreeSlots(qplan.getSlots());
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;
 		}
 
-		// 4. clean query tracker plan
+		// 5. clean query tracker plan
 		err = qplan.cleanPlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
@@ -208,7 +218,6 @@ public class QueryTrackerNode {
 			qPlan.setLastError(err);
 			return err;
 		}
-
 		qPlan.setTrackerOperatorExecuted(trackerOpId);
 
 		// send READY Signal to all consumers
@@ -219,6 +228,7 @@ public class QueryTrackerNode {
 				logger.log(Level.INFO, "Send READY_SIGNAL from Query Tracker "
 						+ this.description.getUrl() + " to consumer: "
 						+ consumer);
+
 				err = computeClient.executeOperator(execOp.getOperatorId(),
 						consumer);
 

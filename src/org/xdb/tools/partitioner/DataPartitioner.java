@@ -19,28 +19,51 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 
+/**
+ * Usage
+ * The partitioner
+ * tool has two options: Hashing partition and Reference Partition. 
+ * 
+ * 1- Hashing Partitioning. 
+ * Command line parameters: -f {file name (path)} -m hashing -k 0,1,.. -n {positive number} 
+ * 
+ * 2- Reference Partitioning 
+ * Command line parameters: -f {file name (path)} -m reference -k 0,1,.. -rf {reference file (only table name)} -rk {reference keys}
+ * 
+ * For more details about the command options; 
+ * Command line parameter: -h
+ *  
+ * @author cbinnig
+ *
+ */
 public class DataPartitioner {
 
 	// Used to store the buffers for every partitions, so we use
 	// them later when writing to the partitions file.
-	private Map<Integer, BufferedOutputStream> filesMap = new HashMap<Integer, BufferedOutputStream>();
-	private Set<String> referenceKeys = new HashSet<String>(CHUNK_SIZE); 
-	private BitSet writtenLines = new BitSet(CHUNK_SIZE);
+	private Map<Integer, BufferedOutputStream> filesMap;
+	private Set<String> referenceKeys;
+	private BitSet writtenLines;
 
-	private static int CHUNK_SIZE = 100000; 
-	private static boolean CHUNK_MODE = false;
-	private static String NEW_LINE = System.getProperty("line.separator");
+	private int chunkSize = 100000; 
+	private boolean chunkMode = false;
+	
+	private static final String NEW_LINE = System.getProperty("line.separator");
+	private static final String CSV_SEPARATOR = "\\|";
 
 	// constructors
 	public DataPartitioner() {
+		this.filesMap = new HashMap<Integer, BufferedOutputStream>();
+		this.referenceKeys = new HashSet<String>(chunkSize); 
+		this.writtenLines = new BitSet(chunkSize);
+
 	}
 
-	// getters and setters
-	public void setReferenceKeys(int size, int loadFactor) {
+	// methods
+	public void initChunking(int size, int loadFactor) {
 		referenceKeys = new HashSet<String>(size, loadFactor); 
 		writtenLines = new BitSet(size);
-		CHUNK_MODE = true;
-		CHUNK_SIZE = size;
+		chunkMode = true;
+		chunkSize = size;
 	}
 
 	/**
@@ -50,7 +73,7 @@ public class DataPartitioner {
 	 * @param filesName
 	 * @param numberofPartitions
 	 */
-	public void setFilesMap(String fileName, int numberofPartitions)
+	public void initFilesMap(String fileName, int numberofPartitions)
 			throws Exception {
 
 		String fileType = Utils.getFileType(fileName);
@@ -179,7 +202,7 @@ public class DataPartitioner {
 			String refLine = "";
 			int counter = 0;
 			while ((refLine = br.readLine()) != null) {
-				String[] refLineTokens = refLine.split("\\|");
+				String[] refLineTokens = refLine.split(CSV_SEPARATOR);
 
 				StringBuffer referenceKey = new StringBuffer();
 				for (int j = 0; j < referenceIndicesList.length; j++) {
@@ -188,7 +211,7 @@ public class DataPartitioner {
 				} 	 
 			    referenceKeys.add(referenceKey.toString().trim());
 				++counter;
-				if (CHUNK_MODE && counter % CHUNK_SIZE == 0) {
+				if (chunkMode && (counter % chunkSize) == 0) {
 					writePartition(file, partitionsIndicesList, i);
 					referenceKeys.clear();
 				}
@@ -233,8 +256,8 @@ public class DataPartitioner {
 					linesCounter++;
 					continue;
 				}
-				StringBuffer partitionKey = new StringBuffer("");
-				String[] lineTokens = line.split("\\|");
+				StringBuffer partitionKey = new StringBuffer();
+				String[] lineTokens = line.split(CSV_SEPARATOR);
 				int index;
 				for (int i = 0; i < partitionIndicesList.length; i++) {
 
@@ -282,12 +305,10 @@ public class DataPartitioner {
 		opt.addOption("h", false, "Print help for the partitioner tool");
 		opt.addOption("f", true, "The file to be partitioned");
 		opt.addOption("m", true, "The partitioning method (hashing|reference)");
-		opt.addOption("k", true, "The partitioning keys (e.g., 1,2,4)");
+		opt.addOption("k", true, "The indexes of the key columns (e.g., 1,2,4)");
 		opt.addOption("n", true, "The number of partitions");
-		opt.addOption("rf", true,
-				"The reference table (reference partitioning)");
-		opt.addOption("rk", true,
-				"The keys in the reference table (reference partitioning)");
+		opt.addOption("rf", true, "The referenced table name (for reference partitioning)");
+		opt.addOption("rk", true, "The key column indexes in the reference table (for reference partitioning)");
 		opt.addOption("c", true, "The chunk size (optional)");
 
 		// Some default values.
@@ -333,7 +354,7 @@ public class DataPartitioner {
 
 			if (cl.hasOption('c')) {
 				chunkSize = 1000000 * Integer.parseInt(cl.getOptionValue('c'));
-				dataPartitioner.setReferenceKeys(chunkSize, 1);
+				dataPartitioner.initChunking(chunkSize, 1);
 			}
 
 			// reference partitioning: additional parameters
@@ -350,7 +371,7 @@ public class DataPartitioner {
 					return;
 				}
 				// Create a output files
-				dataPartitioner.setFilesMap(file, numberOfPartitions);
+				dataPartitioner.initFilesMap(file, numberOfPartitions);
 				// Do the reference partitioning
 				dataPartitioner.partitionDataByReference(file,
 						partitionIndices, referenceFile, referenceIndecis,
@@ -368,7 +389,7 @@ public class DataPartitioner {
 					return;
 				}
 
-				dataPartitioner.setFilesMap(file, numberOfPartitions);
+				dataPartitioner.initFilesMap(file, numberOfPartitions);
 				dataPartitioner.partitionDataByHashing(file, partitionIndices);
 			} else {
 				System.out.println("Unknown partitioning method: "
