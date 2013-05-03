@@ -2,7 +2,6 @@ package org.xdb.funsql.optimize;
 
 import java.util.HashSet;
 
-import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractBottomUpTreeVisitor;
@@ -205,8 +204,6 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 	
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {
-		String[] args = { "DataExchange operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		return e;
+		return err;
 	}
 }

@@ -103,9 +103,8 @@ public class SelectionCombineVisitor extends AbstractTopDownTreeVisitor {
 
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {
-		String[] args = { "DataExchange operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		return e;
+		this.lastOp = deOp;
+		return err;
 	}
 
 }

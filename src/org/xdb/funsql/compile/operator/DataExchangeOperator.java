@@ -2,6 +2,7 @@ package org.xdb.funsql.compile.operator;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Vector;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -69,8 +70,17 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 
 	@Override
 	public String toSqlString() {
-		// no need for this because only logical operator
-		return null;
+		Vector<AbstractCompileOperator> children = getChildren();
+		if(children.size() == 1)
+			return "<"+children.get(0).getOperatorId().toString()+">";
+		
+		
+		AbstractCompileOperator union = new Union(children.get(0), children.get(1));
+		for(int i = 2; i < children.size(); i++) {
+			union.addChild(children.get(i));
+		}
+		
+		return union.toSqlString();
 	}
 
 	@Override
@@ -105,8 +115,7 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 
 	@Override
 	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
-		// TODO Auto-generated method stub
-		
+		TokenAttribute.renameTable(selAtts, this.getChild().getOperatorId().toString());
 	}
 
 

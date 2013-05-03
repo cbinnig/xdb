@@ -108,7 +108,7 @@ public class RemoveDataExchangeOpVisitor extends AbstractBottomUpTreeVisitor {
 	
 	private boolean isRemoveable(PartitionInfo inputOpInfo, PartitionInfo removeOpInfo){	
 		
-		return (inputOpInfo.equals(removeOpInfo));
+		return (inputOpInfo != null && inputOpInfo.equals(removeOpInfo));
 	
 	}
 
@@ -119,7 +119,7 @@ public class RemoveDataExchangeOpVisitor extends AbstractBottomUpTreeVisitor {
 	private void handleRoot(AbstractCompileOperator absOp){
 		//if root
 		if(this.compilePlan.getRootIds().contains(absOp.getOperatorId())){
-			if(absOp.getPartitionOutputInfo().getParts() >1){
+			if(absOp.getPartitionOutputInfo() != null && absOp.getPartitionOutputInfo().getParts() >1){
 				//if the last op still is partioned add a super dataexchange Operator
 				this.compilePlan.removeRootId(absOp.getOperatorId());
 				DataExchangeOperator de = new DataExchangeOperator(absOp,absOp.getResult());

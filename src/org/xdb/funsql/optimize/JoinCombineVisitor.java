@@ -1,6 +1,5 @@
 package org.xdb.funsql.optimize;
 
-import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractTopDownTreeVisitor;
@@ -106,8 +105,7 @@ public class JoinCombineVisitor extends AbstractTopDownTreeVisitor {
 
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {
-		String[] args = { "DataExchange operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		return e;
+		this.lastOp = deOp;
+		return err;
 	}
 }
