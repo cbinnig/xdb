@@ -25,7 +25,6 @@ import org.xdb.metadata.TableToConnection;
 public class CreateTableStmt extends AbstractServerStmt {
 	private TokenTable tTable;
 	private TokenTable tSourceTable;
-	private TokenIdentifier tConnection;
 
 	private Vector<TokenAttribute> tAttributes = new Vector<TokenAttribute>();
 	private Vector<TokenDataType> tDataTypes = new Vector<TokenDataType>();
@@ -122,7 +121,7 @@ public class CreateTableStmt extends AbstractServerStmt {
 	}
 
 	public TokenIdentifier getConnection() {
-		return tConnection;
+		return tConnections.get(0);
 	}
 
 	public Collection<TokenAttribute> getAttributes() {
@@ -144,11 +143,9 @@ public class CreateTableStmt extends AbstractServerStmt {
 
 	@Override
 	public Error compile() {
-		//check if connection exists
-		if(this.partitionMethod!=null) this.partioned = true;
-		//not partioned build up Table To Connection
-
-
+		if(this.partitionMethod!=null) 
+			this.partioned = true;
+		
 		//check if schema exists
 		String schemaKey = this.tTable.getSchema().hashKey();
 		this.schema = Catalog.getSchema(schemaKey);
@@ -162,6 +159,7 @@ public class CreateTableStmt extends AbstractServerStmt {
 		if(table != null){
 			return Catalog.createObjectAlreadyExistsErr(table);
 		}
+		
 		// init error
 		Error lastError;
 		//check which table type partitioned or not partioned
@@ -189,9 +187,8 @@ public class CreateTableStmt extends AbstractServerStmt {
 				
 				partdetails = partdetails +	" " + ta.getName();
 			}
-			
-			
 			this.table.setPartitionDetails(partdetails.trim());
+			
 			//check Error
 			lastError = this.table.checkObject();
 			if(lastError!=Error.NO_ERROR)
@@ -220,7 +217,7 @@ public class CreateTableStmt extends AbstractServerStmt {
 					//get connection for this partition
 					tempConnection = Catalog.getConnection(	tokenIdentifier.hashKey());
 					if (tempConnection == null) {
-						return Catalog.createObjectNotExistsErr(this.tConnection.getName(),
+						return Catalog.createObjectNotExistsErr(tokenIdentifier.getName(),
 								EnumDatabaseObject.CONNECTION);
 					}
 					
@@ -232,14 +229,14 @@ public class CreateTableStmt extends AbstractServerStmt {
 				
 			}
 		}else {
-			//not partioned so call standard constructor for table
+			//not partitioned, then call standard constructor for table
 			String connectionKey;
 			for (TokenIdentifier cti : this.tConnections){
 				connectionKey = cti.hashKey();
 				Connection connection = Catalog.getConnection(connectionKey);
 				this.connections.add(connection);
 				if (connection == null) {
-					return Catalog.createObjectNotExistsErr(this.tConnection.getName(),
+					return Catalog.createObjectNotExistsErr(cti.getName(),
 							EnumDatabaseObject.CONNECTION);
 				}
 				
