@@ -93,7 +93,7 @@ public class MasterTrackerNode {
 	 * @return
 	 */
 	public Error executePlan(final CompilePlan plan) {
-		// failure handling
+		// error handling
 		if (plan == null) {
 			String[] args = { "No compile plan provided" };
 			this.err = new Error(EnumError.TRACKER_GENERIC, args);
