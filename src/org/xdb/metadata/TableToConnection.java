@@ -28,6 +28,7 @@ public class TableToConnection extends AbstractDatabaseObject {
 	private Long connection_oid;
 
 	private static  TableToConnection prototype = new  TableToConnection();
+	
 	public TableToConnection(){
 		super();
 		this.objectType = EnumDatabaseObject.TABLETOCONNECTION;
@@ -124,5 +125,15 @@ public class TableToConnection extends AbstractDatabaseObject {
 		selectSql.append(AbstractToken.BLANK);
 		selectSql.append(this.getConnection_oid());
 		return selectSql.toString();
+	}
+	
+	@Override
+	public boolean equals(Object o){
+		TableToConnection t2c = (TableToConnection)o;
+		if(this.connection_oid!=t2c.connection_oid)
+			return false;
+		if(this.table_oid!=t2c.table_oid)
+			return false;
+		return true;
 	}
 }

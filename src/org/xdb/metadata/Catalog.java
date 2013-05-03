@@ -173,6 +173,13 @@ public class Catalog {
 		Error error = new Error(EnumError.CATALOG_OBJECT_ALREADY_EXISTS, args);
 		return error;
 	}
+	
+	public static synchronized Error createObjectAlreadyExistsErr(String name,
+			EnumDatabaseObject type) {
+		String args[] = { name, type.toString() };
+		Error error = new Error(EnumError.CATALOG_OBJECT_ALREADY_EXISTS, args);
+		return error;
+	}
 
 	public static synchronized Error createObjectNotExistsErr(String name,
 			EnumDatabaseObject type) {
@@ -521,10 +528,10 @@ public class Catalog {
 	public static synchronized Error createTableToConnection(
 			TableToConnection tableToConn) {
 		if (Catalog.tableToConnByTableOid
-				.containsKey(tableToConn.getTable_oid())
-				&& Catalog.tableToConnByConnOid.containsKey(tableToConn
-						.getConnection_oid())) {
-			return createObjectAlreadyExistsErr(tableToConn);
+				.containsKey(tableToConn.getTable_oid())) {
+			
+			if(Catalog.tableToConnByTableOid.get(tableToConn.getTable_oid()).contains(tableToConn))
+				return createObjectAlreadyExistsErr("("+tableToConn.getConnection_oid()+", "+tableToConn.getTable_oid()+")", tableToConn.objectType);
 		}
 
 		Error lastError = Catalog.executeUpdate(tableToConn.sqlInsert());
