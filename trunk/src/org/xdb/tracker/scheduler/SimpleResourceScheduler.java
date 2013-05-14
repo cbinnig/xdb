@@ -1,13 +1,11 @@
 package org.xdb.tracker.scheduler;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.xdb.execute.ComputeNodeSlot;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.utils.Identifier;
-import org.xdb.utils.MutableInteger;
 
 /**
  * Simple resource scheduler which assigns compute slots randomly to operators 
@@ -24,36 +22,17 @@ public class SimpleResourceScheduler extends AbstractResourceScheduler {
 	}
 
 	@Override
-	public Map<String, MutableInteger> calcRequiredSlots() {
-		final Map<String, MutableInteger> requiredSlots = new HashMap<String, MutableInteger>();
-
-		// request one slot per operator
-		final MutableInteger numSlots = new MutableInteger(plan.getTrackerOperators()
-				.size());
+	public Set<String> calcRequiredSlots() {
+		final Set<String> requiredSlots = new HashSet<String>();
 
 		// slot can be on any compute node
-		requiredSlots.put(AbstractResourceScheduler.RANDOM, numSlots);
+		requiredSlots.add(AbstractResourceScheduler.RANDOM_CONN);
 
 		return requiredSlots;
 	}
 
 	@Override
-	public ComputeNodeSlot getSlot(Identifier operId) {
-		if(this.assignedSlots == null)
-			return null;
-
-		ComputeNodeSlot usedNode = null;
-		for (final Entry<ComputeNodeSlot, MutableInteger> availableNode : assignedSlots
-				.entrySet()) {
-			if ( availableNode.getValue().intValue() > 0 ) {
-				usedNode = availableNode.getKey();
-				final MutableInteger numOfFreeNodes = assignedSlots.get(usedNode);
-				numOfFreeNodes.dec();
-				return usedNode;
-			}
-		}
-		
-
-		return null;
+	public ComputeNodeDesc getSlot(Identifier operId) {
+		return this.assignedSlots.get(AbstractResourceScheduler.RANDOM_CONN);
 	}
 }

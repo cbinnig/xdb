@@ -1,57 +1,43 @@
 package org.xdb.execute;
 
+import org.xdb.Config;
 import org.xdb.server.AbstractNodeDesc;
 
 /**
- * Describes the properties of a ComputeNode (i.e., URL, port and slots)
+ * Describes the properties of a ComputeNode (i.e., URL, port and slots). 
  * 
- * @author cbinnig
+ * @author Timo Jacobs
  * 
  */
 public class ComputeNodeDesc extends AbstractNodeDesc {
+	private static final long serialVersionUID = -6943589620125008473L;
 
-	private static final long serialVersionUID = 995523462711933305L;
-
-	// URL of compute node
-	private ComputeNodeSlot slotDesc;
+	private final int port;
 
 	// constructors
-	public ComputeNodeDesc(ComputeNodeSlot slotDesc, int slots) {
-		super(slotDesc.getHost(), slots);
-		this.slotDesc = slotDesc;
+
+	public ComputeNodeDesc(final String host, final int port) {
+		this(host, port, Config.COMPUTE_SLOTS);
 	}
 	
-	public ComputeNodeDesc(String url, int port, int slots) {
-		this(new ComputeNodeSlot(url, port), slots);
+	public ComputeNodeDesc(final String host, final int port, final int slots) {
+		super(host, slots);
+		this.port = port;
 	}
 
 	// getters and setters
-	public ComputeNodeSlot getSlotDesc() {
-		return slotDesc;
+	public int getPort() {
+		return port;
 	}
 
 	// methods
 	@Override
 	public String toString() {
-		StringBuffer value = new StringBuffer();
-		value.append("(");
-		value.append(this.slotDesc);
-		value.append(",");
-		value.append(this.slots);
-		value.append(")");
-		return value.toString();
+		return "("+url + ":" + port+")";
 	}
 
 	@Override
 	public int hashCode() {
-		return this.slotDesc.hashCode();
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		ComputeNodeDesc desc = (ComputeNodeDesc) o;
-		if (desc.slotDesc.equals(this.slotDesc))
-			return true;
-		return false;
+		return this.url.hashCode() + this.port;
 	}
 }

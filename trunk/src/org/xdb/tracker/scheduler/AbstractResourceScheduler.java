@@ -3,12 +3,12 @@ package org.xdb.tracker.scheduler;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.xdb.Config;
-import org.xdb.execute.ComputeNodeSlot;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.utils.Identifier;
-import org.xdb.utils.MutableInteger;
 
 /**
  * Abstract class for resource scheduling
@@ -16,14 +16,14 @@ import org.xdb.utils.MutableInteger;
  *
  */
 public abstract class AbstractResourceScheduler {
-	public static final String RANDOM = "RANDOM CONNECTION";
+	public static final String RANDOM_CONN = "RCONN";
 	
 	protected final QueryTrackerPlan plan;
 	protected EnumResourceScheduler type;
 	private static EnumResourceScheduler usedScheduler = Config.RESOURCE_SCHEDULER;
 	
 	// assigned slots which are actually available: compute slot URL -> count
-	protected Map<ComputeNodeSlot, MutableInteger> assignedSlots = new HashMap<ComputeNodeSlot, MutableInteger>();
+	protected Map<String, ComputeNodeDesc> assignedSlots = new HashMap<String, ComputeNodeDesc>();
 
 		
 	//constructor
@@ -65,16 +65,14 @@ public abstract class AbstractResourceScheduler {
 	 * Creates wish-list of compute slots to execute plan
 	 * @return
 	 */
-	public abstract Map<String, MutableInteger> calcRequiredSlots();
+	public abstract Set<String> calcRequiredSlots();
 	
 	/**
 	 * Assigns available compute slots to operators of plan
 	 * @param slots
 	 */
-	public void assignSlots(Map<ComputeNodeSlot, MutableInteger> slots) {
-		for(Map.Entry<ComputeNodeSlot, MutableInteger> slot: slots.entrySet()){
-			this.assignedSlots.put(slot.getKey(), slot.getValue().clone());
-		}
+	public void assignSlots(Map<String, ComputeNodeDesc> slots) {
+		this.assignedSlots.putAll(slots);
 	}
 	
 	/**
@@ -82,5 +80,5 @@ public abstract class AbstractResourceScheduler {
 	 * @param operId
 	 * @return
 	 */
-	public abstract ComputeNodeSlot getSlot(final Identifier operId);
+	public abstract ComputeNodeDesc getSlot(final Identifier operId);
 }

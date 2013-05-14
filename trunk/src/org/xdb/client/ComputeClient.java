@@ -2,7 +2,7 @@ package org.xdb.client;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
-import org.xdb.execute.ComputeNodeSlot;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.signals.CloseSignal;
@@ -21,8 +21,8 @@ public class ComputeClient extends AbstractClient {
 		this(Config.LOCALHOST, Config.COMPUTE_PORT);
 	}
 
-	public ComputeClient(final ComputeNodeSlot slot) {
-		this(slot.getHost(), slot.getPort());
+	public ComputeClient(final ComputeNodeDesc slot) {
+		this(slot.getUrl(), slot.getPort());
 	}
 
 	public ComputeClient(String url, int port) {
@@ -38,10 +38,10 @@ public class ComputeClient extends AbstractClient {
 	 * @param op
 	 * @return
 	 */
-	public Error openOperator(final ComputeNodeSlot url,
+	public Error openOperator(final ComputeNodeDesc url,
 			final AbstractExecuteOperator op) {
 		Object[] args = { op };
-		return this.executeCmd(url.getHost(), url.getPort(),
+		return this.executeCmd(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_OPEN_OP, args);
 	}
 
@@ -54,10 +54,10 @@ public class ComputeClient extends AbstractClient {
 	 * @return
 	 */
 	public Error executeOperator(final Identifier sourceOpId,
-			final ComputeNodeSlot url, final Identifier destOpId) {
+			final ComputeNodeDesc url, final Identifier destOpId) {
 		final ReadySignal signal = new ReadySignal(sourceOpId, destOpId);
 		Object[] args = { signal };
-		return this.executeCmd(url.getHost(), url.getPort(),
+		return this.executeCmd(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_READY_SIGNAL, args);
 	}
 
@@ -93,7 +93,7 @@ public class ComputeClient extends AbstractClient {
 	 * @param destOpId
 	 * @return
 	 */
-	public Error executeOperator(final ComputeNodeSlot url,
+	public Error executeOperator(final ComputeNodeDesc url,
 			final Identifier destOpId) {
 		return this.executeOperator(Config.COMPUTE_NOOP_ID, url, destOpId);
 	}
@@ -105,11 +105,11 @@ public class ComputeClient extends AbstractClient {
 	 * @param op
 	 * @return
 	 */
-	public Error closeOperator(final ComputeNodeSlot url,
+	public Error closeOperator(final ComputeNodeDesc url,
 			final Identifier operatorId) {
 		final CloseSignal signal = new CloseSignal(operatorId);
 		Object[] args = { signal };
-		return this.executeCmd(url.getHost(), url.getPort(),
+		return this.executeCmd(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_CLOSE_SIGNAL, args);
 	}
 
@@ -131,9 +131,9 @@ public class ComputeClient extends AbstractClient {
 	 * @param operatorId
 	 * @return
 	 */
-	public Error stopComputeServer(final ComputeNodeSlot url) {
+	public Error stopComputeServer(final ComputeNodeDesc url) {
 		Object[] args = {};
-		return this.executeCmd(url.getHost(), url.getPort(),
+		return this.executeCmd(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_STOP_SERVER, args);
 	}
 	
@@ -142,9 +142,9 @@ public class ComputeClient extends AbstractClient {
 	 * @param url
 	 * @return
 	 */
-	public Error pingComputeServer(final ComputeNodeSlot url) {
+	public Error pingComputeServer(final ComputeNodeDesc url) {
 		Object[] args = {};
-		return this.executeCmd(url.getHost(), url.getPort(),
+		return this.executeCmd(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_PING_SERVER, args);
 	}
 }

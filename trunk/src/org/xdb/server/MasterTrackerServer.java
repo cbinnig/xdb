@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Set;
 import java.util.logging.Level;
 
 import org.xdb.Config;
@@ -12,12 +13,10 @@ import org.xdb.client.ComputeClient;
 import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
-import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.tracker.MasterTrackerNode;
 import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.tracker.signals.RegisterSignal;
-import org.xdb.utils.MutableInteger;
 
 public class MasterTrackerServer extends AbstractServer {
 
@@ -53,32 +52,25 @@ public class MasterTrackerServer extends AbstractServer {
 							.getDescription());
 
 					break;
-				case CMD_EXECUTE_PLAN:
-					final CompilePlan plan = (CompilePlan) in.readObject();
-					err = tracker.executePlan(plan);
-					break;
 				case CMD_REGISTER_QUERYTRACKER_NODE:
 					@SuppressWarnings("unchecked")
 					final RegisterSignal<QueryTrackerNodeDesc> registerQTSignal = (RegisterSignal<QueryTrackerNodeDesc>) in
 							.readObject();
 					err = tracker.registerQueryTrackerNode(registerQTSignal
 							.getDescription());
-
 					break;
 				case CMD_REQUEST_COMPUTE_NODE:
 					@SuppressWarnings("unchecked")
-					final Map<String, MutableInteger> requiredNodes = (Map<String, MutableInteger>) in
+					final Set<String> requiredNodes = (Set<String>) in
 							.readObject();
-					out.writeObject(tracker.getComputeSlots(requiredNodes));
+					out.writeObject(tracker.getAvailableComputeNodes(requiredNodes));
 					err = tracker.getLastError();
 					break;
-				case CMD_NOTICE_FREE_COMPUTE_NODES:
-					@SuppressWarnings("unchecked")
-					final Map<ComputeNodeSlot, MutableInteger> freeNodes = (Map<ComputeNodeSlot, MutableInteger>) in
-							.readObject();
-					tracker.addFreeComputeSlots(freeNodes);
-					err = tracker.getLastError();
+				case CMD_EXECUTE_PLAN:
+					final CompilePlan plan = (CompilePlan) in.readObject();
+					err = tracker.executePlan(plan);
 					break;
+				
 				}
 			} catch (final Exception e) {
 				err = createServerError(e);
@@ -93,7 +85,6 @@ public class MasterTrackerServer extends AbstractServer {
 	public static final int CMD_EXECUTE_PLAN = 2;
 	public static final int CMD_REGISTER_QUERYTRACKER_NODE = 3;
 	public static final int CMD_REQUEST_COMPUTE_NODE = 4;
-	public static final int CMD_NOTICE_FREE_COMPUTE_NODES = 5;
 
 	// Master tracker node which executes cmds
 	private final MasterTrackerNode tracker;
@@ -110,16 +101,8 @@ public class MasterTrackerServer extends AbstractServer {
 		final Handler handler = new Handler(client);
 		handler.start();
 	}
-
-	public int getNoQueryTrackerSlots() {
-		return this.tracker.getNoFreeQueryTrackerSlots();
-	}
 	
-	public int getNoComputeSlots() {
-		return this.tracker.getNoFreeComputeSlots();
-	}
-	
-	public Map<ComputeNodeSlot, Integer> getComputeSlots() {
+	public Collection<ComputeNodeDesc> getComputeSlots() {
 		return this.tracker.getComputeSlots();
 	}
 	
@@ -133,12 +116,12 @@ public class MasterTrackerServer extends AbstractServer {
 		
 		//stop all compute servers
 		ComputeClient computeClient = new ComputeClient();
-		for(ComputeNodeSlot computeSlot: this.tracker.getComputeSlots().keySet()){
+		for(ComputeNodeDesc computeSlot: this.tracker.getComputeSlots()){
 			computeClient.stopComputeServer(computeSlot);
 		}
 		
 		//stop all query tracker servers
-		for(QueryTrackerClient qTClient: this.tracker.getQueryTrackerClients().values()){
+		for(QueryTrackerClient qTClient: this.tracker.getQueryTrackerClients()){
 			qTClient.stopQueryTrackerServer();
 		}
 	}

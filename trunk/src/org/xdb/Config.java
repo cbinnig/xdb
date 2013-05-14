@@ -71,8 +71,8 @@ public class Config implements Serializable {
 
 	// Query Tracker Server
 	public static int QUERYTRACKER_PORT = 55600;
-	public static int QUERYTRACKER_SLOTS = 32;
-	public static EnumResourceScheduler RESOURCE_SCHEDULER = EnumResourceScheduler.LOCALITY_AWARE_SCHEDULER;
+	public static int QUERYTRACKER_SLOTS = 1;
+	public static EnumResourceScheduler RESOURCE_SCHEDULER = EnumResourceScheduler.SIMPLE_SCHEDULER;
 
 	// Query Tracker Server: Code generation
 	public static boolean CODEGEN_OPTIMIZE = true;

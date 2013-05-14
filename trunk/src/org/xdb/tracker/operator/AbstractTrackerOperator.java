@@ -137,7 +137,7 @@ public abstract class AbstractTrackerOperator implements Serializable {
 			OperatorDesc operDesc, Map<Identifier, OperatorDesc> currentDeployment) {
 
 		Identifier deployOperId = operDesc.getOperatorID();
-		String deployURL = operDesc.getComputeSlot().getHost();
+		String deployURL = operDesc.getComputeSlot().getUrl();
 		
 		HashMap<String, String> args = new HashMap<String, String>();
 
@@ -151,7 +151,7 @@ public abstract class AbstractTrackerOperator implements Serializable {
 				
 				OperatorDesc sourceOp = currentDeployment.get(inTableDesc
 						.getOperatorID());
-				String sourceURL = sourceOp.getComputeSlot().getHost();
+				String sourceURL = sourceOp.getComputeSlot().getUrl();
 				String sourceTableName = inTableDesc.getTableName();
 		
 				Identifier sourceOperId = sourceOp.getOperatorID();

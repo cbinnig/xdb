@@ -2,7 +2,7 @@ package org.xdb.execute.operators;
 
 import java.io.Serializable;
 
-import org.xdb.execute.ComputeNodeSlot;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.utils.Identifier;
 
 /**
@@ -19,10 +19,10 @@ public class OperatorDesc implements Serializable {
 	private Identifier execOpId;
 
 	// operator URL
-	private ComputeNodeSlot computeSlot;
+	private ComputeNodeDesc computeSlot;
 
 	// constructors
-	public OperatorDesc(Identifier execOpId, ComputeNodeSlot computeSlot) {
+	public OperatorDesc(Identifier execOpId, ComputeNodeDesc computeSlot) {
 		super();
 		this.execOpId = execOpId;
 		this.computeSlot = computeSlot;
@@ -33,7 +33,7 @@ public class OperatorDesc implements Serializable {
 		return execOpId;
 	}
 
-	public ComputeNodeSlot getComputeSlot() {
+	public ComputeNodeDesc getComputeSlot() {
 		return computeSlot;
 	}
 

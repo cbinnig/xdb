@@ -1,50 +1,55 @@
 package org.xdb.tracker;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Vector;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.xdb.Config;
 import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
-import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
-import org.xdb.utils.MutableInteger;
 
 public class MasterTrackerNode {
-	// map: URL -> compute slots (URL, PORT)
-	private final Map<String, List<ComputeNodeSlot>> computeNodes = Collections
-			.synchronizedMap(new HashMap<String, List<ComputeNodeSlot>>());
+	// mapping: URL -> compute slots (URL, PORT)
+	private final Map<String, List<ComputeNodeDesc>> url2ComputeNodes = Collections
+			.synchronizedMap(new HashMap<String, List<ComputeNodeDesc>>());
 
-	// map: compute slot (URL, PORT) -> number of slots
-	private final Map<ComputeNodeSlot, Integer> computeSlots = Collections
-			.synchronizedMap(new HashMap<ComputeNodeSlot, Integer>());
+	// mapping: compute node (URL, PORT) -> Availability 
+	private final Map<ComputeNodeDesc, Boolean> computeNode2Availability = Collections
+			.synchronizedMap(new HashMap<ComputeNodeDesc, Boolean>());
 
-	// free slots
-	private int freeComputeSlots = 0;
+	// last used compute node
+	private int lastUsedComputeNode = 0;
+	
+	// list: ComputeNodeDesc for round robin assignment
+		private final List<ComputeNodeDesc> computeNodes = Collections
+				.synchronizedList(new LinkedList<ComputeNodeDesc>());
+		
+	// list: QueryTrackerNodeDesc for round robin assignment
+	private final List<QueryTrackerNodeDesc> queryTrackerNodes = Collections
+			.synchronizedList(new LinkedList<QueryTrackerNodeDesc>());
+	
+	// last used query tracker
+	private int lastUsedQueryTracker = 0;
 
-	// query tracker slots: list of URLs and last used slot
-	private final List<String> queryTrackerSlots = Collections
-			.synchronizedList(new Vector<String>());
-	private int lastQueryTrackerSlot = 0;
-
-	// map: URL -> query tracker client
-	private final Map<String, QueryTrackerClient> queryTrackerClients = new HashMap<String, QueryTrackerClient>();
+	// map: QueryTrackerNodeDesc -> QueryTrackerClient
+	private final Map<QueryTrackerNodeDesc, QueryTrackerClient> queryTrackerClients = new HashMap<QueryTrackerNodeDesc, QueryTrackerClient>();
 
 	// map: planId -> running CompilePlan
-	private final HashMap<Identifier, CompilePlan> runningPlans = new HashMap<Identifier, CompilePlan>();
+	private final Map<Identifier, CompilePlan> runningPlans = new HashMap<Identifier, CompilePlan>();
 
 	// map: plan ID -> URL of assigned query tracker
-	private final HashMap<Identifier, String> planAssignment = new HashMap<Identifier, String>();
+	private final Map<Identifier, QueryTrackerNodeDesc> planAssignment = new HashMap<Identifier, QueryTrackerNodeDesc>();
 
 	// logger
 	private final Logger logger;
@@ -64,24 +69,16 @@ public class MasterTrackerNode {
 		return runningPlans.size();
 	}
 
-	public Map<ComputeNodeSlot, Integer> getComputeSlots() {
-		return this.computeSlots;
+	public Collection<ComputeNodeDesc> getComputeSlots() {
+		return this.computeNode2Availability.keySet();
 	}
 	
-	public Map<String, QueryTrackerClient> getQueryTrackerClients(){
-		return this.queryTrackerClients;
-	}
-
-	public int getNoFreeComputeSlots() {
-		return this.freeComputeSlots;
-	}
-
 	public int getNoComputeServers() {
-		return this.computeSlots.size();
+		return this.computeNode2Availability.size();
 	}
-
-	public int getNoFreeQueryTrackerSlots() {
-		return this.queryTrackerSlots.size();
+	
+	public Collection<QueryTrackerClient> getQueryTrackerClients(){
+		return this.queryTrackerClients.values();
 	}
 
 	// methods
@@ -93,32 +90,19 @@ public class MasterTrackerNode {
 	 * @return
 	 */
 	public Error executePlan(final CompilePlan plan) {
-		// error handling
-		if (plan == null) {
-			String[] args = { "No compile plan provided" };
-			this.err = new Error(EnumError.TRACKER_GENERIC, args);
-			return this.err;
-		}
-
-		// tracing
-		if (Config.TRACE_TRACKER_PLAN) {
-			plan.tracePlan(plan.getClass().getCanonicalName()
-					+ "MASTER_TRACKER");
-		}
-
 		// logging
-		logger.log(Level.INFO, "Got new plan for execution: " + plan);
+		logger.log(Level.INFO, "MasterTracker: Received CompilePlan for execution: " + plan);
 
-		// get free query tracker
-		final String qTrackerURL = getFreeQueryTrackerSlot();
-		if (qTrackerURL == null) {
-			String[] args = { "No query tracker slot provided" };
+		// get query tracker
+		final QueryTrackerNodeDesc qTracker = getAvailableQueryTracker();
+		if (qTracker == null) {
+			String[] args = { "MasterTracker: No query tracker available!" };
 			this.err = new Error(EnumError.TRACKER_GENERIC, args);
 			return this.err;
 		}
 
-		// execute plan on selected query tracker
-		this.err = this.executeOnQueryTracker(qTrackerURL, plan);
+		// execute plan on query tracker
+		this.err = this.executeOnQueryTracker(qTracker, plan);
 		return this.err;
 	}
 
@@ -127,13 +111,13 @@ public class MasterTrackerNode {
 	 * 
 	 * @return tracker URL if found - else null
 	 */
-	private String getFreeQueryTrackerSlot() {
-		if (this.queryTrackerSlots.size() > 0) {
-			this.lastQueryTrackerSlot++;
-			this.lastQueryTrackerSlot = (this.lastQueryTrackerSlot % this.queryTrackerSlots
+	public synchronized QueryTrackerNodeDesc getAvailableQueryTracker() {
+		if (this.queryTrackerNodes.size() > 0) {
+			this.lastUsedQueryTracker++;
+			this.lastUsedQueryTracker = (this.lastUsedQueryTracker % this.queryTrackerNodes
 					.size());
 
-			return this.queryTrackerSlots.get(this.lastQueryTrackerSlot);
+			return this.queryTrackerNodes.get(this.lastUsedQueryTracker);
 		}
 
 		return null;
@@ -146,7 +130,7 @@ public class MasterTrackerNode {
 	 * @param plan
 	 * @return
 	 */
-	private Error executeOnQueryTracker(final String tracker,
+	public Error executeOnQueryTracker(final QueryTrackerNodeDesc tracker,
 			final CompilePlan plan) {
 
 		// add plan to monitored plans
@@ -156,104 +140,42 @@ public class MasterTrackerNode {
 		// execute plan using client
 		final QueryTrackerClient client = this.queryTrackerClients.get(tracker);
 		this.err = client.executePlan(plan);
-
 		return this.err;
 	}
 
 	/**
 	 * Returns a list of compute slots for a given wish-list of compute-slots
-	 * (nodes)
 	 * 
 	 * @param requiredSlots
 	 *            wish-list of compute-slots
 	 * @return assigned compute-slots
 	 */
-	public synchronized Map<ComputeNodeSlot, MutableInteger> getComputeSlots(
-			final Map<String, MutableInteger> requiredSlots) {
+	public synchronized Map<String, ComputeNodeDesc> getAvailableComputeNodes(
+			final Set<String> requestedNodes) {
 
-		// allocated slots
-		final HashMap<ComputeNodeSlot, MutableInteger> allocatedSlots = new HashMap<ComputeNodeSlot, MutableInteger>();
-
-		// check if request can be satisfied
-		int totalRequiredSlots = 0;
-		for (MutableInteger requiredSlotNum : requiredSlots.values()) {
-			totalRequiredSlots += requiredSlotNum.intValue();
-		}
-
-		if (totalRequiredSlots > this.freeComputeSlots) {
-			String[] args = { "Not enough free compute slots available" };
-			this.err = new Error(EnumError.TRACKER_GENERIC, args);
-			return allocatedSlots;
-		}
-
-		// first handle wish list-slots
-		for (final Entry<String, MutableInteger> reqSlot : requiredSlots
-				.entrySet()) {
-			if (!this.computeNodes.containsKey(reqSlot.getKey())) {
-				continue;
-			}
-
-			List<ComputeNodeSlot> nodes = this.computeNodes.get(reqSlot
-					.getKey());
-
-			for (ComputeNodeSlot node : nodes) {
-				if (this.computeSlots.containsKey(node)) {
-
-					final int available = computeSlots.get(node);
-					final MutableInteger required = reqSlot.getValue();
-					final int difference = available - required.intValue();
-					if (difference >= 0) {
-						allocatedSlots.put(node, required.clone());
-						computeSlots.put(node, difference);
-						required.setValue(0);
-					} else {
-						allocatedSlots.put(node, new MutableInteger(available));
-						computeSlots.put(node, 0);
-						required.substract(available);
+		final HashMap<String, ComputeNodeDesc> allocatedNodes = new HashMap<String, ComputeNodeDesc>();
+		final HashSet<String> unsatisfiedNodeRequests = new HashSet<String>(requestedNodes);
+		
+		// assign nodes in wish-list
+		for(String requestedNode: requestedNodes){
+			if(this.url2ComputeNodes.containsKey(requestedNode)){
+				for(ComputeNodeDesc computeNode: this.url2ComputeNodes.get(requestedNode)){
+					if(this.computeNode2Availability.get(computeNode)){
+						allocatedNodes.put(requestedNode, computeNode);
+						unsatisfiedNodeRequests.remove(requestedNode);
+						break;
 					}
 				}
 			}
 		}
-
-		// Now return random slots for the rest
-		for (final Entry<String, MutableInteger> reqSlot : requiredSlots
-				.entrySet()) {
-			final MutableInteger required = reqSlot.getValue();
-			for (final Entry<ComputeNodeSlot, Integer> computeSlot : computeSlots
-					.entrySet()) {
-				final int available = computeSlot.getValue();
-				final int difference = available - required.intValue();
-				final MutableInteger old = allocatedSlots.get(computeSlot
-						.getKey());
-				if (difference >= 0) {
-					if (old != null) {
-						old.setValue(old.add(required.intValue()));
-					} else {
-						allocatedSlots.put(computeSlot.getKey(),
-								required.clone());
-					}
-					computeSlot.setValue(difference);
-					required.setValue(0);
-					break;
-				} else {
-					if (old != null) {
-						old.setValue(old.add(available));
-					} else {
-						allocatedSlots.put(computeSlot.getKey(),
-								new MutableInteger(available));
-					}
-					computeSlot.setValue(0);
-					required.substract(available);
-				}
-			}
+		
+		// assign nodes for unsatisfied requests using round robin assignment
+		for(String unsatisfiedNodeRequest: unsatisfiedNodeRequests){
+			this.lastUsedComputeNode++;
+			this.lastUsedComputeNode = this.lastUsedComputeNode % this.computeNodes.size();
+			allocatedNodes.put(unsatisfiedNodeRequest, this.computeNodes.get(this.lastUsedComputeNode));
 		}
-
-		// adjust totals
-		this.freeComputeSlots -= totalRequiredSlots;
-
-		// System.out.println("-"+freeComputeSlots);
-
-		return allocatedSlots;
+		return allocatedNodes;
 	}
 
 	/**
@@ -266,9 +188,9 @@ public class MasterTrackerNode {
 			final QueryTrackerNodeDesc desc) {
 		final Error err = new Error();
 
-		logger.log(Level.INFO, "Added QueryTrackerNode: " + desc);
-		this.queryTrackerSlots.add(desc.getUrl());
-		this.queryTrackerClients.put(desc.getUrl(),
+		logger.log(Level.INFO, "Registered QueryTracker at MasterTracker: " + desc);
+		this.queryTrackerNodes.add(desc);
+		this.queryTrackerClients.put(desc,
 				new QueryTrackerClient(desc.getUrl()));
 
 		return err;
@@ -283,45 +205,21 @@ public class MasterTrackerNode {
 	public synchronized Error registerComputeNode(final ComputeNodeDesc desc) {
 		final Error err = new Error();
 
-		logger.log(Level.INFO, "Added compute slots: " + desc);
-		computeSlots.put(desc.getSlotDesc(), desc.getSlots());
+		logger.log(Level.INFO, "Registered ComputeNode at MasterTracker: " + desc);
+		computeNode2Availability.put(desc, true);
 
-		List<ComputeNodeSlot> nodes = null;
+		List<ComputeNodeDesc> nodesPerUrl = null;
 		String host = desc.getUrl();
-		if (computeNodes.containsKey(host)) {
-			nodes = computeNodes.get(host);
+		if (url2ComputeNodes.containsKey(host)) {
+			nodesPerUrl = url2ComputeNodes.get(host);
 		} else {
-			nodes = new Vector<ComputeNodeSlot>();
-			computeNodes.put(host, nodes);
+			nodesPerUrl = new LinkedList<ComputeNodeDesc>();
+			url2ComputeNodes.put(host, nodesPerUrl);
 		}
-		nodes.add(desc.getSlotDesc());
-
-		// add to free slots
-		this.freeComputeSlots += desc.getSlots();
-
-		// System.out.println("r"+freeComputeSlots);
-
+		nodesPerUrl.add(desc);
+		
+		this.computeNodes.add(desc);
+		
 		return err;
-	}
-
-	/**
-	 * Add free nodes that were before in use by query tracker
-	 * 
-	 * @param freeNodes
-	 */
-	public synchronized void addFreeComputeSlots(
-			final Map<ComputeNodeSlot, MutableInteger> freeNodes) {
-		for (final Entry<ComputeNodeSlot, MutableInteger> node : freeNodes
-				.entrySet()) {
-			Integer num = computeSlots.get(node.getKey());
-			if (num == null) {
-				num = 0;
-			}
-			num += node.getValue().intValue();
-			computeSlots.put(node.getKey(), num);
-
-			freeComputeSlots += node.getValue().intValue();
-		}
-		// System.out.println("+"+freeComputeSlots);
 	}
 }

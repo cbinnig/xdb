@@ -11,14 +11,13 @@ import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.error.Error;
-import org.xdb.execute.ComputeNodeSlot;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
-import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
 
 /**
@@ -129,22 +128,11 @@ public class QueryTrackerNode {
 		// initialize compile plan: get logger back
 		cplan.init();
 
-		// TODO: split plan into sub-plans and execute each sub-plan
-		return this.executeSubPlan(cplan);
-	}
-
-	/**
-	 * Execute a given sub-plan
-	 * 
-	 * @param cplan
-	 * @return
-	 */
-	private Error executeSubPlan(final CompilePlan cplan) {
-		// 1. parallelize compile plan
+		// 0. parallelize compile plan
 		// Parallelizer parallelizer = new Parallelizer(cplan);
 		// parallelizer.parallelize();
 
-		// 2. build query tracker plan from compile plan
+		// 1. build query tracker plan from compile plan
 		Tuple<QueryTrackerPlan, Error> qPlanErr = generateQueryTrackerPlan(cplan);
 		QueryTrackerPlan qplan = qPlanErr.getObject1();
 		Error err = qPlanErr.getObject2();
@@ -167,14 +155,7 @@ public class QueryTrackerNode {
 			return err;
 		}
 
-		// 4. release compute nodes
-		err = masterTrackerClient.noticeFreeSlots(qplan.getSlots());
-		if (err.isError()) {
-			qplan.cleanPlanOnError();
-			return err;
-		}
-
-		// 5. clean query tracker plan
+		// 4. clean query tracker plan
 		err = qplan.cleanPlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
@@ -187,14 +168,14 @@ public class QueryTrackerNode {
 	/**
 	 * Method used to request ComputeNode-Slots from MasterTracker
 	 * 
-	 * @param requiredSlots
+	 * @param wishList
 	 * @return
 	 */
-	public Tuple<Map<ComputeNodeSlot, MutableInteger>, Error> requestComputeSlots(
-			final Map<String, MutableInteger> requiredSlots) {
+	public Tuple<Map<String, ComputeNodeDesc>, Error> requestComputeSlots(
+			final Set<String> wishList) {
 
-		final Tuple<Map<ComputeNodeSlot, MutableInteger>, Error> tuple = this.masterTrackerClient
-				.requestComputeNodes(requiredSlots);
+		final Tuple<Map<String, ComputeNodeDesc>, Error> tuple = this.masterTrackerClient
+				.requestComputeNodes(wishList);
 
 		return tuple;
 	}
