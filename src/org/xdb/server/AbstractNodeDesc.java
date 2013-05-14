@@ -23,4 +23,15 @@ public abstract class AbstractNodeDesc implements Serializable {
 	public int getSlots() {
 		return slots;
 	}
+	
+	@Override
+	public int hashCode() {
+		return this.url.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o){
+		AbstractNodeDesc nodeDesc = (AbstractNodeDesc)o;
+		return this.url.equalsIgnoreCase(nodeDesc.url);
+	}
 }

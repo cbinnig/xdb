@@ -1,10 +1,11 @@
 package org.xdb.tracker.scheduler;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.xdb.execute.ComputeNodeSlot;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.TableDesc;
 import org.xdb.utils.Identifier;
@@ -23,7 +24,7 @@ public class LocalityAwareScheduler extends AbstractResourceScheduler {
 	private Map<Identifier, String> wishLocations = new HashMap<Identifier, String>();
 
 	// slots that have been requested: compute slot URL -> count
-	private Map<String, MutableInteger> wishSlots = new HashMap<String, MutableInteger>();
+	private Set<String> wishSlots = new HashSet<String>();
 
 	public LocalityAwareScheduler(QueryTrackerPlan plan) {
 		super(plan);
@@ -32,7 +33,7 @@ public class LocalityAwareScheduler extends AbstractResourceScheduler {
 	}
 
 	@Override
-	public Map<String, MutableInteger> calcRequiredSlots() {
+	public Set<String> calcRequiredSlots() {
 
 		for (Identifier leaveId : plan.getLeaves()) {
 			calcRequiredSlots(leaveId);
@@ -92,20 +93,16 @@ public class LocalityAwareScheduler extends AbstractResourceScheduler {
 				}
 			}
 
-			// add to operator locations and wishlist
+			// add to operator locations and wish-list
 			if(sourceUrl == null)
-				sourceUrl = AbstractResourceScheduler.RANDOM;
+				sourceUrl = AbstractResourceScheduler.RANDOM_CONN;
 			
 			
 			this.wishLocations.put(opId, sourceUrl);
-			if (!this.wishSlots.containsKey(sourceUrl)) {
-				MutableInteger count = new MutableInteger(1);
-				this.wishSlots.put(sourceUrl, count);
-			} else {
-				MutableInteger count = this.wishSlots.get(sourceUrl);
-				count.inc();
-			}
-
+			if (!this.wishSlots.contains(sourceUrl)) {
+				this.wishSlots.add(sourceUrl);
+			} 
+			
 			// Find URL for consumers
 			for (Identifier consumerId : this.plan.getConsumers(opId)) {
 				this.calcRequiredSlots(consumerId);
@@ -114,33 +111,10 @@ public class LocalityAwareScheduler extends AbstractResourceScheduler {
 	}
 
 	@Override
-	public ComputeNodeSlot getSlot(Identifier opId) {
+	public ComputeNodeDesc getSlot(Identifier opId) {
 		// get slot URL for operator
 		String wishUrl = this.wishLocations.get(opId);
-		
-		ComputeNodeSlot newWishUrl = null;
-		for (ComputeNodeSlot otherUrl : this.assignedSlots.keySet()) {
-			if (otherUrl.getHost().equals(wishUrl)) {
-				newWishUrl = otherUrl;
-				break;
-			}
-			if (newWishUrl == null) {
-				newWishUrl = otherUrl;
-			}
-		}
-		for (ComputeNodeSlot otherUrl : this.assignedSlots.keySet()) {
-			newWishUrl = otherUrl;
-			break;
-		}
-			
-		// decrement count
-		MutableInteger count = this.assignedSlots.get(newWishUrl);
-		count.dec();
-		if (count.intValue() == 0) {
-			this.assignedSlots.remove(newWishUrl);
-		}
-
-		return newWishUrl;
+		return this.assignedSlots.get(wishUrl);
 	}
 
 }

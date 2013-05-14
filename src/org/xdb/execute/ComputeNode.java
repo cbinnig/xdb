@@ -67,8 +67,8 @@ public class ComputeNode {
 		this.mTrackerClient = new MasterTrackerClient();
 	}
 
-	public ComputeNodeSlot getComputeSlot(){
-		return this.computeNodeDesc.getSlotDesc();
+	public ComputeNodeDesc getComputeSlot(){
+		return this.computeNodeDesc;
 	}
 	
 	/**

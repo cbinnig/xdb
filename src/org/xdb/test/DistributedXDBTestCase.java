@@ -3,7 +3,7 @@ package org.xdb.test;
 import junit.framework.Assert;
 
 import org.xdb.Config;
-import org.xdb.execute.ComputeNodeSlot;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.server.CompileServer;
 import org.xdb.server.ComputeServer;
 import org.xdb.server.MasterTrackerServer;
@@ -21,7 +21,7 @@ public class DistributedXDBTestCase extends TestCase {
 	private MasterTrackerServer mTrackerServer;
 	private ComputeServer[] computeServers;
 	private QueryTrackerServer qTrackerServer;
-	private ComputeNodeSlot[] computeNodeSlots;
+	private ComputeNodeDesc[] computeNodeSlots;
 	private int numberOfComputeServer;
 	private int numberOfSlots;
 	private boolean runLocal;
@@ -48,7 +48,7 @@ public class DistributedXDBTestCase extends TestCase {
 		return mTrackerServer;
 	}
 
-	public ComputeNodeSlot getComputeSlot(int i) {
+	public ComputeNodeDesc getComputeSlot(int i) {
 		return computeNodeSlots[i];
 	}
 
@@ -101,8 +101,7 @@ public class DistributedXDBTestCase extends TestCase {
 
 			// initialize compute slot info
 			this.computeNodeSlots = this.mTrackerServer.getComputeSlots()
-					.keySet()
-					.toArray(new ComputeNodeSlot[this.computeServers.length]);
+					.toArray(new ComputeNodeDesc[this.computeServers.length]);
 
 		} catch (Exception e) {
 			Assert.assertTrue(e.toString(), false);

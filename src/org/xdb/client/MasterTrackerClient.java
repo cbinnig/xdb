@@ -4,17 +4,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Map;
+import java.util.Set;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
-import org.xdb.execute.ComputeNodeSlot;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.MasterTrackerServer;
 import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.tracker.signals.RegisterSignal;
-import org.xdb.utils.MutableInteger;
 import org.xdb.utils.Tuple;
 
 /**
@@ -75,10 +74,10 @@ public class MasterTrackerClient extends AbstractClient {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Tuple<Map<ComputeNodeSlot, MutableInteger>, Error> requestComputeNodes(
-			final Map<String, MutableInteger> requiredNodes) {
+	public Tuple<Map<String, ComputeNodeDesc>, Error> requestComputeNodes(
+			final Set<String> wishList) {
 		Error err = new Error();
-		Map<ComputeNodeSlot, MutableInteger> computeNodes = null;
+		Map<String, ComputeNodeDesc> computeNodes = null;
 		try {
 			Socket server = new Socket(url, port);
 			final ObjectOutputStream out = new ObjectOutputStream(
@@ -87,9 +86,9 @@ public class MasterTrackerClient extends AbstractClient {
 					server.getInputStream());
 
 			out.writeInt(MasterTrackerServer.CMD_REQUEST_COMPUTE_NODE);
-			out.writeObject(requiredNodes);
+			out.writeObject(wishList);
 			out.flush();
-			computeNodes = (Map<ComputeNodeSlot, MutableInteger>) in
+			computeNodes = (Map<String, ComputeNodeDesc>) in
 					.readObject();
 			err = (Error) in.readObject();
 
@@ -98,20 +97,7 @@ public class MasterTrackerClient extends AbstractClient {
 		} catch (final Exception e) {
 			err = createClientError(url, e);
 		}
-		return new Tuple<Map<ComputeNodeSlot, MutableInteger>, Error>(
+		return new Tuple<Map<String, ComputeNodeDesc>, Error>(
 				computeNodes, err);
-	}
-
-	/**
-	 * Return free slots to master tracker server
-	 * 
-	 * @param slots
-	 * @return
-	 */
-	public Error noticeFreeSlots(
-			final Map<ComputeNodeSlot, MutableInteger> slots) {
-		Object[] args = { slots };
-		return this.executeCmd(this.url, this.port,
-				MasterTrackerServer.CMD_NOTICE_FREE_COMPUTE_NODES, args);
 	}
 }

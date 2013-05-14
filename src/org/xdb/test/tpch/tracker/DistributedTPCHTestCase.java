@@ -262,7 +262,7 @@ public abstract class DistributedTPCHTestCase extends
 				.getCurrentDeployment();
 		OperatorDesc rootDesc = currentDeployment.get(resultOpId);
 		Identifier resultTable = rootDesc.getOperatorID();
-		String rootUrl = "jdbc:mysql://"+rootDesc.getComputeSlot().getHost()+"/"+Config.COMPUTE_DB_NAME;
+		String rootUrl = "jdbc:mysql://"+rootDesc.getComputeSlot().getUrl()+"/"+Config.COMPUTE_DB_NAME;
 		final ResultSet rs = this
 				.executeComputeQuery(rootUrl, "SELECT COUNT(*) FROM " + resultTable
 						+ "_" + resultTableName);

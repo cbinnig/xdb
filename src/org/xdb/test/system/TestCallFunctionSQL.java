@@ -191,6 +191,4 @@ public class TestCallFunctionSQL extends XDBTestCase {
 		this.assertNoError(fCallStmt3.execute());
 		
 	}
-	
-	
 }
