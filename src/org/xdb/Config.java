@@ -22,6 +22,9 @@ public class Config implements Serializable {
 	// General
 	public static String LOCALHOST = "127.0.0.1";
 	public static String CONFIG_FILE = "./config/xdb.conf";
+	
+	//Montior
+	public static int MONITOR_INTERVAL = 2000;
 
 	// Compute Server
 	public static String COMPUTE_DRIVER_CLASS = "com.mysql.jdbc.Driver";

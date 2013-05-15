@@ -96,10 +96,11 @@ public class CodeGenerator {
 			return this.err;
 
 		// Trace
-		if (Config.TRACE_CODEGEN_PLAN)
+		if (Config.TRACE_CODEGEN_PLAN){
 			this.compilePlan.tracePlan(compilePlan.getClass()
 					.getCanonicalName() + "_CODEGEN");
-
+		}
+			
 		// for each sub-plan generate a tracker operator
 		for (Identifier splitOpId : splitOpIds) {
 			AbstractCompileOperator splitCompileOp = this.compilePlan.getOperators(splitOpId);

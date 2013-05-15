@@ -8,7 +8,7 @@ import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.utils.Identifier;
 
 /**
- * Simple resource scheduler which assigns compute slots randomly to operators 
+ * Simple resource scheduler which assigns one compute slots randomly to all operators 
  * 
  * @author cbinnig
  * 
@@ -22,7 +22,7 @@ public class SimpleResourceScheduler extends AbstractResourceScheduler {
 	}
 
 	@Override
-	public Set<String> calcRequiredSlots() {
+	public Set<String> createComputeNodesWishList() {
 		final Set<String> requiredSlots = new HashSet<String>();
 
 		// slot can be on any compute node
@@ -32,7 +32,7 @@ public class SimpleResourceScheduler extends AbstractResourceScheduler {
 	}
 
 	@Override
-	public ComputeNodeDesc getSlot(Identifier operId) {
-		return this.assignedSlots.get(AbstractResourceScheduler.RANDOM_CONN);
+	public ComputeNodeDesc getComputeNode(Identifier operId) {
+		return this.assignedComputeNodesSlots.get(AbstractResourceScheduler.RANDOM_CONN);
 	}
 }
