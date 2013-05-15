@@ -91,9 +91,10 @@ public class MasterTrackerServer extends AbstractServer {
 
 	public MasterTrackerServer() {
 		super();
-
-		tracker = new MasterTrackerNode();
 		this.port = Config.MASTERTRACKER_PORT;
+		
+		tracker = new MasterTrackerNode();
+		tracker.startup();
 	}
 
 	@Override

@@ -33,7 +33,7 @@ public class LocalityAwareScheduler extends AbstractResourceScheduler {
 	}
 
 	@Override
-	public Set<String> calcRequiredSlots() {
+	public Set<String> createComputeNodesWishList() {
 
 		for (Identifier leaveId : plan.getLeaves()) {
 			calcRequiredSlots(leaveId);
@@ -111,10 +111,10 @@ public class LocalityAwareScheduler extends AbstractResourceScheduler {
 	}
 
 	@Override
-	public ComputeNodeDesc getSlot(Identifier opId) {
+	public ComputeNodeDesc getComputeNode(Identifier opId) {
 		// get slot URL for operator
 		String wishUrl = this.wishLocations.get(opId);
-		return this.assignedSlots.get(wishUrl);
+		return this.assignedComputeNodesSlots.get(wishUrl);
 	}
 
 }

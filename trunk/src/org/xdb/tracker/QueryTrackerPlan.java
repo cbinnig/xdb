@@ -369,7 +369,7 @@ public class QueryTrackerPlan implements Serializable {
 	private void requestSlots() {
 		// create wish-list of compute slots
 		final Set<String> requiredSlots = resourceScheduler
-				.calcRequiredSlots();
+				.createComputeNodesWishList();
 
 		// as master tracker for slots
 		final Tuple<Map<String, ComputeNodeDesc>, Error> resultRequest = tracker
@@ -380,7 +380,7 @@ public class QueryTrackerPlan implements Serializable {
 		this.err = resultRequest.getObject2();
 
 		// assign slots
-		this.resourceScheduler.assignSlots(allocatedSlots);
+		this.resourceScheduler.assignComputeNodes(allocatedSlots);
 	}
 
 	/**
@@ -408,7 +408,7 @@ public class QueryTrackerPlan implements Serializable {
 		}
 
 		// identify best slot using a resource scheduler
-		ComputeNodeDesc assignedSlot = this.resourceScheduler.getSlot(operId);
+		ComputeNodeDesc assignedSlot = this.resourceScheduler.getComputeNode(operId);
 		if (assignedSlot == null) {
 			String args[] = { "No slot could be assigned to tracker operator "
 					+ operId.toString() };

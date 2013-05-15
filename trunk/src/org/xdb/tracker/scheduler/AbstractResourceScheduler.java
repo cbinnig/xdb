@@ -23,7 +23,7 @@ public abstract class AbstractResourceScheduler {
 	private static EnumResourceScheduler usedScheduler = Config.RESOURCE_SCHEDULER;
 	
 	// assigned slots which are actually available: compute slot URL -> count
-	protected Map<String, ComputeNodeDesc> assignedSlots = new HashMap<String, ComputeNodeDesc>();
+	protected Map<String, ComputeNodeDesc> assignedComputeNodesSlots = new HashMap<String, ComputeNodeDesc>();
 
 		
 	//constructor
@@ -65,14 +65,14 @@ public abstract class AbstractResourceScheduler {
 	 * Creates wish-list of compute slots to execute plan
 	 * @return
 	 */
-	public abstract Set<String> calcRequiredSlots();
+	public abstract Set<String> createComputeNodesWishList();
 	
 	/**
 	 * Assigns available compute slots to operators of plan
 	 * @param slots
 	 */
-	public void assignSlots(Map<String, ComputeNodeDesc> slots) {
-		this.assignedSlots.putAll(slots);
+	public void assignComputeNodes(Map<String, ComputeNodeDesc> nodes) {
+		this.assignedComputeNodesSlots.putAll(nodes);
 	}
 	
 	/**
@@ -80,5 +80,5 @@ public abstract class AbstractResourceScheduler {
 	 * @param operId
 	 * @return
 	 */
-	public abstract ComputeNodeDesc getSlot(final Identifier operId);
+	public abstract ComputeNodeDesc getComputeNode(final Identifier operId);
 }
