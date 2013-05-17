@@ -239,7 +239,7 @@ public class TestPlanParallelizer extends XDBTestCase {
 				+ "c_phone, " + "n_name, " + "c_address, " + "c_comment;";
 		this.compileStatement(q10);
 	}
-
+/*
 	public void testPlanCopying() {
 		CompilePlan plan = new CompilePlan();
 		Table tc1 = new Table("t1");
@@ -325,12 +325,12 @@ public class TestPlanParallelizer extends XDBTestCase {
 		 * 
 		 * plan.tracePlan(this.toString() + "PARALLEL");
 		 */
-
+/*
 		CompilePlan copiedPlan = new CompilePlan(plan);
 
 		copiedPlan.tracePlan("TESTCOPY");
 
-	}
+	}*/
 
 	@Override
 	public void tearDown() {
