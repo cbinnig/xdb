@@ -22,6 +22,12 @@ public class SimpleExpression extends AbstractExpression {
 		this.type = EnumExprType.SIMPLE_EXPRESSION;
 	}
 	
+	public SimpleExpression(SimpleExpression toCopy){
+		
+		this.tOper = null;
+	}
+	
+	
 	public SimpleExpression(AbstractTokenOperand tOper) {
 		this();
 		

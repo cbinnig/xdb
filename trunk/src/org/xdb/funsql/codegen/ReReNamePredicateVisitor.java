@@ -11,7 +11,7 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 /**
  * @author a.c.mueller
- * This Class is a visitor that rename all predicates to enable more efficient table op handling
+ * This Class is a visitor that renames all predicates to enable more efficient table op handling
  */
 public class ReReNamePredicateVisitor extends AbstractPredicateVisitor {
 

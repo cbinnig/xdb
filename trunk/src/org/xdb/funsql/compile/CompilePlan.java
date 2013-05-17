@@ -7,11 +7,15 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Stack;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.analyze.operator.CopyPlanVisitor;
+import org.xdb.funsql.compile.analyze.operator.RebuildExpressionAndAttributesAfterCopyVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.TableOperator;
@@ -55,6 +59,137 @@ public class CompilePlan implements Serializable {
 	// last error
 	private Error err = new Error();
 
+	private double efficiencyHeuristic;
+	
+	//only set if the plan is a copied plan; Mapping from old to new Operator 
+	private Map<AbstractCompileOperator, AbstractCompileOperator> oldOptoNewOpMap;
+	private Vector<Identifier> copyVistorRoots = new Vector<Identifier>();
+	
+	
+	/**Copy Constructor
+	 * @param toCopy
+	 */
+	public CompilePlan(CompilePlan toCopy) {
+
+		this.planId = new Identifier(lastPlanId++);
+		this.logger = XDBLog.getLogger(this.getClass().getName());
+		
+		
+		//System.out.println(this.planId + "---"+ toCopy.planId);
+		//get Operatorstack of compileOperator
+		CopyPlanVisitor cpv;
+		oldOptoNewOpMap = new HashMap<AbstractCompileOperator, AbstractCompileOperator>();
+		for(AbstractCompileOperator absOp: toCopy.getRootsCollection()){
+			cpv = new CopyPlanVisitor(absOp,oldOptoNewOpMap);
+			cpv.visit();
+			addOperatorsFromStack(cpv.getOperatorStack());
+		}
+		
+		
+		if(toCopy.getCopyVistorRoots().size()==0){
+			for(AbstractCompileOperator cop : oldOptoNewOpMap.keySet()){
+				if(toCopy.getRoots().contains(cop.getOperatorId())){
+					AbstractCompileOperator rootOp = oldOptoNewOpMap.get(cop);
+					this.copyVistorRoots.add(rootOp.getOperatorId());
+				}
+			}
+		}else {
+			for(AbstractCompileOperator cop : oldOptoNewOpMap.keySet()){
+				if(toCopy.getCopyVistorRoots().contains(cop.getOperatorId())){
+					AbstractCompileOperator rootOp = oldOptoNewOpMap.get(cop);
+					this.copyVistorRoots.add(rootOp.getOperatorId());
+				}
+			}
+		}
+		
+		for(AbstractCompileOperator cop : oldOptoNewOpMap.keySet()){
+			if(toCopy.getRoots().contains(cop.getOperatorId())){
+				AbstractCompileOperator rootOp = oldOptoNewOpMap.get(cop);
+				this.addRootId(rootOp.getOperatorId());
+				this.copyVistorRoots.add(rootOp.getOperatorId());
+			}
+		}
+		
+		for(AbstractCompileOperator cop : oldOptoNewOpMap.keySet()){
+	
+			if(toCopy.getLeaves().contains(cop.getOperatorId())){
+				AbstractCompileOperator leaveOp = oldOptoNewOpMap.get(cop);
+				this.leaves.add(leaveOp.getOperatorId());
+			}
+		}
+		
+		//rebuild Expression and Parameters
+		RebuildExpressionAndAttributesAfterCopyVisitor rebuildVisitor;
+		for(AbstractCompileOperator absOp: this.getRootsCollection()){
+			rebuildVisitor = new RebuildExpressionAndAttributesAfterCopyVisitor(absOp, oldOptoNewOpMap);
+			rebuildVisitor.visit();
+		}
+	}
+	
+	private Error addOperatorsFromStack(Stack<AbstractCompileOperator> opStack){
+		// build stacks for children
+				Stack<AbstractCompileOperator> childOpStack = new Stack<AbstractCompileOperator>();
+
+				AbstractCompileOperator currentOperator = null;
+				AbstractCompileOperator currentChildOperator = null;
+
+				while (opStack.size() > 0) {
+					// get Operator from Stack
+					currentOperator = opStack.pop();
+
+					// add it to Plan
+					if (isInPlan(currentOperator.getOperatorId())) {
+						childOpStack.push(currentOperator);
+					} else {
+						addOperator(currentOperator, false);
+						int childsize = currentOperator.getChildren().size();
+				
+						currentOperator.resetChildren();
+						for (int i = 0; i < childsize; i++) {
+							currentChildOperator = childOpStack.pop();
+							currentOperator.addChild(currentChildOperator);
+							//here are potentially more parents added than really needed
+							currentChildOperator.addParent(currentOperator);
+						}
+						//eliminate unnecessary parent Operators from the child Op
+						if (childsize > 0) {
+							//loop over parents of child op
+							Vector<AbstractCompileOperator> toremove = new Vector<AbstractCompileOperator>();
+							for (AbstractCompileOperator tmpParent : currentChildOperator
+									.getParents()) {
+								//if operator is not in plan then remove
+								if(!this.isInPlan(tmpParent.getOperatorId())){
+									toremove.add(tmpParent);
+								}
+								//and eliminate every Parent Operator (tmpParent) from the child Operator where the child Operator is not in the child list of the tmpParent
+								if(!tmpParent.getChildren().contains(currentChildOperator)){
+									toremove.add(tmpParent);
+								}
+				
+							}
+							currentChildOperator.getParents().removeAll(toremove);
+						}
+						//remove operators that are not in the plan
+						Vector<AbstractCompileOperator> toremove = new Vector<AbstractCompileOperator>();
+						for (AbstractCompileOperator tmpParent : currentOperator
+								.getParents()) {
+							//if operator is not in plan then remove
+							if(!this.isInPlan(tmpParent.getOperatorId())){
+								toremove.add(tmpParent);
+							}
+						}
+						
+						currentOperator.getParents().removeAll(toremove);
+						
+						
+						childOpStack.push(currentOperator);
+					}
+
+				}
+				
+				return new Error();
+	}
+
 	// constructor
 	public CompilePlan() {
 
@@ -86,6 +221,14 @@ public class CompilePlan implements Serializable {
 	public Collection<AbstractCompileOperator> getRootsCollection(){
 		Vector<AbstractCompileOperator> rootOps = new Vector<AbstractCompileOperator>(this.roots.size());
 		for(Identifier rootId: this.roots){
+			rootOps.add(this.operators.get(rootId));
+		}
+		return rootOps;
+	}
+	
+	public Collection<AbstractCompileOperator> getCopyRootsCollection(){
+		Vector<AbstractCompileOperator> rootOps = new Vector<AbstractCompileOperator>(this.getCopyVistorRoots().size());
+		for(Identifier rootId: this.copyVistorRoots){
 			rootOps.add(this.operators.get(rootId));
 		}
 		return rootOps;
@@ -253,6 +396,9 @@ public class CompilePlan implements Serializable {
 	 * @return
 	 */
 	public CompilePlan copy(){
+		
+		
+		
 		 CompilePlan cp = null;
 		 try {
             // Write the object out to a byte array
@@ -274,6 +420,27 @@ public class CompilePlan implements Serializable {
             cnfe.printStackTrace();
         }
 		return cp;
+	}
+	//for guessing which compile plan is the best
+
+	public double getEfficiencyHeuristic() {
+		return efficiencyHeuristic;
+	}
+
+	public void setEfficiencyHeuristic(double efficiencyHeuristic) {
+		this.efficiencyHeuristic = efficiencyHeuristic;
+	}
+
+	public Map<AbstractCompileOperator, AbstractCompileOperator> getOldOptoNewOpMap() {
+		return oldOptoNewOpMap;
+	}
+
+	public Vector<Identifier> getCopyVistorRoots() {
+		return copyVistorRoots;
+	}
+
+	public void setCopyVistorRoots(Vector<Identifier> copyVistorRoots) {
+		this.copyVistorRoots = copyVistorRoots;
 	}
 	
 	

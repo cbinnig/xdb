@@ -1,6 +1,7 @@
 package org.xdb.funsql.parallelize;
 
 import java.util.Stack;
+import java.util.Vector;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
@@ -87,11 +88,12 @@ public class CopyParallelPartsVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {
-		// copy all elements under the de n times and annotated the TableOperators with the part
+		// copy all elements under the de n times until the next de is reached
+		// and annotated the TableOperators with the part
 		for (int i = 0; i < deOp.getInputPartitioning().getParts() - 1; i++) {
-			GetOperatorStackVisitor cp = new GetOperatorStackVisitor(deOp,i);
+			GetOperatorStackVisitor cp = new GetOperatorStackVisitor(deOp, i);
 			cp.visit();
-			copyStackElements(cp.getOperatorStack(), deOp, i+1);
+			copyStackElements(cp.getOperatorStack(), deOp, i + 1);
 		}
 		return error;
 	}
@@ -116,30 +118,48 @@ public class CopyParallelPartsVisitor extends AbstractBottomUpTreeVisitor {
 		while (opStack.size() > 0) {
 			// get Operator from Stack
 			currentOperator = opStack.pop();
+
 			// add it to Plan
-			
-			if(currentOperator.getType().equals(EnumOperator.TABLE)){
-				if(((TableOperator)currentOperator).getTable().isPartioned()){
-					//if part already set don't change it, so lookup if changed
-					if(((TableOperator)currentOperator).getPart() == -1){
-						((TableOperator)currentOperator).setPart(part);
+
+			if (currentOperator.getType().equals(EnumOperator.TABLE)) {
+				if (((TableOperator) currentOperator).getTable().isPartioned()) {
+					// if part already set don't change it, so lookup if changed
+					if (((TableOperator) currentOperator).getPart() == -1) {
+						((TableOperator) currentOperator).setPart(part);
 					}
-				
+
 				}
 			}
-			
-			this.plan.addOperator(currentOperator, false);
-			// check if children are there for the operator and than most add
-			// them to plan and make them child of currentOperator
-			int childsize = currentOperator.getChildren().size();
-			currentOperator.resetChildren();
-			for (int i = 0; i < childsize; i++) {
-				currentChildOperator = childOpStack.pop();
-				currentOperator.addChild(currentChildOperator);
-				currentChildOperator.setParent(0, currentOperator);
-			}
-			childOpStack.push(currentOperator);
 
+			if (this.plan.isInPlan(currentOperator.getOperatorId())) {
+				childOpStack.push(currentOperator);
+			} else {
+				this.plan.addOperator(currentOperator, false);
+				int childsize = currentOperator.getChildren().size();
+		
+				currentOperator.resetChildren();
+				for (int i = 0; i < childsize; i++) {
+					currentChildOperator = childOpStack.pop();
+					currentOperator.addChild(currentChildOperator);
+					//here are potentially more parents added than really needed
+					currentChildOperator.addParent(currentOperator);
+				}
+				//eliminate unnecessary parent Operators from the child Op
+				if (currentOperator.getParents().size() >0) {
+					//loop over parents of child op
+					Vector<AbstractCompileOperator> toremove = new Vector<AbstractCompileOperator>();
+					for (AbstractCompileOperator tmpParent : currentOperator
+							.getParents()) {
+						//and eliminate every Parent Operator (tmpParent) from the child Operator where the child Operator is not in the child list of the tmpParent
+						if(!tmpParent.getChildren().contains(currentOperator)){
+							if(!root.equals(tmpParent))toremove.add(tmpParent);
+						}
+		
+					}
+					currentOperator.getParents().removeAll(toremove);
+				}
+				childOpStack.push(currentOperator);
+			}
 		}
 
 		root.addChild(currentOperator);

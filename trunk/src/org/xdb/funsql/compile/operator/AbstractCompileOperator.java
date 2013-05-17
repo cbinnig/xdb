@@ -82,14 +82,14 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 * 
 	 * @return
 	 */
-	public PartitionInfo getPartitionOutputInfo() {
+	public PartitionInfo getOutputPartitionInfo() {
 		return partitionOutputInfo;
 	}
 
 	/** Set the partionInfo for this operator
 	 * @param partitionOutputInfo
 	 */
-	public void setPartitionOutputInfo(PartitionInfo partitionOutputInfo) {
+	public void setOutputPartitionInfo(PartitionInfo partitionOutputInfo) {
 		this.partitionOutputInfo = partitionOutputInfo;
 	}
 	
@@ -331,7 +331,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 			if (this.results.size() == 1) {
 				header.append(AbstractToken.NEWLINE);
 				if(this.getResult()!=null){
-					header.append(this.getResult().toString());
+		//			header.append(this.getResult().toString());
 				}
 			
 			}
@@ -343,8 +343,8 @@ public abstract class AbstractCompileOperator implements Serializable {
 		// body
 		node.getInfo().setCaption(this.toString());
 		
-		if(this.getPartitionOutputInfo()!= null){
-			node.getInfo().setFooter(this.getPartitionOutputInfo().toString());
+		if(this.getOutputPartitionInfo()!= null){
+			node.getInfo().setFooter(this.getOutputPartitionInfo().toString());
 		}
 		
 		return err;
@@ -363,6 +363,33 @@ public abstract class AbstractCompileOperator implements Serializable {
 			Vector<String> renamedOps) {
 		String newName;
 		boolean renamed = false;
+		
+		//rename output Partitioning
+
+		if (this.getOutputPartitionInfo() != null) {
+			for (TokenAttribute tA : this.getOutputPartitionInfo().getPartitionAttributes()) {
+				newName = renamedAttributes.get(tA.getName().getName());
+				if (newName == null)
+					continue;
+				renamed = true;
+				tA.setName(newName);
+			}
+		}
+		
+		if( this.getPartitionCandiates() != null){
+			if(this.getPartitionCandiates().size() > 0){
+				
+				for (PartitionInfo pi : this.getPartitionCandiates()) {	
+					for(TokenAttribute tA :pi.getPartitionAttributes()){
+						newName = renamedAttributes.get(tA.getName().getName());
+						if (newName == null)
+							continue;
+						renamed = true;
+						tA.setName(newName);
+					}
+				}
+			}
+		}
 		for (TokenAttribute tA : getResult().getAttributes()) {
 			newName = renamedAttributes.get(tA.getName().getName());
 			// if no new name was found there is no need to rename, because not

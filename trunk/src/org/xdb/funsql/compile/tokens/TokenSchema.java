@@ -11,6 +11,11 @@ public class TokenSchema extends AbstractToken implements Cloneable{
 		super();
 	}
 	
+	public TokenSchema(TokenSchema toCopy){
+		super();
+		this.name = new TokenIdentifier(name);
+	}
+	
 	public TokenSchema(String name){
 		this();
 		this.name = new TokenIdentifier(name);

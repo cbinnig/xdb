@@ -15,6 +15,12 @@ public class AggregationExpression extends AbstractExpression {
 	private EnumAggregation agg = EnumAggregation.NO_AGG;
 	private AbstractExpression expr;
 	
+	
+	public AggregationExpression(AggregationExpression toCopy){
+		
+		this.expr =  expr.deepCopy();
+	}
+	
 	public AggregationExpression(){
 		super();
 		

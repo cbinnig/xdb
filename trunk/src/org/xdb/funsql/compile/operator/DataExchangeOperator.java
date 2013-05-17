@@ -22,38 +22,42 @@ import com.oy.shared.lm.graph.GraphNode;
 public class DataExchangeOperator extends AbstractUnaryOperator {
 
 	private static final long serialVersionUID = 6320968568439747158L;
-	
+
 	private PartitionInfo inputPartitioning;
-	
+
 	/**
 	 * Constructor used when exactly one partion column can be used
+	 * 
 	 * @param child
 	 * @param result
 	 * @param outputPartioning
 	 */
-	public DataExchangeOperator(AbstractCompileOperator child, ResultDesc result,
-			PartitionInfo outputPartioning) {
+	public DataExchangeOperator(AbstractCompileOperator child,
+			ResultDesc result, PartitionInfo outputPartioning) {
 		super(child);
 		this.partitionOutputInfo = outputPartioning;
 		this.results.add(result);
 		this.type = EnumOperator.DATA_EXCHANGE;
 
 	}
+
 	/**
 	 * Copy Constructor
-	 * @param toCopy Element to copy
+	 * 
+	 * @param toCopy
+	 *            Element to copy
 	 */
-	public DataExchangeOperator(DataExchangeOperator toCopy){
+	public DataExchangeOperator(DataExchangeOperator toCopy) {
 		super(toCopy);
-		if(toCopy.inputPartitioning != null){
+		if (toCopy.inputPartitioning != null) {
 			this.inputPartitioning = new PartitionInfo(toCopy.inputPartitioning);
 		}
-	
+
 	}
-	
-	
+
 	/**
 	 * Constructor used when exactly one partion column can be used
+	 * 
 	 * @param child
 	 * @param result
 	 * @param outputPartioning
@@ -64,7 +68,6 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 		this.type = EnumOperator.DATA_EXCHANGE;
 
 	}
-	
 
 	// getters + setters
 
@@ -94,23 +97,47 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 		// can never be a leaf node
 		return false;
 	}
-	
+
 	@Override
-	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes){
+	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
-		
+
 		GraphNode node = nodes.get(this.operatorId);
-		if(this.getPartitionOutputInfo() != null){
-			node.getInfo().setFooter(node.getInfo().getFooter()+" \n Output partitioning: " + this.partitionOutputInfo.toString());
+		if (this.getOutputPartitionInfo() != null) {
+			node.getInfo().setFooter(
+					node.getInfo().getFooter() + " \n Output partitioning: "
+							+ this.partitionOutputInfo.toString());
 
 		}
-		
-		if(this.getInputPartitioning() != null){
-			node.getInfo().setFooter(node.getInfo().getFooter()+ " \n Input partitioning: " + this.getInputPartitioning().toString());
+
+		if (this.getInputPartitioning() != null) {
+			node.getInfo().setFooter(
+					node.getInfo().getFooter() + " \n Input partitioning: "
+							+ this.getInputPartitioning().toString());
 
 		}
-		
+
 		return err;
+	}
+
+	@Override
+	public boolean renameOperator(HashMap<String, String> renamedAttributes,
+			Vector<String> renamedOps) {
+		boolean renamed = false;
+
+		//rename inputpartioning
+		String newName = null;
+		if (this.getInputPartitioning() != null) {
+			for (TokenAttribute tA : this.getInputPartitioning().getPartitionAttributes()) {
+				newName = renamedAttributes.get(tA.getName().getName());
+				if (newName == null)
+					continue;
+				renamed = true;
+				tA.setName(newName);
+			}
+		}
+
+		return super.renameOperator(renamedAttributes, renamedOps) || renamed;
 	}
 
 	@Override
@@ -118,13 +145,11 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 		TokenAttribute.renameTable(selAtts, this.getChild().getOperatorId().toString());
 	}
 
-
 	public PartitionInfo getInputPartitioning() {
 		return inputPartitioning;
 	}
 
-
 	public void setInputPartitioning(PartitionInfo inputPartitioning) {
 		this.inputPartitioning = inputPartitioning;
-	}	
+	}
 }

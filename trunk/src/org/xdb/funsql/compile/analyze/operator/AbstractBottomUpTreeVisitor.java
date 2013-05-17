@@ -13,7 +13,7 @@ public abstract class AbstractBottomUpTreeVisitor extends AbstractTreeVisitor {
 	@Override
 	public Error visit(AbstractCompileOperator absOp) {
 		Error e = new Error();
-	
+		super.operatorCount++;
 		if(this.stop)
 			return e;
 		
