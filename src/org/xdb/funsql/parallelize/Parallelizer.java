@@ -37,12 +37,11 @@ public class Parallelizer {
 		
 		//first of all rename attributes
 		this.rename();
-		this.compilePlan.tracePlan("renamed");
+		
 		
 		//insert necessary repartitioning Operators
 		error = this.insertDataExchangeOps();
-		//this.rename();
-		this.compilePlan.tracePlan("renamed");
+
 		
 		//make the plan parallel	
 		long currentTime1 = System.currentTimeMillis();
@@ -118,7 +117,6 @@ public class Parallelizer {
 		CompilePlan plan = getCheapestPlan();
 		//get Logger back
 		plan.init();
-		plan.tracePlan(this.getClass().getSimpleName());
 		this.error = error;
 		
 		return plan;
