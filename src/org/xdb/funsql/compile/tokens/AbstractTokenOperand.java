@@ -11,6 +11,8 @@ public abstract class AbstractTokenOperand extends AbstractToken implements Clon
 		super();
 		this.type = type;
 	}
+	
+	
 
 	public EnumOperandType getType() {
 		return type;

@@ -11,6 +11,17 @@ public class TokenIdentifier extends AbstractToken implements Cloneable{
 		this.name = name;
 	}
 
+	
+	/**
+	 * @param name2
+	 */
+	public TokenIdentifier(TokenIdentifier toCopy) {
+		if(toCopy!=null){
+			this.name = toCopy.name;
+		}
+		
+	}
+
 	//getter and setter
 	public String getName() {
 		return name;

@@ -518,12 +518,12 @@ public class SelectStmt extends AbstractServerStmt {
 			}
 	
 			PartitionInfo pi = new PartitionInfo(partAttributes, EnumPartitionType.valueOf(table.getPartitionType()), table.getPartitions().size());
-			tableOp.setPartitionOutputInfo(pi);
+			tableOp.setOutputPartitionInfo(pi);
 		} else {
 		
 			// not partioned
 			PartitionInfo pi = new PartitionInfo(EnumPartitionType.NO_PARTITION);
-			tableOp.setPartitionOutputInfo(pi);
+			tableOp.setOutputPartitionInfo(pi);
 			if (table.getConnectionOid() == -1) {
 				// TODO
 			} else {

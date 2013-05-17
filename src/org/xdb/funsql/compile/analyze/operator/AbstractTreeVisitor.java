@@ -20,6 +20,7 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	
 	protected AbstractCompileOperator treeRoot = null;
 	protected boolean stop = false;
+	protected int operatorCount;
 	
 	public AbstractTreeVisitor(AbstractCompileOperator root) {
 		treeRoot = root;
@@ -82,4 +83,10 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
+
+	public int getOperatorCount() {
+		return operatorCount;
+	}
+
+	
 }

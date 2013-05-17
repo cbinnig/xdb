@@ -18,23 +18,25 @@ import org.xdb.funsql.compile.operator.TableOperator;
 
 /**
  * This class goes through the plan and removes unnecessary Dataexchange operators
- * @author mueller
+ * @author A.C.Mueller
  *
  */
 public class RemoveDataExchangeOpVisitor extends AbstractBottomUpTreeVisitor {
 
 	private Error err = new Error();
-	private int deOps;
 	private CompilePlan compilePlan;
+	
+	private double efficiencyHeuristic;
+	
 	public RemoveDataExchangeOpVisitor(AbstractCompileOperator root, CompilePlan compilePlan) {
 		super(root);
-		deOps = 0;
 		this.compilePlan = compilePlan;
 	}
 
 	public void reset(AbstractCompileOperator root, CompilePlan compilePlan){
 		
 		this.treeRoot = root;
+		this.efficiencyHeuristic = 0.0;
 		this.compilePlan = compilePlan;
 	}
 	
@@ -94,41 +96,56 @@ public class RemoveDataExchangeOpVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {
-		deOps++;
-		if(isRemoveable(deOp.getPartitionOutputInfo(), deOp.getChild().getPartitionOutputInfo())){
+		if(isRemoveable(deOp, deOp.getParents().get(0).getOutputPartitionInfo())){
 			//remove
-			deOps--;
 			deOp.getChild().setParent(deOp, deOp.getParents().get(0));
 			deOp.getParents().get(0).setChild(deOp, deOp.getChild());
 			this.compilePlan.removeOperator(deOp.getOperatorId());
+		}else {
+			//increase heuristic
+			int operatorsbefore = getOperatorCount();
+			
+			double quota = 1/ ((double) 10*operatorsbefore);
+			
+			this.efficiencyHeuristic = this.efficiencyHeuristic + quota;
+			
 		}
 		
 		return err;
 	}
 	
-	private boolean isRemoveable(PartitionInfo inputOpInfo, PartitionInfo removeOpInfo){	
+
+	/**
+	 * 
+	 * @param deOp
+	 * @param removeOpInfo
+	 * @return
+	 */
+	private boolean isRemoveable(DataExchangeOperator deOp, PartitionInfo removeOpInfo){	
+		boolean returnvalue = deOp.getInputPartitioning().equals(removeOpInfo) && deOp.getInputPartitioning().equals(deOp.getOutputPartitionInfo());
 		
-		return (inputOpInfo != null && inputOpInfo.equals(removeOpInfo));
-	
+		boolean rv2 = deOp.getInputPartitioning().equals(deOp.getOutputPartitionInfo());
+		
+		return returnvalue||rv2;
 	}
 
-	public int getDeOps() {
-		return deOps;
-	}
-	
 	private void handleRoot(AbstractCompileOperator absOp){
 		//if root
 		if(this.compilePlan.getRootIds().contains(absOp.getOperatorId())){
-			if(absOp.getPartitionOutputInfo() != null && absOp.getPartitionOutputInfo().getParts() >1){
+			if(absOp.getOutputPartitionInfo() != null && absOp.getOutputPartitionInfo().getParts() >1){
 				//if the last op still is partioned add a super dataexchange Operator
 				this.compilePlan.removeRootId(absOp.getOperatorId());
 				DataExchangeOperator de = new DataExchangeOperator(absOp,absOp.getResult());
-				de.setInputPartitioning(absOp.getPartitionOutputInfo());
-				de.setPartitionOutputInfo(new PartitionInfo(EnumPartitionType.NO_PARTITION));
+				de.setInputPartitioning(absOp.getOutputPartitionInfo());
+				de.setOutputPartitionInfo(new PartitionInfo(EnumPartitionType.NO_PARTITION));
 				this.compilePlan.addOperator(de, true);
 		
 			}
 		}
+	}
+	
+	public double getEfficiencyHeuristic() {
+		return efficiencyHeuristic;
 	}
 
 }

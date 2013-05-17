@@ -11,6 +11,13 @@ public class TokenTable extends AbstractToken{
 	private boolean isVariable;
 	
 	//constructors
+	
+	public TokenTable(TokenTable toCopy){
+		this.name = new TokenIdentifier(toCopy.name);
+		this.schema = new TokenSchema(toCopy.schema);
+		this.isVariable = toCopy.isVariable;
+	}
+	
 	public TokenTable(String name){
 		this();
 		this.name = new TokenIdentifier(name);

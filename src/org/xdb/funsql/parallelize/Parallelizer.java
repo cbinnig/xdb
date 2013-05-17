@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
+import org.xdb.funsql.codegen.ReRenameAttributesVisitor;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
@@ -34,11 +35,18 @@ public class Parallelizer {
 		// initialize List each Time the Plan is parallelized
 		possibleCompilePlans = new ArrayList<CompilePlan>();
 		
+		//first of all rename attributes
+		this.rename();
+		this.compilePlan.tracePlan("renamed");
+		
 		//insert necessary repartitioning Operators
 		error = this.insertDataExchangeOps();
+		//this.rename();
+		this.compilePlan.tracePlan("renamed");
+		
 		//make the plan parallel	
 		long currentTime1 = System.currentTimeMillis();
-	
+	  
 		CompilePlan cp = this.getParalellPlan();
 		long currentTime2 = System.currentTimeMillis();
 		
@@ -125,12 +133,22 @@ public class Parallelizer {
 
 		
 		//make the life easy and simply give the first on back
-		//add statistics-based Heuristik
-		double test = 	(double) ((double) this.possibleCompilePlans.size() * (double)Math.random());
-		int a = (int)test;
-		System.out.println("Selected Compile Plan is " + a);
+		//add statistics-based Heuristik	
+
+		double bestHeuristic = 999999.00;
+		CompilePlan cheapestPlan = null;
+		for(CompilePlan cps: this.possibleCompilePlans){
+			if(cps.getEfficiencyHeuristic() < bestHeuristic){
+				cheapestPlan = cps;
+				bestHeuristic = cps.getEfficiencyHeuristic();
+			}
+		}
 		
-		return this.possibleCompilePlans.get(a);
+		System.out.println("Best Measure is:" + bestHeuristic + " has compilePlan with " + cheapestPlan.getPlanId() );
+
+		//return this.possibleCompilePlans.get(a);
+		
+		return cheapestPlan;
 	}
 	
 
@@ -155,6 +173,8 @@ public class Parallelizer {
 		//call internal Method
 		List<HashMap<Identifier, PartitionInfo>> partitionInfoCombinations = generatePartitionCombinations(0, identifiers, elements, null);
 
+	//	int biggercount=0;
+		//prune output because is much too big TODO
 		return partitionInfoCombinations;
 	}
 
@@ -180,7 +200,7 @@ public class Parallelizer {
 	}
 
 	/**
-	 * Method generates a set of Possible paralell plans for a given compile plan
+	 * Method generates a set of Possible parallel plans for a given compile plan
 	 * @param candidates Partition Information
 	 */
 	private void generatePossiblePlans(
@@ -189,109 +209,89 @@ public class Parallelizer {
 
 		// copy the compile plan n times, with n = partitionCombination size
 		// build all combinations
-		int currentlyBestDeCount = -1;
-		int deCount= 0;
 		this.newPossibleCompilePlans = new ArrayList<CompilePlan>();
-		
+		ArrayList<String> consideredCombinations = new ArrayList<String>();
 		for (HashMap<Identifier, PartitionInfo> candidate : candidates) {
 			CompilePlan plan =null ;
-			plan = this.compilePlan.copy();
+			for (Identifier id : candidate.keySet()) {
+				this.compilePlan.getOperators(id).setOutputPartitionInfo(candidate.get(id));
+			}
+			plan = new CompilePlan(this.compilePlan);
 			plan.init();
 			// set Partition Info in Plan Operators
-			for (Identifier id : candidate.keySet()) {
-				plan.getOperators(id).setPartitionOutputInfo(candidate.get(id));
-			}
+		
 			//populate plan Information
-			deCount= 0;
+			
+		
 			PopulatePartitionInfoVisitor populateInfoVisitor = new PopulatePartitionInfoVisitor(
-					null, plan, this, true);
+					null, plan, this, true, consideredCombinations);
 			
 			RemoveDataExchangeOpVisitor deOpRemovalVisitor = new RemoveDataExchangeOpVisitor(null, plan);
 			for (AbstractCompileOperator root : plan.getRootsCollection()) {
 				
-				populateInfoVisitor.reset(root, plan, this,true);
+				populateInfoVisitor.reset(root, plan, this,true,consideredCombinations);
 				error = populateInfoVisitor.visit();
-				
 				deOpRemovalVisitor.reset(root, plan);
 				error = deOpRemovalVisitor.visit();
-				
-				deCount = deCount +deOpRemovalVisitor.getDeOps();
+				plan.setEfficiencyHeuristic(deOpRemovalVisitor.getEfficiencyHeuristic());
 				if (error.isError()) {
 					// set this error
 					return;
 				}
-				
-			}
-			
-		
+			}			
+			this.possibleCompilePlans.add(plan);
 			// only use those with small operator Size ---> discuss this heuristik
-			if(currentlyBestDeCount == -1){
-				System.out.println(deCount);
-				plan.tracePlan(this.getClass().getName());
-				currentlyBestDeCount = deCount;
-			}else{
-				if(deCount <= currentlyBestDeCount){ 
-					currentlyBestDeCount = deCount;
-					
-					if(deCount < currentlyBestDeCount){
-						System.out.println(deCount);
-						this.possibleCompilePlans = new ArrayList<CompilePlan>();
-					}
-					this.possibleCompilePlans.add(plan);
-					//this.possibleCompilePlans.add(plan);
+		}
+		
+		//populate Info in new variations and add new variations until no new are added
+		for(int i = 0; i < this.newPossibleCompilePlans.size(); i++){
+			CompilePlan plan = this.newPossibleCompilePlans.get(i);
+			
+			PopulatePartitionInfoVisitor populateInfoVisitor = new PopulatePartitionInfoVisitor(
+					null,plan, this, false, consideredCombinations);
+			plan.init();
+			for (AbstractCompileOperator root : plan.getCopyRootsCollection()) {
+
+				populateInfoVisitor.reset(root, plan, this,true, consideredCombinations);
+				error = populateInfoVisitor.visit();
+				
+				if (error.isError()) {
+					// set this error
+					return;
 				}
 			}
 		}
 		
-		//populate Info in new variations
-
-		for(CompilePlan plan : this.newPossibleCompilePlans){
+		//final population of Partition Info and remove not necessary data exchange operators
+		for(CompilePlan plan : this.newPossibleCompilePlans){				
 			PopulatePartitionInfoVisitor populateInfoVisitor = new PopulatePartitionInfoVisitor(
-					null,plan, this, false);
-			deCount = 0;
+					null,plan, this, false, consideredCombinations);
 			plan.init();
 			RemoveDataExchangeOpVisitor deOpRemovalVisitor = new RemoveDataExchangeOpVisitor(null, plan);
 			
 			for (AbstractCompileOperator root : plan.getRootsCollection()) {
 
-				populateInfoVisitor.reset(root, plan, this,false);
+				populateInfoVisitor.reset(root, plan, this,false, consideredCombinations);
 				error = populateInfoVisitor.visit();
 			
 				deOpRemovalVisitor.reset(root, plan);
 				error = deOpRemovalVisitor.visit();
-				
-				deCount = deCount +populateInfoVisitor.getDeOps();
 				if (error.isError()) {
 					// set this error
 					return;
 				}
 			}
-	
-			//plan.tracePlan("test" +i);
-			/*if(deCount <= currentlyBestDeCount){ 
-				currentlyBestDeCount = deCount;
-				
-				if(deCount < currentlyBestDeCount){
-					System.out.println(deCount);
-					this.possibleCompilePlans = new ArrayList<CompilePlan>();
-				}
-				this.possibleCompilePlans.add(plan);
-			}*/
-			//this.possibleCompilePlans.add(plan);
 		}
 		
-		int n =0;
-		for(CompilePlan pcp :this.possibleCompilePlans){
-			n++;
-			pcp.tracePlan("possiblePlan"+n);
-		}
-	//	System.out.println(currentlyBestDeCount);
-		System.out.println(this.possibleCompilePlans.size());
+		
+		this.possibleCompilePlans.addAll(this.newPossibleCompilePlans);
 		
 		
+		System.out.println("Created: " + this.possibleCompilePlans.size() +" Compile Plans");
 	}
 
 	public Error addNewPossibleCompilePlan(CompilePlan p) {
+		
 		Error e = new Error();
 		if (this.possibleCompilePlans == null) {
 			return new Error(EnumError.PARALELLIZER_NO_COMPILEPLANS, null);
@@ -357,6 +357,22 @@ public class Parallelizer {
 
 	}
 
+	/**
+	 * Renames the attributes and predicates of all operators to match the orginal ones
+	 * 
+	 */
+	private void rename() {
+		ReRenameAttributesVisitor renameVisitor;
+		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
+			renameVisitor = new ReRenameAttributesVisitor(root);
+			this.error = renameVisitor.visit();
+
+			if (error.isError())
+				return;
+		}
+	}
+	
+	
 	/**
 	 * @param cp
 	 * @return

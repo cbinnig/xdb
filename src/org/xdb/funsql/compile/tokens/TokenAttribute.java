@@ -18,8 +18,11 @@ public class TokenAttribute extends AbstractTokenOperand{
 	
 	public TokenAttribute(TokenAttribute toCopy){
 		super(EnumOperandType.ATTRIBUTE);
-		this.name = toCopy.name;
-		this.table = toCopy.table;
+		this.name = new TokenIdentifier(toCopy.name);
+		if(toCopy.table!= null){
+			this.table = new TokenTable(toCopy.table);
+		}
+
 	}
 	
 	public TokenAttribute(String name) {
@@ -152,8 +155,9 @@ public class TokenAttribute extends AbstractTokenOperand{
 	 */
 	public static Collection<TokenAttribute> clone(Collection<TokenAttribute> atts){
 		Vector<TokenAttribute> newAtts = new Vector<TokenAttribute>(atts.size());
+	
 		for(TokenAttribute att: atts){
-			newAtts.add(att.clone());
+			newAtts.add(new TokenAttribute(att));
 		}
 		return newAtts;
 	}

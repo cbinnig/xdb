@@ -91,7 +91,7 @@ public class CodeGenerator {
 			return this.err;
 
 		// rename attributes to original names
-		this.rename();
+		rename();
 		if (this.err.isError())
 			return this.err;
 
@@ -343,9 +343,9 @@ public class CodeGenerator {
 	 * Renames attributes to original names in table
 	 */
 	private void rename() {
-		RenameAttributesVisitor renameVisitor;
+		ReRenameAttributesVisitor renameVisitor;
 		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
-			renameVisitor = new RenameAttributesVisitor(root);
+			renameVisitor = new ReRenameAttributesVisitor(root);
 			this.err = renameVisitor.visit();
 
 			if (err.isError())
