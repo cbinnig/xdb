@@ -3,24 +3,9 @@ package org.xdb.test.parallelize;
 import org.junit.Test;
 import org.xdb.client.CompileClient;
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.FunSQLCompiler;
-import org.xdb.funsql.compile.expression.SimpleExpression;
-import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.DataExchangeOperator;
-import org.xdb.funsql.compile.operator.EquiJoin;
-import org.xdb.funsql.compile.operator.GenericSelection;
-import org.xdb.funsql.compile.operator.TableOperator;
-import org.xdb.funsql.compile.predicate.EnumCompOperator;
-import org.xdb.funsql.compile.predicate.SimplePredicate;
-import org.xdb.funsql.compile.tokens.TokenAttribute;
-import org.xdb.funsql.compile.tokens.TokenIdentifier;
-import org.xdb.funsql.parallelize.EnumPartitionType;
 import org.xdb.funsql.parallelize.Parallelizer;
-import org.xdb.funsql.parallelize.PartitionInfo;
 import org.xdb.funsql.statement.SelectStmt;
-import org.xdb.metadata.Catalog;
-import org.xdb.metadata.Table;
 import org.xdb.test.XDBTestCase;
 
 public class TestPlanParallelizer extends XDBTestCase {

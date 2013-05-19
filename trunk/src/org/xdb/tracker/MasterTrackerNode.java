@@ -144,8 +144,12 @@ public class MasterTrackerNode {
 	public void pingComputeNodes() {
 		Error err = new Error();
 		for (ComputeNodeDesc computeNode : this.computeNodes) {
-			// only use monitor per ping
 			synchronized (this) {
+				// do not ping if not available
+				if(!this.computeNode2Availability.get(computeNode))
+					continue;
+					
+				// ping and see if any error is returned
 				err = computeClient.pingComputeServer(computeNode);
 				if (err.isError()) {
 					computeNode2Availability.put(computeNode, false);

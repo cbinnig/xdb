@@ -18,7 +18,7 @@ import org.xdb.funsql.compile.operator.TableOperator;
  * @author Timo Jacobs
  *
  */
-public class ConnectionAnnotationVisitor extends AbstractBottomUpTreeVisitor {
+public class ConnectionAnnotationVisitor extends AbstractAnnotationVisitor {
 
 	public ConnectionAnnotationVisitor(AbstractCompileOperator root) {
 		super(root);
