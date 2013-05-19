@@ -26,13 +26,13 @@ public class SimpleResourceScheduler extends AbstractResourceScheduler {
 		final Set<String> requiredSlots = new HashSet<String>();
 
 		// slot can be on any compute node
-		requiredSlots.add(AbstractResourceScheduler.RANDOM_CONN);
+		requiredSlots.add(AbstractResourceScheduler.RANDOM_COMPUTE_NODE);
 
 		return requiredSlots;
 	}
 
 	@Override
 	public ComputeNodeDesc getComputeNode(Identifier operId) {
-		return this.assignedComputeNodesSlots.get(AbstractResourceScheduler.RANDOM_CONN);
+		return this.assignedComputeNodesSlots.get(AbstractResourceScheduler.RANDOM_COMPUTE_NODE);
 	}
 }

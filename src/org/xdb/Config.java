@@ -6,6 +6,7 @@ import java.util.BitSet;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import org.xdb.tracker.EnumQueryTrackerStrategy;
 import org.xdb.tracker.scheduler.EnumResourceScheduler;
 import org.xdb.utils.Identifier;
 
@@ -75,8 +76,9 @@ public class Config implements Serializable {
 	// Query Tracker Server
 	public static int QUERYTRACKER_PORT = 55600;
 	public static int QUERYTRACKER_SLOTS = 1;
-	public static EnumResourceScheduler RESOURCE_SCHEDULER = EnumResourceScheduler.SIMPLE_SCHEDULER;
-
+	public static EnumResourceScheduler QUERYTRACKER_SCHEDULER = EnumResourceScheduler.LOCALITY_AWARE_SCHEDULER;
+	public static EnumQueryTrackerStrategy QUERYTRACKER_STRATEGY = EnumQueryTrackerStrategy.PERFORMANCE;
+	
 	// Query Tracker Server: Code generation
 	public static boolean CODEGEN_OPTIMIZE = true;
 

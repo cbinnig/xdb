@@ -95,7 +95,7 @@ public class LocalityAwareScheduler extends AbstractResourceScheduler {
 
 			// add to operator locations and wish-list
 			if(sourceUrl == null)
-				sourceUrl = AbstractResourceScheduler.RANDOM_CONN;
+				sourceUrl = AbstractResourceScheduler.RANDOM_COMPUTE_NODE;
 			
 			
 			this.wishLocations.put(opId, sourceUrl);

@@ -16,6 +16,8 @@ import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
+import org.xdb.funsql.compile.analyze.operator.AbstractAnnotationVisitor;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.Tuple;
@@ -127,35 +129,41 @@ public class QueryTrackerNode {
 
 		// initialize compile plan: get logger back
 		cplan.init();
+		Error err = new Error();
 
-		// 0. parallelize compile plan
+		// 1. Parallelize compile plan
 		// Parallelizer parallelizer = new Parallelizer(cplan);
 		// parallelizer.parallelize();
 
-		// 1. build query tracker plan from compile plan
-		Tuple<QueryTrackerPlan, Error> qPlanErr = generateQueryTrackerPlan(cplan);
-		QueryTrackerPlan qplan = qPlanErr.getObject1();
-		Error err = qPlanErr.getObject2();
+		// 2. annotate compile plan (materialize flags, connections)
+		err = annotateCompilePlan(cplan);
 		if (err.isError()) {
-			qplan.cleanPlanOnError();
 			return err;
 		}
 
-		// 2. deploy query tracker plan on compute nodes
+		// 3. Generate query tracker plan
+		Tuple<QueryTrackerPlan, Error> qPlanErr = generateQueryTrackerPlan(cplan);
+		QueryTrackerPlan qplan = qPlanErr.getObject1();
+		err = qPlanErr.getObject2();
+		if (err.isError()) {
+			return err;
+		}
+
+		// 4. Deploy query tracker plan
 		err = qplan.deployPlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;
 		}
 
-		// 3. execute query tracker plan
+		// 3. Execute query tracker plan
 		err = qplan.executePlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;
 		}
 
-		// 4. clean query tracker plan
+		// 4. Clean query tracker plan
 		err = qplan.cleanPlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
@@ -163,6 +171,24 @@ public class QueryTrackerNode {
 		}
 
 		return err;
+	}
+
+	private Error annotateCompilePlan(CompilePlan cplan) {
+		Error err = new Error();
+
+		// Annotate Connection
+		for (Identifier rootId : cplan.getRootIds()) {
+			AbstractCompileOperator root = cplan.getOperators(rootId);
+			AbstractAnnotationVisitor annotationVisitor = AbstractAnnotationVisitor.createAnnotationVisitor(root);
+			
+			err = annotationVisitor.visit();
+			if (err.isError()) {
+				return err;
+			}
+		}
+
+		return err;
+
 	}
 
 	/**

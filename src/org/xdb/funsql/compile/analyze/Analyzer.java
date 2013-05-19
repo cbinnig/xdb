@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.CheckOperatorVisitor;
-import org.xdb.funsql.compile.analyze.operator.ConnectionAnnotationVisitor;
 import org.xdb.funsql.compile.analyze.operator.CreateResultVisitor;
 import org.xdb.funsql.compile.analyze.operator.RenameOperatorVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
@@ -51,14 +50,6 @@ public class Analyzer {
 			RenameOperatorVisitor renameVisitor = new RenameOperatorVisitor(
 					root);
 			renameVisitor.visit();
-		}
-		
-		// Annotate Connection
-		for (Identifier rootId : compilePlan.getRootIds()) {
-			AbstractCompileOperator root = this.compilePlan.getOperators(rootId);
-			
-			ConnectionAnnotationVisitor annotationVisitor = new ConnectionAnnotationVisitor(root);
-			annotationVisitor.visit();
 		}
 	}
 }
