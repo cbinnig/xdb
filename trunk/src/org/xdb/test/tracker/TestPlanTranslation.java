@@ -2,6 +2,7 @@ package org.xdb.test.tracker;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.expression.AggregationExpression;
 import org.xdb.funsql.compile.expression.ComplexExpression;
@@ -141,11 +142,14 @@ public class TestPlanTranslation extends XDBTestCase {
 		tableS.addAttribute(new Attribute("c", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOpS.setTable(tableS);
 		
+		Error annotation = QueryTrackerNode.annotateCompilePlan(plan);
+		assertNoError(annotation);
+		
 		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan).getObject1();
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
-		assertEquals(qPlan.getTrackerOperators().size(), 1);
+		assertEquals(1, qPlan.getTrackerOperators().size());
 	}
 	
 	
@@ -199,11 +203,14 @@ public class TestPlanTranslation extends XDBTestCase {
 		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
+		Error annotation = QueryTrackerNode.annotateCompilePlan(plan);
+		assertNoError(annotation);
+		
 		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan).getObject1();
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
-		assertEquals(qPlan.getTrackerOperators().size(), 1);
+		assertEquals(1, qPlan.getTrackerOperators().size());
 		
 	}
 	
@@ -257,11 +264,14 @@ public class TestPlanTranslation extends XDBTestCase {
 		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
+		Error annotation = QueryTrackerNode.annotateCompilePlan(plan);
+		assertNoError(annotation);
+		
 		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan).getObject1();
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
-		assertEquals(qPlan.getTrackerOperators().size(), 1);
+		assertEquals(1, qPlan.getTrackerOperators().size());
 		
 	}
 	
@@ -321,11 +331,14 @@ public class TestPlanTranslation extends XDBTestCase {
 		table.addAttribute(new Attribute("b", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
+		Error annotation = QueryTrackerNode.annotateCompilePlan(plan);
+		assertNoError(annotation);
+		
 		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan).getObject1();
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
-		assertEquals(qPlan.getTrackerOperators().size(), 1);
+		assertEquals(1, qPlan.getTrackerOperators().size());
 		
 	}
 	
@@ -425,10 +438,13 @@ public class TestPlanTranslation extends XDBTestCase {
 		rTable.addAttribute(new Attribute("c", EnumSimpleType.SQL_INTEGER, 0L));
 		rTableOp.setTable(rTable);
 		
+		Error annotation = QueryTrackerNode.annotateCompilePlan(plan);
+		assertNoError(annotation);
+		
 		QueryTrackerPlan qPlan = qTracker.generateQueryTrackerPlan(plan).getObject1();
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
-		assertEquals(qPlan.getTrackerOperators().size(), 1);
+		assertEquals(1, qPlan.getTrackerOperators().size());
 	}
 }

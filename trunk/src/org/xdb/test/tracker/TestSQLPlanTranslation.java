@@ -3,11 +3,15 @@ package org.xdb.test.tracker;
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.xdb.error.Error;
+import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CreateFunctionStmt;
 import org.xdb.test.XDBTestCase;
+import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
+import org.xdb.utils.Tuple;
 
 public class TestSQLPlanTranslation extends XDBTestCase {
 
@@ -78,10 +82,16 @@ public class TestSQLPlanTranslation extends XDBTestCase {
 		fStmt.getPlan().tracePlan(this.getClass().getName()+"_Compiler");
 		this.assertNoError(fStmt.execute());
 		
-		QueryTrackerPlan qPlan = qTrackerServer.getNode().generateQueryTrackerPlan(fStmt.getPlan()).getObject1();
-		Assert.assertNotNull(qPlan);
-		qPlan.tracePlan(this.getClass().getName()+"_Tracker");
+		final CompilePlan plan = fStmt.getPlan();
 		
-		assertEquals(qPlan.getTrackerOperators().size(), 3);
+		Error annotation = QueryTrackerNode.annotateCompilePlan(plan);
+		assertNoError(annotation);
+		
+		Tuple<QueryTrackerPlan, Error> qPlan = qTrackerServer.getNode().generateQueryTrackerPlan(plan);
+		assertNoError(qPlan.getObject2());
+		Assert.assertNotNull(qPlan.getObject1());
+		qPlan.getObject1().tracePlan(this.getClass().getName()+"_Tracker");
+		
+		assertEquals(3, qPlan.getObject1().getTrackerOperators().size());
 	}
 }
