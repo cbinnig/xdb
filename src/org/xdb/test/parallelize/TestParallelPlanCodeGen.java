@@ -155,11 +155,17 @@ public class TestParallelPlanCodeGen extends XDBTestCase  {
 		serialPlan.tracePlan(this.getClass().getName() + "_COMPILED");
 		parallelPlan.tracePlan(this.getClass().getName() + "_PARALLELCOMP");
 		
+		Error annotation = QueryTrackerNode.annotateCompilePlan(serialPlan);
+		assertNoError(annotation);
+		
 		Tuple<QueryTrackerPlan, Error> serialTrackerPlan = qTracker.generateQueryTrackerPlan(serialPlan);
-		this.assertNoError(serialTrackerPlan.getObject2());
+		assertNoError(serialTrackerPlan.getObject2());
+		
+		annotation = QueryTrackerNode.annotateCompilePlan(parallelPlan);
+		assertNoError(annotation);
 		
 		Tuple<QueryTrackerPlan, Error> parallelTrackerPlan = qTracker.generateQueryTrackerPlan(parallelPlan);
-		this.assertNoError(parallelTrackerPlan.getObject2());
+		assertNoError(parallelTrackerPlan.getObject2());
 
 		serialTrackerPlan.getObject1().tracePlan(this.getClass().getName() + "_GEN");
 		parallelTrackerPlan.getObject1().tracePlan(this.getClass().getName() + "_PARALLELGEN");

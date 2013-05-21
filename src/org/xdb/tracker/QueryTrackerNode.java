@@ -173,7 +173,7 @@ public class QueryTrackerNode {
 		return err;
 	}
 
-	private Error annotateCompilePlan(CompilePlan cplan) {
+	public static Error annotateCompilePlan(CompilePlan cplan) {
 		Error err = new Error();
 
 		// Annotate Connection

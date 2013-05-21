@@ -57,11 +57,11 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 	 * @param op
 	 */
 	private void doSplit(AbstractCompileOperator op) {
-		/*
-		 * Split plan if - an operator has no parent (i.e, it is a root) - an
-		 * operator has > 1 parents - an operator is marked to be materialized
+		/* 
+		 * Split plan if materialize flag is set. This has do be done
+		 * before.
 		 */
-		if (op.getResult().isMaterialized() || op.getParents().size() != 1) {
+		if(op.getResult().isMaterialized()) {
 			if (!this.splitOpIds.contains(op.getOperatorId()))
 				this.splitOpIds.add(op.getOperatorId());
 		}
@@ -130,9 +130,6 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 	
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {
-		//force split to allow automatic partition conversion by
-		//underlying database system
-		deOp.getResult().setMaterialized(true);
 		doSplit(deOp);
 		return err;
 	}

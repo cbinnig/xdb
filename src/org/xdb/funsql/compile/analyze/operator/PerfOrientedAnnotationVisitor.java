@@ -14,14 +14,25 @@ import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 
 /**
- * Puts the wished connection into each operator of the tree. Naive implementation.
+ * Set wished connections and materialize flags for max performance.
  * @author Timo Jacobs
  *
  */
-public class ConnectionAnnotationVisitor extends AbstractAnnotationVisitor {
+public class PerfOrientedAnnotationVisitor extends AbstractAnnotationVisitor {
 
-	public ConnectionAnnotationVisitor(AbstractCompileOperator root) {
+	public PerfOrientedAnnotationVisitor(AbstractCompileOperator root) {
 		super(root);
+	}
+	
+	private void applyGlobalMaterializeRules(final AbstractCompileOperator op) {
+		/*
+		 * Force materialize if 
+		 * - an operator has no parent (i.e, it is a root) 
+		 * - an operator has > 1 parents
+		 */
+		if (op.getParents().size() != 1) {
+			op.getResult().setMaterialized(true);
+		}
 	}
 
 	@Override
@@ -33,6 +44,9 @@ public class ConnectionAnnotationVisitor extends AbstractAnnotationVisitor {
 			return Error.NO_ERROR;
 		}
 		ej.setWishedConnection(ej.getLeftChild().getWishedConnection());
+		
+		applyGlobalMaterializeRules(ej);
+		
 		return Error.NO_ERROR;
 	}
 
@@ -47,54 +61,80 @@ public class ConnectionAnnotationVisitor extends AbstractAnnotationVisitor {
 		}
 		// otherwise just use the partition of the first child
 		ej.setWishedConnection(ej.getChild(0).getWishedConnection());
+		
+		applyGlobalMaterializeRules(ej);
+		
 		return Error.NO_ERROR;
 	}
 
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
 		gs.setWishedConnection(gs.getChild().getWishedConnection());
+		
+		applyGlobalMaterializeRules(gs);
+		
 		return Error.NO_ERROR;
 	}
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
 		sa.setWishedConnection(sa.getChild().getWishedConnection());
+		
+		applyGlobalMaterializeRules(sa);
+		
 		return Error.NO_ERROR;
 	}
 
 	@Override
 	public Error visitGenericProjection(GenericProjection gp) {
 		gp.setWishedConnection(gp.getChild().getWishedConnection());
+		
+		applyGlobalMaterializeRules(gp);
+		
 		return Error.NO_ERROR;
 	}
 
 	@Override
 	public Error visitTableOperator(TableOperator to) {
 		to.setWishedConnection(to.getConnection());
+		
+		applyGlobalMaterializeRules(to);
+		
 		return Error.NO_ERROR;
 	}
 
 	@Override
 	public Error visitRename(Rename ro) {
 		ro.setWishedConnection(ro.getChild().getWishedConnection());
+		
+		applyGlobalMaterializeRules(ro);
+		
 		return Error.NO_ERROR;
 	}
 
 	@Override
 	public Error visitSQLUnary(SQLUnary absOp) {
-		// do nothing
+		applyGlobalMaterializeRules(absOp);
+		
 		return Error.NO_ERROR;
 	}
 
 	@Override
 	public Error visitSQLCombined(SQLCombined absOp) {
-		// do nothing
+		applyGlobalMaterializeRules(absOp);
+		
 		return Error.NO_ERROR;
 	}
 
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {
 		deOp.setWishedConnection(deOp.getChild().getWishedConnection());
+		
+		applyGlobalMaterializeRules(deOp); //not needed, materialize is forced eventually
+		//force split to allow automatic partition conversion by
+		//underlying database system
+		deOp.getResult().setMaterialized(true);
+		
 		return Error.NO_ERROR;
 	}
 
