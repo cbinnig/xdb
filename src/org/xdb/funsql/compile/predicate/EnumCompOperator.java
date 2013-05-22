@@ -9,7 +9,8 @@ public enum EnumCompOperator {
 	SQL_LESS_EQUAL,
 	SQL_LESS_THAN,
 	SQL_GREATER_EQUAL,
-	SQL_GREATER_THAN;
+	SQL_GREATER_THAN,
+	SQL_LIKE;
 	
 	public static EnumCompOperator get(String type){
 		if(type.equals(AbstractToken.EQUAL1))
@@ -26,6 +27,8 @@ public enum EnumCompOperator {
 			return SQL_GREATER_EQUAL;
 		else if(type.equals(AbstractToken.GREATER_THAN))
 			return SQL_GREATER_THAN;
+		else if(type.equalsIgnoreCase(AbstractToken.LIKE))
+			return SQL_LIKE;
 		return null;
 	}
 	
@@ -35,8 +38,6 @@ public enum EnumCompOperator {
 			return AbstractToken.EQUAL1;
 		case 2:
 			return AbstractToken.NOT_EQUAL1;
-		/*case 3:
-			return AbstractToken.NOT_EQUAL2; */
 		case 3:
 			return AbstractToken.LESS_EQUAL;
 		case 4:
@@ -45,6 +46,8 @@ public enum EnumCompOperator {
 			return AbstractToken.GREATER_EQUAL;
 		case 6:
 			return AbstractToken.GREATER_THAN;
+		case 7:
+			return AbstractToken.LIKE;
 		}
 		return "";
 	}

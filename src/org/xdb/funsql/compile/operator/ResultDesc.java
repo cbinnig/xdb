@@ -113,7 +113,10 @@ public class ResultDesc implements Serializable, Cloneable{
 		ResultDesc rDesc = new ResultDesc();
 		for(TokenAttribute att: this.attributes){
 			TokenAttribute newAtt = new TokenAttribute(att.getName().clone());
-			newAtt.setTable(att.getTable().getName().clone());
+			if(att.getTable()==null)
+				System.err.println(att);
+			else
+				newAtt.setTable(att.getTable().getName().clone());
 			rDesc.attributes.add(newAtt);
 		}
 		

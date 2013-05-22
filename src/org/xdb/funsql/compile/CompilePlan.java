@@ -1,8 +1,5 @@
 package org.xdb.funsql.compile;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,7 +18,6 @@ import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Dotty;
-import org.xdb.utils.FastByteArrayOutputStream;
 import org.xdb.utils.Identifier;
 
 import com.oy.shared.lm.graph.Graph;
@@ -385,44 +381,11 @@ public class CompilePlan implements Serializable {
 		this.roots = roots;
 	}
 	
-	
 	public Vector<Identifier> getRoots() {
 		return roots;
 	}
-
-
-	/**
-	 * Needs to be replaced!!!!
-	 * @return
-	 */
-	public CompilePlan copy(){
-		
-		
-		
-		 CompilePlan cp = null;
-		 try {
-            // Write the object out to a byte array
-			 FastByteArrayOutputStream bos = new FastByteArrayOutputStream();
-            ObjectOutputStream out = new ObjectOutputStream(bos);
-            out.writeObject(this);
-            out.flush();
-            out.close();
-
-            // Make an input stream from the byte array and read
-            // a copy of the object back in.
-            ObjectInputStream in = new ObjectInputStream(bos.getInputStream());
-           cp = (CompilePlan) in.readObject();
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-        catch(ClassNotFoundException cnfe) {
-            cnfe.printStackTrace();
-        }
-		return cp;
-	}
+	
 	//for guessing which compile plan is the best
-
 	public double getEfficiencyHeuristic() {
 		return efficiencyHeuristic;
 	}

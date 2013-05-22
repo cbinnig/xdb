@@ -1,15 +1,16 @@
 package org.xdb.funsql.compile.operator;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.HashMap;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
-import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
+import org.xdb.utils.Identifier;
 
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
@@ -64,7 +65,7 @@ public class GenericSelection extends AbstractUnaryOperator {
 	}
 	
 	@Override
-	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes){
+	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes){
 		Error err = super.traceOperator(g, nodes);
 		if(err.isError())
 			return err;

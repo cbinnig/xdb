@@ -2,6 +2,7 @@ package org.xdb.funsql.compile.operator;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.xdb.funsql.codegen.ReReNameExpressionVisitor;
@@ -13,11 +14,11 @@ import org.xdb.funsql.compile.predicate.AbstractPredicate;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
-import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
 import org.xdb.utils.TokenPair;
 import org.xdb.error.Error;
+import org.xdb.utils.Identifier;
 
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
@@ -126,23 +127,31 @@ public class SQLCombined extends AbstractJoinOperator {
 	}
 
 	@Override
-	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes) {
+	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
 		if (err.isError())
 			return err;
 
 		GraphNode node = nodes.get(this.operatorId);
-		String footer = "";
-		for (TokenPair tp : this.getJointokens()) {
-			footer = footer + " \n " + tp.getLeftTokenAttribute().toString()
-					+ "=" + tp.getRightTokenAttribute().toString();
+		StringBuffer footer = new StringBuffer();
+		footer.append("Expressions:");
+		footer.append(this.selectExpressions);
+		
+		footer.append(AbstractToken.NEWLINE);
+		footer.append("Join conditions:");
+		footer.append(this.jointokens);
+		
+		if(node.getInfo().getFooter()!=null){
+			footer.append(AbstractToken.NEWLINE);
+			footer.append(node.getInfo().getFooter());
 		}
-		node.getInfo().setFooter(footer+ AbstractToken.NEWLINE + node.getInfo().getFooter());
+		node.getInfo().setFooter(footer.toString());
+		
 		return err;
 	}
 
 	/**
-	 * Eleminates the table name out of a vector of expressions
+	 * Eliminates the table name out of a vector of expressions
 	 * 
 	 * @param absExpressions
 	 */

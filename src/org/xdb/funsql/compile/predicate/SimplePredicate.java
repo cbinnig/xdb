@@ -64,7 +64,9 @@ public class SimplePredicate extends AbstractPredicate {
 
 		sqlValue.append(AbstractToken.LBRACE);
 		sqlValue.append(expr1.toSqlString());
+		sqlValue.append(AbstractToken.BLANK);
 		sqlValue.append(comp.toString());
+		sqlValue.append(AbstractToken.BLANK);
 		sqlValue.append(expr2.toSqlString());
 		sqlValue.append(AbstractToken.RBRACE);
 

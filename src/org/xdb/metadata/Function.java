@@ -3,6 +3,7 @@ package org.xdb.metadata;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.statement.EnumLanguage;
+import org.xdb.utils.StringEscape;
 
 /*
 CREATE TABLE "SYSTEM"."FUNCTION"
@@ -46,7 +47,7 @@ public class Function extends AbstractDatabaseObject {
 		super(oid, name);
 		this.schemaOid = schemaOid;
 		this.language = EnumLanguage.get(language);
-		this.source = source;
+		this.setSource(source);
 		this.objectType = EnumDatabaseObject.FUNCTION;
 	}
 	
@@ -54,7 +55,7 @@ public class Function extends AbstractDatabaseObject {
 		super(++LAST_OID, name);
 		this.schemaOid = schemaOid;
 		this.language = language;
-		this.source = source;
+		this.setSource(source);
 		this.objectType = EnumDatabaseObject.FUNCTION;
 	}
 
@@ -84,7 +85,7 @@ public class Function extends AbstractDatabaseObject {
 	}
 
 	public void setSource(String source) {
-		this.source = source;
+		this.source = StringEscape.escapeSql(source);
 	}
 
 	//helper methods

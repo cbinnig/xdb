@@ -2,8 +2,10 @@ package org.xdb.funsql.compile.operator;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.utils.Identifier;
@@ -31,7 +33,7 @@ public class SQLJoin extends AbstractJoinOperator {
 	 */
 	public SQLJoin(EquiJoin equiJoin) {
 		super(equiJoin);
-		setType(EnumOperator.SQL_JOIN);
+		this.setType(EnumOperator.SQL_JOIN);
 
 		TokenPair tp = new TokenPair(equiJoin.getLeftTokenAttribute(),
 				equiJoin.getRightTokenAttribute());
@@ -40,9 +42,9 @@ public class SQLJoin extends AbstractJoinOperator {
 				.toString());
 		jointokens.add(tp);
 
-		setOperatorId(equiJoin.operatorId);
-		// redirect parents from equi Join to sql Join
-
+		this.setOperatorId(equiJoin.operatorId);
+		
+		// redirect parents from equi-join to SQL-join
 		for (AbstractCompileOperator parentOp : this.parents) {
 			int childOpIdx = parentOp.getChildren().indexOf(equiJoin);
 			parentOp.setChild(childOpIdx, this);
@@ -113,12 +115,12 @@ public class SQLJoin extends AbstractJoinOperator {
 
 		jointokens.add(newJoinToken);
 
-		// redirect Children from merged Equi Join
+		// redirect Children from merged Equi-Join
 		int oldindex = this.children.indexOf(equiJoin);
 		if (!this.children.contains(equiJoin.getLeftChild())) {
 			this.children.set(oldindex, equiJoin.getLeftChild());
 		}
-		// set the childrens parents to sql join op
+		// set the children parents to SQL join op
 		Vector<AbstractCompileOperator> parents = equiJoin.getLeftChild()
 				.getParents();
 
@@ -154,20 +156,24 @@ public class SQLJoin extends AbstractJoinOperator {
 	}
 
 	@Override
-	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes) {
+	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
 		if (err.isError())
 			return err;
 
 		GraphNode node = nodes.get(this.operatorId);
-		String joinString = "";
-
-		for (TokenPair tp : this.jointokens) {
-			joinString = tp.getLeftTokenAttribute().toString() + "="
-					+ tp.getRightTokenAttribute().toString() + "; "
-					+ joinString;
+		
+		StringBuffer footer = new StringBuffer();
+		
+		footer.append(AbstractToken.NEWLINE);
+		footer.append("Join conditions:");
+		footer.append(this.jointokens);
+		
+		if(node.getInfo().getFooter()!=null){
+			footer.append(AbstractToken.NEWLINE);
+			footer.append(node.getInfo().getFooter());
 		}
-		node.getInfo().setFooter(joinString);
+		node.getInfo().setFooter(footer.toString());
 		return err;
 	}
 

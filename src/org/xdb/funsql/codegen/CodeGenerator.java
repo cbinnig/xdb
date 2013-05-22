@@ -360,6 +360,7 @@ public class CodeGenerator {
 		if (!Config.CODEGEN_OPTIMIZE)
 			return;
 
+		//int i=1;
 		for (Identifier splitOpId : this.splitOpIds) {
 			//get splitOp from compile plan as root for optimization
 			AbstractCompileOperator splitOp = this.compilePlan.getOperators(splitOpId);
@@ -367,17 +368,24 @@ public class CodeGenerator {
 			if (this.err.isError())
 				return;
 			
+			//this.compilePlan.tracePlan(i+"_"+splitOp.getOperatorId()+"_CJ");
+			
 			//get splitOp again since it might have be replaced
 			splitOp = this.compilePlan.getOperators(splitOpId);
 			this.err = combineUnaryOps(splitOp);
 			if (this.err.isError())
 				return;
 			
+			//this.compilePlan.tracePlan(i+"_"+splitOp.getOperatorId()+"_CU");
+			
 			//get splitOp again since it might have be replaced
 			splitOp = this.compilePlan.getOperators(splitOpId);
 			this.err = combineSQLOps(splitOp);
 			if (this.err.isError())
 				return;
+			
+			//this.compilePlan.tracePlan(i+"_"+splitOp.getOperatorId()+"_CSQL");
+			//++i;
 		}
 	}
 

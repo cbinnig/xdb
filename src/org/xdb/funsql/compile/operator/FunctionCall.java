@@ -1,7 +1,7 @@
 package org.xdb.funsql.compile.operator;
 
-import java.util.HashMap;
 import java.util.Vector;
+import java.util.Map;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.TokenFunction;
@@ -73,7 +73,7 @@ public class FunctionCall extends AbstractCompileOperator implements Cloneable {
 	
 	
 	@Override
-	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes){
+	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes){
 		Error err = super.traceOperator(g, nodes);
 		if(err.isError())
 			return err;

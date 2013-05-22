@@ -11,10 +11,15 @@ import org.xdb.funsql.codegen.ReReNamePredicateVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.SimpleExpression;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
+import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
+
+import com.oy.shared.lm.graph.Graph;
+import com.oy.shared.lm.graph.GraphNode;
 
 /**
  * Coarse-grained Operator which is used during optimization to combine several
@@ -205,6 +210,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 
 		// add select info
 		int i = 0;
+		this.selectAliases.clear();
 		Map<TokenIdentifier, AbstractExpression> newReplaceMap = new HashMap<TokenIdentifier, AbstractExpression>();
 		for (TokenAttribute att : op.getResult().getAttributes()) {
 			this.selectAliases.add(att.getName());
@@ -254,6 +260,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 	 * @param op
 	 */
 	public boolean addAggregation(GenericAggregation op) {
+		
 		if (this.aggExpressions.size() > 0 || this.havingPred != null) {
 			this.addedLastOp = false;
 			return this.addedLastOp;
@@ -400,6 +407,26 @@ public class SQLUnary extends AbstractUnaryOperator {
 	public void setReplaceExprMap(
 			Map<TokenIdentifier, AbstractExpression> replaceExprMap) {
 		this.replaceExprMap = replaceExprMap;
+	}
+	
+	@Override
+	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes) {
+		Error err = super.traceOperator(g, nodes);
+		if (err.isError())
+			return err;
+
+		GraphNode node = nodes.get(this.operatorId);
+		StringBuffer footer = new StringBuffer();
+		footer.append("Expressions:");
+		footer.append(this.selectExpressions);
+		
+		if(node.getInfo().getFooter()!=null){
+			footer.append(AbstractToken.NEWLINE);
+			footer.append(node.getInfo().getFooter());
+		}
+		node.getInfo().setFooter(footer.toString());
+		
+		return err;
 	}
 	
 	@Override

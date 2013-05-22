@@ -634,7 +634,7 @@ public class Catalog {
 		}
 
 		Error lastError = Catalog.executeUpdate(function.sqlInsert());
-		if (lastError == Error.NO_ERROR) {
+		if (!lastError.isError()) {
 			Catalog.addFunction(function);
 		}
 		return lastError;
@@ -839,8 +839,7 @@ public class Catalog {
 		return Catalog.functionsByName.get(key);
 	}
 
-	// needed Interface operations
-	public static List<Connection> getConnectionsForTable(String tablename) {
+	public synchronized static List<Connection> getConnectionsForTable(String tablename) {
 		Table table = Catalog.tablesByName.get(tablename);
 
 		List<TableToConnection> taToCo = tableToConnByTableOid.get(table
@@ -853,7 +852,7 @@ public class Catalog {
 		return connections;
 	}
 	
-	public static Collection<Partition> getPartionsForTable(String tableName){
+	public synchronized static Collection<Partition> getPartionsForTable(String tableName){
 		Table table = Catalog.tablesByName.get(tableName);
 		return  table.getPartitions();
 	}

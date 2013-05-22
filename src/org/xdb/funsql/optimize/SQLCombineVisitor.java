@@ -29,6 +29,7 @@ public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
 	private AbstractCompileOperator lastop = null;
 	private Error err = new Error(); 
 	private CompilePlan compileplan;
+	
 	public SQLCombineVisitor(AbstractCompileOperator root, CompilePlan compilePlan) {
 		super(root);
 		this.compileplan = compilePlan;
@@ -86,6 +87,8 @@ public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
 			sqlc.mergeSQLUnaryParent(absOp);
 		
 			this.compileplan.removeOperator(this.lastop.getOperatorId());
+			
+			this.lastop = sqlc;
 		} 
 		return err;
 	}

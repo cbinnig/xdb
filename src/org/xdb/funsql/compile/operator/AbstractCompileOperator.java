@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -23,10 +24,10 @@ public abstract class AbstractCompileOperator implements Serializable {
 
 	private static final long serialVersionUID = -5531022011681321483L;
 
-	//partionInformation
+	// partionInformation
 	protected PartitionInfo partitionOutputInfo;
 	protected Set<PartitionInfo> partitionCandiates = new HashSet<PartitionInfo>();
-	
+
 	// attributes
 	protected Vector<ResultDesc> results;
 	protected EnumOperator type;
@@ -40,45 +41,48 @@ public abstract class AbstractCompileOperator implements Serializable {
 	// constructors
 	/**
 	 * Copy Constructor
-	 * @param toCopy Element to copy
+	 * 
+	 * @param toCopy
+	 *            Element to copy
 	 */
 	@SuppressWarnings("unchecked")
 	public AbstractCompileOperator(AbstractCompileOperator toCopy) {
-		this.children = (Vector<AbstractCompileOperator>) toCopy.children.clone();
+		this.children = (Vector<AbstractCompileOperator>) toCopy.children
+				.clone();
 		this.parents = (Vector<AbstractCompileOperator>) toCopy.parents.clone();
 		this.type = toCopy.type;
 		this.results = toCopy.results;
-		
+
 		Vector<ResultDesc> cloneresults = new Vector<ResultDesc>();
-	
-			for(ResultDesc rd :toCopy.results){
-				if(rd !=null){
-					cloneresults.add(rd.clone());
-				}
-			
+
+		for (ResultDesc rd : toCopy.results) {
+			if (rd != null) {
+				cloneresults.add(rd.clone());
 			}
-		
-		this.results = cloneresults;
-		if(toCopy.getWishedConnection()!= null){
-			this.wishedConnection =  new Connection(toCopy.getWishedConnection());
+
 		}
-	
-		if(toCopy.partitionOutputInfo!= null){
-			this.partitionOutputInfo = new PartitionInfo(toCopy.partitionOutputInfo);
+
+		this.results = cloneresults;
+		if (toCopy.getWishedConnection() != null) {
+			this.wishedConnection = new Connection(toCopy.getWishedConnection());
+		}
+
+		if (toCopy.partitionOutputInfo != null) {
+			this.partitionOutputInfo = new PartitionInfo(
+					toCopy.partitionOutputInfo);
 		}
 
 	}
 
-	
 	public AbstractCompileOperator(int resultNumber) {
 		this.results = new Vector<ResultDesc>(resultNumber);
 	}
 
-	
 	// getters and setters
-	
-	
-	/** Gets the partition Info of the Operator, so how many parts the output has and on what column it is partioned
+
+	/**
+	 * Gets the partition Info of the Operator, so how many parts the output has
+	 * and on what column it is partioned
 	 * 
 	 * @return
 	 */
@@ -86,18 +90,19 @@ public abstract class AbstractCompileOperator implements Serializable {
 		return partitionOutputInfo;
 	}
 
-	/** Set the partionInfo for this operator
+	/**
+	 * Set the partionInfo for this operator
+	 * 
 	 * @param partitionOutputInfo
 	 */
 	public void setOutputPartitionInfo(PartitionInfo partitionOutputInfo) {
 		this.partitionOutputInfo = partitionOutputInfo;
 	}
-	
-	public void addPartitionCandiate(PartitionInfo pi){
+
+	public void addPartitionCandiate(PartitionInfo pi) {
 		this.partitionCandiates.add(pi);
 	}
-	
-	
+
 	public Set<PartitionInfo> getPartitionCandiates() {
 		return partitionCandiates;
 	}
@@ -115,8 +120,6 @@ public abstract class AbstractCompileOperator implements Serializable {
 		return this.children;
 	}
 
-
-
 	/**
 	 * Get all destination operators.
 	 * 
@@ -125,9 +128,10 @@ public abstract class AbstractCompileOperator implements Serializable {
 	public Vector<AbstractCompileOperator> getParents() {
 		return this.parents;
 	}
-	
+
 	/**
 	 * Get wished connection.
+	 * 
 	 * @return wished connection, null if not set
 	 */
 	public Connection getWishedConnection() {
@@ -177,18 +181,19 @@ public abstract class AbstractCompileOperator implements Serializable {
 	public void setChildren(Vector<AbstractCompileOperator> sources) {
 		this.children = sources;
 	}
-	
-	public void resetChildren(){
+
+	public void resetChildren() {
 		this.children = new Vector<AbstractCompileOperator>();
 	}
 
 	public void setChild(int idx, AbstractCompileOperator child) {
 		this.children.set(idx, child);
 	}
-	
-	public void setChild(AbstractCompileOperator oldChild, AbstractCompileOperator newchild) {
+
+	public void setChild(AbstractCompileOperator oldChild,
+			AbstractCompileOperator newchild) {
 		int oldIndex = this.children.indexOf(oldChild);
-		this.children.set(oldIndex,newchild);
+		this.children.set(oldIndex, newchild);
 	}
 
 	public void removeParent(int idx) {
@@ -198,10 +203,10 @@ public abstract class AbstractCompileOperator implements Serializable {
 	public void setParent(int idx, AbstractCompileOperator parent) {
 		this.parents.set(idx, parent);
 	}
-	
 
-	public void setParent(AbstractCompileOperator oldparent, AbstractCompileOperator newparent) {
-		int oldIndex= parents.indexOf(oldparent);
+	public void setParent(AbstractCompileOperator oldparent,
+			AbstractCompileOperator newparent) {
+		int oldIndex = parents.indexOf(oldparent);
 		this.parents.set(oldIndex, newparent);
 	}
 
@@ -212,13 +217,11 @@ public abstract class AbstractCompileOperator implements Serializable {
 	public void addParent(AbstractCompileOperator parent) {
 		this.parents.add(parent);
 	}
-	
 
 	public void addChild(AbstractCompileOperator child) {
 		this.children.add(child);
 	}
-	
-	
+
 	public void setWishedConnection(final Connection conn) {
 		this.wishedConnection = conn;
 	}
@@ -309,20 +312,20 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 * @param g
 	 * @return
 	 */
-	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes) {
+	public Error traceOperator(Graph g, Map<Identifier, GraphNode> nodes) {
 		Error err = new Error();
 		GraphNode node = nodes.get(this.operatorId);
-		StringBuffer header = new StringBuffer();
+
 		// header
 		if (Config.TRACE_COMPILE_PLAN_HEADER) {
-		
+			StringBuffer header = new StringBuffer();
 			header.append("Partition candidates:");
 			header.append(AbstractToken.NEWLINE);
 			for (PartitionInfo pi : this.getPartitionCandiates()) {
 				header.append(pi.toString());
 				header.append(AbstractToken.NEWLINE);
 			}
-			
+
 			header.append("Parents: ");
 			header.append(this.parents.toString());
 			header.append(AbstractToken.NEWLINE);
@@ -330,23 +333,26 @@ public abstract class AbstractCompileOperator implements Serializable {
 			header.append(this.children.toString());
 			if (this.results.size() == 1) {
 				header.append(AbstractToken.NEWLINE);
-				if(this.getResult()!=null){
-		//			header.append(this.getResult().toString());
+				if (this.getResult() != null) {
+					// header.append(this.getResult().toString());
 				}
-			
+
 			}
 			header.append(AbstractToken.NEWLINE);
-			
+			node.getInfo().setHeader(header.toString());
 		}
-		
-		node.getInfo().setHeader(header.toString());
+
 		// body
 		node.getInfo().setCaption(this.toString());
-		
-		if(this.getOutputPartitionInfo()!= null){
-			node.getInfo().setFooter(this.getOutputPartitionInfo().toString());
+
+		// footer
+		if (Config.TRACE_COMPILE_PLAN_PARTITIONING
+				&& this.getOutputPartitionInfo() != null) {
+			node.getInfo().setFooter(
+					node.getInfo().getFooter() + "\n"
+							+ this.getOutputPartitionInfo().toString());
 		}
-		
+
 		return err;
 	}
 
@@ -363,11 +369,12 @@ public abstract class AbstractCompileOperator implements Serializable {
 			Vector<String> renamedOps) {
 		String newName;
 		boolean renamed = false;
-		
-		//rename output Partitioning
+
+		// rename output Partitioning
 
 		if (this.getOutputPartitionInfo() != null) {
-			for (TokenAttribute tA : this.getOutputPartitionInfo().getPartitionAttributes()) {
+			for (TokenAttribute tA : this.getOutputPartitionInfo()
+					.getPartitionAttributes()) {
 				newName = renamedAttributes.get(tA.getName().getName());
 				if (newName == null)
 					continue;
@@ -375,12 +382,12 @@ public abstract class AbstractCompileOperator implements Serializable {
 				tA.setName(newName);
 			}
 		}
-		
-		if( this.getPartitionCandiates() != null){
-			if(this.getPartitionCandiates().size() > 0){
-				
-				for (PartitionInfo pi : this.getPartitionCandiates()) {	
-					for(TokenAttribute tA :pi.getPartitionAttributes()){
+
+		if (this.getPartitionCandiates() != null) {
+			if (this.getPartitionCandiates().size() > 0) {
+
+				for (PartitionInfo pi : this.getPartitionCandiates()) {
+					for (TokenAttribute tA : pi.getPartitionAttributes()) {
 						newName = renamedAttributes.get(tA.getName().getName());
 						if (newName == null)
 							continue;
