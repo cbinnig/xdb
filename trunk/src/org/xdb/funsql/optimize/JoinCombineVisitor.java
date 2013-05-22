@@ -17,8 +17,8 @@ import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 
 /**
- * This class merges several equijoin operators into one single sql join operator,
- * to avoid uncessary materialization of intermediary results
+ * This class merges several equi-join operators into one single SQL join operator,
+ * to avoid unnecessary materialization of intermediary results
  * @author A.C.Mueller
  *
  */
@@ -56,51 +56,49 @@ public class JoinCombineVisitor extends AbstractTopDownTreeVisitor {
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
 		this.lastOp = gs;
-		return new Error();
+		return err;
 	}
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
 		this.lastOp = sa;
-		return new Error();
+		return err;
 	}
 
 	@Override
 	public Error visitGenericProjection(GenericProjection gp) {
 		this.lastOp = gp;
-		return new Error();
+		return err;
 	}
 
 	@Override
 	public Error visitTableOperator(TableOperator to) {
 		this.lastOp = to;
-		return new Error();
+		return err;
 	}
 
 	@Override
 	public Error visitRename(Rename ro) {
 		this.lastOp = ro;
-		return new Error();
+		return err;
 	}
 
 	@Override
 	public Error visitSQLUnary(SQLUnary absOp) {
 		this.lastOp = absOp;
-		return new Error();
+		return err;
 	}
 
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
 		this.lastOp = ej;
-		return new Error();
+		return err;
 	}
 
 	@Override
 	public Error visitSQLCombined(SQLCombined absOp) {
-		/*String[] args = { "SQLUnary operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);*/
 		this.lastOp = absOp;
-		return new Error();
+		return err;
 	}
 
 	@Override

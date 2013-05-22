@@ -238,7 +238,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 					
 				}	
 				
-				//add FunctionCall Operator to functioncall
+				//add FunctionCall Operator to function call
 				FunctionCall fc = new FunctionCall(tfc.getFun(), tfc.getOutVars().size());
 				for(int i=0; i < plan.getRoots().size(); i++){
 					AbstractCompileOperator op = plan.getRoot(i);

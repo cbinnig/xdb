@@ -61,6 +61,14 @@ import org.xdb.funsql.compile.tokens.*;
 import org.xdb.funsql.statement.*;
 }
 
+
+@lexer::members {
+    @Override
+    public void reportError(RecognitionException e) {
+        throw new RuntimeException(e);
+    }
+} 
+
 @parser::members {
   @Override
   protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow) throws RecognitionException {
@@ -1139,7 +1147,8 @@ tokenCompOperator
     LESS_EQUAL2 |
     GREATER_EQUAL1 |
     GREATER_EQUAL2 |
-    GREATER_THAN
+    GREATER_THAN |
+    KEYWORD_LIKE
     )
     ;
     
@@ -1166,6 +1175,7 @@ KEYWORD_AND: A N D;
 KEYWORD_OR: O R;
 KEYWORD_NOT: N O T;
 KEYWORD_AS: A S;
+KEYWORD_LIKE: L I K E;	
 fragment KEYWORD_SUM: S U M;
 fragment KEYWORD_MIN: M I N;
 fragment KEYWORD_MAX: M A X;

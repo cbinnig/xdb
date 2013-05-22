@@ -1,7 +1,7 @@
 package org.xdb.funsql.compile.operator;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -89,7 +89,7 @@ public abstract class AbstractBinaryOperator extends AbstractCompileOperator imp
 	public abstract void renameForPushDown(Collection<TokenAttribute> selAtts, int child);
 	
 	@Override
-	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes){
+	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes){
 		Error err = super.traceOperator(g, nodes);
 		
 		//edges and children

@@ -2,8 +2,8 @@ package org.xdb.test.tpch;
 
 import org.junit.Test;
 import org.xdb.client.CompileClient;
-import org.xdb.test.XDBTestCase;
 import org.xdb.error.Error;
+import org.xdb.test.XDBTestCase;
 
 public class TestTPCH extends XDBTestCase {
 	private CompileClient client = new CompileClient();
@@ -66,6 +66,26 @@ public class TestTPCH extends XDBTestCase {
 			"S_COMMENT VARCHAR" +
 			") IN CONNECTION TPCH;",
 			
+			"CREATE TABLE PART  ( " +
+			"P_PARTKEY     INTEGER," +
+			"P_NAME        VARCHAR, " +
+			"P_MFGR        VARCHAR, " +
+			"P_BRAND       VARCHAR, " +
+			"P_TYPE        VARCHAR, " +
+			"P_SIZE        INTEGER, " +
+			"P_CONTAINER   VARCHAR, " +
+			"P_RETAILPRICE DECIMAL, " +
+			"P_COMMENT     VARCHAR" +
+			") IN CONNECTION TPCH;",
+			
+			"CREATE TABLE PARTSUPP ( " +
+			"	PS_PARTKEY     INTEGER, " +
+			"	PS_SUPPKEY     INTEGER, " +
+			"	PS_AVAILQTY    INTEGER, " +
+			"	PS_SUPPLYCOST  DECIMAL, " +
+			"	PS_COMMENT     VARCHAR " +
+			") IN CONNECTION TPCH;",
+			
 			"CREATE TABLE NATION (  " +
 			"N_NATIONKEY INTEGER, " +
 			"N_NAME VARCHAR," +
@@ -116,6 +136,63 @@ public class TestTPCH extends XDBTestCase {
 				"group by l_returnflag,	l_linestatus";
 		
 		executeStmt(q1);
+	}
+	
+	public void testQ2(){
+/*
+
+ */
+		String createQ2 = "CREATE FUNCTION q2( OUT o1 TABLE) \n" +
+				"BEGIN \n" +
+				"  :t1 = " +
+				"		select" + 
+				"			min(ps_supplycost) as min_supplycost, " +
+				"			ps_partkey"+ 
+				"		from " + 
+				"			partsupp," + 
+				"			supplier," + 
+				"			nation," + 
+				"			region" + 
+				"		where " + 
+				"			s_suppkey = ps_suppkey" + 
+				"			and s_nationkey = n_nationkey" + 
+				"			and n_regionkey = r_regionkey" + 
+				"			and r_name = 'EUROPE'" +
+				"		group by" +
+				"			ps_partkey;" +
+				"\n"+
+				"	:o1 = select" + 
+				"			s_acctbal," + 
+				"			s_name," + 
+				"			n_name," + 
+				"			p_partkey," + 
+				"			p_mfgr," + 
+				"			s_address," + 
+				"			s_phone," + 
+				"			s_comment " + 
+				"		from " + 
+				"			part," + 
+				"			supplier," + 
+				"			partsupp as ps," + 
+				"			nation," + 
+				"			region," +
+				"			:t1 as temp1 " + 
+				"		where" + 
+				"			p_partkey = ps.ps_partkey" + 
+				"			and s_suppkey = ps.ps_suppkey" +
+				"			and temp1.ps_partkey = ps.ps_partkey" +
+				"			and temp1.min_supplycost = ps.ps_supplycost" + 
+				"			and p_size = 15" + 
+				"			and p_type like '%BRASS'" + 
+				"			and s_nationkey = n_nationkey" + 
+				"			and n_regionkey = r_regionkey" + 
+				"			and r_name = 'EUROPE';"+ 
+				"END;";
+		
+		String callQ2 = "CALL FUNCTION q2;";
+		
+		executeStmt(createQ2);
+		executeStmt(callQ2);
 	}
 	
 	public void testQ3(){

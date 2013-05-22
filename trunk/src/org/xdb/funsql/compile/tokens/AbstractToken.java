@@ -23,6 +23,7 @@ public abstract class AbstractToken implements Serializable{
 	public static final String LESS_THAN = "<";
 	public static final String GREATER_EQUAL = ">=";
 	public static final String LESS_EQUAL = "<=";
+	public static final String LIKE = "LIKE";
 	
 	public static final String AND = "AND";
 	public static final String OR = "OR";

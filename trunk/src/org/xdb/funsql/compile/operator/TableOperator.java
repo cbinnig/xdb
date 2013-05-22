@@ -1,14 +1,16 @@
 package org.xdb.funsql.compile.operator;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Partition;
 import org.xdb.metadata.Table;
-import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
+import org.xdb.utils.Identifier;
 
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
@@ -133,7 +135,7 @@ public class TableOperator extends AbstractCompileOperator {
 	}
 
 	@Override
-	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes) {
+	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
 
 		GraphNode node = nodes.get(this.operatorId);

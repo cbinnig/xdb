@@ -123,7 +123,7 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 	}
 
 	@Override
-	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes) {
+	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
 
 		// edges and children

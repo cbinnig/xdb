@@ -2,6 +2,7 @@ package org.xdb.utils;
 
 import java.io.Serializable;
 
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenTable;
 
@@ -78,4 +79,16 @@ public class TokenPair implements Serializable{
 		TokenPair t = (TokenPair) o;
 		return ( t.leftTokenAttribute.equals(this.leftTokenAttribute) && t.rightTokenAttribute.equals(this.rightTokenAttribute));
 	}
+	
+	@Override
+	public String toString(){
+		StringBuffer buffer = new StringBuffer();
+		
+		buffer.append(this.leftTokenAttribute);
+		buffer.append(AbstractToken.EQUAL1);
+		buffer.append(this.rightTokenAttribute);
+		
+		return buffer.toString();
+	}
+	
 }

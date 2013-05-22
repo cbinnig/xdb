@@ -2,6 +2,7 @@ package org.xdb.funsql.compile.operator;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.xdb.error.Error;
@@ -99,7 +100,7 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 	}
 
 	@Override
-	public Error traceOperator(Graph g, HashMap<Identifier, GraphNode> nodes) {
+	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
 
 		GraphNode node = nodes.get(this.operatorId);
