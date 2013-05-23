@@ -3,7 +3,9 @@ package org.xdb.funsql.compile.operator;
 import java.util.Vector;
 import java.util.Map;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenFunction;
 import org.xdb.utils.Identifier;
 
@@ -18,11 +20,10 @@ public class FunctionCall extends AbstractCompileOperator implements Cloneable {
 	
 	//constructors
 	public FunctionCall(TokenFunction function,int resultNumber) {
-		super(resultNumber);		
-		//this.children = children; TODO
+		super(resultNumber);
 		this.function = function;
 		
-		this.setType(EnumOperator.FUNCTION_CALL);
+		this.type = EnumOperator.FUNCTION_CALL;
 	}
 	/**
 	 * Copy Constructor
@@ -37,6 +38,7 @@ public class FunctionCall extends AbstractCompileOperator implements Cloneable {
 		}
 		this.children = toCopy.children;
 		
+		this.type = EnumOperator.FUNCTION_CALL;
 	}
 	
 	//getters and setters
@@ -79,14 +81,20 @@ public class FunctionCall extends AbstractCompileOperator implements Cloneable {
 			return err;
 		
 		GraphNode node = nodes.get(this.operatorId);
-		node.getInfo().setFooter(this.function.getName().toString());
+		if (Config.TRACE_COMPILE_PLAN_FOOTER) {
+			StringBuffer footer = new StringBuffer();
+			footer.append(this.function.getName().toString());
+			if (node.getInfo().getFooter() != null) {
+				footer.append(AbstractToken.NEWLINE);
+				footer.append(node.getInfo().getFooter());
+			}
+			node.getInfo().setFooter(footer.toString());
+		}
 		return err;
 	}
 
 	@Override
 	public void renameAttributes(String oldId, String newId) {
-		//Nothing to do
+		//Nothing to do at the moment
 	}
-
-
 }

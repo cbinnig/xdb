@@ -22,7 +22,7 @@ public enum EnumAggregation implements Serializable{
 		this.repr = repr;
 	}	
 	
-	public StringTemplate getSqlRepresentation() {
+	public StringTemplate getSqlTemplate() {
 		return repr;
 	}
 	

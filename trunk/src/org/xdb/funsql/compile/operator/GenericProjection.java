@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.tokens.AbstractToken;
@@ -35,27 +36,25 @@ public class GenericProjection extends AbstractUnaryOperator {
 		aliases = new Vector<TokenIdentifier>();
 		type = EnumOperator.GENERIC_PROJECTION;
 	}
-	/**
-	 * Copy Constructor
-	 * @param toCopy Element to copy
-	 */
-	public GenericProjection(GenericProjection toCopy){
+
+	// copy-constructor
+	public GenericProjection(GenericProjection toCopy) {
 		super(toCopy);
 
-		
 		Vector<AbstractExpression> aev = new Vector<AbstractExpression>();
-		for(AbstractExpression ta : toCopy.expressions){
+		for (AbstractExpression ta : toCopy.expressions) {
 			aev.add(ta.clone());
 		}
 		this.expressions = aev;
-		
-		
+
 		Vector<TokenIdentifier> alias = new Vector<TokenIdentifier>();
-		
-		for(TokenIdentifier ti : toCopy.aliases){
+
+		for (TokenIdentifier ti : toCopy.aliases) {
 			alias.add(ti);
 		}
 		this.aliases = alias;
+
+		type = EnumOperator.GENERIC_PROJECTION;
 	}
 
 	// getters and setters
@@ -87,37 +86,45 @@ public class GenericProjection extends AbstractUnaryOperator {
 	@Override
 	public String toSqlString() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
-		final Vector<String> expressionVec = new Vector<String>(expressions.size());
-		for(AbstractExpression exp : expressions) {
+		final Vector<String> expressionVec = new Vector<String>(
+				expressions.size());
+		for (AbstractExpression exp : expressions) {
 			expressionVec.add(exp.toSqlString());
 		}
-		
-		vars.put("RESULTS", SetUtils.buildAliasString(expressionVec, getResultAttributes()));
+
+		vars.put("RESULTS",
+				SetUtils.buildAliasString(expressionVec, getResultAttributes()));
 		vars.put("OP1", getChild().getOperatorId().toString());
 		return sqlTemplate.toString(vars);
 	}
 
 	@Override
-	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes) {
+	public Error traceOperator(Graph g, Map<Identifier, GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
 		if (err.isError())
 			return err;
 
 		GraphNode node = nodes.get(this.operatorId);
-		StringBuffer footer = new StringBuffer();
-		footer.append("Expressions: ");
-		footer.append(this.expressions.toString());
-		footer.append(AbstractToken.NEWLINE);
-		footer.append("Aliases: ");
-		footer.append(this.aliases.toString());
-		node.getInfo().setFooter(footer.toString() + AbstractToken.NEWLINE + node.getInfo().getFooter());
+		if (Config.TRACE_COMPILE_PLAN_FOOTER) {
+			StringBuffer footer = new StringBuffer();
+			footer.append("Expressions: ");
+			footer.append(this.expressions.toString());
+			footer.append(AbstractToken.NEWLINE);
+			footer.append("Aliases: ");
+			footer.append(this.aliases.toString());
+			if (node.getInfo().getFooter() != null) {
+				footer.append(AbstractToken.NEWLINE);
+				footer.append(node.getInfo().getFooter());
+			}
+			node.getInfo().setFooter(footer.toString());
+		}
 		return err;
 	}
-	
+
 	@Override
 	public void renameAttributes(String oldId, String newId) {
 		Vector<TokenAttribute> atts = new Vector<TokenAttribute>();
-		for(AbstractExpression expr: this.expressions){
+		for (AbstractExpression expr : this.expressions) {
 			atts.addAll(expr.getAttributes());
 		}
 		TokenAttribute.renameTable(atts, oldId, newId);
@@ -125,31 +132,32 @@ public class GenericProjection extends AbstractUnaryOperator {
 
 	@Override
 	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
-		HashMap<TokenIdentifier,TokenIdentifier> renameMap = new HashMap<TokenIdentifier,TokenIdentifier>();
-		for(int i=0; i<this.expressions.size(); ++i){
+		HashMap<TokenIdentifier, TokenIdentifier> renameMap = new HashMap<TokenIdentifier, TokenIdentifier>();
+		for (int i = 0; i < this.expressions.size(); ++i) {
 			AbstractExpression expr = this.expressions.get(i);
-			if(expr.isAttribute()){
-				renameMap.put(this.aliases.get(i), expr.getAttribute().getName());
+			if (expr.isAttribute()) {
+				renameMap.put(this.aliases.get(i), expr.getAttribute()
+						.getName());
 			}
 		}
-		TokenAttribute.rename(selAtts, this.getChild().getOperatorId().toString(), renameMap);
+		TokenAttribute.rename(selAtts, this.getChild().getOperatorId()
+				.toString(), renameMap);
 	}
-	
+
 	@Override
 	public GenericProjection clone() throws CloneNotSupportedException {
-		
+
 		GenericProjection gp = (GenericProjection) super.clone();
-		
+
 		Vector<AbstractExpression> aev = new Vector<AbstractExpression>();
-		for(AbstractExpression ta : this.expressions){
+		for (AbstractExpression ta : this.expressions) {
 			aev.add(ta.clone());
 		}
 		gp.expressions = aev;
-		
-		
+
 		Vector<TokenIdentifier> alias = new Vector<TokenIdentifier>();
-		
-		for(TokenIdentifier ti : this.aliases){
+
+		for (TokenIdentifier ti : this.aliases) {
 			alias.add(ti);
 		}
 		gp.aliases = alias;

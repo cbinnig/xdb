@@ -72,7 +72,7 @@ public class AggregationExpression extends AbstractExpression {
 		
 		HashMap<String, String> vars = new HashMap<String, String>();
 		vars.put(StringTemplate.KEY_EXP, sqlValue);
-		return this.agg.getSqlRepresentation().toString(vars);
+		return this.agg.getSqlTemplate().toString(vars);
 	}
 
 	@Override

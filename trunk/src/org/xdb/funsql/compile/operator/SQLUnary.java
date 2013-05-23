@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.codegen.ReReNameExpressionVisitor;
 import org.xdb.funsql.codegen.ReReNamePredicateVisitor;
@@ -68,31 +69,33 @@ public class SQLUnary extends AbstractUnaryOperator {
 
 	public SQLUnary(AbstractCompileOperator child) {
 		super(child);
-		
+
 		this.type = EnumOperator.SQL_UNARY;
 
 		// initialize from child
 		for (TokenAttribute att : child.getResult().getAttributes()) {
 			SimpleExpression expr = new SimpleExpression(att);
 			this.replaceExprMap.put(att.getName(), expr);
-		
-		
+
 		}
 	}
+
 	/**
 	 * Copy Constructor
-	 * @param toCopy Element to Copy
+	 * 
+	 * @param toCopy
+	 *            Element to Copy
 	 */
-	public SQLUnary(SQLUnary toCopy){
+	public SQLUnary(SQLUnary toCopy) {
 		super(toCopy);
-		
+
 	}
-	
+
 	public int countOperators() {
 		return this.countOps;
 	}
 
-	//methods
+	// methods
 	@Override
 	public String toSqlString() {
 		// check for missing info
@@ -118,15 +121,13 @@ public class SQLUnary extends AbstractUnaryOperator {
 
 		// from clause
 		vars.clear();
-		//whether use table or other complex template
+		// whether use table or other complex template
 		vars.put("OP1", getChild().getOperatorId().toString());
-		if(getChild().getType().equals(EnumOperator.TABLE)){
+		if (getChild().getType().equals(EnumOperator.TABLE)) {
 			sqlStmt.append(fromTemplate2.toString(vars));
-		}else {
+		} else {
 			sqlStmt.append(fromTemplate.toString(vars));
 		}
-
-		
 
 		// where clause
 		sqlStmt.append(getWhereClause());
@@ -139,8 +140,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 		return sqlStmt.toString();
 	}
 
-	
-	public String getHavingClause(){
+	public String getHavingClause() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
 		if (this.havingPred != null) {
 			vars.put("HAVING", this.havingPred.toSqlString());
@@ -148,17 +148,17 @@ public class SQLUnary extends AbstractUnaryOperator {
 		}
 		return "";
 	}
-	
-	public String getWhereClause(){
+
+	public String getWhereClause() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
-		if (this.wherePred != null) { 
+		if (this.wherePred != null) {
 			vars.put("WHERE", this.wherePred.toSqlString());
 			return whereTemplate.toString(vars);
 		}
 		return "";
 	}
-	
-	public String getGroupByClause(){
+
+	public String getGroupByClause() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
 		if (this.groupExpressions.size() > 0) {
 			final Vector<String> groupExprVec = new Vector<String>(
@@ -167,10 +167,11 @@ public class SQLUnary extends AbstractUnaryOperator {
 				groupExprVec.add(exp.toSqlString());
 			}
 			vars.put("GROUP", SetUtils.buildString(groupExprVec));
-			return(groupTemplate.toString(vars));
+			return (groupTemplate.toString(vars));
 		}
 		return "";
 	}
+
 	/**
 	 * Adds a selection operator to the combined operator
 	 * 
@@ -192,7 +193,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 			AbstractPredicate wherePred2 = op.getPredicate();
 			this.wherePred = wherePred2.replaceExpressions(this.replaceExprMap);
 		}
-		
+
 		return this.addedLastOp;
 	}
 
@@ -223,7 +224,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 
 		// exchange replace map
 		this.replaceExprMap = newReplaceMap;
-		
+
 		return this.addedLastOp;
 	}
 
@@ -234,7 +235,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 	 */
 	public boolean addRename(Rename op) {
 		this.countOps++;
-		
+
 		// add select info
 		int i = 0;
 		this.selectAliases.clear();
@@ -250,7 +251,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 
 		// exchange replace map
 		this.replaceExprMap = newReplaceMap;
-		
+
 		return this.addedLastOp;
 	}
 
@@ -260,7 +261,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 	 * @param op
 	 */
 	public boolean addAggregation(GenericAggregation op) {
-		
+
 		if (this.aggExpressions.size() > 0 || this.havingPred != null) {
 			this.addedLastOp = false;
 			return this.addedLastOp;
@@ -296,7 +297,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 
 		// exchange replace map
 		this.replaceExprMap = newReplaceMap;
-		
+
 		return this.addedLastOp;
 	}
 
@@ -309,54 +310,57 @@ public class SQLUnary extends AbstractUnaryOperator {
 	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
 		// Nothing to do
 	}
-	
-	
-	
+
 	@Override
 	public boolean renameOperator(HashMap<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
-		boolean renamed = super.renameOperator(renamedAttributes,renamedOps);
+		boolean renamed = super.renameOperator(renamedAttributes, renamedOps);
 		@SuppressWarnings("unused")
 		Error e = null;
-		for(AbstractExpression expr: this.aggExpressions){
-			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(expr, renamedAttributes);
+		for (AbstractExpression expr : this.aggExpressions) {
+			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(
+					expr, renamedAttributes);
 			e = renameVisitor.visit();
-			//TODO Error handling
+			// TODO Error handling
 		}
-		for(AbstractExpression expr: this.groupExpressions){
-			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(expr, renamedAttributes);
+		for (AbstractExpression expr : this.groupExpressions) {
+			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(
+					expr, renamedAttributes);
 			e = renameVisitor.visit();
-			//TODO Error handling
+			// TODO Error handling
 		}
-		
-		for(AbstractExpression expr: this.selectExpressions){
-			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(expr, renamedAttributes);
+
+		for (AbstractExpression expr : this.selectExpressions) {
+			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(
+					expr, renamedAttributes);
 			e = renameVisitor.visit();
-			//TODO Error handling
+			// TODO Error handling
 		}
-		
-		//rename predicates based on already renamed attributes
-		ReReNamePredicateVisitor rPv ;
-		if(this.wherePred != null) {
-			rPv = new ReReNamePredicateVisitor(this.wherePred, renamedAttributes);
+
+		// rename predicates based on already renamed attributes
+		ReReNamePredicateVisitor rPv;
+		if (this.wherePred != null) {
+			rPv = new ReReNamePredicateVisitor(this.wherePred,
+					renamedAttributes);
 			rPv.visit();
 		}
 
-	
-		if(this.havingPred != null) {
-			rPv = new ReReNamePredicateVisitor(this.havingPred, renamedAttributes);
+		if (this.havingPred != null) {
+			rPv = new ReReNamePredicateVisitor(this.havingPred,
+					renamedAttributes);
 			rPv.visit();
 		}
 
 		return renamed;
 	}
 
-	//getters and setters
+	// getters and setters
 	public Vector<AbstractExpression> getSelectExpressions() {
 		return selectExpressions;
 	}
 
-	public void setSelectExpressions(Vector<AbstractExpression> selectExpressions) {
+	public void setSelectExpressions(
+			Vector<AbstractExpression> selectExpressions) {
 		this.selectExpressions = selectExpressions;
 	}
 
@@ -408,27 +412,28 @@ public class SQLUnary extends AbstractUnaryOperator {
 			Map<TokenIdentifier, AbstractExpression> replaceExprMap) {
 		this.replaceExprMap = replaceExprMap;
 	}
-	
+
 	@Override
-	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes) {
+	public Error traceOperator(Graph g, Map<Identifier, GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
 		if (err.isError())
 			return err;
 
 		GraphNode node = nodes.get(this.operatorId);
-		StringBuffer footer = new StringBuffer();
-		footer.append("Expressions:");
-		footer.append(this.selectExpressions);
-		
-		if(node.getInfo().getFooter()!=null){
-			footer.append(AbstractToken.NEWLINE);
-			footer.append(node.getInfo().getFooter());
+		if (Config.TRACE_COMPILE_PLAN_FOOTER) {
+			StringBuffer footer = new StringBuffer();
+			footer.append("Expressions:");
+			footer.append(this.selectExpressions);
+
+			if (node.getInfo().getFooter() != null) {
+				footer.append(AbstractToken.NEWLINE);
+				footer.append(node.getInfo().getFooter());
+			}
+			node.getInfo().setFooter(footer.toString());
 		}
-		node.getInfo().setFooter(footer.toString());
-		
 		return err;
 	}
-	
+
 	@Override
 	public SQLUnary clone() throws CloneNotSupportedException {
 		// TODO Auto-generated method stub

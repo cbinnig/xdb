@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.List;
 import java.util.Vector;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
@@ -20,27 +22,28 @@ public class EquiJoin extends AbstractBinaryOperator {
 
 	private TokenAttribute leftTokenAttribute;
 	private TokenAttribute rightTokenAttribute;
-	
-	//constructors
-	public EquiJoin(AbstractCompileOperator leftChild, AbstractCompileOperator rightChild,
-			TokenAttribute leftTokenAttribute, TokenAttribute rightTokenAttribute) {
+
+	// constructors
+	public EquiJoin(AbstractCompileOperator leftChild,
+			AbstractCompileOperator rightChild,
+			TokenAttribute leftTokenAttribute,
+			TokenAttribute rightTokenAttribute) {
 		super(leftChild, rightChild);
-		
+
 		this.leftTokenAttribute = leftTokenAttribute;
 		this.rightTokenAttribute = rightTokenAttribute;
 		this.type = EnumOperator.EQUI_JOIN;
 	}
-	/**
-	 * Copy Constructor
-	 * @param toCopy Element to copy
-	 */
-	public EquiJoin (EquiJoin ej){
+
+	// copy-constructor
+	public EquiJoin(EquiJoin ej) {
 		super(ej);
 		this.leftTokenAttribute = ej.leftTokenAttribute.clone();
 		this.rightTokenAttribute = ej.rightTokenAttribute.clone();
+		this.type = EnumOperator.EQUI_JOIN;
 	}
 
-	//getters and setters
+	// getters and setters
 	public TokenAttribute getLeftTokenAttribute() {
 		return leftTokenAttribute;
 	}
@@ -60,73 +63,81 @@ public class EquiJoin extends AbstractBinaryOperator {
 	@Override
 	public String toSqlString() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
-		
-		final List<String> lAttributes = getLeftChild().getResultTableAttributes();
-		final List<String> rAttributes = getRightChild().getResultTableAttributes();
+
+		final List<String> lAttributes = getLeftChild()
+				.getResultTableAttributes();
+		final List<String> rAttributes = getRightChild()
+				.getResultTableAttributes();
 		final List<String> aliasVec = getResultAttributes();
-		
-	//	final List<String> lAliases = getLeftChild().getResultAttributes();
-	//	final List<String> rAliases = getRightChild().getResultAttributes();;
-		
+
 		final List<String> lAliases = aliasVec.subList(0, lAttributes.size());
-		final List<String> rAliases = aliasVec.subList(lAttributes.size(), aliasVec.size());
-	
-		vars.put("RESULT", SetUtils.buildAliasString(lAttributes, lAliases)+","+SetUtils.buildAliasString(rAttributes, rAliases));
-		
-		/*//need to check wether the children are tables or not
-	
-		vars.put("OP1", getLeftChild().getOperatorId().toString());
-		vars.put("OP2", getRightChild().getOperatorId().toString());
+		final List<String> rAliases = aliasVec.subList(lAttributes.size(),
+				aliasVec.size());
 
-		vars.put("JATT1", getLeftTokenAttribute().toSqlString());
-		vars.put("JATT2", getRightTokenAttribute().toSqlString());*/
-	
-		HashMap<String,String> joinParams= new HashMap<String, String>();
-		joinParams.put(getLeftChild().getOperatorId().toString(), getLeftTokenAttribute().toString());
-		joinParams.put(getRightChild().getOperatorId().toString(), getRightTokenAttribute().toString());
+		vars.put("RESULT", SetUtils.buildAliasString(lAttributes, lAliases)
+				+ "," + SetUtils.buildAliasString(rAttributes, rAliases));
 
-		
+		HashMap<String, String> joinParams = new HashMap<String, String>();
+		joinParams.put(getLeftChild().getOperatorId().toString(),
+				getLeftTokenAttribute().toString());
+		joinParams.put(getRightChild().getOperatorId().toString(),
+				getRightTokenAttribute().toString());
+
 		String templateString = "";
-		vars.put("RESULT", SetUtils.buildAliasString(lAttributes, lAliases)+","+SetUtils.buildAliasString(rAttributes, rAliases));
-	
-		int idx = 1;
-		for(AbstractCompileOperator child :this.getChildren()){
+		vars.put("RESULT", SetUtils.buildAliasString(lAttributes, lAliases)
+				+ "," + SetUtils.buildAliasString(rAttributes, rAliases));
 
-			vars.put("OP"+idx,child.getOperatorId().toString());
-			vars.put("JATT"+idx, joinParams.get(child.getOperatorId().toString())  );
-			if(idx > 1){ 
-				if(child.getType().equals(EnumOperator.TABLE)){
-					templateString =  templateString +" INNER JOIN <<OP"+(idx)+">> AS <OP"+(idx)+"> ON <JATT"+(idx-1)+"> = <JATT"+(idx)+">";
+		int idx = 1;
+		for (AbstractCompileOperator child : this.getChildren()) {
+			vars.put("OP" + idx, child.getOperatorId().toString());
+			vars.put("JATT" + idx,
+					joinParams.get(child.getOperatorId().toString()));
+			if (idx > 1) {
+				if (child.getType().equals(EnumOperator.TABLE)) {
+					templateString = templateString + " INNER JOIN <<OP"
+							+ (idx) + ">> AS <OP" + (idx) + "> ON <JATT"
+							+ (idx - 1) + "> = <JATT" + (idx) + ">";
 				} else {
-					templateString =  templateString +" INNER JOIN (<<OP"+(idx)+">>) AS <OP"+(idx)+"> ON <JATT"+(idx-1)+"> = <JATT"+(idx)+">";
+					templateString = templateString + " INNER JOIN (<<OP"
+							+ (idx) + ">>) AS <OP" + (idx) + "> ON <JATT"
+							+ (idx - 1) + "> = <JATT" + (idx) + ">";
 				}
-				
+
 			} else {
-				if(child.getType().equals(EnumOperator.TABLE)){
-					templateString = templateString + "SELECT <RESULT> FROM <<OP1>> AS <OP1>";
+				if (child.getType().equals(EnumOperator.TABLE)) {
+					templateString = templateString
+							+ "SELECT <RESULT> FROM <<OP1>> AS <OP1>";
 				} else {
-					templateString = templateString + "SELECT <RESULT> FROM (<<OP1>>) AS <OP1>";
+					templateString = templateString
+							+ "SELECT <RESULT> FROM (<<OP1>>) AS <OP1>";
 				}
 			}
 			idx++;
 		}
 
 		StringTemplate sqlTemplate = new StringTemplate(templateString);
-			
-		
-		
+
 		return sqlTemplate.toString(vars);
 	}
 
-	
 	@Override
-	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes){
+	public Error traceOperator(Graph g, Map<Identifier, GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
-		if(err.isError())
+		if (err.isError())
 			return err;
-		
+
 		GraphNode node = nodes.get(this.operatorId);
-		node.getInfo().setFooter(this.leftTokenAttribute.toString()+"="+this.rightTokenAttribute.toString() + "\n" + node.getInfo().getFooter());
+		if (Config.TRACE_COMPILE_PLAN_FOOTER) {
+			StringBuffer footer = new StringBuffer();
+			footer.append(this.leftTokenAttribute.toString());
+			footer.append(AbstractToken.EQUAL1);
+			footer.append(this.rightTokenAttribute.toString());
+			if (node.getInfo().getFooter() != null) {
+				footer.append(AbstractToken.NEWLINE);
+				footer.append(node.getInfo().getFooter());
+			}
+			node.getInfo().setFooter(footer.toString());
+		}
 		return err;
 	}
 
@@ -137,10 +148,12 @@ public class EquiJoin extends AbstractBinaryOperator {
 		atts.add(this.rightTokenAttribute);
 		TokenAttribute.renameTable(atts, oldId, newId);
 	}
-	
+
 	@Override
-	public void renameForPushDown(Collection<TokenAttribute> selAtts, int childIdx) {
-		TokenAttribute.renameTable(selAtts, this.getChild(childIdx).getOperatorId().toString());
+	public void renameForPushDown(Collection<TokenAttribute> selAtts,
+			int childIdx) {
+		TokenAttribute.renameTable(selAtts, this.getChild(childIdx)
+				.getOperatorId().toString());
 	}
 
 	@Override
@@ -148,12 +161,12 @@ public class EquiJoin extends AbstractBinaryOperator {
 			Vector<String> renamedOps) {
 		String newName;
 		// rename join tokens
-		if(renamedOps.contains(getLeftTokenAttribute().getTable().getName())){
+		if (renamedOps.contains(getLeftTokenAttribute().getTable().getName())) {
 			newName = renamedAttributes.get(getLeftTokenAttribute().getName());
 			getLeftTokenAttribute().setName(newName);
 		}
-	
-		if(renamedOps.contains(getRightTokenAttribute().getTable().getName())){
+
+		if (renamedOps.contains(getRightTokenAttribute().getTable().getName())) {
 			newName = renamedAttributes.get(getRightTokenAttribute().getName());
 			getRightTokenAttribute().setName(newName);
 		}

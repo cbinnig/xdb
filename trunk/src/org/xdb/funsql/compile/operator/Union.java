@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.utils.StringTemplate;
 import org.xdb.utils.Identifier;
@@ -93,10 +95,19 @@ public class Union extends AbstractBinaryOperator {
 			return err;
 		
 		GraphNode node = nodes.get(this.operatorId);
-		if(this.distinctMerge)
-			node.getInfo().setFooter("DISTINCT");
-		else
-			node.getInfo().setFooter("ALL");
+		if(Config.TRACE_COMPILE_PLAN_FOOTER){
+			StringBuffer footer = new StringBuffer();
+			if(this.distinctMerge)
+				footer.append("DISTINCT");
+			else
+				footer.append("ALL");
+			
+			if (node.getInfo().getFooter() != null) {
+				footer.append(AbstractToken.NEWLINE);
+				footer.append(node.getInfo().getFooter());
+			}
+			node.getInfo().setFooter(footer.toString());
+		}
 		return err;
 	}
 
