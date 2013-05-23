@@ -1,7 +1,6 @@
 package org.xdb.funsql.compile.operator;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,10 +32,9 @@ public abstract class AbstractCompileOperator implements Serializable {
 	protected Vector<ResultDesc> results;
 	protected EnumOperator type;
 	protected Vector<AbstractCompileOperator> children = new Vector<AbstractCompileOperator>();
-	protected Vector<AbstractCompileOperator> parents = new Vector<AbstractCompileOperator>();
+	protected Vector<AbstractCompileOperator> parents = new Vector<AbstractCompileOperator>(); 
 	protected Connection wishedConnection = null;
-	protected List<Connection> wishedConnections = new ArrayList<Connection>();
-
+    protected Set<Connection> wishedConnections = new HashSet<Connection>();  
 	// unique operator id
 	protected Identifier operatorId;
 
@@ -65,8 +63,8 @@ public abstract class AbstractCompileOperator implements Serializable {
 		}
 
 		this.results = cloneresults;
-		if (toCopy.getWishedConnection() != null) {
-			this.wishedConnection = new Connection(toCopy.getWishedConnection());
+		if (!toCopy.getWishedConnections().isEmpty()) {
+			this.wishedConnections =toCopy.getWishedConnections();
 		}
 
 		if (toCopy.partitionOutputInfo != null) {
@@ -172,18 +170,23 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 * Get wished connection.
 	 * 
 	 * @return wished connection, null if not set
-	 */
-	public Connection getWishedConnection() {
+	 */ 
+	public Connection getWishedConnection(){
 		return this.wishedConnection;
 	}
+	
+	public void setWishedConnection(final Connection conn) {
+		this.wishedConnection = conn;
+	}
 
-	public List<Connection> getWishedConnections() {
+	
+	public Set<Connection> getWishedConnections() {
 		return wishedConnections;
 
 	}
 
-	public void setWishedConnections(List<Connection> wishedConnections) {
-		this.wishedConnections = wishedConnections;
+	public void addWishedConnections(Set<Connection> wishedConnections) {
+		this.wishedConnections.addAll(wishedConnections);
 	}
 
 	public Identifier getOperatorId() {
@@ -265,9 +268,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 		this.children.add(child);
 	}
 
-	public void setWishedConnection(final Connection conn) {
-		this.wishedConnection = conn;
-	}
+	
 
 	public boolean removeParent(AbstractCompileOperator parent) {
 		return this.parents.remove(parent);
