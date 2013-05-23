@@ -223,5 +223,14 @@ public class Partition extends AbstractDatabaseObject {
 	public boolean isTemp(){
 		return this.oid<0;
 	}
+	
+	@Override
+	public String toString(){
+		StringBuffer value = new StringBuffer();
+		value.append(this.getName());
+		value.append(" in connection: ");
+		value.append(this.getConnectionOid());
+		return value.toString();
+	}
 
 }

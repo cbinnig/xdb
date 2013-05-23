@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.parallelize.PartitionInfo;
 import org.xdb.utils.Identifier;
@@ -27,7 +29,7 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 	private PartitionInfo inputPartitioning;
 
 	/**
-	 * Constructor used when exactly one partion column can be used
+	 * Constructor used when exactly one partition column can be used
 	 * 
 	 * @param child
 	 * @param result
@@ -39,7 +41,6 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 		this.partitionOutputInfo = outputPartioning;
 		this.results.add(result);
 		this.type = EnumOperator.DATA_EXCHANGE;
-
 	}
 
 	/**
@@ -53,11 +54,11 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 		if (toCopy.inputPartitioning != null) {
 			this.inputPartitioning = new PartitionInfo(toCopy.inputPartitioning);
 		}
-
+		this.type = EnumOperator.DATA_EXCHANGE;
 	}
 
 	/**
-	 * Constructor used when exactly one partion column can be used
+	 * Constructor used when exactly one partition column can be used
 	 * 
 	 * @param child
 	 * @param result
@@ -71,19 +72,31 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 	}
 
 	// getters + setters
+	public PartitionInfo getInputPartitioning() {
+		return inputPartitioning;
+	}
 
+	public void setInputPartitioning(PartitionInfo inputPartitioning) {
+		this.inputPartitioning = inputPartitioning;
+	}
+
+	public boolean hasInputPartitioning() {
+		return this.inputPartitioning != null;
+	}
+
+	// methods
 	@Override
 	public String toSqlString() {
 		Vector<AbstractCompileOperator> children = getChildren();
-		if(children.size() == 1)
-			return "<"+children.get(0).getOperatorId().toString()+">";
-		
-		
-		AbstractCompileOperator union = new Union(children.get(0), children.get(1));
-		for(int i = 2; i < children.size(); i++) {
+		if (children.size() == 1)
+			return "<" + children.get(0).getOperatorId().toString() + ">";
+
+		AbstractCompileOperator union = new Union(children.get(0),
+				children.get(1));
+		for (int i = 2; i < children.size(); i++) {
 			union.addChild(children.get(i));
 		}
-		
+
 		return union.toSqlString();
 	}
 
@@ -100,22 +113,23 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 	}
 
 	@Override
-	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes) {
+	public Error traceOperator(Graph g, Map<Identifier, GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
 
 		GraphNode node = nodes.get(this.operatorId);
-		if (this.getOutputPartitionInfo() != null) {
-			node.getInfo().setFooter(
-					node.getInfo().getFooter() + " \n Output partitioning: "
-							+ this.partitionOutputInfo.toString());
 
-		}
-
-		if (this.getInputPartitioning() != null) {
-			node.getInfo().setFooter(
-					node.getInfo().getFooter() + " \n Input partitioning: "
-							+ this.getInputPartitioning().toString());
-
+		if (Config.TRACE_COMPILE_PLAN_FOOTER) {
+			StringBuffer footer = new StringBuffer();
+			if (Config.TRACE_COMPILE_PLAN_PARTITIONING
+					&& this.hasInputPartitioning()) {
+				footer.append("Input partitioning: ");
+				footer.append(this.getInputPartitioning().toString());
+			}
+			if (node.getInfo().getFooter() != null) {
+				footer.append(AbstractToken.NEWLINE);
+				footer.append(node.getInfo().getFooter());
+			}
+			node.getInfo().setFooter(footer.toString());
 		}
 
 		return err;
@@ -126,10 +140,11 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 			Vector<String> renamedOps) {
 		boolean renamed = false;
 
-		//rename inputpartioning
+		// rename input partitioning
 		String newName = null;
-		if (this.getInputPartitioning() != null) {
-			for (TokenAttribute tA : this.getInputPartitioning().getPartitionAttributes()) {
+		if (this.hasInputPartitioning()) {
+			for (TokenAttribute tA : this.getInputPartitioning()
+					.getPartitionAttributes()) {
 				newName = renamedAttributes.get(tA.getName().getName());
 				if (newName == null)
 					continue;
@@ -143,14 +158,7 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 
 	@Override
 	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
-		TokenAttribute.renameTable(selAtts, this.getChild().getOperatorId().toString());
-	}
-
-	public PartitionInfo getInputPartitioning() {
-		return inputPartitioning;
-	}
-
-	public void setInputPartitioning(PartitionInfo inputPartitioning) {
-		this.inputPartitioning = inputPartitioning;
+		TokenAttribute.renameTable(selAtts, this.getChild().getOperatorId()
+				.toString());
 	}
 }

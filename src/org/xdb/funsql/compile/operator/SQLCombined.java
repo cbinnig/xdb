@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import org.xdb.Config;
 import org.xdb.funsql.codegen.ReReNameExpressionVisitor;
 import org.xdb.funsql.codegen.ReReNamePredicateVisitor;
 import org.xdb.funsql.compile.analyze.expression.RenameExpressionCombineVisitor;
@@ -61,18 +62,15 @@ public class SQLCombined extends AbstractJoinOperator {
 	// group by clause
 	private Vector<AbstractExpression> groupExpressions = new Vector<AbstractExpression>();
 
+	// constructor
 	public SQLCombined(SQLJoin toCopy) {
 		super(toCopy);
 		this.jointokens = toCopy.jointokens;
 		this.type = EnumOperator.SQL_COMBINED;
 		this.copied = toCopy;
 	}
-	
-	
-	/**
-	 * Copy Constructor
-	 * @param toCopy Element to copy
-	 */
+
+	// copy-constructor
 	public SQLCombined(SQLCombined toCopy) {
 		super(toCopy);
 
@@ -115,7 +113,7 @@ public class SQLCombined extends AbstractJoinOperator {
 		}
 
 		this.parents = sqlU.parents;
-		
+
 		idx = -1;
 		for (AbstractCompileOperator absOp : this.getChildren()) {
 			idx = absOp.getParents().indexOf(copied);
@@ -127,26 +125,28 @@ public class SQLCombined extends AbstractJoinOperator {
 	}
 
 	@Override
-	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes) {
+	public Error traceOperator(Graph g, Map<Identifier, GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
 		if (err.isError())
 			return err;
 
 		GraphNode node = nodes.get(this.operatorId);
-		StringBuffer footer = new StringBuffer();
-		footer.append("Expressions:");
-		footer.append(this.selectExpressions);
-		
-		footer.append(AbstractToken.NEWLINE);
-		footer.append("Join conditions:");
-		footer.append(this.jointokens);
-		
-		if(node.getInfo().getFooter()!=null){
+		if (Config.TRACE_COMPILE_PLAN_FOOTER) {
+			StringBuffer footer = new StringBuffer();
+			footer.append("Expressions:");
+			footer.append(this.selectExpressions);
+
 			footer.append(AbstractToken.NEWLINE);
-			footer.append(node.getInfo().getFooter());
+			footer.append("Join conditions:");
+			footer.append(this.jointokens);
+
+			if (node.getInfo().getFooter() != null) {
+				footer.append(AbstractToken.NEWLINE);
+				footer.append(node.getInfo().getFooter());
+			}
+			node.getInfo().setFooter(footer.toString());
 		}
-		node.getInfo().setFooter(footer.toString());
-		
+
 		return err;
 	}
 
@@ -331,7 +331,7 @@ public class SQLCombined extends AbstractJoinOperator {
 	private void setError(Error error) {
 		this.error = error;
 	}
-	
+
 	@Override
 	public SQLCombined clone() throws CloneNotSupportedException {
 		// TODO Auto-generated method stub

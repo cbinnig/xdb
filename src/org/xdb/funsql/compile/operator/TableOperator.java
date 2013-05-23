@@ -3,6 +3,7 @@ package org.xdb.funsql.compile.operator;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
@@ -23,7 +24,7 @@ public class TableOperator extends AbstractCompileOperator {
 	private Connection connection = null;
 	private Partition partition = null;
 	private Table table = null;
-	
+
 	private int part = -1;
 
 	private final StringTemplate sqlTemplate = new StringTemplate("<<OP1>>");
@@ -48,10 +49,10 @@ public class TableOperator extends AbstractCompileOperator {
 		if (toCopy.connection != null) {
 			this.setConnection(new Connection(toCopy.getConnection()));
 		}
-		if(toCopy.partition != null){
+		if (toCopy.partition != null) {
 			this.setPartition(new Partition(toCopy.getPartition()));
 		}
-		
+
 		this.part = toCopy.part;
 
 		this.table = new Table(toCopy.table);
@@ -88,6 +89,10 @@ public class TableOperator extends AbstractCompileOperator {
 
 	public void setTable(Table table) {
 		this.table = table;
+	}
+
+	public boolean hasPartition() {
+		return this.partition != null;
 	}
 
 	// methods
@@ -135,22 +140,32 @@ public class TableOperator extends AbstractCompileOperator {
 	}
 
 	@Override
-	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes) {
+	public Error traceOperator(Graph g, Map<Identifier, GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
 
 		GraphNode node = nodes.get(this.operatorId);
-		String partitionString = "";
-		if (this.partition != null) {
-			partitionString = AbstractToken.NEWLINE + "Partition: "
-					+ this.partition.getName() + " in connection: "
-					+ this.partition.getConnectionOid();
+		if (Config.TRACE_COMPILE_PLAN_FOOTER) {
+			StringBuffer footer = new StringBuffer();
+
+			footer.append(this.table.getName());
+			footer.append(" AS ");
+			footer.append(this.tableName.toSqlString());
+			footer.append(AbstractToken.NEWLINE);
+
+			if (Config.TRACE_COMPILE_PLAN_PARTITIONING && this.hasPartition()) {
+				footer.append("Partition: ");
+				footer.append(partition.toString());
+				footer.append(AbstractToken.NEWLINE);
+				footer.append("Part : " + this.part);
+				footer.append(AbstractToken.NEWLINE);
+			}
+			
+			if (node.getInfo().getFooter() != null) {
+				footer.append(node.getInfo().getFooter());
+				footer.append(AbstractToken.NEWLINE);
+			}
+			node.getInfo().setFooter(footer.toString());
 		}
-		
-		node.getInfo().setFooter(
-				this.table.getName() + " AS " + this.tableName.toSqlString()
-						+ partitionString + AbstractToken.NEWLINE
-						+ node.getInfo().getFooter() + AbstractToken.NEWLINE 
-						+ "Part : " + this.part);
 
 		return err;
 	}
@@ -175,5 +190,5 @@ public class TableOperator extends AbstractCompileOperator {
 	public void setPart(int part) {
 		this.part = part;
 	}
-	
+
 }

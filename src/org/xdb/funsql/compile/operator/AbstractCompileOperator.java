@@ -90,6 +90,10 @@ public abstract class AbstractCompileOperator implements Serializable {
 		return partitionOutputInfo;
 	}
 
+	public boolean hasOutputPartitionInfo() {
+		return partitionOutputInfo != null;
+	}
+
 	/**
 	 * Set the partionInfo for this operator
 	 * 
@@ -144,6 +148,10 @@ public abstract class AbstractCompileOperator implements Serializable {
 
 	public void setOperatorId(Identifier operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public boolean hasResult() {
+		return this.results.size() == 1;
 	}
 
 	public ResultDesc getResult() {
@@ -319,26 +327,30 @@ public abstract class AbstractCompileOperator implements Serializable {
 		// header
 		if (Config.TRACE_COMPILE_PLAN_HEADER) {
 			StringBuffer header = new StringBuffer();
-			header.append("Partition candidates:");
-			header.append(AbstractToken.NEWLINE);
-			for (PartitionInfo pi : this.getPartitionCandiates()) {
-				header.append(pi.toString());
-				header.append(AbstractToken.NEWLINE);
-			}
+			if (Config.TRACE_COMPILE_PLAN_PARTITIONING) {
 
-			header.append("Parents: ");
-			header.append(this.parents.toString());
-			header.append(AbstractToken.NEWLINE);
-			header.append("Children: ");
-			header.append(this.children.toString());
-			if (this.results.size() == 1) {
+				header.append("Partition candidates:");
 				header.append(AbstractToken.NEWLINE);
-				if (this.getResult() != null) {
-					// header.append(this.getResult().toString());
+				for (PartitionInfo pi : this.getPartitionCandiates()) {
+					header.append(pi.toString());
+					header.append(AbstractToken.NEWLINE);
 				}
 
+				header.append("Parents: ");
+				header.append(this.parents.toString());
+				header.append(AbstractToken.NEWLINE);
+				header.append("Children: ");
+				header.append(this.children.toString());
+				header.append(AbstractToken.NEWLINE);
 			}
-			header.append(AbstractToken.NEWLINE);
+			if (Config.TRACE_COMPILE_PLAN_RESULTS && this.hasResult()) {
+				header.append("Result:");
+				header.append(AbstractToken.NEWLINE);
+				if (this.getResult() != null) {
+					header.append(this.getResult().toString());
+				}
+				header.append(AbstractToken.NEWLINE);
+			}
 			node.getInfo().setHeader(header.toString());
 		}
 
@@ -346,11 +358,14 @@ public abstract class AbstractCompileOperator implements Serializable {
 		node.getInfo().setCaption(this.toString());
 
 		// footer
-		if (Config.TRACE_COMPILE_PLAN_PARTITIONING
-				&& this.getOutputPartitionInfo() != null) {
-			node.getInfo().setFooter(
-					node.getInfo().getFooter() + "\n"
-							+ this.getOutputPartitionInfo().toString());
+		if (Config.TRACE_COMPILE_PLAN_FOOTER) {
+			StringBuffer footer = new StringBuffer();
+			if (Config.TRACE_COMPILE_PLAN_PARTITIONING
+					&& this.hasOutputPartitionInfo()) {
+				footer.append("Output partitioning: ");
+				footer.append(this.getOutputPartitionInfo().toString());
+			}
+			node.getInfo().setFooter(footer.toString());
 		}
 
 		return err;

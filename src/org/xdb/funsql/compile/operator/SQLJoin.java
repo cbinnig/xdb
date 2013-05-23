@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+
+import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -43,7 +45,7 @@ public class SQLJoin extends AbstractJoinOperator {
 		jointokens.add(tp);
 
 		this.setOperatorId(equiJoin.operatorId);
-		
+
 		// redirect parents from equi-join to SQL-join
 		for (AbstractCompileOperator parentOp : this.parents) {
 			int childOpIdx = parentOp.getChildren().indexOf(equiJoin);
@@ -57,12 +59,14 @@ public class SQLJoin extends AbstractJoinOperator {
 			child.setParent(parentOpIdx, this);
 		}
 	}
-	
+
 	/**
 	 * Copy Constructor
-	 * @param toCopy Element to Copy
+	 * 
+	 * @param toCopy
+	 *            Element to Copy
 	 */
-	public SQLJoin(SQLJoin toCopy){
+	public SQLJoin(SQLJoin toCopy) {
 		super(toCopy);
 	}
 
@@ -156,24 +160,25 @@ public class SQLJoin extends AbstractJoinOperator {
 	}
 
 	@Override
-	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes) {
+	public Error traceOperator(Graph g, Map<Identifier, GraphNode> nodes) {
 		Error err = super.traceOperator(g, nodes);
 		if (err.isError())
 			return err;
 
 		GraphNode node = nodes.get(this.operatorId);
-		
-		StringBuffer footer = new StringBuffer();
-		
-		footer.append(AbstractToken.NEWLINE);
-		footer.append("Join conditions:");
-		footer.append(this.jointokens);
-		
-		if(node.getInfo().getFooter()!=null){
+
+		if (Config.TRACE_COMPILE_PLAN_FOOTER) {
+			StringBuffer footer = new StringBuffer();
 			footer.append(AbstractToken.NEWLINE);
-			footer.append(node.getInfo().getFooter());
+			footer.append("Join conditions:");
+			footer.append(this.jointokens);
+
+			if (node.getInfo().getFooter() != null) {
+				footer.append(AbstractToken.NEWLINE);
+				footer.append(node.getInfo().getFooter());
+			}
+			node.getInfo().setFooter(footer.toString());
 		}
-		node.getInfo().setFooter(footer.toString());
 		return err;
 	}
 
@@ -244,7 +249,7 @@ public class SQLJoin extends AbstractJoinOperator {
 		TokenAttribute.renameTable(selAtts, this.getChild(childIdx)
 				.getOperatorId().toString());
 	}
-	
+
 	@Override
 	public SQLJoin clone() throws CloneNotSupportedException {
 		// TODO Auto-generated method stub
