@@ -77,7 +77,7 @@ public class Config implements Serializable {
 	public static int QUERYTRACKER_PORT = 55600;
 	public static int QUERYTRACKER_SLOTS = 1;
 	public static EnumResourceScheduler QUERYTRACKER_SCHEDULER = EnumResourceScheduler.LOCALITY_AWARE_SCHEDULER;
-	public static EnumQueryTrackerStrategy QUERYTRACKER_STRATEGY = EnumQueryTrackerStrategy.PERFORMANCE;
+	public static EnumQueryTrackerStrategy QUERYTRACKER_STRATEGY = EnumQueryTrackerStrategy.ROBUST;
 	
 	// Query Tracker Server: Code generation
 	public static boolean CODEGEN_OPTIMIZE = true;
@@ -164,7 +164,7 @@ public class Config implements Serializable {
 				}
 			}
 
-			// Others (LogLevel, Bitmaps)
+			// Others (LogLevel, Bitmaps, Enums)
 			if (props.containsKey("LOG_LEVEL")) {
 				LOG_LEVEL = Level.parse(props.getProperty("LOG_LEVEL"));
 			}
@@ -186,6 +186,12 @@ public class Config implements Serializable {
 					OPTIMIZER_ACTIVE_RULES_SELECT.set(i++, (bit == '1') ? true
 							: false);
 				}
+			}
+			if(props.containsKey("QUERYTRACKER_STRATEGY")){
+				String qtStrategy = props.getProperty("QUERYTRACKER_STRATEGY");
+				EnumQueryTrackerStrategy tempQtStrat = EnumQueryTrackerStrategy.valueOf(qtStrategy);
+				if(tempQtStrat!=null)
+					QUERYTRACKER_STRATEGY = tempQtStrat;
 			}
 
 		} catch (Exception e) {

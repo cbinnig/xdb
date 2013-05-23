@@ -11,6 +11,7 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.AbstractAnnotationVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.DataExchangeOperator;
+import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -42,6 +43,8 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
+		applyGlobalMaterializeRules(ej);
+		
 		// if we have a child which is a table op, stay in its connection
 		// else use the connection of the left child		
 		if (ej.getRightChild() instanceof TableOperator) {
@@ -57,6 +60,8 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
+		applyGlobalMaterializeRules(ej);
+		
 		// if we have a child which is a table op, stay in its connection
 		for (AbstractCompileOperator op : ej.getChildren()) {
 			if (op instanceof TableOperator) {
@@ -78,6 +83,8 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
+		applyGlobalMaterializeRules(gs);
+		
 		gs.setWishedConnection(gs.getChild().getWishedConnection());
 		gs.setWishedConnections(gs.getChild().getWishedConnections());
 		return Error.NO_ERROR;
@@ -87,23 +94,31 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 	// every aggregation
 	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
+		applyGlobalMaterializeRules(sa);
+		
 		sa.setWishedConnection(sa.getChild().getWishedConnection()); 
 		sa.setWishedConnections(sa.getChild().getWishedConnections());
-		sa.getResult().setMaterialized(true);
 		return Error.NO_ERROR;
 	}
 
 
 	@Override
 	public Error visitGenericProjection(GenericProjection gp) {
+		applyGlobalMaterializeRules(gp);
+		
 		gp.setWishedConnection(gp.getChild().getWishedConnection()); 
 		gp.setWishedConnections(gp.getChild().getWishedConnections());
+		if(gp.getChild().getType().equals(EnumOperator.GENERIC_AGGREGATION)){
+			gp.getResult().setMaterialized(true);
+		}
 		return Error.NO_ERROR;
 	}
 
 
 	@Override
 	public Error visitTableOperator(TableOperator to) {
+		applyGlobalMaterializeRules(to);
+		
 		to.setWishedConnection(to.getConnection());  
 		to.setWishedConnections(to.getConnections());
 		return Error.NO_ERROR;
@@ -112,6 +127,8 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 
 	@Override
 	public Error visitRename(Rename ro) {
+		applyGlobalMaterializeRules(ro);
+		
 		ro.setWishedConnection(ro.getChild().getWishedConnection()); 
 		ro.setWishedConnections(ro.getChild().getWishedConnections());
 		return Error.NO_ERROR;
@@ -119,22 +136,25 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 
 
 	@Override
-	public Error visitSQLUnary(SQLUnary absOp) {
+	public Error visitSQLUnary(SQLUnary absOp){
+		applyGlobalMaterializeRules(absOp);
 		return Error.NO_ERROR;
 	}
 
 
 	@Override
 	public Error visitSQLCombined(SQLCombined absOp) {
+		applyGlobalMaterializeRules(absOp);
 		return Error.NO_ERROR;
 	}
 
 
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {
+		
 		deOp.setWishedConnection(deOp.getChild().getWishedConnection()); 
 		deOp.setWishedConnections(deOp.getChild().getWishedConnections());
-		// TODO: the materialization 
+		deOp.getResult().setMaterialized(true);
 		return Error.NO_ERROR;
 	}
 

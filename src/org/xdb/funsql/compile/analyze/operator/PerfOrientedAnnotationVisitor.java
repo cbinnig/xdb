@@ -23,17 +23,7 @@ public class PerfOrientedAnnotationVisitor extends AbstractAnnotationVisitor {
 	public PerfOrientedAnnotationVisitor(AbstractCompileOperator root) {
 		super(root);
 	}
-	
-	private void applyGlobalMaterializeRules(final AbstractCompileOperator op) {
-		/*
-		 * Force materialize if 
-		 * - an operator has no parent (i.e, it is a root) 
-		 * - an operator has > 1 parents
-		 */
-		if (op.getParents().size() != 1) {
-			op.getResult().setMaterialized(true);
-		}
-	}
+
 
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
