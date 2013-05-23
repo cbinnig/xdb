@@ -14,7 +14,7 @@ public abstract class AbstractAnnotationVisitor extends AbstractBottomUpTreeVisi
 		case PERFORMANCE:
 			return new PerfOrientedAnnotationVisitor(root);
 		case ROBUST:
-			return null;
+			return new RobustnessOrientedAnnotationVisitor(root);
 		default:
 			return new PerfOrientedAnnotationVisitor(root);
 		}

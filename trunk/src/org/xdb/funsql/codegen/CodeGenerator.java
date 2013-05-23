@@ -2,6 +2,7 @@ package org.xdb.funsql.codegen;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.optimize.JoinCombineVisitor;
 import org.xdb.funsql.optimize.SQLCombineVisitor;
 import org.xdb.funsql.optimize.SQLUnaryCombineVisitor;
+import org.xdb.metadata.Connection;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
 import org.xdb.tracker.operator.MySQLTrackerOperator;
@@ -192,11 +194,19 @@ public class CodeGenerator {
 			trackerOp.addInTable(inTable, new StringTemplate(inDDL));
 
 			// if: leaf of sub-plan is a table: add catalog info (table name and
-			// URL)
+			// URL) 
+			// TODO to load the preferable connection to the sub-plan. 
 			if (inputCompileOp.getType().equals(EnumOperator.TABLE)) { // table
 				URI connURI = URI.create(inputTableOp.getConnection().getUrl());
+                // Added multiple Connections to the table description  
+				List<Connection> tableConnections = inputTableOp.getConnections();  
+				List<URI> uris = new ArrayList<URI>();
+				for (Connection connection : tableConnections) {
+					uris.add(URI.create(connection.getUrl()));
+				} 
+				// TODO need to set the new constructor. 
 				TableDesc tableDesc = new TableDesc(inputTableOp.getTable()
-						.getSourceName(), connURI);
+						.getSourceName(), connURI); 
 				trackerOp.setInTableSource(inTable, tableDesc);
 			}
 			// else: use intermediate result as table (with _OUT suffix) and

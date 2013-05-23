@@ -1,6 +1,7 @@
 package org.xdb.funsql.compile.operator;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,7 +34,8 @@ public abstract class AbstractCompileOperator implements Serializable {
 	protected EnumOperator type;
 	protected Vector<AbstractCompileOperator> children = new Vector<AbstractCompileOperator>();
 	protected Vector<AbstractCompileOperator> parents = new Vector<AbstractCompileOperator>();
-	protected Connection wishedConnection = null;
+	protected Connection wishedConnection = null;  
+	protected List<Connection> wishedConnections = new ArrayList<Connection>();  
 
 	// unique operator id
 	protected Identifier operatorId;
@@ -140,6 +142,15 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 */
 	public Connection getWishedConnection() {
 		return this.wishedConnection;
+	} 
+	
+	public List<Connection> getWishedConnections(){
+		return wishedConnections;
+		
+	} 
+	
+	public void setWishedConnections(List<Connection> wishedConnections){
+		this.wishedConnections = wishedConnections;  
 	}
 
 	public Identifier getOperatorId() {
