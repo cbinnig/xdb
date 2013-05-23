@@ -131,7 +131,7 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 		// add result description
 		
 	
-		this.sqlUnaryOp.addResult(gp.getResult());
+		this.sqlUnaryOp.setResult(gp.getResult());
 		
 		// replace projection by combined operator
 		plan.replaceOperator(gp.getOperatorId(), this.sqlUnaryOp, true);

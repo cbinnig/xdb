@@ -65,10 +65,10 @@ public class EquiJoin extends AbstractBinaryOperator {
 		final HashMap<String, String> vars = new HashMap<String, String>();
 
 		final List<String> lAttributes = getLeftChild()
-				.getResultTableAttributes();
+				.resultAttributesWothTableToSQL();
 		final List<String> rAttributes = getRightChild()
-				.getResultTableAttributes();
-		final List<String> aliasVec = getResultAttributes();
+				.resultAttributesWothTableToSQL();
+		final List<String> aliasVec = resultAttributesToSQL();
 
 		final List<String> lAliases = aliasVec.subList(0, lAttributes.size());
 		final List<String> rAliases = aliasVec.subList(lAttributes.size(),
@@ -142,7 +142,7 @@ public class EquiJoin extends AbstractBinaryOperator {
 	}
 
 	@Override
-	public void renameAttributes(String oldId, String newId) {
+	public void renameTableOfAttributes(String oldId, String newId) {
 		Vector<TokenAttribute> atts = new Vector<TokenAttribute>(2);
 		atts.add(this.leftTokenAttribute);
 		atts.add(this.rightTokenAttribute);
@@ -157,7 +157,7 @@ public class EquiJoin extends AbstractBinaryOperator {
 	}
 
 	@Override
-	public boolean renameOperator(HashMap<String, String> renamedAttributes,
+	public boolean renameAttributes(HashMap<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
 		String newName;
 		// rename join tokens
@@ -170,7 +170,7 @@ public class EquiJoin extends AbstractBinaryOperator {
 			newName = renamedAttributes.get(getRightTokenAttribute().getName());
 			getRightTokenAttribute().setName(newName);
 		}
-		return super.renameOperator(renamedAttributes, renamedOps);
+		return super.renameAttributes(renamedAttributes, renamedOps);
 	}
 
 }

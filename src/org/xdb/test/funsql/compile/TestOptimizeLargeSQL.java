@@ -98,14 +98,12 @@ public class TestOptimizeLargeSQL extends XDBTestCase {
 			desc.setType(i, type);
 		}
 
-		sel.addResult(desc);
+		sel.setResult(desc);
 
 		sel.setChild(join);
 
 		proj2.getParents().removeAllElements();
-		for (int i = 0; i < proj.getResultNumber(); i++) {
-			proj2.addResult(proj.getResult(i));
-		}
+		proj2.setResult(proj.getResult());
 		proj2.setChild(sel);
 
 		//Optimize plan

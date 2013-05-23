@@ -74,6 +74,15 @@ public class TokenAttribute extends AbstractTokenOperand{
 	}
 	
 	//helper methods
+	public boolean renameAttribute(Map<String, String> renamedAttributes){
+		if (renamedAttributes.containsKey(this.getName().getName())) {
+			String newName = renamedAttributes.get(this.getName().getName());
+			this.setName(newName);
+			return true;
+		}
+		return false;
+	}
+	
 	@Override
 	public String toString(){
 		return this.toSqlString();

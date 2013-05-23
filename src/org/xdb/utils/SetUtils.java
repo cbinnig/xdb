@@ -40,7 +40,7 @@ public class SetUtils {
 		return attributeListBuffer.toString();
 	}
 	
-	public static Vector<String> attributesToString(final Vector<TokenAttribute> attrs) {
+	public static Vector<String> attributesToSQLString(final Vector<TokenAttribute> attrs) {
 		final Vector<String> stringAttrs = new Vector<String>(attrs.size());
 		for(TokenAttribute attr : attrs) {
 			stringAttrs.add(attr.getName().toSqlString());
@@ -49,7 +49,7 @@ public class SetUtils {
 		return stringAttrs;
 	}
 	
-	public static Vector<String> attributesToTableString(final Vector<TokenAttribute> attrs) {
+	public static Vector<String> attributesWithTableToSQLString(final Vector<TokenAttribute> attrs) {
 		final Vector<String> stringAttrs = new Vector<String>(attrs.size());
 		for(TokenAttribute attr : attrs) {
 			stringAttrs.add(attr.toSqlString());

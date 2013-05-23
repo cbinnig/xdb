@@ -93,7 +93,7 @@ public class GenericProjection extends AbstractUnaryOperator {
 		}
 
 		vars.put("RESULTS",
-				SetUtils.buildAliasString(expressionVec, getResultAttributes()));
+				SetUtils.buildAliasString(expressionVec, resultAttributesToSQL()));
 		vars.put("OP1", getChild().getOperatorId().toString());
 		return sqlTemplate.toString(vars);
 	}
@@ -122,7 +122,7 @@ public class GenericProjection extends AbstractUnaryOperator {
 	}
 
 	@Override
-	public void renameAttributes(String oldId, String newId) {
+	public void renameTableOfAttributes(String oldId, String newId) {
 		Vector<TokenAttribute> atts = new Vector<TokenAttribute>();
 		for (AbstractExpression expr : this.expressions) {
 			atts.addAll(expr.getAttributes());

@@ -131,7 +131,7 @@ public class ReRenameAttributesVisitor extends AbstractBottomUpTreeVisitor {
 	 */
 	private void renameResultSet(AbstractCompileOperator ej) {
 		// call operator method
-		boolean renamed = ej.renameOperator(renamedAttributes,renamedOps);
+		boolean renamed = ej.renameAttributes(renamedAttributes,renamedOps);
 		// if one element was renamed than add the opp to renamed ops
 		if(renamed){
 			this.renamedOps.add(ej.getOperatorId().toString());

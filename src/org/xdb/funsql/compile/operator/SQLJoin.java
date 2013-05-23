@@ -150,7 +150,7 @@ public class SQLJoin extends AbstractJoinOperator {
 		// name
 		for (AbstractCompileOperator child : op.getChildren()) {
 
-			if (child.getResultAttributes()
+			if (child.resultAttributesToSQL()
 					.contains(token.getName().toString())) {
 				return child.getOperatorId();
 			}
@@ -190,8 +190,8 @@ public class SQLJoin extends AbstractJoinOperator {
 		String results = "";
 		for (AbstractCompileOperator child : this.getChildren()) {
 			results = SetUtils.buildAliasString(
-					child.getResultTableAttributes(),
-					child.getResultAttributes())
+					child.resultAttributesWothTableToSQL(),
+					child.resultAttributesToSQL())
 					+ "," + results;
 		}
 		results = results.substring(0, results.lastIndexOf(','));
@@ -228,7 +228,7 @@ public class SQLJoin extends AbstractJoinOperator {
 	}
 
 	@Override
-	public void renameAttributes(String oldChildId, String newChildId) {
+	public void renameTableOfAttributes(String oldChildId, String newChildId) {
 		Vector<TokenAttribute> atts = new Vector<TokenAttribute>();
 		for (TokenPair tp : this.jointokens) {
 			atts.add(tp.getLeftTokenAttribute());

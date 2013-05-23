@@ -224,7 +224,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 				this.lastOp = op;
 				this.modifiedPlan = true;
 				this.cutSelection = new GenericSelection(op);
-				this.cutSelection.addResult(op.getResult().clone());
+				this.cutSelection.setResult(op.getResult().clone());
 				this.cutSelection.setPredicate(orPred);
 				this.plan.addOperator(this.cutSelection, false);
 				this.doWaitNextVisit = false;

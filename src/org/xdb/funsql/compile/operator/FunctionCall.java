@@ -42,6 +42,10 @@ public class FunctionCall extends AbstractCompileOperator implements Cloneable {
 	}
 	
 	//getters and setters
+	public void addResult(ResultDesc result) {
+		this.results.add(result);
+	}
+	
 	public TokenFunction getFunction() {
 		return function;
 	}
@@ -94,7 +98,7 @@ public class FunctionCall extends AbstractCompileOperator implements Cloneable {
 	}
 
 	@Override
-	public void renameAttributes(String oldId, String newId) {
+	public void renameTableOfAttributes(String oldId, String newId) {
 		//Nothing to do at the moment
 	}
 }

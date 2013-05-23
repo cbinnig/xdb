@@ -38,12 +38,12 @@ public class Rename extends AbstractUnaryOperator {
 			attrs.add(attr.getName().toString());
 		}
 		vars.put("RESULTS",
-				SetUtils.buildAliasString(attrs, getResultAttributes()));
+				SetUtils.buildAliasString(attrs, resultAttributesToSQL()));
 		return sqlTemplate.toString(vars);
 	}
 
 	@Override
-	public void renameAttributes(String oldId, String newId) {
+	public void renameTableOfAttributes(String oldId, String newId) {
 		// Nothing to do
 	}
 

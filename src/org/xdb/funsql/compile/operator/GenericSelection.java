@@ -55,7 +55,7 @@ public class GenericSelection extends AbstractUnaryOperator {
 	public String toSqlString() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
 		vars.put("RESULTS", SetUtils.buildAliasString(getChild()
-				.getResultTableAttributes(), getResultAttributes()));
+				.resultAttributesWothTableToSQL(), resultAttributesToSQL()));
 		vars.put("OP1", getChild().getOperatorId().toString());
 		vars.put("PRED", predicate.toSqlString());
 		if (this.getChild().getType().equals(EnumOperator.TABLE)) {
@@ -88,7 +88,7 @@ public class GenericSelection extends AbstractUnaryOperator {
 	}
 
 	@Override
-	public void renameAttributes(String oldId, String newId) {
+	public void renameTableOfAttributes(String oldId, String newId) {
 		TokenAttribute
 				.renameTable(this.predicate.getAttributes(), oldId, newId);
 	}

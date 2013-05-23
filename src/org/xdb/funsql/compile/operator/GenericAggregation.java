@@ -110,7 +110,7 @@ public class GenericAggregation extends AbstractUnaryOperator {
 		vars.put("AGG_ATTRS", SetUtils.stringifyExprVec(aggExprs));
 		vars.put("GROUP_ATTRS", SetUtils.stringifyExprVec(groupExprs));
 
-		final List<String> aliasVec = getResultAttributes();
+		final List<String> aliasVec = resultAttributesToSQL();
 		final List<String> aggrAliases = aliasVec.subList(0, aggExprs.size());
 		final List<String> grpAliases = aliasVec.subList(aggExprs.size(),
 				aliasVec.size());
@@ -158,7 +158,7 @@ public class GenericAggregation extends AbstractUnaryOperator {
 	}
 
 	@Override
-	public void renameAttributes(String oldId, String newId) {
+	public void renameTableOfAttributes(String oldId, String newId) {
 		Vector<TokenAttribute> atts = new Vector<TokenAttribute>();
 		for (AbstractExpression expr : this.aggExprs) {
 			atts.addAll(expr.getAttributes());
