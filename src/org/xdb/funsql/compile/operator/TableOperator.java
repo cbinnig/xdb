@@ -1,6 +1,8 @@
 package org.xdb.funsql.compile.operator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.xdb.Config;
@@ -10,8 +12,8 @@ import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.Partition;
 import org.xdb.metadata.Table;
-import org.xdb.utils.StringTemplate;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.StringTemplate;
 
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
@@ -21,7 +23,9 @@ public class TableOperator extends AbstractCompileOperator {
 	public static final String TABLE_PREFIX = "_";
 	// attributes
 	private TokenIdentifier tableName;
-	private Connection connection = null;
+	private Connection connection = null; 
+	private List<Connection> connections = new ArrayList<Connection>();
+	
 	private Partition partition = null;
 	private Table table = null;
 
@@ -190,5 +194,21 @@ public class TableOperator extends AbstractCompileOperator {
 	public void setPart(int part) {
 		this.part = part;
 	}
+
+     
+	/**
+	 * @return the connections
+	 */
+	public List<Connection> getConnections() {
+		return connections;
+	}
+
+	/**
+	 * @param connections the connections to set
+	 */
+	public void addConnection(Connection connection) {
+		this.connections.add(connection);
+	}
+	
 
 }

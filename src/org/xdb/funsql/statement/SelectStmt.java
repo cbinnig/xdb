@@ -3,6 +3,7 @@ package org.xdb.funsql.statement;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -524,6 +525,22 @@ public class SelectStmt extends AbstractServerStmt {
 			// not partioned
 			PartitionInfo pi = new PartitionInfo(EnumPartitionType.NO_PARTITION);
 			tableOp.setOutputPartitionInfo(pi);
+			// TODO next step (add all table connections) "Abdallah"
+			if(table.getConnectionOids().isEmpty()){
+				// TODO 
+			} else {
+				List<Long> connectionOids = table.getConnectionOids(); 
+				for (Long connOid : connectionOids) {
+					Connection conn = Catalog.getConnection(connOid); 
+					tableOp.addConnection(conn);
+					if (!conn.getStore().equals(EnumStore.XDB)) {
+						String args[] = { "Store of type " + conn.getStore()
+								+ " not supported" };
+						return new Error(EnumError.COMPILER_GENERIC, args);
+					}
+				}
+			}
+			
 			if (table.getConnectionOid() == -1) {
 				// TODO
 			} else {
@@ -691,7 +708,7 @@ public class SelectStmt extends AbstractServerStmt {
 	private Error checkTables() {
 		Error err = new Error();
 		// create mapping of table names and aliases to catalog table objects
-		for (int i = 0; i < this.tTables.size(); ++i) {
+		for (int i = 0; i < this.tTables.size(); ++i) { 
 			TokenTable tTable = this.tTables.get(i);
 			TokenIdentifier tTableAlias = this.tTableAliases.get(i);
 			Table table = null;
@@ -715,7 +732,7 @@ public class SelectStmt extends AbstractServerStmt {
 				this.schemaSymbols.put(schema.hashKey(), schema);
 
 				table = Catalog.getTable(tTable.hashKey(schema.getOid()));
-
+                
 				// check for non existing table names
 				if (table == null) {
 					return Catalog.createObjectNotExistsErr(
@@ -726,7 +743,7 @@ public class SelectStmt extends AbstractServerStmt {
 			if (this.tableSymbols.containsKey(tTableAlias.hashKey())) {
 				return createDuplicateTableNameErr(tTableAlias);
 			}
-			this.tableSymbols.put(tTableAlias.hashKey(), table);
+			this.tableSymbols.put(tTableAlias.hashKey(), table);  
 		}
 		return err;
 	}

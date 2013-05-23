@@ -73,7 +73,7 @@ public class Table extends AbstractDatabaseObject {
 			this.partitions.put(partition.getOid(), partition);
 		}
 		
-		for(Connection connection: toCopy.connections.values()){
+		for(Connection connection: toCopy.connections.values()){ 
 			this.connections.put(connection.getOid(), connection);
 		}
 		
@@ -156,14 +156,23 @@ public class Table extends AbstractDatabaseObject {
 		this.schemaOid = schemaOid;
 	}
 
+	// TODO change it to return all available connections for 
+	// a certain table. Map<long, connection> "Abdallah" 	
+	public List<Long> getConnectionOids(){
+		List<Long> connectionOids = new ArrayList<Long>();
+		for(Connection connec : this.connections.values()){
+			connectionOids.add(connec.getOid()); 
+		} 
+		return connectionOids;
+	}
+	
 	public Long getConnectionOid() {
 		// not replicated
-
 		for(Connection connec : this.connections.values()){
 			return connec.getOid();
 		}
 		return (long) -1;
-	}
+	} 
 	
 
 	
@@ -262,12 +271,9 @@ public class Table extends AbstractDatabaseObject {
 	}
 
 
-
 	public boolean isPartioned() {
 		return partioned;
 	}
-
-
 	
 	@Override
 	public String sqlInsert() {
