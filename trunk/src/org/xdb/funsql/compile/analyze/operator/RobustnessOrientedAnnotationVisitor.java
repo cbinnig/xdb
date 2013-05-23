@@ -3,9 +3,8 @@
  */
 package org.xdb.funsql.compile.analyze.operator;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
+
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.AbstractAnnotationVisitor;
@@ -48,12 +47,10 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 		// if we have a child which is a table op, stay in its connection
 		// else use the connection of the left child		
 		if (ej.getRightChild() instanceof TableOperator) {
-			ej.setWishedConnection(ej.getRightChild().getWishedConnection());  
-			ej.setWishedConnections(ej.getRightChild().getWishedConnections());
+			ej.addWishedConnections(ej.getRightChild().getWishedConnections());
 			return Error.NO_ERROR;
 		}
-		ej.setWishedConnection(ej.getLeftChild().getWishedConnection()); 
-		ej.setWishedConnections(ej.getLeftChild().getWishedConnections());
+		ej.addWishedConnections(ej.getLeftChild().getWishedConnections());
 		return Error.NO_ERROR;
 	}
 
@@ -64,19 +61,11 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 		
 		// if we have a child which is a table op, stay in its connection
 		for (AbstractCompileOperator op : ej.getChildren()) {
-			if (op instanceof TableOperator) {
-				ej.setWishedConnection(op.getWishedConnection());
-				// Union all the connections from the children 
-				Set<Connection> unionSet = new HashSet<Connection>();
-				unionSet.addAll(ej.getWishedConnections()); 
-				unionSet.addAll(op.getWishedConnections());  
-				ej.setWishedConnections(new ArrayList<Connection>(unionSet));   
-				return Error.NO_ERROR;
-			}
+			ej.addWishedConnections(op.getWishedConnections());   
+			
 		}
 		// otherwise just use the partition of the first child
-		ej.setWishedConnection(ej.getChild(0).getWishedConnection());
-		ej.setWishedConnections(ej.getChild(0).getWishedConnections());
+		ej.addWishedConnections(ej.getChild(0).getWishedConnections());
 		return Error.NO_ERROR;
 	}
 
@@ -85,8 +74,7 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 	public Error visitGenericSelection(GenericSelection gs) {
 		applyGlobalMaterializeRules(gs);
 		
-		gs.setWishedConnection(gs.getChild().getWishedConnection());
-		gs.setWishedConnections(gs.getChild().getWishedConnections());
+		gs.addWishedConnections(gs.getChild().getWishedConnections());
 		return Error.NO_ERROR;
 	}
 
@@ -96,8 +84,7 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 	public Error visitGenericAggregation(GenericAggregation sa) {
 		applyGlobalMaterializeRules(sa);
 		
-		sa.setWishedConnection(sa.getChild().getWishedConnection()); 
-		sa.setWishedConnections(sa.getChild().getWishedConnections());
+		sa.addWishedConnections(sa.getChild().getWishedConnections());
 		return Error.NO_ERROR;
 	}
 
@@ -106,8 +93,7 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 	public Error visitGenericProjection(GenericProjection gp) {
 		applyGlobalMaterializeRules(gp);
 		
-		gp.setWishedConnection(gp.getChild().getWishedConnection()); 
-		gp.setWishedConnections(gp.getChild().getWishedConnections());
+		gp.addWishedConnections(gp.getChild().getWishedConnections());
 		if(gp.getChild().getType().equals(EnumOperator.GENERIC_AGGREGATION)){
 			gp.getResult().setMaterialized(true);
 		}
@@ -119,8 +105,7 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 	public Error visitTableOperator(TableOperator to) {
 		applyGlobalMaterializeRules(to);
 		
-		to.setWishedConnection(to.getConnection());  
-		to.setWishedConnections(to.getConnections());
+		to.addWishedConnections(new HashSet<Connection>(to.getConnections()));
 		return Error.NO_ERROR;
 	}
 
@@ -129,8 +114,7 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 	public Error visitRename(Rename ro) {
 		applyGlobalMaterializeRules(ro);
 		
-		ro.setWishedConnection(ro.getChild().getWishedConnection()); 
-		ro.setWishedConnections(ro.getChild().getWishedConnections());
+		ro.addWishedConnections(ro.getChild().getWishedConnections());
 		return Error.NO_ERROR;
 	}
 
@@ -152,8 +136,7 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {
 		
-		deOp.setWishedConnection(deOp.getChild().getWishedConnection()); 
-		deOp.setWishedConnections(deOp.getChild().getWishedConnections());
+		deOp.addWishedConnections(deOp.getChild().getWishedConnections());
 		deOp.getResult().setMaterialized(true);
 		return Error.NO_ERROR;
 	}
