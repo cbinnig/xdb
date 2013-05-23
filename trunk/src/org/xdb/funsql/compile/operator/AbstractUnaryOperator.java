@@ -85,7 +85,7 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 		for(AbstractCompileOperator p: this.parents){
 			int childIdx = p.children.indexOf(this);
 			p.children.set(childIdx, child);
-			p.renameAttributes(this.getOperatorId().toString(), child.getOperatorId().toString());
+			p.renameTableOfAttributes(this.getOperatorId().toString(), child.getOperatorId().toString());
 			cutInfo.put(p, childIdx);
 		}
 		
@@ -105,7 +105,7 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 		AbstractCompileOperator child = parent.children.get(childIdx);
 
 		// modify parent
-		parent.renameAttributes(child.getOperatorId().toString(),
+		parent.renameTableOfAttributes(child.getOperatorId().toString(),
 				this.operatorId.toString());
 		parent.children.set(childIdx, this);
 
@@ -115,7 +115,7 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 		ResultDesc newResult = child.getResult().clone();
 		TokenAttribute.renameTable(newResult.getAttributes(), this
 				.getOperatorId().toString());
-		this.setResult(newResult);
+		this.replaceResult(newResult);
 
 		// modify child
 		int parentIdx = child.parents.indexOf(parent);

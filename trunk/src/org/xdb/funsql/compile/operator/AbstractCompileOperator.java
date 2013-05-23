@@ -34,8 +34,8 @@ public abstract class AbstractCompileOperator implements Serializable {
 	protected EnumOperator type;
 	protected Vector<AbstractCompileOperator> children = new Vector<AbstractCompileOperator>();
 	protected Vector<AbstractCompileOperator> parents = new Vector<AbstractCompileOperator>();
-	protected Connection wishedConnection = null;  
-	protected List<Connection> wishedConnections = new ArrayList<Connection>();  
+	protected Connection wishedConnection = null;
+	protected List<Connection> wishedConnections = new ArrayList<Connection>();
 
 	// unique operator id
 	protected Identifier operatorId;
@@ -84,7 +84,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 
 	/**
 	 * Gets the partition Info of the Operator, so how many parts the output has
-	 * and on what column it is partioned
+	 * and on what column it is partitioned
 	 * 
 	 * @return
 	 */
@@ -92,6 +92,11 @@ public abstract class AbstractCompileOperator implements Serializable {
 		return partitionOutputInfo;
 	}
 
+	/**
+	 * Returns if output partition info is available
+	 * 
+	 * @return
+	 */
 	public boolean hasOutputPartitionInfo() {
 		return partitionOutputInfo != null;
 	}
@@ -105,16 +110,44 @@ public abstract class AbstractCompileOperator implements Serializable {
 		this.partitionOutputInfo = partitionOutputInfo;
 	}
 
+	/**
+	 * Adds a partitioning scheme as candidate
+	 * 
+	 * @param pi
+	 */
 	public void addPartitionCandiate(PartitionInfo pi) {
 		this.partitionCandiates.add(pi);
 	}
 
+	/**
+	 * Returns all possible partitioning schemes
+	 * 
+	 * @return
+	 */
 	public Set<PartitionInfo> getPartitionCandiates() {
 		return partitionCandiates;
 	}
 
+	/**
+	 * Sets all partitioning candidates
+	 * 
+	 * @param partitionCandiates
+	 */
 	public void setPartitionCandiates(Set<PartitionInfo> partitionCandiates) {
 		this.partitionCandiates = partitionCandiates;
+	}
+
+	/**
+	 * Returns if any partition candidate is available
+	 * 
+	 * @return
+	 */
+	public boolean hasPartitionCandidates() {
+		if (this.partitionCandiates != null
+				&& this.partitionCandiates.size() > 0)
+			return true;
+
+		return false;
 	}
 
 	/**
@@ -142,15 +175,15 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 */
 	public Connection getWishedConnection() {
 		return this.wishedConnection;
-	} 
-	
-	public List<Connection> getWishedConnections(){
+	}
+
+	public List<Connection> getWishedConnections() {
 		return wishedConnections;
-		
-	} 
-	
-	public void setWishedConnections(List<Connection> wishedConnections){
-		this.wishedConnections = wishedConnections;  
+
+	}
+
+	public void setWishedConnections(List<Connection> wishedConnections) {
+		this.wishedConnections = wishedConnections;
 	}
 
 	public Identifier getOperatorId() {
@@ -169,20 +202,15 @@ public abstract class AbstractCompileOperator implements Serializable {
 		return results.get(0);
 	}
 
-	public ResultDesc getResult(int i) {
-		return results.get(i);
-	}
-
-	public void setResult(int i, ResultDesc result) {
-		this.results.set(i, result);
-	}
-
-	public void setResult(ResultDesc result) {
+	public void replaceResult(ResultDesc result) {
 		this.results.set(0, result);
 	}
 
-	public void addResult(ResultDesc result) {
-		this.results.add(result);
+	public void setResult(ResultDesc result) {
+		if (this.results.size() == 1)
+			this.setResult(result);
+		else
+			this.results.add(result);
 	}
 
 	public EnumOperator getType() {
@@ -191,10 +219,6 @@ public abstract class AbstractCompileOperator implements Serializable {
 
 	public void setType(EnumOperator type) {
 		this.type = type;
-	}
-
-	public int getResultNumber() {
-		return this.results.size();
 	}
 
 	public void setChildren(Vector<AbstractCompileOperator> sources) {
@@ -245,25 +269,6 @@ public abstract class AbstractCompileOperator implements Serializable {
 		this.wishedConnection = conn;
 	}
 
-	// methods
-	public int findChild(AbstractCompileOperator child) {
-		for (int i = 0; i < this.children.size(); ++i) {
-			if (this.children.get(i).equals(child)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	public int findParent(AbstractCompileOperator parent) {
-		for (int i = 0; i < this.parents.size(); ++i) {
-			if (this.parents.get(i).equals(parent)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
 	public boolean removeParent(AbstractCompileOperator parent) {
 		return this.parents.remove(parent);
 	}
@@ -272,36 +277,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 		this.parents.addAll(parents);
 	}
 
-	/**
-	 * Get list of all result TokenAttributes.
-	 */
-	protected List<String> getResultTableAttributes() {
-		return SetUtils.attributesToTableString(getResult().getAttributes());
-	}
-
-	protected List<String> getResultAttributes() {
-		return SetUtils.attributesToString(getResult().getAttributes());
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		AbstractCompileOperator op = (AbstractCompileOperator) o;
-		if (op.operatorId.equals(this.operatorId))
-			return true;
-
-		return false;
-	}
-
-	@Override
-	public String toString() {
-		StringBuffer value = new StringBuffer();
-		value.append("(");
-		value.append(this.operatorId);
-		value.append(":");
-		value.append(this.type);
-		value.append(")");
-		return value.toString();
-	}
+	// methods
 
 	/**
 	 * Generate SQL representation of this operator
@@ -311,12 +287,12 @@ public abstract class AbstractCompileOperator implements Serializable {
 	public abstract String toSqlString();
 
 	/**
-	 * Renames attributes names according to new id of child
+	 * Renames attributes names according to new operator-id of child
 	 * 
 	 * @param oldId
 	 * @param newId
 	 */
-	public abstract void renameAttributes(String oldChildId, String newChildId);
+	public abstract void renameTableOfAttributes(String oldChildId, String newChildId);
 
 	/**
 	 * Checks if operator is leave
@@ -324,6 +300,98 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 * @return
 	 */
 	public abstract boolean isLeaf();
+
+	/**
+	 * Returns index of child in list of children
+	 * 
+	 * @param child
+	 * @return
+	 */
+	public int findChild(AbstractCompileOperator child) {
+		for (int i = 0; i < this.children.size(); ++i) {
+			if (this.children.get(i).equals(child)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Returns index of parent in list of parents
+	 * 
+	 * @param parent
+	 * @return
+	 */
+	public int findParent(AbstractCompileOperator parent) {
+		for (int i = 0; i < this.parents.size(); ++i) {
+			if (this.parents.get(i).equals(parent)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Rename all necessary attributes using a map (old->new)
+	 * 
+	 * @param renamedAttributes
+	 * @param renamedOps
+	 * @return boolean to verify if some elements of this operator were renamed
+	 */
+	public boolean renameAttributes(HashMap<String, String> renamedAttributes,
+			Vector<String> renamedOps) {
+		boolean renamed = false;
+
+		// rename output Partitioning
+		if (this.hasOutputPartitionInfo()) {
+			for (TokenAttribute tA : this.getOutputPartitionInfo()
+					.getPartitionAttributes()) {
+				if (tA.renameAttribute(renamedAttributes))
+					renamed = true;
+			}
+		}
+
+		// rename partitioning candidates
+		if (this.hasPartitionCandidates()) {
+			for (PartitionInfo pi : this.getPartitionCandiates()) {
+				for (TokenAttribute tA : pi.getPartitionAttributes()) {
+					if (tA.renameAttribute(renamedAttributes))
+						renamed = true;
+				}
+			}
+		}
+
+		// rename result attributes
+		for (TokenAttribute tA : getResult().getAttributes()) {
+			if (renamedAttributes.containsKey(tA.getName().getName())) {
+				if (tA.renameAttribute(renamedAttributes))
+					renamed = true;
+			}
+		}
+
+		return renamed;
+	}
+	
+	/**
+	 * Creates a SQL string representing the result attributes (without table
+	 * name) e.g., [a, b]
+	 * 
+	 * @return
+	 */
+	protected List<String> resultAttributesWothTableToSQL() {
+		return SetUtils.attributesWithTableToSQLString(getResult()
+				.getAttributes());
+	}
+
+	/**
+	 * Creates a SQL string representing the result attributes (with table name)
+	 * e.g., [R.a, R.b]
+	 * 
+	 * @return
+	 */
+	protected List<String> resultAttributesToSQL() {
+		return SetUtils.attributesToSQLString(getResult().getAttributes());
+	}
 
 	/**
 	 * Generates a visual graph representation of the operator
@@ -382,57 +450,23 @@ public abstract class AbstractCompileOperator implements Serializable {
 		return err;
 	}
 
-	/**
-	 * Rename all necessary field of given Operator is used for rerenaming of
-	 * operators attributes who acess table to avoid intermediary result
-	 * materialization
-	 * 
-	 * @param renamedAttributes
-	 * @param renamedOps
-	 * @return boolean to verify if some elements of this operator were renamed
-	 */
-	public boolean renameOperator(HashMap<String, String> renamedAttributes,
-			Vector<String> renamedOps) {
-		String newName;
-		boolean renamed = false;
+	@Override
+	public boolean equals(Object o) {
+		AbstractCompileOperator op = (AbstractCompileOperator) o;
+		if (op.operatorId.equals(this.operatorId))
+			return true;
 
-		// rename output Partitioning
+		return false;
+	}
 
-		if (this.getOutputPartitionInfo() != null) {
-			for (TokenAttribute tA : this.getOutputPartitionInfo()
-					.getPartitionAttributes()) {
-				newName = renamedAttributes.get(tA.getName().getName());
-				if (newName == null)
-					continue;
-				renamed = true;
-				tA.setName(newName);
-			}
-		}
-
-		if (this.getPartitionCandiates() != null) {
-			if (this.getPartitionCandiates().size() > 0) {
-
-				for (PartitionInfo pi : this.getPartitionCandiates()) {
-					for (TokenAttribute tA : pi.getPartitionAttributes()) {
-						newName = renamedAttributes.get(tA.getName().getName());
-						if (newName == null)
-							continue;
-						renamed = true;
-						tA.setName(newName);
-					}
-				}
-			}
-		}
-		for (TokenAttribute tA : getResult().getAttributes()) {
-			newName = renamedAttributes.get(tA.getName().getName());
-			// if no new name was found there is no need to rename, because not
-			// accessed
-			// table operator
-			if (newName == null)
-				continue;
-			renamed = true;
-			tA.setName(newName);
-		}
-		return renamed;
+	@Override
+	public String toString() {
+		StringBuffer value = new StringBuffer();
+		value.append("(");
+		value.append(this.operatorId);
+		value.append(":");
+		value.append(this.type);
+		value.append(")");
+		return value.toString();
 	}
 }

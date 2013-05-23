@@ -302,7 +302,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 	}
 
 	@Override
-	public void renameAttributes(String oldChildId, String newChildId) {
+	public void renameTableOfAttributes(String oldChildId, String newChildId) {
 		// Nothing to do
 	}
 
@@ -312,9 +312,9 @@ public class SQLUnary extends AbstractUnaryOperator {
 	}
 
 	@Override
-	public boolean renameOperator(HashMap<String, String> renamedAttributes,
+	public boolean renameAttributes(HashMap<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
-		boolean renamed = super.renameOperator(renamedAttributes, renamedOps);
+		boolean renamed = super.renameAttributes(renamedAttributes, renamedOps);
 		@SuppressWarnings("unused")
 		Error e = null;
 		for (AbstractExpression expr : this.aggExpressions) {

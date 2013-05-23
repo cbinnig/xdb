@@ -237,7 +237,7 @@ public class SQLCombined extends AbstractJoinOperator {
 	}
 
 	@Override
-	public void renameAttributes(String oldChildId, String newChildId) {
+	public void renameTableOfAttributes(String oldChildId, String newChildId) {
 		// nothing todo in here
 
 	}
@@ -286,9 +286,9 @@ public class SQLCombined extends AbstractJoinOperator {
 	}
 
 	@Override
-	public boolean renameOperator(HashMap<String, String> renamedAttributes,
+	public boolean renameAttributes(HashMap<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
-		boolean renamed = super.renameOperator(renamedAttributes, renamedOps);
+		boolean renamed = super.renameAttributes(renamedAttributes, renamedOps);
 		Error e = new Error();
 		for (AbstractExpression expr : this.aggExpressions) {
 			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(

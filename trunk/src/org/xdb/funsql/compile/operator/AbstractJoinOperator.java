@@ -106,11 +106,11 @@ public abstract class AbstractJoinOperator extends AbstractCompileOperator {
 	}
 
 	@Override
-	public boolean renameOperator(HashMap<String, String> renamedAttributes,
+	public boolean renameAttributes(HashMap<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
 		boolean renamed = false;
 		// call super Method
-		renamed = super.renameOperator(renamedAttributes, renamedOps);
+		renamed = super.renameAttributes(renamedAttributes, renamedOps);
 		// rename Join Tokens
 		this.renameJoinTokens(renamedAttributes, renamedOps);
 		// return

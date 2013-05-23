@@ -112,7 +112,7 @@ public class Union extends AbstractBinaryOperator {
 	}
 
 	@Override
-	public void renameAttributes(String oldId, String newId) {
+	public void renameTableOfAttributes(String oldId, String newId) {
 		//TODO?
 	}
 	
@@ -122,9 +122,9 @@ public class Union extends AbstractBinaryOperator {
 	}
 
 	@Override
-	public boolean renameOperator(HashMap<String, String> renamedAttributes,
+	public boolean renameAttributes(HashMap<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
 		//TODO?
-		return super.renameOperator(renamedAttributes, renamedOps);
+		return super.renameAttributes(renamedAttributes, renamedOps);
 	}
 }

@@ -242,16 +242,14 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 				FunctionCall fc = new FunctionCall(tfc.getFun(), tfc.getOutVars().size());
 				for(int i=0; i < plan.getRoots().size(); i++){
 					AbstractCompileOperator op = plan.getRoot(i);
-					for(int j=0; j<op.getResultNumber(); j++){
-						fc.addResult(op.getResult(j));
-					}
+					fc.addResult(op.getResult());
 				}
 				
 				//adds plans of called functions
 				int o=0;
 				for(TokenVariable otv: tfc.getOutVars()){
 					this.compilePlans.put(otv.hashKey(), plan);	
-					Table tableType = this.buildTableType(otv, plan.getRoot(o).getResult(0));
+					Table tableType = this.buildTableType(otv, plan.getRoot(o).getResult());
 					o++;
 					this.varSymbols.put(otv.hashKey(), tableType);
 					this.callSymbols.put(otv.hashKey(), fc);

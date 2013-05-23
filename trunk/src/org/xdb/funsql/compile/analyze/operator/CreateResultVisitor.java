@@ -58,7 +58,7 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 			att.setTable(ej.getOperatorId().toString());
 		}
 
-		ej.addResult(leftDesc);
+		ej.setResult(leftDesc);
 		return e;
 	}
 
@@ -71,7 +71,7 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 			att.setTable(gs.getOperatorId().toString());
 		}
 		
-		gs.addResult(rDesc);
+		gs.setResult(rDesc);
 		return e;
 	}
 
@@ -90,7 +90,7 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 			rDesc.addType(type);
 		}
 		
-		ga.addResult(rDesc);
+		ga.setResult(rDesc);
 		return e;
 	}
 
@@ -113,7 +113,7 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 			rDesc.addType(type);	
 		}
 		
-		gp.addResult(rDesc);
+		gp.setResult(rDesc);
 		return e;
 	}
 
@@ -131,7 +131,7 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 			rDesc.addType(attr.getDataType());
 		}
 		
-		to.addResult(rDesc);
+		to.setResult(rDesc);
 		return e;
 	}
 	

@@ -108,7 +108,7 @@ public class TableOperator extends AbstractCompileOperator {
 	 */
 	public void replace(Rename newOp) {
 		// replace result description in newOp
-		newOp.addResult(this.getResult());
+		newOp.setResult(this.getResult());
 
 		// add newOp to plan
 		newOp.addParents(this.getParents());
@@ -175,7 +175,7 @@ public class TableOperator extends AbstractCompileOperator {
 	}
 
 	@Override
-	public void renameAttributes(String oldId, String newId) {
+	public void renameTableOfAttributes(String oldId, String newId) {
 
 	}
 
