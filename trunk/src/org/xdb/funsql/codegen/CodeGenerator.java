@@ -370,7 +370,7 @@ public class CodeGenerator {
 		if (!Config.CODEGEN_OPTIMIZE)
 			return;
 
-		//int i=1;
+		int i=1;
 		for (Identifier splitOpId : this.splitOpIds) {
 			//get splitOp from compile plan as root for optimization
 			AbstractCompileOperator splitOp = this.compilePlan.getOperators(splitOpId);
@@ -378,7 +378,9 @@ public class CodeGenerator {
 			if (this.err.isError())
 				return;
 			
-			//this.compilePlan.tracePlan(i+"_"+splitOp.getOperatorId()+"_CJ");
+			if(Config.TRACE_CODEGEN_PLAN)
+				this.compilePlan.tracePlan(compilePlan.getClass()
+						.getCanonicalName() + "_CODEGEN_PHASE"+i+"_"+splitOp.getOperatorId()+"_CombinedJoins");
 			
 			//get splitOp again since it might have be replaced
 			splitOp = this.compilePlan.getOperators(splitOpId);
@@ -386,7 +388,9 @@ public class CodeGenerator {
 			if (this.err.isError())
 				return;
 			
-			//this.compilePlan.tracePlan(i+"_"+splitOp.getOperatorId()+"_CU");
+			if(Config.TRACE_CODEGEN_PLAN)
+				this.compilePlan.tracePlan(compilePlan.getClass()
+						.getCanonicalName() + "_CODEGEN_PHASE"+i+"_"+splitOp.getOperatorId()+"_CombinedUnaries");
 			
 			//get splitOp again since it might have be replaced
 			splitOp = this.compilePlan.getOperators(splitOpId);
@@ -394,8 +398,10 @@ public class CodeGenerator {
 			if (this.err.isError())
 				return;
 			
-			//this.compilePlan.tracePlan(i+"_"+splitOp.getOperatorId()+"_CSQL");
-			//++i;
+			if(Config.TRACE_CODEGEN_PLAN)
+				this.compilePlan.tracePlan(compilePlan.getClass()
+						.getCanonicalName() + "_CODEGEN_PHASE"+i+"_"+splitOp.getOperatorId()+"_Combined");
+			++i;
 		}
 	}
 
