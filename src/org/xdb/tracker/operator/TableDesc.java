@@ -16,9 +16,6 @@ public class TableDesc implements Serializable {
 		//operator which produces table
 		private Identifier operatorId;
 		
-		//table connection
-		private URI uri; 
-		
 		//table connections 
 		private List<URI> uris;
 		
@@ -33,15 +30,14 @@ public class TableDesc implements Serializable {
 		public TableDesc(String tableName, URI uri) {
 			super();
 			this.tableName = tableName;
-			this.uri = uri; 
+			this.uris.add(uri); 
 		} 
 		
 		// Multiple connections support. 
-		public TableDesc(String tableName, URI uri, List<URI> uris) {
+		public TableDesc(String tableName, List<URI> uris) {
 			super();
 			this.tableName = tableName;
-			this.uri = uri; 
-			this.setUris(uris); 
+			this.uris = uris;
 		}
 
 
@@ -59,9 +55,23 @@ public class TableDesc implements Serializable {
 		}
 
 		public URI getURI() {
-			return uri;
+			if(this.uris.size()==0)
+				return null;
+			
+			return uris.get(0);
+		}
+		
+		public  URI getURI(int i) {
+			if(!(i<this.uris.size()))
+				return null;
+			
+			return uris.get(i);
 		}
 
+		public List<URI> getUris() {
+			return uris;
+		}
+		
 		//methods
 		@Override
 		public int hashCode(){
@@ -71,13 +81,6 @@ public class TableDesc implements Serializable {
 		@Override
 		public String toString(){
 			return this.tableName;
-		}
-
-		/**
-		 * @return the uris
-		 */
-		public List<URI> getUris() {
-			return uris;
 		}
 
 		/**

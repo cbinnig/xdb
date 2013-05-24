@@ -33,9 +33,9 @@ public abstract class AbstractCompileOperator implements Serializable {
 	protected EnumOperator type;
 	protected Vector<AbstractCompileOperator> children = new Vector<AbstractCompileOperator>();
 	protected Vector<AbstractCompileOperator> parents = new Vector<AbstractCompileOperator>(); 
-	protected Connection wishedConnection = null;
-    protected Set<Connection> wishedConnections = new HashSet<Connection>();  
-	// unique operator id
+	protected Set<Connection> wishedConnections = new HashSet<Connection>();  
+	
+    // unique operator id
 	protected Identifier operatorId;
 
 	// constructors
@@ -172,17 +172,18 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 * @return wished connection, null if not set
 	 */ 
 	public Connection getWishedConnection(){
-		return this.wishedConnection;
+		if(this.wishedConnections.isEmpty())
+			return null;
+		
+		return this.wishedConnections.iterator().next();
 	}
 	
 	public void setWishedConnection(final Connection conn) {
-		this.wishedConnection = conn;
+		this.wishedConnections.add(conn);
 	}
 
-	
 	public Set<Connection> getWishedConnections() {
 		return wishedConnections;
-
 	}
 
 	public void addWishedConnections(Set<Connection> wishedConnections) {
