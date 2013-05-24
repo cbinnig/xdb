@@ -23,8 +23,8 @@ public class Config implements Serializable {
 	// General
 	public static String LOCALHOST = "127.0.0.1";
 	public static String CONFIG_FILE = "./config/xdb.conf";
-	
-	//Montior
+
+	// Monitor
 	public static int MONITOR_INTERVAL = 2000;
 
 	// Compute Server
@@ -57,7 +57,7 @@ public class Config implements Serializable {
 	public static BitSet OPTIMIZER_ACTIVE_RULES_SELECT = new BitSet();
 
 	static {
-		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(0, true);
+		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(0, false);
 		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(1, true);
 		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(2, false);
 		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(3, false);
@@ -76,9 +76,9 @@ public class Config implements Serializable {
 	// Query Tracker Server
 	public static int QUERYTRACKER_PORT = 55600;
 	public static int QUERYTRACKER_SLOTS = 1;
-	public static EnumResourceScheduler QUERYTRACKER_SCHEDULER = EnumResourceScheduler.LOCALITY_AWARE_SCHEDULER;
-	public static EnumQueryTrackerStrategy QUERYTRACKER_STRATEGY = EnumQueryTrackerStrategy.ROBUST;
-	
+	public static EnumResourceScheduler QUERYTRACKER_SCHEDULER = EnumResourceScheduler.SIMPLE;
+	public static EnumQueryTrackerStrategy QUERYTRACKER_STRATEGY = EnumQueryTrackerStrategy.PERFORMANCE;
+
 	// Query Tracker Server: Code generation
 	public static boolean CODEGEN_OPTIMIZE = true;
 
@@ -91,10 +91,10 @@ public class Config implements Serializable {
 	public static String DOT_EXE = "dot";
 	public static String DOT_TRACE_PATH = "./log/";
 	public static boolean TRACE_COMPILE_PLAN = false;
-	public static boolean TRACE_COMPILE_PLAN_HEADER =true;
-	public static boolean TRACE_COMPILE_PLAN_FOOTER =true;
-	public static boolean TRACE_COMPILE_PLAN_PARTITIONING =true;
-	public static boolean TRACE_COMPILE_PLAN_RESULTS =true;
+	public static boolean TRACE_COMPILE_PLAN_HEADER = true;
+	public static boolean TRACE_COMPILE_PLAN_FOOTER = true;
+	public static boolean TRACE_COMPILE_PLAN_PARTITIONING = true;
+	public static boolean TRACE_COMPILE_PLAN_RESULTS = true;
 	public static boolean TRACE_OPTIMIZED_PLAN = false;
 	public static boolean TRACE_CODEGEN_PLAN = false;
 	public static boolean TRACE_TRACKER_PLAN = false;
@@ -105,7 +105,7 @@ public class Config implements Serializable {
 	public static String TEST_DB_NAME = "tpch_s01";
 	public static int TEST_NODE_COUNT = 2;
 	public static int TEST_SLOTS_PER_NODE = 1;
-	
+
 	// Load xdb.conf
 	static {
 		load();
@@ -117,19 +117,19 @@ public class Config implements Serializable {
 	private static void load() {
 		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
 				"COMPUTE_SLOTS", "COMPILE_PORT", "MASTERTRACKER_PORT",
-				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS","TEST_NODE_COUNT", 
+				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS", "TEST_NODE_COUNT",
 				"TEST_SLOTS_PER_NODE" };
 
-		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL", "TEST_DB_NAME" };
+		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
+				"TEST_DB_NAME" };
 
 		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS",
 				"TRACE_COMPILE_PLAN", "TRACE_COMPILE_PLAN_HEADER",
-				"TRACE_COMPILE_PLAN_PARTITIONING", "TRACE_COMPILE_PLAN_RESULTS",
-				"TRACE_COMPILE_PLAN_FOOTER",
+				"TRACE_COMPILE_PLAN_PARTITIONING",
+				"TRACE_COMPILE_PLAN_RESULTS", "TRACE_COMPILE_PLAN_FOOTER",
 				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN",
 				"TRACE_EXECUTE_PLAN", "TRACE_CODEGEN_PLAN",
-				"LOG_EXECUTION_TIME", "CODEGEN_OPTIMIZE",
-				"TEST_RUN_LOCAL"};
+				"LOG_EXECUTION_TIME", "CODEGEN_OPTIMIZE", "TEST_RUN_LOCAL" };
 
 		Properties props;
 		props = new Properties();
@@ -152,7 +152,6 @@ public class Config implements Serializable {
 							null,
 							Boolean.parseBoolean(props.get(boolProperty)
 									.toString()));
-					;
 				}
 			}
 
@@ -187,16 +186,25 @@ public class Config implements Serializable {
 							: false);
 				}
 			}
-			if(props.containsKey("QUERYTRACKER_STRATEGY")){
+			if (props.containsKey("QUERYTRACKER_STRATEGY")) {
 				String qtStrategy = props.getProperty("QUERYTRACKER_STRATEGY");
-				EnumQueryTrackerStrategy tempQtStrat = EnumQueryTrackerStrategy.valueOf(qtStrategy);
-				if(tempQtStrat!=null)
+				EnumQueryTrackerStrategy tempQtStrat = EnumQueryTrackerStrategy
+						.valueOf(qtStrategy);
+				if (tempQtStrat != null)
 					QUERYTRACKER_STRATEGY = tempQtStrat;
+			}
+			if (props.containsKey("QUERYTRACKER_SCHEDULER")) {
+				String qtScheduler = props
+						.getProperty("QUERYTRACKER_SCHEDULER");
+				EnumResourceScheduler tempQtScheduler = EnumResourceScheduler
+						.valueOf(qtScheduler);
+				if (tempQtScheduler != null)
+					QUERYTRACKER_SCHEDULER = tempQtScheduler;
 			}
 
 		} catch (Exception e) {
-			// do nothing
 			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 }

@@ -18,21 +18,18 @@ public class SimpleResourceScheduler extends AbstractResourceScheduler {
 	protected SimpleResourceScheduler(final QueryTrackerPlan plan) {
 		super(plan);
 
-		this.type = EnumResourceScheduler.SIMPLE_SCHEDULER;
+		this.type = EnumResourceScheduler.SIMPLE;
 	}
 
 	@Override
 	public Set<String> createComputeNodesWishList() {
 		final Set<String> requiredSlots = new HashSet<String>();
-
-		// slot can be on any compute node
 		requiredSlots.add(AbstractResourceScheduler.RANDOM_COMPUTE_NODE);
-
 		return requiredSlots;
 	}
 
 	@Override
 	public ComputeNodeDesc getComputeNode(Identifier operId) {
-		return this.assignedComputeNodesSlots.get(AbstractResourceScheduler.RANDOM_COMPUTE_NODE);
+		return this.assignedComputeNodes.get(AbstractResourceScheduler.RANDOM_COMPUTE_NODE);
 	}
 }

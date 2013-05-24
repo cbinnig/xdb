@@ -72,6 +72,10 @@ CREATE TABLE "SYSTEM"."CONNECTION"
 	public String getUrl() {
 		return url;
 	}
+	
+	public URI getURI(){
+		return URI.create(this.url);
+	}
 
 	public void setUrl(String url) {
 		if(url.startsWith(JDBC_PREFIX)){

@@ -22,8 +22,8 @@ public abstract class AbstractResourceScheduler {
 	protected EnumResourceScheduler type;
 	private static EnumResourceScheduler usedScheduler = Config.QUERYTRACKER_SCHEDULER;
 
-	// assigned slots which are actually available: compute slot URL -> count
-	protected Map<String, ComputeNodeDesc> assignedComputeNodesSlots = new HashMap<String, ComputeNodeDesc>();
+	// assigned slots which are actually available: compute slot URL -> compute node
+	protected Map<String, ComputeNodeDesc> assignedComputeNodes = new HashMap<String, ComputeNodeDesc>();
 
 	// constructor
 	public AbstractResourceScheduler(final QueryTrackerPlan plan) {
@@ -39,10 +39,10 @@ public abstract class AbstractResourceScheduler {
 	public static AbstractResourceScheduler createScheduler(
 			final QueryTrackerPlan plan) {
 		switch (usedScheduler) {
-		case SIMPLE_SCHEDULER:
+		case SIMPLE:
 			return new SimpleResourceScheduler(plan);
-		case LOCALITY_AWARE_SCHEDULER:
-			return new LocalityAwareScheduler(plan);
+		case WISHLIST_AWARE:
+			return new WishlistAwareScheduler(plan);
 
 		}
 		return new SimpleResourceScheduler(plan);
@@ -54,12 +54,14 @@ public abstract class AbstractResourceScheduler {
 	public static void changeScheduler(EnumResourceScheduler newScheduler) {
 		usedScheduler = newScheduler;
 	}
-
+	
 	/**
-	 * Resets the used scheduler to the original one
+	 * Returns the number of alternative connections where a operator can be eecuted
+	 * @param opId
+	 * @return
 	 */
-	public static void resetScheduler() {
-		usedScheduler = Config.QUERYTRACKER_SCHEDULER;
+	public int getNumberOfConnections(Identifier opId){
+		return 1;
 	}
 
 	/**
@@ -75,7 +77,7 @@ public abstract class AbstractResourceScheduler {
 	 * @param slots
 	 */
 	public void assignComputeNodes(Map<String, ComputeNodeDesc> nodes) {
-		this.assignedComputeNodesSlots.putAll(nodes);
+		this.assignedComputeNodes.putAll(nodes);
 	}
 
 	/**
@@ -85,4 +87,16 @@ public abstract class AbstractResourceScheduler {
 	 * @return
 	 */
 	public abstract ComputeNodeDesc getComputeNode(final Identifier operId);
+	
+	/**
+	 * Returns assigned compute slot after slots have been assigned.
+	 * If multiple alternatives are available alternative given by connectionNumber.
+	 * 
+	 * @param operId
+	 * @param connectionNumber
+	 * @return
+	 */
+	public ComputeNodeDesc getComputeNode(final Identifier operId, int connectionNumber){
+		return this.getComputeNode(operId);
+	}
 }

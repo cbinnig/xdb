@@ -193,24 +193,19 @@ public class CodeGenerator {
 			inDDL = this.sqlDDLTemplate.toString(args);
 			trackerOp.addInTable(inTable, new StringTemplate(inDDL));
 
-			// if: leaf of sub-plan is a table: add catalog info (table name and
-			// URL) 
-			// TODO to load the preferable connection to the sub-plan. 
+			// if: leaf of sub-plan is a table: add catalog info 
 			if (inputCompileOp.getType().equals(EnumOperator.TABLE)) { // table
-				URI connURI = URI.create(inputTableOp.getConnection().getUrl());
-                // Added multiple Connections to the table description  
+				// Added multiple Connections to the table description  
 				List<Connection> tableConnections = inputTableOp.getConnections();  
 				List<URI> uris = new ArrayList<URI>();
 				for (Connection connection : tableConnections) {
 					uris.add(URI.create(connection.getUrl()));
 				} 
-				// TODO need to set the new constructor. 
 				TableDesc tableDesc = new TableDesc(inputTableOp.getTable()
-						.getSourceName(), connURI); 
+						.getSourceName(), uris); 
 				trackerOp.setInTableSource(inTable, tableDesc);
 			}
-			// else: use intermediate result as table (with _OUT suffix) and
-			// register dependency
+			// else: use intermediate result as table (with _OUT suffix) 
 			else {
 				String inTableRemote = inputCompileOp.getOperatorId().clone()
 						.append(OUT_SUFFIX).toString();
