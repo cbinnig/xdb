@@ -3,10 +3,13 @@ package org.xdb.funsql.codegen;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.xdb.Config;
@@ -169,7 +172,14 @@ public class CodeGenerator {
 		trackerOp.addOutTable(outTable, new StringTemplate(outDDL));
 
 		// add input table DDL statements and input table descriptions
-		Set<AbstractCompileOperator> inputCompileOps = getInputOps(compileOp);
+		Set<AbstractCompileOperator> inputCompileOps = getInputOps(compileOp);   
+		
+		// Union and rank the connections 
+		Set<AbstractCompileOperator> queryTrackerCompileOps = getQueryTrackerCompileOps(compileOp) ;
+		List<Connection> trackerOpConnections = extractTrackerOpConnections(queryTrackerCompileOps); 
+		
+		trackerOp.setTrackerOpConnections(trackerOpConnections);
+		
 		for (AbstractCompileOperator inputCompileOp : inputCompileOps) {
 			TableOperator inputTableOp = null;
 			String inDDL = null;
@@ -221,6 +231,62 @@ public class CodeGenerator {
 
 		return trackerOp;
 	}
+    
+	/**
+	 * Union all the connections from a sub-plan, rank them based on  
+	 * the frequencies of the connections and return a list of "ranked" 
+	 * connections as a possible connections for a tracker operator.
+	 * 
+	 * @param inputCompileOps: a set of compile operators 
+	 *  
+	 * @rerun a set of connections 
+	 */
+	private List<Connection> extractTrackerOpConnections(Set<AbstractCompileOperator> inputCompileOps) { 
+		
+		// A hash map used to store the connections and their counts/repetitions . 
+		Map<Connection, Integer> connectionsCounterMap = new HashMap<Connection, Integer>(); 
+		// Going through every compile operator, get its wished connection and 
+		// store them in a hash map to count. 
+		for (AbstractCompileOperator abstractCompileOperator : inputCompileOps) {
+			
+			Set<Connection> compileOpConnections = abstractCompileOperator.getWishedConnections(); 
+			
+			for (Connection connection : compileOpConnections) {
+				if(connectionsCounterMap.containsKey(connection)){
+					connectionsCounterMap.put(connection, connectionsCounterMap.get(connection)+1);  
+					
+				} else { 
+					connectionsCounterMap.put(connection, 1);
+				}
+			} 
+			
+		
+		}  
+		
+		// Sort the hash map to get the ranked connections 
+		List<Connection> rankedConnections = sortHashMapConnections(connectionsCounterMap.entrySet());
+		
+		return rankedConnections;
+	}
+
+	private List<Connection> sortHashMapConnections(
+			Set<Entry<Connection, Integer>> entrySet) {
+		List<Entry<Connection, Integer>> connections = new ArrayList<Entry<Connection, Integer>>(entrySet); 
+		Collections.sort(connections, new Comparator<Entry<Connection, Integer>>() {
+			@Override
+			public int compare(Entry<Connection, Integer> arg0,
+					Entry<Connection, Integer> arg1) {
+				 return (arg0.getValue() > arg1.getValue() ? -1 : 
+					 (arg0.getValue() == arg1.getValue() ? 0 : 1));
+			}
+		});
+		
+		List<Connection> rankedConnections = new ArrayList<Connection>();
+		for (Entry<Connection, Integer> entry : connections) {
+			rankedConnections.add(entry.getKey());
+		}
+		return rankedConnections;
+	}
 
 	/**
 	 * Register dependency
@@ -261,7 +327,7 @@ public class CodeGenerator {
 	 */
 	private Set<AbstractCompileOperator> getInputOps(
 			AbstractCompileOperator compileOp) {
-
+        
 		Set<AbstractCompileOperator> inputOps = new HashSet<AbstractCompileOperator>();
 		for (AbstractCompileOperator childOp : compileOp.getChildren()) {
 			getInputOps(inputOps, childOp);
@@ -279,12 +345,37 @@ public class CodeGenerator {
 			AbstractCompileOperator compileOp) {
 
 		if (this.splitOpIds.contains(compileOp.getOperatorId()) || compileOp.isLeaf()) {
-			inputOps.add(compileOp);
+			inputOps.add(compileOp); 
 			return;
 		}
 
-		for (AbstractCompileOperator childOp : compileOp.getChildren()) {
+		for (AbstractCompileOperator childOp : compileOp.getChildren()) { 
 			getInputOps(inputOps, childOp);
+		}
+	} 
+	
+	private Set<AbstractCompileOperator> getQueryTrackerCompileOps(AbstractCompileOperator compileOp) { 
+		
+		Set<AbstractCompileOperator> compileOps = new HashSet<AbstractCompileOperator>();
+		compileOps.add(compileOp);   
+		for (AbstractCompileOperator childOp : compileOp.getChildren()) {
+			getQueryTrackerCompileOps(compileOps, childOp);			
+		}
+
+		return compileOps;
+	} 
+	
+	private void getQueryTrackerCompileOps(Set<AbstractCompileOperator> compileOps, 
+			AbstractCompileOperator compileOp){
+		
+		if (this.splitOpIds.contains(compileOp.getOperatorId())) { 
+			return;
+		} else {
+			compileOps.add(compileOp); 
+		} 
+		
+		for (AbstractCompileOperator childOp : compileOp.getChildren()) { 
+			getQueryTrackerCompileOps(compileOps, childOp);
 		}
 	}
 
@@ -340,7 +431,6 @@ public class CodeGenerator {
 			if (err.isError())
 				return null;
 		}
-
 		return splitVisitor.getSplitOpIds();
 	}
 

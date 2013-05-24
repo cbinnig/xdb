@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.xdb.Config;
@@ -14,6 +16,7 @@ import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 import org.xdb.error.Error;
+import org.xdb.metadata.Connection;
 
 public abstract class AbstractTrackerOperator implements Serializable {
 
@@ -47,7 +50,10 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	protected HashMap<String, StringTemplate> inTables = new HashMap<String, StringTemplate>();
 
 	// map: input table name -> TableDesc
-	protected HashMap<String, TableDesc> inTableDesc = new HashMap<String, TableDesc>();
+	protected HashMap<String, TableDesc> inTableDesc = new HashMap<String, TableDesc>(); 
+	
+	// list: possible connections "ranked based on the frequencies of the connections" 
+	protected List<Connection> trackerOpConnections = new ArrayList<Connection>(); 
 
 	// unique operator id
 	protected Identifier operatorId;
@@ -118,6 +124,14 @@ public abstract class AbstractTrackerOperator implements Serializable {
 
 	public Identifier getOperatorId() {
 		return operatorId;
+	} 
+	
+	public List<Connection> getTrackerOpConnections(){
+		return this.trackerOpConnections;
+	} 
+	
+	public void setTrackerOpConnections(List<Connection> trackerOpConnections){
+		this.trackerOpConnections = trackerOpConnections;
 	}
 
 	// methods
