@@ -7,11 +7,23 @@ import org.xdb.test.XDBTestCase;
 public class TestTPCH extends XDBTestCase {
 	private CompileClient client = new CompileClient();
 	private String[] schemaDDLs = {
-			"CREATE CONNECTION TPCH " +
+			"CREATE CONNECTION TPCH1 " +
 			"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
 			"USER 'xroot' " +
 			"PASSWORD 'xroot' " +
-			"STORE 'XDB';",
+			"STORE 'XDB';", 
+			
+			"CREATE CONNECTION TPCH2 " +
+					"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
+					"USER 'xroot' " +
+					"PASSWORD 'xroot' " +
+					"STORE 'XDB';", 
+			
+		  "CREATE CONNECTION TPCH3 " +
+		  "URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
+		  "USER 'xroot' " +
+		  "PASSWORD 'xroot' " +
+		  "STORE 'XDB';",
 			
 			"CREATE TABLE LINEITEM ( " +
 			"L_ORDERKEY    		INTEGER," +
@@ -30,7 +42,7 @@ public class TestTPCH extends XDBTestCase {
 			"L_SHIPINSTRUCT 	VARCHAR," +
 			"L_SHIPMODE     	VARCHAR," +
 			"L_COMMENT      	VARCHAR" +
-			") IN CONNECTION TPCH;",
+			") REPLICATED IN CONNECTION TPCH2, TPCH3;",
 			
 			"CREATE TABLE  CUSTOMER ( " +
 			"C_CUSTKEY     INTEGER, " +
@@ -41,7 +53,7 @@ public class TestTPCH extends XDBTestCase {
 			"C_ACCTBAL     DECIMAL  , " +
 			"C_MKTSEGMENT  VARCHAR, " +
 			"C_COMMENT     VARCHAR" +
-			") IN CONNECTION TPCH;",
+			") REPLICATED IN CONNECTION TPCH2;",
 			
 			"CREATE TABLE ORDERS  ( " +
 			"O_ORDERKEY       INTEGER, " +
@@ -53,7 +65,7 @@ public class TestTPCH extends XDBTestCase {
 			"O_CLERK          VARCHAR,  " +
 			"O_SHIPPRIORITY   INTEGER, " +
 			"O_COMMENT        VARCHAR" +
-			") IN CONNECTION TPCH;",
+			") REPLICATED IN CONNECTION TPCH1;",
 			
 			"CREATE TABLE SUPPLIER ( " +
 			"S_SUPPKEY INTEGER, " +
@@ -63,7 +75,7 @@ public class TestTPCH extends XDBTestCase {
 			"S_PHONE VARCHAR, " +
 			"S_ACCTBAL DECIMAL, " +
 			"S_COMMENT VARCHAR" +
-			") IN CONNECTION TPCH;",
+			") REPLICATED IN CONNECTION TPCH2, TPCH3;",
 			
 			"CREATE TABLE PART  ( " +
 			"P_PARTKEY     INTEGER," +
@@ -75,7 +87,7 @@ public class TestTPCH extends XDBTestCase {
 			"P_CONTAINER   VARCHAR, " +
 			"P_RETAILPRICE DECIMAL, " +
 			"P_COMMENT     VARCHAR" +
-			") IN CONNECTION TPCH;",
+			") REPLICATED IN CONNECTION TPCH1, TPCH2, TPCH3;",
 			
 			"CREATE TABLE PARTSUPP ( " +
 			"	PS_PARTKEY     INTEGER, " +
@@ -83,20 +95,20 @@ public class TestTPCH extends XDBTestCase {
 			"	PS_AVAILQTY    INTEGER, " +
 			"	PS_SUPPLYCOST  DECIMAL, " +
 			"	PS_COMMENT     VARCHAR " +
-			") IN CONNECTION TPCH;",
+			") REPLICATED IN CONNECTION TPCH3;",
 			
 			"CREATE TABLE NATION (  " +
 			"N_NATIONKEY INTEGER, " +
 			"N_NAME VARCHAR," +
 			"N_REGIONKEY INTEGER," +
 			"N_COMMENT VARCHAR" +
-			") IN CONNECTION TPCH;",
+			") REPLICATED IN CONNECTION TPCH3;",
 			
 			"CREATE TABLE REGION ( " +
 			"R_REGIONKEY INTEGER," +
 			"R_NAME VARCHAR," +
 			"R_COMMENT VARCHAR" +
-			") IN CONNECTION TPCH;"
+			") REPLICATED IN CONNECTION TPCH3;"
 			
 	};
 	
