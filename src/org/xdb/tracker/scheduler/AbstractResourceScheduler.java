@@ -16,7 +16,7 @@ import org.xdb.utils.Identifier;
  * 
  */
 public abstract class AbstractResourceScheduler {
-	public static final String RANDOM_COMPUTE_NODE = "";
+	public static final String RANDOM_COMPUTE_NODE = "R";
 
 	protected final QueryTrackerPlan plan;
 	protected EnumResourceScheduler type;
