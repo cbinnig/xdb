@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.xdb.execute.ComputeNodeDesc;
+import org.xdb.metadata.Connection;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
 import org.xdb.utils.Identifier;
@@ -41,7 +42,11 @@ public class WishlistAwareScheduler extends AbstractResourceScheduler {
 	public Set<String> createComputeNodesWishList() {
 		Set<String> wishedConnections = new HashSet<String>();
 		for (AbstractTrackerOperator op : this.plan.getTrackerOperators()) {
-			List<String> connUrls = new ArrayList<String>();// op.getConnections();
+			List<String> connUrls = new ArrayList<String>();
+			for(Connection conn: op.getTrackerOpConnections()){
+				connUrls.add(conn.getURI().getHost());
+			}
+			connUrls.add(RANDOM_COMPUTE_NODE);
 			this.wishLocations.put(op.getOperatorId(), connUrls);
 			wishedConnections.addAll(connUrls);
 		}
