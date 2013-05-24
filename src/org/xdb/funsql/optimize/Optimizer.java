@@ -33,9 +33,12 @@ public class Optimizer {
 		Error err = new Error();
 	
 		// tracing
-		if (Config.TRACE_COMPILE_PLAN)
-			this.compilePlan.tracePlan(compilePlan.getClass()
+		if (Config.TRACE_COMPILE_PLAN){
+			err = this.compilePlan.tracePlan(compilePlan.getClass()
 					.getCanonicalName() + "_COMPILED");
+			if (err.isError())
+				return err;
+		}
 
 		// rewrite: push down selection
 		if (optimizeRule.get(0)) {
