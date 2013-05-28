@@ -28,18 +28,20 @@ public abstract class AbstractBottomUpExpressionVisitor extends AbstractExpressi
 				if(e.isError())
 					return e;
 			}
-			
-			break;
+			e = super.visit(expr);
+			return e;
 		case AGG_EXPRESSION:
 			AggregationExpression aExpr = (AggregationExpression)expr;
 			e = visit(aExpr.getExpression());
 			if(e.isError())
 				return e;
-			break;
+			e = super.visit(expr);
+			return e;
+		default:
+			e = super.visit(expr);
+			return e;
 		}
 		
-		e = super.visit(expr);
 		
-		return e;
 	}
 }

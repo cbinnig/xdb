@@ -4,24 +4,18 @@ import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 
 public enum EnumSimpleType implements Cloneable {
-	SQL_NOTYPE, 
-	SQL_INTEGER, 
-	SQL_VARCHAR, 
-	SQL_CHAR, 
-	SQL_DECIMAL, 
-	SQL_DATE;
+	SQL_NOTYPE, SQL_INTEGER, SQL_VARCHAR, SQL_CHAR, SQL_DECIMAL, SQL_DATE;
 
 	private static final EnumSimpleType[] values = { SQL_INTEGER, SQL_VARCHAR,
 			SQL_CHAR, SQL_DECIMAL, SQL_DATE };
 
-
-	public boolean isSet(){
-		if(this.equals(EnumSimpleType.SQL_NOTYPE))
+	public boolean isSet() {
+		if (this.equals(EnumSimpleType.SQL_NOTYPE))
 			return false;
-		
+
 		return true;
 	}
-	
+
 	public static EnumSimpleType get(int i) {
 		return values[i];
 	}
@@ -65,33 +59,34 @@ public enum EnumSimpleType implements Cloneable {
 	}
 
 	public static EnumSimpleType promote(EnumSimpleType type1,
-			EnumSimpleType type2){
+			EnumSimpleType type2) {
 		EnumSimpleType resultType = promoteType(type1, type2);
-		if(!resultType.isSet())
+		if (!resultType.isSet())
 			resultType = promoteType(type2, type1);
-		
+
 		return resultType;
 	}
 
 	public static EnumSimpleType promoteType(EnumSimpleType source,
 			EnumSimpleType target) {
 		switch (source) {
-			// SQL_INTEGER -> SQL_INTEGER -> SQL_DECIMAL
+		// SQL_INTEGER -> SQL_INTEGER -> SQL_DECIMAL
 		case SQL_INTEGER:
 			switch (target) {
 			case SQL_INTEGER:
 				return SQL_INTEGER;
 			case SQL_DECIMAL:
 				return SQL_DECIMAL;
-			}
-			return SQL_NOTYPE;
-			// SQL_DECIMAL -> SQL_DECIMAL
+			default:
+				return SQL_NOTYPE;
+			}// SQL_DECIMAL -> SQL_DECIMAL
 		case SQL_DECIMAL:
 			switch (target) {
 			case SQL_DECIMAL:
 				return SQL_DECIMAL;
+			default:
+				return SQL_NOTYPE;
 			}
-			return SQL_NOTYPE;
 			// SQL_CHAR -> SQL_CHAR -> SQL_VARCHAR
 		case SQL_CHAR:
 			switch (target) {
@@ -99,24 +94,27 @@ public enum EnumSimpleType implements Cloneable {
 				return SQL_CHAR;
 			case SQL_VARCHAR:
 				return SQL_VARCHAR;
+			default:
+				return SQL_NOTYPE;
 			}
-			return SQL_NOTYPE;
 			// SQL_VARCHAR -> SQL_VARCHAR
 		case SQL_VARCHAR:
 			switch (target) {
 			case SQL_VARCHAR:
 				return SQL_VARCHAR;
+			default:
+				return SQL_NOTYPE;
 			}
-			return SQL_NOTYPE;
 			// SQL_DATE -> SQL_DATE
 		case SQL_DATE:
 			switch (target) {
 			case SQL_DATE:
 				return SQL_DATE;
+			default:
+				return SQL_NOTYPE;
 			}
+		default:
 			return SQL_NOTYPE;
 		}
-
-		return SQL_NOTYPE;
 	}
 }

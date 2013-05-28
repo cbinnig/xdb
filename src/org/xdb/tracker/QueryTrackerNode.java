@@ -231,7 +231,6 @@ public class QueryTrackerNode {
 		final Set<OperatorDesc> consumers = execOp.getConsumers();
 		for (final OperatorDesc consumer : consumers) {
 			if (consumer != null) {
-				consumer.getComputeSlot();
 				logger.log(Level.INFO, "Send READY_SIGNAL from Query Tracker "
 						+ this.description.getUrl() + " to consumer: "
 						+ consumer);

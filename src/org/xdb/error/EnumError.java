@@ -138,6 +138,8 @@ public enum EnumError {
 		case TRACKER_GENERIC:
 			msg = "Tracker: Error \"<arg0>\"";
 			break;
+		default:
+			msg = "Unknown error occured";
 		}
 		
 		//replace arguments in error message

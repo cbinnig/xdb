@@ -4,7 +4,8 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.predicate.AbstractPredicate;
 import org.xdb.funsql.compile.predicate.ComplexPredicate;
 
-public abstract class AbstractBottomUpPredicateVisitor extends AbstractPredicateVisitor {
+public abstract class AbstractBottomUpPredicateVisitor extends
+		AbstractPredicateVisitor {
 
 	public AbstractBottomUpPredicateVisitor(AbstractPredicate pred) {
 		super(pred);
@@ -17,22 +18,23 @@ public abstract class AbstractBottomUpPredicateVisitor extends AbstractPredicate
 		case AND_PREDICATE:
 		case OR_PREDICATE:
 		case NOT_PREDICATE:
-			ComplexPredicate cpred = (ComplexPredicate)pred;
+			ComplexPredicate cpred = (ComplexPredicate) pred;
 			e = visit(cpred.getPredicate1());
-			if(e.isError())
+			if (e.isError())
 				return e;
-			
-			for(AbstractPredicate childPred: cpred.getPredicates2()){
+
+			for (AbstractPredicate childPred : cpred.getPredicates2()) {
 				e = visit(childPred);
-				if(e.isError())
+				if (e.isError())
 					return e;
 			}
-
+			e = super.visit(pred);
+			return e;
+		default:
+			e = super.visit(pred);
+			return e;
 		}
-		
-		e = super.visit(pred);
-		
-		return e;
+
 	}
 
 }
