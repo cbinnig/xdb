@@ -109,6 +109,8 @@ public abstract class JDBCStore extends AbstractStore {
 						SQLChar charValue = (SQLChar)value;
 						charValue.setValue(this.result.getString(i+1));
 						break;
+					default:
+						value.setNull(true);
 					}
 				}
 				

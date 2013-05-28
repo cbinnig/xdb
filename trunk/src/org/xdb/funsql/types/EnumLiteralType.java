@@ -17,7 +17,8 @@ public enum EnumLiteralType {
 			return EnumSimpleType.SQL_DECIMAL;
 		case SQL_DATE_LITERAL:
 			return EnumSimpleType.SQL_DATE;
+		default:
+			return EnumSimpleType.SQL_NOTYPE;
 		}
-		return EnumSimpleType.SQL_NOTYPE;
 	}
 }
