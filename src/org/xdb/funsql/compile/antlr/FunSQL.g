@@ -158,6 +158,12 @@ statement returns [AbstractServerStmt stmt]
                 	$stmt = $selectStatement.stmt;
                 	$stmt.setStmtString($selectStatement.text);
                 }
+                |
+                loadDataInfileStatement
+                {
+                	$stmt = $loadDataInfileStatement.stmt;
+                	$stmt.setStmtString($loadDataInfileStatement.text);
+                }
                 )
                 SEMI?
         );
@@ -556,6 +562,39 @@ selectStatement returns [SelectStmt stmt]
 	)
 	;
 	
+loadDataInfileStatement returns [LoadDataInfileStmt stmt]
+        @init{
+        	$stmt = new LoadDataInfileStmt();
+        }
+        :
+        (
+        KEYWORD_LOAD
+        KEYWORD_DATA
+        KEYWORD_INFILE
+        filename1=identifierText {
+                	$stmt.setTokenFilename($filename1.text);
+                }
+        KEYWORD_INTO
+        KEYWORD_TABLE
+        table1=tokenTable {
+                	$stmt.setTokenTable($table1.table);
+                }
+        (
+        	KEYWORD_PARTITION
+        	LPAREN
+        	partition1=identifierText {
+        			$stmt.setTokenPartition($partition1.text);
+			}
+        	(
+	        	COMMA
+	        	partition2=identifierText {
+	        			$stmt.setTokenPartition($partition2.text);
+				}
+        	)*
+        	RPAREN
+        )?        
+	);
+
 
 abstractPredicate returns [AbstractPredicate predicate]
 	:	
@@ -1117,6 +1156,28 @@ tokenIntegerLiteral returns [TokenIntegerLiteral literal]
                 }
                 QUOTE_DOUBLE
          	)       
+         	|
+         	(
+	         	QUOTE_DOUBLE
+	         	id2 = IDENTIFIER {
+				        $text = $id2.text;
+			}
+		        ( 	
+		         	DIV
+		         	id3 = IDENTIFIER {
+					        $text += "/";
+					        $text += $id3.text;
+				}
+			)*
+			DOT
+			(
+				id4 = IDENTIFIER {
+			        	$text += ".";
+			        	$text += $id4.text;
+			        }
+		        )
+	                QUOTE_DOUBLE
+         	)
  	)
  	;
     
@@ -1160,6 +1221,11 @@ FUNCTION_AGGREGATION
 	(KEYWORD_SUM|KEYWORD_MIN|KEYWORD_MAX|KEYWORD_AVG|KEYWORD_COUNT)
 	;
 
+KEYWORD_PARTITION:	P A R T I T I O N;
+KEYWORD_INTO:	I N T O;
+KEYWORD_INFILE:	I N F I L E;
+KEYWORD_DATA:	D A T A;
+KEYWORD_LOAD:	L O A D;
 KEYWORD_CALL: C A L L;
 KEYWORD_CREATE: C R E A T E;
 KEYWORD_DROP: D R O P;	 

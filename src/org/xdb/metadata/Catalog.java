@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import org.xdb.Config;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.logging.XDBLog;
 
 public class Catalog {
@@ -855,5 +856,61 @@ public class Catalog {
 	public synchronized static Collection<Partition> getPartionsForTable(String tableName){
 		Table table = Catalog.tablesByName.get(tableName);
 		return  table.getPartitions();
+	}
+	
+	/**
+	 * This Function need to be splitted into CS, MT, QT but is now implemented here to use the
+	 * functionality as soon as possible
+	 * @return 
+	 */
+	public static Error executeInfileStmt(String path, String tblName){
+		StringBuffer insertSql = new StringBuffer();
+		insertSql.append(AbstractToken.LOAD); 
+		insertSql.append(AbstractToken.BLANK); 
+		insertSql.append(AbstractToken.DATA);
+		insertSql.append(AbstractToken.BLANK); 
+		insertSql.append(AbstractToken.INFILE);
+		insertSql.append(AbstractToken.BLANK); 
+
+		insertSql.append(AbstractToken.QUOTE);
+		insertSql.append(path);
+		insertSql.append(AbstractToken.QUOTE);
+		insertSql.append(AbstractToken.BLANK);
+		
+		insertSql.append(AbstractToken.INTO); 
+		insertSql.append(AbstractToken.BLANK);
+		insertSql.append(AbstractToken.TABLE);
+		insertSql.append(AbstractToken.BLANK);
+		insertSql.append(tblName);
+		insertSql.append(AbstractToken.BLANK);
+		
+		insertSql.append(AbstractToken.FIELDS);
+		insertSql.append(AbstractToken.BLANK);
+		insertSql.append(AbstractToken.TERMINATED);
+		insertSql.append(AbstractToken.BLANK);
+		insertSql.append(AbstractToken.BY);
+		insertSql.append(AbstractToken.BLANK);
+		insertSql.append(AbstractToken.QUOTE);
+		insertSql.append(AbstractToken.PIPE);
+		insertSql.append(AbstractToken.QUOTE);
+		insertSql.append(AbstractToken.BLANK);
+		
+		insertSql.append(AbstractToken.LINES);
+		insertSql.append(AbstractToken.BLANK);
+		insertSql.append(AbstractToken.TERMINATED);
+		insertSql.append(AbstractToken.BLANK);
+		insertSql.append(AbstractToken.BY);
+		insertSql.append(AbstractToken.BLANK);
+
+		insertSql.append(AbstractToken.QUOTE);
+		insertSql.append(AbstractToken.NEWLINE);
+		insertSql.append(AbstractToken.QUOTE);
+		insertSql.append(AbstractToken.SEMI);
+
+		String sqlInfile = insertSql.toString();
+		System.out.println(sqlInfile);
+		
+		Error err = executeUpdate(sqlInfile);
+		return err;
 	}
 }
