@@ -14,6 +14,7 @@ public abstract class AbstractToken implements Serializable{
 	public static final String LBRACE = "(";
 	public static final String RBRACE = ")";
 	public static final String SEMI = ";";
+	public static final String PIPE = "|";
 	
 	public static final String EQUAL1 = "=";
 	public static final String EQUAL2 = "=";
@@ -42,12 +43,22 @@ public abstract class AbstractToken implements Serializable{
 	public static final String DELETE = "DELETE";
 	public static final String INSERT = "INSERT";
 	public static final String SELECT = "SELECT";
-	public static final String FROM = "FROM";
+	public static final String LOAD   = "LOAD";
+	public static final String DATA   = "DATA";
+	public static final String INFILE = "INFILE";
+	public static final String FROM   = "FROM";
+	public static final String TABLE  = "TABLE";
 	public static final String WHERE = "WHERE";
 	public static final String INTO = "INTO";
 	public static final String VALUES = "VALUES";
 	public static final String MAX = "MAX";
 	public static final String AS = "AS";
+	
+	public static final String FIELDS = "FIELDS";
+	public static final String LINES = "LINES";
+	public static final String TERMINATED = "TERMINATED";
+	public static final String BY = "BY";
+
 	
 	public static final String CALL = "CALL";
 	public static final String VAR = "VAR";

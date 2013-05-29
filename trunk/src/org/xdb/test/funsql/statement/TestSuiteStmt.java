@@ -11,6 +11,7 @@ public class TestSuiteStmt extends TestSuite
     suite.addTestSuite( TestCreateConnectionStmt.class );
     suite.addTestSuite( TestCreateSchemaStmt.class );
     suite.addTestSuite( TestCreateTableStmt.class );
+    suite.addTestSuite( TestLoadDataInfileStmt.class );
     return suite;
   }
 }
