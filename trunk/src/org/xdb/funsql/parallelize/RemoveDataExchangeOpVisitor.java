@@ -122,9 +122,13 @@ public class RemoveDataExchangeOpVisitor extends AbstractBottomUpTreeVisitor {
 	 * @return
 	 */
 	private boolean isRemoveable(DataExchangeOperator deOp, PartitionInfo removeOpInfo){	
+		// TODO: Understand why we do the first comparison
 		boolean returnvalue = deOp.getInputPartitioning().equals(removeOpInfo) && deOp.getInputPartitioning().equals(deOp.getOutputPartitionInfo());
 		
-		boolean rv2 = deOp.getInputPartitioning().equals(deOp.getOutputPartitionInfo());
+		// Now we should check if the OutputPartitionInfo of the RepartitionOperator is a subset of its InputPartitionInfo.
+		// Because if so, this means that the RepartitionOperator is not needed anymore.
+		//boolean rv2 = deOp.getInputPartitioning().equals(deOp.getOutputPartitionInfo());
+		boolean rv2 = deOp.getInputPartitioning().contains(deOp.getOutputPartitionInfo());
 		
 		return returnvalue||rv2;
 	}

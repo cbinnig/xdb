@@ -25,18 +25,19 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 public class InsertDataExchangeOpVisitor extends AbstractTopDownTreeVisitor {
 
-    private CompilePlan compileplan;
-    private Error error = new Error();;
+	private CompilePlan compileplan;
+	private Error error = new Error();;
 
-    public InsertDataExchangeOpVisitor(AbstractCompileOperator root,
-                    CompilePlan cp) {
-            super(root);
-            this.compileplan = cp;
-    }
+	public InsertDataExchangeOpVisitor(AbstractCompileOperator root,
+			CompilePlan cp) {
+		super(root);
+		this.compileplan = cp;
+	}
 
-    @Override
-    public Error visitEquiJoin(EquiJoin ej) {
+	@Override
+	public Error visitEquiJoin(EquiJoin ej) {
 
+		/*   Changed
             // extract Partition Info
             TokenAttribute taleft = ej.getLeftTokenAttribute();
             Set<TokenAttribute> partionColumnsLeft = new HashSet<TokenAttribute>();
@@ -49,143 +50,204 @@ public class InsertDataExchangeOpVisitor extends AbstractTopDownTreeVisitor {
             partionColumnsRight.add(taright);
             PartitionInfo ptRight = new PartitionInfo(partionColumnsRight,
                             EnumPartitionType.HASH, 0);
+		 */
 
-            // create repartitioning operators
-            // left side
-            DataExchangeOperator leftDe = new DataExchangeOperator(
-                            ej.getLeftChild(), ej.getLeftChild().getResult());
-           
-            //remove EJ from Parent
-            ej.getLeftChild().removeParent(ej);
-            ej.setLeftChild(leftDe);
-            leftDe.addParent(ej);
+		TokenAttribute taleft = ej.getLeftTokenAttribute();
+		PartitionAttributeSet partitionAttSetColumnsLeft = new PartitionAttributeSet();
+		partitionAttSetColumnsLeft.addAttribute(taleft);
+		List<PartitionAttributeSet> wrapper = new ArrayList<PartitionAttributeSet>();
+		wrapper.add(partitionAttSetColumnsLeft);
+		PartitionInfo ptLeft = new PartitionInfo(wrapper, EnumPartitionType.HASH, 0);
 
-            PartitionInfo ptLeftNo = new PartitionInfo(
-                            EnumPartitionType.NO_PARTITION, 0);
-            leftDe.addPartitionCandiate(ptLeft);
-            leftDe.addPartitionCandiate(ptLeftNo);
-            this.compileplan.addOperator(leftDe, false);
-           
-            //ej.getLeftChild().setParent(ej, leftDe);
-
-            // right side
-            DataExchangeOperator rightDe = new DataExchangeOperator(
-                            ej.getRightChild(), ej.getRightChild().getResult());
-            ej.getRightChild().removeParent(ej);
-            ej.setRightChild(rightDe);
-            rightDe.addParent(ej);
-           
-            PartitionInfo ptRightNo = new PartitionInfo(
-                            EnumPartitionType.NO_PARTITION, 0);
-            rightDe.addPartitionCandiate(ptRight);
-            rightDe.addPartitionCandiate(ptRightNo);
-           
-            this.compileplan.addOperator(rightDe, false);
+		TokenAttribute taright = ej.getRightTokenAttribute();
+		PartitionAttributeSet partitionAttSetColumnsRight = new PartitionAttributeSet();
+		partitionAttSetColumnsRight.addAttribute(taright);
+		wrapper = new ArrayList<PartitionAttributeSet>();
+		wrapper.add(partitionAttSetColumnsRight);
+		PartitionInfo ptRight = new PartitionInfo(wrapper, EnumPartitionType.HASH, 0);
 
 
-            return error;
-    }
+		// create repartitioning operators
+		// left side
+		DataExchangeOperator leftDe = new DataExchangeOperator(
+				ej.getLeftChild(), ej.getLeftChild().getResult());
 
-    @Override
-    public Error visitSQLJoin(SQLJoin ej) {
-            return error;
-    }
+		//remove EJ from Parent
+		ej.getLeftChild().removeParent(ej);
+		ej.setLeftChild(leftDe);
+		leftDe.addParent(ej);
 
-    @Override
-    public Error visitGenericSelection(GenericSelection gs) {
-            return error;
-    }
+		PartitionInfo ptLeftNo = new PartitionInfo(
+				EnumPartitionType.NO_PARTITION, 0);
+		leftDe.addPartitionCandiate(ptLeft);
+		leftDe.addPartitionCandiate(ptLeftNo);
+		this.compileplan.addOperator(leftDe, false);
 
-    @Override
-    public Error visitGenericAggregation(GenericAggregation sa) {
+		//ej.getLeftChild().setParent(ej, leftDe);
 
-            // get partition info
+		// right side
+		DataExchangeOperator rightDe = new DataExchangeOperator(
+				ej.getRightChild(), ej.getRightChild().getResult());
+		ej.getRightChild().removeParent(ej);
+		ej.setRightChild(rightDe);
+		rightDe.addParent(ej);
 
-            Set<TokenAttribute> partitionColumns = new HashSet<TokenAttribute>();
-            for (AbstractExpression absE : sa.getGroupExpressions()) {
-                    for (TokenAttribute tokenAttribute : absE.getAttributes()) {
-                            partitionColumns.add(tokenAttribute);
-                    }
-            }
-            // build any sufficient subSet
-            // Set<Set<TokenAttribute>> powerSetOfPartitionColumns =
-            // getPowerSet(partitionColumns);
-            Set<Set<TokenAttribute>> candidates = new HashSet<Set<TokenAttribute>>();
-            Set<TokenAttribute> cset;
-            for (TokenAttribute ta : partitionColumns) {
-                    cset = new HashSet<TokenAttribute>();
-                    cset.add(ta);
-                    candidates.add(cset);
-            }
+		PartitionInfo ptRightNo = new PartitionInfo(
+				EnumPartitionType.NO_PARTITION, 0);
+		rightDe.addPartitionCandiate(ptRight);
+		rightDe.addPartitionCandiate(ptRightNo);
 
-            DataExchangeOperator dataExchange = new DataExchangeOperator(
-                            sa.getChild(), sa.getChild().getResult());
-           sa.getChild().removeParent(sa);
-            PartitionInfo pi = null;
-            for (Set<TokenAttribute> subset : candidates) {
-                    pi = new PartitionInfo(subset, EnumPartitionType.HASH, 0);
-                    dataExchange.addPartitionCandiate(pi);
-            }
+		this.compileplan.addOperator(rightDe, false);
 
-            pi = new PartitionInfo(EnumPartitionType.NO_PARTITION);
-            dataExchange.addPartitionCandiate(pi);
 
-            this.compileplan.addOperator(dataExchange, false);
-            // rebuild tree structure
-            sa.setChild(dataExchange);
-            dataExchange.addParent(sa);
+		return error;
+	}
 
-            return error;
-    }
+	@Override
+	public Error visitSQLJoin(SQLJoin ej) {
+		return error;
+	}
 
-    public Set<Set<TokenAttribute>> getPowerSet(Set<TokenAttribute> originalSet) {
-            Set<Set<TokenAttribute>> sets = new HashSet<Set<TokenAttribute>>();
-            if (originalSet.isEmpty()) {
-                    sets.add(new HashSet<TokenAttribute>());
-                    return sets;
-            }
-            List<TokenAttribute> list = new ArrayList<TokenAttribute>(originalSet);
-            TokenAttribute head = list.get(0);
-            Set<TokenAttribute> rest = new HashSet<TokenAttribute>(list.subList(1,
-                            list.size()));
-            for (Set<TokenAttribute> set : getPowerSet(rest)) {
-                    Set<TokenAttribute> newSet = new HashSet<TokenAttribute>();
-                    newSet.add(head);
-                    newSet.addAll(set);
-                    sets.add(newSet);
-                    sets.add(set);
-            }
-            return sets;
-    }
+	@Override
+	public Error visitGenericSelection(GenericSelection gs) {
+		return error;
+	}
 
-    @Override
-    public Error visitGenericProjection(GenericProjection gp) {
-            // Not relevant
-            return error;
-    }
+	@Override
+	public Error visitGenericAggregation(GenericAggregation sa) {		
+		/*
 
-    @Override
-    public Error visitTableOperator(TableOperator to) {
+		// get partition info
+		Set<TokenAttribute> partitionColumns = new HashSet<TokenAttribute>();
+		for (AbstractExpression absE : sa.getGroupExpressions()) {
+			for (TokenAttribute tokenAttribute : absE.getAttributes()) {
+				partitionColumns.add(tokenAttribute);
+			}
+		}
+		// build any sufficient subSet
+		// Set<Set<TokenAttribute>> powerSetOfPartitionColumns =
+		// getPowerSet(partitionColumns);
+		Set<Set<TokenAttribute>> candidates = new HashSet<Set<TokenAttribute>>();
+		Set<TokenAttribute> cset;
+		for (TokenAttribute ta : partitionColumns) {
+			cset = new HashSet<TokenAttribute>();
+			cset.add(ta);
+			candidates.add(cset);
+		}
 
-            // Not relevant
-            return error;
-    }
+		DataExchangeOperator dataExchange = new DataExchangeOperator(
+				sa.getChild(), sa.getChild().getResult());
+		sa.getChild().removeParent(sa);
+		PartitionInfo pi = null;
+		for (Set<TokenAttribute> subset : candidates) {
+			pi = new PartitionInfo(subset, EnumPartitionType.HASH, 0);
+			dataExchange.addPartitionCandiate(pi);
+		}
 
-    @Override
-    public Error visitRename(Rename ro) {
-            // Not relevant
-            return error;
-    }
+		pi = new PartitionInfo(EnumPartitionType.NO_PARTITION);
+		dataExchange.addPartitionCandiate(pi);
 
-    @Override
-    public Error visitSQLUnary(SQLUnary absOp) {
-            return error;
-    }
+		this.compileplan.addOperator(dataExchange, false);
+		// rebuild tree structure
+		sa.setChild(dataExchange);
+		dataExchange.addParent(sa);
 
-    @Override
-    public Error visitSQLCombined(SQLCombined absOp) {
-            return error;
-    }
+		return error;
+		 */
+
+		// get partition info
+		PartitionAttributeSet partitionColumns = new PartitionAttributeSet();
+		for (AbstractExpression absE : sa.getGroupExpressions()) {
+			for (TokenAttribute tokenAttribute : absE.getAttributes()) {
+				partitionColumns.addAttribute(tokenAttribute);
+			}
+		}
+		
+		
+		// TODO: Seems only the candidates with only one PartitionAttributeset is considered. Must be corrected.
+		// build any sufficient subSet
+		// Set<Set<TokenAttribute>> powerSetOfPartitionColumns =
+		// getPowerSet(partitionColumns);
+		Set<PartitionAttributeSet> candidates = new HashSet<PartitionAttributeSet>();
+		PartitionAttributeSet cset;
+		for (TokenAttribute ta : partitionColumns.getAttributeSet()) {
+			cset = new PartitionAttributeSet();
+			cset.addAttribute(ta);
+			candidates.add(cset);
+		}
+
+		DataExchangeOperator dataExchange = new DataExchangeOperator(
+				sa.getChild(), sa.getChild().getResult());
+		sa.getChild().removeParent(sa);
+		PartitionInfo pi = null;
+		for (PartitionAttributeSet subset : candidates) {
+			List <PartitionAttributeSet> wrapper = new ArrayList<PartitionAttributeSet>();
+			wrapper.add(subset);
+			pi = new PartitionInfo(wrapper, EnumPartitionType.HASH, 0);
+			dataExchange.addPartitionCandiate(pi);
+		}
+
+		pi = new PartitionInfo(EnumPartitionType.NO_PARTITION);
+		dataExchange.addPartitionCandiate(pi);
+
+		this.compileplan.addOperator(dataExchange, false);
+		// rebuild tree structure
+		sa.setChild(dataExchange);
+		dataExchange.addParent(sa);
+
+		return error;
+
+
+	}
+
+	public Set<Set<TokenAttribute>> getPowerSet(Set<TokenAttribute> originalSet) {
+		Set<Set<TokenAttribute>> sets = new HashSet<Set<TokenAttribute>>();
+		if (originalSet.isEmpty()) {
+			sets.add(new HashSet<TokenAttribute>());
+			return sets;
+		}
+		List<TokenAttribute> list = new ArrayList<TokenAttribute>(originalSet);
+		TokenAttribute head = list.get(0);
+		Set<TokenAttribute> rest = new HashSet<TokenAttribute>(list.subList(1,
+				list.size()));
+		for (Set<TokenAttribute> set : getPowerSet(rest)) {
+			Set<TokenAttribute> newSet = new HashSet<TokenAttribute>();
+			newSet.add(head);
+			newSet.addAll(set);
+			sets.add(newSet);
+			sets.add(set);
+		}
+		return sets;
+	}
+
+	@Override
+	public Error visitGenericProjection(GenericProjection gp) {
+		// Not relevant
+		return error;
+	}
+
+	@Override
+	public Error visitTableOperator(TableOperator to) {
+
+		// Not relevant
+		return error;
+	}
+
+	@Override
+	public Error visitRename(Rename ro) {
+		// Not relevant
+		return error;
+	}
+
+	@Override
+	public Error visitSQLUnary(SQLUnary absOp) {
+		return error;
+	}
+
+	@Override
+	public Error visitSQLCombined(SQLCombined absOp) {
+		return error;
+	}
 
 	@Override
 	public Error visitDataExchange(DataExchangeOperator deOp) {

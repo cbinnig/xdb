@@ -12,6 +12,7 @@ import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.funsql.parallelize.PartitionAttributeSet;
 import org.xdb.funsql.parallelize.PartitionInfo;
 import org.xdb.metadata.Connection;
 import org.xdb.utils.Identifier;
@@ -342,6 +343,8 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 */
 	public boolean renameAttributes(HashMap<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
+		/*
+		// Changed by Erfan
 		boolean renamed = false;
 
 		// rename output Partitioning
@@ -372,7 +375,44 @@ public abstract class AbstractCompileOperator implements Serializable {
 		}
 
 		return renamed;
+		*/
+		
+		boolean renamed = false;
+
+		// rename output Partitioning
+		if (this.hasOutputPartitionInfo()) {
+			for (PartitionAttributeSet attSet : this.getOutputPartitionInfo().getPartitionAttributeSet()) {
+				for (TokenAttribute tA : attSet.getAttributeSet())
+					if (tA.renameAttribute(renamedAttributes))
+						renamed = true;
+			}
+		}
+
+		// rename partitioning candidates
+		if (this.hasPartitionCandidates()) {
+			for (PartitionInfo pi : this.getPartitionCandiates()) {
+				for (PartitionAttributeSet attSet : pi.getPartitionAttributeSet()){
+					for (TokenAttribute tA : attSet.getAttributeSet()) {
+						if (tA.renameAttribute(renamedAttributes))
+							renamed = true;
+					}
+				}
+				
+			}
+		}
+
+		// rename result attributes
+		for (TokenAttribute tA : getResult().getAttributes()) {
+			if (renamedAttributes.containsKey(tA.getName().getName())) {
+				if (tA.renameAttribute(renamedAttributes))
+					renamed = true;
+			}
+		}
+
+		return renamed;
 	}
+	
+	
 	
 	/**
 	 * Creates a SQL string representing the result attributes (without table

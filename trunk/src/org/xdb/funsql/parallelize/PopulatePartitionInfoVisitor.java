@@ -1,6 +1,7 @@
 package org.xdb.funsql.parallelize;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
@@ -63,7 +64,7 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
-		this.setPartitionInfoFromParent(ej);
+		this.setPartitionInfoFromChildren(ej);
 		return error;
 	}
 
@@ -74,19 +75,19 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
-		this.setPartitionInfoFromParent(gs);
+		this.setPartitionInfoFromChildren(gs);
 		return error;
 	}
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
-		this.setPartitionInfoFromParent(sa);
+		this.setPartitionInfoFromChildren(sa);
 		return error;
 	}
 
 	@Override
 	public Error visitGenericProjection(GenericProjection gp) {
-		this.setPartitionInfoFromParent(gp);
+		this.setPartitionInfoFromChildren(gp);
 		return error;
 	}
 
@@ -98,7 +99,7 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitRename(Rename ro) {
-		this.setPartitionInfoFromParent(ro);
+		this.setPartitionInfoFromChildren(ro);
 		return error;
 	}
 
@@ -126,6 +127,7 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 		PartitionInfo pi = deOp.getOutputPartitionInfo();
 		// if the deOp and the child have both Hash as Partition Type, then
 		// update Parts
+		// TODO: Must have a second thought on this part. Seems strange (Comment by Erfan)
 		if (deOp.getChild().getOutputPartitionInfo().getPartitionType()
 				.equals((deOp.getOutputPartitionInfo().getPartitionType()))) {
 			deOp.getOutputPartitionInfo().setParts(
@@ -133,15 +135,53 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 		}
 
 		// if Hash Partitioned and Parts == 0 change to No_Partition
-		if (pi.getPartitionType().equals(EnumPartitionType.HASH)
-				&& pi.getParts() == 0) {
+		// TODO: I commented out the code below, however, must put another thought into it.
+		/*
+		if (pi.getPartitionType().equals(EnumPartitionType.HASH) && pi.getParts() == 0) {
 			pi = new PartitionInfo(EnumPartitionType.NO_PARTITION);
 			deOp.setOutputPartitionInfo(pi);
 		}
+		*/
 
 		return error;
 	}
+	
+	/**
+	 * Author: EZamanain
+	 * @param parentOp
+	 */
+	private void setPartitionInfoFromChildren(AbstractCompileOperator operation) {
+		// detect join
+		if (operation.getChildren().size() > 1) {
+			// join
+			if (operation.getType().equals(EnumOperator.EQUI_JOIN)) {
+				
+				// two inputs, both with one attribute
+				EquiJoin ej = (EquiJoin) operation;
 
+				// get children
+				AbstractCompileOperator left = ej.getLeftChild();
+				AbstractCompileOperator right = ej.getRightChild();
+				
+				// update Children parts, to realize parts relationship
+				updateChildrenPartitionParts(left, right);
+
+				// left.setPartitionOutputInfo(partitionOutputInfo)
+				// generate Output Partition Info
+				buildJoinOutputPartioning(ej, left, right);
+				// type has to be anything, but not not partioned
+			}
+		} else {
+			if (operation.getOutputPartitionInfo() == null) {
+				operation.setOutputPartitionInfo(operation.getChildren().get(0)
+						.getOutputPartitionInfo());
+			}
+		}
+
+	}
+
+	/*
+	Alex's Code: 
 	private void setPartitionInfoFromParent(AbstractCompileOperator parentOp) {
 
 		// detect join
@@ -171,7 +211,7 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 		}
 
 	}
-
+*/
 	private void updateChildrenPartitionParts(AbstractCompileOperator left,
 			AbstractCompileOperator right) {
 		PartitionInfo leftpi = left.getOutputPartitionInfo();
@@ -183,7 +223,8 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 					// get integervalue of parts
 
 					int rightparts = rightpi.getParts();
-
+					
+					// TODO: The current code always prefers the left leg child and overwrite its info on the right.
 					right.getOutputPartitionInfo().setParts(rightparts);
 				}
 			}
@@ -198,7 +239,7 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 
 		//partition is defined by a triple (TYPE, Attribute, parts)
 		
-		//if both have the same type left type = right typ
+		//if both have the same type
 		//left leading:
 		if (piLeft.equals(piRight)) {
 			pi = piRight;
@@ -210,6 +251,9 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 							EnumPartitionType.NO_PARTITION)) {
 				
 				if(piRight.getPartitionType().equals(piLeft.getPartitionType())){
+					// TODO: and what if their types are not the same?
+					pi = new PartitionInfo(piLeft);
+					pi.addPartitionAttributeSet(piRight.getPartitionAttributeSet());
 					
 					//right leading (copy)
 					CompilePlan newPlan = new CompilePlan(this.compilePlan);
@@ -218,24 +262,32 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 					
 					
 					//left leading 
-					pi = piLeft;
 					piRight.setParts(piLeft.getParts());
 					String leftstring = ej.getLeftTokenAttribute().getName().getName()+piLeft.getParts()+ ej.getRightTokenAttribute().getName().getName()+piLeft.getParts();
 					
 					this.consideredVariations.add(leftstring);			
-				}
-				
+				}			
 				
 			} else {
 				// only one side is partitioned, or both not
 				if (!piRight.getPartitionType().equals(
 						EnumPartitionType.NO_PARTITION)) {
 					// right is partitioned
-					pi = piRight;
+					pi = new PartitionInfo(piRight);
+					PartitionAttributeSet pas = new PartitionAttributeSet();
+					pas.addAttribute(ej.getLeftTokenAttribute());
+					List<PartitionAttributeSet> wrapper = new ArrayList<PartitionAttributeSet>();
+					wrapper.add(pas);
+					pi.addPartitionAttributeSet(wrapper);
 				} else if (!piLeft.getPartitionType().equals(
 						EnumPartitionType.NO_PARTITION)) {
 					// left is partitioned
-					pi = piLeft;
+					pi = new PartitionInfo(piLeft);
+					PartitionAttributeSet pas = new PartitionAttributeSet();
+					pas.addAttribute(ej.getRightTokenAttribute());
+					List<PartitionAttributeSet> wrapper = new ArrayList<PartitionAttributeSet>();
+					wrapper.add(pas);
+					pi.addPartitionAttributeSet(wrapper);
 				} else {
 					// both not, so not relevant which one to choose
 					pi = piLeft;
@@ -260,23 +312,27 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 			PartitionInfo piRight, CompilePlan newPlan) {
 
 
-		String rightstring= ej.getLeftTokenAttribute().getName().getName()+piRight.getParts()+ ej.getRightTokenAttribute().getName().getName()+piRight.getParts();
+		String rightstring = ej.getLeftTokenAttribute().getName().getName()
+				+ piRight.getParts()
+				+ ej.getRightTokenAttribute().getName().getName()
+				+ piRight.getParts();
 		
 		if(this.consideredVariations.contains(rightstring)) return;
 		
 		this.consideredVariations.add(rightstring);
 		
+		// TODO: The right child part always overwrites the left child. Must be fixed.
 		EquiJoin newEJ = (EquiJoin) newPlan.getOldOptoNewOpMap().get(ej);
 		newEJ.getLeftChild().getOutputPartitionInfo().setParts(piRight.getParts());;
 		newEJ.setOutputPartitionInfo(new PartitionInfo(piRight));
+		//newEJ.getOutputPartitionInfo().addPartitionAttributes(piLeft.getPartitionAttributes());
 
-		AbstractCompileOperator test = newPlan.getOldOptoNewOpMap().get(
+		AbstractCompileOperator newRoot = newPlan.getOldOptoNewOpMap().get(
 				this.treeRoot);
 		int deleteindex = newPlan.getCopyVistorRoots().indexOf(
-				test.getOperatorId());
+				newRoot.getOperatorId());
 
 		newPlan.getCopyVistorRoots().remove(deleteindex);
-
 		addVariationToConsideredCompilePlans(newPlan);
 	}
 

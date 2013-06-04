@@ -1,5 +1,6 @@
 package org.xdb.funsql.statement;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +32,7 @@ import org.xdb.funsql.compile.tokens.TokenSchema;
 import org.xdb.funsql.compile.tokens.TokenTable;
 import org.xdb.funsql.optimize.Optimizer;
 import org.xdb.funsql.parallelize.EnumPartitionType;
+import org.xdb.funsql.parallelize.PartitionAttributeSet;
 import org.xdb.funsql.parallelize.PartitionInfo;
 import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
@@ -506,10 +508,12 @@ public class SelectStmt extends AbstractServerStmt {
 
 		// set connection
 		if (!table.isTemp()) {
+			
+		
 		// Is Table Partioned?
 		if(table.isPartioned()){
 			
-			
+			/* changed by Erfan
 			//Table is partitioned so add PartitionInfo
 			TokenAttribute ta;
 			Set<TokenAttribute> partAttributes = new HashSet<TokenAttribute>();
@@ -519,6 +523,20 @@ public class SelectStmt extends AbstractServerStmt {
 			}
 	
 			PartitionInfo pi = new PartitionInfo(partAttributes, EnumPartitionType.valueOf(table.getPartitionType()), table.getPartitions().size());
+			tableOp.setOutputPartitionInfo(pi);
+			*/
+			
+			//Table is partitioned so add PartitionInfo
+			TokenAttribute ta;
+			PartitionAttributeSet partAttributes = new PartitionAttributeSet();
+			for(String att :table.getListofPartDetails()){
+				ta = new TokenAttribute(table.getAttribute(att).getName());
+				partAttributes.addAttribute(ta);
+			}
+			List <PartitionAttributeSet> wrapper = new ArrayList<PartitionAttributeSet>();
+			wrapper.add(partAttributes);
+	
+			PartitionInfo pi = new PartitionInfo(wrapper, EnumPartitionType.valueOf(table.getPartitionType()), table.getPartitions().size());
 			tableOp.setOutputPartitionInfo(pi);
 		} else {
 		
@@ -859,3 +877,5 @@ public class SelectStmt extends AbstractServerStmt {
 		return new Error();
 	}
 }
+
+		

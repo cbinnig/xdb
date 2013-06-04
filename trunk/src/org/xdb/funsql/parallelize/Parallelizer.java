@@ -41,7 +41,6 @@ public class Parallelizer {
 		
 		//insert necessary repartitioning Operators
 		error = this.insertDataExchangeOps();
-
 		
 		//make the plan parallel	
 		long currentTime1 = System.currentTimeMillis();
@@ -106,14 +105,19 @@ public class Parallelizer {
 
 	private  CompilePlan getParalellPlan() {
 		Error error = new Error();
-		HashMap<Identifier, List<PartitionInfo>> partionCandidates = this
-				.extractPartitionCandiatesPerOperator();
+		
+		HashMap<Identifier, List<PartitionInfo>> partitionCandidates = this.extractPartitionCandiatesPerOperator();
 
-		List<HashMap<Identifier, PartitionInfo>> partitionInfoCombinations = generatePartitionCombinations(partionCandidates);
+		List<HashMap<Identifier, PartitionInfo>> partitionInfoCombinations = generatePartitionCombinations(partitionCandidates);
 
 		// generate all possible Partitioned Plans
 		generatePossiblePlans(partitionInfoCombinations);
 		//select cheapest plan
+		for(CompilePlan cps: this.possibleCompilePlans){
+			cps.tracePlan(this.getClass().getName() + "_CANDID_PARALLELIZED");
+		}
+
+		
 		CompilePlan plan = getCheapestPlan();
 		//get Logger back
 		plan.init();
@@ -177,9 +181,9 @@ public class Parallelizer {
 	}
 
 	/**
-	 * This method extracts all Partition Candidates form the current Compile
-	 * Plan and returns them in Map with a list of PartitionInfo as Value and
-	 * the OperatorID as key
+	 * This method extracts all Partition Candidates from the current Compile
+	 * Plan and returns them in a Map with the OperatorID as the key and a list
+	 * of PartitionInfo as Value
 	 * 
 	 * @return
 	 */
@@ -198,7 +202,8 @@ public class Parallelizer {
 	}
 
 	/**
-	 * Method generates a set of Possible parallel plans for a given compile plan
+	 * Given the set of possible combinations of PartitioninInfo of operators,
+	 * this method generates a set of possible parallel plans for a given compile plan
 	 * @param candidates Partition Information
 	 */
 	private void generatePossiblePlans(
@@ -206,16 +211,21 @@ public class Parallelizer {
 		Error error = new Error();
 
 		// copy the compile plan n times, with n = partitionCombination size
-		// build all combinations
+		// This is necessary as we want to build a separate plan for each candidate,
+		// meaning that each candidate would have different partitioning information for the operators 
+		
 		this.newPossibleCompilePlans = new ArrayList<CompilePlan>();
 		ArrayList<String> consideredCombinations = new ArrayList<String>();
 		for (HashMap<Identifier, PartitionInfo> candidate : candidates) {
 			CompilePlan plan =null ;
 			for (Identifier id : candidate.keySet()) {
+				// id represents an operator, the HashMap gives the list of PartitioningInfo of this operator
 				this.compilePlan.getOperators(id).setOutputPartitionInfo(candidate.get(id));
 			}
 			plan = new CompilePlan(this.compilePlan);
 			plan.init();
+			
+			plan.tracePlan("Very beginning");
 			// set Partition Info in Plan Operators
 		
 			//populate plan Information
@@ -229,6 +239,8 @@ public class Parallelizer {
 				
 				populateInfoVisitor.reset(root, plan, this,true,consideredCombinations);
 				error = populateInfoVisitor.visit();
+				plan.tracePlan("Erfan");
+				
 				deOpRemovalVisitor.reset(root, plan);
 				error = deOpRemovalVisitor.visit();
 				plan.setEfficiencyHeuristic(deOpRemovalVisitor.getEfficiencyHeuristic());
@@ -240,6 +252,7 @@ public class Parallelizer {
 			this.possibleCompilePlans.add(plan);
 			// only use those with small operator Size ---> discuss this heuristik
 		}
+
 		
 		//populate Info in new variations and add new variations until no new are added
 		for(int i = 0; i < this.newPossibleCompilePlans.size(); i++){
@@ -280,7 +293,6 @@ public class Parallelizer {
 				}
 			}
 		}
-		
 		
 		this.possibleCompilePlans.addAll(this.newPossibleCompilePlans);
 		
