@@ -399,12 +399,6 @@ public class CompilePlan implements Serializable {
 	}
 
 	public Vector<Identifier> getCopyVistorRoots() {
-		return copyVistorRoots;
-	}
-
-	public void setCopyVistorRoots(Vector<Identifier> copyVistorRoots) {
-		this.copyVistorRoots = copyVistorRoots;
-	}
-	
-	
+		return copyVistorRoots; 
+	}	
 }

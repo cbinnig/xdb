@@ -1,6 +1,6 @@
 package org.xdb.test.parallelize;
 
-import org.junit.Test;
+import org.junit.Assert;
 import org.xdb.client.CompileClient;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.FunSQLCompiler;
@@ -138,7 +138,8 @@ public class TestPlanParallelizer extends XDBTestCase {
 	private void compileStatement(String stmt) {
 		FunSQLCompiler compiler = new FunSQLCompiler();
 		SelectStmt sstmt = (SelectStmt) compiler.compile(stmt);
-
+		this.assertNoError(compiler.getLastError());
+		
 		sstmt.getPlan().tracePlan(this.getClass().getName() + "_COMPILED");
 		Parallelizer p = new Parallelizer(sstmt.getPlan());
 		p.parallelize().tracePlan(this.getClass().getName() + "_PARALLELIZED");
@@ -163,8 +164,23 @@ public class TestPlanParallelizer extends XDBTestCase {
 
 		this.compileStatement(q3);
 	}
+	
+	
+	/*
+	 * Author: Erfan
+	 */
+	public void testWithOneJoinAndOneAggregation(){
+		String q = "select l_orderkey, "
+				+ "sum(l_extendedprice*(1-l_discount)) as revenue, "
+				+ "o_orderdate, " + "o_shippriority "
+				+ "from orders, " + "lineitem " 
+				+ "where o_orderkey = l_orderkey "
+				+ "group by l_orderkey";
 
-	@Test
+		this.compileStatement(q);
+	}
+
+	
 	public void testQ1() {
 		String q1 = "select	l_returnflag,	"
 				+ "l_linestatus,	"

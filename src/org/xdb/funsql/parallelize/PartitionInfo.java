@@ -1,7 +1,9 @@
 package org.xdb.funsql.parallelize;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -10,21 +12,21 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
  * This class encapsulates the partition information for every operator, needed
  * to parallelize Plans
  * 
- * @author Alexander.C Mueller
+ * @author Alexander.C Mueller, Erfan Zamanian
  * 
  */
 public class PartitionInfo implements Serializable, Cloneable {
 
 	private static final long serialVersionUID = 7175327340663407036L;
 	
-	private Set<TokenAttribute> partitionAttributes = new HashSet<TokenAttribute>();
+	private List<PartitionAttributeSet> partitionAttributeSet = new ArrayList<PartitionAttributeSet>();
 	private EnumPartitionType partitionType;
 	private int parts;
 
-	public PartitionInfo(Set<TokenAttribute> partitionAttributes,
+	public PartitionInfo(List<PartitionAttributeSet> partitionAttributeSet,
 			EnumPartitionType partitionType, int parts) {
 		super();
-		this.partitionAttributes = partitionAttributes;
+		this.partitionAttributeSet = partitionAttributeSet;
 		this.partitionType = partitionType;
 		this.parts = parts;
 	}
@@ -41,13 +43,12 @@ public class PartitionInfo implements Serializable, Cloneable {
 		this.partitionType = toCopy.partitionType;
 		this.parts = toCopy.parts;
 		
-		Set<TokenAttribute> clonepartitionAttributes = new HashSet<TokenAttribute>();
+		List<PartitionAttributeSet> clonepartitionAttributes = new ArrayList<PartitionAttributeSet>();
 		
-		for (TokenAttribute tokenAttribute : toCopy.partitionAttributes) {
-			clonepartitionAttributes.add(tokenAttribute.clone());
+		for (PartitionAttributeSet attributeSet : toCopy.partitionAttributeSet) {
+			clonepartitionAttributes.add(attributeSet.deepCopy());
 		}
-		this.partitionAttributes = clonepartitionAttributes;
-		
+		this.partitionAttributeSet = clonepartitionAttributes;
 	}
 
 	/**
@@ -62,12 +63,16 @@ public class PartitionInfo implements Serializable, Cloneable {
 
 	// getters + setters
 
-	public Set<TokenAttribute> getPartitionAttributes() {
-		return partitionAttributes;
+	public List<PartitionAttributeSet> getPartitionAttributeSet() {
+		return partitionAttributeSet;
 	}
 
-	public void setPartitionAttributes(Set<TokenAttribute> partitionAttributes) {
-		this.partitionAttributes = partitionAttributes;
+	public void setPartitionAttributeSet(List<PartitionAttributeSet> partitionAttributeSet) {
+		this.partitionAttributeSet = partitionAttributeSet;
+	}
+	
+	public void addPartitionAttributeSet(List<PartitionAttributeSet> partitionAttributeSet){
+		this.partitionAttributeSet.addAll(partitionAttributeSet);
 	}
 
 	public EnumPartitionType getPartitionType() {
@@ -90,11 +95,12 @@ public class PartitionInfo implements Serializable, Cloneable {
 		StringBuffer sb = new StringBuffer();
 
 		sb.append("Type : " + this.getPartitionType());
-		sb.append("Parts : " + this.getParts() + "\n" + "Attributes: [");
-		for (TokenAttribute att : this.partitionAttributes) {
-			sb.append(att.getName().toString() + ", ");
+		sb.append(" ");
+		sb.append("Parts : " + this.getParts() + "\n" + "Attributes: {");
+		for (PartitionAttributeSet attributeSet : this.partitionAttributeSet) {
+			sb.append(attributeSet.toString());
 		}
-		sb.append("]");
+		sb.append("}");
 
 		return sb.toString();
 	}
@@ -106,53 +112,63 @@ public class PartitionInfo implements Serializable, Cloneable {
 		// cast and compare
 		PartitionInfo pi = (PartitionInfo) obj;
 
-		boolean test1 = true;
-		int counter = 0;
-		for(TokenAttribute ta :pi.getPartitionAttributes()){
-			counter=0;
-			for(TokenAttribute originta :this.partitionAttributes){
-				if(originta.getName().equals(ta.getName())){
-					counter++;
-				}
-			}
-			if(counter==0) test1= false;
-		}
 		
-		boolean test2 = true;;
-		for(TokenAttribute originta :this.partitionAttributes){
-			counter = 0;
-			for(TokenAttribute ta :pi.getPartitionAttributes()){
-				if(originta.getName().equals(ta.getName())){
-					counter++;
-				}
-			}
-			if(counter==0) test2= false;
-		}
+		// TODO: This must be fixed. Not very efficient.
 		
-		return (test1 && test2
-				&& pi.getPartitionType().equals(this.partitionType) && pi
-					.getParts() == this.getParts());
-
+		// Firstly, let's check the size of attribute set and its type 
+		if (this.partitionAttributeSet.size() != pi.getPartitionAttributeSet().size()) return false;
+		if (! this.partitionType.equals(pi.partitionType)) return false;
+		
+		// Now that we know that the size of partitionAttributeSet of two objects is the same, 
+		// we can check whether one is a subset of another. Simple :)
+		return this.contains(pi);
 	}
 
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
+
+	/**
+	 * This method checks whether the toBeComparedPartitionInfo is a subset of the current PartitionInfo,
+	 * meaning that the PartitionAttributeSet of toBeComparedPartitionInfo is a subset of the current PartitionAttributeSet.
+	 * For example, the set {[a], [b]} is a subset of the set {[a], [b], [c], [a, b]}  
+	 * @param toBeComparedPartitionInfo The PartitionInfo to be compared with the current object.
+	 * @return A boolean value indicating whether the input argument is a subset of the object.
+	 */
+	public boolean contains(PartitionInfo toBeComparedPartitionInfo) {
+		// TODO: This must be fixed. The search is now brute-force 
+		
+		// First off, if the toBeComparedPartitionInfo is empty, then it means that this is a Union operation.
+		// Unless the current PartitionInfo object is empty as well, and the method must return false.
+		if (toBeComparedPartitionInfo.getPartitionAttributeSet().size() == 0 )
+			if (this.getPartitionAttributeSet().size() != 0) return false;
+		
+		boolean found = false;
+		for (PartitionAttributeSet comparingAttSet : toBeComparedPartitionInfo.getPartitionAttributeSet()){
+			found = false;
+			for (PartitionAttributeSet originalAttSet : this.getPartitionAttributeSet() ){
+				if (comparingAttSet.equals(originalAttSet)){
+					found = true;
+					break;
+				}
+			}
+			if (! found) return false;
+		}
+		return true;
+	}
+
+	/*
+	protected PartitionInfo makeClone(){
 	
-		PartitionInfo pi  = (PartitionInfo) super.clone();
+		PartitionInfo pi  = new PartitionInfo();
 		
 		pi.partitionType = this.partitionType;
 		pi.parts = this.parts;
 		
-		Set<TokenAttribute> clonepartitionAttributes = new HashSet<TokenAttribute>();
-		
-		for (TokenAttribute tokenAttribute : partitionAttributes) {
-			clonepartitionAttributes.add(tokenAttribute.clone());
+		List<PartitionAttributeSet> clonePartitionAttributeSet = new ArrayList<PartitionAttributeSet>();
+		for (PartitionAttributeSet attSet : this.getPartitionAttributeSet()){
+			clonePartitionAttributeSet.add((PartitionAttributeSet)attSet.clone());
 		}
-		pi.partitionAttributes = clonepartitionAttributes;
-		
+		pi.addPartitionAttributeSet(clonePartitionAttributeSet);
 		return pi;
-		
 	}
+	*/
 	
-
 }

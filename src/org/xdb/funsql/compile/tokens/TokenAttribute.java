@@ -4,6 +4,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Vector;
 
+import org.hamcrest.core.IsInstanceOf;
+
+/**
+ * 
+ * @author A.C.Mueller, Erfan Zamanian
+ *
+ */
 public class TokenAttribute extends AbstractTokenOperand{
 	private static final long serialVersionUID = -846135086164968356L;
 	
@@ -113,11 +120,42 @@ public class TokenAttribute extends AbstractTokenOperand{
 	}
 	
 	public String hashKey(){
+		// TODO: Should the TableName be considered in the HashKey ?
 		StringBuffer key = new StringBuffer();
-		key.append(this.table.getName().hashKey());
-		key.append(DOT);
+		//key.append(this.table.getName().hashKey());
+		//key.append(DOT);
 		key.append(this.name.hashKey());
 		return key.toString();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof TokenAttribute)) return false;
+		TokenAttribute ta = (TokenAttribute) o;
+		boolean namesIdentical = this.getName().getName().equals(ta.getName().getName());
+		
+		// Since the "compile" method of "CreateTableStmt" calls this function without setting the table name, we should be ready for that.
+		if (this.getTable() == null || ta.getTable() == null)
+			return namesIdentical;
+
+		// TODO: Must be fixed.
+		// Otherwise, we need to check if the table names are the same as well.
+		else {
+			boolean tableNamesIdentical = this.getTable().getName().equals(ta.getTable().getName());
+			//return namesIdentical && tableNamesIdentical;
+			return namesIdentical;
+		}
+	}
+	
+	@Override
+	// hashCode is overridden in order to map equal TokenAttributes to the same bucket.
+	// hashCode() must be consistent with equals() function.
+	// The relation between the two methods is:
+	// Whenever a.equals(b), then a.hashCode() must be same as b.hashCode().
+	// The same set of fields must be used to compute equals() and to compute hashCode().
+	public int hashCode() {
+		// TODO Must be fixed to reflect all the attributes of TokenAttribute
+		return this.getName().getName().hashCode();
 	}
 	
 

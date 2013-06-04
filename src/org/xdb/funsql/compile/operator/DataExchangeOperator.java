@@ -9,6 +9,7 @@ import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.funsql.parallelize.PartitionAttributeSet;
 import org.xdb.funsql.parallelize.PartitionInfo;
 import org.xdb.utils.Identifier;
 
@@ -143,13 +144,14 @@ public class DataExchangeOperator extends AbstractUnaryOperator {
 		// rename input partitioning
 		String newName = null;
 		if (this.hasInputPartitioning()) {
-			for (TokenAttribute tA : this.getInputPartitioning()
-					.getPartitionAttributes()) {
-				newName = renamedAttributes.get(tA.getName().getName());
-				if (newName == null)
-					continue;
-				renamed = true;
-				tA.setName(newName);
+			for (PartitionAttributeSet attSet : this.getInputPartitioning().getPartitionAttributeSet()){
+				for (TokenAttribute tA : attSet.getAttributeSet()) {
+					newName = renamedAttributes.get(tA.getName().getName());
+					if (newName == null)
+						continue;
+					renamed = true;
+					tA.setName(newName);
+				}
 			}
 		}
 
