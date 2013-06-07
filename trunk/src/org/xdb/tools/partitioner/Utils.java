@@ -57,7 +57,7 @@ public class Utils {
 	 * 
 	 * @param fileName the name of the file to delete its partitions
 	 */
-	public static void deleteOldPartitions(String fileName) {
+	public static void deleteOldPartitions(String fileName, boolean partialPartitionsMode, int partitionNumber) {
 
 		String directory = Utils.getFileDirectory(fileName); // Get the directory name
 		// Check if the directory is existing
@@ -74,6 +74,10 @@ public class Utils {
 			if (!file.isFile()) { 
 				continue;
 			}  
+			
+			if(partialPartitionsMode && info[i].indexOf(Utils.getFileName(fileName)+"_p"+partitionNumber) == -1)
+				continue;
+				
 			if (info[i].indexOf(Utils.getFileName(fileName)+"_p") == -1) { // name doesn't match
 				continue;
 			} 
