@@ -13,12 +13,12 @@ import org.xdb.client.MasterTrackerClient;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
-import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractAnnotationVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.logging.XDBLog;
+import org.xdb.monitor.ComputeServersMonitor;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.Tuple;
 
@@ -38,7 +38,10 @@ public class QueryTrackerNode {
 	private final QueryTrackerNodeDesc description;
 
 	// query tracker plans
-	private Map<Identifier, QueryTrackerPlan> qPlans = new HashMap<Identifier, QueryTrackerPlan>();
+	private Map<Identifier, QueryTrackerPlan> qPlans = new HashMap<Identifier, QueryTrackerPlan>(); 
+	
+	// Compute servers monitor 
+	private ComputeServersMonitor computeServerMonitor;
 
 	// logger
 	private final Logger logger;
@@ -49,11 +52,12 @@ public class QueryTrackerNode {
 	}
 
 	public QueryTrackerNode(final String address) throws Exception {
-		this.computeClient = new ComputeClient();
+		this.computeClient = new ComputeClient(); 
+		this.computeServerMonitor = new ComputeServersMonitor();
 		this.description = new QueryTrackerNodeDesc(address);
 		this.masterTrackerClient = new MasterTrackerClient();
 		this.logger = XDBLog.getLogger(this.getClass().getName());
-	}
+	} 
 
 	// getters and setters
 	/**
@@ -189,8 +193,9 @@ public class QueryTrackerNode {
 
 		return err;
 
-	}
-
+	} 
+	
+	
 	/**
 	 * Method used to request ComputeNode-Slots from MasterTracker
 	 * 
@@ -219,29 +224,30 @@ public class QueryTrackerNode {
 		Identifier execOpId = execOp.getOperatorId();
 		Identifier planId = execOpId.getParentId(0);
 		Identifier trackerOpId = execOpId.getParentId(1);
-
+        
 		QueryTrackerPlan qPlan = this.qPlans.get(planId);
 		if (err.isError()) {
 			qPlan.setLastError(err);
 			return err;
 		}
 		qPlan.setTrackerOperatorExecuted(trackerOpId);
-
-		// send READY Signal to all consumers
-		final Set<OperatorDesc> consumers = execOp.getConsumers();
-		for (final OperatorDesc consumer : consumers) {
-			if (consumer != null) {
-				logger.log(Level.INFO, "Send READY_SIGNAL from Query Tracker "
-						+ this.description.getUrl() + " to consumer: "
-						+ consumer);
-
-				err = computeClient.executeOperator(execOp.getOperatorId(),
-						consumer);
-
-				if (err.isError())
-					return err;
-			}
-		}
+        
+		err = qPlan.operatorReady(execOp);
+		
 		return err;
+	}
+
+	/**
+	 * @return the computeServerMonitor
+	 */
+	public ComputeServersMonitor getComputeServerMonitor() {
+		return this.computeServerMonitor;
+	}
+
+	/**
+	 * @param computeServerMonitor the computeServerMonitor to set
+	 */
+	public void setComputeServerMonitor(ComputeServersMonitor computeServerMonitor) {
+		this.computeServerMonitor = computeServerMonitor;
 	}
 }
