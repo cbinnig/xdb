@@ -19,8 +19,11 @@ public class OperatorDesc implements Serializable {
 	private Identifier execOpId;
 
 	// operator URL
-	private ComputeNodeDesc computeSlot;
-
+	private ComputeNodeDesc computeSlot;  
+	
+	// operator status
+	private QueryOperatorStatus operatorStatus; 
+	
 	// constructors
 	public OperatorDesc(Identifier execOpId, ComputeNodeDesc computeSlot) {
 		super();
@@ -36,7 +39,21 @@ public class OperatorDesc implements Serializable {
 	public ComputeNodeDesc getComputeSlot() {
 		return computeSlot;
 	}
+    
+	/**
+	 * @return the operatorStatus
+	 */
+	public QueryOperatorStatus getOperatorStatus() {
+		return operatorStatus;
+	}
 
+	/**
+	 * @param operatorStatus the operatorStatus to set
+	 */
+	public void setOperatorStatus(QueryOperatorStatus operatorStatus) {
+		this.operatorStatus = operatorStatus;
+	}
+	
 	// methods
 	@Override
 	public int hashCode() {
@@ -47,5 +64,7 @@ public class OperatorDesc implements Serializable {
 	public String toString() {
 		return "(" + this.computeSlot + "," + this.execOpId + ")";
 	}
+
+	
 
 }
