@@ -39,7 +39,7 @@ public enum EnumError {
 	COMPILER_FUNCTION_CALLED_FUNCTION_DOES_NOT_EXIST,
 	COMPILER_SELECT_DATATYPE_MISMATCH,
 	PARALELLIZER_NO_COMPILEPLANS,
-	TRACKER_GENERIC;
+	TRACKER_GENERIC, RUN_TIMES_EXCEEDED;
 	
 	public static String toString(EnumError error, String[] args){
 		String msg = "";
@@ -137,6 +137,9 @@ public enum EnumError {
 			break;
 		case TRACKER_GENERIC:
 			msg = "Tracker: Error \"<arg0>\"";
+			break; 
+		case RUN_TIMES_EXCEEDED: 
+			msg = "Robustness: Abroting execution of the query since the number of failures exceeded \"<arg0>\""; 
 			break;
 		default:
 			msg = "Unknown error occured";
