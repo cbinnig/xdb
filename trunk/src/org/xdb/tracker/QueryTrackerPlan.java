@@ -312,22 +312,41 @@ public class QueryTrackerPlan implements Serializable {
 			}
 		} 
 		
-		System.out.println("Monitoring has been started....");
 		
 		// wait until plan is executed or error occurred
 		while (!this.isExecuted() && !this.err.isError()) {
 			try { 
 				// Starting the compute servers monitoring. 
 				// Lock to prevent operator signaling. 
-				monitoringLock.lock();
-				computeServersMonitor.setQueryTrackerPlan(this);
+				monitoringLock.lock(); 
+				System.out.println("Monitoring has been started....");
+		    	computeServersMonitor.setQueryTrackerPlan(this);
 				computeServersMonitor.startComputeServersMonitor(); 
-				// re-deploy the failed operators 
-				redeployFailedOperators();  
+				
+				// Check if there is a failure detected, in order 
+				// to re-deploy the failed operators.  
+				if(computeServersMonitor.isFailureDetected()) {
+					// Check if the maximum time of the runs has been 
+					// exceeded, so the whole plan will be aborted. 
+					
+					// increment the failure count (trials counter)
+					triesCounter++;  
+					if(triesCounter > Config.MAXIMUM_TRIES_COUNT) {
+						String[] args = { triesCounter.toString() };
+						err = new Error(EnumError.RUN_TIMES_EXCEEDED, args);
+						System.out.println(err.toString()); 
+						return err;
+						
+					} 
+					// re-deploy the failed operators 
+					redeployFailedOperators();  
+				}
+			
 				// unlock to allow operators signaling. 
-				monitoringLock.unlock();
-				// Wait to the next monitor  
+				monitoringLock.unlock(); 
+				System.out.println("Finished Monitoring....wait until the next monitoring");
 				Thread.sleep(Config.MONITOR_INTERVAL);
+				// Wait to the next monitor  
 			} catch (InterruptedException e) { 
 				monitoringLock.lock();
 
@@ -400,12 +419,10 @@ public class QueryTrackerPlan implements Serializable {
 	 */
 	private void redeployFailedOperators(){ 
         
-		// increment the failure count (trials counter)
-		triesCounter++;
 		// starting traverse the query plan from the roots. 
 		traverseQueryTrackerPlan(this.roots); 
-		distributePlanRobustness();
-
+		distributePlanRobustness(); 
+		
 	}
 
 	/**
@@ -439,7 +456,9 @@ public class QueryTrackerPlan implements Serializable {
 			} else if (this.leaves.contains(opId) && operator.getOperatorStatus() // if it is leave, re-deploy it and continue iteration 
 						== QueryOperatorStatus.ABORTED) {   // among the siblings. 
 				prepareDeploymentRobustness(opId);
-			} 
+			} else if(!this.leaves.contains(opId)) {
+				traverseQueryTrackerPlan(this.getSources(opId)); 
+			}
 		}
 		
 	}
@@ -747,7 +766,8 @@ public class QueryTrackerPlan implements Serializable {
 
 	public Error operatorReady(AbstractExecuteOperator execOp) {
 		// send READY Signal to all consumers  
-		monitoringLock.lock(); 
+		monitoringLock.lock();  
+		System.out.println("operator ready is called");
 		final Set<OperatorDesc> consumers = execOp.getConsumers();  
 		// Update the status of the ready operator (finished) to FINISHED 
 		// needed in case of failure (robustness). 
