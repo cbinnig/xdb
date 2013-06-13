@@ -25,7 +25,9 @@ public class ComputeServersMonitor{
 	// Query tracker plan 
 	private QueryTrackerPlan qtPlan; 
     	    
-	private Map<Identifier, OperatorDesc> failedComputeNodes = new HashMap<Identifier, OperatorDesc>();
+	private Map<Identifier, OperatorDesc> failedComputeNodes = new HashMap<Identifier, OperatorDesc>(); 
+	
+	private boolean failureDetected = false;
 	
 	public ComputeServersMonitor(){
 		this.computeClient = new ComputeClient();
@@ -100,9 +102,9 @@ public class ComputeServersMonitor{
 			OperatorDesc opDesc = qtPlan.getCurrentDeployment().get(identifier);
 			err = this.computeClient.pingComputeServer(opDesc.getComputeSlot());  
 			if (err.isError()) { 
-				System.out.println("Node "+opDesc.getComputeSlot().getUrl()+" is down!");
 				// Update the current deployment with the failed operator 
-				opDesc.setOperatorStatus(QueryOperatorStatus.ABORTED);
+				opDesc.setOperatorStatus(QueryOperatorStatus.ABORTED); 
+				setFailureDetected(true);
 				
 			} else {
 				System.out.println(opDesc.getComputeSlot().getUrl() + " has been checked Successfully... ");
@@ -111,6 +113,22 @@ public class ComputeServersMonitor{
 		} 
 		
 		
+	}
+
+
+	/**
+	 * @return the failureDetected
+	 */
+	public boolean isFailureDetected() {
+		return failureDetected;
+	}
+
+
+	/**
+	 * @param failureDetected the failureDetected to set
+	 */
+	public void setFailureDetected(boolean failureDetected) {
+		this.failureDetected = failureDetected;
 	}
 	
 }
