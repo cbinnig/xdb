@@ -16,6 +16,7 @@ import org.xdb.funsql.compile.analyze.operator.RebuildExpressionAndAttributesAft
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.TableOperator;
+import org.xdb.funsql.parallelize.PlanCost;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Dotty;
 import org.xdb.utils.Identifier;
@@ -49,14 +50,14 @@ public class CompilePlan implements Serializable {
 	private Vector<Identifier> roots = new Vector<Identifier>();
 	private HashSet<Identifier> leaves = new HashSet<Identifier>();
 	
+	PlanCost planCost = new PlanCost();
+	
 	// logger
 	private transient Logger logger;
 
 	// last error
 	private Error err = new Error();
 
-	private double efficiencyHeuristic;
-	
 	//only set if the plan is a copied plan; Mapping from old to new Operator 
 	private Map<AbstractCompileOperator, AbstractCompileOperator> oldOptoNewOpMap;
 	private Vector<Identifier> copyVistorRoots = new Vector<Identifier>();
@@ -385,15 +386,15 @@ public class CompilePlan implements Serializable {
 		return roots;
 	}
 	
-	//for guessing which compile plan is the best
-	public double getEfficiencyHeuristic() {
-		return efficiencyHeuristic;
+	
+	public PlanCost getPlanCost() {
+		return planCost;
 	}
-
-	public void setEfficiencyHeuristic(double efficiencyHeuristic) {
-		this.efficiencyHeuristic = efficiencyHeuristic;
+	
+	public void setPlanCost(PlanCost planCost) {
+		this.planCost = planCost;
 	}
-
+	
 	public Map<AbstractCompileOperator, AbstractCompileOperator> getOldOptoNewOpMap() {
 		return oldOptoNewOpMap;
 	}
