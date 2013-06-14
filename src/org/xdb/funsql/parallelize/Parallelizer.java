@@ -132,23 +132,22 @@ public class Parallelizer {
 	 * @return
 	 */
 	private CompilePlan getCheapestPlan() {
-
-		
-		//make the life easy and simply give the first on back
-		//add statistics-based Heuristik	
-
-		double bestHeuristic = 999999.00;
 		CompilePlan cheapestPlan = null;
-		for(CompilePlan cps: this.possibleCompilePlans){
-			if(cps.getEfficiencyHeuristic() < bestHeuristic){
-				cheapestPlan = cps;
-				bestHeuristic = cps.getEfficiencyHeuristic();
+		for(CompilePlan plan: this.possibleCompilePlans){
+			//System.out.println("plan: " + plan.getPlanCost()
+			//		+ " has compilePlan with id = " + plan.getPlanId() );
+		
+			if (cheapestPlan == null){
+				cheapestPlan = plan;
+				continue;
+			}
+			if(plan.getPlanCost().isCheaperThan(cheapestPlan.getPlanCost())){
+				cheapestPlan = plan;
 			}
 		}
 		
-		System.out.println("Best Measure is:" + bestHeuristic + " has compilePlan with " + cheapestPlan.getPlanId() );
-
-		//return this.possibleCompilePlans.get(a);
+		System.out.println("Best Plan: " + cheapestPlan.getPlanCost()
+				+ " has compilePlan with id = " + cheapestPlan.getPlanId() );
 		
 		return cheapestPlan;
 	}
@@ -225,7 +224,8 @@ public class Parallelizer {
 			plan = new CompilePlan(this.compilePlan);
 			plan.init();
 			
-			plan.tracePlan("Very beginning");
+			/// plan.tracePlan("Very beginning");
+			
 			// set Partition Info in Plan Operators
 		
 			//populate plan Information
@@ -239,11 +239,11 @@ public class Parallelizer {
 				
 				populateInfoVisitor.reset(root, plan, this,true,consideredCombinations);
 				error = populateInfoVisitor.visit();
-				plan.tracePlan("Erfan");
+				// plan.tracePlan("Erfan");
 				
 				deOpRemovalVisitor.reset(root, plan);
 				error = deOpRemovalVisitor.visit();
-				plan.setEfficiencyHeuristic(deOpRemovalVisitor.getEfficiencyHeuristic());
+				//plan.setEfficiencyHeuristic(deOpRemovalVisitor.getEfficiencyHeuristic());
 				if (error.isError()) {
 					// set this error
 					return;

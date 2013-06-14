@@ -165,10 +165,6 @@ public class TestPlanParallelizer extends XDBTestCase {
 		this.compileStatement(q3);
 	}
 	
-	
-	/*
-	 * Author: Erfan
-	 */
 	public void testWithOneJoinAndOneAggregation(){
 		String q = "select l_orderkey, "
 				+ "sum(l_extendedprice*(1-l_discount)) as revenue, "
@@ -178,6 +174,19 @@ public class TestPlanParallelizer extends XDBTestCase {
 				+ "group by l_orderkey";
 
 		this.compileStatement(q);
+	}
+	
+	public void testWithTwoJoinsAndOneAggregation(){
+		String q5 = "Select n_name, "
+				+ "sum(l_extendedprice * (1-l_discount)) as revenue "
+				+ "from customer, orders, lineitem, supplier, nation "
+				+ "where c_custkey = o_custkey "
+				+ "and l_orderkey = o_orderkey "
+				+ "and l_suppkey = s_suppkey  "
+				+ "and n_nationkey = s_nationkey "
+				+ "group by n_name;";
+		this.compileStatement(q5);
+		
 	}
 
 	

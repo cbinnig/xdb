@@ -102,13 +102,16 @@ public class RemoveDataExchangeOpVisitor extends AbstractBottomUpTreeVisitor {
 			deOp.getParents().get(0).setChild(deOp, deOp.getChild());
 			this.compilePlan.removeOperator(deOp.getOperatorId());
 		}else {
-			//increase heuristic
-			int operatorsbefore = getOperatorCount();
+			// So the repartitioning operator must stay. Then we need to update the cost of the plan
 			
+			int operatorsBeforeCnt = getNormalOperatorsCnt();
+			PlanCost planCost = this.compilePlan.getPlanCost();
+			planCost.setRepartitionOperatorCnt(planCost.getRepartitionOperatorCnt() + 1);
+			planCost.setAccumulativeDistanceToRoots(planCost.getAccumulativeDistanceToRoots() + operatorsBeforeCnt);
+			/* Alex's code:
 			double quota = 1/ ((double) 10*operatorsbefore);
-			
 			this.efficiencyHeuristic = this.efficiencyHeuristic + quota;
-			
+			*/
 		}
 		
 		return err;

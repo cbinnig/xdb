@@ -20,7 +20,7 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	
 	protected AbstractCompileOperator treeRoot = null;
 	protected boolean stop = false;
-	protected int operatorCount;
+	protected int normalOperatorsCnt;	// all operators except DE operators
 	
 	public AbstractTreeVisitor(AbstractCompileOperator root) {
 		treeRoot = root;
@@ -84,8 +84,9 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 		return e;
 	}
 
-	public int getOperatorCount() {
-		return operatorCount;
+	
+	public int getNormalOperatorsCnt() {
+		return normalOperatorsCnt;
 	}
 
 	

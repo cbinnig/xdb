@@ -13,7 +13,6 @@ public abstract class AbstractTopDownTreeVisitor extends AbstractTreeVisitor {
 	@Override
 	public Error visit(AbstractCompileOperator absOp) {
 		Error e = new Error();
-		super.operatorCount++;
 		e = super.visit(absOp);
 		
 		if(this.stop)
