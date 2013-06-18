@@ -73,7 +73,8 @@ public class DataPartitioner {
 	 */
 	public void setPartialPatitioningMode(boolean partialPatitioningMode, int partitionNumber) {
 		this.partialPatitioningMode = partialPatitioningMode;  
-		this.partitionNumber = partitionNumber;
+		this.partitionNumber = partitionNumber; 
+		System.out.println("The partial partitoning is set and the partion required is: "+this.partitionNumber);
 	}
 
 	// methods
@@ -95,7 +96,7 @@ public class DataPartitioner {
 			throws Exception {
 
 		String fileType = Utils.getFileType(fileName);
-
+    
 		// delete old partitions if they are existing, in case of
 		// re-partitioning
 		Utils.deleteOldPartitions(fileName, this.partialPatitioningMode, this.partitionNumber);
@@ -103,13 +104,16 @@ public class DataPartitioner {
 		for (int i = 0; i < numberofPartitions; i++) {  
 			// Check if the partial partitioning is set 
 			// so one partition is created at once. 
-			if(isPartialPatitioningMode() && i != this.partitionNumber) 
+			if(isPartialPatitioningMode() && i != this.partitionNumber) {
+				System.out.println("Partition number: "+i+ " excluded from the partitoning");
 				continue; 
+			}
 			// Adding the partition number as a part of the file name.
 			File file = new File(Utils.getFileDirectory(fileName) + "/"
 					+ Utils.getFileName(fileName) + "_p" + i + "." + fileType);
 			// if file doesn't exists, then create it
 			if (!file.exists()) {
+				System.out.println("Create new file "+ file.getName());
 				file.createNewFile();
 				// Create a buffer stream for every file, and store it
 				// in a hash map.
@@ -129,20 +133,24 @@ public class DataPartitioner {
 	 * @param fileName
 	 * @param indices
 	 */
-	private void partitionDataByHashing(String fileName, String indices, int numberOfPartitions)
+	private void partitionDataByHashing(String fileName, String indices, int numberOfPartitions, boolean isIntHashing)
 			throws Exception {
 
 		// Return the indices in an array format
 		Integer[] partitionIndices = Utils.getKeyIndicesFromString(indices
 				.trim());
-		int hash;
+		int hash = 0;
 		int partitionNumber = 0;
 		//int numberOfPartitions = this.filesMap.size();
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 
 		String line = "";
-		while ((line = br.readLine()) != null) {
-			hash = Utils.calculateHash(line, partitionIndices);
+		while ((line = br.readLine()) != null) { 
+			if(isIntHashing)
+			    hash = Utils.calculateIntHash(line, partitionIndices); 
+			else 
+				hash = Utils.calculateHash(line, partitionIndices);
+			
 			partitionNumber = (hash % numberOfPartitions + numberOfPartitions) % numberOfPartitions; 
 
 			// Check if the partial partitioning is set 
@@ -229,8 +237,10 @@ public class DataPartitioner {
 		for (int i = 0; i < numberOfReferencePartitions; i++) {
 			// Check if the partial partitioning is set 
 			// so one partition is written at once. 
-			if(isPartialPatitioningMode() && i != this.partitionNumber) 
+			if(isPartialPatitioningMode() && i != this.partitionNumber) {
 			     continue; 
+			}
+			System.out.println(i);
 			BufferedReader br = new BufferedReader(new FileReader(directory
 					+ "/" + referenceFile + "_p" + i + ".tbl"));
 			String refLine = "";
@@ -344,7 +354,8 @@ public class DataPartitioner {
 		opt.addOption("rf", true, "The referenced table name (for reference partitioning)");
 		opt.addOption("rk", true, "The key column indexes in the reference table (for reference partitioning)");
 		opt.addOption("c", true, "The chunk size (optional)"); 
-		opt.addOption("p", true, "The partition's number (optional)");
+		opt.addOption("p", true, "The partition's number (optional)"); 
+		opt.addOption("t", true, "The type of the key (int|String)"); 
 
 		// Some default values.
 		String file = "";
@@ -352,7 +363,9 @@ public class DataPartitioner {
 		String partitionIndices;
 		int numberOfPartitions = 3;
 		int chunkSize = 0; 
-		int partitionNumber = 0;
+		int partitionNumber = 0; 
+		String keyType = "string"; 
+		boolean isIntHashing = false;
 
 		try {
 			// Parsing the command line
@@ -396,6 +409,12 @@ public class DataPartitioner {
 			if(cl.hasOption('p')){
 				partitionNumber = Integer.parseInt(cl.getOptionValue('p')); 
 				dataPartitioner.setPartialPatitioningMode(true, partitionNumber);
+			} 
+			
+			if(cl.hasOption('t')){
+				keyType = cl.getOptionValue('t'); 
+				if(keyType.equalsIgnoreCase("int")) 
+					isIntHashing = true;
 			}
 
 			// reference partitioning: additional parameters
@@ -404,8 +423,10 @@ public class DataPartitioner {
 				String referenceIndecis = cl.getOptionValue("rk");
 
 				// Check if the the reference table is partitioned
-				numberOfPartitions = dataPartitioner.isTablePartitoned(file,
-						referenceFile);
+				//numberOfPartitions = dataPartitioner.isTablePartitoned(file,
+				//		referenceFile); 
+				numberOfPartitions = Integer.parseInt(cl.getOptionValue('n'));
+				
 				if (numberOfPartitions == 0) {
 					System.out
 							.println("Reference Table is not partitioned yet");
@@ -431,7 +452,7 @@ public class DataPartitioner {
 				}
 
 				dataPartitioner.initFilesMap(file, numberOfPartitions);
-				dataPartitioner.partitionDataByHashing(file, partitionIndices, numberOfPartitions);
+				dataPartitioner.partitionDataByHashing(file, partitionIndices, numberOfPartitions, isIntHashing);
 			} else {
 				System.out.println("Unknown partitioning method: "
 						+ partitionMethod + "!");

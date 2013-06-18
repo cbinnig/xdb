@@ -97,14 +97,34 @@ public class Utils {
 	 */
 	public static int calculateHash (String line, Integer [] keys) {
 		
-		int hash =0; 
+		int hash = 0; 
 		String[] lineTokens = line.split("\\|"); 
 	    
 		StringBuffer keysString = new StringBuffer();
 		for(int i=0; i < keys.length; i++){
 			keysString.append(lineTokens[keys[i]].trim() );
-		} 
+		}  
+		
+	
 		hash = keysString.toString().hashCode(); 
+		
+		return hash; 
+	} 
+	
+	/**
+	 * Calculate the hash code for integer key only. 
+	 * @param line the record
+	 * @param keys the indices of the columns  
+	 * @return the hash code of the concatenated values of the columns given by keys array.  
+	 */
+	public static int calculateIntHash (String line, Integer [] keys) {
+		
+		int hash = 0; 
+		String[] lineTokens = line.split("\\|"); 
+	    
+		Integer key = Integer.parseInt(lineTokens[keys[0]].trim());
+	    
+		hash = key.hashCode(); 
 		
 		return hash; 
 	}
