@@ -20,13 +20,13 @@ public class TestTPCHQ8 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ8() {
 		super(-1);
-		this.resultDDL = "(o_year INTEGER, mkt_share DECIMAL(65,14), ignoreMe DECIMAL(65,6))";
+		this.subqueryDDL = "(o_year INTEGER, mkt_share DECIMAL(65,14), volume DECIMAL(65,6))";
 		this.subqueryDML = "select " + 
 				"	o_year, " + 
 				"	sum(case " + 
 				"		when nation = 'IRAN' then volume " + 
 				"		else 0 " + 
-				"	end) as mkt_share, sum(volume) as ignoreMe " + 
+				"	end) as mkt_share, sum(volume) as volume " + 
 				"from " + 
 				"	( " + 
 				"		select " + 
@@ -56,7 +56,9 @@ public class TestTPCHQ8 extends DistributedTPCHTestCase {
 				"	) as all_nations " + 
 				"group by o_year " + 
 				"order by o_year;";
-		this.unionPreDML = "SELECT o_year, sum(mkt_share) / sum(ignoreMe) as mkt_share, null FROM ";
+		
+		this.unionDDL = "(o_year INTEGER, mkt_share DECIMAL(65,14))";
+		this.unionPreDML = "SELECT o_year, sum(mkt_share) / sum(volume) as mkt_share FROM ";
 		this.unionPostDML = "group by o_year order by o_year";
 	}
 

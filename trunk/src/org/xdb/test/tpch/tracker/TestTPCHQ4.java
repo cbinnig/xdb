@@ -20,13 +20,14 @@ public class TestTPCHQ4 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ4() {
 		super(-1);
-		this.resultDDL = "(o_orderpriority CHAR(15), order_count INTEGER)";
+		this.subqueryDDL = "(o_orderpriority CHAR(15), order_count INTEGER)";
 		this.subqueryDML = "select o_orderpriority,	count(*) as order_count from <TPCH_DB_NAME>.orders " + 
 				"where o_orderdate >= '1996-01-01' and o_orderdate < '1996-04-01'" + 
 				"	and exists (select * from <TPCH_DB_NAME>.lineitem	where l_orderkey = o_orderkey and l_commitdate < l_receiptdate) " + 
 				"group by o_orderpriority " + 
 				"order by o_orderpriority;";
 		
+		this.unionDDL = "(o_orderpriority CHAR(15), order_count INTEGER)";
 		this.unionPreDML = "SELECT o_orderpriority, sum(order_count) FROM ";
 		this.unionPostDML = "group by o_orderpriority order by o_orderpriority;";
 	}

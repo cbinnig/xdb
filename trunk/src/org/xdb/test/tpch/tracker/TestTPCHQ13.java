@@ -20,7 +20,7 @@ public class TestTPCHQ13 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ13() {
 		super(-1);
-		this.resultDDL = "(c_count INTEGER, custdist INTEGER)";
+		this.subqueryDDL = "(c_count INTEGER, custdist INTEGER)";
 		this.subqueryDML = "SELECT c_count, " + 
 				"       count(*) AS custdist " + 
 				"FROM " + 
@@ -31,6 +31,8 @@ public class TestTPCHQ13 extends DistributedTPCHTestCase {
 				"     AND o_comment NOT LIKE '%unusual%accounts%' " + 
 				"     GROUP BY c_custkey ) AS c_orders " + 
 				"GROUP BY c_count;";
+		
+		this.unionDDL = "(c_count INTEGER, custdist INTEGER)";
 		this.unionPreDML = "SELECT c_count, sum(custdist) FROM ";
 		this.unionPostDML = "group by c_count order by custdist DESC, c_count DESC";
 	}

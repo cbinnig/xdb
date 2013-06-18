@@ -21,7 +21,7 @@ public class TestTPCHQ1 extends DistributedTPCHTestCase {
 	public TestTPCHQ1() {
 		super(-1);
 
-		this.resultDDL = "(l_returnflag CHAR, l_linestatus CHAR, sum_qty DECIMAL(65,2), sum_base_price DECIMAL(65,2), sum_disc_price DECIMAL(65,2), sum_charge DECIMAL(65,2), " +
+		this.subqueryDDL = "(l_returnflag CHAR, l_linestatus CHAR, sum_qty DECIMAL(65,2), sum_base_price DECIMAL(65,2), sum_disc_price DECIMAL(65,2), sum_charge DECIMAL(65,2), " +
 		 "avg_qty DECIMAL(65,2), avg_price DECIMAL(65,2), avg_disc DECIMAL(65,2), count_order INTEGER)";
 		this.subqueryDML = "select " + 
 				"	l_returnflag, " + 
@@ -42,6 +42,8 @@ public class TestTPCHQ1 extends DistributedTPCHTestCase {
 				"	l_returnflag, " + 
 				"	l_linestatus ";
 		
+		this.unionDDL = "(l_returnflag CHAR, l_linestatus CHAR, sum_qty DECIMAL(65,2), sum_base_price DECIMAL(65,2), sum_disc_price DECIMAL(65,2), sum_charge DECIMAL(65,2), " +
+				 "avg_qty DECIMAL(65,2), avg_price DECIMAL(65,2), avg_disc DECIMAL(65,2), count_order INTEGER)";
 		this.unionPreDML = "SELECT l_returnflag, l_linestatus, sum(sum_qty), sum(sum_base_price), sum(sum_disc_price), sum(sum_charge), avg(avg_qty), avg(avg_price), avg(avg_disc), sum(count_order) FROM ";
 		this.unionPostDML = "group by l_returnflag, l_linestatus order by l_returnflag, l_linestatus;";
 	}

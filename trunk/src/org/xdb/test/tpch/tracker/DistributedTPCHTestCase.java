@@ -32,7 +32,8 @@ public abstract class DistributedTPCHTestCase extends
 	
 	// need to be set by child class
 	protected int expectedCnt = 0;
-	protected String resultDDL = "";
+	protected String subqueryDDL = "";
+	protected String unionDDL = "";
 	protected String subqueryDML = "";
 	protected String unionPreDML = "SELECT * FROM ";
 	protected String unionPostDML = ";";
@@ -101,14 +102,14 @@ public abstract class DistributedTPCHTestCase extends
 		// DDL for output of union
 		String unionOutTableName = getUnionOutTableName();
 		StringTemplate unionOutDDL = new StringTemplate("<" + unionOutTableName
-				+ "> " + resultDDL);
+				+ "> " + unionDDL);
 		unionOp.addOutTable(unionOutTableName, unionOutDDL);
 
 		// DDL for all inputs of union
 		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
 			String unionInTableName = getUnionInTableName(i);
 			StringTemplate unionInDDL = new StringTemplate("<"
-					+ unionInTableName + "> " + resultDDL);
+					+ unionInTableName + "> " + subqueryDDL);
 
 			unionOp.addInTable(unionInTableName, unionInDDL);
 		}
@@ -154,7 +155,7 @@ public abstract class DistributedTPCHTestCase extends
 			// DDL for output of sub-query operator
 			String subOpOutTableName = getSubqueryOutTableName(i);
 			StringTemplate subOpOutDDL = new StringTemplate("<" + subOpOutTableName
-					+ "> " + resultDDL);
+					+ "> " + subqueryDDL);
 			subOps[i].addOutTable(subOpOutTableName, subOpOutDDL);
 
 			// DML for sub-query operators

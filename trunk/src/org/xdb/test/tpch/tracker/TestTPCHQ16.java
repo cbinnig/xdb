@@ -20,7 +20,7 @@ public class TestTPCHQ16 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ16() {
 		super(-1);
-		this.resultDDL = "(p_brand CHAR(10), p_type CHAR(25), p_size INTEGER, supplier_cnt INTEGER)";
+		this.subqueryDDL = "(p_brand CHAR(10), p_type CHAR(25), p_size INTEGER, supplier_cnt INTEGER)";
 		this.subqueryDML = "SELECT p_brand, p_type, p_size, " + 
 				"       count(DISTINCT ps_suppkey) AS supplier_cnt " + 
 				"FROM <TPCH_DB_NAME>.partsupp, " + 
@@ -35,6 +35,8 @@ public class TestTPCHQ16 extends DistributedTPCHTestCase {
 				"         WHERE s_comment LIKE '%Customer%Complaints%' ) " + 
 				"GROUP BY p_brand, p_type, p_size " + 
 				"ORDER BY supplier_cnt DESC, p_brand, p_type, p_size;";
+		
+		this.unionDDL = "(p_brand CHAR(10), p_type CHAR(25), p_size INTEGER, supplier_cnt INTEGER)";
 		this.unionPreDML = "SELECT p_brand, p_type, p_size, sum(supplier_cnt) FROM ";
 		this.unionPostDML = "GROUP BY p_brand, p_type, p_size ORDER BY supplier_cnt DESC, p_brand, p_type, p_size";
 	}

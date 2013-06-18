@@ -20,7 +20,7 @@ public class TestTPCHQ12 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ12() {
 		super(-1);
-		this.resultDDL = "(l_shipmode CHAR(10), high_line_count DECIMAL(65,2), low_line_count DECIMAL(65,2))";
+		this.subqueryDDL = "(l_shipmode CHAR(10), high_line_count DECIMAL(65,2), low_line_count DECIMAL(65,2))";
 		this.subqueryDML = "SELECT l_shipmode, " + 
 				"       sum(CASE WHEN o_orderpriority = '1-URGENT' " + 
 				"           OR o_orderpriority = '2-HIGH' THEN 1 ELSE 0 END) AS high_line_count, " + 
@@ -37,6 +37,8 @@ public class TestTPCHQ12 extends DistributedTPCHTestCase {
 				"    AND l_receiptdate < '1995-01-01' " + 
 				"GROUP BY l_shipmode " + 
 				"ORDER BY l_shipmode;";
+		
+		this.unionDDL = "(l_shipmode CHAR(10), high_line_count DECIMAL(65,2), low_line_count DECIMAL(65,2))";
 		this.unionPreDML = "SELECT l_shipmode, sum(high_line_count), sum(low_line_count) FROM ";
 		this.unionPostDML = "group by l_shipmode order by l_shipmode";
 	}

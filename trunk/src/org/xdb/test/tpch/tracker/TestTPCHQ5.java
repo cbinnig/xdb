@@ -20,7 +20,7 @@ public class TestTPCHQ5 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ5() {
 		super(5);
-		this.resultDDL = "(n_name CHAR(25), revenue DECIMAL(65,2))";
+		this.subqueryDDL = "(n_name CHAR(25), revenue DECIMAL(65,2))";
 		this.subqueryDML = "select "
 				+ "n_name, "
 				+ "sum(l_extendedprice * (1-l_discount)) as revenue "
@@ -34,6 +34,8 @@ public class TestTPCHQ5 extends DistributedTPCHTestCase {
 				+ "and r_regionkey = n_regionkey " + "and r_name = 'ASIA' "
 				+ "and o_orderdate > DATE('1994-01-01')  "
 				+ "and o_orderdate < DATE('1995-01-01') " + "group by n_name;";
+		
+		this.unionDDL = "(n_name CHAR(25), revenue DECIMAL(65,2))";
 		this.unionPreDML = "SELECT n_name, SUM(revenue) FROM ";
 		this.unionPostDML = "group by n_name;";
 	}

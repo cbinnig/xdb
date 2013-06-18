@@ -31,7 +31,7 @@ public class TestTPCHBasketAnalysis extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHBasketAnalysis() {
 		super(10);
-		this.resultDDL = "(p1_key INTEGER, p2_key INTEGER, p1_type VARCHAR(25), p2_type VARCHAR(25), frequency DECIMAL(65,2))";
+		this.subqueryDDL = "(p1_key INTEGER, p2_key INTEGER, p1_type VARCHAR(25), p2_type VARCHAR(25), frequency DECIMAL(65,2))";
 		this.subqueryDML = "select l1.l_partkey as p1_key, l2.l_partkey as p2_key, "
 				+ "p1.p_type as p1_type, p2.p_type as p2_type, count(*) as frequency "
 				+ "from "
@@ -52,6 +52,7 @@ public class TestTPCHBasketAnalysis extends DistributedTPCHTestCase {
 				+ "group by l1.l_partkey, l2.l_partkey, p1.p_type, p2.p_type "
 				+ "having count(*)>=2; ";
 
+		this.unionDDL = "(p1_key INTEGER, p2_key INTEGER, p1_type VARCHAR(25), p2_type VARCHAR(25), frequency DECIMAL(65,2))";
 		this.unionPreDML = "SELECT p1_key, p2_key, p1_type, p2_type, sum(frequency) as frequency FROM ";
 		this.unionPostDML = "group by p1_key, p2_key, p1_type, p2_type order by frequency desc limit 1000;";
 	}
@@ -104,11 +105,11 @@ public class TestTPCHBasketAnalysis extends DistributedTPCHTestCase {
 
 		// add input and output tables
 		StringTemplate udfOutDDL = new StringTemplate("<" + UDF_OUT_TABLE
-				+ "> " + resultDDL);
+				+ "> " + subqueryDDL);
 		udfOp.addOutTable(UDF_OUT_TABLE, udfOutDDL);
 
 		StringTemplate udfInDDL = new StringTemplate("<" + UDF_IN_TABLE + "> "
-				+ resultDDL);
+				+ subqueryDDL);
 		udfOp.addInTable(UDF_IN_TABLE, udfInDDL);
 
 		// connect to unionOp to udfOp

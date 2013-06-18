@@ -20,7 +20,7 @@ public class TestTPCHQ6 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ6() {
 		super(1);
-		this.resultDDL = "(revenue DECIMAL(65,2))";
+		this.subqueryDDL = "(revenue DECIMAL(65,2))";
 		this.subqueryDML = "select " + 
 				"	sum(l_extendedprice * l_discount) as revenue " + 
 				"from " + 
@@ -30,6 +30,8 @@ public class TestTPCHQ6 extends DistributedTPCHTestCase {
 				"	and l_shipdate < date '1996-01-01' + interval '1' year " + 
 				"	and l_discount between 0.08 - 0.01 and 0.08 + 0.01 " + 
 				"	and l_quantity < 24;";
+		
+		this.unionDDL = "(revenue DECIMAL(65,2))";
 		this.unionPreDML = "SELECT SUM(revenue) FROM ";
 		this.unionPostDML = "";
 	}
