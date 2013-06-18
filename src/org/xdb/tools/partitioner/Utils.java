@@ -101,12 +101,16 @@ public class Utils {
 		String[] lineTokens = line.split("\\|"); 
 	    
 		StringBuffer keysString = new StringBuffer();
+		
+		//if (keys.length == 1 && Integer.)
 		for(int i=0; i < keys.length; i++){
 			keysString.append(lineTokens[keys[i]].trim() );
 		}  
 		
 	
-		hash = keysString.toString().hashCode(); 
+		Integer a = Integer.parseInt(keysString.toString());
+		hash = a.hashCode();
+		//hash = keysString.toString().hashCode(); 
 		
 		return hash; 
 	} 
