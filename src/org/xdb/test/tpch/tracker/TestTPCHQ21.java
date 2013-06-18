@@ -20,7 +20,7 @@ public class TestTPCHQ21 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ21() {
 		super(100);
-		this.resultDDL = "(s_name CHAR(25), numwait INTEGER)";
+		this.subqueryDDL = "(s_name CHAR(25), numwait INTEGER)";
 		this.subqueryDML = "select s_name, count(*) as numwait " + 
 				"from " + 
 				"	<TPCH_DB_NAME>.supplier, " + 
@@ -49,6 +49,8 @@ public class TestTPCHQ21 extends DistributedTPCHTestCase {
 				"	and n_name = 'CANADA' " + 
 				"group by s_name " + 
 				"order by numwait desc, s_name LIMIT 100;";
+		
+		this.unionDDL = "(s_name CHAR(25), numwait INTEGER)";
 		this.unionPreDML = "SELECT s_name, count(*) as numwait FROM ";
 		this.unionPostDML = "GROUP BY s_name ORDER BY numwait desc, s_name LIMIT 100;";
 	}

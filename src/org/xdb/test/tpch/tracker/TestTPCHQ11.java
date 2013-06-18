@@ -20,7 +20,7 @@ public class TestTPCHQ11 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ11() {
 		super(-1);
-		this.resultDDL = "(ps_partkey INTEGER, value DECIMAL(65,2))";
+		this.subqueryDDL = "(ps_partkey INTEGER, value DECIMAL(65,2))";
 		this.subqueryDML = "select " + 
 				"	ps_partkey, " + 
 				"	sum(ps_supplycost * ps_availqty) as value " + 
@@ -48,6 +48,8 @@ public class TestTPCHQ11 extends DistributedTPCHTestCase {
 				"		) " + 
 				"order by " + 
 				"	value desc;";
+		
+		this.unionDDL = "(ps_partkey INTEGER, value DECIMAL(65,2))";
 		this.unionPreDML = "SELECT ps_partkey, sum(value) FROM ";
 		this.unionPostDML = "group by ps_partkey order by value desc";
 	}

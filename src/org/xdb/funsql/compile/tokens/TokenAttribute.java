@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Vector;
 
-import org.hamcrest.core.IsInstanceOf;
-
 /**
  * 
  * @author A.C.Mueller, Erfan Zamanian

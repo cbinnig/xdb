@@ -20,7 +20,7 @@ public class TestTPCHQ3 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ3() {
 		super(10 );
-		this.resultDDL = "(l_orderkey INTEGER, revenue DECIMAL(65,2), o_orderdate DATE, o_shippriority INTEGER)";
+		this.subqueryDDL = "(l_orderkey INTEGER, revenue DECIMAL(65,2), o_orderdate DATE, o_shippriority INTEGER)";
 		this.subqueryDML = "select l_orderkey, "
 				+ "sum(l_extendedprice*(1-l_discount)) as revenue, "
 				+ "o_orderdate, " + "o_shippriority " + "from <TPCH_DB_NAME>"
@@ -34,6 +34,7 @@ public class TestTPCHQ3 extends DistributedTPCHTestCase {
 				+ "order by revenue desc, o_orderdate "
 				+ "limit 10;";
 		
+		this.unionDDL = "(l_orderkey INTEGER, revenue DECIMAL(65,2), o_orderdate DATE, o_shippriority INTEGER)";
 		this.unionPreDML = "SELECT * FROM ";
 		this.unionPostDML = "order by revenue desc, o_orderdate limit 10;";
 	}

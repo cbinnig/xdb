@@ -21,7 +21,7 @@ public class TestTPCHQ2 extends DistributedTPCHTestCase {
 	public TestTPCHQ2() {
 		super(-1);
 
-		this.resultDDL = "(s_acctbal DECIMAL(65,2), s_name CHAR(25), n_name CHAR(25), p_partkey INTEGER, p_mfgr CHAR(25), s_address VARCHAR(40), " +
+		this.subqueryDDL = "(s_acctbal DECIMAL(65,2), s_name CHAR(25), n_name CHAR(25), p_partkey INTEGER, p_mfgr CHAR(25), s_address VARCHAR(40), " +
 		 "s_phone CHAR(15), s_comment VARCHAR(101))";
 		this.subqueryDML = "select" + 
 				"	s_acctbal," + 
@@ -62,6 +62,8 @@ public class TestTPCHQ2 extends DistributedTPCHTestCase {
 				"			and r_name = 'AFRICA'" + 
 				"	) limit 100" ;
 		
+		this.unionDDL = "(s_acctbal DECIMAL(65,2), s_name CHAR(25), n_name CHAR(25), p_partkey INTEGER, p_mfgr CHAR(25), s_address VARCHAR(40), " +
+				 "s_phone CHAR(15), s_comment VARCHAR(101))";
 		this.unionPreDML = "SELECT DISTINCT * FROM ";
 		this.unionPostDML = "order by s_acctbal desc, n_name, s_name, p_partkey limit 100;";
 	}

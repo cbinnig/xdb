@@ -20,7 +20,7 @@ public class TestTPCHQ19 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ19() {
 		super(-1);
-		this.resultDDL = "(revenue DECIMAL(65,2))";
+		this.subqueryDDL = "(revenue DECIMAL(65,2))";
 		this.subqueryDML = "select  " + 
 				"	sum(l_extendedprice* (1 - l_discount)) as revenue  " + 
 				"from  " + 
@@ -56,6 +56,8 @@ public class TestTPCHQ19 extends DistributedTPCHTestCase {
 				"		and l_shipmode in ('AIR', 'AIR REG')  " + 
 				"		and l_shipinstruct = 'DELIVER IN PERSON'  " + 
 				"	);";
+		
+		this.unionDDL = "(revenue DECIMAL(65,2))";
 		this.unionPreDML = "SELECT sum(revenue) FROM ";
 		this.unionPostDML = ";";
 	}

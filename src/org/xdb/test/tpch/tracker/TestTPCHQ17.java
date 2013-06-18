@@ -20,7 +20,7 @@ public class TestTPCHQ17 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ17() {
 		super(-1);
-		this.resultDDL = "(avg_yearly DECIMAL(65,2))";
+		this.subqueryDDL = "(avg_yearly DECIMAL(65,2))";
 		this.subqueryDML = "select " + 
 				"sum(l_extendedprice) / 7.0 as avg_yearly " + 
 				"from " + 
@@ -38,6 +38,7 @@ public class TestTPCHQ17 extends DistributedTPCHTestCase {
 				"	and l.l_quantity < avg_qty " +
 				"	and tmp.l_partkey = p.p_partkey";
 		
+		this.unionDDL = "(avg_yearly DECIMAL(65,2))";
 		this.unionPreDML = "SELECT sum(avg_yearly) FROM ";
 		this.unionPostDML = "";
 	}

@@ -20,7 +20,7 @@ public class TestTPCHQ22 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ22() {
 		super(-1);
-		this.resultDDL = "(cntrycode CHAR(2), numcust INTEGER, totacctbal DECIMAL(65,2))";
+		this.subqueryDDL = "(cntrycode CHAR(2), numcust INTEGER, totacctbal DECIMAL(65,2))";
 		this.subqueryDML = "select " + 
 				"	cntrycode, count(*) as numcust,	sum(c_acctbal) as totacctbal " + 
 				"from ( select substring(c_phone from 1 for 2) as cntrycode, c_acctbal " + 
@@ -38,6 +38,8 @@ public class TestTPCHQ22 extends DistributedTPCHTestCase {
 				"			) " + 
 				"	) as custsale " + 
 				"group by cntrycode order by cntrycode;";
+		
+		this.unionDDL = "(cntrycode CHAR(2), numcust INTEGER, totacctbal DECIMAL(65,2))";
 		this.unionPreDML = "SELECT cntrycode, sum(numcust) as numcust, sum(totacctbal) as totacctbal FROM ";
 		this.unionPostDML = "GROUP BY cntrycode ORDER BY cntrycode;";
 	}

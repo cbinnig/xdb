@@ -20,13 +20,15 @@ public class TestTPCHQ14 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ14() {
 		super(1);
-		this.resultDDL = "(promo_revenue DECIMAL(20,16))";
+		this.subqueryDDL = "(promo_revenue DECIMAL(20,16))";
 		this.subqueryDML = "SELECT sum(CASE WHEN p_type LIKE 'PROMO%' THEN l_extendedprice * (1 - l_discount) ELSE 0 END) / sum(l_extendedprice * (1 - l_discount)) AS promo_revenue " + 
 				"FROM <TPCH_DB_NAME>.lineitem, " + 
 				"     <TPCH_DB_NAME>.part " + 
 				"WHERE l_partkey = p_partkey " + 
 				"    AND l_shipdate >= date '1995-09-01' " + 
 				"    AND l_shipdate < date '1995-10-01';";
+		
+		this.unionDDL = "(promo_revenue DECIMAL(20,16))";
 		this.unionPreDML = "SELECT 100.00 * sum(promo_revenue) FROM ";
 		this.unionPostDML = "";
 	}

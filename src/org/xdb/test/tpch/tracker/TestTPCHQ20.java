@@ -20,7 +20,7 @@ public class TestTPCHQ20 extends DistributedTPCHTestCase {
 	// constructor
 	public TestTPCHQ20() {
 		super(-1);
-		this.resultDDL = "(s_name CHAR(25), s_address CHAR(40))";
+		this.subqueryDDL = "(s_name CHAR(25), s_address CHAR(40))";
 		this.subqueryDML = "select  s_name,	s_address " +
 				"from 	<TPCH_DB_NAME>.supplier, <TPCH_DB_NAME>.nation " +
 				"where 	s_suppkey in ( " +
@@ -44,6 +44,8 @@ public class TestTPCHQ20 extends DistributedTPCHTestCase {
 				"	 	    and tmp.l_suppkey = ps_suppkey) " +
 				"and s_nationkey = n_nationkey 	" +
 				"and n_name = 'ETHIOPIA'";
+		
+		this.unionDDL = "(s_name CHAR(25), s_address CHAR(40))";
 		this.unionPreDML = "SELECT distinct s_name,	s_address FROM ";
 		this.unionPostDML = "order by s_name;";
 	}

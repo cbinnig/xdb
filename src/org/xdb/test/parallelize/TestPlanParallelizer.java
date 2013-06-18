@@ -1,6 +1,5 @@
 package org.xdb.test.parallelize;
 
-import org.junit.Assert;
 import org.xdb.client.CompileClient;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.FunSQLCompiler;
