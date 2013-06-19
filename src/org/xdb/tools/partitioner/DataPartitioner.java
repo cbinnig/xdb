@@ -113,7 +113,6 @@ public class DataPartitioner {
 					+ Utils.getFileName(fileName) + "_p" + i + "." + fileType);
 			// if file doesn't exists, then create it
 			if (!file.exists()) {
-				System.out.println("Create new file "+ file.getName());
 				file.createNewFile();
 				// Create a buffer stream for every file, and store it
 				// in a hash map.
@@ -240,7 +239,6 @@ public class DataPartitioner {
 			if(isPartialPatitioningMode() && i != this.partitionNumber) {
 			     continue; 
 			}
-			System.out.println(i);
 			BufferedReader br = new BufferedReader(new FileReader(directory
 					+ "/" + referenceFile + "_p" + i + ".tbl"));
 			String refLine = "";
