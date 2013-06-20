@@ -43,7 +43,7 @@ public class MasterTrackerNode {
 	// One ComputeClient
 	private final ComputeClient computeClient = new ComputeClient();
 
-	/** Query tracker information **/	
+	/** Query tracker information **/
 	// list: QueryTrackerNodeDesc for round robin assignment
 	private final List<QueryTrackerNodeDesc> queryTrackerNodes = Collections
 			.synchronizedList(new LinkedList<QueryTrackerNodeDesc>());
@@ -62,7 +62,7 @@ public class MasterTrackerNode {
 	private final Map<Identifier, QueryTrackerNodeDesc> planAssignment = new HashMap<Identifier, QueryTrackerNodeDesc>();
 
 	/** Helper **/
-	
+
 	// logger
 	private final Logger logger;
 
@@ -70,7 +70,7 @@ public class MasterTrackerNode {
 	private Error err = new Error();
 
 	/** Monitoring threads **/
-	
+
 	// monitoring thread for compute servers
 	private class ComputeNodeMonitor extends Thread {
 		@Override
@@ -78,7 +78,7 @@ public class MasterTrackerNode {
 			while (true) {
 				MasterTrackerNode.this.pingComputeNodes();
 				try {
-					Thread.sleep(Config.MONITOR_INTERVAL);
+					Thread.sleep(Config.MASTERTRACKER_MONITOR_INTERVAL);
 				} catch (Exception e) {
 				}
 			}
@@ -92,15 +92,15 @@ public class MasterTrackerNode {
 			while (true) {
 				MasterTrackerNode.this.pingQueryTracker();
 				try {
-					Thread.sleep(Config.MONITOR_INTERVAL);
+					Thread.sleep(Config.MASTERTRACKER_MONITOR_INTERVAL);
 				} catch (Exception e) {
 				}
 			}
 		}
 	}
 
-	/** Master Tracker **/ 
-	
+	/** Master Tracker **/
+
 	// constructor
 	public MasterTrackerNode() {
 		logger = XDBLog.getLogger(this.getClass().getName());
@@ -132,11 +132,13 @@ public class MasterTrackerNode {
 	 * Startup method
 	 */
 	public void startup() {
-		ComputeNodeMonitor cMonitor = new ComputeNodeMonitor();
-		cMonitor.start();
-		
-		QueryTrackerMonitor qMonitor = new QueryTrackerMonitor();
-		qMonitor.start();
+		if (Config.MONITOR_ACTIVATED) {
+			ComputeNodeMonitor cMonitor = new ComputeNodeMonitor();
+			cMonitor.start();
+
+			QueryTrackerMonitor qMonitor = new QueryTrackerMonitor();
+			qMonitor.start();
+		}
 	}
 
 	/**
@@ -144,13 +146,14 @@ public class MasterTrackerNode {
 	 */
 	public void pingComputeNodes() {
 		Error err = new Error();
-		List<ComputeNodeDesc> computeNodesTmp = new ArrayList<ComputeNodeDesc>(this.computeNodes);
+		List<ComputeNodeDesc> computeNodesTmp = new ArrayList<ComputeNodeDesc>(
+				this.computeNodes);
 		for (ComputeNodeDesc computeNode : computeNodesTmp) {
 			synchronized (this) {
 				// do not ping if not available
-				if(!this.computeNode2Availability.get(computeNode))
+				if (!this.computeNode2Availability.get(computeNode))
 					continue;
-					
+
 				// ping and see if any error is returned
 				err = computeClient.pingComputeServer(computeNode);
 				if (err.isError()) {
@@ -165,7 +168,8 @@ public class MasterTrackerNode {
 	 */
 	public void pingQueryTracker() {
 		Error err = new Error();
-		List<QueryTrackerNodeDesc> tmpQTrackers = new Vector<QueryTrackerNodeDesc>(this.queryTrackerNodes);
+		List<QueryTrackerNodeDesc> tmpQTrackers = new Vector<QueryTrackerNodeDesc>(
+				this.queryTrackerNodes);
 		for (QueryTrackerNodeDesc qTracker : tmpQTrackers) {
 			synchronized (this) {
 				err = this.queryTrackerClients.get(qTracker)

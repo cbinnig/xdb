@@ -366,7 +366,7 @@ public class QueryTrackerPlan implements Serializable {
 					// unlock to allow operators signaling. 
 					monitoringLock.unlock(); 
 					System.out.println("Finished Monitoring....wait until the next monitoring");
-					Thread.sleep(Config.ROBUSTNESS_MONITOR_INTERVAL); 
+					Thread.sleep(Config.QUERYTRACKER_MONITOR_INTERVAL); 
 
 					// Wait to the next monitor  
 				} catch (InterruptedException e) { 
@@ -375,7 +375,7 @@ public class QueryTrackerPlan implements Serializable {
 				} 
 			} else
 				try {
-					Thread.sleep(Config.MONITOR_INTERVAL);
+					Thread.sleep(Config.QUERYTRACKER_MONITOR_INTERVAL);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
