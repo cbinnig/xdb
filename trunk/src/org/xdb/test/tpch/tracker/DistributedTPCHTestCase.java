@@ -166,9 +166,10 @@ public abstract class DistributedTPCHTestCase extends
 			// name of database must be different if we have multiple slots (i.e., databases) per node
 			// however if we run local, we just use the normal database name of the configuration
 			String dbName = TPCH_DB_NAME;
-			if(!this.isRunLocal() && Config.TEST_PARTS_PER_NODE>1){
-				dbName = TPCH_DB_NAME+((i%Config.TEST_PARTS_PER_NODE)+1);
+			if(!this.isRunLocal()){
+				dbName+=(i+1);
 			}
+			
 			args.put("TPCH_DB_NAME", dbName);
 			
 			StringTemplate subqueryDML = new StringTemplate("insert into <"
