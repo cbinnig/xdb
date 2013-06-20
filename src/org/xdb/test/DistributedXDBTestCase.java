@@ -21,21 +21,21 @@ public class DistributedXDBTestCase extends TestCase {
 	private MasterTrackerServer mTrackerServer;
 	private ComputeServer[] computeServers;
 	private QueryTrackerServer qTrackerServer;
-	private ComputeNodeDesc[] computeNodeSlots;
-	private int numberOfComputeServer;
-	private int numberOfSlots;
+	private ComputeNodeDesc[] computeNodes;
+	private int numberOfComputeServers;
+	private int numberOfParts;
 	private boolean runLocal;
 
 	// constructors
 	public DistributedXDBTestCase(int numberOfComputeServer) {
-		this(numberOfComputeServer, Config.TEST_SLOTS_PER_NODE);
+		this(numberOfComputeServer, Config.TEST_PARTS_PER_NODE);
 	}
 
-	public DistributedXDBTestCase(int numberOfComputeServer,
-			int numberOfSlots) {
+	public DistributedXDBTestCase(int numberOfComputeServers,
+			int numberOfParts) {
 		super();
-		this.numberOfComputeServer = numberOfComputeServer;
-		this.numberOfSlots = numberOfSlots;
+		this.numberOfComputeServers = numberOfComputeServers;
+		this.numberOfParts = numberOfParts;
 		this.runLocal = Config.TEST_RUN_LOCAL;
 	}
 
@@ -48,8 +48,8 @@ public class DistributedXDBTestCase extends TestCase {
 		return mTrackerServer;
 	}
 
-	public ComputeNodeDesc getComputeSlot(int i) {
-		return computeNodeSlots[i];
+	public ComputeNodeDesc getComputeNode(int i) {
+		return computeNodes[i];
 	}
 
 	public boolean isRunLocal() {
@@ -78,11 +78,11 @@ public class DistributedXDBTestCase extends TestCase {
 			assertNoError(qTrackerServer.getError());
 
 			// start or wait for compute servers
-			this.computeServers = new ComputeServer[this.numberOfComputeServer];
+			this.computeServers = new ComputeServer[this.numberOfComputeServers];
 			if (this.runLocal) {
 				for (int i = 0; i < this.computeServers.length; ++i) {
 					computeServers[i] = new ComputeServer(Config.COMPUTE_PORT
-							+ i, numberOfSlots);
+							+ i, numberOfParts);
 					computeServers[i].startServer();
 					assertNoError(computeServers[i].getError());
 				}
@@ -100,8 +100,8 @@ public class DistributedXDBTestCase extends TestCase {
 			}
 
 			// initialize compute slot info
-			this.computeNodeSlots = this.mTrackerServer.getComputeSlots()
-					.toArray(new ComputeNodeDesc[this.computeServers.length]);
+			this.computeNodes = this.mTrackerServer.getComputeSlots()
+					.toArray(new ComputeNodeDesc[this.computeServers.length]); 
 
 		} catch (Exception e) {
 			Assert.assertTrue(e.toString(), false);

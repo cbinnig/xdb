@@ -50,7 +50,7 @@ public class CompilePlan implements Serializable {
 	private Vector<Identifier> roots = new Vector<Identifier>();
 	private HashSet<Identifier> leaves = new HashSet<Identifier>();
 	
-	PlanCost planCost = new PlanCost();
+	private PlanCost planCost = new PlanCost();
 	
 	// logger
 	private transient Logger logger;

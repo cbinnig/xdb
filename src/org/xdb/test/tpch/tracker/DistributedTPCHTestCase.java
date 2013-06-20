@@ -23,7 +23,7 @@ public abstract class DistributedTPCHTestCase extends
 
 	// static fields
 	private static final int NUMBER_COMPUTE_DBS = Config.TEST_NODE_COUNT
-			* Config.TEST_SLOTS_PER_NODE; 
+			* Config.TEST_PARTS_PER_NODE; 
 	private static final String TPCH_DB_NAME = Config.TEST_DB_NAME;
 	private static Integer LAST_EXEC_OP_ID = 1;
 
@@ -118,11 +118,11 @@ public abstract class DistributedTPCHTestCase extends
 		StringBuffer unionTMPDDL = new StringBuffer("INSERT INTO <");
 		unionTMPDDL.append(unionOutTableName);
 		unionTMPDDL.append("> ");
-		unionTMPDDL.append(this.unionPreDML);
+		unionTMPDDL.append(this.unionPreDML); 
 		unionTMPDDL.append(" ( ");
 		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
 			String unionInTableName = getUnionInTableName(i);
-
+ 
 			unionTMPDDL.append("(<");
 			unionTMPDDL.append(unionInTableName);
 			unionTMPDDL.append(">)");
@@ -149,6 +149,7 @@ public abstract class DistributedTPCHTestCase extends
 	 */
 	protected void createSubqueryOps(QueryTrackerPlan qPlan,
 			MySQLTrackerOperator[] subOps) {
+		
 		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
 			subOps[i] = new MySQLTrackerOperator();
 
@@ -165,8 +166,8 @@ public abstract class DistributedTPCHTestCase extends
 			// name of database must be different if we have multiple slots (i.e., databases) per node
 			// however if we run local, we just use the normal database name of the configuration
 			String dbName = TPCH_DB_NAME;
-			if(!this.isRunLocal() && Config.TEST_SLOTS_PER_NODE>1){
-				dbName = TPCH_DB_NAME+((i%Config.TEST_SLOTS_PER_NODE)+1);
+			if(!this.isRunLocal() && Config.TEST_PARTS_PER_NODE>1){
+				dbName = TPCH_DB_NAME+((i%Config.TEST_PARTS_PER_NODE)+1);
 			}
 			args.put("TPCH_DB_NAME", dbName);
 			
@@ -196,7 +197,7 @@ public abstract class DistributedTPCHTestCase extends
 			Identifier execOpId = trackerOpId.clone().append(nextExecOpId());
 
 			OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
-					this.getComputeSlot(i/Config.TEST_SLOTS_PER_NODE));
+					this.getComputeNode(i/Config.TEST_PARTS_PER_NODE));
 			currentDeployment.put(trackerOpId, executeOperDesc);
 		}
 
@@ -204,7 +205,7 @@ public abstract class DistributedTPCHTestCase extends
 		Identifier trackerOpId = unionOp.getOperatorId();
 		Identifier execOpId = trackerOpId.clone().append(nextExecOpId());
 		OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
-				this.getComputeSlot(0));
+				this.getComputeNode(0));
 		currentDeployment.put(trackerOpId, executeOperDesc);
 
 		return currentDeployment;
