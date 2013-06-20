@@ -1,5 +1,6 @@
 package org.xdb.tracker;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -143,7 +144,8 @@ public class MasterTrackerNode {
 	 */
 	public void pingComputeNodes() {
 		Error err = new Error();
-		for (ComputeNodeDesc computeNode : this.computeNodes) {
+		List<ComputeNodeDesc> computeNodesTmp = new ArrayList<ComputeNodeDesc>(this.computeNodes);
+		for (ComputeNodeDesc computeNode : computeNodesTmp) {
 			synchronized (this) {
 				// do not ping if not available
 				if(!this.computeNode2Availability.get(computeNode))
