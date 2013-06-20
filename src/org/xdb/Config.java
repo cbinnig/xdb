@@ -25,10 +25,10 @@ public class Config implements Serializable {
 	public static String CONFIG_FILE = "./config/xdb.conf";
 
 	// Monitoring
-	public static int MONITOR_INTERVAL = 100;  
-	public static int ROBUSTNESS_MONITOR_INTERVAL = 100;
+	public static int MASTERTRACKER_MONITOR_INTERVAL = 2000;  
+	public static int QUERYTRACKER_MONITOR_INTERVAL = 100;
 	public static int MAXIMUM_TRIES_COUNT = 10; 
-	public static boolean MONITOR_ACTIVATED = true;
+	public static boolean MONITOR_ACTIVATED = false;
 
 	// Compute Server
 	public static String COMPUTE_DRIVER_CLASS = "com.mysql.jdbc.Driver";
