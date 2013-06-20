@@ -129,7 +129,7 @@ public class TestTPCHBasketAnalysis extends DistributedTPCHTestCase {
 		Identifier trackerOpId = udfOp.getOperatorId();
 		Identifier execOpId = trackerOpId.clone().append(nextExecOpId());
 		OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
-				this.getComputeSlot(0));
+				this.getComputeNode(0));
 		deployment.put(trackerOpId, executeOperDesc);
 
 		return udfOp;

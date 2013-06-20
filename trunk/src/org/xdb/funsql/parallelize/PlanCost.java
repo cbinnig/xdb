@@ -1,8 +1,12 @@
 package org.xdb.funsql.parallelize;
 
-public class PlanCost {
-	int repartitionOperatorCnt;
-	int accumulativeDistanceToRoots;
+import java.io.Serializable;
+
+public class PlanCost implements Serializable {
+	private static final long serialVersionUID = -7861120071232724479L;
+	
+	private int repartitionOperatorCnt;
+	private int accumulativeDistanceToRoots;
 	
 	public PlanCost() {
 		this.repartitionOperatorCnt = 0;

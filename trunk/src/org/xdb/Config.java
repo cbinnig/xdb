@@ -24,9 +24,11 @@ public class Config implements Serializable {
 	public static String LOCALHOST = "127.0.0.1";
 	public static String CONFIG_FILE = "./config/xdb.conf";
 
-	// Monitor
-	public static int MONITOR_INTERVAL = 100; 
-	public static int MAXIMUM_TRIES_COUNT = 4;
+	// Monitoring
+	public static int MONITOR_INTERVAL = 100;  
+	public static int ROBUSTNESS_MONITOR_INTERVAL = 100;
+	public static int MAXIMUM_TRIES_COUNT = 10; 
+	public static boolean MONITOR_ACTIVATED = true;
 
 	// Compute Server
 	public static String COMPUTE_DRIVER_CLASS = "com.mysql.jdbc.Driver";
@@ -105,7 +107,7 @@ public class Config implements Serializable {
 	public static boolean TEST_RUN_LOCAL = true;
 	public static String TEST_DB_NAME = "tpch_s01";
 	public static int TEST_NODE_COUNT = 2;
-	public static int TEST_SLOTS_PER_NODE = 1;
+	public static int TEST_PARTS_PER_NODE = 1;
 
 	// Load xdb.conf
 	static {
@@ -119,7 +121,7 @@ public class Config implements Serializable {
 		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
 				"COMPUTE_SLOTS", "COMPILE_PORT", "MASTERTRACKER_PORT",
 				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS", "TEST_NODE_COUNT",
-				"TEST_SLOTS_PER_NODE" };
+				"TEST_PARTS_PER_NODE" };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
 				"TEST_DB_NAME" };
@@ -130,7 +132,8 @@ public class Config implements Serializable {
 				"TRACE_COMPILE_PLAN_RESULTS", "TRACE_COMPILE_PLAN_FOOTER",
 				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN",
 				"TRACE_EXECUTE_PLAN", "TRACE_CODEGEN_PLAN",
-				"LOG_EXECUTION_TIME", "CODEGEN_OPTIMIZE", "TEST_RUN_LOCAL" };
+				"LOG_EXECUTION_TIME", "CODEGEN_OPTIMIZE", "TEST_RUN_LOCAL",
+				"MONITOR_ACTIVATED"};
 
 		Properties props;
 		props = new Properties();
@@ -151,7 +154,7 @@ public class Config implements Serializable {
 				if (props.containsKey(boolProperty)) {
 					Config.class.getField(boolProperty).setBoolean(
 							null,
-							Boolean.parseBoolean(props.get(boolProperty)
+							Boolean.parseBoolean(props.get(boolProperty.trim())
 									.toString()));
 				}
 			}
@@ -160,18 +163,18 @@ public class Config implements Serializable {
 			for (String stringProperty : stringProperties) {
 				if (props.containsKey(stringProperty)) {
 					Config.class.getField(stringProperty).set(null,
-							props.getProperty(stringProperty));
+							props.getProperty(stringProperty.trim()));
 				}
 			}
 
 			// Others (LogLevel, Bitmaps, Enums)
 			if (props.containsKey("LOG_LEVEL")) {
-				LOG_LEVEL = Level.parse(props.getProperty("LOG_LEVEL"));
+				LOG_LEVEL = Level.parse(props.getProperty("LOG_LEVEL").trim());
 			}
 
 			if (props.containsKey("OPTIMIZER_ACTIVE_RULES_FUNCTION")) {
 				String ruleBitSet = props
-						.getProperty("OPTIMIZER_ACTIVE_RULES_FUNCTION");
+						.getProperty("OPTIMIZER_ACTIVE_RULES_FUNCTION").trim();
 				int i = 0;
 				for (char bit : ruleBitSet.toCharArray()) {
 					OPTIMIZER_ACTIVE_RULES_FUNCTION.set(i++,
@@ -180,7 +183,7 @@ public class Config implements Serializable {
 			}
 			if (props.containsKey("OPTIMIZER_ACTIVE_RULES_SELECT")) {
 				String ruleBitSet = props
-						.getProperty("OPTIMIZER_ACTIVE_RULES_SELECT");
+						.getProperty("OPTIMIZER_ACTIVE_RULES_SELECT").trim();
 				int i = 0;
 				for (char bit : ruleBitSet.toCharArray()) {
 					OPTIMIZER_ACTIVE_RULES_SELECT.set(i++, (bit == '1') ? true
@@ -188,7 +191,7 @@ public class Config implements Serializable {
 				}
 			}
 			if (props.containsKey("QUERYTRACKER_STRATEGY")) {
-				String qtStrategy = props.getProperty("QUERYTRACKER_STRATEGY");
+				String qtStrategy = props.getProperty("QUERYTRACKER_STRATEGY").trim();
 				EnumQueryTrackerStrategy tempQtStrat = EnumQueryTrackerStrategy
 						.valueOf(qtStrategy);
 				if (tempQtStrat != null)
@@ -196,7 +199,7 @@ public class Config implements Serializable {
 			}
 			if (props.containsKey("QUERYTRACKER_SCHEDULER")) {
 				String qtScheduler = props
-						.getProperty("QUERYTRACKER_SCHEDULER");
+						.getProperty("QUERYTRACKER_SCHEDULER").trim();
 				EnumResourceScheduler tempQtScheduler = EnumResourceScheduler
 						.valueOf(qtScheduler);
 				if (tempQtScheduler != null)
