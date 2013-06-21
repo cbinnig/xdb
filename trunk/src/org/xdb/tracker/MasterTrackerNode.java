@@ -132,7 +132,7 @@ public class MasterTrackerNode {
 	 * Startup method
 	 */
 	public void startup() {
-		if (Config.MONITOR_ACTIVATED) {
+		if (Config.MASTERTRACKER_MONITOR_ACTIVATED) {
 			ComputeNodeMonitor cMonitor = new ComputeNodeMonitor();
 			cMonitor.start();
 

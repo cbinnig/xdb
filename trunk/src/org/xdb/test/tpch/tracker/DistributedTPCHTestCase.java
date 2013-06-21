@@ -32,9 +32,6 @@ public abstract class DistributedTPCHTestCase extends
 			* Config.TEST_PARTS_PER_NODE; 
 	private static final String TPCH_DB_NAME = Config.TEST_DB_NAME;
 	private static Integer LAST_EXEC_OP_ID = 1; 
-	
-	private List<Connection> allConnections = new ArrayList<Connection>();
-
 
 	// test into
 	protected int numberOfSubops = NUMBER_COMPUTE_DBS;
@@ -46,6 +43,7 @@ public abstract class DistributedTPCHTestCase extends
 	protected String subqueryDML = "";
 	protected String unionPreDML = "SELECT * FROM ";
 	protected String unionPostDML = ";";
+	protected List<Connection> allConnections = new ArrayList<Connection>();
 
 	// constructor
 	public DistributedTPCHTestCase(int expectedCnt) {
@@ -226,8 +224,7 @@ public abstract class DistributedTPCHTestCase extends
 	} 
 	
 	protected void setConnectionList(Map<Identifier, AbstractTrackerOperator> trackerOps, List<Identifier> opIds, Identifier unionOpId) {
-	      
-		
+	    
 		for(int i=0; i < NUMBER_COMPUTE_DBS; i++){
 	    	  
 			  AbstractTrackerOperator trackerOp = trackerOps.get(opIds.get(i)); 
@@ -332,31 +329,32 @@ public abstract class DistributedTPCHTestCase extends
 		this.assertNoError(qPlan.cleanPlan());
 	} 
 	
-
-	protected Error executePlanTestQ2FT (QueryTrackerPlan qplan){
+	
+	protected Error executeQuery (QueryTrackerPlan qplan, boolean injectFailure){
 
 		Error err = new Error();
 
-		// 2. Deploy query tracker plan
+		// Deploy query tracker plan
 		err = qplan.deployPlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;
 		}
         
-		// Run the failure simulator 
+		// Inject failure(s) 
+		if(injectFailure){
+			FailureSimulatorFT failureSimulatorFT = new FailureSimulatorFT(1, qplan, this.allConnections, 1000); 
+			failureSimulatorFT.start();
+		}
 		
-		//FailureSimulatorFT failureSimulatorFT = new FailureSimulatorFT(1, qplan, this.allConnections, 1000); 
-		//failureSimulatorFT.start();
-		
-		// 3. Execute query tracker plan
+		// Execute query tracker plan
 		err = qplan.executePlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;
 		}
         
-		// 4. Clean query tracker plan
+		// Clean up
 		err = qplan.cleanPlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();

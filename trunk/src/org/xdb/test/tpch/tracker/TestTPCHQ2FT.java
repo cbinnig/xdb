@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import org.xdb.error.Error;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
@@ -316,10 +317,8 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 	    setConnectionList(qPlan.getOperatorMapping(), q2Upper.getOpIds(), q2Upper.getUnionOp());  
 		
 		// Execute it the number of runs 
-		this.assertError(this.executePlanTestQ2FT(qPlan));    
-		 
+		this.assertError(this.executeQuery(qPlan, true));    
 	}
-	
 } 
 
 

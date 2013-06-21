@@ -79,6 +79,7 @@ public class FailureSimulatorFT extends Thread{
 			shootedConnections.add(connName);
 		}
 		failedOpsIds = getFailedOpsIds(shootedConnections); 
+		System.out.println(failedOpsIds);
 		setAbortedOperators(failedOpsIds);
 	}
 
