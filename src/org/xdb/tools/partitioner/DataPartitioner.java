@@ -91,15 +91,17 @@ public class DataPartitioner {
 	 * 
 	 * @param filesName
 	 * @param numberofPartitions
+	 * @param outputFolder 
 	 */
-	public void initFilesMap(String fileName, int numberofPartitions)
+	public void initFilesMap(String fileName, int numberofPartitions, String outputFolder)
 			throws Exception {
 
 		String fileType = Utils.getFileType(fileName);
     
 		// delete old partitions if they are existing, in case of
-		// re-partitioning
-		Utils.deleteOldPartitions(fileName, this.partialPatitioningMode, this.partitionNumber);
+		// re-partitioning 
+		Utils.deleteOldPartitions(fileName, this.partialPatitioningMode, this.partitionNumber, outputFolder);
+        
 
 		for (int i = 0; i < numberofPartitions; i++) {  
 			// Check if the partial partitioning is set 
@@ -107,10 +109,17 @@ public class DataPartitioner {
 			if(isPartialPatitioningMode() && i != this.partitionNumber) {
 				System.out.println("Partition number: "+i+ " excluded from the partitoning");
 				continue; 
-			}
+			} 
+			
 			// Adding the partition number as a part of the file name.
-			File file = new File(Utils.getFileDirectory(fileName) + "/"
-					+ Utils.getFileName(fileName) + "_p" + i + "." + fileType);
+			File file;
+			if(fileName.equalsIgnoreCase(outputFolder)) {
+			    file = new File(Utils.getFileDirectory(fileName) + "/"
+					+ Utils.getFileName(fileName) + "_p" + i + "." + fileType); 
+			} else {  
+				File dir = new File(outputFolder); 
+				file = new File(dir, Utils.getFileName(fileName) + "_p" + i + "." + fileType);
+			}
 			// if file doesn't exists, then create it
 			if (!file.exists()) {
 				file.createNewFile();
@@ -353,10 +362,12 @@ public class DataPartitioner {
 		opt.addOption("rk", true, "The key column indexes in the reference table (for reference partitioning)");
 		opt.addOption("c", true, "The chunk size (optional)"); 
 		opt.addOption("p", true, "The partition's number (optional)"); 
-		opt.addOption("t", true, "The type of the key (int|String)"); 
+		opt.addOption("t", true, "The type of the key (int|String)");  
+		opt.addOption("o", true, "The output partitions directory (optional)"); 
 
 		// Some default values.
-		String file = "";
+		String file = ""; 
+		String outputFolder = "";
 		String partitionMethod;
 		String partitionIndices;
 		int numberOfPartitions = 3;
@@ -413,6 +424,12 @@ public class DataPartitioner {
 				keyType = cl.getOptionValue('t'); 
 				if(keyType.equalsIgnoreCase("int")) 
 					isIntHashing = true;
+			} 
+			
+			if(cl.hasOption('o')) {
+				outputFolder = cl.getOptionValue('o'); 
+			} else {
+				outputFolder = file;
 			}
 
 			// reference partitioning: additional parameters
@@ -431,7 +448,7 @@ public class DataPartitioner {
 					return;
 				}
 				// Create a output files
-				dataPartitioner.initFilesMap(file, numberOfPartitions);
+				dataPartitioner.initFilesMap(file, numberOfPartitions, outputFolder);
 				// Do the reference partitioning
 				dataPartitioner.partitionDataByReference(file,
 						partitionIndices, referenceFile, referenceIndecis,
@@ -449,7 +466,7 @@ public class DataPartitioner {
 					return;
 				}
 
-				dataPartitioner.initFilesMap(file, numberOfPartitions);
+				dataPartitioner.initFilesMap(file, numberOfPartitions, outputFolder);
 				dataPartitioner.partitionDataByHashing(file, partitionIndices, numberOfPartitions, isIntHashing);
 			} else {
 				System.out.println("Unknown partitioning method: "
