@@ -68,6 +68,15 @@ public class QueryTrackerNode {
 	public void addPlan(QueryTrackerPlan plan) {
 		this.qPlans.put(plan.getPlanId(), plan);
 	}
+	
+	/**
+	 * Add plan with manually given id to monitored plans
+	 * @param planId
+	 * @param plan
+	 */
+	public void addPlan(Identifier planId, QueryTrackerPlan plan) {
+		this.qPlans.put(planId, plan);
+	}
 
 	/**
 	 * Returns compute client of query tracker node
@@ -175,8 +184,8 @@ public class QueryTrackerNode {
 		}
 
 		return err;
-	}
-
+	}  
+	
 	public static Error annotateCompilePlan(CompilePlan cplan) {
 		Error err = new Error();
 
@@ -222,10 +231,10 @@ public class QueryTrackerNode {
 
 		// get trackerOpId and set status to executed if no error occurred
 		Identifier execOpId = execOp.getOperatorId();
-		Identifier planId = execOpId.getParentId(0);
-		Identifier trackerOpId = execOpId.getParentId(1);
-        
-		QueryTrackerPlan qPlan = this.qPlans.get(planId);
+		Identifier planId = execOpId.getParentId(0); 
+		Identifier trackerOpId = execOpId.getParentId(1); 
+		QueryTrackerPlan qPlan = this.qPlans.get(planId); 
+		
 		if (err.isError()) {
 			qPlan.setLastError(err);
 			return err;

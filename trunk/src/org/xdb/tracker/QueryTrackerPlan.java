@@ -55,7 +55,7 @@ public class QueryTrackerPlan implements Serializable {
 	private final Identifier planId; 
 
 	// Counter for tries 
-	private static Integer triesCounter = 0;
+	//private static Integer triesCounter = 0;
 
 	// The number of retries for a query plan 
 	// TODO move to configuration. 
@@ -209,6 +209,18 @@ public class QueryTrackerPlan implements Serializable {
 
 		this.sources.put(opId, EMPTY_OP_SET);
 		this.consumers.put(opId, EMPTY_OP_SET);
+	} 
+	
+	/**
+	 * Reset the query tracker plan for multiple runs purposes 
+	 * clear the assigned compute nodes to remove duplicates
+	 * and clear the current deployment of the plan, and reset 
+	 * the timer.
+	 * 
+	 */
+	public void reset() {
+       this.resourceScheduler.clearAssignedComputeNodes(); 
+       this.currentDeployment.clear(); 
 	}
 
 	/**
@@ -340,7 +352,7 @@ public class QueryTrackerPlan implements Serializable {
 					// Starting the compute servers monitoring. 
 					// Lock to prevent operator signaling. 
 					monitoringLock.lock(); 
-					System.out.println("Monitoring has been started....");
+					logger.log(Level.INFO,"Monitoring has been started");
 					computeServersMonitor.setQueryTrackerPlan(this);
 					computeServersMonitor.startComputeServersMonitor(); 
 
@@ -349,8 +361,9 @@ public class QueryTrackerPlan implements Serializable {
 					if(computeServersMonitor.isFailureDetected()) {
 						// Check if the maximum time of the runs has been 
 						// exceeded, so the whole plan will be aborted. 
-
-						// increment the failure count (trials counter)
+ 
+						// increment the failure count (trials counter) 
+						/*
 						triesCounter++;  
 						if(triesCounter > Config.MAXIMUM_TRIES_COUNT) {
 							String[] args = { triesCounter.toString() };
@@ -360,12 +373,14 @@ public class QueryTrackerPlan implements Serializable {
 
 						} 
 						// re-deploy the failed operators 
+						 * 
+						 */
 						redeployFailedOperators();  
 					}
 
 					// unlock to allow operators signaling. 
 					monitoringLock.unlock(); 
-					System.out.println("Finished Monitoring....wait until the next monitoring");
+					logger.log(Level.INFO,"Finished Monitoring....wait until the next monitoring");
 					Thread.sleep(Config.QUERYTRACKER_MONITOR_INTERVAL); 
 
 					// Wait to the next monitor  
@@ -506,7 +521,7 @@ public class QueryTrackerPlan implements Serializable {
 		// read result
 		final Map<String, ComputeNodeDesc> allocatedSlots = resultRequest.getObject1();
 		this.err = resultRequest.getObject2();
-
+    
 		// assign slots
 		this.resourceScheduler.assignComputeNodes(allocatedSlots);
 	}
@@ -618,7 +633,7 @@ public class QueryTrackerPlan implements Serializable {
 
 		// identify best slot using a resource scheduler
 		// deploy the failed operator on another connection
-		ComputeNodeDesc assignedSlot = this.resourceScheduler.getComputeNode(operId, triesCounter);
+		ComputeNodeDesc assignedSlot = this.resourceScheduler.getComputeNode(operId, 1);
 		if (assignedSlot == null) {
 			String args[] = { "No slot could be assigned to tracker operator "
 					+ operId.toString() };
@@ -626,7 +641,7 @@ public class QueryTrackerPlan implements Serializable {
 			return;
 
 		}  
-		System.out.println("New Connection: "+assignedSlot.getUrl()+" " +
+		logger.log(Level.INFO,"New Connection: "+assignedSlot.getUrl()+" " +
 				"has been assigned to the failed operator: "+operId);
 		final Identifier executeOpId = operId.clone();
 		executeOpId.append(lastExecuteOpId++);
@@ -634,7 +649,7 @@ public class QueryTrackerPlan implements Serializable {
 				assignedSlot); 
 		// set the status of the operator to DEPLOYED
 		executeOpDesc.setOperatorStatus(QueryOperatorStatus.REDEPLOYED);
-		System.out.println("Current Deployment has been updated with the new " +
+		logger.log(Level.INFO,"Current Deployment has been updated with the new " +
 				"deployment of the failed operator: "+operId);
 		// add to operator and deployment description to current deployment
 		// replace the old operator. 
@@ -662,7 +677,8 @@ public class QueryTrackerPlan implements Serializable {
 			// create executable operator and set query tracker URL
 			final AbstractExecuteOperator execOp = trackerOp.genDeployOperator(
 					executeOpDesc, currentDeployment);
-
+             
+			
 			this.err = trackerOp.getError();
 			if (this.err.isError())
 				return;
@@ -691,7 +707,7 @@ public class QueryTrackerPlan implements Serializable {
 			if (this.err.isError())
 				return;
 
-			System.out.println("The execute operator "+execOp.getOperatorId() +" has " +
+			logger.log(Level.INFO, "The execute operator "+execOp.getOperatorId() +" has " +
 					"been redeployed on compute node "+executeOpDesc.getComputeSlot().getUrl());
 
 			this.executeOps.put(trackerOpId, execOp); 
@@ -819,4 +835,6 @@ public class QueryTrackerPlan implements Serializable {
              monitoringLock.unlock();
 		return err;
 	}
+
+	
 }

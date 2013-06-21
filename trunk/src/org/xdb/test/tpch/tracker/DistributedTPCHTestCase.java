@@ -3,16 +3,22 @@ package org.xdb.test.tpch.tracker;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.OperatorDesc;
+import org.xdb.metadata.Connection;
+import org.xdb.store.EnumStore;
 import org.xdb.test.DistributedXDBTestCase;
 import org.xdb.tracker.QueryTrackerPlan;
+import org.xdb.tracker.operator.AbstractTrackerOperator;
 import org.xdb.tracker.operator.MySQLTrackerOperator;
 import org.xdb.tracker.operator.TableDesc;
 import org.xdb.utils.Identifier;
@@ -22,10 +28,13 @@ public abstract class DistributedTPCHTestCase extends
 		DistributedXDBTestCase {
 
 	// static fields
-	private static final int NUMBER_COMPUTE_DBS = Config.TEST_NODE_COUNT
+	protected static final int NUMBER_COMPUTE_DBS = Config.TEST_NODE_COUNT
 			* Config.TEST_PARTS_PER_NODE; 
 	private static final String TPCH_DB_NAME = Config.TEST_DB_NAME;
-	private static Integer LAST_EXEC_OP_ID = 1;
+	private static Integer LAST_EXEC_OP_ID = 1; 
+	
+	private List<Connection> allConnections = new ArrayList<Connection>();
+
 
 	// test into
 	protected int numberOfSubops = NUMBER_COMPUTE_DBS;
@@ -57,6 +66,10 @@ public abstract class DistributedTPCHTestCase extends
 		return "UNION_IN" + i;
 	}
 
+	protected String getUnionInTableName() {
+		return "UNION_IN";
+	}
+	
 	protected String getUnionOutTableName() {
 		return "UNION_OUT";
 	}
@@ -210,6 +223,38 @@ public abstract class DistributedTPCHTestCase extends
 		currentDeployment.put(trackerOpId, executeOperDesc);
 
 		return currentDeployment;
+	} 
+	
+	protected void setConnectionList(Map<Identifier, AbstractTrackerOperator> trackerOps, List<Identifier> opIds, Identifier unionOpId) {
+	      
+		
+		for(int i=0; i < NUMBER_COMPUTE_DBS; i++){
+	    	  
+			  AbstractTrackerOperator trackerOp = trackerOps.get(opIds.get(i)); 
+			  // Set the connection list 
+			  List<Connection> opConnections = new ArrayList<Connection>();  
+			  ComputeNodeDesc computeNodeDesc = this.getComputeNode(i); 
+			  // Create the first connection 
+			  Connection conn = new Connection("Connection_"+i,computeNodeDesc.getUrl(),
+					  Config.METADATA_USER, Config.METADATA_PASSWORD, EnumStore.MYSQL); 
+			  
+			  opConnections.add(conn);
+			  opConnections.add(conn);
+              this.allConnections.add(conn);
+			  trackerOp.setTrackerOpConnections(opConnections);	  
+	      }   
+		  
+		  // Set the connection of union operator  
+		  ComputeNodeDesc computeNodeDesc = this.getComputeNode(0); 
+		  Connection conn = new Connection("Connection_0",computeNodeDesc.getUrl(),
+				  Config.METADATA_USER, Config.METADATA_PASSWORD, EnumStore.MYSQL);  
+		  AbstractTrackerOperator unionTrackerOp = trackerOps.get(unionOpId);   
+		  List<Connection> opConnections = new ArrayList<Connection>();  
+		  opConnections.add(conn); 
+		  opConnections.add(conn); 
+          this.allConnections.add(conn);
+		  unionTrackerOp.setTrackerOpConnections(opConnections); 
+		  	  
 	}
 	
 	private static String prettyPrintResultSet(ResultSet resultSet, int rowCount) throws SQLException{
@@ -285,5 +330,40 @@ public abstract class DistributedTPCHTestCase extends
 
 		// clean plan
 		this.assertNoError(qPlan.cleanPlan());
+	} 
+	
+
+	protected Error executePlanTestQ2FT (QueryTrackerPlan qplan){
+
+		Error err = new Error();
+
+		// 2. Deploy query tracker plan
+		err = qplan.deployPlan();
+		if (err.isError()) {
+			qplan.cleanPlanOnError();
+			return err;
+		}
+        
+		// Run the failure simulator 
+		
+		//FailureSimulatorFT failureSimulatorFT = new FailureSimulatorFT(1, qplan, this.allConnections, 1000); 
+		//failureSimulatorFT.start();
+		
+		// 3. Execute query tracker plan
+		err = qplan.executePlan();
+		if (err.isError()) {
+			qplan.cleanPlanOnError();
+			return err;
+		}
+        
+		// 4. Clean query tracker plan
+		err = qplan.cleanPlan();
+		if (err.isError()) {
+			qplan.cleanPlanOnError();
+			return err;
+		}
+
+		return err;
+
 	}
 }
