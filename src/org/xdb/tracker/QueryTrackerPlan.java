@@ -347,7 +347,7 @@ public class QueryTrackerPlan implements Serializable {
 
 		// wait until plan is executed or error occurred
 		while (!this.isExecuted() && !this.err.isError()) {
-			if(Config.MONITOR_ACTIVATED) {
+			if(Config.QUERYTRACKER_MONITOR_ACTIVATED) {
 				try { 
 					// Starting the compute servers monitoring. 
 					// Lock to prevent operator signaling. 
@@ -359,22 +359,8 @@ public class QueryTrackerPlan implements Serializable {
 					// Check if there is a failure detected, in order 
 					// to re-deploy the failed operators.  
 					if(computeServersMonitor.isFailureDetected()) {
-						// Check if the maximum time of the runs has been 
-						// exceeded, so the whole plan will be aborted. 
- 
-						// increment the failure count (trials counter) 
-						/*
-						triesCounter++;  
-						if(triesCounter > Config.MAXIMUM_TRIES_COUNT) {
-							String[] args = { triesCounter.toString() };
-							err = new Error(EnumError.RUN_TIMES_EXCEEDED, args);
-							System.out.println(err.toString()); 
-							return err;
-
-						} 
+						logger.log(Level.INFO,"Monitoring detected a failure!");
 						// re-deploy the failed operators 
-						 * 
-						 */
 						redeployFailedOperators();  
 					}
 
@@ -465,7 +451,7 @@ public class QueryTrackerPlan implements Serializable {
 		// starting traverse the query plan from the roots. 
 		traverseQueryTrackerPlan(this.roots); 
 		distributePlanRobustness(); 
-
+		this.computeServersMonitor.setFailureDetected(false);
 	}
 
 	/**
@@ -810,7 +796,7 @@ public class QueryTrackerPlan implements Serializable {
 
 	public Error operatorReady(AbstractExecuteOperator execOp) {
 		// send READY Signal to all consumers  
-		if(Config.MONITOR_ACTIVATED)
+		if(Config.QUERYTRACKER_MONITOR_ACTIVATED)
 		     monitoringLock.lock();  
 		final Set<OperatorDesc> consumers = execOp.getConsumers();  
 		// Update the status of the ready operator (finished) to FINISHED 
@@ -831,7 +817,7 @@ public class QueryTrackerPlan implements Serializable {
 					return err;
 			}
 		}  
-		if(Config.MONITOR_ACTIVATED)
+		if(Config.QUERYTRACKER_MONITOR_ACTIVATED)
              monitoringLock.unlock();
 		return err;
 	}
