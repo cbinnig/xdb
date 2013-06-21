@@ -78,6 +78,10 @@ public abstract class AbstractResourceScheduler {
 	 */
 	public void assignComputeNodes(Map<String, ComputeNodeDesc> nodes) {
 		this.assignedComputeNodes.putAll(nodes);
+	} 
+	
+	public void clearAssignedComputeNodes(){
+		this.assignedComputeNodes.clear();
 	}
 
 	/**
