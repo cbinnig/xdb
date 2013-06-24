@@ -6,10 +6,10 @@
 #fi
 
 is_partitioned=true; 
-part_cnt=8;	# if no partitioning, must be set to 1
-tables_dest="/Users/erfanz/xdb/tpch_2_15.0/tables_sf2_partcnt8/";	#with the final slash
+part_cnt=64;	# if no partitioning, must be set to 1
+tables_dest="/Users/erfanz/xdb/tpch_2_15.0/tables_sf0.5_partcnt64/";	#with the final slash
 mysql_addr="/usr/local/mysql/bin/mysql";	
-db_name_prefix="tpch_traditional";
+db_name_prefix="tpch_sf0_5_part64_";
 db_user="xroot";
 db_pass="xroot";
 declare -a table_names=('customer' 'supplier' 'orders' 'lineitem' 'partsupp' 'part' 'nation' 'region');
@@ -82,6 +82,7 @@ for ((p=0; p<$part_cnt; p++))do
 	db_name="$db_name_prefix$db_name_suffix";
 	SQL_file="temp/SQLcommands_$db_name_suffix.sql";
 	$($mysql_addr -u$db_user -p$db_pass -D $db_name < $SQL_file);
+	
 	echo "Database $db_name is successfully loaded.";
 done
 echo "Importing data is successfully finished. Take care!";
