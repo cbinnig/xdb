@@ -1,7 +1,7 @@
 #!/bin/bash
 
-prefix_db_name="tpch_traditional";
-db_cnt=8;
+prefix_db_name="tpch_sf0_5_part64_";
+db_cnt=64;
 mysql_addr="/usr/local/mysql/bin/mysql";
 db_user="xroot"; 
 db_pass="xroot";
@@ -16,7 +16,7 @@ output_file="./temp/index_generator_runnable.sql";
 # Remove the old index_generator_runnabel.sql if it exists
 $(rm -f $output_file);
 
-for ((i=5; i<=$db_cnt; i++))do
+for ((i=1; i<=$db_cnt; i++))do
 	echo "USE $prefix_db_name$i;" >> $output_file;
 	echo "CREATE INDEX l_orderkey_index on lineitem (l_orderkey);" >> $output_file;
 	echo "CREATE INDEX l_suppkey_index on lineitem (l_suppkey);" >> $output_file;

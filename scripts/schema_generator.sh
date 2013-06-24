@@ -1,12 +1,12 @@
 #!/bin/bash
-db_cnt=8;
+db_cnt=64;
 mysql_addr="/usr/local/mysql/bin/mysql";
 db_url="localhost";
 db_user="xroot";
 db_pass="xroot";
 db_root_user="root";
 db_root_pass="";
-db_name_prefix="tpch_traditional";
+db_name_prefix="tpch_sf0_5_part64_";
 create_databases=true;
 
 output_file="./temp/schema_generator_runnable.sql";
