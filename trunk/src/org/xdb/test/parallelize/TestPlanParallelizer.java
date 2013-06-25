@@ -46,7 +46,7 @@ public class TestPlanParallelizer extends XDBTestCase {
 	 * "O_TOTALPRICE     DECIMAL, " + "O_ORDERDATE      DATE, " +
 	 * "O_ORDERPRIORITY  VARCHAR, " + "O_CLERK          VARCHAR,  " +
 	 * "O_SHIPPRIORITY   INTEGER, " + "O_COMMENT        VARCHAR" +
-	 * ")  PARTIONED BY HASH(O_ORDERKEY) (" + "\"P1\" IN CONNECTION  \"TPCH1\","
+	 * ")  PARTIONED BY HASH(O_CUSTKEY) (" + "\"P1\" IN CONNECTION  \"TPCH1\","
 	 * + "\"P2\" IN CONNECTION  \"TPCH2\" )",
 	 * 
 	 * "CREATE TABLE SUPPLIER ( " + "S_SUPPKEY INTEGER, " + "S_NAME VARCHAR, " +
@@ -187,6 +187,7 @@ public class TestPlanParallelizer extends XDBTestCase {
 		this.compileStatement(q5);
 		
 	}
+
 
 	
 	public void testQ1() {

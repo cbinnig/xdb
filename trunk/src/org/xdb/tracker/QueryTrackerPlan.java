@@ -225,8 +225,8 @@ public class QueryTrackerPlan implements Serializable {
 		this.roots.add(opId);
 		op.setIsRoot(true);
 
-		this.sources.put(opId, EMPTY_OP_SET);
-		this.consumers.put(opId, EMPTY_OP_SET);
+		this.sources.put(opId, new HashSet<Identifier>());
+		this.consumers.put(opId, new HashSet<Identifier>());
 	} 
 	
 	/**
@@ -260,6 +260,18 @@ public class QueryTrackerPlan implements Serializable {
 			leaves.remove(operId);
 		}
 	}
+	
+	
+	public void addSources(Identifier operId, Identifier opSourceID){
+		Set<Identifier> sources = this.sources.get(operId);
+		if(sources == null){
+			sources = new HashSet<Identifier>();
+			sources.add(opSourceID);
+			this.setSources(operId, sources);
+		}else {
+			sources.add(opSourceID);
+		}
+	}
 
 	/**
 	 * Sets consumers of an operator and changes status to be no root anymore if
@@ -276,6 +288,18 @@ public class QueryTrackerPlan implements Serializable {
 			roots.remove(operId);
 			AbstractTrackerOperator operator = this.trackerOps.get(operId); 
 			operator.setIsRoot(false);
+		}
+	}
+	
+	public void addConsumer(Identifier operId, Identifier opConsumerID){
+		Set<Identifier> consumersNew = this.consumers.get(operId);
+		if(consumersNew == null){
+			consumersNew = new HashSet<Identifier>();
+			consumersNew.add(opConsumerID);
+			this.setConsumers(operId, consumersNew);
+		}else {
+			consumersNew.add(opConsumerID);
+			this.setConsumers(operId, consumersNew);
 		}
 	}
 

@@ -40,6 +40,7 @@ public abstract class DistributedTPCHTestCase extends
 	protected int expectedCnt = 0;
 	protected String subqueryDDL = "";
 	protected String unionDDL = "";
+	protected String unionPartitionDDL = "";
 	protected String subqueryDML = "";
 	protected String unionPreDML = "SELECT * FROM ";
 	protected String unionPostDML = ";";
@@ -48,6 +49,12 @@ public abstract class DistributedTPCHTestCase extends
 	// constructor
 	public DistributedTPCHTestCase(int expectedCnt) {
 		super(Config.TEST_NODE_COUNT);
+		this.expectedCnt = expectedCnt;
+	}
+	
+	// constructor
+	public DistributedTPCHTestCase(int expectedCnt, int numberofParts) {
+		super(Config.TEST_NODE_COUNT, numberofParts);
 		this.expectedCnt = expectedCnt;
 	}
 
@@ -114,7 +121,9 @@ public abstract class DistributedTPCHTestCase extends
 		String unionOutTableName = getUnionOutTableName();
 		StringTemplate unionOutDDL = new StringTemplate("<" + unionOutTableName
 				+ "> " + unionDDL);
-		unionOp.addOutTable(unionOutTableName, unionOutDDL);
+		
+
+		unionOp.addOutTable(unionOutTableName, unionOutDDL, this.unionPartitionDDL);
 
 		// DDL for all inputs of union
 		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
@@ -255,7 +264,7 @@ public abstract class DistributedTPCHTestCase extends
 		  	  
 	}
 	
-	private static String prettyPrintResultSet(ResultSet resultSet, int rowCount) throws SQLException{
+	protected static String prettyPrintResultSet(ResultSet resultSet, int rowCount) throws SQLException{
 		StringBuilder returnValue = new StringBuilder();
 		ResultSetMetaData rsmd = resultSet.getMetaData();
 		int columnCount = rsmd.getColumnCount();
@@ -294,6 +303,8 @@ public abstract class DistributedTPCHTestCase extends
 
 		// deploy plan to compute nodes
 		Error err = qPlan.deployPlan(deployment);
+
+		
 		if (err.isError())
 			qPlan.cleanPlanOnError();
 		this.assertNoError(err);
@@ -306,6 +317,7 @@ public abstract class DistributedTPCHTestCase extends
 
 		final Map<Identifier, OperatorDesc> currentDeployment = qPlan
 				.getCurrentDeployment();
+		
 		OperatorDesc rootDesc = currentDeployment.get(resultOpId);
 		Identifier resultTable = rootDesc.getOperatorID();
 		String rootUrl = "jdbc:mysql://"+rootDesc.getComputeSlot().getUrl()+"/"+Config.COMPUTE_DB_NAME;
@@ -363,5 +375,66 @@ public abstract class DistributedTPCHTestCase extends
 		}  
 		
 		return err;
+	}
+	
+	/**
+	 * Executes the Query Tracker Plan with multiple outputtables and checks if results size is correct
+	 * 
+	 * @param qPlan
+	 * @param unionOp
+	 * @throws SQLException
+	 */
+	protected void executeQuery(QueryTrackerPlan qPlan,
+			Map<Identifier, OperatorDesc> deployment, Map<Identifier,String> resultOpIds) throws SQLException {
+
+		// deploy plan to compute nodes
+		Error err = qPlan.deployPlan(deployment);
+
+		
+		if (err.isError())
+			qPlan.cleanPlanOnError();
+		this.assertNoError(err);
+
+		// execute plan using query tracker
+		err = qPlan.executePlan();
+		if (err.isError())
+			qPlan.cleanPlanOnError();
+		this.assertNoError(err);
+
+		final Map<Identifier, OperatorDesc> currentDeployment = qPlan
+				.getCurrentDeployment();
+		int actualCnt = 0;
+		for (Identifier resultOpId : resultOpIds.keySet()) {
+			OperatorDesc rootDesc = currentDeployment.get(resultOpId);
+			String resultTableName = resultOpIds.get(resultOpId);
+			Identifier resultTable = rootDesc.getOperatorID();
+			String rootUrl = "jdbc:mysql://"+rootDesc.getComputeSlot().getUrl()+"/"+Config.COMPUTE_DB_NAME;
+			final ResultSet rs = this
+				.executeComputeQuery(rootUrl, "SELECT COUNT(*) FROM " + resultTable
+						+ "_" + resultTableName);
+		
+			if (rs.next()) {
+			actualCnt += rs.getInt(1);
+			}
+			
+			if (actualCnt>0){
+				final ResultSet results = this.executeComputeQuery(rootUrl,"SELECT * FROM " + resultTable + "_" + resultTableName);
+			
+				System.out.println(prettyPrintResultSet(results, 10));
+			}
+
+		}
+		
+	
+		if (expectedCnt > 0) {
+			// verify results
+			assertEquals(expectedCnt, actualCnt);
+		}
+		
+		//assertTrue(expectedCnt >0);
+	
+
+		// clean plan
+		this.assertNoError(qPlan.cleanPlan());
 	}
 }

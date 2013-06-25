@@ -143,6 +143,7 @@ public class ComputeNode {
 			return err;
 		}
 
+
 		logger.log(Level.INFO, "Received READY_SIGNAL for operator: "
 				+ consumer + " from source: " + source);
 
@@ -220,7 +221,7 @@ public class ComputeNode {
 
 			// start timer
 			timeMeasure.start(op.getOperatorId().toString());
-
+			
 			// execute operator
 			err = op.execute();
 

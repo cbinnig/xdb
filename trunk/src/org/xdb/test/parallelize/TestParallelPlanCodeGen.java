@@ -169,7 +169,7 @@ public class TestParallelPlanCodeGen extends XDBTestCase  {
 
 		serialTrackerPlan.getObject1().tracePlan(this.getClass().getName() + "_GEN");
 		parallelTrackerPlan.getObject1().tracePlan(this.getClass().getName() + "_PARALLELGEN");
-		
+
 		//serialplan should be collapsed
 		assertEquals(1, serialTrackerPlan.getObject1().getTrackerOperators().size());
 		assertNotSame(1, parallelTrackerPlan.getObject1().getTrackerOperators().size());

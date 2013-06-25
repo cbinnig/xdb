@@ -19,11 +19,25 @@ public class TableDesc implements Serializable {
 		//table connections 
 		private List<URI> uris;
 		
+		//partition -1 not set yet
+		private int partition =-1;
+		
+		//list of which partition in which connection
+		private List<Integer> partitions;
+		
 		//constructors
 		public TableDesc(String tableName, Identifier operatorId) {
 			super();
 			this.tableName = tableName;
 			this.operatorId = operatorId; 
+			
+		}
+		//for partitioned input
+		public TableDesc(String tableName, Identifier operatorId, int partition) {
+			super();
+			this.tableName = tableName;
+			this.operatorId = operatorId; 
+			this.partition = partition;
 			
 		}
 
@@ -40,6 +54,11 @@ public class TableDesc implements Serializable {
 			this.uris = uris;
 		}
 
+		public TableDesc(String tableName, List<URI> uris, List<Integer> partitions) {
+			super();
+			this.tableName = tableName;
+			this.partitions =partitions;
+		}
 
 		//getter and setters
 		public boolean isTemp(){
@@ -72,6 +91,19 @@ public class TableDesc implements Serializable {
 			return uris;
 		}
 		
+	
+		
+		public int getPartition() {
+			return partition;
+		}
+
+		public List<Integer> getPartitions() {
+			return partitions;
+		}
+
+		public boolean isPartioned(){
+			return partition!=-1;
+		}
 		//methods
 		@Override
 		public int hashCode(){

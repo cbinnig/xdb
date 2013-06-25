@@ -51,6 +51,10 @@ public class DistributedXDBTestCase extends TestCase {
 	public ComputeNodeDesc getComputeNode(int i) {
 		return computeNodes[i];
 	}
+	
+	public int getNumberOfComputeNodes(){
+		return computeNodes.length;
+	}
 
 	public boolean isRunLocal() {
 		return runLocal;
@@ -96,7 +100,7 @@ public class DistributedXDBTestCase extends TestCase {
 					System.out.print(noComputeServers);
 					Thread.sleep(1000);
 				}
-				System.out.println();
+	
 			}
 
 			// initialize compute slot info
