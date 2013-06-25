@@ -20,6 +20,7 @@ import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
+
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.ReadySignal;
 import org.xdb.logging.XDBExecuteTimeMeasurement;
@@ -133,33 +134,36 @@ public class ComputeNode {
 	public Error signalOperator(final ReadySignal signal) {
 		Error err = new Error();
 
-		final Identifier source = signal.getSource();
-		final Identifier consumer = signal.getConsumer();
+		final Identifier srcExecuteOpId = signal.getSource();
+		final Identifier srcTrackerOpId = (srcExecuteOpId.equals(Config.COMPUTE_NOOP_ID))?srcExecuteOpId:srcExecuteOpId.getParentId(1);
+		final Identifier consumerExecuteOpId = signal.getConsumer(); 
+		final Identifier consumerTrackerOpId = (consumerExecuteOpId.equals(Config.COMPUTE_NOOP_ID))?consumerExecuteOpId:consumerExecuteOpId.getParentId(1);
+
 
 		// Get signaled operator
 		AbstractExecuteOperator op = null;
-		op = operators.get(consumer);
+		op = operators.get(consumerExecuteOpId);
 		if (op == null) {
 			return err;
 		}
 
 
 		logger.log(Level.INFO, "Received READY_SIGNAL for operator: "
-				+ consumer + " from source: " + source);
+				+ consumerTrackerOpId + " from source: " + srcTrackerOpId);
 
 		// Add signaling source to list of finished sources
 		boolean execute = false;
 		this.readySignalsLock.lock();
-		HashSet<Identifier> sourceIds = null;
-		if (!this.receivedReadySignals.containsKey(consumer)) {
-			sourceIds = new HashSet<Identifier>();
-			this.receivedReadySignals.put(consumer, sourceIds);
+		HashSet<Identifier> sourceTrackerIds = null;
+		if (!this.receivedReadySignals.containsKey(consumerTrackerOpId)) {
+			sourceTrackerIds = new HashSet<Identifier>();
+			this.receivedReadySignals.put(consumerTrackerOpId, sourceTrackerIds);
 		} else {
-			sourceIds = this.receivedReadySignals.get(consumer);
+			sourceTrackerIds = this.receivedReadySignals.get(consumerTrackerOpId);
 		}
-		sourceIds.add(source);
+		sourceTrackerIds.add(srcTrackerOpId);
 
-		if (sourceIds.containsAll(op.getSourceIds())) {
+		if (sourceTrackerIds.containsAll(op.getSourceTrackerIds())) {
 			logger.log(Level.INFO, "All READY_SIGNALs received for operator: "
 					+ op.getOperatorId());
 			execute = true;
@@ -167,7 +171,7 @@ public class ComputeNode {
 		readySignalsLock.unlock();
 
 		// execute operator
-		if (execute) {
+		if (execute) { 
 			OperatorExecutor executor = new OperatorExecutor(op);
 			executor.start();
 			err = executor.getLastError();
@@ -241,7 +245,8 @@ public class ComputeNode {
 		}
 
 		@Override
-		public void run() {
+		public void run() {  
+			
 			this.err = this.executeOperator(op);
 		}
 	}

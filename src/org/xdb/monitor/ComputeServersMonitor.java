@@ -1,15 +1,11 @@
 package org.xdb.monitor;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.xdb.client.ComputeClient;
+import org.xdb.error.Error;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.operators.QueryOperatorStatus;
 import org.xdb.tracker.QueryTrackerPlan;
-import org.xdb.utils.Identifier; 
-import org.xdb.error.Error;
-import org.xdb.logging.XDBLog;
+import org.xdb.utils.Identifier;
 
 /**
  * Monitor component to monitor all compute servers. 
@@ -28,12 +24,9 @@ public class ComputeServersMonitor{
     	    	
 	private boolean failureDetected = false; 
 	
-	// logger
-	private transient Logger logger;
 	
 	public ComputeServersMonitor(){
 		this.computeClient = new ComputeClient(); 
-		this.logger = XDBLog.getLogger(this.getClass().getName());
 	}
 	
 
@@ -108,10 +101,7 @@ public class ComputeServersMonitor{
 				opDesc.setOperatorStatus(QueryOperatorStatus.ABORTED); 
 				setFailureDetected(true);
 				
-			} else {
-				logger.log(Level.INFO, opDesc.getComputeSlot().getUrl() + " has been checked Successfully");
-			}
-			
+			} 
 		} 
 		
 	}
