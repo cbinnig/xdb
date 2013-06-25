@@ -26,10 +26,12 @@ public class Config implements Serializable {
 
 	// Monitoring
 	public static int MASTERTRACKER_MONITOR_INTERVAL = 2000;  
-	public static int QUERYTRACKER_MONITOR_INTERVAL = 100;
-	public static int MAXIMUM_TRIES_COUNT = 10; 
+	public static int QUERYTRACKER_MONITOR_INTERVAL = 100; 
+	public static int NUMBER_OF_FAILURES = 1; 
+	public static int RUN_TIMES = 100;
 	public static boolean MASTERTRACKER_MONITOR_ACTIVATED = false;
-	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false;
+	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false; 
+	
 
 	// Compute Server
 	public static String COMPUTE_DRIVER_CLASS = "com.mysql.jdbc.Driver";
@@ -122,7 +124,7 @@ public class Config implements Serializable {
 		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
 				"COMPUTE_SLOTS", "COMPILE_PORT", "MASTERTRACKER_PORT",
 				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS", "TEST_NODE_COUNT",
-				"TEST_PARTS_PER_NODE" };
+				"NUMBER_OF_FAILURES", "RUN_TIMES", "TEST_PARTS_PER_NODE" };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
 				"TEST_DB_NAME" };
@@ -145,8 +147,8 @@ public class Config implements Serializable {
 				if (props.containsKey(intProperty)) {
 					Config.class.getField(intProperty)
 							.setInt(null,
-									Integer.parseInt(props.get(intProperty)
-											.toString()));
+									Integer.parseInt(props.get(intProperty.trim())
+											.toString().trim()));
 				}
 			}
 

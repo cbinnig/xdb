@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import org.xdb.Config;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
@@ -35,8 +36,8 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 	private Boolean withFailure = false;
 	private Integer numOfFailures = 0;  
 	private static long EXECUTION_TIME = 1000; 
-	private static Boolean IS_EXECUTION_TIME_SET = false;
-	private static Integer RUN_TIMES = 10; 
+	private static Boolean IS_EXECUTION_TIME_SET = false; 
+	private static int RUN_COUNTER = 0;
 	
 	private class Q2Lower extends DistributedTPCHTestCase {
 		
@@ -227,9 +228,10 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 	public static Collection<Object[]> generateData(){
 		Collection<Object[]> params = new ArrayList<Object[]>(2);
 		params.add(new Object[]{new Boolean(false),new Integer(0)});
+		params.add(new Object[]{new Boolean(false),new Integer(0)});
 		
-		for(int i=0; i < RUN_TIMES ; ++i){
-			params.add(new Object[]{new Boolean(true),new Integer(1)});
+		for(int i=0; i < Config.RUN_TIMES ; ++i){
+			params.add(new Object[]{new Boolean(true),new Integer(Config.NUMBER_OF_FAILURES)});
 			
 		}
 		return params;
@@ -343,8 +345,9 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 	    //this.assertError(this.executeQuery(qPlan, true));    
 
 		// Execute it the number of runs  
-	    this.assertError(this.executeQuery(qPlan, this.withFailure, this.numOfFailures, TestTPCHQ2FT.EXECUTION_TIME));  
-	    if(!TestTPCHQ2FT.IS_EXECUTION_TIME_SET){  
+	    this.assertError(this.executeQuery(qPlan, this.withFailure, this.numOfFailures, TestTPCHQ2FT.EXECUTION_TIME)); 
+	    TestTPCHQ2FT.RUN_COUNTER++;
+	    if(!TestTPCHQ2FT.IS_EXECUTION_TIME_SET && TestTPCHQ2FT.RUN_COUNTER == 2){  
 	    	TestTPCHQ2FT.EXECUTION_TIME = qPlan.getQueryExecutionTime(); 
 	    	TestTPCHQ2FT.IS_EXECUTION_TIME_SET = true; 
 	    }
