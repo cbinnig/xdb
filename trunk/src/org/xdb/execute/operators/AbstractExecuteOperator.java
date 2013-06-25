@@ -43,13 +43,10 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	protected Identifier operatorId;
 
 	// source IDs
-	protected HashSet<Identifier> sourceIds = new HashSet<Identifier>();
-
-	// Source Descriptions
-	protected HashSet<OperatorDesc> sources = new HashSet<OperatorDesc>();
+	protected HashSet<Identifier> sourceTrackerIds = new HashSet<Identifier>();
 
 	// Consumer Descriptions
-	protected HashSet<OperatorDesc> consumers = new HashSet<OperatorDesc>();
+	protected HashSet<Identifier> consumersTrackerIds = new HashSet<Identifier>();
 
 	// DDL statements to create input and output tables
 	protected Vector<String> openSQLs = new Vector<String>();
@@ -87,11 +84,11 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	}
 
 	public void addConsumer(OperatorDesc consumer) {
-		this.consumers.add(consumer);
+		this.consumersTrackerIds.add(consumer.getOperatorID().getParentId(1));
 	}
 
-	public Set<OperatorDesc> getConsumers() {
-		return this.consumers;
+	public Set<Identifier> getConsumerTrackerIds() {
+		return this.consumersTrackerIds;
 	}
 
 	public void addOpenSQL(String ddl) {
@@ -102,17 +99,12 @@ public abstract class AbstractExecuteOperator implements Serializable {
 		this.closeSQLs.add(ddl);
 	}
 
-	public Set<Identifier> getSourceIds() {
-		return this.sourceIds;
-	}
-
-	public Set<OperatorDesc> getSources() {
-		return this.sources;
+	public Set<Identifier> getSourceTrackerIds() {
+		return this.sourceTrackerIds;
 	}
 
 	public void addSource(OperatorDesc source) {
-		this.sourceIds.add(source.getOperatorID());
-		this.sources.add(source);
+		this.sourceTrackerIds.add(source.getOperatorID().getParentId(1));
 	}
 
 	// methods

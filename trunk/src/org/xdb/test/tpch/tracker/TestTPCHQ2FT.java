@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-
 import org.xdb.Config;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
@@ -220,6 +219,7 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 	
 	public TestTPCHQ2FT(Boolean withFailure, Integer numOfFaliures) throws Exception {
 		super(5); 
+		
 		this.withFailure =withFailure;
 		this.numOfFailures = numOfFaliures;
     }  
@@ -350,18 +350,19 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 	    if(!TestTPCHQ2FT.IS_EXECUTION_TIME_SET && TestTPCHQ2FT.RUN_COUNTER == 2){  
 	    	TestTPCHQ2FT.EXECUTION_TIME = qPlan.getQueryExecutionTime(); 
 	    	TestTPCHQ2FT.IS_EXECUTION_TIME_SET = true; 
-	    }
-	   
+	    }   
 	}
 	
 	@Before
 	public void setUp(){
-		super.setUp();
+		//if(RUN_COUNTER==0)		
+			super.setUp();
 	}
 	
 	@After
 	public void tearDown(){
-		super.tearDown();
+		//if(RUN_COUNTER==Config.RUN_TIMES+2)
+			super.tearDown();
 	}
 } 
 

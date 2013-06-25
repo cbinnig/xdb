@@ -227,23 +227,10 @@ public class QueryTrackerNode {
 	 * @return
 	 */
 	public Error operatorReady(final AbstractExecuteOperator execOp) {
-		Error err = execOp.getLastError();
-
-		// get trackerOpId and set status to executed if no error occurred
 		Identifier execOpId = execOp.getOperatorId();
 		Identifier planId = execOpId.getParentId(0); 
-		Identifier trackerOpId = execOpId.getParentId(1); 
 		QueryTrackerPlan qPlan = this.qPlans.get(planId); 
-		
-		if (err.isError()) {
-			qPlan.setLastError(err);
-			return err;
-		}
-		qPlan.setTrackerOperatorExecuted(trackerOpId);
-        
-		err = qPlan.operatorReady(execOp);
-		
-		return err;
+		return qPlan.operatorReady(execOp);
 	}
 
 	/**
