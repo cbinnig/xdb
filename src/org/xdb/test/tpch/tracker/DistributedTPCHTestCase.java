@@ -225,19 +225,21 @@ public abstract class DistributedTPCHTestCase extends
 	
 	protected void setConnectionList(Map<Identifier, AbstractTrackerOperator> trackerOps, List<Identifier> opIds, Identifier unionOpId) {
 	    
+		this.allConnections.clear();
 		for(int i=0; i < NUMBER_COMPUTE_DBS; i++){
 	    	  
 			  AbstractTrackerOperator trackerOp = trackerOps.get(opIds.get(i)); 
 			  // Set the connection list 
 			  List<Connection> opConnections = new ArrayList<Connection>();  
-			  ComputeNodeDesc computeNodeDesc = this.getComputeNode(i); 
+			  ComputeNodeDesc computeNodeDesc = this.getComputeNode(i/Config.TEST_PARTS_PER_NODE); 
 			  // Create the first connection 
-			  Connection conn = new Connection("Connection_"+i,computeNodeDesc.getUrl(),
+			  Connection conn = new Connection("Connection_"+i/Config.TEST_PARTS_PER_NODE,computeNodeDesc.getUrl(),
 					  Config.METADATA_USER, Config.METADATA_PASSWORD, EnumStore.MYSQL); 
 			  
 			  opConnections.add(conn);
-			  opConnections.add(conn);
-              this.allConnections.add(conn);
+			  opConnections.add(conn); 
+			  if(i%Config.TEST_PARTS_PER_NODE == 0)
+                  this.allConnections.add(conn);
 			  trackerOp.setTrackerOpConnections(opConnections);	  
 	      }   
 		  
@@ -249,8 +251,7 @@ public abstract class DistributedTPCHTestCase extends
 		  List<Connection> opConnections = new ArrayList<Connection>();  
 		  opConnections.add(conn); 
 		  opConnections.add(conn); 
-          this.allConnections.add(conn);
-		  unionTrackerOp.setTrackerOpConnections(opConnections); 
+		  unionTrackerOp.setTrackerOpConnections(opConnections);  
 		  	  
 	}
 	
@@ -330,7 +331,7 @@ public abstract class DistributedTPCHTestCase extends
 	} 
 	
 	
-	protected Error executeQuery (QueryTrackerPlan qplan, boolean injectFailure){
+	protected Error executeQuery (QueryTrackerPlan qplan, boolean injectFailure, int numFailures, long executionTime){
 
 		Error err = new Error();
 
@@ -342,26 +343,25 @@ public abstract class DistributedTPCHTestCase extends
 		}
         
 		// Inject failure(s) 
-		if(injectFailure){
-			FailureSimulatorFT failureSimulatorFT = new FailureSimulatorFT(1, qplan, this.allConnections, 1000); 
+		if(injectFailure){ 
+			FailureSimulatorFT failureSimulatorFT = new FailureSimulatorFT(numFailures, qplan, this.allConnections, executionTime); 
 			failureSimulatorFT.start();
 		}
 		
-		// Execute query tracker plan
+		// Execute query tracker plan 
 		err = qplan.executePlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;
 		}
-        
+
 		// Clean up
 		err = qplan.cleanPlan();
 		if (err.isError()) {
-			qplan.cleanPlanOnError();
+			qplan.cleanPlanOnError(); 
 			return err;
-		}
-
+		}  
+		
 		return err;
-
 	}
 }

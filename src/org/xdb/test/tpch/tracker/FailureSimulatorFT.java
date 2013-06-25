@@ -50,7 +50,8 @@ public class FailureSimulatorFT extends Thread{
 	    
 		Random randomGenerator = new Random(); 
 		try { 
-			long failureTime = (long) (randomGenerator.nextDouble()*queryRunTime);
+			long failureTime = (long) (randomGenerator.nextDouble()*queryRunTime); 
+			System.out.println("Failure occured after: "+failureTime+" from the execution");
 			Thread.sleep(failureTime); 
 			simulateFailure();
 		} catch (InterruptedException e) {
@@ -63,7 +64,10 @@ public class FailureSimulatorFT extends Thread{
 		List<Integer> pickedConnections = new ArrayList<Integer>();
 		for(int i=0; i < this.numberOfFailures; i++){
 			Integer index = pickConnectionIndex(pickedConnections); 
-			pickedConnections.add(index);
+			if(!pickedConnections.contains(index))
+			    pickedConnections.add(index); 
+			else 
+				i--;
 		}
 		
 		killCorrespondingOps(pickedConnections);
@@ -74,12 +78,12 @@ public class FailureSimulatorFT extends Thread{
 		Set<Identifier> failedOpsIds = new HashSet<Identifier>(); 
 		Set<String> shootedConnections = new HashSet<String>();
 		for (Integer index : pickedConnections) {
-			Connection conn = this.connections.get(index); 
+			Connection conn = this.connections.get(index);  
 			String connName = conn.getName(); 
 			shootedConnections.add(connName);
 		}
 		failedOpsIds = getFailedOpsIds(shootedConnections); 
-		System.out.println(failedOpsIds);
+		//System.out.println(failedOpsIds); 
 		setAbortedOperators(failedOpsIds);
 	}
 
@@ -113,8 +117,7 @@ public class FailureSimulatorFT extends Thread{
 		Random randomGenarator = new Random(); 
 		Integer index = randomGenarator.nextInt(this.connections.size()); 
 		
-		// TODO Auto-generated method stub
-		return 0;
+		return index;
 	}
 
 	/**

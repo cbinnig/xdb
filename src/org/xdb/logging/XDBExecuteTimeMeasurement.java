@@ -9,11 +9,13 @@ import org.xdb.Config;
 
 public class XDBExecuteTimeMeasurement {
 	private HashMap<String,Long> timeMap;
-	private PrintWriter p_writer;
+	private PrintWriter p_writer; 
+	private HashMap<String,Long> executionTimes; 
 	
 	
 	private XDBExecuteTimeMeasurement(String filename){
-		timeMap = new HashMap<String,Long>();
+		timeMap = new HashMap<String,Long>(); 
+		executionTimes = new HashMap<String,Long>(); 
 		try {
 			boolean not_existed = false;
 			File f = new File ("log/"+filename+".csv");
@@ -36,24 +38,24 @@ public class XDBExecuteTimeMeasurement {
 	
 	private void logTime(String id, long time) {
 		p_writer.println(id+";"+time);
-		
+		this.flush();
 	}
 	private void printHeader(){
-		
 		p_writer.println("#id;time_in_ms");
+		this.flush();
 	}
 	
 	public void start(String id){
 		if(Config.LOG_EXECUTION_TIME){
-			timeMap.put(id, System.currentTimeMillis());
+			timeMap.put(id, System.currentTimeMillis()); 
 		}
 	}
 	
 	public void stop(String id){
-		if(Config.LOG_EXECUTION_TIME){
-			long dif = System.currentTimeMillis() - timeMap.get(id);
-			this.logTime(id, dif);
-			this.flush();
+		if(Config.LOG_EXECUTION_TIME){ 
+			long dif = System.currentTimeMillis() - timeMap.get(id); 
+			this.logTime(id, dif); 
+			this.executionTimes.put(id, dif);
 		}
 	}
 	
@@ -64,5 +66,15 @@ public class XDBExecuteTimeMeasurement {
 	public void close(){
 		p_writer.close();
 	}
+
+	/**
+	 * @return the executionTime
+	 */
+	public Long getExecutionTime(String id) {
+		return this.executionTimes.get(id);
+	}
+
+	
+	
 }
 
