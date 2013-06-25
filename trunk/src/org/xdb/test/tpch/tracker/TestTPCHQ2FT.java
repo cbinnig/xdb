@@ -1,14 +1,19 @@
 package org.xdb.test.tpch.tracker;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
-import org.xdb.error.Error;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
@@ -23,8 +28,15 @@ import org.xdb.utils.StringTemplate;
  * @author slisting
  * 
  */
+
+@RunWith(Parameterized.class)
 public class TestTPCHQ2FT extends DistributedTPCHTestCase {  
 	
+	private Boolean withFailure = false;
+	private Integer numOfFailures = 0;  
+	private static long EXECUTION_TIME = 1000; 
+	private static Boolean IS_EXECUTION_TIME_SET = false;
+	private static Integer RUN_TIMES = 10; 
 	
 	private class Q2Lower extends DistributedTPCHTestCase {
 		
@@ -204,16 +216,28 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 		}
     
 	}
-	public  TestTPCHQ2FT() throws Exception {
-		
-		super(5);
-
-	} 
 	
-
+	public TestTPCHQ2FT(Boolean withFailure, Integer numOfFaliures) throws Exception {
+		super(5); 
+		this.withFailure =withFailure;
+		this.numOfFailures = numOfFaliures;
+    }  
+	
+	@Parameters
+	public static Collection<Object[]> generateData(){
+		Collection<Object[]> params = new ArrayList<Object[]>(2);
+		params.add(new Object[]{new Boolean(false),new Integer(0)});
+		
+		for(int i=0; i < RUN_TIMES ; ++i){
+			params.add(new Object[]{new Boolean(true),new Integer(1)});
+			
+		}
+		return params;
+	}
+	
 	@Test
 	public void testQ2() throws Exception {
-	    Q2Upper q2Upper = new Q2Upper(); 
+		Q2Upper q2Upper = new Q2Upper(); 
 		Q2Lower q2Lower = new Q2Lower();
 		
 		QueryTrackerPlan qPlanUpper = q2Upper.createPlan();
@@ -315,9 +339,26 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 		
 		// set the connection list for the upper tracker operators  
 	    setConnectionList(qPlan.getOperatorMapping(), q2Upper.getOpIds(), q2Upper.getUnionOp());  
-		
-		// Execute it the number of runs 
-		this.assertError(this.executeQuery(qPlan, true));    
+	    
+	    //this.assertError(this.executeQuery(qPlan, true));    
+
+		// Execute it the number of runs  
+	    this.assertError(this.executeQuery(qPlan, this.withFailure, this.numOfFailures, TestTPCHQ2FT.EXECUTION_TIME));  
+	    if(!TestTPCHQ2FT.IS_EXECUTION_TIME_SET){  
+	    	TestTPCHQ2FT.EXECUTION_TIME = qPlan.getQueryExecutionTime(); 
+	    	TestTPCHQ2FT.IS_EXECUTION_TIME_SET = true; 
+	    }
+	   
+	}
+	
+	@Before
+	public void setUp(){
+		super.setUp();
+	}
+	
+	@After
+	public void tearDown(){
+		super.tearDown();
 	}
 } 
 
