@@ -61,6 +61,7 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 		try {
 			for (final PreparedStatement stmt : executeStmts) {
 				stmt.execute();
+			
 			}
 			
 			

@@ -61,11 +61,13 @@ public class LevenshteinExecOp extends AbstractExecuteOperator {
 							+ " VALUES ( " + p1_key + ", " + p2_key + ", '"
 							+ p1_type + "', '" + p2_type + "', " + frequency + ")";
 					updateStmt.executeUpdate(sqlInsert);
+					
 					cnt++;
 					
+					//TODO
 					//return max. 10 products
-					if(cnt==10)
-						break;
+					//if(cnt==10)
+					//	break;
 				}
 			}
 		} catch (SQLException e) {

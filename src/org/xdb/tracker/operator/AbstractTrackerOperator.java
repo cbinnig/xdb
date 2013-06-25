@@ -49,6 +49,10 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	// map: input table name -> DDLs
 	protected HashMap<String, StringTemplate> inTables = new HashMap<String, StringTemplate>();
 
+	
+	// map: output table name -> PartitionInfo String
+	protected HashMap<String, String> outTablesPartition = new HashMap<String, String>();
+
 	// map: input table name -> TableDesc
 	protected HashMap<String, TableDesc> inTableDesc = new HashMap<String, TableDesc>(); 
 	
@@ -112,6 +116,12 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	
 	public void addOutTable(final String tableName, final StringTemplate tableDDL) {
 		outTables.put(tableName, tableDDL);
+	}
+	
+
+	public void addOutTable(final String tableName, final StringTemplate tableDDL, final String partition) {
+		outTables.put(tableName, tableDDL);
+		outTablesPartition.put(tableName, partition);
 	}
 	
 	public Collection<StringTemplate> getOutTables() {
@@ -182,8 +192,16 @@ public abstract class AbstractTrackerOperator implements Serializable {
 					deployTableName = genDeployTableName(sourceTableName, sourceDeployOperId);
 				}
 
-				args.put(tableName, "SELECT * FROM " + deployTableName);
+				
+			
+				//check wether partitioned?
+				if(inTableDesc.isPartioned()){
+					args.put(tableName, "SELECT * FROM " + deployTableName + " PARTITION (p"+inTableDesc.getPartition()+")");
+		
+				}else {
+					args.put(tableName, "SELECT * FROM " + deployTableName);
 
+				}
 			} else { // input table is stored in an XDB instance
 				URI connURI = inTableDesc.getURI();
 				String sourceTableName = inTableDesc.getTableName();
@@ -202,6 +220,7 @@ public abstract class AbstractTrackerOperator implements Serializable {
 					deployTableName = sourceDB + "." + sourceTableName;
 				}
 				
+				//TODO add partitioned to non temp
 				args.put(tableName, deployTableName);
 			}
 		}
@@ -251,6 +270,10 @@ public abstract class AbstractTrackerOperator implements Serializable {
 		args.clear();
 		tableDDL.append(OUTPUT_DDL.toString(args));
 
+	
+		if(this.outTablesPartition.get(tableName) !=null){
+			tableDDL.append(" "+this.outTablesPartition.get(tableName) );
+		}
 		return tableDDL.toString();
 	}
 

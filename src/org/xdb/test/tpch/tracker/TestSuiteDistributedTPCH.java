@@ -32,7 +32,7 @@ public class TestSuiteDistributedTPCH extends TestSuite
     suite.addTestSuite( TestTPCHQ20.class );
     //suite.addTestSuite( TestTPCHQ21.class );
     //suite.addTestSuite( TestTPCHQ22.class );
-    suite.addTestSuite( TestTPCHBasketAnalysis.class );
+    //suite.addTestSuite( TestTPCHBasketAnalysis.class );
     return suite;
   }
 }
