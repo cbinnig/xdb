@@ -242,7 +242,7 @@ public abstract class DistributedTPCHTestCase extends
 			  List<Connection> opConnections = new ArrayList<Connection>();  
 			  ComputeNodeDesc computeNodeDesc = computeNodes[i/Config.TEST_PARTS_PER_NODE]; 
 			  // Create the first connection 
-			  Connection conn = new Connection("Connection_"+i/Config.TEST_PARTS_PER_NODE,computeNodeDesc.getUrl(),
+			  Connection conn = new Connection("Connection_"+i/Config.TEST_PARTS_PER_NODE,"mysql://"+computeNodeDesc.getUrl()+"/"+Config.TEST_DB_NAME,
 					  Config.METADATA_USER, Config.METADATA_PASSWORD, EnumStore.MYSQL); 
 			  
 			  opConnections.add(conn);

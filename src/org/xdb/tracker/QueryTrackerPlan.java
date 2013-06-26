@@ -413,8 +413,8 @@ public class QueryTrackerPlan implements Serializable {
 
 					// Wait to the next monitor  
 				} catch (InterruptedException e) { 
-					monitoringLock.lock();
-
+					if(monitoringLock.isLocked())
+						monitoringLock.unlock();
 				} 
 			} else
 				try {
@@ -551,7 +551,7 @@ public class QueryTrackerPlan implements Serializable {
 		// read result
 		final Map<String, ComputeNodeDesc> allocatedSlots = resultRequest.getObject1();
 		this.err = resultRequest.getObject2();
-
+		
 		// assign slots
 		this.resourceScheduler.assignComputeNodes(allocatedSlots);
 	}
