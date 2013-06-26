@@ -71,9 +71,11 @@ public class TestTPCHBasketAnalysisParallel extends DistributedTPCHTestCase {
 				+ "and l2.l_partkey = p2.p_partkey "
 				+ "and l1.l_partkey != l2.l_partkey "
 				+ "and l1.l_shipdate > date '1998-03-15' "
+				+ "and l1.l_shipdate < date '1998-04-08' "
 				+ "and l2.l_shipdate > date '1998-03-15' "
-				+ "group by l1.l_partkey, l2.l_partkey, p1.p_type, p2.p_type "
-				+ "having count(*)>=2; ";
+				+ "and l2.l_shipdate < date '1998-04-08' "
+				+ "group by l1.l_partkey, l2.l_partkey, p1.p_type, p2.p_type"
+				+ "; ";
 
 		this.unionDDL = "(p1_key INTEGER, p2_key INTEGER, p1_type VARCHAR(25), p2_type VARCHAR(25), frequency DECIMAL(65,2)) ";
 		this.unionPartitionDDL = "PARTITION BY HASH(p1_key) PARTITIONS "+this.numberOfPartitions;
