@@ -7,13 +7,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.xdb.Config;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
@@ -36,7 +36,10 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 	private Integer numOfFailures = 0;  
 	private static long EXECUTION_TIME = 1000; 
 	private static Boolean IS_EXECUTION_TIME_SET = false; 
-	private static int RUN_COUNTER = 0;
+	private static int RUN_COUNTER = 0; 
+	
+	private static QueryTrackerNode queryTrackerNode;  
+    private static ComputeNodeDesc[] computeNodes; 
 	
 	private class Q2Lower extends DistributedTPCHTestCase {
 		
@@ -248,7 +251,7 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 		// The merged plan 
 		QueryTrackerPlan qPlan = new QueryTrackerPlan();
         
-		QueryTrackerNode queryTrackerNode = this.getQueryTrackerServer().getNode(); 
+		QueryTrackerNode queryTrackerNode = TestTPCHQ2FT.queryTrackerNode; 
 		qPlan.assignTracker(queryTrackerNode);
 		queryTrackerNode.addPlan(qPlanUpper.getPlanId(), qPlan);
 		queryTrackerNode.addPlan(qPlanLower.getPlanId(), qPlan);
@@ -337,33 +340,31 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 		qPlan.tracePlan("MergedPlan"); 
 		
 		// set the connection list foe the lower traker operators  
-		setConnectionList(qPlan.getOperatorMapping(), q2Lower.getOpIds(), q2Lower.getUnionOp()); 
+		setConnectionList(qPlan.getOperatorMapping(), q2Lower.getOpIds(), q2Lower.getUnionOp(), TestTPCHQ2FT.computeNodes); 
 		
 		// set the connection list for the upper tracker operators  
-	    setConnectionList(qPlan.getOperatorMapping(), q2Upper.getOpIds(), q2Upper.getUnionOp());  
+	    setConnectionList(qPlan.getOperatorMapping(), q2Upper.getOpIds(), q2Upper.getUnionOp(), TestTPCHQ2FT.computeNodes);  
 	    
 	    //this.assertError(this.executeQuery(qPlan, true));    
 
 		// Execute it the number of runs  
-	    this.assertError(this.executeQuery(qPlan, this.withFailure, this.numOfFailures, TestTPCHQ2FT.EXECUTION_TIME)); 
-	    TestTPCHQ2FT.RUN_COUNTER++;
+	    this.assertError(this.executeQuery(qPlan, this.withFailure, this.numOfFailures, TestTPCHQ2FT.EXECUTION_TIME));  
 	    if(!TestTPCHQ2FT.IS_EXECUTION_TIME_SET && TestTPCHQ2FT.RUN_COUNTER == 2){  
-	    	TestTPCHQ2FT.EXECUTION_TIME = qPlan.getQueryExecutionTime(); 
+	    	TestTPCHQ2FT.EXECUTION_TIME = qPlan.getQueryExecutionTime();  
 	    	TestTPCHQ2FT.IS_EXECUTION_TIME_SET = true; 
 	    }   
 	}
 	
 	@Before
 	public void setUp(){
-		//if(RUN_COUNTER==0)		
-			super.setUp();
+		if(RUN_COUNTER == 0) { 
+		   super.setUp();  
+		   TestTPCHQ2FT.queryTrackerNode = this.getQueryTrackerServer().getNode(); 
+		   TestTPCHQ2FT.computeNodes = this.getComputeNodes();
+		} 
+		RUN_COUNTER++;
 	}
-	
-	@After
-	public void tearDown(){
-		//if(RUN_COUNTER==Config.RUN_TIMES+2)
-			super.tearDown();
-	}
+
 } 
 
 

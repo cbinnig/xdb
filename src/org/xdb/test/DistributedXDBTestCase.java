@@ -50,6 +50,10 @@ public class DistributedXDBTestCase extends TestCase {
 
 	public ComputeNodeDesc getComputeNode(int i) {
 		return computeNodes[i];
+	} 
+	
+	public ComputeNodeDesc[] getComputeNodes(){
+		return computeNodes;
 	}
 	
 	
@@ -120,5 +124,7 @@ public class DistributedXDBTestCase extends TestCase {
 	public void tearDown() {
 		compileServer.stopServer();
 		mTrackerServer.stopServer();
-	}
+	} 
+	
+	
 }

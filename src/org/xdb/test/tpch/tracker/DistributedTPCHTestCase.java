@@ -232,7 +232,7 @@ public abstract class DistributedTPCHTestCase extends
 		return currentDeployment;
 	} 
 	
-	protected void setConnectionList(Map<Identifier, AbstractTrackerOperator> trackerOps, List<Identifier> opIds, Identifier unionOpId) {
+	protected void setConnectionList(Map<Identifier, AbstractTrackerOperator> trackerOps, List<Identifier> opIds, Identifier unionOpId, ComputeNodeDesc[] computeNodes) {
 	    
 		this.allConnections.clear();
 		for(int i=0; i < NUMBER_COMPUTE_DBS; i++){
@@ -240,7 +240,7 @@ public abstract class DistributedTPCHTestCase extends
 			  AbstractTrackerOperator trackerOp = trackerOps.get(opIds.get(i)); 
 			  // Set the connection list 
 			  List<Connection> opConnections = new ArrayList<Connection>();  
-			  ComputeNodeDesc computeNodeDesc = this.getComputeNode(i/Config.TEST_PARTS_PER_NODE); 
+			  ComputeNodeDesc computeNodeDesc = computeNodes[i/Config.TEST_PARTS_PER_NODE]; 
 			  // Create the first connection 
 			  Connection conn = new Connection("Connection_"+i/Config.TEST_PARTS_PER_NODE,computeNodeDesc.getUrl(),
 					  Config.METADATA_USER, Config.METADATA_PASSWORD, EnumStore.MYSQL); 
@@ -253,7 +253,7 @@ public abstract class DistributedTPCHTestCase extends
 	      }   
 		  
 		  // Set the connection of union operator  
-		  ComputeNodeDesc computeNodeDesc = this.getComputeNode(0); 
+		  ComputeNodeDesc computeNodeDesc = computeNodes[0]; 
 		  Connection conn = new Connection("Connection_0",computeNodeDesc.getUrl(),
 				  Config.METADATA_USER, Config.METADATA_PASSWORD, EnumStore.MYSQL);  
 		  AbstractTrackerOperator unionTrackerOp = trackerOps.get(unionOpId);   
