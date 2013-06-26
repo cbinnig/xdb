@@ -52,11 +52,6 @@ public class DistributedXDBTestCase extends TestCase {
 		return computeNodes[i];
 	} 
 	
-	public ComputeNodeDesc[] getComputeNodes(){
-		return computeNodes;
-	}
-	
-	
 	public ComputeNodeDesc[] getComputeNodes() {
 		return computeNodes;
 	}
