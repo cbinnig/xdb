@@ -88,6 +88,7 @@ public class TestTPCHBasketAnalysis extends DistributedTPCHTestCase {
                 LevenshteinTrackerOp udfOp = addLevenshteinOp(qPlan, deployment,
                                 unionOp);
 
+                
                 executeQuery(qPlan, deployment, udfOp.getOperatorId(), UDF_OUT_TABLE);
         }
 

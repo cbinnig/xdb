@@ -17,6 +17,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.xdb.Config;
 import org.xdb.error.Error;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
@@ -36,11 +37,17 @@ import org.xdb.utils.StringTemplate;
  * @author cbinnig
  * 
  */
+
+
 @RunWith(Parameterized.class)
 public class TestTPCHBasketAnalysisParallel extends DistributedTPCHTestCase {
 	private static final String UDF_OUT_TABLE = "udf_out";
 	private static final String UDF_IN_TABLE = "udf_in";
 	private int numberOfPartitions = 2;
+	
+	private static boolean setupcalled=false;
+	private static QueryTrackerNode qtn=null;
+	private static ComputeNodeDesc[] computenodes;
 
 	// constructor
 	public TestTPCHBasketAnalysisParallel (int numberOfPartitions) {
@@ -77,12 +84,14 @@ public class TestTPCHBasketAnalysisParallel extends DistributedTPCHTestCase {
 	
 	@Parameters
 	public static Collection<Object[]> generateData(){
+		
+		
 		Collection<Object[]> params = new ArrayList<Object[]>(2);
 		params.add(new Object[]{new Integer(2)});
 		params.add(new Object[]{new Integer(4)});
 		params.add(new Object[]{new Integer(8)});
-		params.add(new Object[]{new Integer(16)});
-		params.add(new Object[]{new Integer(32)});
+		//params.add(new Object[]{new Integer(16)});
+		//params.add(new Object[]{new Integer(32)});
 		return params;
 	}
 
@@ -90,7 +99,7 @@ public class TestTPCHBasketAnalysisParallel extends DistributedTPCHTestCase {
 	@Test
 	public void testBasketAnalysis() throws Exception {
 		// assign plan to query tracker
-		QueryTrackerNode qTracker = this.getQueryTrackerServer().getNode();
+		QueryTrackerNode qTracker = qtn;
 		QueryTrackerPlan qPlan = new QueryTrackerPlan();
 		qPlan.assignTracker(qTracker);
 
@@ -172,6 +181,33 @@ public class TestTPCHBasketAnalysisParallel extends DistributedTPCHTestCase {
 				this.assertNoError(qPlan.cleanPlan());
 	}
 
+	
+	protected Map<Identifier, OperatorDesc> createDeployment(
+			MySQLTrackerOperator[] subqueryOps, MySQLTrackerOperator unionOp) {
+		Map<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
+
+		// create deployment for sub-queries operator
+		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
+			MySQLTrackerOperator subqueryOp = subqueryOps[i];
+			Identifier trackerOpId = subqueryOp.getOperatorId();
+			Identifier execOpId = trackerOpId.clone().append(nextExecOpId());
+
+			OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
+					computenodes[i/Config.TEST_PARTS_PER_NODE]);
+			currentDeployment.put(trackerOpId, executeOperDesc);
+		}
+
+		// create deployment for union operator
+		Identifier trackerOpId = unionOp.getOperatorId();
+		Identifier execOpId = trackerOpId.clone().append(nextExecOpId());
+		OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
+				computenodes[0]);
+		currentDeployment.put(trackerOpId, executeOperDesc);
+
+		return currentDeployment;
+	} 
+	
+	
 	/**
 	 * Adds UDF operator to query tracker plan
 	 * 
@@ -219,9 +255,11 @@ public class TestTPCHBasketAnalysisParallel extends DistributedTPCHTestCase {
 		//System.out.println(partition%this.getNumberOfComputeNodes()+"");
 		
 		Identifier execOpId = trackerOpId.clone().append(nextExecOpId());
+		
+		
 		//deploy Operator in a round robin way to number of 
 		OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
-				this.getComputeNode(partition%this.getNumberOfComputeNodes()));
+				computenodes[partition%computenodes.length]);
 		deployment.put(trackerOpId, executeOperDesc);
 
 		return udfOp;
@@ -234,11 +272,18 @@ public class TestTPCHBasketAnalysisParallel extends DistributedTPCHTestCase {
 	
 	@Before
 	public void setUp(){
-		super.setUp();
+		
+		if(!setupcalled){
+			super.setUp();
+			qtn=  this.getQueryTrackerServer().getNode();
+			computenodes = this.getComputeNodes();
+			setupcalled = true;
+		}
+	
 	}
 	
 	@After
 	public void tearDown(){
-		super.tearDown();
+		//super.tearDown();
 	}
 }
