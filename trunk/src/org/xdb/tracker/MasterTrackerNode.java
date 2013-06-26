@@ -116,11 +116,11 @@ public class MasterTrackerNode {
 	}
 
 	public Collection<ComputeNodeDesc> getComputeSlots() {
-		return this.computeNode2Availability.keySet();
+		return this.computeNodes;
 	}
 
 	public int getNoComputeServers() {
-		return this.computeNode2Availability.size();
+		return this.computeNodes.size();
 	}
 
 	public Collection<QueryTrackerClient> getQueryTrackerClients() {

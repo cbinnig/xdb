@@ -150,6 +150,10 @@ CREATE TABLE "SYSTEM"."CONNECTION"
 		insertSql.append(AbstractToken.RBRACE);
 		return insertSql.toString();
 	}
+	
+	public String toString(){
+		return "Connection: "+this.url;
+	}
 
 	protected static String sqlDeleteAll() {
 		return prototype.interalSqlDeleteAll();

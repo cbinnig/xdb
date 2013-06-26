@@ -1,5 +1,6 @@
 package org.xdb.tracker.scheduler;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,10 +44,14 @@ public class WishlistAwareScheduler extends AbstractResourceScheduler {
 		Set<String> wishedConnections = new HashSet<String>();
 		for (AbstractTrackerOperator op : this.plan.getTrackerOperators()) {
 			List<String> connUrls = new ArrayList<String>();
-			for(Connection conn: op.getTrackerOpConnections()){
-				connUrls.add(conn.getURI().getHost());
+			for (Connection conn : op.getTrackerOpConnections()) {
+				URI uri = conn.getURI();
+				connUrls.add(uri.getHost());
 			}
-			connUrls.add(RANDOM_COMPUTE_NODE);
+
+			if (connUrls.size() == 0)
+				connUrls.add(RANDOM_COMPUTE_NODE);
+
 			this.wishLocations.put(op.getOperatorId(), connUrls);
 			wishedConnections.addAll(connUrls);
 		}
