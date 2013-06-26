@@ -45,10 +45,7 @@ public class QueryTrackerPlan implements Serializable {
 
 	private static final long serialVersionUID = -5521482252707107847L;
 
-	// empty operator set
-	private static final Set<Identifier> EMPTY_OP_SET = new HashSet<Identifier>();
-
-	// last plan id
+		// last plan id
 	private static Integer lastPlanId = 1; 
 
 	// unique plan id

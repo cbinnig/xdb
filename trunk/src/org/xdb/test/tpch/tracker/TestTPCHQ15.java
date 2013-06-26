@@ -26,11 +26,12 @@ public class TestTPCHQ15 extends DistributedTPCHTestCase {
 				"       s_address, " + 
 				"       s_phone, " + 
 				"       total_revenue " + 
-				"FROM <TPCH_DB_NAME>.supplier, <TPCH_DB_NAME>.revenue0 " + 
+				"FROM <TPCH_DB_NAME>.supplier, (select	l_suppkey as supplier_no, sum(l_extendedprice * (1 - l_discount)) as  total_revenue from	<TPCH_DB_NAME>.lineitem where l_shipdate >= date '1996-01-01' and l_shipdate < date '1996-04-01' group by	l_suppkey) as revenue0 " + 
 				"WHERE s_suppkey = supplier_no " + 
 				"    AND total_revenue = " + 
 				"        ( SELECT max(total_revenue) " + 
-				"         FROM <TPCH_DB_NAME>.revenue0 ) " + 
+				"         FROM (select	l_suppkey as supplier_no, sum(l_extendedprice * (1 - l_discount)) as  total_revenue from	<TPCH_DB_NAME>.lineitem where l_shipdate >= date '1996-01-01' and l_shipdate < date '1996-04-01' group by	l_suppkey) as revenue0 " +
+				"		 ) " + 
 				"ORDER BY s_suppkey; ";
 		
 		this.unionDDL = "(s_suppkey INTEGER, s_name CHAR(25), s_address CHAR(40), s_phone CHAR(15), total_revenue DECIMAL(65,2))";

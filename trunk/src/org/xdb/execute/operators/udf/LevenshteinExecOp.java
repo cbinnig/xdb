@@ -42,7 +42,6 @@ public class LevenshteinExecOp extends AbstractExecuteOperator {
 	@Override
 	protected Error executeOperator() {
 		// call getLevenshteinDistance(...) for all result rows
-		int cnt = 0;
 		try {
 			Statement stmt = this.conn.createStatement();
 			ResultSet rs = stmt.executeQuery(this.sqlSelectIn);
@@ -61,13 +60,6 @@ public class LevenshteinExecOp extends AbstractExecuteOperator {
 							+ " VALUES ( " + p1_key + ", " + p2_key + ", '"
 							+ p1_type + "', '" + p2_type + "', " + frequency + ")";
 					updateStmt.executeUpdate(sqlInsert);
-					
-					cnt++;
-					
-					//TODO
-					//return max. 10 products
-					//if(cnt==10)
-					//	break;
 				}
 			}
 		} catch (SQLException e) {

@@ -124,7 +124,7 @@ public class PopulatePartitionInfoVisitor extends AbstractBottomUpTreeVisitor {
 		// set inputPartitioning
 		deOp.setInputPartitioning(deOp.getChild().getOutputPartitionInfo());
 
-		PartitionInfo pi = deOp.getOutputPartitionInfo();
+		// PartitionInfo pi = deOp.getOutputPartitionInfo();
 		// if the deOp and the child have both Hash as Partition Type, then
 		// update Parts
 		// TODO: Must have a second thought on this part. Seems strange (Comment by Erfan)
