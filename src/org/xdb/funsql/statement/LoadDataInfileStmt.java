@@ -3,6 +3,7 @@ package org.xdb.funsql.statement;
 import java.io.File;
 import java.util.Vector;
 
+import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.TokenTable;
 import org.xdb.metadata.Catalog;
@@ -42,7 +43,9 @@ public class LoadDataInfileStmt extends AbstractServerStmt {
 		
 		File f = new File(fileName);
 		if(!f.exists()) {
-			Error fail = new Error();		//File Not Found Error
+			String[] args = {"File with name "+fileName+ "not exists!"};
+			Error fail = new Error(EnumError.COMPILER_GENERIC, args);		//File Not Found Error
+			return fail;
 //			return Catalog.createObjectNotExistsErr(fileName, EnumDatabaseObject.);
 		}
 		

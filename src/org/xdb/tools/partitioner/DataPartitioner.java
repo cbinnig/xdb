@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -15,9 +14,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
 
 /**
  * Usage
@@ -194,6 +193,7 @@ public class DataPartitioner {
 	 * @return an integer contains the number of partitions found for the
 	 *         specified table, 0 if the table is not partitioned
 	 */
+	/*
 	private int isTablePartitoned(String file, final String table) {
 
 		String directory = Utils.getFileDirectory(file);
@@ -211,7 +211,7 @@ public class DataPartitioner {
 		}
 
 		return children.length;
-	}
+	}*/
 
 	/**
 	 * prepare what is required to make the reference partition. Read the

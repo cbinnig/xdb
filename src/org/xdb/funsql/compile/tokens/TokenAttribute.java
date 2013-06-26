@@ -139,7 +139,7 @@ public class TokenAttribute extends AbstractTokenOperand{
 		// TODO: Must be fixed.
 		// Otherwise, we need to check if the table names are the same as well.
 		else {
-			boolean tableNamesIdentical = this.getTable().getName().equals(ta.getTable().getName());
+			//boolean tableNamesIdentical = this.getTable().getName().equals(ta.getTable().getName());
 			//return namesIdentical && tableNamesIdentical;
 			return namesIdentical;
 		}
