@@ -60,7 +60,7 @@ public class TestTPCHBasketAnalysis extends DistributedTPCHTestCase {
 
                 this.unionDDL = "(p1_key INTEGER, p2_key INTEGER, p1_type VARCHAR(25), p2_type VARCHAR(25), frequency DECIMAL(65,2))";
                 this.unionPreDML = "SELECT p1_key, p2_key, p1_type, p2_type, sum(frequency) as frequency FROM ";
-                this.unionPostDML = "group by p1_key, p2_key, p1_type, p2_type order by frequency desc limit 1000;";
+                this.unionPostDML = "group by p1_key, p2_key, p1_type, p2_type order by frequency desc;";
         }
 
         // methods
