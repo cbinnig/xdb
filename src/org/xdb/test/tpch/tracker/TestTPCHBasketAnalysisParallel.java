@@ -71,9 +71,9 @@ public class TestTPCHBasketAnalysisParallel extends DistributedTPCHTestCase {
 				+ "and l2.l_partkey = p2.p_partkey "
 				+ "and l1.l_partkey != l2.l_partkey "
 				+ "and l1.l_shipdate > date '1998-03-15' "
-				+ "and l1.l_shipdate < date '1998-04-08' "
+				+ "and l1.l_shipdate < date '1998-03-17' "
 				+ "and l2.l_shipdate > date '1998-03-15' "
-				+ "and l2.l_shipdate < date '1998-04-08' "
+				+ "and l2.l_shipdate < date '1998-03-17' "
 				+ "group by l1.l_partkey, l2.l_partkey, p1.p_type, p2.p_type"
 				+ "; ";
 
