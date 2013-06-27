@@ -23,7 +23,7 @@ import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
 /**
- * Tests Q1 on multiple compute nodes
+ * Tests Q2 on multiple compute nodes
  * 
  * @author slisting
  * 

@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
+import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
@@ -230,6 +231,11 @@ public class QueryTrackerNode {
 		Identifier execOpId = execOp.getOperatorId();
 		Identifier planId = execOpId.getParentId(0); 
 		QueryTrackerPlan qPlan = this.qPlans.get(planId); 
+		if(qPlan==null){
+			String[] args = {"Plan with id "+planId+" not found in "+this.qPlans.keySet()};
+			this.logger.log(Level.SEVERE, args[0]);
+			return new Error(EnumError.TRACKER_GENERIC, args);
+		}
 		return qPlan.operatorReady(execOp);
 	}
 
