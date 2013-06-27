@@ -331,6 +331,9 @@ public class QueryTrackerPlan implements Serializable {
 	 * 
 	 */
 	public Error cleanPlan() {
+		if(!Config.COMPUTE_CLEAN_PLAN)
+			return err;
+					
 		// close operators which are no root operators
 		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
 				.entrySet()) {
@@ -354,6 +357,9 @@ public class QueryTrackerPlan implements Serializable {
 	 * @return
 	 */
 	public Error cleanPlanOnError() {
+		if(!Config.COMPUTE_CLEAN_PLAN)
+			return err;
+		
 		// close all operators
 		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
 				.entrySet()) {
