@@ -220,18 +220,16 @@ public class ComputeNode {
 			return this.err;
 		}
 
-		private Error executeOperator(final AbstractExecuteOperator op) {
-			Error err = new Error();
-
+		private void executeOperator(final AbstractExecuteOperator op) {
 			// start timer
 			timeMeasure.start(op.getOperatorId().toString());
 			
 			// execute operator
-			err = op.execute();
-
+			this.err = op.execute();
+				
 			// stop timer
 			timeMeasure.stop(op.getOperatorId().toString());
-
+			
 			// send READY_SIGNAL to QueryTracker who takes care of error handling
 			QueryTrackerClient queryTrackerClient = op.getQueryTrackerClient();
 			logger.log(
@@ -239,15 +237,13 @@ public class ComputeNode {
 					"Send READY_SIGNAL from operator " + op.getOperatorId()
 							+ " to Query Tracker "
 							+ queryTrackerClient.getUrl());
-			err = queryTrackerClient.operatorReady(op);
-
-			return err;
+			this.err = queryTrackerClient.operatorReady(op);
 		}
 
 		@Override
 		public void run() {  
 			
-			this.err = this.executeOperator(op);
+			this.executeOperator(op);
 		}
 	}
 

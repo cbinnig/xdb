@@ -173,12 +173,7 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 * @return
 	 */
 	public Error execute() {
-		// Call operator specific execute method
 		this.err = executeOperator();
-
-		if (this.err.isError())
-			return this.err;
-
 		return this.err;
 	}
 

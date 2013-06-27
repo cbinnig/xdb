@@ -189,7 +189,8 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	public void setLastError(Error err) {
-		this.err = err;
+		if(err.isError())
+			this.err = err;
 	}
 
 	// methods
