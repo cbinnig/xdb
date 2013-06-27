@@ -61,12 +61,16 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 					+ "		where " + "			s_suppkey = ps_suppkey"
 					+ "			and s_nationkey = n_nationkey"
 					+ "			and n_regionkey = r_regionkey"
-					+ "			and r_name = 'EUROPE'" + "		group by"
-					+ "			ps_partkey;";
+					+ "			and r_name = 'EUROPE'" 
+					+ "		group by ps_partkey " 
+					+ "     order by min_supplycost " 
+					+ "     limit 10;";
 
 			this.unionDDL = "(min_supplycost DECIMAL(10,3), ps_partkey INTEGER)";
-			this.unionPreDML = "SELECT MIN(min_supplycost), ps_partkey FROM ";
-			this.unionPostDML = "group by ps_partkey;"; 
+			this.unionPreDML = "SELECT MIN(min_supplycost) as min_supplycost, ps_partkey FROM "; 
+			//this.unionPostDML = "group by ps_partkey;";  
+			this.unionPostDML = " group by ps_partkey order by min_supplycost limit 10 ;"; 
+
 		}
 
 		public QueryTrackerPlan createPlan() throws Exception {
