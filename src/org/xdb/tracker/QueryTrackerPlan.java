@@ -393,7 +393,6 @@ public class QueryTrackerPlan implements Serializable {
 					// Starting the compute servers monitoring. 
 					// Lock to prevent operator signaling. 
 					monitoringLock.lock(); 
-					logger.log(Level.INFO,"Monitoring has been started");
 					computeServersMonitor.setQueryTrackerPlan(this);
 					computeServersMonitor.startComputeServersMonitor(); 
 
@@ -408,7 +407,6 @@ public class QueryTrackerPlan implements Serializable {
 
 					// unlock to allow operators signaling. 
 					monitoringLock.unlock(); 
-					logger.log(Level.INFO,"Finished Monitoring....wait until the next monitoring");
 					Thread.sleep(Config.QUERYTRACKER_MONITOR_INTERVAL); 
 
 					// Wait to the next monitor  
@@ -420,8 +418,6 @@ public class QueryTrackerPlan implements Serializable {
 				try {
 					Thread.sleep(Config.QUERYTRACKER_MONITOR_INTERVAL);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
 		}
 
