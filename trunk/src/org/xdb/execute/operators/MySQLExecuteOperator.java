@@ -1,7 +1,6 @@
 package org.xdb.execute.operators;
 
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Vector;
 
 import org.xdb.error.Error;
@@ -46,7 +45,7 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 			for (final String dml : executeSQLs) {
 				executeStmts.add(conn.prepareStatement(dml));
 			}
-		} catch (final SQLException e) {
+		} catch (final Exception e) {
 			err = createMySQLError(e);
 		}
 		return err;
@@ -61,11 +60,8 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 		try {
 			for (final PreparedStatement stmt : executeStmts) {
 				stmt.execute();
-			
 			}
-			
-			
-		} catch (final SQLException e) {
+		} catch (final Exception e) {
 			err = createMySQLError(e);
 		}
 		
