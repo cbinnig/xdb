@@ -1,15 +1,16 @@
 #!/bin/bash
 db_cnt=64;
-mysql_addr="/usr/local/mysql/bin/mysql";
+machine_cnt=8;
+mysql_addr="mysql";
 db_url="localhost";
-db_user="xroot";
-db_pass="xroot";
+db_user="root";
+db_pass="root";
 db_root_user="root";
-db_root_pass="";
-db_name_prefix="tpch_sf0_5_part64_";
+db_root_pass="root";
+db_name_prefix="tpch_sf64_part64_";
 create_databases=true;
 
-output_file="./temp/schema_generator_runnable.sql";
+output_file_suffix="./temp/schema_generator_runnable_";
 
 # Check if the "temp" directory exists
 if [ ! -d "temp" ]; then
@@ -17,7 +18,7 @@ if [ ! -d "temp" ]; then
 fi
 
 # Remove the old schema_generator.sql if it exists
-$(rm -f $output_file);
+$(rm -f $output_file_suffix*);
 
 nation="CREATE TABLE nation ( N_NATIONKEY INTEGER NOT NULL, \
 N_NAME CHAR(25) NOT NULL, \
@@ -89,26 +90,28 @@ L_SHIPMODE CHAR(10) NOT NULL,\
 L_COMMENT VARCHAR(44) NOT NULL);";
 
 
-# First, lets create the databases;
-if $create_databases; then
-	for ((i=1; i<=db_cnt; i++))do
-		db_name="$db_name_prefix$i";
+postfix=".sql"
+for ((i=0; i<db_cnt; i++))do
+	db_number=$(($i + 1));
+	db_name="$db_name_prefix$db_number";
+	filenumber=$(($i / $machine_cnt));
+	output_file="$output_file_suffix$filenumber$postfix";
+	echo "CREATE DATABASE $db_name;" >> $output_file;
+	echo "GRANT ALL PRIVILEGES ON $db_name.* TO $db_user@$db_url IDENTIFIED BY '$db_pass';" >> $output_file;
+	echo "USE $db_name;" >> $output_file;
 		
-		echo "CREATE DATABASE $db_name;" >> $output_file;
-		echo "GRANT ALL PRIVILEGES ON $db_name.* TO $db_user@$db_url IDENTIFIED BY '$db_pass';" >> $output_file;
-		echo "USE $db_name;" >> $output_file;
-		
-		echo $nation >> $output_file;
-		echo $region >> $output_file;
-		echo $part >> $output_file;
-		echo $supplier >> $output_file;
-		echo $partsupp >> $output_file;
-		echo $customer >> $output_file;
-		echo $orders >> $output_file;
-		echo $lineitem >> $output_file;
-	done
+	echo $nation >> $output_file;
+	echo $region >> $output_file;
+	echo $part >> $output_file;
+	echo $supplier >> $output_file;
+	echo $partsupp >> $output_file;
+	echo $customer >> $output_file;
+	echo $orders >> $output_file;
+	echo $lineitem >> $output_file;
+done
 	
-	echo "Creating databases ...";	
-	$($mysql_addr -u$db_root_user -p$db_root_pass < $output_file);
-	echo "Successfully finished. Take care!";	
-fi
+#echo "Creating databases ...";	
+# $($mysql_addr -u$db_root_user -p$db_root_pass < $output_file);
+# for running remotely, we use SSH:
+# $(ssh -t -i ../xdb_keypair.pem ec2-user@$host[$h] '$mysql_addr -u$db_root_user -p$db_root_pass < $output_file')
+echo "Successfully finished. Take care!";	
