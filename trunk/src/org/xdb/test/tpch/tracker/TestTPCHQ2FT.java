@@ -237,8 +237,8 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 		params.add(new Object[]{new Boolean(false),new Integer(0)});
 		params.add(new Object[]{new Boolean(false),new Integer(0)});
 		
-		for(int i=0; i < Config.RUN_TIMES ; ++i){
-			params.add(new Object[]{new Boolean(true),new Integer(Config.NUMBER_OF_FAILURES)});
+		for(int i=0; i < Config.TEST_NUMBER_OF_RUNS ; ++i){
+			params.add(new Object[]{new Boolean(true),new Integer(Config.TEST_NUMBER_OF_FAILURES)});
 			
 		}
 		return params;

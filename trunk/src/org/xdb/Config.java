@@ -27,8 +27,6 @@ public class Config implements Serializable {
 	// Monitoring
 	public static int MASTERTRACKER_MONITOR_INTERVAL = 2000;  
 	public static int QUERYTRACKER_MONITOR_INTERVAL = 100; 
-	public static int NUMBER_OF_FAILURES = 1; 
-	public static int RUN_TIMES = 100;
 	public static boolean MASTERTRACKER_MONITOR_ACTIVATED = false;
 	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false; 
 	
@@ -44,6 +42,7 @@ public class Config implements Serializable {
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
 	public static int COMPUTE_SLOTS = 32;
 	public static boolean COMPUTE_CLEAN_RESULTS = true;
+	public static boolean COMPUTE_CLEAN_PLAN = true;
 
 	// Compile Server
 	public static String METADATA_DRIVER_CLASS = "com.mysql.jdbc.Driver";
@@ -107,6 +106,8 @@ public class Config implements Serializable {
 	public static boolean TRACE_EXECUTE_PLAN = false;
 
 	// Testing
+	public static int TEST_NUMBER_OF_FAILURES = 1; 
+	public static int TEST_NUMBER_OF_RUNS = 100;
 	public static boolean TEST_RUN_LOCAL = true;
 	public static String TEST_DB_NAME = "tpch_s01";
 	public static int TEST_NODE_COUNT = 2;
@@ -124,12 +125,12 @@ public class Config implements Serializable {
 		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
 				"COMPUTE_SLOTS", "COMPILE_PORT", "MASTERTRACKER_PORT",
 				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS", "TEST_NODE_COUNT",
-				"NUMBER_OF_FAILURES", "RUN_TIMES", "TEST_PARTS_PER_NODE" };
+				"TEST_NUMBER_OF_FAILURES", "TEST_NUMBER_OF_RUNS", "TEST_PARTS_PER_NODE" };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
 				"TEST_DB_NAME" };
 
-		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS",
+		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS", "COMPUTE_CLEAN_PLAN",
 				"TRACE_COMPILE_PLAN", "TRACE_COMPILE_PLAN_HEADER",
 				"TRACE_COMPILE_PLAN_PARTITIONING",
 				"TRACE_COMPILE_PLAN_RESULTS", "TRACE_COMPILE_PLAN_FOOTER",
