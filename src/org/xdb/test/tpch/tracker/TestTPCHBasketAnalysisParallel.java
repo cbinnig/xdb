@@ -81,7 +81,6 @@ public class TestTPCHBasketAnalysisParallel extends DistributedTPCHTestCase {
 		this.unionPartitionDDL = "PARTITION BY HASH(p1_key) PARTITIONS "+this.numberOfPartitions;
 		this.unionPreDML = "SELECT p1_key, p2_key, p1_type, p2_type, sum(frequency) as frequency FROM ";
 		this.unionPostDML = "group by p1_key, p2_key, p1_type, p2_type order by frequency desc;";
-	
 	}
 	
 	@Parameters
@@ -91,7 +90,7 @@ public class TestTPCHBasketAnalysisParallel extends DistributedTPCHTestCase {
 		Collection<Object[]> params = new ArrayList<Object[]>(2);
 		params.add(new Object[]{new Integer(2)});
 		params.add(new Object[]{new Integer(4)});
-		params.add(new Object[]{new Integer(8)});
+		//params.add(new Object[]{new Integer(8)});
 		//params.add(new Object[]{new Integer(16)});
 		//params.add(new Object[]{new Integer(32)});
 		return params;
@@ -261,7 +260,7 @@ public class TestTPCHBasketAnalysisParallel extends DistributedTPCHTestCase {
 		
 		//deploy Operator in a round robin way to number of 
 		OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
-				computenodes[partition%computenodes.length]);
+				computenodes[0]);
 		deployment.put(trackerOpId, executeOperDesc);
 
 		return udfOp;
