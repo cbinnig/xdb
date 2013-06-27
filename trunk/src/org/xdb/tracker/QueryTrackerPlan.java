@@ -411,13 +411,15 @@ public class QueryTrackerPlan implements Serializable {
 
 					// Wait to the next monitor  
 				} catch (InterruptedException e) { 
-					if(monitoringLock.isLocked())
+
+				if(monitoringLock.isLocked())
 						monitoringLock.unlock();
 				} 
 			} else
 				try {
 					Thread.sleep(Config.QUERYTRACKER_MONITOR_INTERVAL);
 				} catch (InterruptedException e) {
+
 				}
 		}
 
@@ -718,7 +720,7 @@ public class QueryTrackerPlan implements Serializable {
 			// set consumers of operator
 			for (final Identifier consumerId : consumers.get(trackerOpId)) {
 				final OperatorDesc consumerDesc = currentDeployment
-						.get(consumerId);
+						.get(consumerId); 
 				execOp.addConsumer(consumerDesc);
 			}
 

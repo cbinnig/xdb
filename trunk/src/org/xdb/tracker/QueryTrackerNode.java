@@ -229,7 +229,8 @@ public class QueryTrackerNode {
 	 */
 	public Error operatorReady(final AbstractExecuteOperator execOp) {
 		Identifier execOpId = execOp.getOperatorId();
-		Identifier planId = execOpId.getParentId(0); 
+		Identifier planId = execOpId.getParentId(0);  
+		this.logger.log(Level.SEVERE, "Plan with id "+planId+" not found in "+this.qPlans.keySet());
 		QueryTrackerPlan qPlan = this.qPlans.get(planId); 
 		if(qPlan==null){
 			String[] args = {"Plan with id "+planId+" not found in "+this.qPlans.keySet()};
