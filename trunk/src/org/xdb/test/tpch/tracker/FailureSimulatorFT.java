@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.xdb.Config;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.operators.QueryOperatorStatus;
 import org.xdb.metadata.Connection;
@@ -25,19 +26,19 @@ import org.xdb.utils.Identifier;
  *
  */
 public class FailureSimulatorFT extends Thread{ 
-	
+
 	private QueryTrackerPlan qPlan;  
-	
+
 	private int numberOfFailures; 
-	
+
 	private List<Connection> connections = new ArrayList<Connection>(); 
-	
+
 	private long queryRunTime;   
-	
+
 	private Map<Identifier, AbstractTrackerOperator> trackerOps;
-	
+
 	public FailureSimulatorFT (int numberOfFailures, QueryTrackerPlan qPlan, List<Connection> connections, long queryRunTime) { 
-		
+
 		this.setNumberOfFailures(numberOfFailures);  
 		this.setqPlan(qPlan); 
 		this.setConnections(connections); 
@@ -47,7 +48,7 @@ public class FailureSimulatorFT extends Thread{
 
 	@Override
 	public void run() { 
-	    
+
 		Random randomGenerator = new Random(); 
 		try { 
 			long failureTime = (long) (randomGenerator.nextDouble()*queryRunTime); 
@@ -60,21 +61,21 @@ public class FailureSimulatorFT extends Thread{
 	}
 
 	private void simulateFailure() {
-        
+
 		List<Integer> pickedConnections = new ArrayList<Integer>();
 		for(int i=0; i < this.numberOfFailures; i++){
 			Integer index = pickConnectionIndex(pickedConnections); 
 			if(!pickedConnections.contains(index))
-			    pickedConnections.add(index); 
+				pickedConnections.add(index); 
 			else 
 				i--;
 		}
-		
+
 		killCorrespondingOps(pickedConnections);
 	} 
 
 	private void killCorrespondingOps(List<Integer> pickedConnections) {
-		
+
 		Set<Identifier> failedOpsIds = new HashSet<Identifier>(); 
 		Set<String> shootedConnections = new HashSet<String>();
 		for (Integer index : pickedConnections) {
@@ -88,35 +89,49 @@ public class FailureSimulatorFT extends Thread{
 	}
 
 	private void setAbortedOperators(Set<Identifier> failedOpsIds) {
-        Map<Identifier, OperatorDesc> currentDeployment = this.qPlan.getCurrentDeployment();  
-        
-        for (Identifier identifier : failedOpsIds) {
+		Map<Identifier, OperatorDesc> currentDeployment = this.qPlan.getCurrentDeployment();  
+
+		for (Identifier identifier : failedOpsIds) {
 			OperatorDesc opDesc = currentDeployment.get(identifier); 
 			opDesc.setOperatorStatus(QueryOperatorStatus.ABORTED);
 		}
-          
+
 	}
 
 	private Set<Identifier> getFailedOpsIds(Set<String> shootedConnections) {
-		
+
 		Set<Identifier> trackerOpIds = trackerOps.keySet();  
-		
+
 		Set<Identifier> failedOpsIds = new HashSet<Identifier>(); 
-		
+
 		for (Identifier identifier : trackerOpIds) {
 			AbstractTrackerOperator trackerOps = this.trackerOps.get(identifier); 
 			if(shootedConnections.contains(trackerOps.getTrackerOpConnections().get(0).getName())) 
 				failedOpsIds.add(identifier);
-			
+
 		}
 		return failedOpsIds;
 	}
 
 	private Integer pickConnectionIndex(List<Integer> pickedConnections) {
+
+		Integer index; 
+		// if we have only one connection 
+		// choose it regardless the checkpointing 
+		// condition. 
+		if(this.connections.size() == 1) {
+			return 0;
+		}
 		
 		Random randomGenarator = new Random(); 
-		Integer index = randomGenarator.nextInt(this.connections.size()); 
-		
+		// if checkpointing is enabled, then exclude the 
+		// first connection from shooting
+		if(Config.CHECKPOINTING_SAVE_ENABLED)
+			index = randomGenarator.nextInt(this.connections.size()-1)+1;  
+		else {
+			index = randomGenarator.nextInt(this.connections.size());  
+		}
+
 		return index;
 	}
 
@@ -189,5 +204,5 @@ public class FailureSimulatorFT extends Thread{
 	public void setTrackerOps(Map<Identifier, AbstractTrackerOperator> trackerOps) {
 		this.trackerOps = trackerOps;
 	} 
-	
+
 }
