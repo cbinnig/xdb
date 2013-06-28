@@ -88,10 +88,10 @@ public class TestTPCHBasketAnalysisParallel extends DistributedTPCHTestCase {
 		
 		
 		Collection<Object[]> params = new ArrayList<Object[]>(2);
-		params.add(new Object[]{new Integer(2)});
-		params.add(new Object[]{new Integer(2)});
-		params.add(new Object[]{new Integer(4)});
-		//params.add(new Object[]{new Integer(8)});
+		//params.add(new Object[]{new Integer(2)});
+		//params.add(new Object[]{new Integer(2)});
+		//params.add(new Object[]{new Integer(4)});
+		params.add(new Object[]{new Integer(8)});
 		//params.add(new Object[]{new Integer(16)});
 		//params.add(new Object[]{new Integer(32)});
 		return params;
