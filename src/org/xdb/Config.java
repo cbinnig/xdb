@@ -28,7 +28,8 @@ public class Config implements Serializable {
 	public static int MASTERTRACKER_MONITOR_INTERVAL = 2000;  
 	public static int QUERYTRACKER_MONITOR_INTERVAL = 100; 
 	public static boolean MASTERTRACKER_MONITOR_ACTIVATED = false;
-	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false; 
+	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false;  
+	public static boolean CHECKPOINTING_SAVE_ENABLED = false;
 	
 
 	// Compute Server
@@ -137,7 +138,7 @@ public class Config implements Serializable {
 				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN",
 				"TRACE_EXECUTE_PLAN", "TRACE_CODEGEN_PLAN",
 				"LOG_EXECUTION_TIME", "CODEGEN_OPTIMIZE", "TEST_RUN_LOCAL",
-				"QUERYTRACKER_MONITOR_ACTIVATED", "MASTERTRACKER_MONITOR_ACTIVATED"};
+				"QUERYTRACKER_MONITOR_ACTIVATED", "MASTERTRACKER_MONITOR_ACTIVATED", "CHECKPOINTING_SAVE_ENABLED"};
 
 		Properties props;
 		props = new Properties();
