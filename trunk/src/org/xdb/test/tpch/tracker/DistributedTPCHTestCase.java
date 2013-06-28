@@ -254,7 +254,7 @@ public abstract class DistributedTPCHTestCase extends
 		  
 		  // Set the connection of union operator  
 		  ComputeNodeDesc computeNodeDesc = computeNodes[0]; 
-		  Connection conn = new Connection("Connection_0",computeNodeDesc.getUrl(),
+		  Connection conn = new Connection("Connection_0","mysql://"+computeNodeDesc.getUrl()+"/"+Config.TEST_DB_NAME,
 				  Config.METADATA_USER, Config.METADATA_PASSWORD, EnumStore.MYSQL);  
 		  AbstractTrackerOperator unionTrackerOp = trackerOps.get(unionOpId);   
 		  List<Connection> opConnections = new ArrayList<Connection>();  
