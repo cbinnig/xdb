@@ -22,16 +22,10 @@ public class TestTPCHQ9 extends DistributedTPCHTestCase {
 		super(-1);
 		this.subqueryDDL = "(nation CHAR(25), o_year INTEGER, sum_profit DECIMAL(65,2))";
 		this.subqueryDML = "select " + 
-				"	nation, " + 
-				"	o_year, " + 
-				"	sum(amount) as sum_profit " + 
+				"	n_name as nation, " + 
+				"	extract(year from o_orderdate) as o_year, " + 
+				"	sum(l_extendedprice * (1 - l_discount) - ps_supplycost * l_quantity) as sum_profit " + 
 				"from " + 
-				"	( " + 
-				"		select " + 
-				"			n_name as nation, " + 
-				"			extract(year from o_orderdate) as o_year, " + 
-				"			l_extendedprice * (1 - l_discount) - ps_supplycost * l_quantity as amount " + 
-				"		from " + 
 				"			<TPCH_DB_NAME>.part, " + 
 				"			<TPCH_DB_NAME>.supplier, " + 
 				"			<TPCH_DB_NAME>.lineitem, " + 
@@ -46,7 +40,6 @@ public class TestTPCHQ9 extends DistributedTPCHTestCase {
 				"			and o_orderkey = l_orderkey " + 
 				"			and s_nationkey = n_nationkey " + 
 				"			and p_name like '%lawn%' " + 
-				"	) as profit " + 
 				"group by " + 
 				"	nation, " + 
 				"	o_year " + 
