@@ -29,7 +29,8 @@ public class Config implements Serializable {
 	public static int QUERYTRACKER_MONITOR_INTERVAL = 100; 
 	public static boolean MASTERTRACKER_MONITOR_ACTIVATED = false;
 	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false;  
-	public static boolean CHECKPOINTING_SAVE_ENABLED = false;
+	public static boolean CHECKPOINTING_SAVE_ENABLED = false; 
+	public static int JOIN_RECORDS_LIMIT = 10;
 	
 
 	// Compute Server
@@ -126,7 +127,7 @@ public class Config implements Serializable {
 		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
 				"COMPUTE_SLOTS", "COMPILE_PORT", "MASTERTRACKER_PORT",
 				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS", "TEST_NODE_COUNT",
-				"TEST_NUMBER_OF_FAILURES", "TEST_NUMBER_OF_RUNS", "TEST_PARTS_PER_NODE" };
+				"TEST_NUMBER_OF_FAILURES", "TEST_NUMBER_OF_RUNS", "TEST_PARTS_PER_NODE", "JOIN_RECORDS_LIMIT" };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
 				"TEST_DB_NAME" };
