@@ -60,7 +60,8 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 					+ "			<TPCH_DB_NAME>.nation," + "			<TPCH_DB_NAME>.region"
 					+ "		where " + "			s_suppkey = ps_suppkey"
 					+ "			and s_nationkey = n_nationkey"
-					+ "			and n_regionkey = r_regionkey"
+					+ "			and n_regionkey = r_regionkey" 
+					+"			and r_name = 'EUROPE'"
 					+ "		group by ps_partkey " 
 					+ "     order by min_supplycost " 
 					+ "     limit "+Config.JOIN_RECORDS_LIMIT+";";
@@ -158,8 +159,11 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 					"			and s_suppkey = ps.ps_suppkey" +
 					"			and temp1.ps_partkey = ps.ps_partkey" +
 					"			and temp1.min_supplycost = ps.ps_supplycost" + 
-					"			and s_nationkey = n_nationkey " + 
-					"			and n_regionkey = r_regionkey;";
+					"			and p_size = 15" + 
+					"			and p_type like '%BRASS'" + 
+					"			and s_nationkey = n_nationkey" + 
+					"			and n_regionkey = r_regionkey" + 
+					"			and r_name = 'EUROPE';";
 
 			  this.unionDDL = "(s_acctbal DECIMAL(65,2), s_name CHAR(25), n_name CHAR(25), p_partkey INTEGER, p_mfgr CHAR(25), s_address VARCHAR(40), " +
 	                  "s_phone CHAR(15), s_comment VARCHAR(101))";
