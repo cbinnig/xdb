@@ -64,12 +64,12 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 					+ "			and r_name = 'EUROPE'" 
 					+ "		group by ps_partkey " 
 					+ "     order by min_supplycost " 
-					+ "     limit 10;";
+					+ "     limit "+Config.JOIN_RECORDS_LIMIT+";";
 
 			this.unionDDL = "(min_supplycost DECIMAL(10,3), ps_partkey INTEGER)";
 			this.unionPreDML = "SELECT MIN(min_supplycost) as min_supplycost, ps_partkey FROM "; 
 			//this.unionPostDML = "group by ps_partkey;";  
-			this.unionPostDML = " group by ps_partkey order by min_supplycost limit 10 ;"; 
+			this.unionPostDML = " group by ps_partkey order by min_supplycost;";  
 
 		}
 
