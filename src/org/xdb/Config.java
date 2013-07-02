@@ -29,7 +29,7 @@ public class Config implements Serializable {
 	public static int QUERYTRACKER_MONITOR_INTERVAL = 100; 
 	public static boolean MASTERTRACKER_MONITOR_ACTIVATED = false;
 	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false;  
-	public static boolean CHECKPOINTING_SAVE_ENABLED = true; 
+	public static boolean CHECKPOINTING_SAVE_ENABLED = false; 
 	public static int JOIN_RECORDS_LIMIT = 10;
 	
 
