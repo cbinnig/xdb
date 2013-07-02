@@ -267,7 +267,7 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 		} 
 		
 		for (Identifier upperLeaf : upperLeaves) { 
-			StringTemplate unionDDL = new StringTemplate("<UNION_IN> (min_supplycost DECIMAL(10,3), ps_partkey INTEGER)");
+			StringTemplate unionDDL = new StringTemplate("<UNION_IN> (o_total DECIMAL(15,2), c_custkey INTEGER )");
 			// Added input table to the leaves of the upper query one by one. 
 			AbstractTrackerOperator opUpperLeaf = qPlan.getTrackerOperator(upperLeaf); 
 			opUpperLeaf.addInTable("UNION_IN", unionDDL);  
