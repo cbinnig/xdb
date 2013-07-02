@@ -84,7 +84,7 @@ public class FailureSimulatorFT extends Thread{
 			shootedConnections.add(connName);
 		}
 		failedOpsIds = getFailedOpsIds(shootedConnections); 
-		//System.out.println(failedOpsIds); 
+		System.out.println("failed Ops: "+failedOpsIds); 
 		setAbortedOperators(failedOpsIds);
 	}
 
@@ -125,13 +125,15 @@ public class FailureSimulatorFT extends Thread{
 		
 		Random randomGenarator = new Random(); 
 		// if checkpointing is enabled, then exclude the 
-		// first connection from shooting
-		if(Config.CHECKPOINTING_SAVE_ENABLED)
-			index = randomGenarator.nextInt(this.connections.size()-1)+1;  
+		// first connection from shooting 
+
+		if(Config.CHECKPOINTING_SAVE_ENABLED) {
+			index = randomGenarator.nextInt(this.connections.size()-1)+1; 
+
+		}
 		else {
 			index = randomGenarator.nextInt(this.connections.size());  
 		}
-
 		return index;
 	}
 
