@@ -23,8 +23,8 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	private static final long serialVersionUID = 8183857279874181382L;
 
 	// constants
-	protected static final String CREATE_TABLE_DDL = "CREATE TABLE ";
-	protected static final String DROP_TABLE_DDL = "DROP TABLE ";
+	protected static final String CREATE_TABLE_DDL = "CREATE TABLE IF NOT EXISTS ";
+	protected static final String DROP_TABLE_DDL = "DROP TABLE IF EXISTS ";
 
 	private static final StringTemplate OUTPUT_DDL = new StringTemplate(
 			" ENGINE=MEMORY");

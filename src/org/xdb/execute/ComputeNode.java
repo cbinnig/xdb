@@ -174,7 +174,7 @@ public class ComputeNode {
 		if (execute) { 
 			OperatorExecutor executor = new OperatorExecutor(op);
 			executor.start();
-			err = executor.getLastError();
+			return executor.getLastError();
 		}
 
 		return err;

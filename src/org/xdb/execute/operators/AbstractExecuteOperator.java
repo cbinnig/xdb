@@ -59,7 +59,8 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	// helper
 	protected Error err = new Error();
 	private transient QueryTrackerClient queryTrackerClient;
-
+	private Boolean isFinished = false; 
+	
 	// constructors
 	public AbstractExecuteOperator(Identifier nodeId) {
 		super();
@@ -113,10 +114,15 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 */
 	public Error open() {
 
+		// initialize client for communication with query tracker
+		if (queryTracker != null) {
+			this.queryTrackerClient = new QueryTrackerClient(
+					this.queryTracker.getUrl());
+		}
+		
+		// open connection and compile/execute statements
 		this.openStmts = new Vector<PreparedStatement>();
 		this.closeStmts = new Vector<PreparedStatement>();
-
-		// open connection and compile/execute statements
 		try {
 
 			Class.forName(Config.COMPUTE_DRIVER_CLASS);
@@ -138,12 +144,6 @@ public abstract class AbstractExecuteOperator implements Serializable {
 			for (PreparedStatement stmt : this.openStmts) {
 				// System.out.println("Execute stmt "+ stmt.toString());
 				stmt.execute();
-			}
-
-			// initialize client for communication with query tracker
-			if (queryTracker != null) {
-				this.queryTrackerClient = new QueryTrackerClient(
-						this.queryTracker.getUrl());
 			}
 
 		} catch (SQLException e) {
@@ -173,7 +173,14 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 * @return
 	 */
 	public Error execute() {
-		this.err = executeOperator();
+		//System.out.println("Executing "+this.getOperatorId()+" "+this.hashCode());
+		synchronized(isFinished){
+			if(isFinished)
+				return this.err;
+			
+			this.err = executeOperator();
+			isFinished = true;
+		}
 		return this.err;
 	}
 
