@@ -51,25 +51,21 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 		public Q2Lower() {
 			super(-1);
 
-			this.subqueryDDL = "(min_supplycost DECIMAL(10,3), ps_partkey INTEGER)";
-			this.subqueryDML = "select"
-					+ "			min(ps_supplycost) as min_supplycost, "
-					+ "			ps_partkey " + "		from "
-					+ "			<TPCH_DB_NAME>.partsupp,"
-					+ "			<TPCH_DB_NAME>.supplier,"
-					+ "			<TPCH_DB_NAME>.nation," + "			<TPCH_DB_NAME>.region"
-					+ "		where " + "			s_suppkey = ps_suppkey"
-					+ "			and s_nationkey = n_nationkey"
-					+ "			and n_regionkey = r_regionkey" 
-					+"			and r_name = 'EUROPE'"
-					+ "		group by ps_partkey " 
-					+ "     order by min_supplycost " 
-					+ "     limit "+Config.JOIN_RECORDS_LIMIT+";";
+			this.subqueryDDL = "(o_total DECIMAL(15,2), c_custkey INTEGER )";
+			this.subqueryDML = "select "
+					+ "			sum(o_totalprice) as o_total, "
+					+ "			c_custkey "
+					+ "		from "
+					+ "			<TPCH_DB_NAME>.customer,"
+					+ "			<TPCH_DB_NAME>.orders "
+					+ "		where " 
+					+ "			c_custkey = o_custkey "
+					+ "		    and o_orderdate between date '1995-01-01' and date '1996-12-31' " 
+					+ "		group by c_custkey; ";
 
-			this.unionDDL = "(min_supplycost DECIMAL(10,3), ps_partkey INTEGER)";
-			this.unionPreDML = "SELECT MIN(min_supplycost) as min_supplycost, ps_partkey FROM "; 
-			//this.unionPostDML = "group by ps_partkey;";  
-			this.unionPostDML = " group by ps_partkey order by min_supplycost;";  
+			this.unionDDL = "(o_total DECIMAL(15,2), c_custkey INTEGER )";
+			this.unionPreDML = "SELECT sum(o_total) as o_total, c_custkey FROM "; 
+			this.unionPostDML = " group by c_custkey order by o_total desc limit "+Config.JOIN_RECORDS_LIMIT+";";  
 
 		}
 
@@ -136,39 +132,24 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 			super(-1);
 			String t1 = "<" + getUnionInTableName() + ">";
 
-			this.subqueryDDL = "(s_acctbal DECIMAL(65,2), s_name CHAR(25), n_name CHAR(25), p_partkey INTEGER, p_mfgr CHAR(25), s_address VARCHAR(40), " +
-	                 "s_phone CHAR(15), s_comment VARCHAR(101))";
+			this.subqueryDDL = "(l_partkey INTEGER, l_frequency INTEGER)";
 			this.subqueryDML = "select" + 
-					"			s_acctbal," + 
-					"			s_name," + 
-					"			n_name," + 
-					"			p_partkey," + 
-					"			p_mfgr," + 
-					"			s_address," + 
-					"			s_phone," + 
-					"			s_comment " + 
+					"			l_partkey," + 
+					"			COUNT(*) as l_frequency " + 
 					"		from " + 
-					"			<TPCH_DB_NAME>.part," + 
-					"			<TPCH_DB_NAME>.supplier," + 
-					"			<TPCH_DB_NAME>.partsupp as ps," + 
-					"			<TPCH_DB_NAME>.nation," + 
-					"			<TPCH_DB_NAME>.region," +
+					"			<TPCH_DB_NAME>.lineitem, " +
+					"			<TPCH_DB_NAME>.orders, " +
 					"			(" + t1 + ") as temp1 " + 
 					"		where" + 
-					"			p_partkey = ps.ps_partkey" + 
-					"			and s_suppkey = ps.ps_suppkey" +
-					"			and temp1.ps_partkey = ps.ps_partkey" +
-					"			and temp1.min_supplycost = ps.ps_supplycost" + 
-					"			and p_size = 15" + 
-					"			and p_type like '%BRASS'" + 
-					"			and s_nationkey = n_nationkey" + 
-					"			and n_regionkey = r_regionkey" + 
-					"			and r_name = 'EUROPE';";
+					"			o_custkey = temp1.c_custkey " + 
+					"			and l_orderkey = o_orderkey " + 
+					"		    and o_orderdate between date '1995-01-01' and date '1996-12-31' " +
+					"		    and l_shipdate between date '1995-01-01' and date '1996-12-31' " +
+					"		group by l_partkey;";
 
-			  this.unionDDL = "(s_acctbal DECIMAL(65,2), s_name CHAR(25), n_name CHAR(25), p_partkey INTEGER, p_mfgr CHAR(25), s_address VARCHAR(40), " +
-	                  "s_phone CHAR(15), s_comment VARCHAR(101))";
-	          this.unionPreDML = "SELECT DISTINCT * FROM ";
-	          this.unionPostDML = "order by s_acctbal desc, n_name, s_name, p_partkey limit 100;";
+			  this.unionDDL = "(l_partkey INTEGER, l_frequency INTEGER)";
+	          this.unionPreDML = "SELECT l_partkey, SUM(l_frequency) as l_frequency FROM ";
+	          this.unionPostDML = "group by l_partkey order by l_frequency desc limit 10;";
 		}
 
 		public QueryTrackerPlan createPlan() throws Exception {
