@@ -402,7 +402,6 @@ public class QueryTrackerPlan implements Serializable {
 					monitoringLock.lock(); 
 					computeServersMonitor.setQueryTrackerPlan(this);
 					computeServersMonitor.startComputeServersMonitor(); 
-
 					// Check if there is a failure detected, in order 
 					// to re-deploy the failed operators.  
 					if(computeServersMonitor.isFailureDetected()) {
@@ -497,9 +496,26 @@ public class QueryTrackerPlan implements Serializable {
 	private void redeployFailedOperators(){ 
 
 		// starting traverse the query plan from the roots.  
-		traverseQueryTrackerPlan(this.roots);  
+		traverseQueryTrackerPlan(this.roots);   
+		handleUndeployedFailedOperators();
 		distributePlanRobustness(); 
 		this.computeServersMonitor.setFailureDetected(false);
+	}
+    
+	/**
+	 * annotate the aborted operators that will not be executed 
+	 * to "neglected" so they will be neglected in the next 
+	 * monitoring rounds.    
+	 * 
+	 */
+	private void handleUndeployedFailedOperators() {
+		 for (Identifier identifier : this.currentDeployment.keySet()) {
+			OperatorDesc opDesc = this.currentDeployment.get(identifier); 
+			if(opDesc.getOperatorStatus() == QueryOperatorStatus.ABORTED) {
+				opDesc.setOperatorStatus(QueryOperatorStatus.NEGLECTED);
+			}
+		 }
+	
 	}
 
 	/**
@@ -526,15 +542,15 @@ public class QueryTrackerPlan implements Serializable {
 			// That means once we met a failed operator in the way, this operator 
 			// has to be indeed a stuck point for the whole plan. 
 			if(!this.leaves.contains(opId) && operator.getOperatorStatus() 
-					== QueryOperatorStatus.ABORTED){
-				prepareDeploymentRobustness(opId);  
+					== QueryOperatorStatus.ABORTED){ 
+				prepareDeployment(opId, QueryOperatorStatus.REDEPLOYED);  
 				traverseQueryTrackerPlan(this.getSources(opId)); 
 
 			} else if(!this.leaves.contains(opId)) {
 				traverseQueryTrackerPlan(this.getSources(opId)); 
 			} else if (this.leaves.contains(opId) && operator.getOperatorStatus() // if it is leave, re-deploy it and continue iteration 
-					== QueryOperatorStatus.ABORTED) {   // among the siblings. 
-				prepareDeploymentRobustness(opId); 
+					== QueryOperatorStatus.ABORTED) {  // among the siblings. 
+				prepareDeployment(opId, QueryOperatorStatus.REDEPLOYED);  
 
 			} 
 		}
@@ -567,7 +583,7 @@ public class QueryTrackerPlan implements Serializable {
 	 */
 	private void prepareDeployment() {
 		for (final Identifier leave : leaves) {
-			prepareDeployment(leave);
+			prepareDeployment(leave, QueryOperatorStatus.DEPLOYED);
 			if (err.isError())
 				return;
 		}
@@ -578,10 +594,10 @@ public class QueryTrackerPlan implements Serializable {
 	 * 
 	 * @param operId
 	 */
-	private void prepareDeployment(final Identifier operId) {
+	private void prepareDeployment(final Identifier operId, QueryOperatorStatus status) {
 
 		// operator already deployed
-		if (this.currentDeployment.containsKey(operId)) {
+		if (status == QueryOperatorStatus.DEPLOYED && this.currentDeployment.containsKey(operId)) {
 			return;
 		}
 
@@ -600,13 +616,28 @@ public class QueryTrackerPlan implements Serializable {
 		final OperatorDesc executeOpDesc = new OperatorDesc(executeOpId,
 				assignedSlot); 
 		// set the status of the operator to DEPLOYED
-		executeOpDesc.setOperatorStatus(QueryOperatorStatus.DEPLOYED);
+		executeOpDesc.setOperatorStatus(status); 
+	    
+		if(status == QueryOperatorStatus.REDEPLOYED) {
+			logger.log(Level.INFO,"Current Deployment has been updated with the new " +
+					"deployment of the failed operator: "+operId);
+
+			// Kill the failed operator, and replace it with new operator in te 
+			// current deployment. 
+			OperatorDesc failedOp = this.currentDeployment.get(operId); 
+			// send signal to kill the operator if it is running. 
+			Identifier failedExecuteId = failedOp.getOperatorID();  
+			this.err = this.computeClient.killFailedOperator(failedOp.getComputeSlot(), failedExecuteId); 
+			currentDeployment.remove(operId); 
+			currentDeployment.put(operId, executeOpDesc);  
+			return;
+		}
 		// add to operator and deployment description to current deployment
 		currentDeployment.put(operId, executeOpDesc); 
 
 		// prepare deployment of all consumers
 		for (final Identifier consumerId : consumers.get(operId)) {
-			prepareDeployment(consumerId);
+			prepareDeployment(consumerId, status);
 		}
 	}
 
@@ -659,38 +690,6 @@ public class QueryTrackerPlan implements Serializable {
 		}
 	}
 
-	/**
-	 * Prepares deployment for a given operator in plan
-	 * 
-	 * @param operId
-	 */
-	private void prepareDeploymentRobustness(final Identifier operId) {
-
-		// identify best slot using a resource scheduler
-		// deploy the failed operator on another connection
-		ComputeNodeDesc assignedSlot = this.resourceScheduler.getComputeNode(operId, 1);
-		if (assignedSlot == null) {
-			String args[] = { "No slot could be assigned to tracker operator "
-					+ operId.toString() };
-			this.err = new Error(EnumError.TRACKER_GENERIC, args);
-			return;
-
-		}  
-		logger.log(Level.INFO,"New Connection: "+assignedSlot.getUrl()+" " +
-				"has been assigned to the failed operator: "+operId);
-		final Identifier executeOpId = operId.clone();
-		executeOpId.append(lastExecuteOpId++);
-		final OperatorDesc executeOpDesc = new OperatorDesc(executeOpId,
-				assignedSlot); 
-		// set the status of the operator to DEPLOYED
-		executeOpDesc.setOperatorStatus(QueryOperatorStatus.REDEPLOYED);
-		logger.log(Level.INFO,"Current Deployment has been updated with the new " +
-				"deployment of the failed operator: "+operId);
-		// add to operator and deployment description to current deployment
-		// replace the old operator. 
-		currentDeployment.put(operId, executeOpDesc); 
-
-	}
 
 	/**
 	 * Distribute the failed operators 
@@ -760,8 +759,8 @@ public class QueryTrackerPlan implements Serializable {
 				// its finished sources   
 				final Set<Identifier> sourceTrackerIds = execOp.getSourceTrackerIds(); 
 				for (Identifier sourceTrackerId : sourceTrackerIds) {
-					OperatorDesc operatorDesc = this.currentDeployment.get(sourceTrackerId);
-					if(operatorDesc.getOperatorStatus() == QueryOperatorStatus.FINISHED){
+					OperatorDesc operatorDesc = this.currentDeployment.get(sourceTrackerId); 
+					if(operatorDesc.getOperatorStatus() == QueryOperatorStatus.FINISHED){ 
 						err = computeClient.executeOperator(operatorDesc.getOperatorID(), executeOpDesc); 
 					}
 				}
