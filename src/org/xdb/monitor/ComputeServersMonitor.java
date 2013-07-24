@@ -97,7 +97,7 @@ public class ComputeServersMonitor{
 			OperatorDesc opDesc = qtPlan.getCurrentDeployment().get(identifier);
 			err = this.computeClient.pingComputeServer(opDesc.getComputeSlot());  
 			if (err.isError() || opDesc.getOperatorStatus() == QueryOperatorStatus.ABORTED) { 
-				// Update the current deployment with the failed operator 
+				// Update the current deployment with the failed operator  
 				opDesc.setOperatorStatus(QueryOperatorStatus.ABORTED); 
 				setFailureDetected(true);
 				

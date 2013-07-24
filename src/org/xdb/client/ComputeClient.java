@@ -6,6 +6,7 @@ import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.signals.CloseSignal;
+import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.ComputeServer;
@@ -146,5 +147,18 @@ public class ComputeClient extends AbstractClient {
 		Object[] args = {};
 		return this.executeCmd(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_PING_SERVER, args);
+	}
+    
+	/**
+	 * Kill failed operator.
+	 * @param url 
+	 * @param failedExecOpId
+	 * @return
+	 */
+	public Error killFailedOperator(ComputeNodeDesc url, Identifier failedExecOpId) {
+        final KillSignal killSignal = new KillSignal(failedExecOpId); 
+        Object[] args = {killSignal};
+        return this.executeCmd(url.getUrl(), url.getPort(),
+				ComputeServer.CMD_KILL_SIGNAL, args);
 	}
 }

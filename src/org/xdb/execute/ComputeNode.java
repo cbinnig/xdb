@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -22,6 +23,7 @@ import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 
 import org.xdb.execute.signals.CloseSignal;
+import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
 import org.xdb.logging.XDBExecuteTimeMeasurement;
 import org.xdb.logging.XDBLog;
@@ -42,7 +44,12 @@ public class ComputeNode {
 
 	// Map of consumer -> sources which are ready
 	private final Map<Identifier, HashSet<Identifier>> receivedReadySignals = Collections
-			.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());;
+			.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());; 
+	
+	// Map of operator ->  which are ready
+	public static final Map<Identifier, Long> executingOperator = Collections
+			.synchronizedMap(new HashMap<Identifier, Long>());; 
+			
 	private final Lock readySignalsLock = new ReentrantLock();
 
 	// Compute node slot description (i.e., available threads on node)
@@ -149,7 +156,7 @@ public class ComputeNode {
 
 
 		logger.log(Level.INFO, "Received READY_SIGNAL for operator: "
-				+ consumerTrackerOpId + " from source: " + srcTrackerOpId);
+				+ consumerExecuteOpId + " from source: " + srcExecuteOpId);
 
 		// Add signaling source to list of finished sources
 		boolean execute = false;
@@ -164,16 +171,18 @@ public class ComputeNode {
 		sourceTrackerIds.add(srcTrackerOpId);
 
 		if (sourceTrackerIds.containsAll(op.getSourceTrackerIds())) {
+			
 			logger.log(Level.INFO, "All READY_SIGNALs received for operator: "
-					+ op.getOperatorId());
+					+ op.getOperatorId()+", "+op.getSourceTrackerIds());
 			execute = true;
 		}
 		readySignalsLock.unlock();
 
 		// execute operator
 		if (execute) { 
-			OperatorExecutor executor = new OperatorExecutor(op);
-			executor.start();
+			OperatorExecutor executor = new OperatorExecutor(op);  
+			executingOperator.put(op.getOperatorId(), executor.getId());
+			executor.start(); 
 			return executor.getLastError();
 		}
 
@@ -236,7 +245,8 @@ public class ComputeNode {
 					Level.INFO,
 					"Send READY_SIGNAL from operator " + op.getOperatorId()
 							+ " to Query Tracker "
-							+ queryTrackerClient.getUrl());
+							+ queryTrackerClient.getUrl()); 
+			ComputeNode.executingOperator.remove(op.getOperatorId());
 			this.err = queryTrackerClient.operatorReady(op);
 		}
 
@@ -245,6 +255,41 @@ public class ComputeNode {
 			
 			this.executeOperator(op);
 		}
+	} 
+	
+	/**
+	 * kill the failed operator if it is running, otherwise 
+	 * remove it from the execution plan. 
+	 * 
+	 * @param killSignal the failed operator op id. 
+	 * @return
+	 */
+	public Error killOperator(KillSignal killSignal) {
+		
+		Error err = new Error (); 
+		Identifier failedExecOpId = killSignal.getFailedExecOpId(); 
+		
+		final AbstractExecuteOperator op = operators.get(failedExecOpId);
+		 
+		if(!executingOperator.containsKey(failedExecOpId)) {  
+			logger.log(Level.INFO, "Failed Operator "+failedExecOpId+" has been removed from the execution plan");
+			this.removeOperator(op);  
+		} else {
+			Set<Thread> threadSet = Thread.getAllStackTraces().keySet(); 
+			Long failedOpThreadId = executingOperator.get(failedExecOpId); 
+			for (Thread thread : threadSet) { 
+				if(thread != null && thread.getId() == failedOpThreadId){
+					logger.log(Level.INFO, "Failed Operator "+failedExecOpId +" running on thread "+thread.getId()+" has been interrupted"); 
+					thread.interrupt();
+					break;
+					
+				}
+			} 
+
+		} 
+		
+		this.receivedReadySignals.remove(op.getOperatorId().getParentId(1));	    
+		return err;
 	}
 
 	/**
@@ -255,6 +300,7 @@ public class ComputeNode {
 	private synchronized void removeOperator(final AbstractExecuteOperator op) {
 		this.operators.remove(op.getOperatorId());
 		this.receivedReadySignals.remove(op.getOperatorId());
+
 	}
 
 	/**
@@ -269,4 +315,6 @@ public class ComputeNode {
 		Error err = new Error(EnumError.MYSQL_ERROR, args);
 		return err;
 	}
+
+	
 }

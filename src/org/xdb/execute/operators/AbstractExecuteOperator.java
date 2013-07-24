@@ -59,8 +59,6 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	// helper
 	protected Error err = new Error();
 	private transient QueryTrackerClient queryTrackerClient;
-	private Boolean isFinished = false;
-	private Boolean isOpen = false;
 
 	// constructors
 	public AbstractExecuteOperator(Identifier nodeId) {
@@ -114,52 +112,50 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 * Open operator
 	 */
 	public Error open() {
-		synchronized (isOpen) {
-			// initialize client for communication with query tracker
-			if (queryTracker != null) {
-				this.queryTrackerClient = new QueryTrackerClient(
-						this.queryTracker.getUrl());
-			}
-
-			// open connection and compile/execute statements
-			this.openStmts = new Vector<PreparedStatement>();
-			this.closeStmts = new Vector<PreparedStatement>();
-			try {
-
-				Class.forName(Config.COMPUTE_DRIVER_CLASS);
-				this.conn = DriverManager.getConnection(this.dburl
-						+ this.dbname, this.dbuser, this.dbpasswd);
-
-				// compile open and close statements
-				for (String ddl : this.openSQLs) {
-					// System.out.println(ddl);
-					this.openStmts.add(this.conn.prepareStatement(ddl));
-				}
-
-				for (String ddl : this.closeSQLs) {
-					// System.out.println(ddl);
-					this.closeStmts.add(this.conn.prepareStatement(ddl));
-				}
-
-				// execute openStmts
-				for (PreparedStatement stmt : this.openStmts) {
-					// System.out.println("Execute stmt "+ stmt.toString());
-					stmt.execute();
-				}
-
-			} catch (SQLException e) {
-				this.err = createMySQLError(e);
-			} catch (Exception e) {
-				this.err = createMySQLError(e);
-			}
-
-			if (this.err.isError())
-				return this.err;
-
-			// call operator specific open method
-			this.err = openOperator();
-			isOpen = true;
+		// initialize client for communication with query tracker
+		if (queryTracker != null) {
+			this.queryTrackerClient = new QueryTrackerClient(
+					this.queryTracker.getUrl());
 		}
+
+		// open connection and compile/execute statements
+		this.openStmts = new Vector<PreparedStatement>();
+		this.closeStmts = new Vector<PreparedStatement>();
+		try {
+
+			Class.forName(Config.COMPUTE_DRIVER_CLASS);
+			this.conn = DriverManager.getConnection(this.dburl
+					+ this.dbname, this.dbuser, this.dbpasswd);
+
+			// compile open and close statements
+			for (String ddl : this.openSQLs) {
+				// System.out.println(ddl);
+				this.openStmts.add(this.conn.prepareStatement(ddl));
+			}
+
+			for (String ddl : this.closeSQLs) {
+				// System.out.println(ddl);
+				this.closeStmts.add(this.conn.prepareStatement(ddl));
+			}
+
+			// execute openStmts
+			for (PreparedStatement stmt : this.openStmts) {
+				// System.out.println("Execute stmt "+ stmt.toString());
+				stmt.execute();
+			}
+
+		} catch (SQLException e) {
+			this.err = createMySQLError(e);
+		} catch (Exception e) {
+			this.err = createMySQLError(e);
+		}
+
+		if (this.err.isError())
+			return this.err;
+
+		// call operator specific open method
+		this.err = openOperator();
+
 		return this.err;
 	}
 
@@ -176,18 +172,8 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 * @return
 	 */
 	public Error execute() {
-		// System.out.println("Executing "+this.getOperatorId()+" "+this.hashCode());
-		synchronized (isFinished) {
-			if (isFinished)
-				return this.err;
 
-			while(!isOpen){
-				//wait
-			}
-				
-			this.err = executeOperator();
-			isFinished = true;
-		}
+		this.err = executeOperator();
 		return this.err;
 	}
 
@@ -210,7 +196,6 @@ public abstract class AbstractExecuteOperator implements Serializable {
 		// execute close statements
 		try {
 			for (PreparedStatement stmt : this.closeStmts) {
-				// System.out.println("Execute stmt "+ stmt.toString());
 				stmt.execute();
 			}
 		} catch (SQLException e) {

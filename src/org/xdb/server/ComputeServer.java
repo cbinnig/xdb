@@ -13,6 +13,7 @@ import org.xdb.execute.ComputeNode;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.signals.CloseSignal;
+import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
 
 /**
@@ -73,7 +74,12 @@ public class ComputeServer extends AbstractServer {
 					final CloseSignal closeSignal = (CloseSignal) in.readObject();
 					logger.log(Level.INFO, "Received close signal for operator:" + closeSignal.getConsumer());
 					err = compute.closeOperator(closeSignal);
-					break;
+					break; 
+				case CMD_KILL_SIGNAL: 
+					final KillSignal killSignal = (KillSignal) in.readObject(); 
+					logger.log(Level.INFO, "Received kill signal for operator:" + killSignal.getFailedExecOpId());
+                    err = compute.killOperator(killSignal); 
+                    break;
 				default:
 					err = createCmdError(cmd);
 					break;
@@ -90,6 +96,7 @@ public class ComputeServer extends AbstractServer {
 	public static final int CMD_OPEN_OP = 1;
 	public static final int CMD_READY_SIGNAL = 2;
 	public static final int CMD_CLOSE_SIGNAL = 3;
+	public static final int CMD_KILL_SIGNAL = 4;
 
 	// Compute node which executes commands
 	private final ComputeNode compute;
