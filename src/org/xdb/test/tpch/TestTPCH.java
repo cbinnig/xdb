@@ -8,7 +8,7 @@ public class TestTPCH extends XDBTestCase {
 	private CompileClient client = new CompileClient();
 	private String[] schemaDDLs = {
 			"CREATE CONNECTION TPCH1 " +
-			"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
+			"URL 'jdbc:mysql://127.0.0.1/xdb_tpch_single' " + 
 			"USER 'xroot' " +
 			"PASSWORD 'xroot' " +
 			"STORE 'XDB';", 
