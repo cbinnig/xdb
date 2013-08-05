@@ -37,7 +37,7 @@ public class AWSTest {
 		DescribeSpotPriceHistoryRequest sphr = new DescribeSpotPriceHistoryRequest();
 		//sphr.setAvailabilityZone(Region.getRegion(Regions.EU_WEST_1).getName());
 		Collection<String> types = new ArrayList<>();
-		types.add(InstanceType.M1Large.name());
+		types.add(InstanceType.M1Large.toString());
 		sphr.setInstanceTypes(types);
 		DescribeSpotPriceHistoryResult result = ec2.describeSpotPriceHistory(sphr);
 		List<SpotPrice> prices = result.getSpotPriceHistory();
