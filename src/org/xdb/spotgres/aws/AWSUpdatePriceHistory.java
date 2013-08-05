@@ -1,8 +1,11 @@
 package org.xdb.spotgres.aws;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -40,6 +43,7 @@ public class AWSUpdatePriceHistory {
 	private void writePrice(SpotPrice spotPrice) {
 		NodePrice price = new NodePrice(spotPrice);
 		session.persist(price);
+		price = null;
 	}
 
 	private void initHibernate() {
@@ -54,6 +58,7 @@ public class AWSUpdatePriceHistory {
 		for (SpotPrice price : prices) {
 			writePrice(price);
 		}
+		prices = null;
 	}
 	
 	private DescribeSpotPriceHistoryRequest setupSpotPriceRequest(){
@@ -74,19 +79,32 @@ public class AWSUpdatePriceHistory {
 		setUp();
 		initHibernate();
 		Transaction tx = session.beginTransaction();
-		DescribeSpotPriceHistoryResult result = ec2.describeSpotPriceHistory(setupSpotPriceRequest());
+		DescribeSpotPriceHistoryRequest request = setupSpotPriceRequest();
+		DescribeSpotPriceHistoryResult result = ec2.describeSpotPriceHistory(request);
 		processSpotPriceHistoryResult(result);
 		tx.commit();
 		String nextToken=result.getNextToken();
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date());
+		cal.add(Calendar.MONTH, -3);
+		Date endDate = cal.getTime();
 		int tokenCount=1;
-		while (nextToken != null && nextToken.isEmpty() == false){
-			session = sessionFactory.openSession();
+		boolean continueLoad=true;
+		while (nextToken != null && nextToken.isEmpty() == false && continueLoad){
+			if (!session.isOpen()){
+				session = sessionFactory.openSession();
+			}
+			request.setNextToken(nextToken);
+			result = ec2.describeSpotPriceHistory(request);
 			tx = session.beginTransaction();
-			System.out.println("Token " + tokenCount++);
-			result = result.withNextToken(nextToken);
+			System.out.println("Token " + (tokenCount++) +" +++ ID: " + nextToken);
+			if (result.getSpotPriceHistory().get(0).getTimestamp().before(endDate)){
+				continueLoad = false;
+			}
 			processSpotPriceHistoryResult(result);
 			nextToken=result.getNextToken();
 			tx.commit();
+			System.gc();
 		}
 	}
 	
