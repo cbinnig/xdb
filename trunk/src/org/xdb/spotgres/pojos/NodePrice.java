@@ -1,6 +1,7 @@
 package org.xdb.spotgres.pojos;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,7 +20,7 @@ public class NodePrice {
 	int priceID;
 	
 	@Column(name="priceTime")
-	Date priceTime;
+	Timestamp priceTime;
 	
 	@Column(name="price")
 	float price;
@@ -32,11 +33,14 @@ public class NodePrice {
 	@Column(name="nodeType")
 	String nodeType;
 	
-	public Date getPriceTime() {
+	@Column(name="clusterZone")
+	String clusterZone;
+	
+	public Timestamp getPriceTime() {
 		return priceTime;
 	}
 
-	public void setPriceTime(Date priceTime) {
+	public void setPriceTime(Timestamp priceTime) {
 		this.priceTime = priceTime;
 	}
 
@@ -68,12 +72,22 @@ public class NodePrice {
 		this.nodeType = nodeType;
 	}
 
+	
+	public String getClusterZone() {
+		return clusterZone;
+	}
+
+	public void setClusterZone(String clusterZone) {
+		this.clusterZone = clusterZone;
+	}
+
 	public NodePrice(SpotPrice spotPrice) {
 		super();
-		this.priceTime = new Date(spotPrice.getTimestamp().getTime());
+		this.priceTime = new Timestamp(spotPrice.getTimestamp().getTime());
 		this.priceType=PRICETYPE.SPOT;
 		this.price=Float.valueOf(spotPrice.getSpotPrice());
 		this.nodeType=spotPrice.getInstanceType();
+		this.clusterZone=spotPrice.getAvailabilityZone();
 	}
 	
 	
