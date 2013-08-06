@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,6 +20,7 @@ import org.hibernate.Transaction;
 import org.xdb.logging.XDBLog;
 import org.xdb.spotgres.HibernateUtil;
 import org.xdb.spotgres.pojos.NodePrice;
+import org.xdb.spotgres.pojos.PriceHelper;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.PropertiesCredentials;
@@ -88,6 +90,9 @@ public class AWSUpdatePriceHistory {
 		clearNodePriceTable();
 		loadPriceHistory();
 		addDurationForPrice();
+		calculateAvailabilityPercentageAllTypes((float) 0.10);
+		calculateAvailabilityPercentageAllTypes((float) 0.20);
+		calculateAvailabilityPercentageAllTypes((float) 0.30);
 	}
 
 	private void clearNodePriceTable() {
@@ -100,6 +105,7 @@ public class AWSUpdatePriceHistory {
 
 	private void loadPriceHistory() {
 		logger.log(Level.INFO, "Loading price history from Amazon");
+		session = sessionFactory.getCurrentSession();
 		Transaction tx = session.beginTransaction();
 		DescribeSpotPriceHistoryRequest request = setupSpotPriceRequest();
 		DescribeSpotPriceHistoryResult result = null;
@@ -127,14 +133,15 @@ public class AWSUpdatePriceHistory {
 	private void addDurationForPrice() {
 		logger.log(Level.INFO, "Adding duration to NodePrice data sets");
 		Map<String, Map<String, java.sql.Timestamp>> durationMap = new HashMap<String, Map<String, java.sql.Timestamp>>();
+		session = sessionFactory.getCurrentSession();
 		Transaction tx = session.beginTransaction();
 		@SuppressWarnings("unchecked")
 		Iterator<NodePrice> priceIter = session.createQuery("from NodePrice order by priceTime desc").iterate();
 		int counter = 0;
 		while (priceIter.hasNext()) {
-			NodePrice nodePrice = (NodePrice) priceIter.next();
+			NodePrice nodePrice = priceIter.next();
 			calculateDuration(durationMap, nodePrice);
-			if (counter++ % 100 == 0) {
+			if (counter++ % 50 == 0) {
 				session.flush();
 				session.clear();
 			}
@@ -143,6 +150,7 @@ public class AWSUpdatePriceHistory {
 	}
 
 	private void calculateDuration(Map<String, Map<String, java.sql.Timestamp>> durationMap, NodePrice nodePrice) {
+		logger.log(Level.INFO, "Calculating lifespan of NodePrice data sets");
 		Map<String, java.sql.Timestamp> zoneMap;
 		zoneMap = durationMap.get(nodePrice.getClusterZone());
 		if (zoneMap == null) {
@@ -152,7 +160,6 @@ public class AWSUpdatePriceHistory {
 		java.sql.Timestamp lastTimestamp = zoneMap.get(nodePrice.getNodeType());
 		if (lastTimestamp != null) {
 			nodePrice.setDuration((lastTimestamp.getTime() - nodePrice.getPriceTime().getTime()) / 1000);
-			session.persist(nodePrice);
 		}
 		zoneMap.put(nodePrice.getNodeType(), nodePrice.getPriceTime());
 	}
@@ -163,6 +170,51 @@ public class AWSUpdatePriceHistory {
 		cal.add(Calendar.MONTH, -months);
 		Date endDate = cal.getTime();
 		return endDate;
+	}
+
+	private static int ACTIVE = 0;
+	private static int INACTIVE = 1;
+
+	private void calculateAvailabilityPercentageAllTypes(float bidPrice) {
+		logger.log(Level.INFO, "Calculating availability per NodeType & Zone");
+		Map<String, Map<String, PriceHelper>> availabilityMap = new HashMap<String, Map<String, PriceHelper>>();
+		session = sessionFactory.getCurrentSession();
+		Transaction tx = session.beginTransaction();
+		@SuppressWarnings("unchecked")
+		List<NodePrice> nodePriceList = session.createQuery("from NodePrice").list();
+		// Iterator<NodePrice> priceIter =
+		// session.createQuery("from NodePrice order by priceTime desc").iterate();
+		Iterator<NodePrice> priceIter = nodePriceList.iterator();
+		while (priceIter.hasNext()) {
+			NodePrice nodePrice = priceIter.next();
+			if (nodePrice.getDuration() > 0) {
+				Map<String, PriceHelper> zoneMap = availabilityMap.get(nodePrice.getClusterZone());
+				if (zoneMap == null) {
+					zoneMap = new HashMap<String, PriceHelper>();
+					availabilityMap.put(nodePrice.getClusterZone(), zoneMap);
+				}
+				PriceHelper priceData = zoneMap.get(nodePrice.getNodeType());
+				if (priceData == null) {
+					priceData = new PriceHelper(nodePrice.getNodeType(), nodePrice.getClusterZone());
+					zoneMap.put(nodePrice.getNodeType(), priceData);
+				}
+				priceData.addNodePriceData(nodePrice, bidPrice);
+			}
+		}
+		tx.commit();
+		System.out.println("Given price: " + bidPrice + "$");
+		for (String zone : availabilityMap.keySet()) {
+			System.out.println(zone);
+			System.out.println("==============");
+			Map<String, PriceHelper> zoneMap = availabilityMap.get(zone);
+			List<String> types = new ArrayList(zoneMap.keySet());
+			Collections.sort(types);
+			for (String type : types) {
+				PriceHelper priceHelper = zoneMap.get(type);
+				System.out.println(priceHelper.toString());
+			}
+			System.out.println();
+		}
 	}
 
 	public static void main(String[] args) {
