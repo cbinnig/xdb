@@ -6,20 +6,20 @@ import org.xdb.spotgres.pojos.NodeType;
 
 public class HibernateTest {
 	public static void main(String[] args) {
-        Session session = null;
-        SessionFactory sessionFactory = HibernateUtil.configureSessionFactory();
-        session = sessionFactory.getCurrentSession();
-        
-        org.hibernate.Transaction tx = session.beginTransaction();
+		Session session = null;
+		SessionFactory sessionFactory = HibernateUtil.configureSessionFactory();
+		session = sessionFactory.getCurrentSession();
 
-        NodeType nodeType = new NodeType();
+		org.hibernate.Transaction tx = session.beginTransaction();
 
-        nodeType.setTypeName("m1.xlarge");
-        nodeType.setCpuCount(8);
-        nodeType.setRam(16*1024*1024);
-        nodeType.setHdd(80);
-        
-        session.persist(nodeType);
-        tx.commit();
+		NodeType nodeType = new NodeType();
+
+		nodeType.setTypeName("m1.xlarge");
+		nodeType.setCpuCount(8);
+		nodeType.setRam(16 * 1024 * 1024);
+		nodeType.setHdd(80);
+
+		session.persist(nodeType);
+		tx.commit();
 	}
 }
