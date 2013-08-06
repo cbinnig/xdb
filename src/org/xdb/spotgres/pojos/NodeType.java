@@ -9,23 +9,23 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name="NodeType")
-public class NodeType{
+@Table(name = "NodeType")
+public class NodeType {
 	@Id
-	@GeneratedValue(generator="increment")
-	@GenericGenerator(name="increment", strategy = "increment")
+	@GeneratedValue(generator = "increment")
+	@GenericGenerator(name = "increment", strategy = "increment")
 	int typeId;
-	
-	@Column(name="typeName")
+
+	@Column(name = "typeName")
 	String typeName;
-	
-	@Column(name="cpuCount")
+
+	@Column(name = "cpuCount")
 	int cpuCount;
-	
-	@Column(name="ram")
+
+	@Column(name = "ram")
 	int ram;
-	
-	@Column(name="hdd")
+
+	@Column(name = "hdd")
 	int hdd;
 
 	public String getTypeName() {
@@ -63,6 +63,5 @@ public class NodeType{
 	public int getTypeId() {
 		return typeId;
 	}
-	
-	
+
 }

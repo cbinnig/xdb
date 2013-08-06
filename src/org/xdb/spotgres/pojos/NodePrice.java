@@ -1,6 +1,5 @@
 package org.xdb.spotgres.pojos;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 
 import javax.persistence.Column;
@@ -12,30 +11,35 @@ import org.hibernate.annotations.GenericGenerator;
 
 import com.amazonaws.services.ec2.model.SpotPrice;
 
-@Entity(name="NodePrice")
+@Entity(name = "NodePrice")
 public class NodePrice {
 	@Id
-	@GeneratedValue(generator="increment")
-	@GenericGenerator(name="increment", strategy = "increment")
+	@GeneratedValue(generator = "increment")
+	@GenericGenerator(name = "increment", strategy = "increment")
 	int priceID;
-	
-	@Column(name="priceTime")
-	Timestamp priceTime;
-	
-	@Column(name="price")
-	float price;
-	
-	public enum PRICETYPE{SPOT, ONDEMAND, RESERVED}
 
-	@Column(name="priceType")
+	@Column(name = "priceTime")
+	Timestamp priceTime;
+
+	@Column(name = "price")
+	float price;
+
+	public enum PRICETYPE {
+		SPOT, ONDEMAND, RESERVED
+	}
+
+	@Column(name = "priceType")
 	PRICETYPE priceType;
 
-	@Column(name="nodeType")
+	@Column(name = "nodeType")
 	String nodeType;
-	
-	@Column(name="clusterZone")
+
+	@Column(name = "clusterZone")
 	String clusterZone;
-	
+
+	@Column(name = "duration")
+	long duration;
+
 	public Timestamp getPriceTime() {
 		return priceTime;
 	}
@@ -72,7 +76,6 @@ public class NodePrice {
 		this.nodeType = nodeType;
 	}
 
-	
 	public String getClusterZone() {
 		return clusterZone;
 	}
@@ -81,14 +84,37 @@ public class NodePrice {
 		this.clusterZone = clusterZone;
 	}
 
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
 	public NodePrice(SpotPrice spotPrice) {
 		super();
 		this.priceTime = new Timestamp(spotPrice.getTimestamp().getTime());
-		this.priceType=PRICETYPE.SPOT;
-		this.price=Float.valueOf(spotPrice.getSpotPrice());
-		this.nodeType=spotPrice.getInstanceType();
-		this.clusterZone=spotPrice.getAvailabilityZone();
+		this.priceType = PRICETYPE.SPOT;
+		this.price = Float.valueOf(spotPrice.getSpotPrice());
+		this.nodeType = spotPrice.getInstanceType();
+		this.clusterZone = spotPrice.getAvailabilityZone();
+		this.duration = -1;
 	}
-	
-	
+
+	public NodePrice(Timestamp priceTime, float price, PRICETYPE priceType, String nodeType, String clusterZone,
+			long duration) {
+		super();
+		this.priceTime = priceTime;
+		this.price = price;
+		this.priceType = priceType;
+		this.nodeType = nodeType;
+		this.clusterZone = clusterZone;
+		this.duration = duration;
+	}
+
+	public NodePrice() {
+		super();
+	}
+
 }
