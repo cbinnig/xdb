@@ -1,6 +1,5 @@
 package org.xdb.funsql.optimize;
 
-
 import java.util.BitSet;
 
 import org.xdb.Config;
@@ -25,20 +24,52 @@ public class Optimizer {
 	}
 
 	/**
-	 * Optimizes a graph-based plan
+	 * Optimizes a graph-based compile plan
 	 * 
 	 * @return
 	 */
-	public Error optimize(BitSet optimizeRule ) {
+	public Error optimize(BitSet optimizeRule) {
 		Error err = new Error();
-	
+
 		// tracing
-		if (Config.TRACE_COMPILE_PLAN){
-			err = this.compilePlan.tracePlan(compilePlan.getClass()
+		if (Config.TRACE_COMPILE_PLAN) {
+			this.compilePlan.tracePlan(compilePlan.getClass()
 					.getCanonicalName() + "_COMPILED");
-			if (err.isError())
-				return err;
 		}
+
+		err = this.preOptimize(optimizeRule);
+		if (err.isError())
+			return err;
+
+		err = this.preParallelize();
+		if (err.isError())
+			return err;
+
+		err = this.postOptimize(optimizeRule);
+		if (err.isError())
+			return err;
+
+		err = this.postParallelize();
+		if (err.isError())
+			return err;
+
+		// tracing
+		if (Config.TRACE_OPTIMIZED_PLAN) {
+			this.compilePlan.tracePlan(compilePlan.getClass()
+					.getCanonicalName() + "_OPTIMIZED");
+		}
+
+		return err;
+	}
+
+	/**
+	 * Algebraic rewrites before inserting re-partition operations
+	 * 
+	 * @param optimizeRule
+	 * @return
+	 */
+	private Error preOptimize(BitSet optimizeRule) {
+		Error err = new Error();
 
 		// rewrite: push down selection
 		if (optimizeRule.get(0)) {
@@ -53,42 +84,39 @@ public class Optimizer {
 			if (err.isError())
 				return err;
 		}
-		
-		// tracing
-		if (Config.TRACE_OPTIMIZED_PLAN)
-			this.compilePlan.tracePlan(compilePlan.getClass()
-					.getCanonicalName() + "_OPTIMIZED");
 
-		// rewrite: combine joins
-		if (optimizeRule.get(3)) {
-			err = combineJoins();
-			if (err.isError())
-				return err;
-		}
-		
-		// rewrite: combine unary operators
-		if (optimizeRule.get(2)) {
-			err = combineUnaryOps();
-			if (err.isError())
-				return err;
-		}
-	
-		if (Config.TRACE_OPTIMIZED_PLAN)
-			this.compilePlan.tracePlan(compilePlan.getClass()
-					.getCanonicalName() + "_NOTMERGED");
+		return err;
+	}
 
-		// rewrite combine unary and sqljoin operators into sqlcombined operator
-		if (optimizeRule.get(4)) {
-			err = combineSQLOps();
-				if(err.isError())
-					return err;
-		}
-		
-		// tracing
-		if (Config.TRACE_OPTIMIZED_PLAN)
-			this.compilePlan.tracePlan(compilePlan.getClass()
-					.getCanonicalName() + "_COMBINED");
+	/**
+	 * Insert re-partition operations into plan
+	 * 
+	 * @return
+	 */
+	private Error preParallelize() {
+		Error err = new Error();
+		return err;
+	}
 
+	/**
+	 * Additional optimizations for plan with re-partition operations (e.g.,
+	 * aggregation push-down)
+	 * 
+	 * @param optimizeRule
+	 * @return
+	 */
+	private Error postOptimize(BitSet optimizeRule) {
+		Error err = new Error();
+		return err;
+	}
+
+	/**
+	 * Create parallel plan for multiple partitions
+	 * 
+	 * @return
+	 */
+	private Error postParallelize() {
+		Error err = new Error();
 		return err;
 	}
 
@@ -102,7 +130,8 @@ public class Optimizer {
 
 		SelectionPushDownVisitor pushDownVisitor = new SelectionPushDownVisitor(
 				null, compilePlan);
-		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
+		for (AbstractCompileOperator root : this.compilePlan
+				.getRootsCollection()) {
 			boolean modified = true;
 
 			while (modified) {
@@ -125,64 +154,10 @@ public class Optimizer {
 	 */
 	private Error combineSelections() {
 		Error err = new Error();
-		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
+		for (AbstractCompileOperator root : this.compilePlan
+				.getRootsCollection()) {
 			SelectionCombineVisitor combineVisitor = new SelectionCombineVisitor(
 					root);
-			err = combineVisitor.visit();
-
-			if (err.isError())
-				return err;
-		}
-		return err;
-	}
-
-	/**
-	 * Combines join operators in plan
-	 * 
-	 * @return
-	 */
-	private Error combineJoins() {
-		Error err = new Error();
-		for (AbstractCompileOperator root :  this.compilePlan.getRootsCollection()) {
-			JoinCombineVisitor combineVisitor = new JoinCombineVisitor(
-					root, this.compilePlan);
-			err = combineVisitor.visit();
-
-			if (err.isError())
-				return err;
-		}
-		return err;
-	}
-	
-	
-	/**
-	 * Combines selection operators in plan
-	 * 
-	 * @return
-	 */
-	private Error combineUnaryOps() {
-		Error err = new Error();
-		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
-			SQLUnaryCombineVisitor combineVisitor = new SQLUnaryCombineVisitor(
-					root, this.compilePlan);
-			err = combineVisitor.visit();
-
-			if (err.isError())
-				return err;
-		}
-		return err;
-	}
-	
-	/**
-	 * Combines selection operators in plan
-	 * 
-	 * @return
-	 */
-	private Error combineSQLOps() {
-		Error err = new Error();
-		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
-			SQLCombineVisitor combineVisitor = new SQLCombineVisitor(
-					root, this.compilePlan);
 			err = combineVisitor.visit();
 
 			if (err.isError())

@@ -8,22 +8,22 @@ public class TestTPCH extends XDBTestCase {
 	private CompileClient client = new CompileClient();
 	private String[] schemaDDLs = {
 			"CREATE CONNECTION TPCH1 " +
-			"URL 'jdbc:mysql://127.0.0.1/xdb_tpch_single' " + 
+			"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
 			"USER 'xroot' " +
 			"PASSWORD 'xroot' " +
 			"STORE 'XDB';", 
 			
 			"CREATE CONNECTION TPCH2 " +
-					"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
-					"USER 'xroot' " +
-					"PASSWORD 'xroot' " +
-					"STORE 'XDB';", 
+			"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
+			"USER 'xroot' " +
+			"PASSWORD 'xroot' " +
+			"STORE 'XDB';", 
 			
-		  "CREATE CONNECTION TPCH3 " +
-		  "URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
-		  "USER 'xroot' " +
-		  "PASSWORD 'xroot' " +
-		  "STORE 'XDB';",
+			"CREATE CONNECTION TPCH3 " +
+			"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
+			"USER 'xroot' " +
+			"PASSWORD 'xroot' " +
+			"STORE 'XDB';",
 			
 			"CREATE TABLE LINEITEM ( " +
 			"L_ORDERKEY    		INTEGER," +
@@ -109,7 +109,6 @@ public class TestTPCH extends XDBTestCase {
 			"R_NAME VARCHAR," +
 			"R_COMMENT VARCHAR" +
 			") REPLICATED IN CONNECTION TPCH3;"
-			
 	};
 	
 	@Override
