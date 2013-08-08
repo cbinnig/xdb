@@ -64,16 +64,10 @@ public class Config implements Serializable {
 	public static BitSet OPTIMIZER_ACTIVE_RULES_SELECT = new BitSet();
 
 	static {
-		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(0, false);
-		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(1, true);
-		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(2, false);
-		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(3, false);
-		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(4, false);
-		OPTIMIZER_ACTIVE_RULES_SELECT.set(0, false);
-		OPTIMIZER_ACTIVE_RULES_SELECT.set(1, true);
-		OPTIMIZER_ACTIVE_RULES_SELECT.set(2, false);
-		OPTIMIZER_ACTIVE_RULES_SELECT.set(3, false);
-		OPTIMIZER_ACTIVE_RULES_SELECT.set(4, false);
+		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(0, false); //push selections
+		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(1, true); //combine selections
+		OPTIMIZER_ACTIVE_RULES_SELECT.set(0, false); //push selections
+		OPTIMIZER_ACTIVE_RULES_SELECT.set(1, true); //combine selections
 	}
 
 	// Master Tracker Server
