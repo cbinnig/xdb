@@ -1,8 +1,8 @@
-package org.xdb.funsql.optimize;
+package org.xdb.funsql.codegen;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
-import org.xdb.funsql.compile.analyze.operator.AbstractTopDownTreeVisitor;
+import org.xdb.funsql.compile.analyze.operator.AbstractBottomUpTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
@@ -17,93 +17,92 @@ import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 
 /**
- * This class merges several equi-join operators into one single SQL join operator,
- * to avoid unnecessary materialization of intermediary results
+ * This class visits the current plan and combines sqljoin and sqlunary operators to a s
+ * sqlcombined operator. This done for the purpose to avoid materialization due to operator
+ * calling.
+ * 
  * @author A.C.Mueller
  *
  */
-public class JoinCombineVisitor extends AbstractTopDownTreeVisitor {
+public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
+
+	private AbstractCompileOperator lastop = null;
+	private Error err = new Error(); 
+	private CompilePlan compileplan;
 	
-	private AbstractCompileOperator lastOp = null;
-	private Error err = new Error();
-	private CompilePlan plan;
-	
-	public JoinCombineVisitor(AbstractCompileOperator root, CompilePlan plan) {
+	public SQLCombineVisitor(AbstractCompileOperator root, CompilePlan compilePlan) {
 		super(root);
-		this.plan = plan;
+		this.compileplan = compilePlan;
 	}
 
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
-		//check if it's null then do nothing just change the last op
-		if(this.lastOp != null){
-			 if(this.lastOp.getType().equals(EnumOperator.SQL_JOIN)){
-				//merge new equi join into existing sql join
-				((SQLJoin)this.lastOp).mergeChildJoinOp(ej);
-			}else {
-				//create new sql join
-				SQLJoin sqljoin =  new SQLJoin((EquiJoin)ej);
-				this.plan.replaceOperator(ej.getOperatorId(), sqljoin, false);
-				this.lastOp = sqljoin;
-			}
-		}else{
-			this.lastOp = ej;
-		}
-		
-		return this.err;
-	}
-
-	@Override
-	public Error visitGenericSelection(GenericSelection gs) {
-		this.lastOp = gs;
-		return err;
-	}
-
-	@Override
-	public Error visitGenericAggregation(GenericAggregation sa) {
-		this.lastOp = sa;
-		return err;
-	}
-
-	@Override
-	public Error visitGenericProjection(GenericProjection gp) {
-		this.lastOp = gp;
-		return err;
-	}
-
-	@Override
-	public Error visitTableOperator(TableOperator to) {
-		this.lastOp = to;
-		return err;
-	}
-
-	@Override
-	public Error visitRename(Rename ro) {
-		this.lastOp = ro;
-		return err;
-	}
-
-	@Override
-	public Error visitSQLUnary(SQLUnary absOp) {
-		this.lastOp = absOp;
+		this.lastop = ej;
 		return err;
 	}
 
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
-		this.lastOp = ej;
+		this.lastop = ej;
+		return err;
+	}
+
+	@Override
+	public Error visitGenericSelection(GenericSelection gs) {
+		this.lastop = gs;
+		return err;
+	}
+
+	@Override
+	public Error visitGenericAggregation(GenericAggregation sa) {
+		this.lastop = sa;
+		return err;
+	}
+
+	@Override
+	public Error visitGenericProjection(GenericProjection gp) {
+		this.lastop =gp;
+		return err;
+	}
+
+	@Override
+	public Error visitTableOperator(TableOperator to) {
+		this.lastop =to;
+		return err;
+	}
+
+	@Override
+	public Error visitRename(Rename ro) {
+		this.lastop  = ro;
+		return err;
+	}
+
+	@Override
+	public Error visitSQLUnary(SQLUnary absOp) {
+		
+		if(this.lastop.getType().equals(EnumOperator.SQL_JOIN)){
+			SQLCombined sqlc = new SQLCombined((SQLJoin)this.lastop);
+			this.compileplan.replaceOperator(absOp.getOperatorId(), sqlc,true);
+
+			sqlc.mergeSQLUnaryParent(absOp);
+		
+			this.compileplan.removeOperator(this.lastop.getOperatorId());
+			
+			this.lastop = sqlc;
+		} 
 		return err;
 	}
 
 	@Override
 	public Error visitSQLCombined(SQLCombined absOp) {
-		this.lastOp = absOp;
+		this.lastop = absOp;
+		return err;
+	}
+	
+	@Override
+	public Error visitDataExchange(DataExchangeOperator deOp) {
+		this.lastop = deOp;
 		return err;
 	}
 
-	@Override
-	public Error visitDataExchange(DataExchangeOperator deOp) {
-		this.lastOp = deOp;
-		return err;
-	}
 }

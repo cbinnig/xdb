@@ -1,4 +1,4 @@
-package org.xdb.funsql.optimize;
+package org.xdb.funsql.codegen;
 
 import java.util.HashSet;
 
