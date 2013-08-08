@@ -16,9 +16,9 @@ import org.xdb.tracker.operator.TableDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
-public class TestDistributed2Slot extends DistributedXDBTestCase {
+public class TestDistributed2ComputeNodes extends DistributedXDBTestCase {
 
-	public TestDistributed2Slot() {
+	public TestDistributed2ComputeNodes() {
 		super(2);
 	}
 	

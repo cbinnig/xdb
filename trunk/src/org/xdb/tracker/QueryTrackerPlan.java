@@ -464,8 +464,8 @@ public class QueryTrackerPlan implements Serializable {
 	 */
 	public Error deployPlan() {
 
-		// request compute slots
-		requestSlots();
+		// request compute nodes
+		requestComputeNodes();
 		if (err.isError())
 			return this.err;
 
@@ -558,27 +558,27 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	/**
-	 * Requests computation slots from master tracker
+	 * Requests computation nodes from master tracker
 	 */
-	private void requestSlots() {
-		// create wish-list of compute slots
-		final Set<String> requiredSlots = resourceScheduler
+	private void requestComputeNodes() {
+		// create wish-list of compute nodes
+		final Set<String> requiredNodes = resourceScheduler
 				.createComputeNodesWishList();
 
-		// as master tracker for slots
+		// ask master tracker for nodes
 		final Tuple<Map<String, ComputeNodeDesc>, Error> resultRequest = tracker
-				.requestComputeSlots(requiredSlots);
+				.requestComputeNodes(requiredNodes);
 
 		// read result
-		final Map<String, ComputeNodeDesc> allocatedSlots = resultRequest.getObject1();
+		final Map<String, ComputeNodeDesc> allocatedNodes = resultRequest.getObject1();
 		this.err = resultRequest.getObject2();
 		
-		// assign slots
-		this.resourceScheduler.assignComputeNodes(allocatedSlots);
+		// assign nodes
+		this.resourceScheduler.assignComputeNodes(allocatedNodes);
 	}
 
 	/**
-	 * Prepare deployment of plan by assigning operators to compute slots using
+	 * Prepare deployment of plan by assigning operators to compute nodes using
 	 * a resource scheduler
 	 */
 	private void prepareDeployment() {
@@ -601,10 +601,10 @@ public class QueryTrackerPlan implements Serializable {
 			return;
 		}
 
-		// identify best slot using a resource scheduler
-		ComputeNodeDesc assignedSlot = this.resourceScheduler.getComputeNode(operId);
-		if (assignedSlot == null) {
-			String args[] = { "No slot could be assigned to tracker operator "
+		// identify best node using a resource scheduler
+		ComputeNodeDesc assignedNode = this.resourceScheduler.getComputeNode(operId);
+		if (assignedNode == null) {
+			String args[] = { "No node could be assigned to tracker operator "
 					+ operId.toString() };
 			this.err = new Error(EnumError.TRACKER_GENERIC, args);
 			return;
@@ -614,7 +614,7 @@ public class QueryTrackerPlan implements Serializable {
 		final Identifier executeOpId = operId.clone();
 		executeOpId.append(lastExecuteOpId++);
 		final OperatorDesc executeOpDesc = new OperatorDesc(executeOpId,
-				assignedSlot); 
+				assignedNode); 
 		// set the status of the operator to DEPLOYED
 		executeOpDesc.setOperatorStatus(status); 
 	    
@@ -627,7 +627,7 @@ public class QueryTrackerPlan implements Serializable {
 			OperatorDesc failedOp = this.currentDeployment.get(operId); 
 			// send signal to kill the operator if it is running. 
 			Identifier failedExecuteId = failedOp.getOperatorID();  
-			this.err = this.computeClient.killFailedOperator(failedOp.getComputeSlot(), failedExecuteId); 
+			this.err = this.computeClient.killFailedOperator(failedOp.getComputeNode(), failedExecuteId); 
 			currentDeployment.remove(operId); 
 			currentDeployment.put(operId, executeOpDesc);  
 			return;
@@ -682,7 +682,7 @@ public class QueryTrackerPlan implements Serializable {
 
 			// deploy operator to compute node
 			this.err = computeClient.openOperator(
-					executeOpDesc.getComputeSlot(), execOp);
+					executeOpDesc.getComputeNode(), execOp);
 			if (this.err.isError())
 				return;
 
@@ -738,14 +738,14 @@ public class QueryTrackerPlan implements Serializable {
 
 			// deploy operator to compute node
 			this.err = computeClient.openOperator(
-					executeOpDesc.getComputeSlot(), execOp);  
+					executeOpDesc.getComputeNode(), execOp);  
 
 
 			if (this.err.isError())
 				return;
 
 			logger.log(Level.INFO, "The execute operator "+execOp.getOperatorId() +" has " +
-					"been redeployed on compute node "+executeOpDesc.getComputeSlot().getUrl());
+					"been redeployed on compute node "+executeOpDesc.getComputeNode().getUrl());
 
 			this.executeOps.put(trackerOpId, execOp); 
 

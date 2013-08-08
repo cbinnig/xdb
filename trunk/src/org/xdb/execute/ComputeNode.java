@@ -52,7 +52,7 @@ public class ComputeNode {
 			
 	private final Lock readySignalsLock = new ReentrantLock();
 
-	// Compute node slot description (i.e., available threads on node)
+	// Compute node description (i.e., available threads on node)
 	private final ComputeNodeDesc computeNodeDesc;
 
 	// Clients for communication
@@ -63,9 +63,9 @@ public class ComputeNode {
 	private final XDBExecuteTimeMeasurement timeMeasure;
 
 	// constructors
-	public ComputeNode(final int port, final int slots) throws Exception {
+	public ComputeNode(final int port) throws Exception {
 		String url = InetAddress.getLocalHost().getHostAddress();
-		this.computeNodeDesc = new ComputeNodeDesc(url, port, slots);
+		this.computeNodeDesc = new ComputeNodeDesc(url, port);
 
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 		this.timeMeasure = XDBExecuteTimeMeasurement
@@ -75,7 +75,7 @@ public class ComputeNode {
 		this.mTrackerClient = new MasterTrackerClient();
 	}
 
-	public ComputeNodeDesc getComputeSlot(){
+	public ComputeNodeDesc getComputeNode(){
 		return this.computeNodeDesc;
 	}
 	

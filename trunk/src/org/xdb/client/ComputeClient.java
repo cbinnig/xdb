@@ -22,8 +22,8 @@ public class ComputeClient extends AbstractClient {
 		this(Config.LOCALHOST, Config.COMPUTE_PORT);
 	}
 
-	public ComputeClient(final ComputeNodeDesc slot) {
-		this(slot.getUrl(), slot.getPort());
+	public ComputeClient(final ComputeNodeDesc node) {
+		this(node.getUrl(), node.getPort());
 	}
 
 	public ComputeClient(String url, int port) {
@@ -71,7 +71,7 @@ public class ComputeClient extends AbstractClient {
 	 */
 	public Error executeOperator(final Identifier sourceOpId,
 			final OperatorDesc dest) {
-		return this.executeOperator(sourceOpId, dest.getComputeSlot(),
+		return this.executeOperator(sourceOpId, dest.getComputeNode(),
 				dest.getOperatorID());
 	}
 
@@ -84,7 +84,7 @@ public class ComputeClient extends AbstractClient {
 	 */
 	public Error executeOperator(final OperatorDesc dest) {
 		return this.executeOperator(Config.COMPUTE_NOOP_ID,
-				dest.getComputeSlot(), dest.getOperatorID());
+				dest.getComputeNode(), dest.getOperatorID());
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class ComputeClient extends AbstractClient {
 	 * @return
 	 */
 	public Error closeOperator(final OperatorDesc dest) {
-		return this.closeOperator(dest.getComputeSlot(), dest.getOperatorID());
+		return this.closeOperator(dest.getComputeNode(), dest.getOperatorID());
 	}
 	
 	/**

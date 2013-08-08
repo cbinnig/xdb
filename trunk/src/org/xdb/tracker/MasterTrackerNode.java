@@ -25,7 +25,7 @@ import org.xdb.utils.Identifier;
 
 public class MasterTrackerNode {
 	/** Compute nodes information **/
-	// mapping: URL -> compute slots (URL, PORT)
+	// mapping: URL -> compute node (URL, PORT)
 	private final Map<String, List<ComputeNodeDesc>> url2ComputeNodes = Collections
 			.synchronizedMap(new HashMap<String, List<ComputeNodeDesc>>());
 
@@ -115,7 +115,7 @@ public class MasterTrackerNode {
 		return runningPlans.size();
 	}
 
-	public Collection<ComputeNodeDesc> getComputeSlots() {
+	public Collection<ComputeNodeDesc> getComputeNodes() {
 		return this.computeNodes;
 	}
 
@@ -244,11 +244,11 @@ public class MasterTrackerNode {
 	}
 
 	/**
-	 * Returns a list of compute slots for a given wish-list of compute-slots
+	 * Returns a list of compute nodes for a given wish-list of compute nodes
 	 * 
-	 * @param requiredSlots
-	 *            wish-list of compute-slots
-	 * @return assigned compute-slots
+	 * @param requestedNodes
+	 *            wish-list of compute nodes
+	 * @return assigned compute nodes
 	 */
 	public synchronized Map<String, ComputeNodeDesc> getAvailableComputeNodes(
 			final Set<String> requestedNodes) {

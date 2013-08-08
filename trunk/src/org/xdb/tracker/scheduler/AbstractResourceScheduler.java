@@ -22,7 +22,7 @@ public abstract class AbstractResourceScheduler {
 	protected EnumResourceScheduler type;
 	private static EnumResourceScheduler usedScheduler = Config.QUERYTRACKER_SCHEDULER;
 
-	// assigned slots which are actually available: compute slot URL -> compute node
+	// assigned compute nodes which are actually available: compute node URL -> compute node desc
 	protected Map<String, ComputeNodeDesc> assignedComputeNodes = new HashMap<String, ComputeNodeDesc>();
 
 	// constructor
@@ -65,16 +65,16 @@ public abstract class AbstractResourceScheduler {
 	}
 
 	/**
-	 * Creates wish-list of compute slots to execute plan
+	 * Creates wish-list of compute nodes to execute plan
 	 * 
 	 * @return
 	 */
 	public abstract Set<String> createComputeNodesWishList();
 
 	/**
-	 * Assigns available compute slots to operators of plan
+	 * Assigns available compute nodes to operators of plan
 	 * 
-	 * @param slots
+	 * @param nodes
 	 */
 	public void assignComputeNodes(Map<String, ComputeNodeDesc> nodes) {
 		this.assignedComputeNodes.putAll(nodes);
@@ -85,7 +85,7 @@ public abstract class AbstractResourceScheduler {
 	}
 
 	/**
-	 * Returns assigned compute slot after slots have been assigned
+	 * Returns assigned compute node after nodes have been assigned
 	 * 
 	 * @param operId
 	 * @return
@@ -93,14 +93,12 @@ public abstract class AbstractResourceScheduler {
 	public abstract ComputeNodeDesc getComputeNode(final Identifier operId);
 	
 	/**
-	 * Returns assigned compute slot after slots have been assigned.
-	 * If multiple alternatives are available alternative given by connectionNumber.
+	 * Returns assigned compute node after nodes have been assigned
 	 * 
 	 * @param operId
-	 * @param connectionNumber
 	 * @return
 	 */
-	public ComputeNodeDesc getComputeNode(final Identifier operId, int connectionNumber){
+	public ComputeNodeDesc getComputeNode(final Identifier operId, int nodeNumber){
 		return this.getComputeNode(operId);
 	}
 }

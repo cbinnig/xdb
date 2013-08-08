@@ -161,7 +161,7 @@ public abstract class AbstractTrackerOperator implements Serializable {
 			OperatorDesc operDesc, Map<Identifier, OperatorDesc> currentDeployment) {
 
 		Identifier deployOperId = operDesc.getOperatorID();
-		String deployURL = operDesc.getComputeSlot().getUrl();
+		String deployURL = operDesc.getComputeNode().getUrl();
 		
 		HashMap<String, String> args = new HashMap<String, String>();
 
@@ -175,7 +175,7 @@ public abstract class AbstractTrackerOperator implements Serializable {
 				
 				OperatorDesc sourceOp = currentDeployment.get(inTableDesc
 						.getOperatorID());
-				String sourceURL = sourceOp.getComputeSlot().getUrl();
+				String sourceURL = sourceOp.getComputeNode().getUrl();
 				String sourceTableName = inTableDesc.getTableName();
 		
 				Identifier sourceOperId = sourceOp.getOperatorID();
@@ -216,7 +216,7 @@ public abstract class AbstractTrackerOperator implements Serializable {
 				//if URL of table is local then use directly its output  
 				if(isLocalInput(sourceURL, deployURL)){
 					deployTableName = sourceDB + "." + sourceTableName;
-				}else if (sourceURL.equals(operDesc.getComputeSlot())){
+				}else if (sourceURL.equals(operDesc.getComputeNode())){
 					deployTableName = sourceDB + "." + sourceTableName;
 				}
 				

@@ -207,12 +207,12 @@ public class QueryTrackerNode {
 	
 	
 	/**
-	 * Method used to request ComputeNode-Slots from MasterTracker
+	 * Method used to request ComputeNodes from MasterTracker
 	 * 
 	 * @param wishList
 	 * @return
 	 */
-	public Tuple<Map<String, ComputeNodeDesc>, Error> requestComputeSlots(
+	public Tuple<Map<String, ComputeNodeDesc>, Error> requestComputeNodes(
 			final Set<String> wishList) {
 
 		final Tuple<Map<String, ComputeNodeDesc>, Error> tuple = this.masterTrackerClient

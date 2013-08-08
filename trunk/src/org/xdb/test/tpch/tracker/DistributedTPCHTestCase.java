@@ -47,14 +47,9 @@ public abstract class DistributedTPCHTestCase extends
 	protected List<Connection> allConnections = new ArrayList<Connection>();
 
 	// constructor
+	// constructor
 	public DistributedTPCHTestCase(int expectedCnt) {
 		super(Config.TEST_NODE_COUNT);
-		this.expectedCnt = expectedCnt;
-	}
-	
-	// constructor
-	public DistributedTPCHTestCase(int expectedCnt, int numberofParts) {
-		super(Config.TEST_NODE_COUNT, numberofParts);
 		this.expectedCnt = expectedCnt;
 	}
 
@@ -183,7 +178,7 @@ public abstract class DistributedTPCHTestCase extends
 			StringTemplate subqueryDMLTempl = new StringTemplate(this.subqueryDML);
 			HashMap<String, String> args = new HashMap<String, String>();
 			
-			// name of database must be different if we have multiple slots (i.e., databases) per node
+			// name of database must be different if do not run locally
 			// however if we run local, we just use the normal database name of the configuration
 			String dbName = TPCH_DB_NAME;
 			if(!this.isRunLocal()){
@@ -320,7 +315,7 @@ public abstract class DistributedTPCHTestCase extends
 		
 		OperatorDesc rootDesc = currentDeployment.get(resultOpId);
 		Identifier resultTable = rootDesc.getOperatorID();
-		String rootUrl = "jdbc:mysql://"+rootDesc.getComputeSlot().getUrl()+"/"+Config.COMPUTE_DB_NAME;
+		String rootUrl = "jdbc:mysql://"+rootDesc.getComputeNode().getUrl()+"/"+Config.COMPUTE_DB_NAME;
 		final ResultSet rs = this
 				.executeComputeQuery(rootUrl, "SELECT COUNT(*) FROM " + resultTable
 						+ "_" + resultTableName);
@@ -408,7 +403,7 @@ public abstract class DistributedTPCHTestCase extends
 			OperatorDesc rootDesc = currentDeployment.get(resultOpId);
 			String resultTableName = resultOpIds.get(resultOpId);
 			Identifier resultTable = rootDesc.getOperatorID();
-			String rootUrl = "jdbc:mysql://"+rootDesc.getComputeSlot().getUrl()+"/"+Config.COMPUTE_DB_NAME;
+			String rootUrl = "jdbc:mysql://"+rootDesc.getComputeNode().getUrl()+"/"+Config.COMPUTE_DB_NAME;
 			final ResultSet rs = this
 				.executeComputeQuery(rootUrl, "SELECT COUNT(*) FROM " + resultTable
 						+ "_" + resultTableName);
