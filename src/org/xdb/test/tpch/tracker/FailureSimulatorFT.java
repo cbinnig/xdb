@@ -127,7 +127,7 @@ public class FailureSimulatorFT extends Thread{
 		// if checkpointing is enabled, then exclude the 
 		// first connection from shooting 
 
-		if(Config.CHECKPOINTING_SAVE_ENABLED) {
+		if(Config.TEST_FT_CHECKPOINTING) {
 			index = randomGenarator.nextInt(this.connections.size()-1)+1; 
 
 		}

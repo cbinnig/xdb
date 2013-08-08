@@ -1,10 +1,9 @@
 package org.xdb.execute;
 
-import org.xdb.Config;
 import org.xdb.server.AbstractNodeDesc;
 
 /**
- * Describes the properties of a ComputeNode (i.e., URL, port and slots). 
+ * Describes the properties of a ComputeNode (i.e., URL, port). 
  * 
  * @author Timo Jacobs
  * 
@@ -15,13 +14,8 @@ public class ComputeNodeDesc extends AbstractNodeDesc {
 	private final int port;
 
 	// constructors
-
 	public ComputeNodeDesc(final String host, final int port) {
-		this(host, port, Config.COMPUTE_SLOTS);
-	}
-	
-	public ComputeNodeDesc(final String host, final int port, final int slots) {
-		super(host, slots);
+		super(host);
 		this.port = port;
 	}
 

@@ -65,7 +65,7 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 
 			this.unionDDL = "(o_total DECIMAL(15,2), c_custkey INTEGER )";
 			this.unionPreDML = "SELECT sum(o_total) as o_total, c_custkey FROM "; 
-			this.unionPostDML = " group by c_custkey order by o_total desc limit "+Config.JOIN_RECORDS_LIMIT+";";  
+			this.unionPostDML = " group by c_custkey order by o_total desc limit "+Config.TEST_FT_RECORDS_LIMIT+";";  
 
 		}
 
@@ -218,8 +218,8 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 		params.add(new Object[]{new Boolean(false),new Integer(0)});
 		params.add(new Object[]{new Boolean(false),new Integer(0)});
 		
-		for(int i=0; i < Config.TEST_NUMBER_OF_RUNS ; ++i){
-			params.add(new Object[]{new Boolean(true),new Integer(Config.TEST_NUMBER_OF_FAILURES)});
+		for(int i=0; i < Config.TEST_FT_NUMBER_OF_RUNS ; ++i){
+			params.add(new Object[]{new Boolean(true),new Integer(Config.TEST_FT_NUMBER_OF_FAILURES)});
 			
 		}
 		return params;

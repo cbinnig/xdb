@@ -23,19 +23,12 @@ public class DistributedXDBTestCase extends TestCase {
 	private QueryTrackerServer qTrackerServer;
 	private ComputeNodeDesc[] computeNodes;
 	private int numberOfComputeServers;
-	private int numberOfParts;
 	private boolean runLocal;
 
 	// constructors
-	public DistributedXDBTestCase(int numberOfComputeServer) {
-		this(numberOfComputeServer, Config.TEST_PARTS_PER_NODE);
-	}
-
-	public DistributedXDBTestCase(int numberOfComputeServers,
-			int numberOfParts) {
+	public DistributedXDBTestCase(int numberOfComputeServers) {
 		super();
 		this.numberOfComputeServers = numberOfComputeServers;
-		this.numberOfParts = numberOfParts;
 		this.runLocal = Config.TEST_RUN_LOCAL;
 	}
 
@@ -88,8 +81,7 @@ public class DistributedXDBTestCase extends TestCase {
 			this.computeServers = new ComputeServer[this.numberOfComputeServers];
 			if (this.runLocal) {
 				for (int i = 0; i < this.computeServers.length; ++i) {
-					computeServers[i] = new ComputeServer(Config.COMPUTE_PORT
-							+ i, numberOfParts);
+					computeServers[i] = new ComputeServer(Config.COMPUTE_PORT+ i);
 					computeServers[i].startServer();
 					assertNoError(computeServers[i].getError());
 				}
@@ -106,8 +98,8 @@ public class DistributedXDBTestCase extends TestCase {
 	
 			}
 
-			// initialize compute slot info
-			this.computeNodes = this.mTrackerServer.getComputeSlots()
+			// initialize compute node info
+			this.computeNodes = this.mTrackerServer.getComputeNodes()
 					.toArray(new ComputeNodeDesc[this.computeServers.length]); 
 
 		} catch (Exception e) {

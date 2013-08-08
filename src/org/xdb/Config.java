@@ -29,8 +29,6 @@ public class Config implements Serializable {
 	public static int QUERYTRACKER_MONITOR_INTERVAL = 100; 
 	public static boolean MASTERTRACKER_MONITOR_ACTIVATED = false;
 	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false;  
-	public static boolean CHECKPOINTING_SAVE_ENABLED = false; 
-	public static int JOIN_RECORDS_LIMIT = 10;
 	
 
 	// Compute Server
@@ -42,7 +40,6 @@ public class Config implements Serializable {
 	public static final Identifier COMPUTE_NOOP_ID = new Identifier("NOOP");
 	public static int COMPUTE_PORT = 55700;
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
-	public static int COMPUTE_SLOTS = 32;
 	public static boolean COMPUTE_CLEAN_RESULTS = true;
 	public static boolean COMPUTE_CLEAN_PLAN = true;
 
@@ -76,7 +73,6 @@ public class Config implements Serializable {
 
 	// Query Tracker Server
 	public static int QUERYTRACKER_PORT = 55600;
-	public static int QUERYTRACKER_SLOTS = 1;
 	public static EnumResourceScheduler QUERYTRACKER_SCHEDULER = EnumResourceScheduler.SIMPLE;
 	public static EnumQueryTrackerStrategy QUERYTRACKER_STRATEGY = EnumQueryTrackerStrategy.PERFORMANCE;
 
@@ -101,14 +97,18 @@ public class Config implements Serializable {
 	public static boolean TRACE_TRACKER_PLAN = false;
 	public static boolean TRACE_EXECUTE_PLAN = false;
 
-	// Testing
-	public static int TEST_NUMBER_OF_FAILURES = 1; 
-	public static int TEST_NUMBER_OF_RUNS = 100;
+	// General Testing
 	public static boolean TEST_RUN_LOCAL = true;
 	public static String TEST_DB_NAME = "tpch_s01";
 	public static int TEST_NODE_COUNT = 2;
 	public static int TEST_PARTS_PER_NODE = 1;
 
+	// Fault-tolerance testing
+	public static int TEST_FT_NUMBER_OF_RUNS = 100;
+	public static int TEST_FT_NUMBER_OF_FAILURES = 1; 
+	public static boolean TEST_FT_CHECKPOINTING = false; 
+	public static int TEST_FT_RECORDS_LIMIT = 10;
+	
 	// Load xdb.conf
 	static {
 		load();
@@ -119,9 +119,10 @@ public class Config implements Serializable {
 	 */
 	private static void load() {
 		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
-				"COMPUTE_SLOTS", "COMPILE_PORT", "MASTERTRACKER_PORT",
-				"QUERYTRACKER_PORT", "QUERYTRACKER_SLOTS", "TEST_NODE_COUNT",
-				"TEST_NUMBER_OF_FAILURES", "TEST_NUMBER_OF_RUNS", "TEST_PARTS_PER_NODE", "JOIN_RECORDS_LIMIT" };
+				"COMPILE_PORT", "MASTERTRACKER_PORT",
+				"QUERYTRACKER_PORT", "TEST_NODE_COUNT",
+				"TEST_FT_NUMBER_OF_FAILURES", "TEST_FT_NUMBER_OF_RUNS", "TEST_PARTS_PER_NODE", 
+				"TEST_FT_RECORDS_LIMIT" };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
 				"TEST_DB_NAME" };
@@ -133,7 +134,8 @@ public class Config implements Serializable {
 				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN",
 				"TRACE_EXECUTE_PLAN", "TRACE_CODEGEN_PLAN",
 				"LOG_EXECUTION_TIME", "CODEGEN_OPTIMIZE", "TEST_RUN_LOCAL",
-				"QUERYTRACKER_MONITOR_ACTIVATED", "MASTERTRACKER_MONITOR_ACTIVATED"};
+				"QUERYTRACKER_MONITOR_ACTIVATED", "MASTERTRACKER_MONITOR_ACTIVATED",
+				"TEST_FT_CHECKPOINTING"};
 
 		Properties props;
 		props = new Properties();

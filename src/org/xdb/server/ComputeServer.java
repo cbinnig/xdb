@@ -103,14 +103,10 @@ public class ComputeServer extends AbstractServer {
 
 	// constructors
 	public ComputeServer(final int port) throws Exception {
-		this( port, Config.COMPUTE_SLOTS);
-	}
-	
-	public ComputeServer(final int port, final int slots) throws Exception {
 		super();
 
 		this.port = port;
-		this.compute = new ComputeNode(port, slots);
+		this.compute = new ComputeNode(port);
 	}
 
 	// methods
@@ -123,8 +119,8 @@ public class ComputeServer extends AbstractServer {
 		handler.start();
 	}
 	
-	public ComputeNodeDesc getComputeSlot(){
-		return this.compute.getComputeSlot();
+	public ComputeNodeDesc getComputeNode(){
+		return this.compute.getComputeNode();
 	}
 
 	@Override
@@ -142,14 +138,10 @@ public class ComputeServer extends AbstractServer {
 	 */
 	public static void main(final String[] args) throws Exception {
 		int port = Config.COMPUTE_PORT;
-		int slots = Config.COMPUTE_SLOTS;
 		if(args.length>=1){
 			port = Integer.parseInt(args[0]);
 		}
-		if(args.length>=2){
-			slots = Integer.parseInt(args[1]);
-		}
-		final ComputeServer server = new ComputeServer( port, slots );
+		final ComputeServer server = new ComputeServer( port );
 		server.startServer();
 		
 		if(server.getError().isError()){

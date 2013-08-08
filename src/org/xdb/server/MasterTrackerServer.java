@@ -103,8 +103,8 @@ public class MasterTrackerServer extends AbstractServer {
 		handler.start();
 	}
 	
-	public Collection<ComputeNodeDesc> getComputeSlots() {
-		return this.tracker.getComputeSlots();
+	public Collection<ComputeNodeDesc> getComputeNodes() {
+		return this.tracker.getComputeNodes();
 	}
 	
 	public int getNoComputeServers(){
@@ -117,8 +117,8 @@ public class MasterTrackerServer extends AbstractServer {
 		
 		//stop all compute servers
 		ComputeClient computeClient = new ComputeClient();
-		for(ComputeNodeDesc computeSlot: this.tracker.getComputeSlots()){
-			computeClient.stopComputeServer(computeSlot);
+		for(ComputeNodeDesc computeNode: this.tracker.getComputeNodes()){
+			computeClient.stopComputeServer(computeNode);
 		}
 		
 		//stop all query tracker servers

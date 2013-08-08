@@ -21,7 +21,7 @@ import org.xdb.utils.Identifier;
  * 
  */
 public class WishlistAwareScheduler extends AbstractResourceScheduler {
-	// slots per operator that have been requested
+	// compute node URLs per operator that have been requested
 	private Map<Identifier, List<String>> wishLocations = new HashMap<Identifier, List<String>>();
 
 	// constructor
@@ -65,17 +65,17 @@ public class WishlistAwareScheduler extends AbstractResourceScheduler {
 
 	@Override
 	public ComputeNodeDesc getComputeNode(final Identifier opId,
-			int connectionNumber) {
+			int nodeNumber) {
 		// no wished location for operator
 		if (!this.wishLocations.containsKey(opId))
 			return null;
 
 		List<String> connUrls = this.wishLocations.get(opId);
-		if (!(connectionNumber < connUrls.size()))
+		if (nodeNumber >= connUrls.size())
 			return null;
 
 		// get wished URL
-		String wishUrl = this.wishLocations.get(opId).get(connectionNumber);
+		String wishUrl = this.wishLocations.get(opId).get(nodeNumber);
 
 		// get assigned compute node for url
 		return this.assignedComputeNodes.get(wishUrl);

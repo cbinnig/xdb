@@ -33,11 +33,15 @@ import com.amazonaws.services.ec2.model.DescribeSpotPriceHistoryResult;
 import com.amazonaws.services.ec2.model.InstanceType;
 import com.amazonaws.services.ec2.model.SpotPrice;
 
+@SuppressWarnings("unused")
 public class AWSUpdatePriceHistory {
 	private AmazonEC2 ec2;
 	private Session session;
 	private SessionFactory sessionFactory;
 	protected Logger logger;
+
+	private static int ACTIVE = 0;
+	private static int INACTIVE = 1;
 
 	public void setUp() throws IOException {
 		AWSCredentials credentials = new PropertiesCredentials(
@@ -171,10 +175,7 @@ public class AWSUpdatePriceHistory {
 		Date endDate = cal.getTime();
 		return endDate;
 	}
-
-	private static int ACTIVE = 0;
-	private static int INACTIVE = 1;
-
+	
 	private void calculateAvailabilityPercentageAllTypes(float bidPrice) {
 		logger.log(Level.INFO, "Calculating availability per NodeType & Zone");
 		Map<String, Map<String, PriceHelper>> availabilityMap = new HashMap<String, Map<String, PriceHelper>>();
@@ -207,7 +208,7 @@ public class AWSUpdatePriceHistory {
 			System.out.println(zone);
 			System.out.println("==============");
 			Map<String, PriceHelper> zoneMap = availabilityMap.get(zone);
-			List<String> types = new ArrayList(zoneMap.keySet());
+			List<String> types = new ArrayList<String>(zoneMap.keySet());
 			Collections.sort(types);
 			for (String type : types) {
 				PriceHelper priceHelper = zoneMap.get(type);

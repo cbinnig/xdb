@@ -1,10 +1,9 @@
 package org.xdb.tracker;
 
-import org.xdb.Config;
 import org.xdb.server.AbstractNodeDesc;
 
 /**
- * Describes the properties of a QueryTrackerNode (i.e., URL and slots)
+ * Describes the properties of a QueryTrackerNode (i.e., URL)
  * 
  * @author cbinnig
  * 
@@ -15,11 +14,7 @@ public class QueryTrackerNodeDesc extends AbstractNodeDesc {
 	
 	// constructors
 	public QueryTrackerNodeDesc(final String url) {
-		this(url, Config.QUERYTRACKER_SLOTS);
-	}
-
-	public QueryTrackerNodeDesc(final String url, final int slots) {
-		super(url, slots);
+		super(url);
 	}
 
 	// methods
@@ -29,8 +24,6 @@ public class QueryTrackerNodeDesc extends AbstractNodeDesc {
 		final StringBuffer value = new StringBuffer();
 		value.append("(");
 		value.append(url);
-		value.append(",");
-		value.append(slots);
 		value.append(")");
 		return value.toString();
 	}
