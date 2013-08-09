@@ -8,7 +8,6 @@ import org.xdb.funsql.compile.analyze.expression.RenameExpressionAfterCopyVisito
 import org.xdb.funsql.compile.analyze.predicate.RebuildPredicatesAfterCopyVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -53,9 +52,9 @@ public class RebuildExpressionAndAttributesAfterCopyVisitor extends
 	public Error visitEquiJoin(EquiJoin ej) {
 
 		String leftName = oldToNewIDMap.get(ej.getLeftTokenAttribute()
-				.getTable().getName().getName());
+				.getTable().getName().getValue());
 		String rightName = oldToNewIDMap.get(ej.getRightTokenAttribute()
-				.getTable().getName().getName());
+				.getTable().getName().getValue());
 		// if no new name found it wasn't renamed so continue
 		ej.getLeftTokenAttribute().getTable().setName(leftName);
 		ej.getRightTokenAttribute().getTable().setName(rightName);
@@ -122,10 +121,4 @@ public class RebuildExpressionAndAttributesAfterCopyVisitor extends
 	public Error visitSQLCombined(SQLCombined absOp) {
 		return error;
 	}
-
-	@Override
-	public Error visitDataExchange(DataExchangeOperator deOp) {
-		return error;
-	}
-
 }

@@ -299,16 +299,28 @@ createTableStatement returns [CreateTableStmt stmt]
                 }
                 (
                 LPAREN
-                pcolumn1=identifierText
+                patt1=tokenAttribute
                 {
-                	$stmt.addPartitionColumn($pcolumn1.text);
+                	$stmt.addPartitionAttribute($patt1.attribute);
                 }
                 (
-                COMMA
-                pcolumn2=identifierText
-                {
-                	$stmt.addPartitionColumn($pcolumn2.text);
-                }
+                	KEYWORD_REFERENCES ratt1=tokenAttribute
+                	{
+                		$stmt.addRefPartitionAttribute($ratt1.attribute);
+                	}
+                )?
+                (
+                	COMMA
+                	patt2=tokenAttribute
+                	{
+                		$stmt.addPartitionAttribute($patt2.attribute);
+                	}
+                	(
+                	KEYWORD_REFERENCES ratt2=tokenAttribute
+                	{
+                		$stmt.addRefPartitionAttribute($ratt2.attribute);
+                	}
+                	)?
                 )*
                 RPAREN
                 )?
@@ -1215,6 +1227,7 @@ FUNCTION_AGGREGATION
 	;
 
 KEYWORD_PARTITION:	P A R T I T I O N;
+KEYWORD_REFERENCES:	R E F E R E N C E S;
 KEYWORD_INTO:	I N T O;
 KEYWORD_INFILE:	I N F I L E;
 KEYWORD_DATA:	D A T A;

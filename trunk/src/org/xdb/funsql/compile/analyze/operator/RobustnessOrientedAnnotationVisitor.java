@@ -9,7 +9,6 @@ import java.util.HashSet;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.AbstractAnnotationVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
@@ -131,14 +130,4 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 		applyGlobalMaterializeRules(absOp);
 		return Error.NO_ERROR;
 	}
-
-
-	@Override
-	public Error visitDataExchange(DataExchangeOperator deOp) {
-		
-		deOp.addWishedConnections(deOp.getChild().getWishedConnections());
-		deOp.getResult().setMaterialized(true);
-		return Error.NO_ERROR;
-	}
-
 }

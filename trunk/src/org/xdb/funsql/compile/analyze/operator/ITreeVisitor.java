@@ -2,7 +2,6 @@ package org.xdb.funsql.compile.analyze.operator;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericAggregation;
@@ -27,5 +26,4 @@ public interface ITreeVisitor{
 	Error visitRename(Rename ro);
 	Error visitSQLUnary(SQLUnary absOp);
 	Error visitSQLCombined(SQLCombined absOp);
-	Error visitDataExchange(DataExchangeOperator deOp);
 }

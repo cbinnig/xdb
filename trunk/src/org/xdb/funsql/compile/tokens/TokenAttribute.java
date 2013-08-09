@@ -14,7 +14,7 @@ public class TokenAttribute extends AbstractTokenOperand{
 	
 	// attributes
 	private TokenIdentifier name;
-	private TokenTable table;
+	private TokenTable table = null;
 	
 	// constructors
 	public TokenAttribute() {
@@ -80,8 +80,8 @@ public class TokenAttribute extends AbstractTokenOperand{
 	
 	//helper methods
 	public boolean renameAttribute(Map<String, String> renamedAttributes){
-		if (renamedAttributes.containsKey(this.getName().getName())) {
-			String newName = renamedAttributes.get(this.getName().getName());
+		if (renamedAttributes.containsKey(this.getName().getValue())) {
+			String newName = renamedAttributes.get(this.getName().getValue());
 			this.setName(newName);
 			return true;
 		}
@@ -118,10 +118,15 @@ public class TokenAttribute extends AbstractTokenOperand{
 	}
 	
 	public String hashKey(){
-		// TODO: Should the TableName be considered in the HashKey ?
 		StringBuffer key = new StringBuffer();
-		//key.append(this.table.getName().hashKey());
-		//key.append(DOT);
+		key.append(this.name.hashKey());
+		return key.toString();
+	}
+	
+	public String hashKey(long tableOid){
+		StringBuffer key = new StringBuffer();
+		key.append(tableOid);
+		key.append(AbstractToken.DOT);
 		key.append(this.name.hashKey());
 		return key.toString();
 	}
@@ -130,7 +135,7 @@ public class TokenAttribute extends AbstractTokenOperand{
 	public boolean equals(Object o) {
 		if (!(o instanceof TokenAttribute)) return false;
 		TokenAttribute ta = (TokenAttribute) o;
-		boolean namesIdentical = this.getName().getName().equals(ta.getName().getName());
+		boolean namesIdentical = this.getName().getValue().equals(ta.getName().getValue());
 		
 		// Since the "compile" method of "CreateTableStmt" calls this function without setting the table name, we should be ready for that.
 		if (this.getTable() == null || ta.getTable() == null)
@@ -153,7 +158,7 @@ public class TokenAttribute extends AbstractTokenOperand{
 	// The same set of fields must be used to compute equals() and to compute hashCode().
 	public int hashCode() {
 		// TODO Must be fixed to reflect all the attributes of TokenAttribute
-		return this.getName().getName().hashCode();
+		return this.getName().getValue().hashCode();
 	}
 	
 

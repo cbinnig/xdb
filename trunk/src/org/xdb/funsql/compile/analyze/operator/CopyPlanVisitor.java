@@ -5,7 +5,6 @@ import java.util.Stack;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -122,15 +121,6 @@ public class CopyPlanVisitor extends AbstractTopDownTreeVisitor {
 		return error;
 	}
 
-	@Override
-	public Error visitDataExchange(DataExchangeOperator deOp) {
-	
-		DataExchangeOperator newDEOp = new DataExchangeOperator(deOp);
-		oldtoNewOp.put(deOp, newDEOp);
-		operatorStack.push(newDEOp);
-		
-		return error;
-	}
 
 	public Error getError() {
 		return error;

@@ -3,14 +3,18 @@ package org.xdb.test.funsql.compile;
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.xdb.Config;
 import org.xdb.funsql.compile.FunSQLCompiler;
+import org.xdb.funsql.compile.tokens.TokenTable;
 import org.xdb.metadata.EnumPartitionType;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.metadata.Catalog;
+import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
 import org.xdb.test.XDBTestCase;
 
 public class TestCreateTableSQL extends XDBTestCase {
+	
 	@Test
 	public void testSimpleCreate() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
@@ -41,63 +45,6 @@ public class TestCreateTableSQL extends XDBTestCase {
 		this.execute(stmt);
 		
 		String dropConnSql = "DROP TABLE \"testOrder\"";
-		stmt = compiler.compile(dropConnSql);
-		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
-		this.execute(stmt);
-	}
-	
-	@Test
-	public void testSimpleCreatePartionedTable() {
-		FunSQLCompiler compiler = new FunSQLCompiler();
-		
-		//create connection -> no error
-		String createConnSql1 = 
-				"CREATE CONNECTION \"testConnection1\" " +
-				"URL 'jdbc:mysql://127.0.0.1/xdb_tmp' " +
-				"USER 'xroot' " +
-				"PASSWORD 'xroot' " +
-				"STORE 'XDB' ";
-		
-		String createConnSql2 = 
-				"CREATE CONNECTION \"testConnection2\" " +
-				"URL 'jdbc:mysql://127.0.0.1/xdb_tmp' " +
-				"USER 'xroot' " +
-				"PASSWORD 'xroot' " +
-				"STORE 'XDB' ";
-		
-		AbstractServerStmt stmt = compiler.compile(createConnSql1);
-		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
-		this.execute(stmt);
-		
-		
-		AbstractServerStmt stmt2 = compiler.compile(createConnSql2);
-		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt2);
-		this.execute(stmt2);
-		
-		
-		String createTableStmt = 
-				"CREATE TABLE \"testTable\"( "+
-				"  A INT," +
-				"  B VARCHAR" +
-				") PARTIONED BY HASH (A) ( " +
-				" \"P1\" IN CONNECTION  \"testConnection1\"," +
-				" \"P2\" IN CONNECTION  \"testConnection2\" )";
-		
-		stmt = compiler.compile(createTableStmt);
-		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
-		this.execute(stmt);
-		
-		Table gottable = Catalog.getTable("1.testTable");
-		
-		Assert.assertTrue(gottable.getPartitions().size()!=0);
-		
-		Assert.assertEquals(gottable.getPartitionType(), EnumPartitionType.HASH);
-		
-		String dropConnSql = "DROP TABLE \"testTable\"";
 		stmt = compiler.compile(dropConnSql);
 		this.assertNoError(compiler.getLastError());
 		Assert.assertNotNull(stmt);
@@ -150,14 +97,11 @@ public class TestCreateTableSQL extends XDBTestCase {
 		Assert.assertNotNull(stmt);
 		this.execute(stmt);
 		
-		Table gottable = Catalog.getTable("1.testTable1");
-		
+		Schema defaultSchema = Catalog.getSchema(Config.COMPILE_DEFAULT_SCHEMA);
+		TokenTable tTable = new TokenTable("testTable1");
+		Table gottable = Catalog.getTable(tTable.hashKey(defaultSchema.getOid()));
 		Assert.assertTrue(gottable.getPartitions().size() == 2);
-		
 		Assert.assertEquals(gottable.getPartitionType(), EnumPartitionType.HASH);
-		
-		//Assert.assertEquals(gottable.getListofPartDetails().size(), 2);
-
 		
 		String dropConnSql = "DROP TABLE \"testTable1\"";
 		stmt = compiler.compile(dropConnSql);
@@ -207,24 +151,6 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertError(compiler.getLastError());
-		
-	
-		/*this.execute(stmt);
-		
-		Table gottable = Catalog.getTable("1.testTable");
-		
-		Assert.assertTrue(gottable.getPartitions().size()!=0);
-		
-		Assert.assertEquals(gottable.getPartitionType(), "HASH");
-		
-		Assert.assertEquals(gottable.getListofPartDetails().size(), 2);
-
-		
-		String dropConnSql = "DROP TABLE \"testTable\"";
-		stmt = compiler.compile(dropConnSql);
-		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
-		this.execute(stmt);*/
 	}
 	
 	@Test
@@ -251,15 +177,12 @@ public class TestCreateTableSQL extends XDBTestCase {
 		Assert.assertNotNull(stmt);
 		this.execute(stmt);
 		
-		
 		AbstractServerStmt stmt2 = compiler.compile(createConnSql2);
 		this.assertNoError(compiler.getLastError());
 		Assert.assertNotNull(stmt2);
 		this.execute(stmt2);
 		
-		
-		
-		
+		//create tables
 		String createTableStmt = 
 				"CREATE TABLE \"T1\"( "+
 				"  C1 INT," +
@@ -274,15 +197,32 @@ public class TestCreateTableSQL extends XDBTestCase {
 		Assert.assertNotNull(stmt);
 		this.execute(stmt);
 		
-		
-		
-		
 		createTableStmt = 
 				"CREATE TABLE \"T2\"( "+
 				"  T2_C1 INT," +
 				"  T2_C2 VARCHAR," +
 				"  T2_C3 INT" +
-				") PARTIONED BY REVERSE_REFERENCE ( T2_C1___T1__C1, T2_C2___T1__C2 ) ( " +
+				") PARTIONED BY REF ( T2_C1 REFERENCES T1.C1, T2_C2 REFERENCES T1.C2 ) ( " +
+				" \"P1\" IN CONNECTION  \"testConnection1\"," +
+				" \"P2\" IN CONNECTION  \"testConnection2\" )";
+		
+		stmt = compiler.compile(createTableStmt);
+		this.assertNoError(compiler.getLastError());
+		Assert.assertNotNull(stmt);
+		this.execute(stmt);
+			
+		Schema defaultSchema = Catalog.getSchema(Config.COMPILE_DEFAULT_SCHEMA);
+		TokenTable tTable = new TokenTable("T2");
+		Table gotTable = Catalog.getTable(tTable.hashKey(defaultSchema.getOid()));
+		Assert.assertTrue(gotTable.getPartitions().size() == 2);
+		Assert.assertEquals(gotTable.getPartitionType(), EnumPartitionType.REFERENCE);
+		
+		createTableStmt = 
+				"CREATE TABLE \"T3\"( "+
+				"  T3_C1 INT," +
+				"  T3_C2 VARCHAR," +
+				"  T3_C3 INT" +
+				") PARTIONED BY RREF ( T3_C1 REFERENCES T1.C1, T3_C2 REFERENCES T1.C2 ) ( " +
 				" \"P1\" IN CONNECTION  \"testConnection1\"," +
 				" \"P2\" IN CONNECTION  \"testConnection2\" )";
 		
@@ -291,66 +231,24 @@ public class TestCreateTableSQL extends XDBTestCase {
 		Assert.assertNotNull(stmt);
 		this.execute(stmt);
 		
-		String dropConnSql = "DROP TABLE \"T2\"";
+		tTable = new TokenTable("T3");
+		gotTable = Catalog.getTable(tTable.hashKey(defaultSchema.getOid()));
+		Assert.assertTrue(gotTable.getPartitions().size() == 2);
+		Assert.assertEquals(gotTable.getPartitionType(), EnumPartitionType.REVERSE_REFERENCE);
+		
+		String dropConnSql = "DROP TABLE \"T1\"";
 		stmt = compiler.compile(dropConnSql);
 		this.assertNoError(compiler.getLastError());
 		Assert.assertNotNull(stmt);
 		this.execute(stmt);
 		
-		dropConnSql = "DROP TABLE \"T1\"";
+		dropConnSql = "DROP TABLE \"T2\"";
 		stmt = compiler.compile(dropConnSql);
 		this.assertNoError(compiler.getLastError());
 		Assert.assertNotNull(stmt);
 		this.execute(stmt);
 		
-	}
-	
-	
-	@Test
-	public void testCreateReplicatedPartionedTable() {
-		FunSQLCompiler compiler = new FunSQLCompiler();
-		
-		//create connection -> no error
-		String createConnSql1 = 
-				"CREATE CONNECTION \"testConnection1\" " +
-				"URL 'jdbc:mysql://127.0.0.1/xdb_tmp' " +
-				"USER 'xroot' " +
-				"PASSWORD 'xroot' " +
-				"STORE 'XDB' ";
-		
-		String createConnSql2 = 
-				"CREATE CONNECTION \"testConnection2\" " +
-				"URL 'jdbc:mysql://127.0.0.1/xdb_tmp' " +
-				"USER 'xroot' " +
-				"PASSWORD 'xroot' " +
-				"STORE 'XDB' ";
-		
-		AbstractServerStmt stmt = compiler.compile(createConnSql1);
-		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
-		this.execute(stmt);
-		
-		
-		AbstractServerStmt stmt2 = compiler.compile(createConnSql2);
-		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt2);
-		this.execute(stmt2);
-		
-		
-		String createTableStmt = 
-				"CREATE TABLE \"testTable\"( "+
-				"  A INT," +
-				"  B VARCHAR" +
-				") PARTIONED BY HASH ( A ) ( " +
-				" \"P1\" REPLICATED IN CONNECTION  \"testConnection1\", \"testConnection2\", "+
-				" \"P2\" REPLICATED IN CONNECTION  \"testConnection1\", \"testConnection2\" )";
-		
-		stmt = compiler.compile(createTableStmt);
-		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
-		this.execute(stmt);
-		
-		String dropConnSql = "DROP TABLE \"testTable\"";
+		dropConnSql = "DROP TABLE \"T3\"";
 		stmt = compiler.compile(dropConnSql);
 		this.assertNoError(compiler.getLastError());
 		Assert.assertNotNull(stmt);
@@ -394,6 +292,57 @@ public class TestCreateTableSQL extends XDBTestCase {
 				"  B VARCHAR" +
 				") REPLICATED IN CONNECTION \"testConnection1\"," +
 				"\"testConnection2\";" ;
+		
+		stmt = compiler.compile(createTableStmt);
+		this.assertNoError(compiler.getLastError());
+		Assert.assertNotNull(stmt);
+		this.execute(stmt);
+		
+		String dropConnSql = "DROP TABLE \"testTable\"";
+		stmt = compiler.compile(dropConnSql);
+		this.assertNoError(compiler.getLastError());
+		Assert.assertNotNull(stmt);
+		this.execute(stmt);
+	}
+	
+	@Test
+	public void testCreateReplicatedPartionedTable() {
+		FunSQLCompiler compiler = new FunSQLCompiler();
+		
+		//create connection -> no error
+		String createConnSql1 = 
+				"CREATE CONNECTION \"testConnection1\" " +
+				"URL 'jdbc:mysql://127.0.0.1/xdb_tmp' " +
+				"USER 'xroot' " +
+				"PASSWORD 'xroot' " +
+				"STORE 'XDB' ";
+		
+		String createConnSql2 = 
+				"CREATE CONNECTION \"testConnection2\" " +
+				"URL 'jdbc:mysql://127.0.0.1/xdb_tmp' " +
+				"USER 'xroot' " +
+				"PASSWORD 'xroot' " +
+				"STORE 'XDB' ";
+		
+		AbstractServerStmt stmt = compiler.compile(createConnSql1);
+		this.assertNoError(compiler.getLastError());
+		Assert.assertNotNull(stmt);
+		this.execute(stmt);
+		
+		
+		AbstractServerStmt stmt2 = compiler.compile(createConnSql2);
+		this.assertNoError(compiler.getLastError());
+		Assert.assertNotNull(stmt2);
+		this.execute(stmt2);
+		
+		
+		String createTableStmt = 
+				"CREATE TABLE \"testTable\"( "+
+				"  A INT," +
+				"  B VARCHAR" +
+				") PARTIONED BY HASH ( A ) ( " +
+				" \"P1\" REPLICATED IN CONNECTION  \"testConnection1\", \"testConnection2\", "+
+				" \"P2\" REPLICATED IN CONNECTION  \"testConnection1\", \"testConnection2\" )";
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());

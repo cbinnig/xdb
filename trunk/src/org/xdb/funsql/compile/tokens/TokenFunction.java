@@ -84,7 +84,7 @@ public class TokenFunction extends AbstractToken implements Cloneable {
 
 	@Override
 	public TokenFunction clone() throws CloneNotSupportedException {
-		TokenFunction tc =  new TokenFunction(this.name.getName());
+		TokenFunction tc =  new TokenFunction(this.name.getValue());
 		tc.language = this.language;
 		tc.schema = this.schema.clone();
 		return tc;

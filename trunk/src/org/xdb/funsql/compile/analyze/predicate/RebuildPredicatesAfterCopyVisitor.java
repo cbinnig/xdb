@@ -67,7 +67,7 @@ public class RebuildPredicatesAfterCopyVisitor extends AbstractPredicateVisitor 
 		// rename Attributes
 		for (TokenAttribute at : absP.getAttributes()) {
 
-			newName = oldToNewIDMap.get(at.getTable().getName().getName());
+			newName = oldToNewIDMap.get(at.getTable().getName().getValue());
 			// if no new name found it wasn't renamed so continue
 			if (newName == null)
 				continue;

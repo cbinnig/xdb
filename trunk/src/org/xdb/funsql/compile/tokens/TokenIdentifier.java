@@ -4,11 +4,11 @@ public class TokenIdentifier extends AbstractToken implements Cloneable{
 	private static final long serialVersionUID = -7726723089171901571L;
 	
 	//attributes
-	private String name;
+	private String value;
 
 	//constructors
-	public TokenIdentifier(String name) {
-		this.name = name;
+	public TokenIdentifier(String value) {
+		this.value = value;
 	}
 
 	
@@ -17,14 +17,14 @@ public class TokenIdentifier extends AbstractToken implements Cloneable{
 	 */
 	public TokenIdentifier(TokenIdentifier toCopy) {
 		if(toCopy!=null){
-			this.name = toCopy.name;
+			this.value = toCopy.value;
 		}
 		
 	}
 
 	//getter and setter
-	public String getName() {
-		return name;
+	public String getValue() {
+		return value;
 	}
 
 	//helper methods
@@ -35,16 +35,16 @@ public class TokenIdentifier extends AbstractToken implements Cloneable{
 	
 	@Override
 	public String toSqlString(){
-		return this.name;
+		return this.value;
 	}
 	
 	@Override
 	public TokenIdentifier clone(){
-		return new TokenIdentifier(this.name);
+		return new TokenIdentifier(this.value);
 	}
 	
 	public String hashKey(){
-		return this.name;
+		return this.value;
 	}
 	
 }

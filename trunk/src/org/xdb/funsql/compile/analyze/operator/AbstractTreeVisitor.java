@@ -4,7 +4,6 @@ package org.xdb.funsql.compile.analyze.operator;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.FunctionCall;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -20,7 +19,6 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	
 	protected AbstractCompileOperator treeRoot = null;
 	protected boolean stop = false;
-	protected int normalOperatorsCnt;	// all operators except DE operators
 	
 	public AbstractTreeVisitor(AbstractCompileOperator root) {
 		treeRoot = root;
@@ -65,8 +63,6 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 			return visitSQLCombined((SQLCombined)absOp);
 		case TABLE:
 			return visitTableOperator((TableOperator) absOp);
-		case DATA_EXCHANGE:
-			return visitDataExchange((DataExchangeOperator) absOp);
 		case FUNCTION_CALL:
 			return visitFunctionCall((FunctionCall) absOp);
 		default:
@@ -83,11 +79,4 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
-
-	
-	public int getNormalOperatorsCnt() {
-		return normalOperatorsCnt;
-	}
-
-	
 }

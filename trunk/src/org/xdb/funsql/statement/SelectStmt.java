@@ -1,6 +1,5 @@
 package org.xdb.funsql.statement;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,15 +29,11 @@ import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.compile.tokens.TokenSchema;
 import org.xdb.funsql.compile.tokens.TokenTable;
 import org.xdb.funsql.optimize.Optimizer;
-import org.xdb.funsql.parallelize.PartitionAttributeSet;
-import org.xdb.funsql.parallelize.PartitionInfo;
 import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Catalog;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.EnumDatabaseObject;
-import org.xdb.metadata.EnumPartitionType;
-import org.xdb.metadata.PartitionAttributes;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
 import org.xdb.store.EnumStore;
@@ -506,76 +501,19 @@ public class SelectStmt extends AbstractServerStmt {
 		Table table = this.tableSymbols.get(tableOp.getTokenTable().hashKey());
 		tableOp.setTable(table);
 
-		// set connection
+		// set connection if table is no intermediate temporary table
+		// TODO: change for partitioned tables
 		if (!table.isTemp()) {
-			
-		
-		// Is Table Partioned?
-		if(table.isPartioned()){
-			
-			/* changed by Erfan
-			//Table is partitioned so add PartitionInfo
-			TokenAttribute ta;
-			Set<TokenAttribute> partAttributes = new HashSet<TokenAttribute>();
-			for(String att :table.getListofPartDetails()){
-				ta = new TokenAttribute(table.getAttribute(att).getName());
-				partAttributes.add(ta);
-			}
-	
-			PartitionInfo pi = new PartitionInfo(partAttributes, EnumPartitionType.valueOf(table.getPartitionType()), table.getPartitions().size());
-			tableOp.setOutputPartitionInfo(pi);
-			*/
-			
-			//Table is partitioned so add PartitionInfo
-			TokenAttribute ta;
-			PartitionAttributeSet partAttributeSet = new PartitionAttributeSet();
-			
-			// TODO Erfan: Here needs urgent fix.			
-			for(PartitionAttributes partAtts :table.getPartitionAttributes().values()){
-				String attName = Catalog.getAttribute(partAtts.getPart_att_oid()).getName();
-				ta = new TokenAttribute(attName);
-				partAttributeSet.addAttribute(ta);
-			}
-			List <PartitionAttributeSet> wrapper = new ArrayList<PartitionAttributeSet>();
-			wrapper.add(partAttributeSet);
-	
-			PartitionInfo pi = new PartitionInfo(wrapper, table.getPartitionType(), table.getPartitions().size());
-			tableOp.setOutputPartitionInfo(pi);
-		} else {
-		
-			// not partioned
-			PartitionInfo pi = new PartitionInfo(EnumPartitionType.NO_PARTITION);
-			tableOp.setOutputPartitionInfo(pi);
-			// TODO next step (add all table connections) "Abdallah"
-			if(table.getConnectionOids().isEmpty()){
-				// TODO 
-			} else {
-				List<Long> connectionOids = table.getConnectionOids(); 
-				for (Long connOid : connectionOids) {
-					Connection conn = Catalog.getConnection(connOid); 
-					tableOp.addConnection(conn);
-					if (!conn.getStore().equals(EnumStore.XDB)) {
-						String args[] = { "Store of type " + conn.getStore()
-								+ " not supported" };
-						return new Error(EnumError.COMPILER_GENERIC, args);
-					}
-				}
-			}
-			
-			if (table.getConnectionOid() == -1) {
-				// TODO
-			} else {
-				Connection conn = Catalog.getConnection(table.getConnectionOid());
-				tableOp.setConnection(conn);
+			List<Long> connectionOids = table.getConnectionOids(); 
+			for (Long connOid : connectionOids) {
+				Connection conn = Catalog.getConnection(connOid); 
+				tableOp.addConnection(conn);
 				if (!conn.getStore().equals(EnumStore.XDB)) {
 					String args[] = { "Store of type " + conn.getStore()
 							+ " not supported" };
 					return new Error(EnumError.COMPILER_GENERIC, args);
 				}
 			}
-			
-			
-		}
 		}
 
 		// add table op to plan

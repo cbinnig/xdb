@@ -14,7 +14,6 @@ import org.xdb.funsql.compile.operator.AbstractBinaryOperator;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.AbstractJoinOperator;
 import org.xdb.funsql.compile.operator.AbstractUnaryOperator;
-import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
@@ -362,13 +361,6 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	@Override
 	public Error visitSQLCombined(SQLCombined absOp) {
 		String[] args = { "SQLCombined operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		return e;
-	}
-	
-	@Override
-	public Error visitDataExchange(DataExchangeOperator deOp) {
-		String[] args = { "DataExchange operators are currently not supported" };
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}

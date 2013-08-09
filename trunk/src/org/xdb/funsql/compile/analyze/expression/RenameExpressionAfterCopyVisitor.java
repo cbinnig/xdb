@@ -34,7 +34,7 @@ public class RenameExpressionAfterCopyVisitor extends AbstractExpressionVisitor 
 			TokenAttribute att = se.getAttribute();
 
 			String newName = this.oldToNewIDMap.get(att.getTable().getName()
-					.getName());
+					.getValue());
 
 
 			if (newName != null) {

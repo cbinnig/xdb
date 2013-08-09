@@ -12,8 +12,6 @@ import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
-import org.xdb.funsql.parallelize.PartitionAttributeSet;
-import org.xdb.funsql.parallelize.PartitionInfo;
 import org.xdb.metadata.Connection;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
@@ -24,10 +22,6 @@ import com.oy.shared.lm.graph.GraphNode;
 public abstract class AbstractCompileOperator implements Serializable {
 
 	private static final long serialVersionUID = -5531022011681321483L;
-
-	// partionInformation
-	protected PartitionInfo partitionOutputInfo;
-	protected Set<PartitionInfo> partitionCandiates = new HashSet<PartitionInfo>();
 
 	// attributes
 	protected Vector<ResultDesc> results;
@@ -67,12 +61,6 @@ public abstract class AbstractCompileOperator implements Serializable {
 		if (!toCopy.getWishedConnections().isEmpty()) {
 			this.wishedConnections =toCopy.getWishedConnections();
 		}
-
-		if (toCopy.partitionOutputInfo != null) {
-			this.partitionOutputInfo = new PartitionInfo(
-					toCopy.partitionOutputInfo);
-		}
-
 	}
 
 	public AbstractCompileOperator(int resultNumber) {
@@ -80,75 +68,6 @@ public abstract class AbstractCompileOperator implements Serializable {
 	}
 
 	// getters and setters
-
-	/**
-	 * Gets the partition Info of the Operator, so how many parts the output has
-	 * and on what column it is partitioned
-	 * 
-	 * @return
-	 */
-	public PartitionInfo getOutputPartitionInfo() {
-		return partitionOutputInfo;
-	}
-
-	/**
-	 * Returns if output partition info is available
-	 * 
-	 * @return
-	 */
-	public boolean hasOutputPartitionInfo() {
-		return partitionOutputInfo != null;
-	}
-
-	/**
-	 * Set the partionInfo for this operator
-	 * 
-	 * @param partitionOutputInfo
-	 */
-	public void setOutputPartitionInfo(PartitionInfo partitionOutputInfo) {
-		this.partitionOutputInfo = partitionOutputInfo;
-	}
-
-	/**
-	 * Adds a partitioning scheme as candidate
-	 * 
-	 * @param pi
-	 */
-	public void addPartitionCandiate(PartitionInfo pi) {
-		this.partitionCandiates.add(pi);
-	}
-
-	/**
-	 * Returns all possible partitioning schemes
-	 * 
-	 * @return
-	 */
-	public Set<PartitionInfo> getPartitionCandiates() {
-		return partitionCandiates;
-	}
-
-	/**
-	 * Sets all partitioning candidates
-	 * 
-	 * @param partitionCandiates
-	 */
-	public void setPartitionCandiates(Set<PartitionInfo> partitionCandiates) {
-		this.partitionCandiates = partitionCandiates;
-	}
-
-	/**
-	 * Returns if any partition candidate is available
-	 * 
-	 * @return
-	 */
-	public boolean hasPartitionCandidates() {
-		if (this.partitionCandiates != null
-				&& this.partitionCandiates.size() > 0)
-			return true;
-
-		return false;
-	}
-
 	/**
 	 * Get all source operators.
 	 * 
@@ -343,67 +262,12 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 */
 	public boolean renameAttributes(HashMap<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
-		/*
-		// Changed by Erfan
-		boolean renamed = false;
-
-		// rename output Partitioning
-		if (this.hasOutputPartitionInfo()) {
-			for (TokenAttribute tA : this.getOutputPartitionInfo()
-					.getPartitionAttributes()) {
-				if (tA.renameAttribute(renamedAttributes))
-					renamed = true;
-			}
-		}
-
-		// rename partitioning candidates
-		if (this.hasPartitionCandidates()) {
-			for (PartitionInfo pi : this.getPartitionCandiates()) {
-				for (TokenAttribute tA : pi.getPartitionAttributes()) {
-					if (tA.renameAttribute(renamedAttributes))
-						renamed = true;
-				}
-			}
-		}
-
-		// rename result attributes
-		for (TokenAttribute tA : getResult().getAttributes()) {
-			if (renamedAttributes.containsKey(tA.getName().getName())) {
-				if (tA.renameAttribute(renamedAttributes))
-					renamed = true;
-			}
-		}
-
-		return renamed;
-		*/
 		
 		boolean renamed = false;
 
-		// rename output Partitioning
-		if (this.hasOutputPartitionInfo()) {
-			for (PartitionAttributeSet attSet : this.getOutputPartitionInfo().getPartitionAttributeSet()) {
-				for (TokenAttribute tA : attSet.getAttributeSet())
-					if (tA.renameAttribute(renamedAttributes))
-						renamed = true;
-			}
-		}
-
-		// rename partitioning candidates
-		if (this.hasPartitionCandidates()) {
-			for (PartitionInfo pi : this.getPartitionCandiates()) {
-				for (PartitionAttributeSet attSet : pi.getPartitionAttributeSet()){
-					for (TokenAttribute tA : attSet.getAttributeSet()) {
-						if (tA.renameAttribute(renamedAttributes))
-							renamed = true;
-					}
-				}
-				
-			}
-		}
-
 		// rename result attributes
 		for (TokenAttribute tA : getResult().getAttributes()) {
-			if (renamedAttributes.containsKey(tA.getName().getName())) {
+			if (renamedAttributes.containsKey(tA.getName().getValue())) {
 				if (tA.renameAttribute(renamedAttributes))
 					renamed = true;
 			}
@@ -448,15 +312,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 		// header
 		if (Config.TRACE_COMPILE_PLAN_HEADER) {
 			StringBuffer header = new StringBuffer();
-			if (Config.TRACE_COMPILE_PLAN_PARTITIONING) {
-
-				header.append("Partition candidates:");
-				header.append(AbstractToken.NEWLINE);
-				for (PartitionInfo pi : this.getPartitionCandiates()) {
-					header.append(pi.toString());
-					header.append(AbstractToken.NEWLINE);
-				}
-
+			if (Config.TRACE_COMPILE_PLAN_PARENTCHILD) {
 				header.append("Parents: ");
 				header.append(this.parents.toString());
 				header.append(AbstractToken.NEWLINE);
@@ -481,11 +337,6 @@ public abstract class AbstractCompileOperator implements Serializable {
 		// footer
 		if (Config.TRACE_COMPILE_PLAN_FOOTER) {
 			StringBuffer footer = new StringBuffer();
-			if (Config.TRACE_COMPILE_PLAN_PARTITIONING
-					&& this.hasOutputPartitionInfo()) {
-				footer.append("Output partitioning: ");
-				footer.append(this.getOutputPartitionInfo().toString());
-			}
 			node.getInfo().setFooter(footer.toString());
 		}
 
