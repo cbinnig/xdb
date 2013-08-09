@@ -4,7 +4,6 @@ import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.AbstractTopDownTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
@@ -100,11 +99,4 @@ public class SelectionCombineVisitor extends AbstractTopDownTreeVisitor {
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
-
-	@Override
-	public Error visitDataExchange(DataExchangeOperator deOp) {
-		this.lastOp = deOp;
-		return err;
-	}
-
 }

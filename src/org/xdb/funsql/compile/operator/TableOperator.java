@@ -68,7 +68,7 @@ public class TableOperator extends AbstractCompileOperator {
 	}
 
 	public String getTableName() {
-		return tableName.getName();
+		return tableName.getValue();
 	}
 
 	public TokenIdentifier getTokenTable() {
@@ -99,6 +99,32 @@ public class TableOperator extends AbstractCompileOperator {
 		return this.partition != null;
 	}
 
+
+
+	public Partition getPartition() {
+		return partition;
+	}
+
+	public void setPartition(Partition partition) {
+		this.partition = partition;
+	}
+
+	public int getPart() {
+		return part;
+	}
+
+	public void setPart(int part) {
+		this.part = part;
+	}
+ 
+	public List<Connection> getConnections() {
+		return connections;
+	}
+
+	public void addConnection(Connection connection) {
+		this.connections.add(connection);
+	}
+	
 	// methods
 
 	/**
@@ -178,37 +204,4 @@ public class TableOperator extends AbstractCompileOperator {
 	public void renameTableOfAttributes(String oldId, String newId) {
 
 	}
-
-	public Partition getPartition() {
-		return partition;
-	}
-
-	public void setPartition(Partition partition) {
-		this.partition = partition;
-	}
-
-	public int getPart() {
-		return part;
-	}
-
-	public void setPart(int part) {
-		this.part = part;
-	}
-
-     
-	/**
-	 * @return the connections
-	 */
-	public List<Connection> getConnections() {
-		return connections;
-	}
-
-	/**
-	 * @param connections the connections to set
-	 */
-	public void addConnection(Connection connection) {
-		this.connections.add(connection);
-	}
-	
-
 }

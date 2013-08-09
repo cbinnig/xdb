@@ -243,19 +243,6 @@ public class Table extends AbstractDatabaseObject {
 	public void setRefTableOid(Long refTableOid) {
 		this.refTableOid = refTableOid;
 	}
-	
-	/*
-	public List<String> getListofPartDetails(){
-		List<String> values = new ArrayList<String>();
-		String[] splitted = this.partitionDetails.split(" ");
-		for (String elem : splitted) {
-			values.add(elem);
-		}
-		return values;
-	}
-	*/
-
-
 
 	public void setPartitionCount(Long partitionCount) {
 		this.partitionCnt = partitionCount;

@@ -1,5 +1,6 @@
 package org.xdb.funsql.statement;
 
+import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 
 /**
@@ -103,5 +104,12 @@ public abstract class AbstractServerStmt {
 	 */
 	public String toSqlString() {
 		return this.stmtString;
+	}
+	
+	public Error createGenericCompileErr(
+			String errMsg) {
+		String[] args = { errMsg };
+		Error lastError = new Error(EnumError.COMPILER_GENERIC, args);
+		return lastError;
 	}
 }

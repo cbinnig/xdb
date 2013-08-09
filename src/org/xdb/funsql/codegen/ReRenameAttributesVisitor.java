@@ -7,7 +7,6 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.AbstractBottomUpTreeVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -18,7 +17,6 @@ import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
-import org.xdb.funsql.parallelize.PartitionAttributeSet;
 
 /**
  * @author a.c.mueller
@@ -144,51 +142,13 @@ public class ReRenameAttributesVisitor extends AbstractBottomUpTreeVisitor {
 	 * @param tableOp Table to Rename
 	 */
 	private void renameTableOp(TableOperator tableOp) {
-		/*
-	 	// Changed by Erfan
-
-		String newName= null;
 		//add to renamed list
 		this.renamedOps.add(tableOp.getOperatorId().toString());
 		for(TokenAttribute tA : tableOp.getResult().getAttributes()){
-			newName = removeTableNameFromName(tA.getName().getName(), tableOp.getTableName());
+			String newName = removeTableNameFromName(tA.getName().getValue(), tableOp.getTableName());
 			//put to renamed Attributes for predicate and expression visitor
-			renamedAttributes.put(tA.getName().getName(), newName);
+			renamedAttributes.put(tA.getName().getValue(), newName);
 			tA.setName(newName);
-		}
-
-		//rename partition information
-		if(tableOp.getTable().isPartioned()){
-			//iterate over partition attributes
-			for(TokenAttribute tA : tableOp.getOutputPartitionInfo().getPartitionAttributes()){
-				newName = removeTableNameFromName(tA.getName().getName(), tableOp.getTableName());
-				//put to renamed Attributes for predicate and expression visitor
-				renamedAttributes.put(tA.getName().getName(), newName);
-				tA.setName(newName);
-			}
-		}
-		 */
-
-		String newName= null;
-		//add to renamed list
-		this.renamedOps.add(tableOp.getOperatorId().toString());
-		for(TokenAttribute tA : tableOp.getResult().getAttributes()){
-			newName = removeTableNameFromName(tA.getName().getName(), tableOp.getTableName());
-			//put to renamed Attributes for predicate and expression visitor
-			renamedAttributes.put(tA.getName().getName(), newName);
-			tA.setName(newName);
-		}
-
-		//rename partition information
-		if(tableOp.getTable().isPartioned()){
-			//iterate over partition attributes
-			for (PartitionAttributeSet attSet : tableOp.getOutputPartitionInfo().getPartitionAttributeSet())
-				for(TokenAttribute tA : attSet.getAttributeSet()){
-					newName = removeTableNameFromName(tA.getName().getName(), tableOp.getTableName());
-					//put to renamed Attributes for predicate and expression visitor
-					renamedAttributes.put(tA.getName().getName(), newName);
-					tA.setName(newName);
-				}
 		}
 	}
 
@@ -199,17 +159,7 @@ public class ReRenameAttributesVisitor extends AbstractBottomUpTreeVisitor {
 	 * @return oldName without Table in
 	 */
 	private String removeTableNameFromName(String oldName, String tableName){
-
 		oldName = oldName.replaceFirst(tableName+"_", "");
 		return oldName;
-	}
-
-	@Override
-	public Error visitDataExchange(DataExchangeOperator deOp) {
-		/*String[] args = { "DataExchange operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		 */
-		renameResultSet(deOp);
-		return e;
 	}
 }

@@ -76,8 +76,14 @@ public enum EnumError {
 			msg =  "Catalog: Value \"<arg0>\" of catalog object \"<arg1>\" too long!";
 			break;
 		case CATALOG_TABLE_DUP_ATTS:
-			msg =  "CREATE TABLE: Duplicate attribute definition for attribute \"<arg0>\" in table  \"<arg1>\"  not allowed ";
+			msg =  "CREATE TABLE: Duplicate attribute definition for attribute \"<arg0>\" in table  \"<arg1>\"  not allowed!";
 			break;
+		case CATALOG_PART_DUP_ATTS:
+			msg =  "CREATE TABLE: Duplicate attribute definition \"<arg0>\" in partition specification of table  \"<arg1>\"  not allowed!";
+			break;
+		case CATALOG_PART_WRONG_ATTS:
+			msg =  "CREATE TABLE: Wrong attribute definition \"<arg1>\".\"<arg0>\" in partition specification!";
+			break;	
 		case CATALOG_TYPE_NOT_EXISTS:
 			msg =  "CREATE TABLE: Type for attribute \"<arg0>\" does not exist.";
 			break;

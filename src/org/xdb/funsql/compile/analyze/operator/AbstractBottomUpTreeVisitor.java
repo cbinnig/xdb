@@ -3,7 +3,6 @@ package org.xdb.funsql.compile.analyze.operator;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.DataExchangeOperator;
 
 public abstract class AbstractBottomUpTreeVisitor extends AbstractTreeVisitor {
 
@@ -14,8 +13,6 @@ public abstract class AbstractBottomUpTreeVisitor extends AbstractTreeVisitor {
 	@Override
 	public Error visit(AbstractCompileOperator absOp) {
 		Error e = new Error();
-		if (! (absOp instanceof DataExchangeOperator))
-			super.normalOperatorsCnt++;
 		
 		if(this.stop)
 			return e;
@@ -27,8 +24,6 @@ public abstract class AbstractBottomUpTreeVisitor extends AbstractTreeVisitor {
 		}
 		
 		e = super.visit(absOp);
-		if (! (absOp instanceof DataExchangeOperator))
-			super.normalOperatorsCnt--;
 		return e;
 	}
 }

@@ -7,7 +7,6 @@ import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -82,7 +81,7 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 		Vector<TokenIdentifier> aliases = ga.getAliases();
 		
 		for(TokenIdentifier alias: aliases){
-			String attName = alias.getName();
+			String attName = alias.getValue();
 			TokenAttribute att = new TokenAttribute(attName);
 			EnumSimpleType type = this.types.get(att);
 			att.setTable(ga.getOperatorId().toString());
@@ -106,7 +105,7 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 			EnumSimpleType type = this.types.get(expr);
 			TokenIdentifier alias = aliases.get(i);
 			
-			String attName = alias.getName();
+			String attName = alias.getValue();
 			TokenAttribute att = new TokenAttribute(attName);
 			att.setTable(gp.getOperatorId().toString());
 			rDesc.addAttribute(att);
@@ -163,13 +162,4 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
-	
-	@Override
-	public Error visitDataExchange(DataExchangeOperator deOp) {
-		String[] args = { "DataExchange operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		return e;
-	}
-	
-	
 }

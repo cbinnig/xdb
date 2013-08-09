@@ -3,7 +3,6 @@ package org.xdb.test.parallelize;
 import org.xdb.client.CompileClient;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.FunSQLCompiler;
-import org.xdb.funsql.parallelize.Parallelizer;
 import org.xdb.funsql.statement.SelectStmt;
 import org.xdb.test.XDBTestCase;
 
@@ -140,8 +139,6 @@ public class TestPlanParallelizer extends XDBTestCase {
 		this.assertNoError(compiler.getLastError());
 		
 		sstmt.getPlan().tracePlan(this.getClass().getName() + "_COMPILED");
-		Parallelizer p = new Parallelizer(sstmt.getPlan());
-		p.parallelize().tracePlan(this.getClass().getName() + "_PARALLELIZED");
 		this.assertNoError(compiler.getLastError());
 	}
 

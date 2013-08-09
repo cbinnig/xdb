@@ -7,7 +7,6 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.expression.CheckExpressionVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -22,7 +21,7 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.types.EnumSimpleType;
 
 /**
- * CheckOperatorVisitor checks the Operators and the used data types.
+ * CheckOperatorVisitor checks the compatibility of data types.
  * 
  * @author lschmidt
  * 
@@ -127,13 +126,6 @@ public class CheckOperatorVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitSQLCombined(SQLCombined absOp) {
 		String[] args = { "SQLCombined operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		return e;
-	}
-	
-	@Override
-	public Error visitDataExchange(DataExchangeOperator deOp) {
-		String[] args = { "DataExchange operators are currently not supported" };
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}

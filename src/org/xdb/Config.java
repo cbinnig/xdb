@@ -90,7 +90,8 @@ public class Config implements Serializable {
 	public static boolean TRACE_COMPILE_PLAN = false;
 	public static boolean TRACE_COMPILE_PLAN_HEADER = true;
 	public static boolean TRACE_COMPILE_PLAN_FOOTER = true;
-	public static boolean TRACE_COMPILE_PLAN_PARTITIONING = true;
+	public static boolean TRACE_COMPILE_PLAN_PARENTCHILD = false;
+	public static boolean TRACE_COMPILE_PLAN_PARTITIONING = false;
 	public static boolean TRACE_COMPILE_PLAN_RESULTS = true;
 	public static boolean TRACE_OPTIMIZED_PLAN = false;
 	public static boolean TRACE_CODEGEN_PLAN = false;
@@ -129,7 +130,7 @@ public class Config implements Serializable {
 
 		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS", "COMPUTE_CLEAN_PLAN",
 				"TRACE_COMPILE_PLAN", "TRACE_COMPILE_PLAN_HEADER",
-				"TRACE_COMPILE_PLAN_PARTITIONING",
+				"TRACE_COMPILE_PLAN_PARTITIONING", "TRACE_COMPILE_PLAN_RESULTS", 
 				"TRACE_COMPILE_PLAN_RESULTS", "TRACE_COMPILE_PLAN_FOOTER",
 				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN",
 				"TRACE_EXECUTE_PLAN", "TRACE_CODEGEN_PLAN",

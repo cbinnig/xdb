@@ -2,7 +2,6 @@ package org.xdb.funsql.compile.analyze.operator;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.DataExchangeOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -115,17 +114,4 @@ public class PerfOrientedAnnotationVisitor extends AbstractAnnotationVisitor {
 		
 		return Error.NO_ERROR;
 	}
-
-	@Override
-	public Error visitDataExchange(DataExchangeOperator deOp) {
-		deOp.setWishedConnection(deOp.getChild().getWishedConnection());
-		
-		applyGlobalMaterializeRules(deOp); //not needed, materialize is forced eventually
-		//force split to allow automatic partition conversion by
-		//underlying database system
-		deOp.getResult().setMaterialized(true);
-		
-		return Error.NO_ERROR;
-	}
-
 }

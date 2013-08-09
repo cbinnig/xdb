@@ -30,7 +30,7 @@ public class DropConnectionStmt extends AbstractServerStmt {
 		this.connection = Catalog.getConnection(this.tConnection.hashKey());
 		
 		if (this.connection == null) {
-			return Catalog.createObjectNotExistsErr(this.tConnection.getName()
+			return Catalog.createObjectNotExistsErr(this.tConnection.getValue()
 					.toString(), EnumDatabaseObject.CONNECTION);
 		}
 		

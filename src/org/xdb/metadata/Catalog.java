@@ -706,7 +706,7 @@ public class Catalog {
 	public static synchronized void addAttribute(Attribute att) {
 		Catalog.attributes.put(att.getOid(), att);
 		StringBuilder completeName = new StringBuilder();
-		completeName.append(tables.get(att.getTableOid()).getName());
+		completeName.append(att.getTableOid());
 		completeName.append(".");
 		completeName.append(att.getName());
 		Catalog.attributesByName.put(completeName.toString(), att);
@@ -715,7 +715,7 @@ public class Catalog {
 	public static synchronized void removeAttribute(Attribute att) {
 		Catalog.attributes.remove(att.getOid());
 		StringBuilder completeName = new StringBuilder();
-		completeName.append(tables.get(att.getTableOid()).getName());
+		completeName.append(att.getTableOid());
 		completeName.append(".");
 		completeName.append(att.getName());
 		Catalog.attributesByName.remove(completeName.toString());
@@ -876,13 +876,8 @@ public class Catalog {
 		return Catalog.attributes.get(oid);
 	}
 	
-	public static synchronized Attribute getAttribute(String tableName, String attName){
-		StringBuilder completeName = new StringBuilder();
-		completeName.append(tableName);
-		completeName.append(".");
-		completeName.append(attName);
-		return Catalog.attributesByName.get(completeName.toString());
-		
+	public static synchronized Attribute getAttribute(String attKey){
+		return Catalog.attributesByName.get(attKey);
 	}
 
 	public static synchronized Partition getPartition(long oid) {
