@@ -3,6 +3,7 @@ package org.xdb.funsql.compile.operator;
 import java.io.Serializable;
 
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.metadata.EnumPartitionType;
 
 public class PartitionDesc implements Serializable{
 	private static final long serialVersionUID = 1097865181383599610L;

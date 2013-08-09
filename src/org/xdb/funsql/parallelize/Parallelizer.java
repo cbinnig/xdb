@@ -223,14 +223,9 @@ public class Parallelizer {
 			}
 			plan = new CompilePlan(this.compilePlan);
 			plan.init();
-			
-			/// plan.tracePlan("Very beginning");
-			
-			// set Partition Info in Plan Operators
 		
 			//populate plan Information
 			
-		
 			PopulatePartitionInfoVisitor populateInfoVisitor = new PopulatePartitionInfoVisitor(
 					null, plan, this, true, consideredCombinations);
 			

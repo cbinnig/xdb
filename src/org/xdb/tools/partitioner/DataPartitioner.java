@@ -236,6 +236,7 @@ public class DataPartitioner {
 			String referenceFile, String referenceIndices,
 			int numberOfReferencePartitions, int chunkSize) throws Exception {
 
+		System.out.println("Reference indixes: " + referenceIndices );
 		String directory = Utils.getFileDirectory(file);
 		Integer partitionsIndicesList[] = Utils
 				.getKeyIndicesFromString(partitionIndices.trim());
@@ -436,6 +437,9 @@ public class DataPartitioner {
 			if (partitionMethod.equalsIgnoreCase("reference")) {
 				String referenceFile = cl.getOptionValue("rf");
 				String referenceIndecis = cl.getOptionValue("rk");
+				System.out.println("Reference key" + referenceIndecis);
+				System.out.println("Reference file" + referenceFile);
+				
 
 				// Check if the the reference table is partitioned
 				//numberOfPartitions = dataPartitioner.isTablePartitoned(file,
@@ -476,7 +480,7 @@ public class DataPartitioner {
 			}
 
 		} catch (Exception e) {
-			System.err.println(e.toString());
+			e.printStackTrace();
 		}
 	}
 

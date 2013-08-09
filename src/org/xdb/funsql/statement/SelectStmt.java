@@ -30,7 +30,6 @@ import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.compile.tokens.TokenSchema;
 import org.xdb.funsql.compile.tokens.TokenTable;
 import org.xdb.funsql.optimize.Optimizer;
-import org.xdb.funsql.parallelize.EnumPartitionType;
 import org.xdb.funsql.parallelize.PartitionAttributeSet;
 import org.xdb.funsql.parallelize.PartitionInfo;
 import org.xdb.funsql.types.EnumSimpleType;
@@ -38,6 +37,8 @@ import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Catalog;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.EnumDatabaseObject;
+import org.xdb.metadata.EnumPartitionType;
+import org.xdb.metadata.PartitionAttributes;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
 import org.xdb.store.EnumStore;
@@ -527,15 +528,18 @@ public class SelectStmt extends AbstractServerStmt {
 			
 			//Table is partitioned so add PartitionInfo
 			TokenAttribute ta;
-			PartitionAttributeSet partAttributes = new PartitionAttributeSet();
-			for(String att :table.getListofPartDetails()){
-				ta = new TokenAttribute(table.getAttribute(att).getName());
-				partAttributes.addAttribute(ta);
+			PartitionAttributeSet partAttributeSet = new PartitionAttributeSet();
+			
+			// TODO Erfan: Here needs urgent fix.			
+			for(PartitionAttributes partAtts :table.getPartitionAttributes().values()){
+				String attName = Catalog.getAttribute(partAtts.getPart_att_oid()).getName();
+				ta = new TokenAttribute(attName);
+				partAttributeSet.addAttribute(ta);
 			}
 			List <PartitionAttributeSet> wrapper = new ArrayList<PartitionAttributeSet>();
-			wrapper.add(partAttributes);
+			wrapper.add(partAttributeSet);
 	
-			PartitionInfo pi = new PartitionInfo(wrapper, EnumPartitionType.valueOf(table.getPartitionType()), table.getPartitions().size());
+			PartitionInfo pi = new PartitionInfo(wrapper, table.getPartitionType(), table.getPartitions().size());
 			tableOp.setOutputPartitionInfo(pi);
 		} else {
 		

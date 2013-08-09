@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.xdb.metadata.EnumPartitionType;
+
 /**
  * This class encapsulates the partition information for every operator, needed
  * to parallelize Plans
@@ -18,13 +20,24 @@ public class PartitionInfo implements Serializable, Cloneable {
 	private List<PartitionAttributeSet> partitionAttributeSet = new ArrayList<PartitionAttributeSet>();
 	private EnumPartitionType partitionType;
 	private int parts;
-
+	private ReferenceTableInfo referenceTableInfo;
+	
+	public PartitionInfo(List<PartitionAttributeSet> partitionAttributeSet,
+			EnumPartitionType partitionType, int parts, ReferenceTableInfo refrenceTableInfo ) {
+		super();
+		this.partitionAttributeSet = partitionAttributeSet;
+		this.partitionType = partitionType;
+		this.parts = parts;
+		this.referenceTableInfo = referenceTableInfo;
+	}
+	
 	public PartitionInfo(List<PartitionAttributeSet> partitionAttributeSet,
 			EnumPartitionType partitionType, int parts) {
 		super();
 		this.partitionAttributeSet = partitionAttributeSet;
 		this.partitionType = partitionType;
 		this.parts = parts;
+		this.referenceTableInfo = null;
 	}
 	
 
@@ -32,12 +45,14 @@ public class PartitionInfo implements Serializable, Cloneable {
 		super();
 		this.partitionType = partitionType;
 		this.parts = size;
+		this.referenceTableInfo = null;
 	}
 	
 	public PartitionInfo(PartitionInfo toCopy){
 		
 		this.partitionType = toCopy.partitionType;
 		this.parts = toCopy.parts;
+		this.referenceTableInfo = toCopy.referenceTableInfo;
 		
 		List<PartitionAttributeSet> clonepartitionAttributes = new ArrayList<PartitionAttributeSet>();
 		

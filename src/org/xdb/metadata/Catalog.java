@@ -20,12 +20,20 @@ public class Catalog {
 	private static java.sql.Connection conn = null;
 
 	private static HashMap<Long, Attribute> attributes = new HashMap<Long, Attribute>();
+	public static HashMap<String, Attribute> attributesByName = new HashMap<String, Attribute>();
+	// Note that attributes in this hashmap is in the form of tablename.attname
 
+	
 	private static HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
 	private static HashMap<String, Connection> connectionsByName = new HashMap<String, Connection>();
 
 	private static HashMap<Long, Partition> partitions = new HashMap<Long, Partition>();
 	private static HashMap<Long, Partition> partitionsByName = new HashMap<Long, Partition>();
+	
+	private static HashMap<Long, Long> partitionAttributues = new HashMap<Long, Long>();
+	private static HashMap<Attribute, Attribute> partitionAttributuesByAttribute = new HashMap<Attribute, Attribute>();
+	
+	
 
 	private static HashMap<Long, List<TableToConnection>> tableToConnByTableOid = new HashMap<Long, List<TableToConnection>>();
 	private static HashMap<Long, List<TableToConnection>> tableToConnByConnOid = new HashMap<Long, List<TableToConnection>>();
@@ -59,6 +67,11 @@ public class Catalog {
 			}
 
 			lastError = Catalog.executeUpdate(PartitionToConnection.sqlDeleteAll());
+			if (lastError != Error.NO_ERROR) {
+				return lastError;
+			}
+			
+			lastError = Catalog.executeUpdate(PartitionAttributes.sqlDeleteAll());
 			if (lastError != Error.NO_ERROR) {
 				return lastError;
 			}
@@ -113,6 +126,7 @@ public class Catalog {
 			Catalog.initConnectionToTable();
 			Catalog.initPartitionToConnection();
 			Catalog.initPartitions();
+			Catalog.initPartitionAttributes();
 			Catalog.initConnections();
 			Catalog.initSchemas();
 			Catalog.initTables();
@@ -131,6 +145,7 @@ public class Catalog {
 
 	public static synchronized Error unload() {
 		Catalog.attributes.clear();
+		Catalog.attributesByName.clear();
 		Catalog.connections.clear();
 		Catalog.connectionsByName.clear();
 		Catalog.schemas.clear();
@@ -141,6 +156,7 @@ public class Catalog {
 		Catalog.functionsByName.clear();
 		Catalog.partitions.clear();
 		Catalog.partitionsByName.clear();
+		Catalog.partitionAttributues.clear();
 		Catalog.tableToConnByConnOid.clear();
 		Catalog.tableToConnByTableOid.clear();
 		Catalog.partitionToConnByConnOid.clear();
@@ -253,17 +269,28 @@ public class Catalog {
 		while (rs.next()) {
 			// add attribute to catalog
 			long oid = rs.getLong(1);
-			String source_name = rs.getString(2);
-			String source_schema = rs.getString(3);
-			String source_partition_name = rs.getString(4);
-			long tableOid = rs.getLong(5);
-			String partition_name = rs.getString(6);
-			Partition part = new Partition(oid, source_name, source_schema,
-					source_partition_name, tableOid, partition_name);
+			long tableOid = rs.getLong(2);
+			String partition_name = rs.getString(3);
+			Partition part = new Partition(oid, tableOid, partition_name);
 			Catalog.addPartition(part);
 
 		}
 
+	}
+	
+	private static synchronized void initPartitionAttributes() throws Exception {
+		Statement stmt = null;
+		ResultSet rs = null;
+		stmt = Catalog.conn.createStatement();
+		rs = stmt.executeQuery(PartitionAttributes.sqlSelectAll());
+		while (rs.next()) {
+			// add PartitionAttributes to catalog
+			long partAttOid = rs.getLong(1);
+			long refAttOid = rs.getLong(2);
+			Attribute partAttObj = Catalog.attributes.get(partAttOid);
+			PartitionAttributes partitionAttributes = new PartitionAttributes(partAttOid, refAttOid);
+			Catalog.tables.get(partAttObj.getTableOid()).addPartitionAttribute(partitionAttributes);
+		}
 	}
 
 	private static synchronized void initAttributes() throws Exception {
@@ -383,12 +410,13 @@ public class Catalog {
 		while (rs.next()) {
 			long oid = rs.getLong(1);
 			String name = rs.getString(2);
-			String sourceName = rs.getString(3);
-			String sourceSchema = rs.getString(4);
-			long schemaOid = rs.getLong(5);
+			long schemaOid = rs.getLong(3);
+			long partCnt = rs.getLong(4);
+			String partType = rs.getString(5);
+			Long refTableOid = rs.getLong(6);
+			
 
-			Table table = new Table(oid, name, sourceName, sourceSchema,
-					schemaOid);
+			Table table = new Table(oid, name, schemaOid, partCnt, partType, refTableOid);
 			Catalog.addTable(table);
 		}
 	}
@@ -435,6 +463,27 @@ public class Catalog {
 		Error lastError = Catalog.executeUpdate(att.sqlDelete());
 		if (lastError == Error.NO_ERROR) {
 			Catalog.removeAttribute(att);
+		}
+		return lastError;
+	}
+	
+	public static synchronized Error createPartitionAttributes(PartitionAttributes partAtts) {
+		if (Catalog.partitionAttributues.containsKey(partAtts.getPart_att_oid())) {
+			return createObjectAlreadyExistsErr(partAtts);
+		}
+
+		Error lastError = Catalog.executeUpdate(partAtts.sqlInsert());
+		if (lastError == Error.NO_ERROR) {
+			Catalog.addPartitionAttributes(partAtts);
+		}
+
+		return lastError;
+	}
+
+	public static synchronized Error dropPartitionAttributes(PartitionAttributes partAtts) {
+		Error lastError = Catalog.executeUpdate(partAtts.sqlDelete());
+		if (lastError == Error.NO_ERROR) {
+			Catalog.removePartitionAttributes(partAtts);
 		}
 		return lastError;
 	}
@@ -603,6 +652,15 @@ public class Catalog {
 					return lastError;
 			}
 		}
+		
+		// drop partitionAttributes
+		for (PartitionAttributes partAtts: table.getPartitionAttributes().values()) {
+			lastError = Catalog.dropPartitionAttributes(partAtts);
+			if (lastError.isError())
+				return lastError;
+
+			Catalog.removePartitionAttributes(partAtts);
+		}
 
 		// drop attributes
 		for (Attribute att : table.getAttributes()) {
@@ -651,11 +709,29 @@ public class Catalog {
 
 	public static synchronized void addAttribute(Attribute att) {
 		Catalog.attributes.put(att.getOid(), att);
+		StringBuilder completeName = new StringBuilder();
+		completeName.append(tables.get(att.getTableOid()).getName());
+		completeName.append(".");
+		completeName.append(att.getName());
+		Catalog.attributesByName.put(completeName.toString(), att);
 	}
 
 	public static synchronized void removeAttribute(Attribute att) {
 		Catalog.attributes.remove(att.getOid());
+		StringBuilder completeName = new StringBuilder();
+		completeName.append(tables.get(att.getTableOid()).getName());
+		completeName.append(".");
+		completeName.append(att.getName());
+		Catalog.attributesByName.remove(completeName.toString());
 	}
+	
+	public static synchronized void addPartitionAttributes(PartitionAttributes partAtts) {
+		Catalog.partitionAttributues.put(partAtts.getPart_att_oid(), partAtts.getRef_att_oid());
+	}
+	
+	public static synchronized void removePartitionAttributes(PartitionAttributes partAtts) {
+		Catalog.partitions.remove(partAtts.getPart_att_oid());
+	}	
 
 	public static synchronized void addPartition(Partition part) {
 		Catalog.partitions.put(part.getOid(), part);
@@ -803,6 +879,15 @@ public class Catalog {
 	public static synchronized Attribute getAttribute(long oid) {
 		return Catalog.attributes.get(oid);
 	}
+	
+	public static synchronized Attribute getAttribute(String tableName, String attName){
+		StringBuilder completeName = new StringBuilder();
+		completeName.append(tableName);
+		completeName.append(".");
+		completeName.append(attName);
+		return Catalog.attributesByName.get(completeName.toString());
+		
+	}
 
 	public static synchronized Partition getPartition(long oid) {
 		return Catalog.partitions.get(oid);
@@ -828,8 +913,8 @@ public class Catalog {
 		return Catalog.tables.get(oid);
 	}
 
-	public static synchronized Table getTable(String key) {
-		return Catalog.tablesByName.get(key);
+	public static synchronized Table getTable(String tableName) {
+		return Catalog.tablesByName.get(tableName);
 	}
 
 	public static synchronized Function getFunction(long oid) {

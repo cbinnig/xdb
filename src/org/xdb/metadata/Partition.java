@@ -28,14 +28,11 @@ public class Partition extends AbstractDatabaseObject {
 
 	private static final String TABLE_NAME = AbstractToken.toSqlIdentifier("PARTITION");
 	
-	private static final String[] ATTRIBUTES = {"OID", "TABLE_OID", "SOURCE_NAME", "SOURCE_SCHEMA", "SOURCE_PARTITION_NAME","PARTITION_NAME"};
+	private static final String[] ATTRIBUTES = {"OID", "TABLE_OID", "PARTITION_NAME"};
 	private static final String ALL_ATTRIBUTES = AbstractToken.toSqlIdentifierList(ATTRIBUTES);
 	private static long LAST_OID = 0;
 	private static long LAST_TEMP_OID = -1l;
 	
-	private String source_name;
-	private String source_schema;
-	private String source_partition_name;
 	private long table_oid;
 	
 	private HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
@@ -48,9 +45,7 @@ public class Partition extends AbstractDatabaseObject {
 	 */
 	public Partition(Partition toCopy){
 		super(toCopy);
-		this.source_name = toCopy.source_name;
-		this.source_schema = toCopy.source_schema;
-		this.source_partition_name = toCopy.source_partition_name;
+
 		this.table_oid = toCopy.table_oid;
 		
 		// Copy HashMap
@@ -66,22 +61,17 @@ public class Partition extends AbstractDatabaseObject {
 		this.objectType = EnumDatabaseObject.PARTITION;
 	}
 	
-	public Partition(Long oid, String source_name, String source_schema,
-			String source_partition_name, long table_oid, String partition_name) {
+	public Partition(Long oid, long table_oid, String partition_name) {
 		super(oid, partition_name);
 
-		this.source_name = source_name;
-		this.source_schema = source_schema;
-		this.source_partition_name = source_partition_name;
 		this.table_oid = table_oid;
 		
 	
 	}
 
 	
-	public Partition( String source_name, String source_schema,
-			String source_partition_name, long table_oid, String partition_name){
-		this(++LAST_OID, source_name, source_schema,source_partition_name, table_oid, partition_name);
+	public Partition(long table_oid, String partition_name){
+		this(++LAST_OID, table_oid, partition_name);
 	}
 	
 	//Tmp constructor
@@ -110,12 +100,6 @@ public class Partition extends AbstractDatabaseObject {
 		insertSql.append(this.oid);
 		insertSql.append(AbstractToken.COMMA);
 		insertSql.append(this.table_oid);
-		insertSql.append(AbstractToken.COMMA);
-		insertSql.append(AbstractToken.toSqlLiteral(this.source_name));
-		insertSql.append(AbstractToken.COMMA);
-		insertSql.append(AbstractToken.toSqlLiteral(this.source_schema));
-		insertSql.append(AbstractToken.COMMA);
-		insertSql.append(AbstractToken.toSqlLiteral(this.source_partition_name));
 		insertSql.append(AbstractToken.COMMA);
 		insertSql.append(AbstractToken.toSqlLiteral(this.name));
 		insertSql.append(AbstractToken.RBRACE);
@@ -154,31 +138,6 @@ public class Partition extends AbstractDatabaseObject {
 			return connec.getOid();
 		}
 		return (long) -1;
-	}
-
-
-	public String getSource_name() {
-		return source_name;
-	}
-
-	public void setSource_name(String source_name) {
-		this.source_name = source_name;
-	}
-
-	public String getSource_schema() {
-		return source_schema;
-	}
-
-	public void setSource_schema(String source_schema) {
-		this.source_schema = source_schema;
-	}
-
-	public String getSource_partition_name() {
-		return source_partition_name;
-	}
-
-	public void setSource_partition_name(String source_partition_name) {
-		this.source_partition_name = source_partition_name;
 	}
 
 	public long getTable_oid() {

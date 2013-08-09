@@ -16,6 +16,10 @@ public class PartitionAttributeSet{
 		attributeSet.add(tokenAtt);
 	}
 	
+	public int getSize(){
+		return attributeSet.size();
+	}
+	
 	// should be used instead of clone method. This method makes a duplicate of each TokenAttribute belonged to the object
 	public PartitionAttributeSet deepCopy() {
 		PartitionAttributeSet newCopy = new PartitionAttributeSet();
