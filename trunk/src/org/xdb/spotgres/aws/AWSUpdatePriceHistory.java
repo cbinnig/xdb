@@ -33,7 +33,6 @@ import com.amazonaws.services.ec2.model.DescribeSpotPriceHistoryResult;
 import com.amazonaws.services.ec2.model.InstanceType;
 import com.amazonaws.services.ec2.model.SpotPrice;
 
-@SuppressWarnings("unused")
 public class AWSUpdatePriceHistory {
 	private AmazonEC2 ec2;
 	private Session session;

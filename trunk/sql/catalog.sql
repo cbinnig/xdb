@@ -1,3 +1,5 @@
+USE xdb_schema;
+
 -- MySQL dump 10.13  Distrib 5.6.11, for osx10.7 (x86_64)
 --
 -- Host: localhost    Database: xdb_schema

@@ -23,7 +23,7 @@ public class PartitionInfo implements Serializable, Cloneable {
 	private ReferenceTableInfo referenceTableInfo;
 	
 	public PartitionInfo(List<PartitionAttributeSet> partitionAttributeSet,
-			EnumPartitionType partitionType, int parts, ReferenceTableInfo refrenceTableInfo ) {
+			EnumPartitionType partitionType, int parts, ReferenceTableInfo referenceTableInfo ) {
 		super();
 		this.partitionAttributeSet = partitionAttributeSet;
 		this.partitionType = partitionType;

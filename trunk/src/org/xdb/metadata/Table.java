@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 
 /*
@@ -80,8 +79,6 @@ public class Table extends AbstractDatabaseObject {
 		this.objectType = EnumDatabaseObject.TABLE;
 	}
 	
-
-	
 	/**
 	 * Constructor used to initialize a partioned table with different 
 	 * @param oid
@@ -110,7 +107,7 @@ public class Table extends AbstractDatabaseObject {
 		this.objectType = EnumDatabaseObject.TABLE;
 		this.schemaOid = schemaOid;
 		this.partitionCnt = partitionCnt;
-		this.partitionType = partitionType;
+		this.partitionType = (partType!=null)?EnumPartitionType.valueOf(partType):null;
 		this.refTableOid = refTableOid;
 		
 	}

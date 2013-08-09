@@ -11,6 +11,7 @@ import org.xdb.funsql.compile.tokens.TokenTable;
  * @author Erfan Zamanian
  *
  */
+@SuppressWarnings("unused")
 public class ReferenceTableInfo implements Serializable {
 	
 	private static final long serialVersionUID = -2080381215559335315L;

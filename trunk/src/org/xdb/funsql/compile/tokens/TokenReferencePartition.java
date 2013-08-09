@@ -1,8 +1,5 @@
 package org.xdb.funsql.compile.tokens;
 
-import java.io.Serializable;
-
-import org.xdb.Config;
 
 /**
  * 

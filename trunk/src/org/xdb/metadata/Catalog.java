@@ -21,8 +21,6 @@ public class Catalog {
 
 	private static HashMap<Long, Attribute> attributes = new HashMap<Long, Attribute>();
 	public static HashMap<String, Attribute> attributesByName = new HashMap<String, Attribute>();
-	// Note that attributes in this hashmap is in the form of tablename.attname
-
 	
 	private static HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
 	private static HashMap<String, Connection> connectionsByName = new HashMap<String, Connection>();
@@ -31,8 +29,6 @@ public class Catalog {
 	private static HashMap<Long, Partition> partitionsByName = new HashMap<Long, Partition>();
 	
 	private static HashMap<Long, Long> partitionAttributues = new HashMap<Long, Long>();
-	private static HashMap<Attribute, Attribute> partitionAttributuesByAttribute = new HashMap<Attribute, Attribute>();
-	
 	
 
 	private static HashMap<Long, List<TableToConnection>> tableToConnByTableOid = new HashMap<Long, List<TableToConnection>>();
