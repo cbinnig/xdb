@@ -18,8 +18,7 @@ public class TestCreateTableStmt extends XDBTestCase {
 				"TestUrl", "TestUser", "TestPasswd", "POSTGRES");
 		this.compileAndExecute(stmt);
 
-		CreateTableStmt createTableStmt = new CreateTableStmt("TestTable",
-				"SourceSchema", "SourceTable");
+		CreateTableStmt createTableStmt = new CreateTableStmt("TestTable");
 		createTableStmt.addAttribute("A");
 		createTableStmt.addType("VARCHAR");
 		createTableStmt.addConnection("TestConnection");
@@ -47,8 +46,7 @@ public class TestCreateTableStmt extends XDBTestCase {
 				"TestUrl", "TestUser", "TestPasswd", "POSTGRES");
 		this.compileAndExecute(stmt2);
 
-		CreateTableStmt createTableStmt = new CreateTableStmt("TestTable",
-				"SourceSchema", "SourceTable");
+		CreateTableStmt createTableStmt = new CreateTableStmt("TestTable");
 		createTableStmt.addAttribute("A");
 		createTableStmt.addType("VARCHAR");
 		createTableStmt.addConnection("TestConnection1");

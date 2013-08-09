@@ -128,7 +128,7 @@ public class TestPlanTranslation extends XDBTestCase {
 		tableRResult.addType(EnumSimpleType.SQL_INTEGER);
 		tableOpR.setResult(tableRResult);
 		
-		final Table tableR = new Table("R", "R", "PUBLIC", 0L, 0L);
+		final Table tableR = new Table("R", 0L, 0L);
 		tableR.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		tableR.addAttribute(new Attribute("b", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOpR.setTable(tableR);
@@ -138,7 +138,7 @@ public class TestPlanTranslation extends XDBTestCase {
 		tableSResult.addType(EnumSimpleType.SQL_INTEGER);
 		tableOpS.setResult(tableSResult);
 		
-		final Table tableS = new Table("S", "S", "PUBLIC", 0L, 0L);
+		final Table tableS = new Table("S", 0L, 0L);
 		tableS.addAttribute(new Attribute("c", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOpS.setTable(tableS);
 		
@@ -199,7 +199,7 @@ public class TestPlanTranslation extends XDBTestCase {
 		tableResult.addAttribute(tableResultA);
 		tableResult.addType(EnumSimpleType.SQL_INTEGER);
 		tableOp.setResult(tableResult);
-		Table table = new Table("R", "R", "PUBLIC", 0L, 0L);
+		Table table = new Table("R", 0L, 0L);
 		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
@@ -260,7 +260,7 @@ public class TestPlanTranslation extends XDBTestCase {
 		tableResult.addAttribute(attributeA);
 		tableResult.addType(EnumSimpleType.SQL_INTEGER);
 		tableOp.setResult(tableResult);
-		Table table = new Table("R", "R", "PUBLIC", 0L, 0L);
+		Table table = new Table("R", 0L, 0L);
 		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
 		
@@ -326,7 +326,7 @@ public class TestPlanTranslation extends XDBTestCase {
 		tableResult.addAttribute(attributeB);
 		tableResult.addType(EnumSimpleType.SQL_INTEGER);
 		tableOp.setResult(tableResult);
-		Table table = new Table("R", "R", "PUBLIC", 0L, 0L);
+		Table table = new Table("R", 0L, 0L);
 		table.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		table.addAttribute(new Attribute("b", EnumSimpleType.SQL_INTEGER, 0L));
 		tableOp.setTable(table);
@@ -422,7 +422,7 @@ public class TestPlanTranslation extends XDBTestCase {
 		lTableResult.addAttribute(lAttributeB);
 		lTableResult.addType(EnumSimpleType.SQL_INTEGER);
 		lTableOp.setResult(lTableResult);
-		final Table lTable = new Table("R", "R", "PUBLIC", 0L, 0L);
+		final Table lTable = new Table("R", 0L, 0L);
 		lTable.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		lTable.addAttribute(new Attribute("b", EnumSimpleType.SQL_INTEGER, 0L));
 		lTableOp.setTable(lTable);
@@ -433,7 +433,7 @@ public class TestPlanTranslation extends XDBTestCase {
 		rTableResult.addAttribute(rAttributeC);
 		rTableResult.addType(EnumSimpleType.SQL_INTEGER);
 		rTableOp.setResult(rTableResult);
-		final Table rTable = new Table("S", "S", "PUBLIC", 0L, 0L);
+		final Table rTable = new Table("S", 0L, 0L);
 		rTable.addAttribute(new Attribute("a", EnumSimpleType.SQL_INTEGER, 0L));
 		rTable.addAttribute(new Attribute("c", EnumSimpleType.SQL_INTEGER, 0L));
 		rTableOp.setTable(rTable);

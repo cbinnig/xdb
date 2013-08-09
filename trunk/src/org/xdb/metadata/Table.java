@@ -28,27 +28,27 @@ public class Table extends AbstractDatabaseObject {
 
 	private static final String TABLE_NAME = AbstractToken.toSqlIdentifier("TABLE");
 	
-	private static final String[] ATTRIBUTES = {"OID", "NAME", "SOURCE_NAME", "SOURCE_SCHEMA", "SCHEMA_OID","PART","PART_TYPE","PART_DETAILS"};
+	private static final String[] ATTRIBUTES = {"OID", "NAME", "SCHEMA_OID","PART_CNT","PART_TYPE","REF_TABLE_OID"};
 	private static final String ALL_ATTRIBUTES = AbstractToken.toSqlIdentifierList(ATTRIBUTES);
 	private static long LAST_OID = 0;
 	private static long LAST_TEMP_OID = -1l;
 	
 	private static Table prototype = new Table();
 	
-	private String sourceName;
-	private String sourceSchema;
-	
 	private Long schemaOid=-1l;
 
 	private HashMap<Long, Attribute> attributes = new HashMap<Long, Attribute>(); 
 	private HashMap<Long, Partition> partitions = new HashMap<Long, Partition>();
+	private HashMap<Long, PartitionAttributes> partitionAttributes = new HashMap<Long, PartitionAttributes>();
+	
 	private HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
 	
 	//parameters for partitioning 
 
-	private String partitionType;
-	private String partitionDetails;
+	private EnumPartitionType partitionType;
 	private boolean partioned;
+	private long partitionCnt;
+	private Long refTableOid = null;
 	
 
 	/**
@@ -56,15 +56,11 @@ public class Table extends AbstractDatabaseObject {
 	 * @param toCopy
 	 */
 	public Table(Table toCopy){
+		// TODO: NEEDS TO BE FIXED AND CONTAINS ALL COLUMNS
 		super(toCopy);
-		this.partioned = toCopy.partioned;
-		this.partitionDetails = toCopy.partitionDetails;
-		this.partitionDetails = toCopy.partitionDetails;
-		
-		this.sourceName = toCopy.sourceName;
-		this.sourceSchema = toCopy.sourceSchema;
-		
+		this.partioned = toCopy.partioned;		
 		this.schemaOid = toCopy.schemaOid;
+		this.refTableOid = toCopy.refTableOid;
 		
 		for(Attribute attribute : toCopy.attributes.values()){
 			this.attributes.put(attribute.getOid(), attribute);	
@@ -94,29 +90,37 @@ public class Table extends AbstractDatabaseObject {
 	 * @param sourceSchema
 	 * @param schemaOid
 	 */
-	public Table(Long oid, String name, String sourceName, String sourceSchema, Long schemaOid) {
+	public Table(Long oid, String name, Long schemaOid) {
 		super(oid, name);
-		this.sourceName = sourceName;
-		this.sourceSchema = sourceSchema;
 		this.schemaOid = schemaOid;
 		this.objectType = EnumDatabaseObject.TABLE;
 	}
 	
-	public Table(Long oid, String name, String sourceName, String sourceSchema, Long schemaOid, Long connectionID) {
+	public Table(Long oid, String name, Long schemaOid, Long connectionID) {
 		super(oid, name);
-		this.sourceName = sourceName;
-		this.sourceSchema = sourceSchema;
+
 		this.schemaOid = schemaOid;
 		this.objectType = EnumDatabaseObject.TABLE;
 
 	}
+	
+	public Table(Long oid, String name, Long schemaOid, Long partitionCnt, String partType, Long refTableOid) {
+		super(oid, name);
 
-	public Table(String name, String sourceName, String sourceSchema, Long schemaOid) {
-		this(++LAST_OID, name, sourceName, sourceSchema, schemaOid);
+		this.objectType = EnumDatabaseObject.TABLE;
+		this.schemaOid = schemaOid;
+		this.partitionCnt = partitionCnt;
+		this.partitionType = partitionType;
+		this.refTableOid = refTableOid;
+		
+	}
+
+	public Table(String name, Long schemaOid) {
+		this(++LAST_OID, name, schemaOid);
 	}
 	
-	public Table(String name, String sourceName, String sourceSchema, Long schemaOid, Long connectionID) {
-		this(++LAST_OID, name, sourceName, sourceSchema, schemaOid, connectionID );
+	public Table(String name, Long schemaOid, Long connectionID) {
+		this(++LAST_OID, name, schemaOid, connectionID );
 	}
 	
 	
@@ -132,21 +136,6 @@ public class Table extends AbstractDatabaseObject {
 		return this.oid<0;
 	}
 
-	public String getSourceName() {
-		return this.sourceName;
-	}
-
-	public void setSourceName(String sourceName) {
-		this.sourceName = sourceName;
-	}
-
-	public String getSourceSchema() {
-		return this.sourceSchema;
-	}
-
-	public void setSourceSchema(String sourceSchema) {
-		this.sourceSchema = sourceSchema;
-	}
 
 	public Long getSchemaOid() {
 		return schemaOid;
@@ -205,8 +194,16 @@ public class Table extends AbstractDatabaseObject {
 		return attributes.values();
 	}
 	
+	public HashMap<Long, PartitionAttributes> getPartitionAttributes() {
+		return partitionAttributes;
+	}
+	
 	public void addPartition(Partition partition){
 		this.partitions.put(partition.getOid(), partition);
+	}
+	
+	public void addPartitionAttribute(PartitionAttributes partitionAttributes){
+		this.partitionAttributes.put(partitionAttributes.getPart_att_oid(), partitionAttributes);
 	}
 	
 	public Collection<Partition> getPartitions(){
@@ -233,28 +230,24 @@ public class Table extends AbstractDatabaseObject {
 		return ALL_ATTRIBUTES;
 	}
 	
-	public String getPartitionType() {
+	public EnumPartitionType getPartitionType() {
 		return partitionType;
 	}
 
-
-
-	public String getPartitionDetails() {
-		return partitionDetails;
+	
+	public long getRefTableOid() {
+		return refTableOid;
 	}
 
-
-
-	public void setPartitionType(String partitionType) {
+	public void setPartitionType(EnumPartitionType partitionType) {
 		this.partitionType = partitionType;
 	}
-
-
-
-	public void setPartitionDetails(String partitionDetails) {
-		this.partitionDetails = partitionDetails;
+	
+	public void setRefTableOid(Long refTableOid) {
+		this.refTableOid = refTableOid;
 	}
 	
+	/*
 	public List<String> getListofPartDetails(){
 		List<String> values = new ArrayList<String>();
 		String[] splitted = this.partitionDetails.split(" ");
@@ -263,8 +256,13 @@ public class Table extends AbstractDatabaseObject {
 		}
 		return values;
 	}
+	*/
 
 
+
+	public void setPartitionCount(Long partitionCount) {
+		this.partitionCnt = partitionCount;
+	}
 
 	public void setPartioned(boolean partioned) {
 		this.partioned = partioned;
@@ -297,20 +295,18 @@ public class Table extends AbstractDatabaseObject {
 		insertSql.append(AbstractToken.COMMA);
 		insertSql.append(AbstractToken.toSqlLiteral(this.name));
 		insertSql.append(AbstractToken.COMMA);
-		insertSql.append(AbstractToken.toSqlLiteral(this.sourceName));
-		insertSql.append(AbstractToken.COMMA);
-		insertSql.append(AbstractToken.toSqlLiteral(this.sourceSchema));
-		insertSql.append(AbstractToken.COMMA);
 		insertSql.append(this.schemaOid);
 		insertSql.append(AbstractToken.COMMA);
-		//PART
-		insertSql.append(AbstractToken.toSqlLiteral(this.partioned));
+		//PART_CNT
+		insertSql.append(this.partitionCnt);
 		//PART_TYPE
 		insertSql.append(AbstractToken.COMMA);
-		insertSql.append(AbstractToken.toSqlLiteral(this.partitionType));
-		//PART_DETAILS
+		String partitionType = (this.partitionType==null)?AbstractToken.NULL: AbstractToken.toSqlLiteral(this.partitionType.toString());
+		insertSql.append(partitionType);
+		//REF_TABLE_OID
 		insertSql.append(AbstractToken.COMMA);
-		insertSql.append(AbstractToken.toSqlLiteral(this.partitionDetails));
+		insertSql.append(this.refTableOid);
+		
 		insertSql.append(AbstractToken.RBRACE);
 		return insertSql.toString();
 	}
@@ -336,21 +332,7 @@ public class Table extends AbstractDatabaseObject {
 		return hashKey.toString();
 	}
 	
-	@Override
-	public Error checkObject(){
-		Error lastError = super.checkObject();
-		if(lastError != Error.NO_ERROR)
-			return lastError;
-		
-		String[] values = {this.sourceName, this.sourceSchema};
-		int[] maxLength = {255, 255};
-		for(int i=0; i<values.length; ++i){
-			lastError = this.checkValueLength(values[i], maxLength[i]);
-			if(lastError != Error.NO_ERROR)
-				return lastError;
-		}
-		return Error.NO_ERROR;
-	}
+
 	
 	public String toSqlString() {
 		StringBuffer tableBuffer = new StringBuffer(AbstractToken.LBRACE);
@@ -372,4 +354,5 @@ public class Table extends AbstractDatabaseObject {
 		
 		return tableBuffer.toString();
 	}
+
 }

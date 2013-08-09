@@ -208,8 +208,12 @@ public class CodeGenerator {
 				for (Connection connection : tableConnections) {
 					uris.add(URI.create(connection.getUrl()));
 				} 
-				TableDesc tableDesc = new TableDesc(inputTableOp.getTable()
-						.getSourceName(), uris); 
+				
+				
+				//TableDesc tableDesc = new TableDesc(inputTableOp.getTable()
+				//		.getSourceName(), uris); 
+				TableDesc tableDesc = new TableDesc(inputTableOp.getTable().getName(), uris);
+						
 				trackerOp.setInTableSource(inTable, tableDesc);
 			}
 			// else: use intermediate result as table (with _OUT suffix) 

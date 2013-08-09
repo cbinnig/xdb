@@ -14,6 +14,7 @@ import org.xdb.funsql.compile.operator.SQLCombined;
 import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
+import org.xdb.metadata.EnumPartitionType;
 
 
 /**
@@ -125,15 +126,29 @@ public class RemoveDataExchangeOpVisitor extends AbstractBottomUpTreeVisitor {
 	 * @return
 	 */
 	private boolean isRemoveable(DataExchangeOperator deOp, PartitionInfo removeOpInfo){	
+		PartitionInfo inPart = deOp.getInputPartitioning();
+		PartitionInfo outPart = deOp.getOutputPartitionInfo();
 		// TODO: Understand why we do the first comparison
-		boolean returnvalue = deOp.getInputPartitioning().equals(removeOpInfo) && deOp.getInputPartitioning().equals(deOp.getOutputPartitionInfo());
+		boolean returnvalue = inPart.equals(removeOpInfo) && inPart.equals(outPart);
 		
-		// Now we should check if the OutputPartitionInfo of the RepartitionOperator is a subset of its InputPartitionInfo.
+		// Now we should check if the OutputPartitionInfo of the RepartitionOperator is a
+		// subset of its InputPartitionInfo.
 		// Because if so, this means that the RepartitionOperator is not needed anymore.
-		//boolean rv2 = deOp.getInputPartitioning().equals(deOp.getOutputPartitionInfo());
-		boolean rv2 = deOp.getInputPartitioning().contains(deOp.getOutputPartitionInfo());
+		boolean rv2 = inPart.contains(outPart);
 		
-		return returnvalue||rv2;
+		// Third, we want to check whether the input is a referenced partition and is compatible
+		// with output. If so, the RepartitionOperator is no longer needed.
+		boolean rv3 = false;
+		if (inPart.getPartitionType().equals(EnumPartitionType.REFERENCE)){
+			// We assume that reference partition is a single-attribute partition,
+			// meaning it does not have multiple attribute set
+			if (inPart.getPartitionAttributeSet().size()==1
+					&& inPart.getPartitionAttributeSet().get(0).getSize()==1
+					&& outPart.getPartitionAttributeSet().equals(inPart.getPartitionAttributeSet()))
+				rv3 = true;
+		}
+		
+		return returnvalue||rv2||rv3;
 	}
 
 	private void handleRoot(AbstractCompileOperator absOp){

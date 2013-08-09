@@ -252,7 +252,6 @@ createTableStatement returns [CreateTableStmt stmt]
                 KEYWORD_TABLE
                 table1=tokenTable {
                 	$stmt.setTable($table1.table);
-                	$stmt.setSourceTable($table1.table);
                 }
                 LPAREN
                 att1=identifierText
@@ -275,12 +274,6 @@ createTableStatement returns [CreateTableStmt stmt]
                 }
                 )*
                 RPAREN
-                (
-                KEYWORD_FROM
-                table2=tokenTable {
-                	$stmt.setSourceTable($table2.table);
-                }
-                )?
                 (((
                 KEYWORD_IN KEYWORD_CONNECTION
                 connection1=tokenIdentifier {
@@ -302,7 +295,7 @@ createTableStatement returns [CreateTableStmt stmt]
                 KEYWORD_PARTITIONED KEYWORD_BY 
                 method=identifierText
                 {
-                	$stmt.setPartitionMethod($method.text);
+                	$stmt.setPartitionType($method.text);
                 }
                 (
                 LPAREN

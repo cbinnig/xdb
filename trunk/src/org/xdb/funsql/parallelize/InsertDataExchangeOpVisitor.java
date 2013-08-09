@@ -22,6 +22,7 @@ import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
+import org.xdb.metadata.EnumPartitionType;
 
 public class InsertDataExchangeOpVisitor extends AbstractTopDownTreeVisitor {
 
