@@ -12,6 +12,7 @@ import org.xdb.logging.XDBLog;
 import org.xdb.spotgres.pojos.ClusterConstraints;
 import org.xdb.spotgres.pojos.NodeType;
 
+@SuppressWarnings("unused")
 public class ClusterConfiguration {
 	private Session session;
 	private SessionFactory sessionFactory;

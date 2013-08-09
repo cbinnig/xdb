@@ -6,15 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
-import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenDataType;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.compile.tokens.TokenReferencePartition;
-import org.xdb.funsql.compile.tokens.TokenSchema;
 import org.xdb.funsql.compile.tokens.TokenTable;
-import org.xdb.funsql.parallelize.PartitionAttributeSet;
 import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Catalog;
@@ -288,8 +285,6 @@ public class CreateTableStmt extends AbstractServerStmt {
 					Attribute referenceAtt = Catalog.getAttribute(tr.getReferenceTable().getName().getName(),
 							tr.getReferenceAttribute().getName().getName());
 					
-					HashMap<String, Attribute> attributesByName = Catalog.attributesByName;
-
 					PartitionAttributes partAtts = new PartitionAttributes(partitionAtt.getOid(), referenceAtt.getOid());
 					this.partitionAttributes.add(partAtts);
 					this.table.addPartitionAttribute(partAtts);
