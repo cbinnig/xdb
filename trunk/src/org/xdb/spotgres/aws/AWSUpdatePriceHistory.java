@@ -39,10 +39,12 @@ public class AWSUpdatePriceHistory {
 	private Session session;
 	private SessionFactory sessionFactory;
 	protected Logger logger;
-
-	private static int ACTIVE = 0;
-	private static int INACTIVE = 1;
-
+	
+	private void initHibernate() {
+		sessionFactory = HibernateUtil.configureSessionFactory();
+		session = sessionFactory.getCurrentSession();
+	}
+	
 	public void setUp() throws IOException {
 		AWSCredentials credentials = new PropertiesCredentials(
 				AWSTest.class.getResourceAsStream("AwsCredentials.properties"));
@@ -52,6 +54,8 @@ public class AWSUpdatePriceHistory {
 
 		ec2.setRegion(euWest1);
 
+		initHibernate();
+
 		logger = XDBLog.getLogger(this.getClass().getName());
 	}
 
@@ -59,11 +63,6 @@ public class AWSUpdatePriceHistory {
 		NodePrice price = new NodePrice(spotPrice);
 		session.persist(price);
 		price = null;
-	}
-
-	private void initHibernate() {
-		sessionFactory = HibernateUtil.configureSessionFactory();
-		session = sessionFactory.getCurrentSession();
 	}
 
 	private void processSpotPriceHistoryResult(DescribeSpotPriceHistoryResult spotPriceResult) {
@@ -90,7 +89,6 @@ public class AWSUpdatePriceHistory {
 
 	public void execute() throws IOException {
 		setUp();
-		initHibernate();
 		clearNodePriceTable();
 		loadPriceHistory();
 		addDurationForPrice();
