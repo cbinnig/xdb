@@ -37,6 +37,18 @@ public class AWSUpdatePriceHistory {
 	private AmazonEC2 ec2;
 	private Session session;
 	private SessionFactory sessionFactory;
+	
+	public static Collection<String> EBSInstanceTypes = new ArrayList<String>();
+	static {
+		EBSInstanceTypes.add(InstanceType.M1Large.toString());
+		EBSInstanceTypes.add(InstanceType.M1Xlarge.toString());
+		EBSInstanceTypes.add(InstanceType.M3Xlarge.toString());
+		EBSInstanceTypes.add(InstanceType.M32xlarge.toString());
+		EBSInstanceTypes.add(InstanceType.M22xlarge.toString());
+		EBSInstanceTypes.add(InstanceType.M24xlarge.toString());
+		EBSInstanceTypes.add(InstanceType.C1Xlarge.toString());
+	}
+	
 	protected Logger logger;
 	
 	private void initHibernate() {
@@ -74,15 +86,7 @@ public class AWSUpdatePriceHistory {
 
 	private DescribeSpotPriceHistoryRequest setupSpotPriceRequest() {
 		DescribeSpotPriceHistoryRequest returnValue = new DescribeSpotPriceHistoryRequest();
-		Collection<String> types = new ArrayList<String>();
-		types.add(InstanceType.M1Large.toString());
-		types.add(InstanceType.M1Xlarge.toString());
-		types.add(InstanceType.M3Xlarge.toString());
-		types.add(InstanceType.M32xlarge.toString());
-		types.add(InstanceType.M22xlarge.toString());
-		types.add(InstanceType.M24xlarge.toString());
-		types.add(InstanceType.C1Xlarge.toString());
-		returnValue.setInstanceTypes(types);
+		returnValue.setInstanceTypes(EBSInstanceTypes);
 		return returnValue;
 	}
 
@@ -180,8 +184,6 @@ public class AWSUpdatePriceHistory {
 		Transaction tx = session.beginTransaction();
 		@SuppressWarnings("unchecked")
 		List<NodePrice> nodePriceList = session.createQuery("from NodePrice").list();
-		// Iterator<NodePrice> priceIter =
-		// session.createQuery("from NodePrice order by priceTime desc").iterate();
 		Iterator<NodePrice> priceIter = nodePriceList.iterator();
 		while (priceIter.hasNext()) {
 			NodePrice nodePrice = priceIter.next();
@@ -214,13 +216,16 @@ public class AWSUpdatePriceHistory {
 			System.out.println();
 		}
 	}
+	
+	private void loadOnDemandPrices(){
+		
+	}
 
 	public static void main(String[] args) {
 		AWSUpdatePriceHistory main = new AWSUpdatePriceHistory();
 		try {
 			main.execute();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

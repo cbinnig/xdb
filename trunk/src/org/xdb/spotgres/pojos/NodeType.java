@@ -1,10 +1,13 @@
 package org.xdb.spotgres.pojos;
 
+import java.util.Collection;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -43,6 +46,12 @@ public class NodeType {
 	@Column(name = "hdd")
 	int hdd;
 
+	@Transient
+	private Collection<NodePrice> currentSpotPrice;
+	
+	@Transient
+	private Collection<NodePrice> currentOnDemandPrice;
+	
 	public String getTypeName() {
 		return typeName;
 	}
@@ -94,7 +103,9 @@ public class NodeType {
 	public float getRamPerCu(){
 		return 1.0f * this.ram / this.cuCount;
 	}
+
 	
+
 	/**
 	 * This method calculates the amount of computing units this node type 
 	 * provides based on the RAM per CU constraint provided by the customer
