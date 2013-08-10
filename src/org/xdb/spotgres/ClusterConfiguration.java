@@ -54,7 +54,6 @@ public class ClusterConfiguration {
 		try {
 			conf.execute();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

@@ -117,4 +117,13 @@ public class NodePrice {
 		super();
 	}
 
+	@Override
+	public String toString() {
+		return "NodePrice [priceID=" + priceID + ", priceTime=" + priceTime
+				+ ", price=" + price + ", priceType=" + priceType
+				+ ", nodeType=" + nodeType + ", clusterZone=" + clusterZone
+				+ ", duration=" + duration + "]";
+	}
+
+	
 }
