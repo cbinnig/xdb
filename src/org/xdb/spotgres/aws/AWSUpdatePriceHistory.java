@@ -37,6 +37,7 @@ public class AWSUpdatePriceHistory {
 	private AmazonEC2 ec2;
 	private Session session;
 	private SessionFactory sessionFactory;
+	private List<NodePrice> nodePriceList;
 	
 	public static Collection<String> EBSInstanceTypes = new ArrayList<String>();
 	static {
@@ -177,13 +178,10 @@ public class AWSUpdatePriceHistory {
 		return endDate;
 	}
 	
-	private void calculateAvailabilityPercentageAllTypes(float bidPrice) {
+	public Map<String, Map<String, PriceHelper>> calculateAvailabilityPercentageAllTypes(float bidPrice) {
 		logger.log(Level.INFO, "Calculating availability per NodeType & Zone");
 		Map<String, Map<String, PriceHelper>> availabilityMap = new HashMap<String, Map<String, PriceHelper>>();
-		session = sessionFactory.getCurrentSession();
-		Transaction tx = session.beginTransaction();
-		@SuppressWarnings("unchecked")
-		List<NodePrice> nodePriceList = session.createQuery("from NodePrice").list();
+		loadNodePriceList();
 		Iterator<NodePrice> priceIter = nodePriceList.iterator();
 		while (priceIter.hasNext()) {
 			NodePrice nodePrice = priceIter.next();
@@ -201,7 +199,6 @@ public class AWSUpdatePriceHistory {
 				priceData.addNodePriceData(nodePrice, bidPrice);
 			}
 		}
-		tx.commit();
 		System.out.println("Given price: " + bidPrice + "$");
 		for (String zone : availabilityMap.keySet()) {
 			System.out.println(zone);
@@ -215,12 +212,22 @@ public class AWSUpdatePriceHistory {
 			}
 			System.out.println();
 		}
+		return availabilityMap;
 	}
 	
-	private void loadOnDemandPrices(){
-		
+	@SuppressWarnings("unchecked")
+	private void loadNodePriceList(){
+		if (this.nodePriceList == null){
+			Transaction tx = HibernateUtil.getTransaction(session);
+			this.nodePriceList = session.createQuery("from NodePrice").list();
+			tx.commit();
+		}
 	}
-
+	
+	public void resetNodePriceList(){
+		this.nodePriceList=null;
+	}
+		
 	public static void main(String[] args) {
 		AWSUpdatePriceHistory main = new AWSUpdatePriceHistory();
 		try {

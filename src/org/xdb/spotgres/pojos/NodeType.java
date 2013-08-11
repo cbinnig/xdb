@@ -104,8 +104,6 @@ public class NodeType {
 		return 1.0f * this.ram / this.cuCount;
 	}
 
-	
-
 	/**
 	 * This method calculates the amount of computing units this node type 
 	 * provides based on the RAM per CU constraint provided by the customer
