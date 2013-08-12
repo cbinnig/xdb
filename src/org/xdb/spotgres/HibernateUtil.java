@@ -21,13 +21,13 @@ public class HibernateUtil {
 		sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 		return sessionFactory;
 	}
-	
-	public static Transaction getTransaction(Session session){
+
+	public static Transaction getTransaction(Session session) {
 		session = sessionFactory.getCurrentSession();
 		return session.beginTransaction();
 	}
-	
-	public static void saveObject(Session session, Object obj){
+
+	public static void saveObject(Session session, Object obj) {
 		session = sessionFactory.getCurrentSession();
 		session.persist(obj);
 	}
