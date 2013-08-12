@@ -110,9 +110,9 @@ public class NodeType {
 	 * @param ramPerCu
 	 * @return
 	 */
-	public int getCuByRam(float ramPerCu){
+	public int getCuByRam(int ramPerCu){
 		int cuBasedOnRam = Double.valueOf(Math.floor(this.ram / ramPerCu)).intValue(); 
-		return cuBasedOnRam>this.cuCount?cuBasedOnRam:this.cuCount;
+		return cuBasedOnRam>this.cuCount?this.cuCount:cuBasedOnRam;
 	}
 
 	@Override

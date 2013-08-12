@@ -39,6 +39,11 @@ public class ClusterConstraints {
 	public void setReplicationFactor(long replicationFactor) {
 		this.replicationFactor = replicationFactor;
 	}
+	@Override
+	public String toString() {
+		return "ClusterConstraints [cuCount=" + cuCount + ", ramPerCu=" + ramPerCu + ", connectivity=" + connectivity
+				+ ", moneyPerHour=" + moneyPerHour + ", replicationFactor=" + replicationFactor + "]";
+	}
 	
 	
 }
