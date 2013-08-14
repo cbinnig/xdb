@@ -9,6 +9,8 @@ public class ClusterConstraints {
 	float connectivity;
 	float moneyPerHour;
 	long replicationFactor;
+	int safetyBuffer = 10;
+	
 	public int getCuCount() {
 		return cuCount;
 	}
@@ -39,11 +41,23 @@ public class ClusterConstraints {
 	public void setReplicationFactor(long replicationFactor) {
 		this.replicationFactor = replicationFactor;
 	}
+	
+	public int getSafetyBuffer() {
+		return safetyBuffer;
+	}
+	public void setSafetyBuffer(int safetyBuffer) {
+		this.safetyBuffer = safetyBuffer;
+	}
+	
+	public int getCuCountInclBuffer(){
+		return Double.valueOf(Math.ceil(cuCount * (1 + safetyBuffer / 100))).intValue();
+	}
+	
 	@Override
 	public String toString() {
 		return "ClusterConstraints [cuCount=" + cuCount + ", ramPerCu=" + ramPerCu + ", connectivity=" + connectivity
-				+ ", moneyPerHour=" + moneyPerHour + ", replicationFactor=" + replicationFactor + "]";
+				+ ", moneyPerHour=" + moneyPerHour + ", replicationFactor=" + replicationFactor + ", safetyBuffer="
+				+ safetyBuffer + "]";
 	}
-	
 	
 }
