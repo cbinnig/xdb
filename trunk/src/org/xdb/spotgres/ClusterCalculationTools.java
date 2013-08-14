@@ -1,5 +1,6 @@
 package org.xdb.spotgres;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,20 @@ import org.xdb.spotgres.pojos.NodePrice;
 import org.xdb.spotgres.pojos.NodeType;
 
 public class ClusterCalculationTools {
+	public static class SpotPriceComparator implements Comparator<ClusterPriceHelper> {
+		public int compare(ClusterPriceHelper a, ClusterPriceHelper b) {
+			return Float.valueOf(a.getCurrentSpotPrice().getPrice()).compareTo(
+					b.getCurrentSpotPrice().getPrice());
+		}
+	}
+	
+	public static class SpotPricePerCUPerRamComparator implements Comparator<ClusterPriceHelper> {
+		public int compare(ClusterPriceHelper a, ClusterPriceHelper b) {
+			return Float.valueOf(a.getOnDemandPricePerCUPerRam()).compareTo(
+					b.getOnDemandPricePerCUPerRam());
+		}
+	}
+	
 	private Session session;
 	private SessionFactory sessionFactory;
 	protected Logger logger;

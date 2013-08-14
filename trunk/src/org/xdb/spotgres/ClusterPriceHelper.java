@@ -8,7 +8,7 @@ import org.xdb.spotgres.pojos.NodePrice.PRICETYPE;
 import org.xdb.spotgres.pojos.NodeType;
 import org.xdb.spotgres.pojos.PriceHelper;
 
-public class ClusterPriceHelper implements Comparable<ClusterPriceHelper> {
+public class ClusterPriceHelper {
 	private NodeType nodeType;
 	private NodePrice currentSpotPrice;
 	private NodePrice onDemandPrice;
@@ -63,6 +63,10 @@ public class ClusterPriceHelper implements Comparable<ClusterPriceHelper> {
 		return currentSpotPrice.getPrice() / nodeType.getCuCount();
 	}
 
+	public float getOnDemandPricePerCUPerRam() {
+		return onDemandPrice.getPrice() / nodeType.getCuByRam(constraints.getRamPerCu());
+	}
+	
 	public float getOnDemandPricePerCUPerRam(int ram) {
 		return onDemandPrice.getPrice() / nodeType.getCuByRam(ram);
 	}
@@ -77,12 +81,6 @@ public class ClusterPriceHelper implements Comparable<ClusterPriceHelper> {
 
 	public void setConstraints(ClusterConstraints constraints) {
 		this.constraints = constraints;
-	}
-
-	@Override
-	public int compareTo(ClusterPriceHelper o) {
-		return Float.valueOf(this.getOnDemandPricePerCUPerRam(constraints.getRamPerCu())).compareTo(
-				o.getOnDemandPricePerCUPerRam(constraints.getRamPerCu()));
 	}
 
 	@Override
