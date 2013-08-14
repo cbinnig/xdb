@@ -86,7 +86,7 @@ public class ClusterConfiguration {
 		}
 		ClusterSetup returnValue = new ClusterSetup();
 		ClusterPriceHelper startingNode = helpers.get(startingNodeType);
-		int cusRemaining = constraints.getCuCount();
+		int cusRemaining = constraints.getCuCountInclBuffer();
 		if (startingNode != null) {
 			cusRemaining = addNodeToClusterAutoCalcAmount(startingNode, returnValue, cusRemaining);
 		}
@@ -154,16 +154,11 @@ public class ClusterConfiguration {
 			pricelistRamPerCUAscending = new ArrayList<String>();
 			pricelistPerNodeAscending = new ArrayList<String>();
 			ArrayList<ClusterPriceHelper> helperList = new ArrayList<ClusterPriceHelper>(helpers.values());
-			Collections.sort(helperList);
+			Collections.sort(helperList, new ClusterCalculationTools.SpotPricePerCUPerRamComparator());
 			for (ClusterPriceHelper clusterPriceHelper : helperList) {
 				pricelistRamPerCUAscending.add(clusterPriceHelper.getTypeName());
 			}
-			Collections.sort(helperList, new Comparator<ClusterPriceHelper>() {
-				public int compare(ClusterPriceHelper a, ClusterPriceHelper b) {
-					return Float.valueOf(a.getCurrentSpotPrice().getPrice()).compareTo(
-							b.getCurrentSpotPrice().getPrice());
-				}
-			});
+			Collections.sort(helperList, new ClusterCalculationTools.SpotPriceComparator());
 			for (ClusterPriceHelper clusterPriceHelper : helperList) {
 				pricelistPerNodeAscending.add(clusterPriceHelper.getTypeName());
 			}
@@ -179,7 +174,7 @@ public class ClusterConfiguration {
 		onDemandPrices = toolkit.loadOnDemandPrices();
 		initiateHelpers();
 		ArrayList<ClusterPriceHelper> helperList = new ArrayList<ClusterPriceHelper>(helpers.values());
-		Collections.sort(helperList);
+		Collections.sort(helperList, new ClusterCalculationTools.SpotPricePerCUPerRamComparator());
 		for (ClusterPriceHelper helper : helperList) {
 			System.out.println(helper.toString());
 		}
@@ -203,6 +198,7 @@ public class ClusterConfiguration {
 		constraint.setCuCount(100);
 		constraint.setMoneyPerHour(6);
 		constraint.setRamPerCu(1024);
+		constraint.setSafetyBuffer(10);
 		conf.setConstraint(constraint);
 		try {
 			conf.execute();
