@@ -3,7 +3,15 @@ package org.xdb.spotgres.pojos;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public class PriceHelper {
+public class SpotPriceHelper {
+	
+	public static NumberFormat CurrenyFormat = NumberFormat.getCurrencyInstance(Locale.US);
+	public static NumberFormat PercentageFormat = NumberFormat.getPercentInstance(Locale.US);
+	static {
+		CurrenyFormat.setMaximumFractionDigits(4);
+		PercentageFormat.setMaximumFractionDigits(3);
+	}
+	
 	private String nodeType;
 	private String zone;
 	private long active;
@@ -77,7 +85,7 @@ public class PriceHelper {
 		this.maxPrice = maxPrice;
 	}
 
-	public PriceHelper(String nodeType, String zone) {
+	public SpotPriceHelper(String nodeType, String zone) {
 		super();
 		this.nodeType = nodeType;
 		this.zone = zone;
@@ -110,12 +118,15 @@ public class PriceHelper {
 		}
 	}
 
+	public float getAvailability(){
+		long total = active + inactive;
+		float percentage = active * 1.0f / total;
+		return percentage;
+	}
+	
 	@Override
 	public String toString() {
-		NumberFormat currenyFormat = NumberFormat.getCurrencyInstance(Locale.US);
-		currenyFormat.setMaximumFractionDigits(4);
-		NumberFormat percentageFormat = NumberFormat.getPercentInstance(Locale.US);
-		percentageFormat.setMaximumFractionDigits(3);
+
 		StringBuilder returnValue = new StringBuilder();
 		returnValue.append(nodeType);
 		returnValue.append(" - Active: ");
@@ -125,15 +136,15 @@ public class PriceHelper {
 		returnValue.append(" +++ Percentage: ");
 		long total = active + inactive;
 		float percentage = active * 1.0f / total;
-		returnValue.append(percentageFormat.format(percentage));
+		returnValue.append(PercentageFormat.format(percentage));
 		returnValue.append(" +++ Average Price:");
 		float avgPrice = averageTemp / totalTime;
-		returnValue.append(currenyFormat.format(avgPrice));
+		returnValue.append(CurrenyFormat.format(avgPrice));
 		returnValue.append("/h");
 		returnValue.append(" +++ min Price: ");
-		returnValue.append(currenyFormat.format(minPrice));
+		returnValue.append(CurrenyFormat.format(minPrice));
 		returnValue.append("/h +++ max Price: ");
-		returnValue.append(currenyFormat.format(maxPrice));
+		returnValue.append(CurrenyFormat.format(maxPrice));
 		returnValue.append("/h");
 
 		return returnValue.toString();

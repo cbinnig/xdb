@@ -1,18 +1,21 @@
 package org.xdb.spotgres;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.xdb.spotgres.pojos.ClusterConstraints;
 import org.xdb.spotgres.pojos.NodePrice;
 import org.xdb.spotgres.pojos.NodePrice.PRICETYPE;
 import org.xdb.spotgres.pojos.NodeType;
-import org.xdb.spotgres.pojos.PriceHelper;
+import org.xdb.spotgres.pojos.SpotPriceHelper;
 
 public class ClusterPriceHelper {
 	private NodeType nodeType;
 	private NodePrice currentSpotPrice;
 	private NodePrice onDemandPrice;
-	private Map<Float, PriceHelper> precentages;
+	private Map<Float, SpotPriceHelper> percentages;
+	private Collection<NodePrice> spotPriceHistory;
 	private ClusterConstraints constraints;
 
 	public NodeType getNodeType() {
@@ -47,12 +50,29 @@ public class ClusterPriceHelper {
 		this.onDemandPrice = onDemandPrice;
 	}
 
-	public Map<Float, PriceHelper> getPrecentages() {
-		return precentages;
+	public Map<Float, SpotPriceHelper> getPrecentages() {
+		return percentages;
 	}
 
-	public void setPrecentages(Map<Float, PriceHelper> precentages) {
-		this.precentages = precentages;
+	public void setPrecentages(Map<Float, SpotPriceHelper> precentages) {
+		this.percentages = precentages;
+	}
+	
+	public void clearPercentages(){
+		percentages = null;
+	}
+	
+	public void calcPercentage(float bidPrice){
+		if (spotPriceHistory != null){
+			SpotPriceHelper priceHelper = new SpotPriceHelper(getTypeName(),"*");
+			for (NodePrice currentPrice:spotPriceHistory){
+				priceHelper.addNodePriceData(currentPrice, bidPrice);
+			}
+			if (percentages == null){
+				percentages = new HashMap<Float, SpotPriceHelper>();
+			}
+			percentages.put(bidPrice, priceHelper);
+		}
 	}
 
 	public float getOnDemandPricePerCU() {
@@ -122,4 +142,13 @@ public class ClusterPriceHelper {
 		return nodeType.getCuByRam(constraints.getRamPerCu());
 	}
 
+	public Collection<NodePrice> getSpotPriceHistory() {
+		return spotPriceHistory;
+	}
+
+	public void setSpotPriceHistory(Collection<NodePrice> spotPriceHistory) {
+		this.spotPriceHistory = spotPriceHistory;
+	}
+	
+	
 }

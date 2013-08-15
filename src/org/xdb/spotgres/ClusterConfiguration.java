@@ -2,6 +2,7 @@ package org.xdb.spotgres;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.hibernate.Session;
@@ -18,6 +20,7 @@ import org.xdb.spotgres.pojos.ClusterConstraints;
 import org.xdb.spotgres.pojos.ClusterSetup;
 import org.xdb.spotgres.pojos.NodePrice;
 import org.xdb.spotgres.pojos.NodeType;
+import org.xdb.spotgres.pojos.SpotPriceHelper;
 
 @SuppressWarnings("unused")
 public class ClusterConfiguration {
@@ -164,7 +167,46 @@ public class ClusterConfiguration {
 			}
 		}
 	}
-
+	
+	public Map<Float,Float> calcAvailablity(ClusterSetup clusterSetup, float minPrice, float maxPrice, float priceSteps){
+		updateHelpersWithSpotPriceHistory(toolkit.loadSpotPriceHistory(clusterSetup));
+		Map<Float, Float> returnValue = new HashMap<Float, Float>();
+		for (String nodeType:clusterSetup.getNodes().keySet()){
+			ClusterPriceHelper helper = helpers.get(nodeType);
+			helper.clearPercentages();
+			float currentPrice = minPrice;
+			while (currentPrice<=maxPrice && priceSteps > 0) {
+				helper.calcPercentage(currentPrice);
+				currentPrice += priceSteps;
+			}
+		}
+		float currentPrice = minPrice;
+		while (currentPrice<=maxPrice && priceSteps > 0) {
+			int cuCount = 0;
+			float probability=0;
+			for (Entry<String, Integer> clusterPiece:clusterSetup.getNodes().entrySet()){
+				ClusterPriceHelper helper = helpers.get(clusterPiece.getKey());
+				SpotPriceHelper sph = helper.getPrecentages().get(currentPrice);
+				probability += sph.getAvailability() * helper.getCuByRam() * clusterPiece.getValue();
+				cuCount += helper.getCuByRam() * clusterPiece.getValue();
+			}
+			returnValue.put(currentPrice, probability/cuCount);
+			currentPrice += priceSteps;
+		}
+		return returnValue;
+	}
+		
+	private void updateHelpersWithSpotPriceHistory(Map<String, Collection<NodePrice>> spotPriceHistory){
+		if (helpers != null && spotPriceHistory != null){
+			for (String nodeType:spotPriceHistory.keySet()){
+				ClusterPriceHelper helper = helpers.get(nodeType);
+				if (helper != null && helper.getSpotPriceHistory() == null){
+					helper.setSpotPriceHistory(spotPriceHistory.get(nodeType));
+				}
+			}
+		}
+	}
+	
 	private void execute() throws IOException {
 		setUp();
 		System.out.println("Constraints:");
@@ -188,6 +230,13 @@ public class ClusterConfiguration {
 		for (Float price : setupPrices) {
 			System.out.println(printClusterSetupWithPrice(setupResults.get(price)));
 			System.out.println();
+		}
+		System.out.println();
+		System.out.println("Availability for Cluster Setup 1");
+		Map<Float,Float> availability = calcAvailablity(setupResults.get(setupPrices.get(0)),.4f,1f,.1f);
+		for(Entry<Float, Float> priceAvail:availability.entrySet()){
+			System.out.println();
+			System.out.println("Bid Price: "+SpotPriceHelper.CurrenyFormat.format(priceAvail.getKey()) + " Availability: " +SpotPriceHelper.PercentageFormat.format(priceAvail.getValue()));
 		}
 	}
 
