@@ -35,6 +35,11 @@ public class ClusterConstraints {
 	public void setMoneyPerHour(float moneyPerHour) {
 		this.moneyPerHour = moneyPerHour;
 	}
+	
+	public float getMoneyPerCUPerHour(){
+		return this.moneyPerHour/getCuCountInclBuffer();
+	}
+	
 	public long getReplicationFactor() {
 		return replicationFactor;
 	}

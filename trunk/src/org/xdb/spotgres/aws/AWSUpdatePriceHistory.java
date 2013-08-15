@@ -20,7 +20,7 @@ import org.hibernate.Transaction;
 import org.xdb.logging.XDBLog;
 import org.xdb.spotgres.HibernateUtil;
 import org.xdb.spotgres.pojos.NodePrice;
-import org.xdb.spotgres.pojos.PriceHelper;
+import org.xdb.spotgres.pojos.SpotPriceHelper;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.PropertiesCredentials;
@@ -104,7 +104,7 @@ public class AWSUpdatePriceHistory {
 	private void clearNodePriceTable() {
 		logger.log(Level.INFO, "Clearing NodePrice Table");
 		Transaction tx = session.beginTransaction();
-		Query deleteQuery = session.createQuery("delete from NodePrice");
+		Query deleteQuery = session.createQuery("delete from NodePrice where priceType="+NodePrice.PRICETYPE.SPOT.ordinal());
 		deleteQuery.executeUpdate();
 		tx.commit();
 	}
@@ -178,22 +178,22 @@ public class AWSUpdatePriceHistory {
 		return endDate;
 	}
 	
-	public Map<String, Map<String, PriceHelper>> calculateAvailabilityPercentageAllTypes(float bidPrice) {
+	public Map<String, Map<String, SpotPriceHelper>> calculateAvailabilityPercentageAllTypes(float bidPrice) {
 		logger.log(Level.INFO, "Calculating availability per NodeType & Zone");
-		Map<String, Map<String, PriceHelper>> availabilityMap = new HashMap<String, Map<String, PriceHelper>>();
+		Map<String, Map<String, SpotPriceHelper>> availabilityMap = new HashMap<String, Map<String, SpotPriceHelper>>();
 		loadNodePriceList();
 		Iterator<NodePrice> priceIter = nodePriceList.iterator();
 		while (priceIter.hasNext()) {
 			NodePrice nodePrice = priceIter.next();
 			if (nodePrice.getDuration() > 0) {
-				Map<String, PriceHelper> zoneMap = availabilityMap.get(nodePrice.getClusterZone());
+				Map<String, SpotPriceHelper> zoneMap = availabilityMap.get(nodePrice.getClusterZone());
 				if (zoneMap == null) {
-					zoneMap = new HashMap<String, PriceHelper>();
+					zoneMap = new HashMap<String, SpotPriceHelper>();
 					availabilityMap.put(nodePrice.getClusterZone(), zoneMap);
 				}
-				PriceHelper priceData = zoneMap.get(nodePrice.getNodeType());
+				SpotPriceHelper priceData = zoneMap.get(nodePrice.getNodeType());
 				if (priceData == null) {
-					priceData = new PriceHelper(nodePrice.getNodeType(), nodePrice.getClusterZone());
+					priceData = new SpotPriceHelper(nodePrice.getNodeType(), nodePrice.getClusterZone());
 					zoneMap.put(nodePrice.getNodeType(), priceData);
 				}
 				priceData.addNodePriceData(nodePrice, bidPrice);
@@ -203,11 +203,11 @@ public class AWSUpdatePriceHistory {
 		for (String zone : availabilityMap.keySet()) {
 			System.out.println(zone);
 			System.out.println("==============");
-			Map<String, PriceHelper> zoneMap = availabilityMap.get(zone);
+			Map<String, SpotPriceHelper> zoneMap = availabilityMap.get(zone);
 			List<String> types = new ArrayList<String>(zoneMap.keySet());
 			Collections.sort(types);
 			for (String type : types) {
-				PriceHelper priceHelper = zoneMap.get(type);
+				SpotPriceHelper priceHelper = zoneMap.get(type);
 				System.out.println(priceHelper.toString());
 			}
 			System.out.println();
@@ -218,7 +218,9 @@ public class AWSUpdatePriceHistory {
 	@SuppressWarnings("unchecked")
 	private void loadNodePriceList(){
 		if (this.nodePriceList == null){
-			Transaction tx = HibernateUtil.getTransaction(session);
+			session = sessionFactory.getCurrentSession();
+			Transaction tx = session.getTransaction();
+			tx.begin();
 			this.nodePriceList = session.createQuery("from NodePrice").list();
 			tx.commit();
 		}
