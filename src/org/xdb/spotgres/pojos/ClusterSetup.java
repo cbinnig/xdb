@@ -4,13 +4,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -18,12 +25,23 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.IndexColumn;
 import org.xdb.spotgres.pojos.ClusterSetup.NodeMap.NodeEntry;
 
 @Entity(name = "ClusterSetup")
 public class ClusterSetup {
+	
+	
 	@Transient
 	private ObjectMapper mapper = new ObjectMapper();
+	
+	@Transient
+	private Map<String, NodeType> nodeTypes;
+	
+    @ManyToMany(cascade={CascadeType.ALL})
+    @JoinTable(name="clusterSetup_clusterNode", joinColumns={@JoinColumn(name="clusterSetupId")},inverseJoinColumns={@JoinColumn(name="clusterNodeId")})
+    @JoinColumn(name="clusterNodeId")
+    private List<ClusterNode> nodesList;
 	
 	public ClusterSetup() {
 	}
@@ -73,13 +91,14 @@ public class ClusterSetup {
 	@Id
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
-	int id;
+	@Column(name="clusterSetupId")
+	int clusterSetupId;
 	
 	@Column(name="nodesJSON")
 	String nodesJSON;
 	
 	@Transient
-	Map<String, Integer> nodes = new HashMap<String, Integer>();;
+	Map<String, Integer> nodesTypeCount = new HashMap<String, Integer>();;
 
 	public String getNodesJSON() {
 		return nodesJSON;
@@ -99,11 +118,11 @@ public class ClusterSetup {
 	}
 
 	public Map<String, Integer> getNodes() {
-		return nodes;
+		return nodesTypeCount;
 	}
 
 	public void setNodes(Map<String, Integer> nodes) {
-		this.nodes = nodes;
+		this.nodesTypeCount = nodes;
 		try {
 			updateNodeMap();
 		} catch (JsonGenerationException e) {
@@ -115,31 +134,31 @@ public class ClusterSetup {
 		}
 	}
 
-	public int getId() {
-		return id;
+	public int getClusterSetupId() {
+		return clusterSetupId;
 	}
 	
 	private void updateNodeMap() throws JsonGenerationException, JsonMappingException, IOException{
-		NodeMap nodeMap = new NodeMap(nodes);
+		NodeMap nodeMap = new NodeMap(nodesTypeCount);
 		nodesJSON=mapper.writeValueAsString(nodeMap);
 	}
 	
 	private void transformJSONtoMap() throws JsonParseException, JsonMappingException, IOException{
 		NodeMap nodeMap = mapper.readValue(nodesJSON, NodeMap.class);
-		nodes = new HashMap<String, Integer>();
+		nodesTypeCount = new HashMap<String, Integer>();
 		for (NodeEntry entry : nodeMap.getNodes()) {
-			nodes.put(entry.getType(), entry.getCount());
+			nodesTypeCount.put(entry.getType(), entry.getCount());
 		}
 	}
 	
 	public void addNodes(String nodeType, int amount){
-		Integer initialAmount = nodes.get(nodeType);
+		Integer initialAmount = nodesTypeCount.get(nodeType);
 		if (initialAmount == null){
 			initialAmount = Integer.valueOf(amount);
 		} else {
 			initialAmount += amount;
 		}
-		nodes.put(nodeType, initialAmount);
+		nodesTypeCount.put(nodeType, initialAmount);
 		try {
 			updateNodeMap();
 		} catch (JsonGenerationException e) {
@@ -156,7 +175,7 @@ public class ClusterSetup {
 		StringBuilder returnValue = new StringBuilder();
 		returnValue.append("Cluster Setup\n");
 		returnValue.append("-------------\n");
-		for (Entry<String, Integer> nodeType : nodes.entrySet()) {
+		for (Entry<String, Integer> nodeType : nodesTypeCount.entrySet()) {
 			returnValue.append(nodeType.getValue().toString());
 			returnValue.append("x ");
 			returnValue.append(nodeType.getKey()).append("\n");
