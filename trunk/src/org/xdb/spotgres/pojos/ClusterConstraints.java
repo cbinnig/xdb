@@ -1,14 +1,40 @@
 package org.xdb.spotgres.pojos;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+import org.hibernate.annotations.GenericGenerator;
+
+@Entity(name = "ClusterConstraints")
 public class ClusterConstraints {
+	
+
+	@Id
+	@GeneratedValue(generator = "increment")
+	@GenericGenerator(name = "increment", strategy = "increment")
+	@Column(name="constraintsId")
+	int constraintsId;
+	
+	@Column(name="cuCount")
 	int cuCount;
+	@Column(name="ramPerCu")
 	int ramPerCu;
 	// int nodeCount;
 	// float availability; //?
 	// int dailyOperationalMinutes;
+	
+	@Column(name="connectivity")
 	float connectivity;
+	
+	@Column(name="moneyPerHour")
 	float moneyPerHour;
+	
+	@Column(name="replicationFactor")
 	long replicationFactor;
+	
+	@Column(name="safetyBuffer")
 	int safetyBuffer = 10;
 	
 	public int getCuCount() {
