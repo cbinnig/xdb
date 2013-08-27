@@ -10,6 +10,18 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity(name = "ClusterConstraints")
 public class ClusterConstraints {
 	
+	/**
+	 * If a given constraint allows more then one possible cluster solution,
+	 * the optimizer type tells what configuration to prefer:
+	 * AVAILABILITY = select the highest possible availability with a given max price
+	 * MONEY = with a given availability rate, find the cheapest configuration
+	 * PERFORMANCE = with fixed min availability and max price, find the configuration with the most CUs
+	 * @author svenlisting
+	 *
+	 */
+	public enum OPTIMIZERTYPE {
+		AVAILABILITY, MONEY, PERFORMANCE
+	}
 
 	@Id
 	@GeneratedValue(generator = "increment")
@@ -36,6 +48,9 @@ public class ClusterConstraints {
 	
 	@Column(name="safetyBuffer")
 	int safetyBuffer = 10;
+	
+	@Column(name="optimizer")
+	OPTIMIZERTYPE optimizer = OPTIMIZERTYPE.MONEY;
 	
 	public int getCuCount() {
 		return cuCount;
@@ -84,11 +99,59 @@ public class ClusterConstraints {
 		return Double.valueOf(Math.ceil(cuCount * (1 + safetyBuffer / 100))).intValue();
 	}
 	
+	public float getMoneyPerCu(){
+		return moneyPerHour/cuCount;
+	}
+	
+	public float getMoneyPerCuInclBuffer(){
+		return moneyPerHour/getCuCountInclBuffer();
+	}
+	
+	public OPTIMIZERTYPE getOptimizer() {
+		return optimizer;
+	}
+	public void setOptimizer(OPTIMIZERTYPE optimizer) {
+		this.optimizer = optimizer;
+	}
 	@Override
 	public String toString() {
 		return "ClusterConstraints [cuCount=" + cuCount + ", ramPerCu=" + ramPerCu + ", connectivity=" + connectivity
 				+ ", moneyPerHour=" + moneyPerHour + ", replicationFactor=" + replicationFactor + ", safetyBuffer="
-				+ safetyBuffer + "]";
+				+ safetyBuffer + " optimizer=" + optimizer +"]";
 	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Float.floatToIntBits(connectivity);
+		result = prime * result + cuCount;
+		result = prime * result + Float.floatToIntBits(moneyPerHour);
+		result = prime * result + ramPerCu;
+		result = prime * result + safetyBuffer;
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ClusterConstraints other = (ClusterConstraints) obj;
+		if (Float.floatToIntBits(connectivity) != Float.floatToIntBits(other.connectivity))
+			return false;
+		if (cuCount != other.cuCount)
+			return false;
+		if (Float.floatToIntBits(moneyPerHour) != Float.floatToIntBits(other.moneyPerHour))
+			return false;
+		if (ramPerCu != other.ramPerCu)
+			return false;
+		if (safetyBuffer != other.safetyBuffer)
+			return false;
+		return true;
+	}
+
+	
 	
 }

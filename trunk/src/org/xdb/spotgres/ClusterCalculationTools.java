@@ -15,9 +15,12 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.xdb.logging.XDBLog;
+import org.xdb.spotgres.pojos.ClusterConstraints;
 import org.xdb.spotgres.pojos.ClusterSetup;
+import org.xdb.spotgres.pojos.ClusterSetup.NodeMap.NodeEntry;
 import org.xdb.spotgres.pojos.NodePrice;
 import org.xdb.spotgres.pojos.NodeType;
+import org.xdb.spotgres.pojos.SpotPriceHelper;
 
 public class ClusterCalculationTools {
 	public static class SpotPriceComparator implements Comparator<ClusterPriceHelper> {
@@ -34,14 +37,40 @@ public class ClusterCalculationTools {
 		}
 	}
 	
+	public static class ClusterPriceComparator implements Comparator<ClusterSetup> {
+		public int compare(ClusterSetup a, ClusterSetup b) {
+			return Float.valueOf(a.getClusterPrice()).compareTo(
+					b.getClusterPrice());
+		}
+	}
+	
+	public static class ClusterAvailabilityComparator implements Comparator<ClusterSetup> {
+		public int compare(ClusterSetup a, ClusterSetup b) {
+			return Float.valueOf(a.getAvailability()).compareTo(
+					b.getAvailability());
+		}
+	}
+	
+	
 	private Session session;
 	private SessionFactory sessionFactory;
+	private List<NodeType> availableNodeTypes;
+	private Map<String, NodePrice> currentSpotPrices;
+	private Map<String, NodePrice> onDemandPrices;
+	private ClusterConstraints constraints;
+	
 	protected Logger logger;
-
-	public ClusterCalculationTools() {
+	private Map<String, ClusterPriceHelper> helpers;
+	
+	public ClusterCalculationTools(ClusterConstraints constraints) {
 		sessionFactory = HibernateUtil.configureSessionFactory();
 		session = sessionFactory.getCurrentSession();
 		logger = XDBLog.getLogger(this.getClass().getName());
+		availableNodeTypes = loadNodeTypes();
+		currentSpotPrices = loadCurrentSpotPrices();
+		onDemandPrices = loadOnDemandPrices();
+		this.constraints=constraints;
+		initiateHelpers();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -69,7 +98,18 @@ public class ClusterCalculationTools {
 		}
 		return returnValue;
 	}
-
+	
+	public void updateHelpersWithSpotPriceHistory(Map<String, Collection<NodePrice>> spotPriceHistory){
+		if (helpers != null && spotPriceHistory != null){
+			for (String nodeType:spotPriceHistory.keySet()){
+				ClusterPriceHelper helper = helpers.get(nodeType);
+				if (helper != null && helper.getSpotPriceHistory() == null){
+					helper.setSpotPriceHistory(spotPriceHistory.get(nodeType));
+				}
+			}
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	public Map<String, NodePrice> loadCurrentSpotPrices() {
 		logger.log(Level.INFO, "Loading current spot prices");
@@ -97,6 +137,18 @@ public class ClusterCalculationTools {
 		return loadSpotPriceHistory(clusterSetup.getNodes().keySet());
 	}
 	
+	private void initiateHelpers() {
+		helpers = new HashMap<String, ClusterPriceHelper>();
+		for (NodeType nodeType : availableNodeTypes) {
+			ClusterPriceHelper helper = new ClusterPriceHelper();
+			helper.setNodeType(nodeType);
+			helper.setOnDemandPrice(onDemandPrices.get(nodeType.getTypeName()));
+			helper.setCurrentSpotPrice(currentSpotPrices.get(nodeType.getTypeName()));
+			helper.setConstraints(constraints);
+			helpers.put(nodeType.getTypeName(), helper);
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	public Map<String, Collection<NodePrice>> loadSpotPriceHistory(Collection<String> nodeTypes) {
 		logger.log(Level.INFO, "Loading spot price History");
@@ -107,7 +159,8 @@ public class ClusterCalculationTools {
 		Query spotPriceQuery =  session.createQuery(queryString.toString());
 		List<NodePrice> nodePriceList =spotPriceQuery.list();
 		tx.commit();
-		Map<String, Collection<NodePrice>> returnValue = new HashMap<String, Collection<NodePrice>>();
+		
+		Map<String, Collection<NodePrice>> returnValue = new HashMap<String, Collection<NodePrice>>();		
 		for (NodePrice nodePrice : nodePriceList) {
 			Collection<NodePrice> spotPriceList = returnValue.get(nodePrice.getNodeType());
 			if (spotPriceList == null) {
@@ -137,4 +190,75 @@ public class ClusterCalculationTools {
 		}
 		return returnValue.toString();
 	}
+	
+
+	public float calcAvailablityCurrentSpotPrice(ClusterSetup clusterSetup){
+		updateHelpersWithSpotPriceHistory(loadSpotPriceHistory(clusterSetup));
+		for (String nodeType:clusterSetup.getNodes().keySet()){
+			ClusterPriceHelper helper = helpers.get(nodeType);
+			helper.calcPercentageNodePrice(helper.getSpotPrice());
+		}
+		int cuCount = 0;
+		float probability=0;
+		for (NodeEntry clusterPiece:clusterSetup.getNodes().values()){
+			ClusterPriceHelper helper = helpers.get(clusterPiece.getType());
+			SpotPriceHelper sph = helper.getPrecentages().get(helper.getSpotPrice());
+			probability += sph.getAvailability() * helper.getCuByRam() * clusterPiece.getCount();
+			cuCount += helper.getCuByRam() * clusterPiece.getCount();
+		}
+		return probability/cuCount;
+	}
+
+	public float calcAvailablityCUPrice(ClusterSetup clusterSetup, float cuPrice){
+		updateHelpersWithSpotPriceHistory(loadSpotPriceHistory(clusterSetup));
+		for (String nodeType:clusterSetup.getNodes().keySet()){
+			ClusterPriceHelper helper = helpers.get(nodeType);
+			helper.calcPercentageCUPrice(cuPrice);
+		}
+		int cuCount = 0;
+		float probability=0;
+		for (NodeEntry clusterPiece:clusterSetup.getNodes().values()){
+			ClusterPriceHelper helper = helpers.get(clusterPiece.getType());
+			SpotPriceHelper sph = helper.getPrecentages().get(cuPrice*helper.getCuByRam());
+			probability += sph.getAvailability() * helper.getCuByRam() * clusterPiece.getCount();
+			cuCount += helper.getCuByRam() * clusterPiece.getCount();
+		}
+		return probability/cuCount;
+	}	
+	
+	public ClusterPriceHelper getHelper(String nodeType){
+		return helpers.get(nodeType);
+	}
+	
+	public Map<String, ClusterPriceHelper> getHelpers(){
+		return helpers;
+	}
+	
+//	public Map<Float,Float> calcAvailablity(ClusterSetup clusterSetup){
+//		updateHelpersWithSpotPriceHistory(loadSpotPriceHistory(clusterSetup));
+//		Map<Float, Float> returnValue = new HashMap<Float, Float>();
+//		for (String nodeType:clusterSetup.getNodes().keySet()){
+//			ClusterPriceHelper helper = helpers.get(nodeType);
+//			helper.clearPercentages();
+//			float currentPrice = minPrice;
+//			while (currentPrice<=maxPrice && priceSteps > 0) {
+//				helper.calcPercentageCUPrice(currentPrice);
+//				currentPrice += priceSteps;
+//			}
+//		}
+//		float currentPrice = minPrice;
+//		while (currentPrice<=maxPrice && priceSteps > 0) {
+//			int cuCount = 0;
+//			float probability=0;
+//			for (NodeEntry clusterPiece:clusterSetup.getNodes().values()){
+//				ClusterPriceHelper helper = helpers.get(clusterPiece.getType());
+//				SpotPriceHelper sph = helper.getPrecentages().get(currentPrice);
+//				probability += sph.getAvailability() * helper.getCuByRam() * clusterPiece.getCount();
+//				cuCount += helper.getCuByRam() * clusterPiece.getCount();
+//			}
+//			returnValue.put(currentPrice, probability/cuCount);
+//			currentPrice += priceSteps;
+//		}
+//		return returnValue;
+//	}
 }

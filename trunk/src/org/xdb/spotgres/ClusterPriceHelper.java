@@ -62,7 +62,7 @@ public class ClusterPriceHelper {
 		percentages = null;
 	}
 	
-	public void calcPercentage(float bidPrice){
+	public void calcPercentageNodePrice(float bidPrice){
 		if (spotPriceHistory != null){
 			SpotPriceHelper priceHelper = new SpotPriceHelper(getTypeName(),"*");
 			for (NodePrice currentPrice:spotPriceHistory){
@@ -75,8 +75,27 @@ public class ClusterPriceHelper {
 		}
 	}
 
+	public void calcPercentageCUPrice(float bidPrice){
+		if (spotPriceHistory != null){
+			float nodePrice = bidPrice * this.getCuByRam();
+			SpotPriceHelper priceHelper = new SpotPriceHelper(getTypeName(),"*");
+			for (NodePrice currentPrice:spotPriceHistory){
+				priceHelper.addNodePriceData(currentPrice, nodePrice);
+			}
+			if (percentages == null){
+				percentages = new HashMap<Float, SpotPriceHelper>();
+			}
+			percentages.put(bidPrice, priceHelper);
+		}
+	}
+
+
 	public float getOnDemandPricePerCU() {
 		return onDemandPrice.getPrice() / nodeType.getCuCount();
+	}
+
+	public float getSpotPrice() {
+		return currentSpotPrice.getPrice();
 	}
 
 	public float getSpotPricePerCU() {
@@ -89,6 +108,10 @@ public class ClusterPriceHelper {
 	
 	public float getOnDemandPricePerCUPerRam(int ram) {
 		return onDemandPrice.getPrice() / nodeType.getCuByRam(ram);
+	}
+
+	public float getSpotPricePerCUPerRam() {
+		return currentSpotPrice.getPrice() / nodeType.getCuByRam(constraints.getRamPerCu());
 	}
 
 	public float getSpotPricePerCUPerRam(int ram) {
