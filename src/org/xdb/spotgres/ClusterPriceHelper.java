@@ -85,7 +85,7 @@ public class ClusterPriceHelper {
 			if (percentages == null){
 				percentages = new HashMap<Float, SpotPriceHelper>();
 			}
-			percentages.put(bidPrice, priceHelper);
+			percentages.put(nodePrice, priceHelper);
 		}
 	}
 
@@ -163,6 +163,10 @@ public class ClusterPriceHelper {
 
 	public int getCuByRam() {
 		return nodeType.getCuByRam(constraints.getRamPerCu());
+	}
+
+	public int getCuByRam(int ramPerCu) {
+		return nodeType.getCuByRam(ramPerCu);
 	}
 
 	public Collection<NodePrice> getSpotPriceHistory() {

@@ -33,7 +33,7 @@ public class AvailabilityClusterOptimizer extends AbstractClusterOptimizer {
 		for (ClusterSetup clusterSetup : setups) {
 			clusterSetup.setAvailability(toolkit.calcAvailablityCUPrice(clusterSetup, constraints.getMoneyPerCuInclBuffer()));
 		}
-		Collections.sort(setups, new ClusterCalculationTools.ClusterPriceComparator());
+		Collections.sort(setups, Collections.reverseOrder(new ClusterCalculationTools.ClusterAvailabilityComparator()));
 		
 		ArrayList<ClusterSetup> returnValue=new ArrayList<ClusterSetup>();
 		float cheapestPrice = setups.get(0).getClusterPrice();
