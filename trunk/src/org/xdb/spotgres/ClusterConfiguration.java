@@ -192,22 +192,26 @@ public class ClusterConfiguration {
 			System.out.println(helper.toString());
 		}
 		
-		MoneyClusterOptimizer optimizer = new MoneyClusterOptimizer(constraints, toolkit.getHelpers().values());
-		List<ClusterSetup> result = optimizer.getClusterSetupList();
-		for (ClusterSetup clusterSetup : result) {
-			System.out.println(clusterSetup.getClusterPrice() + "");
-			System.out.println("-------------");
-			System.out.println(clusterSetup);
-			System.out.println();
-		}
+//		MoneyClusterOptimizer optimizer = new MoneyClusterOptimizer(constraints, toolkit.getHelpers().values());
+//		List<ClusterSetup> result = optimizer.getClusterSetupList();
+//		for (ClusterSetup clusterSetup : result) {
+//			System.out.println(clusterSetup.getClusterPrice() + "");
+//			System.out.println("-------------");
+//			System.out.println(clusterSetup);
+//			System.out.println();
+//		}
 		
+		System.out.println("Money in total:" + SpotPriceHelper.CurrenyFormat.format(constraints.getMoneyPerHour()));
+		System.out.println("Required CUs:" + constraints.getCuCountInclBuffer());
+		System.out.println("Money per CU:" + SpotPriceHelper.CurrenyFormat.format(constraints.getMoneyPerCuInclBuffer()));
 		
 		AvailabilityClusterOptimizer availsOptimizer = new AvailabilityClusterOptimizer(constraints, toolkit.getHelpers().values(), toolkit);
 		List<ClusterSetup> availsResult = availsOptimizer.getClusterSetupList();
-		for (ClusterSetup clusterSetup : result) {
+		for (ClusterSetup clusterSetup : availsResult) {
 			System.out.println(clusterSetup.getClusterPrice() + "");
 			System.out.println("-------------");
 			System.out.println(clusterSetup);
+			System.out.println("Availability: "+SpotPriceHelper.PercentageFormat.format(clusterSetup.getAvailability()));
 			System.out.println();
 		}
 //		setupResults = new HashMap<Float, ClusterSetup>();
@@ -236,7 +240,7 @@ public class ClusterConfiguration {
 		ClusterConstraints constraint = new ClusterConstraints();
 		constraint.setConnectivity(80f);
 		constraint.setCuCount(50);
-		constraint.setMoneyPerHour(1f);
+		constraint.setMoneyPerHour(1.2f);
 		constraint.setRamPerCu(1024);
 		constraint.setSafetyBuffer(10);
 		conf.setConstraint(constraint);

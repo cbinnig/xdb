@@ -219,7 +219,7 @@ public class ClusterCalculationTools {
 		float probability=0;
 		for (NodeEntry clusterPiece:clusterSetup.getNodes().values()){
 			ClusterPriceHelper helper = helpers.get(clusterPiece.getType());
-			SpotPriceHelper sph = helper.getPrecentages().get(cuPrice*helper.getCuByRam());
+			SpotPriceHelper sph = helper.getPrecentages().get(cuPrice * helper.getCuByRam(constraints.getRamPerCu()));
 			probability += sph.getAvailability() * helper.getCuByRam() * clusterPiece.getCount();
 			cuCount += helper.getCuByRam() * clusterPiece.getCount();
 		}
