@@ -8,7 +8,7 @@ import org.xdb.funsql.compile.expression.SimpleExpression;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 /**
- * Visitor that eleminates the duplciate table name from expressions
+ * Visitor that eliminates the duplicate table names from expressions
  * @author mueller
  *
  */

@@ -11,9 +11,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -24,6 +21,10 @@ import org.xdb.spotgres.aws.ondemand.AWSOnDemandPriceRoot;
 import org.xdb.spotgres.aws.ondemand.AWSOnDemandPriceRoot.Config.Region;
 import org.xdb.spotgres.pojos.NodePrice;
 import org.xdb.spotgres.pojos.NodePrice.PRICETYPE;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class AWSOnDemandPrice {
 	private static String AWSOnDemandPriceList = "http://aws.amazon.com/ec2/pricing/pricing-on-demand-instances.json";
