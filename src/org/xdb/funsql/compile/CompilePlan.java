@@ -201,7 +201,7 @@ public class CompilePlan implements Serializable {
 		return operators.values();
 	}
 
-	public AbstractCompileOperator getOperators(Identifier opId) {
+	public AbstractCompileOperator getOperator(Identifier opId) {
 		return operators.get(opId);
 	}
 

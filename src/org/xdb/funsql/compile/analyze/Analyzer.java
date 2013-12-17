@@ -27,7 +27,7 @@ public class Analyzer {
 	public void analyze() {
 		// Check types
 		for (Identifier rootId : compilePlan.getRootIds()) {
-			AbstractCompileOperator root = this.compilePlan.getOperators(rootId);
+			AbstractCompileOperator root = this.compilePlan.getOperator(rootId);
 
 			CheckOperatorVisitor checkOpVisitor = new CheckOperatorVisitor(
 					this.expTypes, root);
@@ -36,7 +36,7 @@ public class Analyzer {
 
 		// Create result descriptions
 		for (Identifier rootId : compilePlan.getRootIds()) {
-			AbstractCompileOperator root = this.compilePlan.getOperators(rootId);
+			AbstractCompileOperator root = this.compilePlan.getOperator(rootId);
 
 			CreateResultVisitor resultDescVisitor = new CreateResultVisitor(
 					root, expTypes);
@@ -45,7 +45,7 @@ public class Analyzer {
 
 		// Rename attributes
 		for (Identifier rootId : compilePlan.getRootIds()) {
-			AbstractCompileOperator root = this.compilePlan.getOperators(rootId);
+			AbstractCompileOperator root = this.compilePlan.getOperator(rootId);
 
 			RenameOperatorVisitor renameVisitor = new RenameOperatorVisitor(
 					root);

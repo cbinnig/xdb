@@ -192,7 +192,7 @@ public class QueryTrackerNode {
 
 		// Annotate Connection
 		for (Identifier rootId : cplan.getRootIds()) {
-			AbstractCompileOperator root = cplan.getOperators(rootId);
+			AbstractCompileOperator root = cplan.getOperator(rootId);
 			AbstractAnnotationVisitor annotationVisitor = AbstractAnnotationVisitor.createAnnotationVisitor(root);
 			
 			err = annotationVisitor.visit();

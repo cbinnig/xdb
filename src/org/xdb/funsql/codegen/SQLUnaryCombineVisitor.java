@@ -138,12 +138,12 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 		// paste to parents
 		for (AbstractCompileOperator parent : gp.getParents()) {
 			int childIdx = parent.findChild(gp);
-			parent.setChild(childIdx, this.sqlUnaryOp);
+			parent.replaceChild(childIdx, this.sqlUnaryOp);
 		}
 		this.sqlUnaryOp.addParents(gp.getParents());
 	
 		// remove link to old parent 
-		this.sqlUnaryOp.getChild().setParent(parentIdx, this.sqlUnaryOp);
+		this.sqlUnaryOp.getChild().replaceParent(parentIdx, this.sqlUnaryOp);
 		
 		//remove other operators form plan
 		for(Identifier opId: this.combinedOps){
