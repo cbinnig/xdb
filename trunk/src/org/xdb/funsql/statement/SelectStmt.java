@@ -14,7 +14,6 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.compile.analyze.Analyzer;
-import org.xdb.funsql.compile.analyze.FunctionCache;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.SimpleExpression;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
@@ -68,7 +67,6 @@ public class SelectStmt extends AbstractServerStmt {
 	private Vector<String> usedVariables = new Vector<String>();
 
 	private CompilePlan plan = new CompilePlan();
-	FunctionCache fcache = FunctionCache.getCache();
 
 	// temporary compiler variables
 	private int lastInternalAlias = 0;

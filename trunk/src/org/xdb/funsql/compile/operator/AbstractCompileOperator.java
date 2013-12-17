@@ -189,14 +189,20 @@ public abstract class AbstractCompileOperator implements Serializable {
 		this.children.add(child);
 	}
 
-	
-
 	public boolean removeParent(AbstractCompileOperator parent) {
 		return this.parents.remove(parent);
 	}
 
 	public void addParents(Vector<AbstractCompileOperator> parents) {
 		this.parents.addAll(parents);
+	}
+	
+	public void replaceChild(int childIdx, SQLUnary sqlUnaryOp) {
+		this.children.set(childIdx, sqlUnaryOp);
+	}
+
+	public void replaceParent(int parentIdx, SQLUnary sqlUnaryOp) {
+		this.parents.set(parentIdx, sqlUnaryOp);
 	}
 
 	// methods
@@ -362,4 +368,5 @@ public abstract class AbstractCompileOperator implements Serializable {
 		value.append(")");
 		return value.toString();
 	}
+
 }

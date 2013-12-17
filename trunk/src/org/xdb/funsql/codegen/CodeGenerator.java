@@ -93,45 +93,22 @@ public class CodeGenerator {
 			return this.err;
 
 		// rename attributes to original names
-		rename();
+		this.rename();
 		if (this.err.isError())
 			return this.err;
 
-		// Trace
-		if (Config.TRACE_CODEGEN_PLAN){
+		// trace compile plan before generating a tracker plan
+		if (Config.TRACE_CODEGEN_PLAN) {
 			this.compilePlan.tracePlan(compilePlan.getClass()
 					.getCanonicalName() + "_CODEGEN");
 		}
-			
-		// for each sub-plan generate a tracker operator
-		for (Identifier splitOpId : splitOpIds) {
-			AbstractCompileOperator splitCompileOp = this.compilePlan.getOperators(splitOpId);
-			AbstractTrackerOperator trackerOp;
-			try {
-				trackerOp = generateTrackerOp(splitCompileOp);
-			} catch (URISyntaxException e) {
-				String[] args = { e.toString() };
-				this.err = new Error(EnumError.COMPILER_GENERIC, args);
-				return this.err;
-			}
 
-			// add mapping: compile operator -> tracker operator
-			this.compileOp2trackerOp.put(splitCompileOp.getOperatorId(),
-					trackerOp.getOperatorId());
-		}
+		// generate a tracker operators
+		this.generateTrackerPlan();
+		if (this.err.isError())
+			return this.err;
 
-		// add sources and consumers to plan
-		for (Map.Entry<Identifier, Set<Identifier>> entry : this.sources
-				.entrySet()) {
-			this.qtPlan.setSources(entry.getKey(), entry.getValue());
-		}
-
-		for (Map.Entry<Identifier, Set<Identifier>> entry : this.consumers
-				.entrySet()) {
-			this.qtPlan.setConsumers(entry.getKey(), entry.getValue());
-		}
-
-		return err;
+		return this.err;
 	}
 
 	/**
@@ -149,139 +126,142 @@ public class CodeGenerator {
 		MySQLTrackerOperator trackerOp = new MySQLTrackerOperator();
 		this.qtPlan.addOperator(trackerOp);
 
-		// generate execute DML statement
-		String outTable = compileOp.getOperatorId().clone().append(OUT_SUFFIX)
-				.toString();
+		// add DML statement for execution of operator
+		String outTableName = compileOp.getOperatorId().clone()
+				.append(OUT_SUFFIX).toString();
 		String executeDML = generateExecuteDML(compileOp);
 		HashMap<String, String> args = new HashMap<String, String>();
 		args.put(SQL1, executeDML);
-		args.put(TAB1, outTable);
-		// check type if table then other Template without brackets
-
+		args.put(TAB1, outTableName);
 		executeDML = this.sqlDMLTemplate.toString(args);
-
 		trackerOp.addExecuteSQL(new StringTemplate(executeDML));
 
-		// add out table DDL statement
+		// add DDL statement for creating output table
 		String outDDL = generateResultDDL(compileOp);
 		args.put(SQL1, outDDL);
 		outDDL = this.sqlDDLTemplate.toString(args);
-		trackerOp.addOutTable(outTable, new StringTemplate(outDDL));
+		trackerOp.addOutTable(outTableName, new StringTemplate(outDDL));
 
-		// add input table DDL statements and input table descriptions
-		Set<AbstractCompileOperator> inputCompileOps = getInputOps(compileOp);   
-		
-		// Union and rank the connections 
-		Set<AbstractCompileOperator> queryTrackerCompileOps = getQueryTrackerCompileOps(compileOp) ;
-		List<Connection> trackerOpConnections = extractTrackerOpConnections(queryTrackerCompileOps); 
-		
-		trackerOp.setTrackerOpConnections(trackerOpConnections);
-		
+		// add DDL statements for each input table
+		Set<AbstractCompileOperator> inputCompileOps = getInputOps(compileOp);
 		for (AbstractCompileOperator inputCompileOp : inputCompileOps) {
+
+			// generate input DDL
 			TableOperator inputTableOp = null;
 			String inDDL = null;
-			String inTable = inputCompileOp.getOperatorId().clone().toString();
+			String inTableName = inputCompileOp.getOperatorId().clone()
+					.toString();
 
-			// if leaf of sub-plan is a table: use other table name with "_" as
-			// prefix
+			// if input is a table, use other table name for input
 			if (inputCompileOp.getType().equals(EnumOperator.TABLE)) {
 				inputTableOp = (TableOperator) inputCompileOp;
-				inTable = TableOperator.TABLE_PREFIX + inTable;
+				inTableName = TableOperator.TABLE_PREFIX + inTableName;
 				inDDL = inputTableOp.getTable().toSqlString();
 			}
-			// else leaf of sub-plan is an intermediate result
+			// else is input is a sub-plan
 			else {
 				inDDL = generateResultDDL(inputCompileOp);
 			}
 
-			// generate input DDL
 			args.put(SQL1, inDDL);
-			args.put(TAB1, inTable);
+			args.put(TAB1, inTableName);
 			inDDL = this.sqlDDLTemplate.toString(args);
-			trackerOp.addInTable(inTable, new StringTemplate(inDDL));
+			trackerOp.addInTable(inTableName, new StringTemplate(inDDL));
 
-			// if: leaf of sub-plan is a table: add catalog info 
+			// if input is a table: add catalog info to tracker operator
 			if (inputCompileOp.getType().equals(EnumOperator.TABLE)) { // table
-				// Added multiple Connections to the table description  
-				List<Connection> tableConnections = inputTableOp.getConnections();  
+				
+				// Add all connections to the table description
+				List<Connection> tableConnections = inputTableOp
+						.getConnections();
 				List<URI> uris = new ArrayList<URI>();
 				for (Connection connection : tableConnections) {
 					uris.add(URI.create(connection.getUrl()));
-				} 
-				
-				
-				//TableDesc tableDesc = new TableDesc(inputTableOp.getTable()
-				//		.getSourceName(), uris); 
-				TableDesc tableDesc = new TableDesc(inputTableOp.getTable().getName(), uris);
-						
-				trackerOp.setInTableSource(inTable, tableDesc);
+				}
+
+				TableDesc tableDesc = new TableDesc(inputTableOp.getTable()
+						.getName(), uris);
+
+				trackerOp.setInTableSource(inTableName, tableDesc);
 			}
-			// else: use intermediate result as table (with _OUT suffix) 
+			// else: use intermediate result as table (with _OUT suffix)
 			else {
-				String inTableRemote = inputCompileOp.getOperatorId().clone()
-						.append(OUT_SUFFIX).toString();
+				String inTableNameRemote = inputCompileOp.getOperatorId()
+						.clone().append(OUT_SUFFIX).toString();
 				Identifier inTrackerOpId = this.compileOp2trackerOp
 						.get(inputCompileOp.getOperatorId());
-				TableDesc tableDesc = new TableDesc(inTableRemote,
+				TableDesc tableDesc = new TableDesc(inTableNameRemote,
 						inTrackerOpId);
-				trackerOp.setInTableSource(inTable, tableDesc);
+				trackerOp.setInTableSource(inTableName, tableDesc);
 				this.addTrackerDependency(inTrackerOpId,
 						trackerOp.getOperatorId());
 			}
 		}
 
+		// add connections from compile plan to tracker operator
+		Set<AbstractCompileOperator> queryTrackerCompileOps = getQueryTrackerCompileOps(compileOp);
+		List<Connection> trackerOpConnections = extractTrackerOpConnections(queryTrackerCompileOps);
+		trackerOp.setTrackerOpConnections(trackerOpConnections);
+
 		return trackerOp;
 	}
-    
+
 	/**
-	 * Union all the connections from a sub-plan, rank them based on  
-	 * the frequencies of the connections and return a list of "ranked" 
-	 * connections as a possible connections for a tracker operator.
+	 * Union all the connections from a sub-plan, rank them based on the
+	 * frequencies of the connections and return a list of "ranked" connections
+	 * as a possible connections for a tracker operator.
 	 * 
-	 * @param inputCompileOps: a set of compile operators 
-	 *  
-	 * @rerun a set of connections 
+	 * @param inputCompileOps
+	 *            : a set of compile operators
+	 * 
+	 * @rerun a set of connections
 	 */
-	private List<Connection> extractTrackerOpConnections(Set<AbstractCompileOperator> inputCompileOps) { 
-		
-		// A hash map used to store the connections and their counts/repetitions . 
-		Map<Connection, Integer> connectionsCounterMap = new HashMap<Connection, Integer>(); 
-		// Going through every compile operator, get its wished connection and 
-		// store them in a hash map to count. 
+	private List<Connection> extractTrackerOpConnections(
+			Set<AbstractCompileOperator> inputCompileOps) {
+
+		// A hash map used to store the connections and their counts/repetitions
+		// .
+		Map<Connection, Integer> connectionsCounterMap = new HashMap<Connection, Integer>();
+		// Going through every compile operator, get its wished connection and
+		// store them in a hash map to count.
 		for (AbstractCompileOperator abstractCompileOperator : inputCompileOps) {
-			
-			Set<Connection> compileOpConnections = abstractCompileOperator.getWishedConnections(); 
-			
+
+			Set<Connection> compileOpConnections = abstractCompileOperator
+					.getWishedConnections();
+
 			for (Connection connection : compileOpConnections) {
-				if(connectionsCounterMap.containsKey(connection)){
-					connectionsCounterMap.put(connection, connectionsCounterMap.get(connection)+1);  
-					
-				} else { 
+				if (connectionsCounterMap.containsKey(connection)) {
+					connectionsCounterMap.put(connection,
+							connectionsCounterMap.get(connection) + 1);
+
+				} else {
 					connectionsCounterMap.put(connection, 1);
 				}
-			} 
-			
-		
-		}  
-		
-		// Sort the hash map to get the ranked connections 
-		List<Connection> rankedConnections = sortHashMapConnections(connectionsCounterMap.entrySet());
-		
+			}
+
+		}
+
+		// Sort the hash map to get the ranked connections
+		List<Connection> rankedConnections = sortHashMapConnections(connectionsCounterMap
+				.entrySet());
+
 		return rankedConnections;
 	}
 
 	private List<Connection> sortHashMapConnections(
 			Set<Entry<Connection, Integer>> entrySet) {
-		List<Entry<Connection, Integer>> connections = new ArrayList<Entry<Connection, Integer>>(entrySet); 
-		Collections.sort(connections, new Comparator<Entry<Connection, Integer>>() {
-			@Override
-			public int compare(Entry<Connection, Integer> arg0,
-					Entry<Connection, Integer> arg1) {
-				 return (arg0.getValue() > arg1.getValue() ? -1 : 
-					 (arg0.getValue() == arg1.getValue() ? 0 : 1));
-			}
-		});
-		
+		List<Entry<Connection, Integer>> connections = new ArrayList<Entry<Connection, Integer>>(
+				entrySet);
+		Collections.sort(connections,
+				new Comparator<Entry<Connection, Integer>>() {
+					@Override
+					public int compare(Entry<Connection, Integer> arg0,
+							Entry<Connection, Integer> arg1) {
+						return (arg0.getValue() > arg1.getValue() ? -1 : (arg0
+								.getValue() == arg1.getValue() ? 0 : 1));
+					}
+				});
+
 		List<Connection> rankedConnections = new ArrayList<Connection>();
 		for (Entry<Connection, Integer> entry : connections) {
 			rankedConnections.add(entry.getKey());
@@ -328,7 +308,7 @@ public class CodeGenerator {
 	 */
 	private Set<AbstractCompileOperator> getInputOps(
 			AbstractCompileOperator compileOp) {
-        
+
 		Set<AbstractCompileOperator> inputOps = new HashSet<AbstractCompileOperator>();
 		for (AbstractCompileOperator childOp : compileOp.getChildren()) {
 			getInputOps(inputOps, childOp);
@@ -345,37 +325,40 @@ public class CodeGenerator {
 	private void getInputOps(Set<AbstractCompileOperator> inputOps,
 			AbstractCompileOperator compileOp) {
 
-		if (this.splitOpIds.contains(compileOp.getOperatorId()) || compileOp.isLeaf()) {
-			inputOps.add(compileOp); 
+		if (this.splitOpIds.contains(compileOp.getOperatorId())
+				|| compileOp.isLeaf()) {
+			inputOps.add(compileOp);
 			return;
 		}
 
-		for (AbstractCompileOperator childOp : compileOp.getChildren()) { 
+		for (AbstractCompileOperator childOp : compileOp.getChildren()) {
 			getInputOps(inputOps, childOp);
 		}
-	} 
-	
-	private Set<AbstractCompileOperator> getQueryTrackerCompileOps(AbstractCompileOperator compileOp) { 
-		
+	}
+
+	private Set<AbstractCompileOperator> getQueryTrackerCompileOps(
+			AbstractCompileOperator compileOp) {
+
 		Set<AbstractCompileOperator> compileOps = new HashSet<AbstractCompileOperator>();
-		compileOps.add(compileOp);   
+		compileOps.add(compileOp);
 		for (AbstractCompileOperator childOp : compileOp.getChildren()) {
-			getQueryTrackerCompileOps(compileOps, childOp);			
+			getQueryTrackerCompileOps(compileOps, childOp);
 		}
 
 		return compileOps;
-	} 
-	
-	private void getQueryTrackerCompileOps(Set<AbstractCompileOperator> compileOps, 
-			AbstractCompileOperator compileOp){
-		
-		if (this.splitOpIds.contains(compileOp.getOperatorId())) { 
+	}
+
+	private void getQueryTrackerCompileOps(
+			Set<AbstractCompileOperator> compileOps,
+			AbstractCompileOperator compileOp) {
+
+		if (this.splitOpIds.contains(compileOp.getOperatorId())) {
 			return;
 		} else {
-			compileOps.add(compileOp); 
-		} 
-		
-		for (AbstractCompileOperator childOp : compileOp.getChildren()) { 
+			compileOps.add(compileOp);
+		}
+
+		for (AbstractCompileOperator childOp : compileOp.getChildren()) {
 			getQueryTrackerCompileOps(compileOps, childOp);
 		}
 	}
@@ -425,7 +408,8 @@ public class CodeGenerator {
 	 */
 	private List<Identifier> extractSplitOps() {
 		SplitPlanVisitor splitVisitor = new SplitPlanVisitor(null);
-		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
+		for (AbstractCompileOperator root : this.compilePlan
+				.getRootsCollection()) {
 			splitVisitor.reset(root);
 			this.err = splitVisitor.visit();
 
@@ -436,11 +420,12 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Renames attributes to original names in table
+	 * Renames attributes to original names in tables
 	 */
 	private void rename() {
 		ReRenameAttributesVisitor renameVisitor;
-		for (AbstractCompileOperator root : this.compilePlan.getRootsCollection()) {
+		for (AbstractCompileOperator root : this.compilePlan
+				.getRootsCollection()) {
 			renameVisitor = new ReRenameAttributesVisitor(root);
 			this.err = renameVisitor.visit();
 
@@ -456,38 +441,82 @@ public class CodeGenerator {
 		if (!Config.CODEGEN_OPTIMIZE)
 			return;
 
-		int i=1;
+		int i = 1;
 		for (Identifier splitOpId : this.splitOpIds) {
-			//get splitOp from compile plan as root for optimization
-			AbstractCompileOperator splitOp = this.compilePlan.getOperators(splitOpId);
+			// get splitOp from compile plan as root for optimization
+			AbstractCompileOperator splitOp = this.compilePlan
+					.getOperator(splitOpId);
 			this.err = combineJoins(splitOp);
 			if (this.err.isError())
 				return;
-			
-			if(Config.TRACE_CODEGEN_PLAN)
+
+			if (Config.TRACE_CODEGEN_PLAN)
 				this.compilePlan.tracePlan(compilePlan.getClass()
-						.getCanonicalName() + "_CODEGEN_PHASE"+i+"_"+splitOp.getOperatorId()+"_CombinedJoins");
-			
-			//get splitOp again since it might have be replaced
-			splitOp = this.compilePlan.getOperators(splitOpId);
+						.getCanonicalName()
+						+ "_CODEGEN_PHASE"
+						+ i
+						+ "_"
+						+ splitOp.getOperatorId() + "_CombinedJoins");
+
+			// get splitOp again since it might have be replaced
+			splitOp = this.compilePlan.getOperator(splitOpId);
 			this.err = combineUnaryOps(splitOp);
 			if (this.err.isError())
 				return;
-			
-			if(Config.TRACE_CODEGEN_PLAN)
+
+			if (Config.TRACE_CODEGEN_PLAN)
 				this.compilePlan.tracePlan(compilePlan.getClass()
-						.getCanonicalName() + "_CODEGEN_PHASE"+i+"_"+splitOp.getOperatorId()+"_CombinedUnaries");
-			
-			//get splitOp again since it might have be replaced
-			splitOp = this.compilePlan.getOperators(splitOpId);
+						.getCanonicalName()
+						+ "_CODEGEN_PHASE"
+						+ i
+						+ "_"
+						+ splitOp.getOperatorId() + "_CombinedUnaries");
+
+			// get splitOp again since it might have be replaced
+			splitOp = this.compilePlan.getOperator(splitOpId);
 			this.err = combineSQLOps(splitOp);
 			if (this.err.isError())
 				return;
-			
-			if(Config.TRACE_CODEGEN_PLAN)
+
+			if (Config.TRACE_CODEGEN_PLAN)
 				this.compilePlan.tracePlan(compilePlan.getClass()
-						.getCanonicalName() + "_CODEGEN_PHASE"+i+"_"+splitOp.getOperatorId()+"_Combined");
+						.getCanonicalName()
+						+ "_CODEGEN_PHASE"
+						+ i
+						+ "_"
+						+ splitOp.getOperatorId() + "_Combined");
 			++i;
+		}
+	}
+
+	private void generateTrackerPlan() {
+		// for each sub-plan generate a tracker operator
+		for (Identifier splitOpId : this.splitOpIds) {
+			AbstractCompileOperator splitCompileOp = this.compilePlan
+					.getOperator(splitOpId);
+			AbstractTrackerOperator trackerOp = null;
+			try {
+				trackerOp = generateTrackerOp(splitCompileOp);
+			} catch (URISyntaxException e) {
+				String[] args = { e.toString() };
+				this.err = new Error(EnumError.COMPILER_GENERIC, args);
+				return;
+			}
+
+			// add mapping: compile operator -> tracker operator
+			this.compileOp2trackerOp.put(splitCompileOp.getOperatorId(),
+					trackerOp.getOperatorId());
+		}
+
+		// add sources and consumers to plan
+		for (Map.Entry<Identifier, Set<Identifier>> entry : this.sources
+				.entrySet()) {
+			this.qtPlan.setSources(entry.getKey(), entry.getValue());
+		}
+
+		for (Map.Entry<Identifier, Set<Identifier>> entry : this.consumers
+				.entrySet()) {
+			this.qtPlan.setConsumers(entry.getKey(), entry.getValue());
 		}
 	}
 
