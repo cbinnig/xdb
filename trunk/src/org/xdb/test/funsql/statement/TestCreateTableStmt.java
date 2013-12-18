@@ -15,7 +15,7 @@ public class TestCreateTableStmt extends XDBTestCase {
 	public void testSimpleCreate() {
 		// create connection and table
 		AbstractServerStmt stmt = new CreateConnectionStmt("TestConnection",
-				"TestUrl", "TestUser", "TestPasswd", "POSTGRES");
+				"TestUrl", "TestUser", "TestPasswd", "XDB");
 		this.compileAndExecute(stmt);
 
 		CreateTableStmt createTableStmt = new CreateTableStmt("TestTable");
@@ -39,11 +39,11 @@ public class TestCreateTableStmt extends XDBTestCase {
 	@Test
 	public void testReplicatedCreate() {
 		AbstractServerStmt stmt = new CreateConnectionStmt("TestConnection1",
-				"TestUrl", "TestUser", "TestPasswd", "POSTGRES");
+				"TestUrl", "TestUser", "TestPasswd", "XDB");
 		this.compileAndExecute(stmt);
 
 		AbstractServerStmt stmt2 = new CreateConnectionStmt("TestConnection2",
-				"TestUrl", "TestUser", "TestPasswd", "POSTGRES");
+				"TestUrl", "TestUser", "TestPasswd", "XDB");
 		this.compileAndExecute(stmt2);
 
 		CreateTableStmt createTableStmt = new CreateTableStmt("TestTable");

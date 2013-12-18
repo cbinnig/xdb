@@ -33,7 +33,7 @@ public class Partition extends AbstractDatabaseObject {
 	private static long LAST_OID = 0;
 	private static long LAST_TEMP_OID = -1l;
 	
-	private long table_oid;
+	private long tableOid;
 	
 	private HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
 	
@@ -46,7 +46,7 @@ public class Partition extends AbstractDatabaseObject {
 	public Partition(Partition toCopy){
 		super(toCopy);
 
-		this.table_oid = toCopy.table_oid;
+		this.tableOid = toCopy.tableOid;
 		
 		// Copy HashMap
 		this.connections = new HashMap<Long, Connection>();
@@ -61,53 +61,24 @@ public class Partition extends AbstractDatabaseObject {
 		this.objectType = EnumDatabaseObject.PARTITION;
 	}
 	
-	public Partition(Long oid, long table_oid, String partition_name) {
-		super(oid, partition_name);
-
-		this.table_oid = table_oid;
-		
-	
+	public Partition(Long oid, long tableOid, String name) {
+		super(oid, name);
+		this.objectType = EnumDatabaseObject.PARTITION;
+		this.tableOid = tableOid;
 	}
 
 	
-	public Partition(long table_oid, String partition_name){
-		this(++LAST_OID, table_oid, partition_name);
+	public Partition(long tableOid, String name){
+		this(++LAST_OID, tableOid, name);
 	}
 	
-	//Tmp constructor
+	//constructor for temp partition
 	public Partition(String name) {
 		super(LAST_TEMP_OID--, name);
+		this.objectType = EnumDatabaseObject.PARTITION;
 	}
-
-	@Override
-	public String sqlInsert() {
-		StringBuffer insertSql = new StringBuffer();
-		insertSql.append(AbstractToken.INSERT); 
-		insertSql.append(AbstractToken.BLANK);
-		insertSql.append(AbstractToken.INTO);
-		insertSql.append(AbstractToken.BLANK); 
-		insertSql.append(METADATA_SCHEMA);
-		insertSql.append(AbstractToken.DOT);
-		insertSql.append(TABLE_NAME);
-		insertSql.append(AbstractToken.BLANK);
-		insertSql.append(AbstractToken.LBRACE); 
-		insertSql.append(ALL_ATTRIBUTES);
-		insertSql.append(AbstractToken.RBRACE);
-		insertSql.append(AbstractToken.BLANK);
-		insertSql.append(AbstractToken.VALUES);
-		insertSql.append(AbstractToken.BLANK);
-		insertSql.append(AbstractToken.LBRACE); 
-		insertSql.append(this.oid);
-		insertSql.append(AbstractToken.COMMA);
-		insertSql.append(this.table_oid);
-		insertSql.append(AbstractToken.COMMA);
-		insertSql.append(AbstractToken.toSqlLiteral(this.name));
-		insertSql.append(AbstractToken.RBRACE);
-		return insertSql.toString();
-	}
-
 	
-	
+	//getter and setters
 	private void addConnection(Long connectionOid, Connection connection) {
 		this.connections.put(connectionOid, connection);
 	}
@@ -122,47 +93,38 @@ public class Partition extends AbstractDatabaseObject {
 		}
 	}
 	
-	//getter and setters
+	public Collection<Connection> getConnections(){
+		return this.connections.values();
+	}
 	
+	@Override
+	public String getAllAttributes() {
+		return ALL_ATTRIBUTES;
+	}
 	
 	@Override
 	public String getTableName() {
 		return TABLE_NAME;
 	}
 
-
-	public Long getConnectionOid() {
-		// not replicated
-
-		for(Connection connec : this.connections.values()){
-			return connec.getOid();
-		}
-		return (long) -1;
+	public long getTableOid() {
+		return tableOid;
 	}
 
-	public long getTable_oid() {
-		return table_oid;
+	public void setTableOid(long table_oid) {
+		this.tableOid = table_oid;
 	}
 
-	public void setTable_oid(long table_oid) {
-		this.table_oid = table_oid;
-	}
-
-	@Override
-	public String getAllAttributes() {
-		return ALL_ATTRIBUTES;
-	}
-
+	//methods
 	@Override
 	public String hashKey() {
 		StringBuffer hashKey = new StringBuffer();
-		hashKey.append(this.table_oid);
+		hashKey.append(this.tableOid);
 		hashKey.append(AbstractToken.DOT);
 		hashKey.append(name);
 		return hashKey.toString();
 	}
 	
-	//init methods
 	protected static String sqlDeleteAll() {
 		return prototype.interalSqlDeleteAll();
 	}
@@ -187,9 +149,33 @@ public class Partition extends AbstractDatabaseObject {
 	public String toString(){
 		StringBuffer value = new StringBuffer();
 		value.append(this.getName());
-		value.append(" in connection: ");
-		value.append(this.getConnectionOid());
 		return value.toString();
 	}
-
+	
+	@Override
+	public String sqlInsert() {
+		StringBuffer insertSql = new StringBuffer();
+		insertSql.append(AbstractToken.INSERT); 
+		insertSql.append(AbstractToken.BLANK);
+		insertSql.append(AbstractToken.INTO);
+		insertSql.append(AbstractToken.BLANK); 
+		insertSql.append(METADATA_SCHEMA);
+		insertSql.append(AbstractToken.DOT);
+		insertSql.append(TABLE_NAME);
+		insertSql.append(AbstractToken.BLANK);
+		insertSql.append(AbstractToken.LBRACE); 
+		insertSql.append(ALL_ATTRIBUTES);
+		insertSql.append(AbstractToken.RBRACE);
+		insertSql.append(AbstractToken.BLANK);
+		insertSql.append(AbstractToken.VALUES);
+		insertSql.append(AbstractToken.BLANK);
+		insertSql.append(AbstractToken.LBRACE); 
+		insertSql.append(this.oid);
+		insertSql.append(AbstractToken.COMMA);
+		insertSql.append(this.tableOid);
+		insertSql.append(AbstractToken.COMMA);
+		insertSql.append(AbstractToken.toSqlLiteral(this.name));
+		insertSql.append(AbstractToken.RBRACE);
+		return insertSql.toString();
+	}
 }

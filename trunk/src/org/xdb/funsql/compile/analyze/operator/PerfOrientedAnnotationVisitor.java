@@ -29,10 +29,10 @@ public class PerfOrientedAnnotationVisitor extends AbstractAnnotationVisitor {
 		// if we have a child which is a table op, stay in its connection
 		// else use the connection of the left child		
 		if (ej.getRightChild() instanceof TableOperator) {
-			ej.setWishedConnection(ej.getRightChild().getWishedConnection());
+			ej.addWishedConnection(ej.getRightChild().getWishedConnection());
 			return Error.NO_ERROR;
 		}
-		ej.setWishedConnection(ej.getLeftChild().getWishedConnection());
+		ej.addWishedConnection(ej.getLeftChild().getWishedConnection());
 		
 		applyGlobalMaterializeRules(ej);
 		
@@ -44,12 +44,12 @@ public class PerfOrientedAnnotationVisitor extends AbstractAnnotationVisitor {
 		// if we have a child which is a table op, stay in its connection
 		for (AbstractCompileOperator op : ej.getChildren()) {
 			if (op instanceof TableOperator) {
-				ej.setWishedConnection(op.getWishedConnection());
+				ej.addWishedConnection(op.getWishedConnection());
 				return Error.NO_ERROR;
 			}
 		}
 		// otherwise just use the partition of the first child
-		ej.setWishedConnection(ej.getChild(0).getWishedConnection());
+		ej.addWishedConnection(ej.getChild(0).getWishedConnection());
 		
 		applyGlobalMaterializeRules(ej);
 		
@@ -58,7 +58,7 @@ public class PerfOrientedAnnotationVisitor extends AbstractAnnotationVisitor {
 
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
-		gs.setWishedConnection(gs.getChild().getWishedConnection());
+		gs.addWishedConnection(gs.getChild().getWishedConnection());
 		
 		applyGlobalMaterializeRules(gs);
 		
@@ -67,7 +67,7 @@ public class PerfOrientedAnnotationVisitor extends AbstractAnnotationVisitor {
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
-		sa.setWishedConnection(sa.getChild().getWishedConnection());
+		sa.addWishedConnection(sa.getChild().getWishedConnection());
 		
 		applyGlobalMaterializeRules(sa);
 		
@@ -76,7 +76,7 @@ public class PerfOrientedAnnotationVisitor extends AbstractAnnotationVisitor {
 
 	@Override
 	public Error visitGenericProjection(GenericProjection gp) {
-		gp.setWishedConnection(gp.getChild().getWishedConnection());
+		gp.addWishedConnection(gp.getChild().getWishedConnection());
 		
 		applyGlobalMaterializeRules(gp);
 		
@@ -85,7 +85,7 @@ public class PerfOrientedAnnotationVisitor extends AbstractAnnotationVisitor {
 
 	@Override
 	public Error visitTableOperator(TableOperator to) {
-		to.setWishedConnection(to.getConnection());
+		to.addWishedConnection(to.getConnection());
 		
 		applyGlobalMaterializeRules(to);
 		
@@ -94,7 +94,7 @@ public class PerfOrientedAnnotationVisitor extends AbstractAnnotationVisitor {
 
 	@Override
 	public Error visitRename(Rename ro) {
-		ro.setWishedConnection(ro.getChild().getWishedConnection());
+		ro.addWishedConnection(ro.getChild().getWishedConnection());
 		
 		applyGlobalMaterializeRules(ro);
 		

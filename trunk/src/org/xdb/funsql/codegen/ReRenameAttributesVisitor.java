@@ -145,7 +145,7 @@ public class ReRenameAttributesVisitor extends AbstractBottomUpTreeVisitor {
 		//add to renamed list
 		this.renamedOps.add(tableOp.getOperatorId().toString());
 		for(TokenAttribute tA : tableOp.getResult().getAttributes()){
-			String newName = removeTableNameFromName(tA.getName().getValue(), tableOp.getTableName());
+			String newName = removeTableNameFromName(tA.getName().getValue(), tableOp.getTableAlias());
 			//put to renamed Attributes for predicate and expression visitor
 			renamedAttributes.put(tA.getName().getValue(), newName);
 			tA.setName(newName);

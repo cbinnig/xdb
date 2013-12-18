@@ -16,11 +16,11 @@ public class TestCreateConnectionStmt extends XDBTestCase {
 		this.compileAndExecuteWithErr(stmt);		
 				
 		//create connection 
-		stmt = new CreateConnectionStmt(connectionName, "TestUrl", "TestUser", "TestPasswd", "POSTGRES");
+		stmt = new CreateConnectionStmt(connectionName, "TestUrl", "TestUser", "TestPasswd", "XDB");
 		this.compileAndExecute(stmt);
 		
 		//create duplicate connection 
-		stmt = new CreateConnectionStmt(connectionName, "TestUrl", "TestUser", "TestPasswd", "POSTGRES");
+		stmt = new CreateConnectionStmt(connectionName, "TestUrl", "TestUser", "TestPasswd", "XDB");
 		this.compileAndExecuteWithErr(stmt);
 		
 		//drop connection

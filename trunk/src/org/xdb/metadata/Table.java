@@ -35,20 +35,16 @@ public class Table extends AbstractDatabaseObject {
 	private static Table prototype = new Table();
 	
 	private Long schemaOid=-1l;
-
 	private HashMap<Long, Attribute> attributes = new HashMap<Long, Attribute>(); 
-	private HashMap<Long, Partition> partitions = new HashMap<Long, Partition>();
-	private HashMap<Long, PartitionAttributes> partitionAttributes = new HashMap<Long, PartitionAttributes>();
-	
 	private HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
+	private HashMap<Long, Partition> partitions = new HashMap<Long, Partition>();
 	
 	//parameters for partitioning 
-
 	private EnumPartitionType partitionType;
+	private HashMap<Long, PartitionAttribute> partitionAttributes = new HashMap<Long, PartitionAttribute>();
 	private boolean partioned;
 	private long partitionCnt;
-	private Long refTableOid = null;
-	
+	private Long refTableOid = null;	
 
 	/**
 	 * Copy Constructor
@@ -191,7 +187,7 @@ public class Table extends AbstractDatabaseObject {
 		return attributes.values();
 	}
 	
-	public HashMap<Long, PartitionAttributes> getPartitionAttributes() {
+	public HashMap<Long, PartitionAttribute> getPartitionAttributes() {
 		return partitionAttributes;
 	}
 	
@@ -199,7 +195,7 @@ public class Table extends AbstractDatabaseObject {
 		this.partitions.put(partition.getOid(), partition);
 	}
 	
-	public void addPartitionAttribute(PartitionAttributes partitionAttributes){
+	public void addPartitionAttribute(PartitionAttribute partitionAttributes){
 		this.partitionAttributes.put(partitionAttributes.getPart_att_oid(), partitionAttributes);
 	}
 	
@@ -318,7 +314,7 @@ public class Table extends AbstractDatabaseObject {
 	
 
 	
-	public String toSqlString() {
+	public String attsToDDL() {
 		StringBuffer tableBuffer = new StringBuffer(AbstractToken.LBRACE);
 		
 		Iterator<Attribute> attIter = this.attributes.values().iterator();

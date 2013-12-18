@@ -35,7 +35,6 @@ import org.xdb.metadata.Connection;
 import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
-import org.xdb.store.EnumStore;
 import org.xdb.utils.FlagElem;
 import org.xdb.utils.FlaggedElemVector;
 import org.xdb.utils.Identifier;
@@ -496,7 +495,7 @@ public class SelectStmt extends AbstractServerStmt {
 	 */
 	private Error addTableToPlan(TableOperator tableOp) {
 		// set table
-		Table table = this.tableSymbols.get(tableOp.getTokenTable().hashKey());
+		Table table = this.tableSymbols.get(tableOp.getTableAliasToken().hashKey());
 		tableOp.setTable(table);
 
 		// set connection if table is no intermediate temporary table
@@ -506,11 +505,6 @@ public class SelectStmt extends AbstractServerStmt {
 			for (Long connOid : connectionOids) {
 				Connection conn = Catalog.getConnection(connOid); 
 				tableOp.addConnection(conn);
-				if (!conn.getStore().equals(EnumStore.XDB)) {
-					String args[] = { "Store of type " + conn.getStore()
-							+ " not supported" };
-					return new Error(EnumError.COMPILER_GENERIC, args);
-				}
 			}
 		}
 

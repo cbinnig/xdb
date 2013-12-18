@@ -89,8 +89,8 @@ public class TestCreateTableSQL extends XDBTestCase {
 				"  T1_C2 VARCHAR," +
 				"  T1_C3 INT" +
 				") PARTIONED BY HASH ( T1_C1, T1_C2 ) ( " +
-				" \"P1\" IN CONNECTION  \"testConnection1\"," +
-				" \"P2\" IN CONNECTION  \"testConnection2\" )";
+				" P1 IN CONNECTION  \"testConnection1\"," +
+				" P2 IN CONNECTION  \"testConnection2\" )";
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
@@ -146,8 +146,8 @@ public class TestCreateTableSQL extends XDBTestCase {
 				"  A INT," +
 				"  B VARCHAR" +
 				") PARTIONED BY HASH ( A,B,C ) ( " +
-				" \"P1\" IN CONNECTION  \"testConnection1\"," +
-				" \"P2\" IN CONNECTION  \"testConnection2\" )";
+				"P1 IN CONNECTION  \"testConnection1\"," +
+				"P2 IN CONNECTION  \"testConnection2\" )";
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertError(compiler.getLastError());
@@ -189,8 +189,8 @@ public class TestCreateTableSQL extends XDBTestCase {
 				"  C2 VARCHAR," +
 				"  C3 INT" +
 				") PARTIONED BY HASH ( C1, C2 ) ( " +
-				" \"P1\" IN CONNECTION  \"testConnection1\"," +
-				" \"P2\" IN CONNECTION  \"testConnection2\" )";
+				"P1 IN CONNECTION  \"testConnection1\"," +
+				"P2 IN CONNECTION  \"testConnection2\" )";
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
@@ -202,9 +202,7 @@ public class TestCreateTableSQL extends XDBTestCase {
 				"  T2_C1 INT," +
 				"  T2_C2 VARCHAR," +
 				"  T2_C3 INT" +
-				") PARTIONED BY REF ( T2_C1 REFERENCES T1.C1, T2_C2 REFERENCES T1.C2 ) ( " +
-				" \"P1\" IN CONNECTION  \"testConnection1\"," +
-				" \"P2\" IN CONNECTION  \"testConnection2\" )";
+				") PARTIONED BY REF ( T2_C1 REFERENCES T1.C1, T2_C2 REFERENCES T1.C2 )";
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
@@ -222,9 +220,7 @@ public class TestCreateTableSQL extends XDBTestCase {
 				"  T3_C1 INT," +
 				"  T3_C2 VARCHAR," +
 				"  T3_C3 INT" +
-				") PARTIONED BY RREF ( T3_C1 REFERENCES T1.C1, T3_C2 REFERENCES T1.C2 ) ( " +
-				" \"P1\" IN CONNECTION  \"testConnection1\"," +
-				" \"P2\" IN CONNECTION  \"testConnection2\" )";
+				") PARTIONED BY REF ( T3_C1 REFERENCES T2.T2_C1, T3_C2 REFERENCES T2.T2_C2 )";
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
@@ -234,7 +230,7 @@ public class TestCreateTableSQL extends XDBTestCase {
 		tTable = new TokenTable("T3");
 		gotTable = Catalog.getTable(tTable.hashKey(defaultSchema.getOid()));
 		Assert.assertTrue(gotTable.getPartitions().size() == 2);
-		Assert.assertEquals(gotTable.getPartitionType(), EnumPartitionType.REVERSE_REFERENCE);
+		Assert.assertEquals(gotTable.getPartitionType(), EnumPartitionType.REFERENCE);
 		
 		String dropConnSql = "DROP TABLE \"T1\"";
 		stmt = compiler.compile(dropConnSql);
@@ -341,8 +337,8 @@ public class TestCreateTableSQL extends XDBTestCase {
 				"  A INT," +
 				"  B VARCHAR" +
 				") PARTIONED BY HASH ( A ) ( " +
-				" \"P1\" REPLICATED IN CONNECTION  \"testConnection1\", \"testConnection2\", "+
-				" \"P2\" REPLICATED IN CONNECTION  \"testConnection1\", \"testConnection2\" )";
+				"P1 REPLICATED IN CONNECTION  \"testConnection1\", \"testConnection2\", "+
+				"P2 REPLICATED IN CONNECTION  \"testConnection1\", \"testConnection2\" )";
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());

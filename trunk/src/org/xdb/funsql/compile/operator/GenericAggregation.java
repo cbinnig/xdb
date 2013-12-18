@@ -103,6 +103,7 @@ public class GenericAggregation extends AbstractUnaryOperator {
 		return this.aggExprs;
 	}
 
+	//methods
 	@Override
 	public String toSqlString() {
 		final HashMap<String, String> vars = new HashMap<String, String>();

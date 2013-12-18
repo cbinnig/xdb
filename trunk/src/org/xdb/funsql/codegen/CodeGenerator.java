@@ -156,7 +156,7 @@ public class CodeGenerator {
 			if (inputCompileOp.getType().equals(EnumOperator.TABLE)) {
 				inputTableOp = (TableOperator) inputCompileOp;
 				inTableName = TableOperator.TABLE_PREFIX + inTableName;
-				inDDL = inputTableOp.getTable().toSqlString();
+				inDDL = inputTableOp.getAttsDDL();
 			}
 			// else is input is a sub-plan
 			else {
@@ -179,8 +179,7 @@ public class CodeGenerator {
 					uris.add(URI.create(connection.getUrl()));
 				}
 
-				TableDesc tableDesc = new TableDesc(inputTableOp.getTable()
-						.getName(), uris);
+				TableDesc tableDesc = new TableDesc(inputTableOp.getTableName(), uris);
 
 				trackerOp.setInTableSource(inTableName, tableDesc);
 			}
@@ -220,7 +219,6 @@ public class CodeGenerator {
 			Set<AbstractCompileOperator> inputCompileOps) {
 
 		// A hash map used to store the connections and their counts/repetitions
-		// .
 		Map<Connection, Integer> connectionsCounterMap = new HashMap<Connection, Integer>();
 		// Going through every compile operator, get its wished connection and
 		// store them in a hash map to count.

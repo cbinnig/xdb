@@ -40,26 +40,17 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 * @param toCopy
 	 *            Element to copy
 	 */
-	@SuppressWarnings("unchecked")
 	public AbstractCompileOperator(AbstractCompileOperator toCopy) {
-		this.children = (Vector<AbstractCompileOperator>) toCopy.children
-				.clone();
-		this.parents = (Vector<AbstractCompileOperator>) toCopy.parents.clone();
+		this.children = new Vector<AbstractCompileOperator>(toCopy.children);
+		this.parents = new Vector<AbstractCompileOperator>(toCopy.parents);
 		this.type = toCopy.type;
-		this.results = toCopy.results;
-
-		Vector<ResultDesc> cloneresults = new Vector<ResultDesc>();
-
+		this.wishedConnections = new HashSet<Connection>(toCopy.wishedConnections);
+		
+		this.results = new Vector<ResultDesc>();		
 		for (ResultDesc rd : toCopy.results) {
 			if (rd != null) {
-				cloneresults.add(rd.clone());
+				this.results.add(rd.clone());
 			}
-
-		}
-
-		this.results = cloneresults;
-		if (!toCopy.getWishedConnections().isEmpty()) {
-			this.wishedConnections =toCopy.getWishedConnections();
 		}
 	}
 
@@ -98,12 +89,12 @@ public abstract class AbstractCompileOperator implements Serializable {
 		return this.wishedConnections.iterator().next();
 	}
 	
-	public void setWishedConnection(final Connection conn) {
-		this.wishedConnections.add(conn);
-	}
-
 	public Set<Connection> getWishedConnections() {
 		return wishedConnections;
+	}
+	
+	public void addWishedConnection(final Connection conn) {
+		this.wishedConnections.add(conn);
 	}
 
 	public void addWishedConnections(Set<Connection> wishedConnections) {

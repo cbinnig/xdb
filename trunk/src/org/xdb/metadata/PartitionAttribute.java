@@ -2,7 +2,7 @@ package org.xdb.metadata;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
 
-public class PartitionAttributes extends AbstractDatabaseObject{
+public class PartitionAttribute extends AbstractDatabaseObject{
 	
 	private static final long serialVersionUID = 4916057015536997054L;
 	
@@ -15,21 +15,21 @@ public class PartitionAttributes extends AbstractDatabaseObject{
 	private long part_att_oid;
 	private Long ref_att_oid;
 	
-	private static PartitionAttributes prototype = new PartitionAttributes();
+	private static PartitionAttribute prototype = new PartitionAttribute();
 	
 	
-	public PartitionAttributes(PartitionAttributes toCopy){
+	public PartitionAttribute(PartitionAttribute toCopy){
 		super(toCopy);
 		this.part_att_oid = toCopy.part_att_oid;
 		this.ref_att_oid = toCopy.ref_att_oid;
 	}
 	
-	private PartitionAttributes(){
+	private PartitionAttribute(){
 		super();
 		this.objectType = EnumDatabaseObject.PARTITIONATTRIBUTES;
 	}
 	
-	public PartitionAttributes(long part_att_oid, Long ref_att_oid) {
+	public PartitionAttribute(long part_att_oid, Long ref_att_oid) {
 		this();
 		this.part_att_oid = part_att_oid;
 		this.ref_att_oid = ref_att_oid;

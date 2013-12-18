@@ -274,93 +274,125 @@ createTableStatement returns [CreateTableStmt stmt]
                 }
                 )*
                 RPAREN
-                (((
-                KEYWORD_IN KEYWORD_CONNECTION
-                connection1=tokenIdentifier {
-                	$stmt.addConnection($connection1.identifier);
-                }
-                )|( 
-                KEYWORD_REPLICATED KEYWORD_IN KEYWORD_CONNECTION 
-                connectionR1=tokenIdentifier {
-                	$stmt.addConnection($connectionR1.identifier);
-                }
-                ( COMMA 
-                 connectionR2=tokenIdentifier {
+                //Connection info
+                (
+                  (
+                    KEYWORD_IN KEYWORD_CONNECTION
+                    connection1=tokenIdentifier {
+                      $stmt.addConnection($connection1.identifier);
+                    }
+                  )
+                  |
+                  ( 
+                    KEYWORD_REPLICATED KEYWORD_IN KEYWORD_CONNECTION 
+                    connectionR1=tokenIdentifier {
+                      $stmt.addConnection($connectionR1.identifier);
+                    }
+                    ( 
+                      COMMA 
+                      connectionR2=tokenIdentifier {
                 	$stmt.addConnection($connectionR2.identifier);
-                }
-                )*
-                ))
-                |
+                      }
+                    )*
+                  )
+                )?
+                //End Connection info
+                
+                //Partitioning info
                 (
                 KEYWORD_PARTITIONED KEYWORD_BY 
                 method=identifierText
                 {
                 	$stmt.setPartitionType($method.text);
                 }
-                (
-                LPAREN
-                patt1=tokenAttribute
-                {
-                	$stmt.addPartitionAttribute($patt1.attribute);
-                }
-                (
-                	KEYWORD_REFERENCES ratt1=tokenAttribute
-                	{
-                		$stmt.addRefPartitionAttribute($ratt1.attribute);
-                	}
-                )?
-                (
-                	COMMA
-                	patt2=tokenAttribute
-                	{
-                		$stmt.addPartitionAttribute($patt2.attribute);
-                	}
-                	(
-                	KEYWORD_REFERENCES ratt2=tokenAttribute
-                	{
-                		$stmt.addRefPartitionAttribute($ratt2.attribute);
-                	}
-                	)?
-                )*
-                RPAREN
-                )?
-                LPAREN
-                p1=identifierText
-                {
-                	$stmt.addPartition($p1.text);
-                }
-                ( (KEYWORD_IN KEYWORD_CONNECTION
-                c1=tokenIdentifier {
-                	$stmt.addPConnection($p1.text,$c1.identifier);
-                })|
-                (KEYWORD_REPLICATED KEYWORD_IN KEYWORD_CONNECTION
-                 c2=tokenIdentifier {
-                	$stmt.addPConnection($p1.text,$c2.identifier);
-                }
-                (COMMA  c3=tokenIdentifier {
-                	$stmt.addPConnection($p1.text,$c3.identifier);
-                })?))
-                (
-                COMMA
-                p2=identifierText
-                {
-                	$stmt.addPartition($p2.text);
-                }
-               ( (KEYWORD_IN KEYWORD_CONNECTION
-                c2=tokenIdentifier {
-                	$stmt.addPConnection($p2.text,$c2.identifier);
-                })|
-                (KEYWORD_REPLICATED KEYWORD_IN KEYWORD_CONNECTION
-                 c2=tokenIdentifier {
-                	$stmt.addPConnection($p2.text,$c2.identifier);
-                }
-                (COMMA  c3=tokenIdentifier {
-                	$stmt.addPConnection($p2.text,$c3.identifier);
-                })?))
-                )*
-                RPAREN
-                ))
                 
+                //Partition attributes 
+                LPAREN
+                patt1=tokenAttribute{
+                  $stmt.addPartitionAttribute($patt1.attribute);
+                }
+                (
+                  KEYWORD_REFERENCES ratt1=tokenAttribute{
+                    $stmt.addRefPartitionAttribute($ratt1.attribute);
+                  }
+                )?
+                (
+                  COMMA
+                  patt2=tokenAttribute{
+                    $stmt.addPartitionAttribute($patt2.attribute);
+                  }
+                  (
+                    KEYWORD_REFERENCES ratt2=tokenAttribute{
+                      $stmt.addRefPartitionAttribute($ratt2.attribute);
+                    }
+                  )?
+                )*
+                RPAREN
+                //End Partition attributes 
+                   
+                //Partition details
+                (
+                  LPAREN
+                  p1=identifierText{
+                    $stmt.addPartition($p1.text);
+                  }
+                  ( 
+                    //Connection specification
+                    (
+                      KEYWORD_IN KEYWORD_CONNECTION
+                      c1=tokenIdentifier {
+                	$stmt.addPConnection($p1.text,$c1.identifier);
+                      }
+                    )
+                    |
+                    (
+                      KEYWORD_REPLICATED KEYWORD_IN KEYWORD_CONNECTION
+                      c2=tokenIdentifier {
+                	$stmt.addPConnection($p1.text,$c2.identifier);
+                      }
+                      (
+                        COMMA 
+                        c3=tokenIdentifier {
+                	  $stmt.addPConnection($p1.text,$c3.identifier);
+                        }
+                      )*
+                    )
+                    // End Connection specification
+                  )
+                  (
+                    COMMA
+                    p2=identifierText {
+                	$stmt.addPartition($p2.text);
+                    }
+                    ( 
+                      //Connection specification
+                      (
+                        KEYWORD_IN KEYWORD_CONNECTION
+                        c2=tokenIdentifier {
+                	  $stmt.addPConnection($p2.text,$c2.identifier);
+                        }
+                      )
+                      |
+                      (
+                        KEYWORD_REPLICATED KEYWORD_IN KEYWORD_CONNECTION
+                        c2=tokenIdentifier {
+                	  $stmt.addPConnection($p2.text,$c2.identifier);
+                        }
+                        (
+                          COMMA  
+                          c3=tokenIdentifier {
+                	    $stmt.addPConnection($p2.text,$c3.identifier);
+                          }
+                        )*
+                      )
+                      //End Connection specification
+                    )
+                  )*
+                  RPAREN
+                )?
+                //End Partition details
+              )?
+              //End Partitioning info       
         )
         ;
 

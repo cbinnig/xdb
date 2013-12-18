@@ -10,7 +10,6 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.metadata.Connection;
-import org.xdb.metadata.Partition;
 import org.xdb.metadata.Table;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
@@ -21,23 +20,24 @@ import com.oy.shared.lm.graph.GraphNode;
 public class TableOperator extends AbstractCompileOperator {
 	private static final long serialVersionUID = 997138204723229392L;
 	public static final String TABLE_PREFIX = "_";
+	
+	private final StringTemplate sqlTemplate = new StringTemplate("<<OP1>>");
+	
 	// attributes
-	private TokenIdentifier tableName;
-	private Connection connection = null; 
+	private TokenIdentifier tableAlias;
+	private String tableName;
+	private String attsDDL;
+	
+	
+	// meta data attributes
+	private Table table = null;
 	private List<Connection> connections = new ArrayList<Connection>();
 	
-	private Partition partition = null;
-	private Table table = null;
-
-	private int part = -1;
-
-	private final StringTemplate sqlTemplate = new StringTemplate("<<OP1>>");
-
 	// constructors
-	public TableOperator(TokenIdentifier tableName) {
+	public TableOperator(TokenIdentifier tableAlias) {
 		super(1);
 
-		this.tableName = tableName;
+		this.tableAlias = tableAlias;
 		this.type = EnumOperator.TABLE;
 	}
 
@@ -49,16 +49,9 @@ public class TableOperator extends AbstractCompileOperator {
 	 */
 	public TableOperator(TableOperator toCopy) {
 		super(toCopy);
-		this.tableName = toCopy.tableName.clone();
-		if (toCopy.connection != null) {
-			this.setConnection(new Connection(toCopy.getConnection()));
-		}
-		if (toCopy.partition != null) {
-			this.setPartition(new Partition(toCopy.getPartition()));
-		}
-
-		this.part = toCopy.part;
-
+		
+		this.tableAlias = toCopy.tableAlias.clone();
+		this.connections = new ArrayList<Connection>(toCopy.connections);
 		this.table = new Table(toCopy.table);
 	}
 
@@ -67,24 +60,28 @@ public class TableOperator extends AbstractCompileOperator {
 		return this.results.get(0);
 	}
 
-	public String getTableName() {
-		return tableName.getValue();
+	public String getTableAlias() {
+		return tableAlias.getValue();
 	}
 
-	public TokenIdentifier getTokenTable() {
-		return tableName;
+	public TokenIdentifier getTableAliasToken() {
+		return tableAlias;
 	}
-
-	public void setTableName(TokenIdentifier tableName) {
-		this.tableName = tableName;
-	}
-
+	
 	public Connection getConnection() {
-		return connection;
+		return (this.connections.size()>=1)? connections.get(0) : null;
 	}
 
 	public void setConnection(Connection connection) {
-		this.connection = connection;
+		this.connections.add(connection);
+	}
+	
+	public String getAttsDDL(){
+		return this.attsDDL;
+	}
+	
+	public String getTableName(){
+		return this.tableName;
 	}
 
 	public Table getTable() {
@@ -93,30 +90,10 @@ public class TableOperator extends AbstractCompileOperator {
 
 	public void setTable(Table table) {
 		this.table = table;
+		this.tableName = table.getName();
+		this.attsDDL = table.attsToDDL();
 	}
 
-	public boolean hasPartition() {
-		return this.partition != null;
-	}
-
-
-
-	public Partition getPartition() {
-		return partition;
-	}
-
-	public void setPartition(Partition partition) {
-		this.partition = partition;
-	}
-
-	public int getPart() {
-		return part;
-	}
-
-	public void setPart(int part) {
-		this.part = part;
-	}
- 
 	public List<Connection> getConnections() {
 		return connections;
 	}
@@ -126,9 +103,8 @@ public class TableOperator extends AbstractCompileOperator {
 	}
 	
 	// methods
-
 	/**
-	 * Replace table by other operator, e.g. sub-plan
+	 * Replace table by sub-plan
 	 * 
 	 * @param newOp
 	 */
@@ -152,20 +128,9 @@ public class TableOperator extends AbstractCompileOperator {
 
 	@Override
 	public String toSqlString() {
-
-		HashMap<String, String> vars = new HashMap<String, String>();
+		Map<String, String> vars = new HashMap<String, String>();
 		final String opDummy = TABLE_PREFIX + getOperatorId().toString();
 		vars.put("OP1", opDummy);
-
-		// get all table attributes and match them in order
-		/*
-		 * final Vector<String> attrs = new Vector<String>(); for(Attribute attr
-		 * : table.getAttributes()) { attrs.add(opDummy + "." + attr.getName());
-		 * }
-		 */
-		// vars.put("RESULTS", SetUtils.buildAliasString(attrs,
-		// getResultAttributes()));
-		// System.out.println(sqlTemplate.toString(vars));
 		return sqlTemplate.toString(vars);
 	}
 
@@ -179,16 +144,8 @@ public class TableOperator extends AbstractCompileOperator {
 
 			footer.append(this.table.getName());
 			footer.append(" AS ");
-			footer.append(this.tableName.toSqlString());
+			footer.append(this.tableAlias.toSqlString());
 			footer.append(AbstractToken.NEWLINE);
-
-			if (Config.TRACE_COMPILE_PLAN_PARTITIONING && this.hasPartition()) {
-				footer.append("Partition: ");
-				footer.append(partition.toString());
-				footer.append(AbstractToken.NEWLINE);
-				footer.append("Part : " + this.part);
-				footer.append(AbstractToken.NEWLINE);
-			}
 			
 			if (node.getInfo().getFooter() != null) {
 				footer.append(node.getInfo().getFooter());
@@ -202,6 +159,6 @@ public class TableOperator extends AbstractCompileOperator {
 
 	@Override
 	public void renameTableOfAttributes(String oldId, String newId) {
-
+		//nothing to do :)
 	}
 }
