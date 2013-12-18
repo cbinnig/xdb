@@ -44,9 +44,6 @@ public class TestPlanTranslation extends XDBTestCase {
 		this.qTracker = this.qTrackerServer.getNode();
 	}
 	
-	
-
-	
 	@Test
 	public void testSimplePlanTransition() throws Exception {
 		/*
@@ -271,8 +268,7 @@ public class TestPlanTranslation extends XDBTestCase {
 		Assert.assertNotNull(qPlan);
 		qPlan.tracePlan(this.getClass().getName());
 		
-		assertEquals(1, qPlan.getTrackerOperators().size());
-		
+		assertEquals(1, qPlan.getTrackerOperators().size());	
 	}
 	
 	@Test

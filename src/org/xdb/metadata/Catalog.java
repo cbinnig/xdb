@@ -4,7 +4,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -29,7 +28,6 @@ public class Catalog {
 	private static HashMap<Long, Partition> partitionsByName = new HashMap<Long, Partition>();
 	
 	private static HashMap<Long, Long> partitionAttributues = new HashMap<Long, Long>();
-	
 
 	private static HashMap<Long, List<TableToConnection>> tableToConnByTableOid = new HashMap<Long, List<TableToConnection>>();
 	private static HashMap<Long, List<TableToConnection>> tableToConnByConnOid = new HashMap<Long, List<TableToConnection>>();
@@ -67,7 +65,7 @@ public class Catalog {
 				return lastError;
 			}
 			
-			lastError = Catalog.executeUpdate(PartitionAttributes.sqlDeleteAll());
+			lastError = Catalog.executeUpdate(PartitionAttribute.sqlDeleteAll());
 			if (lastError != Error.NO_ERROR) {
 				return lastError;
 			}
@@ -119,14 +117,22 @@ public class Catalog {
 			Class.forName(Config.METADATA_DRIVER_CLASS);
 			Catalog.conn = DriverManager.getConnection(Config.METADATA_DB_URL,
 					Config.METADATA_USER, Config.METADATA_PASSWORD);
-			Catalog.initConnectionToTable();
-			Catalog.initPartitionToConnection();
-			Catalog.initPartitions();
-			Catalog.initPartitionAttributes();
-			Catalog.initConnections();
+			
+			//Schemas
 			Catalog.initSchemas();
+			
+			//Connections
+			Catalog.initConnections();
+			
+			//Tables
 			Catalog.initTables();
 			Catalog.initAttributes();
+			Catalog.initPartitions();
+			Catalog.initPartitionAttributes();
+			Catalog.initConnectionToTable();
+			Catalog.initPartitionToConnection();
+			
+			//Functions
 			Catalog.initFunctions();
 
 			lastError = Catalog.checkCatalog();
@@ -266,25 +272,28 @@ public class Catalog {
 			// add attribute to catalog
 			long oid = rs.getLong(1);
 			long tableOid = rs.getLong(2);
-			String partition_name = rs.getString(3);
-			Partition part = new Partition(oid, tableOid, partition_name);
+			String partitionName = rs.getString(3);
+			Partition part = new Partition(oid, tableOid, partitionName);
 			Catalog.addPartition(part);
 
+			// add partition to table
+			Catalog.tables.get(tableOid).addPartition(part);
 		}
-
 	}
 	
 	private static synchronized void initPartitionAttributes() throws Exception {
 		Statement stmt = null;
 		ResultSet rs = null;
 		stmt = Catalog.conn.createStatement();
-		rs = stmt.executeQuery(PartitionAttributes.sqlSelectAll());
+		rs = stmt.executeQuery(PartitionAttribute.sqlSelectAll());
 		while (rs.next()) {
-			// add PartitionAttributes to catalog
+			// add partitioning attribute  to catalog
 			long partAttOid = rs.getLong(1);
 			long refAttOid = rs.getLong(2);
 			Attribute partAttObj = Catalog.attributes.get(partAttOid);
-			PartitionAttributes partitionAttributes = new PartitionAttributes(partAttOid, refAttOid);
+			PartitionAttribute partitionAttributes = new PartitionAttribute(partAttOid, refAttOid);
+			
+			//add attribute to partition
 			Catalog.tables.get(partAttObj.getTableOid()).addPartitionAttribute(partitionAttributes);
 		}
 	}
@@ -327,6 +336,11 @@ public class Catalog {
 			TableToConnection tableToConnec = new TableToConnection(t_oid,
 					c_oid);
 			Catalog.addTableToConnection(tableToConnec);
+			
+			//add connection to table
+			Table table = Catalog.getTable(t_oid);
+			Connection conn = Catalog.getConnection(c_oid);
+			table.addConnection(conn);
 		}
 	}
 	
@@ -343,6 +357,11 @@ public class Catalog {
 			PartitionToConnection tableToConnec = new PartitionToConnection(p_oid,
 					c_oid);
 			Catalog.addPartitionToConnection(tableToConnec);
+			
+			//add connection to partition
+			Partition part = Catalog.getPartition(p_oid);
+			Connection conn = Catalog.getConnection(c_oid);
+			part.addConnection(conn);
 		}
 	}
 
@@ -411,7 +430,6 @@ public class Catalog {
 			String partType = rs.getString(5);
 			Long refTableOid = rs.getLong(6);
 			
-
 			Table table = new Table(oid, name, schemaOid, partCnt, partType, refTableOid);
 			Catalog.addTable(table);
 		}
@@ -463,7 +481,7 @@ public class Catalog {
 		return lastError;
 	}
 	
-	public static synchronized Error createPartitionAttributes(PartitionAttributes partAtts) {
+	public static synchronized Error createPartitionAttribute(PartitionAttribute partAtts) {
 		if (Catalog.partitionAttributues.containsKey(partAtts.getPart_att_oid())) {
 			return createObjectAlreadyExistsErr(partAtts);
 		}
@@ -476,7 +494,7 @@ public class Catalog {
 		return lastError;
 	}
 
-	public static synchronized Error dropPartitionAttributes(PartitionAttributes partAtts) {
+	public static synchronized Error dropPartitionAttribute(PartitionAttribute partAtts) {
 		Error lastError = Catalog.executeUpdate(partAtts.sqlDelete());
 		if (lastError == Error.NO_ERROR) {
 			Catalog.removePartitionAttributes(partAtts);
@@ -650,8 +668,8 @@ public class Catalog {
 		}
 		
 		// drop partitionAttributes
-		for (PartitionAttributes partAtts: table.getPartitionAttributes().values()) {
-			lastError = Catalog.dropPartitionAttributes(partAtts);
+		for (PartitionAttribute partAtts: table.getPartitionAttributes().values()) {
+			lastError = Catalog.dropPartitionAttribute(partAtts);
 			if (lastError.isError())
 				return lastError;
 
@@ -721,11 +739,11 @@ public class Catalog {
 		Catalog.attributesByName.remove(completeName.toString());
 	}
 	
-	public static synchronized void addPartitionAttributes(PartitionAttributes partAtts) {
+	public static synchronized void addPartitionAttributes(PartitionAttribute partAtts) {
 		Catalog.partitionAttributues.put(partAtts.getPart_att_oid(), partAtts.getRef_att_oid());
 	}
 	
-	public static synchronized void removePartitionAttributes(PartitionAttributes partAtts) {
+	public static synchronized void removePartitionAttributes(PartitionAttribute partAtts) {
 		Catalog.partitions.remove(partAtts.getPart_att_oid());
 	}	
 
@@ -737,8 +755,6 @@ public class Catalog {
 		Catalog.partitions.remove(part.getOid());
 	}
 	
-	
-
 	public static synchronized void addPartitionToConnection(
 			PartitionToConnection paToCo) {
 		List<PartitionToConnection> values1 = Catalog.partitionToConnByConnOid
@@ -914,24 +930,6 @@ public class Catalog {
 
 	public static synchronized Function getFunction(String key) {
 		return Catalog.functionsByName.get(key);
-	}
-
-	public synchronized static List<Connection> getConnectionsForTable(String tablename) {
-		Table table = Catalog.tablesByName.get(tablename);
-
-		List<TableToConnection> taToCo = tableToConnByTableOid.get(table
-				.getOid());
-
-		List<Connection> connections = new ArrayList<Connection>();
-		for (TableToConnection ttc : taToCo) {
-			connections.add(Catalog.connections.get(ttc.getConnection_oid()));
-		}
-		return connections;
-	}
-	
-	public synchronized static Collection<Partition> getPartionsForTable(String tableName){
-		Table table = Catalog.tablesByName.get(tableName);
-		return  table.getPartitions();
 	}
 	
 	/**

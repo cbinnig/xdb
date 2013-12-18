@@ -123,7 +123,7 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 		ResultDesc rDesc = new ResultDesc();
 		
 		for(Attribute attr: table.getAttributes()){
-			String attName = ResultDesc.createResultAtt(to.getTableName(), attr.getName());
+			String attName = ResultDesc.createResultAtt(to.getTableAlias(), attr.getName());
 			TokenAttribute att = new TokenAttribute(attName);
 			att.setTable(to.getOperatorId().toString());
 			rDesc.addAttribute(att);

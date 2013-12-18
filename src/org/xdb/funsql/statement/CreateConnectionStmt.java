@@ -1,5 +1,6 @@
 package org.xdb.funsql.statement;
 
+import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.compile.tokens.TokenStringLiteral;
@@ -86,10 +87,17 @@ public class CreateConnectionStmt extends AbstractServerStmt {
 		if(this.store==null){
 			return EnumStore.createStoreNotExistsErr(this.tStore.getValue());
 		}
+		
+		if (!this.store.equals(EnumStore.XDB)) {
+			String args[] = { "Store of type " + store
+					+ " not supported" };
+			return new Error(EnumError.COMPILER_GENERIC, args);
+		}
 
 		this.connection = new Connection(this.tConnection.toString(),
 				this.tURL.toString(), this.tUser.toString(),
 				this.tPasswd.toString(), store);
+		
 		return connection.checkObject();
 	}
 

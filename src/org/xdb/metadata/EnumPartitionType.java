@@ -5,19 +5,16 @@ import java.io.Serializable;
 public enum EnumPartitionType implements Serializable{
 	NO_PARTITION,
 	HASH,
-	REFERENCE,
-	REVERSE_REFERENCE;
+	REFERENCE;
 	
-	public boolean isNonReferencePartition(){
-		if (!this.equals(EnumPartitionType.REFERENCE)
-				&& !this.equals(EnumPartitionType.REVERSE_REFERENCE))
+	public boolean isReference(){
+		if (this.equals(EnumPartitionType.REFERENCE))
 			return true;
 		else return false;
 	}
 	
-	public boolean isReferencePartition(){
-		if (this.equals(EnumPartitionType.REFERENCE)
-				|| this.equals(EnumPartitionType.REVERSE_REFERENCE))
+	public boolean isHash(){
+		if (this.equals(EnumPartitionType.HASH))
 			return true;
 		else return false;
 	}
@@ -27,8 +24,6 @@ public enum EnumPartitionType implements Serializable{
 			return HASH;
 		else if(value.equalsIgnoreCase("REF"))
 			return REFERENCE;
-		else if(value.equalsIgnoreCase("RREF"))
-			return REVERSE_REFERENCE;
 		else 
 			return NO_PARTITION;
 	}

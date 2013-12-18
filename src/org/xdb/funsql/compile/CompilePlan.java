@@ -329,7 +329,7 @@ public class CompilePlan implements Serializable {
 		HashSet<Identifier> removedLeaves = new HashSet<Identifier>();
 		for (Identifier leafId : this.leaves) {
 			TableOperator leafOp = (TableOperator) this.operators.get(leafId);
-			if (leafOp.getTable().getName().equals(varKey)) {
+			if (leafOp.getTableName().equals(varKey)) {
 				Rename newLeafOp = new Rename(rootOfSubplan);
 				this.replaceOperator(leafOp.getOperatorId(), newLeafOp, false);
 				leafOp.replace(newLeafOp);
