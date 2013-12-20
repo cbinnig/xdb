@@ -44,6 +44,7 @@ public class TestTPCH extends XDBTestCase {
 			"L_COMMENT      	VARCHAR" +
 			") REPLICATED IN CONNECTION TPCH2, TPCH3;",
 			
+			
 			"CREATE TABLE  CUSTOMER ( " +
 			"C_CUSTKEY     INTEGER, " +
 			"C_NAME        VARCHAR, " +
@@ -53,6 +54,9 @@ public class TestTPCH extends XDBTestCase {
 			"C_ACCTBAL     DECIMAL  , " +
 			"C_MKTSEGMENT  VARCHAR, " +
 			"C_COMMENT     VARCHAR" +
+			//") PARTIONED BY HASH ( C_CUSTKEY ) ( " +
+			//" P1 IN CONNECTION TPCH1," +
+			//" P2 IN CONNECTION TPCH2 )",
 			") REPLICATED IN CONNECTION TPCH2;",
 			
 			"CREATE TABLE ORDERS  ( " +

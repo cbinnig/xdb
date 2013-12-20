@@ -18,8 +18,12 @@ public class ResultDesc implements Serializable, Cloneable{
 	
 	//attribute
 	private Vector<TokenAttribute> attributes;//attributes
-	private Vector<EnumSimpleType> types;	//sorted types of the attributes, can be accessed by the same number
-	private boolean materialize; //result saved?
+	private Vector<EnumSimpleType> types;	//types
+	
+	private boolean materialize = false; 
+	private boolean repartition = false;
+	private PartitionDesc partDesc = null;
+	protected int partitionCnt = 1;
 	
 	//constructors
 	public ResultDesc(){
@@ -69,15 +73,39 @@ public class ResultDesc implements Serializable, Cloneable{
 		return this.types;
 	}
 	
-	public boolean isMaterialized() {
+	public boolean materialize() {
 		return materialize;
 	}
 
-	public void setMaterialized(boolean materialize) {
+	public void materialize(boolean materialize) {
 		this.materialize = materialize;
 	}
 
+	public boolean repartition() {
+		return this.repartition;
+	}
+
+	public void repartition(boolean repartition) {
+		this.repartition = repartition;
+	}
 	
+	public void setPartitionDesc(PartitionDesc partDesc){
+		this.partDesc = partDesc;
+	}
+	
+	public PartitionDesc getRePartitionDesc(){
+		return this.partDesc;
+	}
+	
+	public int getPartitionCount(){
+		return this.partitionCnt;
+	}
+	
+	public void setPartitionCount(int cnt){
+		this.partitionCnt = cnt;
+	}
+	
+	//methods
 	public String toSqlString() {
 		StringBuffer tableBuffer = new StringBuffer(AbstractToken.LBRACE);
 		for(int i = 0; i < getNumAttributes(); i++) {
@@ -92,6 +120,11 @@ public class ResultDesc implements Serializable, Cloneable{
 		}
 		
 		tableBuffer.append(AbstractToken.RBRACE);
+		//tableBuffer.append(" ENGINE=MEMORY ");
+		if(this.repartition){
+			tableBuffer.append(AbstractToken.BLANK);
+			tableBuffer.append(this.partDesc.toSqlString());
+		}
 		
 		return tableBuffer.toString();
 	}
@@ -105,6 +138,13 @@ public class ResultDesc implements Serializable, Cloneable{
 		value.append("Types: ");
 		value.append(this.types);
 		value.append(AbstractToken.NEWLINE);
+		value.append("Partitions: ");
+		value.append(this.partitionCnt);
+		if(this.repartition && this.partDesc!=null){
+			value.append("Re-Partitioning: ");
+			value.append(this.partDesc);
+			value.append(AbstractToken.NEWLINE);
+		}
 		return value.toString();
 	}
 	

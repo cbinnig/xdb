@@ -112,7 +112,6 @@ public class TestOptimizeLargeSQL extends XDBTestCase {
 
 		selectStmt.getPlan()
 				.tracePlan(this.getClass().getName() + "Optimized");
-
 	}
 
 }

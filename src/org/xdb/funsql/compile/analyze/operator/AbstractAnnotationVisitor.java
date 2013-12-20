@@ -16,7 +16,7 @@ public abstract class AbstractAnnotationVisitor extends AbstractBottomUpTreeVisi
 		 * - an operator has > 1 parents
 		 */
 		if (op.getParents().size() != 1) {
-			op.getResult().setMaterialized(true);
+			op.getResult().materialize(true);
 		}
 	}
 	

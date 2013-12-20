@@ -12,19 +12,18 @@ import org.xdb.test.tpch.tracker.TestSuiteDistributedTPCH;
 import org.xdb.test.tracker.TestSuiteTracker;
 import org.xdb.test.system.TestSuiteSystem;
 
-public class TestSuiteXDB extends TestSuite
-{
-  public static Test suite()
-  {
-    TestSuite suite = new TestSuite( TestSuiteXDB.class.getPackage().getName() );
-    suite.addTest(TestSuiteOperators.suite());
-    suite.addTest(TestSuiteTracker.suite());
-    suite.addTest(TestSuiteStmt.suite());
-    suite.addTest(TestSuiteSQL.suite());
-    suite.addTest(TestSuiteServer.suite());
-    suite.addTest(TestSuiteSystem.suite());
-    suite.addTest(TestSuiteTPCH.suite());
-    suite.addTest(TestSuiteDistributedTPCH.suite());
-    return suite;
-  }
+public class TestSuiteXDB extends TestSuite {
+	public static Test suite() {
+		TestSuite suite = new TestSuite(TestSuiteXDB.class.getPackage()
+				.getName());
+		suite.addTest(TestSuiteOperators.suite());
+		suite.addTest(TestSuiteTracker.suite());
+		suite.addTest(TestSuiteStmt.suite());
+		suite.addTest(TestSuiteSQL.suite());
+		suite.addTest(TestSuiteServer.suite());
+		suite.addTest(TestSuiteSystem.suite());
+		suite.addTest(TestSuiteTPCH.suite());
+		suite.addTest(TestSuiteDistributedTPCH.suite());
+		return suite;
+	}
 }

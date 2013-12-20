@@ -2,9 +2,10 @@ package org.xdb.metadata;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
 
@@ -35,13 +36,13 @@ public class Table extends AbstractDatabaseObject {
 	private static Table prototype = new Table();
 	
 	private Long schemaOid=-1l;
-	private HashMap<Long, Attribute> attributes = new HashMap<Long, Attribute>(); 
-	private HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
-	private HashMap<Long, Partition> partitions = new HashMap<Long, Partition>();
+	private Map<Long, Attribute> attributes = new TreeMap<Long, Attribute>(); 
+	private Map<Long, Connection> connections = new TreeMap<Long, Connection>();
+	private Map<Long, Partition> partitions = new TreeMap<Long, Partition>();
 	
 	//parameters for partitioning 
 	private EnumPartitionType partitionType;
-	private HashMap<Long, PartitionAttribute> partitionAttributes = new HashMap<Long, PartitionAttribute>();
+	private Map<Long, PartitionAttribute> partitionAttributes = new TreeMap<Long, PartitionAttribute>();
 	private boolean partioned;
 	private long partitionCnt;
 	private Long refTableOid = null;	
@@ -51,8 +52,8 @@ public class Table extends AbstractDatabaseObject {
 	 * @param toCopy
 	 */
 	public Table(Table toCopy){
-		// TODO: NEEDS TO BE FIXED AND CONTAINS ALL COLUMNS
 		super(toCopy);
+		
 		this.partioned = toCopy.partioned;		
 		this.schemaOid = toCopy.schemaOid;
 		this.refTableOid = toCopy.refTableOid;
@@ -70,7 +71,7 @@ public class Table extends AbstractDatabaseObject {
 		
 	}
 
-	private Table(){
+	public Table(){
 		super();
 		this.objectType = EnumDatabaseObject.TABLE;
 	}
@@ -187,8 +188,8 @@ public class Table extends AbstractDatabaseObject {
 		return attributes.values();
 	}
 	
-	public HashMap<Long, PartitionAttribute> getPartitionAttributes() {
-		return partitionAttributes;
+	public Collection<PartitionAttribute> getPartitionAttributes() {
+		return partitionAttributes.values();
 	}
 	
 	public void addPartition(Partition partition){
@@ -244,6 +245,10 @@ public class Table extends AbstractDatabaseObject {
 		this.partitionCnt = partitionCount;
 	}
 
+	public long getPartitionCount(){
+		return this.partitionCnt;
+	}
+	
 	public void setPartioned(boolean partioned) {
 		this.partioned = partioned;
 	}

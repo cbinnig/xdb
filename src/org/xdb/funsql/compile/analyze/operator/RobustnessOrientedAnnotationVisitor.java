@@ -94,7 +94,7 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 		
 		gp.addWishedConnections(gp.getChild().getWishedConnections());
 		if(gp.getChild().getType().equals(EnumOperator.GENERIC_AGGREGATION)){
-			gp.getResult().setMaterialized(true);
+			gp.getResult().materialize(true);
 		}
 		return Error.NO_ERROR;
 	}

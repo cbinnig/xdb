@@ -213,14 +213,14 @@ public class TestCreateTableSQL extends XDBTestCase {
 		TokenTable tTable = new TokenTable("T2");
 		Table gotTable = Catalog.getTable(tTable.hashKey(defaultSchema.getOid()));
 		Assert.assertTrue(gotTable.getPartitions().size() == 2);
-		Assert.assertEquals(gotTable.getPartitionType(), EnumPartitionType.REFERENCE);
+		Assert.assertEquals(gotTable.getPartitionType(), EnumPartitionType.REF);
 		
 		createTableStmt = 
 				"CREATE TABLE \"T3\"( "+
 				"  T3_C1 INT," +
 				"  T3_C2 VARCHAR," +
 				"  T3_C3 INT" +
-				") PARTIONED BY REF ( T3_C1 REFERENCES T2.T2_C1, T3_C2 REFERENCES T2.T2_C2 )";
+				") PARTIONED BY RREF ( T3_C1 REFERENCES T2.T2_C1, T3_C2 REFERENCES T2.T2_C2 )";
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
@@ -230,7 +230,7 @@ public class TestCreateTableSQL extends XDBTestCase {
 		tTable = new TokenTable("T3");
 		gotTable = Catalog.getTable(tTable.hashKey(defaultSchema.getOid()));
 		Assert.assertTrue(gotTable.getPartitions().size() == 2);
-		Assert.assertEquals(gotTable.getPartitionType(), EnumPartitionType.REFERENCE);
+		Assert.assertEquals(gotTable.getPartitionType(), EnumPartitionType.RREF);
 		
 		String dropConnSql = "DROP TABLE \"T1\"";
 		stmt = compiler.compile(dropConnSql);

@@ -16,9 +16,6 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 
 	private static final long serialVersionUID = 2144601298204477490L;
 
-	// attributes
-	protected int inputNumber = 0;
-
 	// constructors
 	public AbstractUnaryOperator(AbstractCompileOperator child) {
 		super(1);
@@ -33,7 +30,6 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 	 */
 	public AbstractUnaryOperator(AbstractUnaryOperator toCopy){
 		super(toCopy);
-		this.inputNumber = toCopy.inputNumber;
 	}
 
 	public AbstractUnaryOperator(Vector<AbstractCompileOperator> fchildren, int resultNumber) {
@@ -52,14 +48,6 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 
 	public void setChild(AbstractCompileOperator child) {
 		this.children.set(0, child);
-	}
-
-	public int getInputNumber() {
-		return inputNumber;
-	}
-
-	public void setInputNumber(int inputNumber) {
-		this.inputNumber = inputNumber;
 	}
 
 	@Override
@@ -148,7 +136,6 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 	@Override
 	public AbstractUnaryOperator clone() throws CloneNotSupportedException {
 		AbstractUnaryOperator abs = (AbstractUnaryOperator) super.clone();
-		abs.inputNumber = this.inputNumber;
 		return abs;
 	}
 	

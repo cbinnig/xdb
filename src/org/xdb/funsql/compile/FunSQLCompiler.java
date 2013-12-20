@@ -12,7 +12,9 @@ import org.xdb.funsql.statement.AbstractServerStmt;
 
 public class FunSQLCompiler {
 	private Error lastError;
+	
 	private boolean doOptimize = true;
+	private boolean doParallelize = false;
 	private boolean doSemanticAnalysis = true;
 	
 	//getters and setters
@@ -20,6 +22,10 @@ public class FunSQLCompiler {
 		return lastError;
 	}
 
+	public void doParallelize(boolean doParallelize) {
+		this.doParallelize = doParallelize;
+	}
+	
 	public void doOptimize(boolean doOptimize) {
 		this.doOptimize = doOptimize;
 	}
@@ -51,6 +57,13 @@ public class FunSQLCompiler {
 			//optimize if requested
 			if(this.doOptimize){
 				this.lastError = statement.optimize();
+				if (lastError.isError())
+					return null;
+			}
+			
+			//parallelize if requested
+			if(this.doParallelize){
+				this.lastError = statement.parallelize();
 				if (lastError.isError())
 					return null;
 			}
