@@ -227,7 +227,7 @@ public class CreateTableStmt extends AbstractServerStmt {
 
 				// add partition to table object
 				PartitionAttribute partAtt = new PartitionAttribute(
-						att.getOid(), null);
+						att.getOid());
 				this.partitionAttributes.add(partAtt);
 				this.table.addPartitionAttribute(partAtt);
 

@@ -138,26 +138,19 @@ public class TokenAttribute extends AbstractTokenOperand{
 		boolean namesIdentical = this.getName().getValue().equals(ta.getName().getValue());
 		
 		// Since the "compile" method of "CreateTableStmt" calls this function without setting the table name, we should be ready for that.
-		if (this.getTable() == null || ta.getTable() == null)
+		if (this.getTable() == null || ta.getTable() == null){
 			return namesIdentical;
-
-		// TODO: Must be fixed.
-		// Otherwise, we need to check if the table names are the same as well.
+		}
 		else {
-			//boolean tableNamesIdentical = this.getTable().getName().equals(ta.getTable().getName());
-			//return namesIdentical && tableNamesIdentical;
-			return namesIdentical;
+			boolean tableNamesIdentical = this.getTable().getName().equals(ta.getTable().getName());
+			return namesIdentical && tableNamesIdentical;
+			//return namesIdentical;
 		}
 	}
 	
 	@Override
 	// hashCode is overridden in order to map equal TokenAttributes to the same bucket.
-	// hashCode() must be consistent with equals() function.
-	// The relation between the two methods is:
-	// Whenever a.equals(b), then a.hashCode() must be same as b.hashCode().
-	// The same set of fields must be used to compute equals() and to compute hashCode().
 	public int hashCode() {
-		// TODO Must be fixed to reflect all the attributes of TokenAttribute
 		return this.getName().getValue().hashCode();
 	}
 	

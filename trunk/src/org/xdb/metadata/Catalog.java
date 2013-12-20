@@ -668,7 +668,7 @@ public class Catalog {
 		}
 		
 		// drop partitionAttributes
-		for (PartitionAttribute partAtts: table.getPartitionAttributes().values()) {
+		for (PartitionAttribute partAtts: table.getPartitionAttributes()) {
 			lastError = Catalog.dropPartitionAttribute(partAtts);
 			if (lastError.isError())
 				return lastError;

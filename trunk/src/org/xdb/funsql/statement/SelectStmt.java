@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.Config;
@@ -28,6 +29,7 @@ import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.compile.tokens.TokenSchema;
 import org.xdb.funsql.compile.tokens.TokenTable;
 import org.xdb.funsql.optimize.Optimizer;
+import org.xdb.funsql.parallelize.Parallelizer;
 import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Catalog;
@@ -63,10 +65,8 @@ public class SelectStmt extends AbstractServerStmt {
 	private HashMap<String, Attribute> attSymbols = new HashMap<String, Attribute>();
 	private HashMap<TokenAttribute, EnumSimpleType> attTypes = new HashMap<TokenAttribute, EnumSimpleType>();
 	private HashMap<String, Table> varSymbols = new HashMap<String, Table>();
-	private Vector<String> usedVariables = new Vector<String>();
-
-	private CompilePlan plan = new CompilePlan();
-
+	private Set<String> usedVariables = new HashSet<String>();	
+		
 	// temporary compiler variables
 	private int lastInternalAlias = 0;
 	private Identifier internalAlias = new Identifier("_INT_ALIAS");
@@ -74,6 +74,9 @@ public class SelectStmt extends AbstractServerStmt {
 	private Vector<AbstractPredicate> selectionPreds = new Vector<AbstractPredicate>();
 	private AbstractCompileOperator lastOp = null;
 
+	//Compile plan
+	private CompilePlan plan = new CompilePlan();	
+		
 	// constructors
 	public SelectStmt() {
 		this.statementType = EnumStatement.SELECT;
@@ -86,7 +89,7 @@ public class SelectStmt extends AbstractServerStmt {
 
 	public void addSelExpression(AbstractExpression expr) {
 		this.tSelExpr.add(expr);
-
+		
 		if (expr.isAttribute()) {
 			TokenAttribute att = expr.getAttribute();
 			this.tSelAliases.add(att.getName());
@@ -97,7 +100,6 @@ public class SelectStmt extends AbstractServerStmt {
 
 	public Collection<AbstractExpression> getSelExpressions() {
 		return this.tSelExpr;
-
 	}
 
 	public void setSelAlias(int i, TokenIdentifier alias) {
@@ -108,7 +110,7 @@ public class SelectStmt extends AbstractServerStmt {
 		return this.tSelAliases;
 	}
 
-	public Vector<String> getUsedVariables() {
+	public Set<String> getUsedVariables() {
 		return usedVariables;
 	}
 
@@ -664,14 +666,17 @@ public class SelectStmt extends AbstractServerStmt {
 			TokenIdentifier tTableAlias = this.tTableAliases.get(i);
 			Table table = null;
 
+			// table is a variable defined by another assignment
 			if (tTable.isVariable()) {
 				if (!this.varSymbols.containsKey(tTable.hashKey())) {
-					return createVariableNotDeclared(tTable);
+					return createVariableNotDeclaredErr(tTable);
 				}
 
 				table = this.varSymbols.get(tTable.hashKey());
 				this.usedVariables.add(tTable.hashKey());
-			} else {
+			} 
+			// table is defined in catalog
+			else {
 				TokenSchema tSchema = tTable.getSchema();
 				Schema schema = Catalog.getSchema(tSchema.hashKey());
 
@@ -690,7 +695,8 @@ public class SelectStmt extends AbstractServerStmt {
 							tTable.toSqlString(), EnumDatabaseObject.TABLE);
 				}
 			}
-			// check for duplicate table names
+			
+			// check for duplicate table names in statement
 			if (this.tableSymbols.containsKey(tTableAlias.hashKey())) {
 				return createDuplicateTableNameErr(tTableAlias);
 			}
@@ -785,7 +791,7 @@ public class SelectStmt extends AbstractServerStmt {
 	 * @param tv
 	 * @return
 	 */
-	private Error createVariableNotDeclared(TokenTable tv) {
+	private Error createVariableNotDeclaredErr(TokenTable tv) {
 		String args[] = { tv.getName().toString() };
 		Error error = new Error(EnumError.COMPILER_FUNCTION_VAR_NOT_DECLARED,
 				args);
@@ -796,7 +802,15 @@ public class SelectStmt extends AbstractServerStmt {
 	public Error optimize() {
 		Error err = new Error();
 		Optimizer opti = new Optimizer(this.plan);
-		opti.optimize(Config.OPTIMIZER_ACTIVE_RULES_SELECT);
+		err = opti.optimize(Config.OPTIMIZER_ACTIVE_RULES_SELECT);
+		return err;
+	}
+	
+	@Override
+	public Error parallelize() {
+		Error err = new Error();
+		Parallelizer para = new Parallelizer(this.plan);
+		err = para.parallelize();
 		return err;
 	}
 

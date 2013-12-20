@@ -60,7 +60,7 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 		 * Split plan if materialize flag is set. This has do be done
 		 * before.
 		 */
-		if(op.getResult().isMaterialized()) {
+		if(op.getResult().materialize()) {
 			if (!this.splitOpIds.contains(op.getOperatorId()))
 				this.splitOpIds.add(op.getOperatorId());
 		}

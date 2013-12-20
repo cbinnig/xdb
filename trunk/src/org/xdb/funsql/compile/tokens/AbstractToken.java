@@ -53,17 +53,21 @@ public abstract class AbstractToken implements Serializable{
 	public static final String INTO = "INTO";
 	public static final String VALUES = "VALUES";
 	public static final String MAX = "MAX";
-	public static final String AS = "AS";
+	
 	
 	public static final String FIELDS = "FIELDS";
 	public static final String LINES = "LINES";
 	public static final String TERMINATED = "TERMINATED";
-	public static final String BY = "BY";
-
+	
+	public static final String PARTITION = "PARTITION";
+	public static final String PARTITIONS = "PARTITIONS";
 	
 	public static final String CALL = "CALL";
 	public static final String VAR = "VAR";
-		
+	
+	public static final String BY = "BY";
+	public static final String AS = "AS";
+	
 	public static final String NEWLINE = "\n";
 	
 	@Override

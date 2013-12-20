@@ -54,6 +54,8 @@ public class CallFunctionStmt extends AbstractServerStmt {
 		}
 		else{
 			FunSQLCompiler compiler = new FunSQLCompiler();
+			
+			//make sure that we enable the right compiler phases
 			compiler.doSemanticAnalysis(false);
 			compiler.doOptimize(true);
 			

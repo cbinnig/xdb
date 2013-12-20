@@ -1,6 +1,7 @@
 package org.xdb.funsql.compile.operator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,10 @@ import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
+import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Connection;
+import org.xdb.metadata.EnumPartitionType;
+import org.xdb.metadata.PartitionAttribute;
 import org.xdb.metadata.Table;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
@@ -25,12 +29,9 @@ public class TableOperator extends AbstractCompileOperator {
 	
 	// attributes
 	private TokenIdentifier tableAlias;
-	private String tableName;
-	private String attsDDL;
-	
 	
 	// meta data attributes
-	private Table table = null;
+	private Table table = new Table();
 	private List<Connection> connections = new ArrayList<Connection>();
 	
 	// constructors
@@ -76,24 +77,41 @@ public class TableOperator extends AbstractCompileOperator {
 		this.connections.add(connection);
 	}
 	
+	public Collection<PartitionAttribute> getPartitionAttributes(){
+		if(this.table.isPartioned())
+			return this.table.getPartitionAttributes();
+		else 
+			return null;
+	}
+	
+	public long getNumParts(){
+		return this.table.getPartitionCount();
+	}
+	
+	public boolean isPartitioned(){
+		return this.table.isPartioned();
+	}
+	
+	public EnumPartitionType getPartitionType(){
+		return this.table.getPartitionType();
+	}
+	
 	public String getAttsDDL(){
-		return this.attsDDL;
+		return this.table.attsToDDL();
 	}
 	
 	public String getTableName(){
-		return this.tableName;
-	}
-
-	public Table getTable() {
-		return table;
+		return this.table.getName();
 	}
 
 	public void setTable(Table table) {
 		this.table = table;
-		this.tableName = table.getName();
-		this.attsDDL = table.attsToDDL();
 	}
 
+	public Collection<Attribute> getAttributes(){
+		return this.table.getAttributes();
+	}
+	
 	public List<Connection> getConnections() {
 		return connections;
 	}

@@ -25,7 +25,7 @@ public class Analyzer {
 	}
 
 	public void analyze() {
-		// Check types
+		// Check and derive types for each operator result
 		for (Identifier rootId : compilePlan.getRootIds()) {
 			AbstractCompileOperator root = this.compilePlan.getOperator(rootId);
 
@@ -34,7 +34,7 @@ public class Analyzer {
 			checkOpVisitor.visit();
 		}
 
-		// Create result descriptions
+		// Create result descriptions for each operator result
 		for (Identifier rootId : compilePlan.getRootIds()) {
 			AbstractCompileOperator root = this.compilePlan.getOperator(rootId);
 
@@ -43,7 +43,7 @@ public class Analyzer {
 			resultDescVisitor.visit();
 		}
 
-		// Rename attributes
+		// Rename attributes for optimization (e.g., from R1.A to 1_1.R1_A)
 		for (Identifier rootId : compilePlan.getRootIds()) {
 			AbstractCompileOperator root = this.compilePlan.getOperator(rootId);
 

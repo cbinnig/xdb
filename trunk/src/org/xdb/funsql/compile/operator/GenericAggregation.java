@@ -87,7 +87,7 @@ public class GenericAggregation extends AbstractUnaryOperator {
 		return this.groupExprs.get(i);
 	}
 
-	public Vector<AbstractExpression> getGroupExpressions() {
+	public Collection<AbstractExpression> getGroupExpressions() {
 		return groupExprs;
 	}
 
@@ -99,7 +99,7 @@ public class GenericAggregation extends AbstractUnaryOperator {
 		return this.aggExprs.get(i);
 	}
 
-	public Vector<AbstractExpression> getAggregationExpressions() {
+	public Collection<AbstractExpression> getAggregationExpressions() {
 		return this.aggExprs;
 	}
 

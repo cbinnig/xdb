@@ -15,6 +15,7 @@ import org.xdb.error.Error;
  */
 public class Optimizer {
 
+	// compile plan
 	private CompilePlan compilePlan;
 
 	// constructors
@@ -37,40 +38,6 @@ public class Optimizer {
 					.getCanonicalName() + "_COMPILED");
 		}
 
-		err = this.preOptimize(optimizeRule);
-		if (err.isError())
-			return err;
-
-		err = this.preParallelize();
-		if (err.isError())
-			return err;
-
-		err = this.postOptimize(optimizeRule);
-		if (err.isError())
-			return err;
-
-		err = this.postParallelize();
-		if (err.isError())
-			return err;
-
-		// tracing
-		if (Config.TRACE_OPTIMIZED_PLAN) {
-			this.compilePlan.tracePlan(compilePlan.getClass()
-					.getCanonicalName() + "_OPTIMIZED");
-		}
-
-		return err;
-	}
-
-	/**
-	 * Algebraic rewrites before inserting re-partition operations
-	 * 
-	 * @param optimizeRule
-	 * @return
-	 */
-	private Error preOptimize(BitSet optimizeRule) {
-		Error err = new Error();
-
 		// rewrite: push down selection
 		if (optimizeRule.get(0)) {
 			err = pushSelections();
@@ -85,38 +52,12 @@ public class Optimizer {
 				return err;
 		}
 
-		return err;
-	}
+		// tracing
+		if (Config.TRACE_OPTIMIZED_PLAN) {
+			this.compilePlan.tracePlan(compilePlan.getClass()
+					.getCanonicalName() + "_OPTIMIZED");
+		}
 
-	/**
-	 * Insert re-partition operations into plan
-	 * 
-	 * @return
-	 */
-	private Error preParallelize() {
-		Error err = new Error();
-		return err;
-	}
-
-	/**
-	 * Additional optimizations for plan with re-partition operations (e.g.,
-	 * aggregation push-down)
-	 * 
-	 * @param optimizeRule
-	 * @return
-	 */
-	private Error postOptimize(BitSet optimizeRule) {
-		Error err = new Error();
-		return err;
-	}
-
-	/**
-	 * Create parallel plan for multiple partitions
-	 * 
-	 * @return
-	 */
-	private Error postParallelize() {
-		Error err = new Error();
 		return err;
 	}
 

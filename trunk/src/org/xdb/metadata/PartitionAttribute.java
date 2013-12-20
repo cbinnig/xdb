@@ -29,10 +29,14 @@ public class PartitionAttribute extends AbstractDatabaseObject{
 		this.objectType = EnumDatabaseObject.PARTITIONATTRIBUTES;
 	}
 	
-	public PartitionAttribute(long part_att_oid, Long ref_att_oid) {
+	public PartitionAttribute(long part_att_oid) {
 		this();
 		this.part_att_oid = part_att_oid;
-		this.ref_att_oid = ref_att_oid;
+	}
+	
+	public PartitionAttribute( long part_att_oid, Long ref_att_oid) {
+		this(part_att_oid);
+		this.part_att_oid = part_att_oid;
 	}
 	
 	public long getPart_att_oid() {
@@ -41,6 +45,12 @@ public class PartitionAttribute extends AbstractDatabaseObject{
 	
 	public Long getRef_att_oid() {
 		return ref_att_oid;
+	}
+	
+	@Override
+	public String getName(){
+		Attribute partAtt = Catalog.getAttribute(this.part_att_oid);
+		return partAtt.getName();
 	}
 	
 	@Override

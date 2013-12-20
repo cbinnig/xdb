@@ -87,6 +87,7 @@ public class Config implements Serializable {
 	// Tracing
 	public static String DOT_EXE = "dot";
 	public static String DOT_TRACE_PATH = "./log/";
+	public static boolean TRACE_PARALLEL_PLAN = false;
 	public static boolean TRACE_COMPILE_PLAN = false;
 	public static boolean TRACE_COMPILE_PLAN_HEADER = true;
 	public static boolean TRACE_COMPILE_PLAN_FOOTER = true;
@@ -129,6 +130,7 @@ public class Config implements Serializable {
 				"TEST_DB_NAME" };
 
 		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS", "COMPUTE_CLEAN_PLAN",
+				"TRACE_PARALLEL_PLAN",
 				"TRACE_COMPILE_PLAN", "TRACE_COMPILE_PLAN_HEADER",
 				"TRACE_COMPILE_PLAN_PARTITIONING", "TRACE_COMPILE_PLAN_RESULTS", 
 				"TRACE_COMPILE_PLAN_RESULTS", "TRACE_COMPILE_PLAN_FOOTER",

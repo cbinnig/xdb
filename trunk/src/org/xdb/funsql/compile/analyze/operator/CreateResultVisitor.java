@@ -22,16 +22,16 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
-import org.xdb.metadata.Table;
 
 /**
  * Builds result description for operators in a compile plan
+ * 
  * @author cbinnig
- *
+ * 
  */
 public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 	private Map<AbstractToken, EnumSimpleType> types;
-	
+
 	public CreateResultVisitor(AbstractCompileOperator root,
 			Map<AbstractToken, EnumSimpleType> types) {
 		super(root);
@@ -43,17 +43,17 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 		Error e = new Error();
 		ResultDesc leftDesc = ej.getLeftChild().getResult().clone();
 		ResultDesc rightDesc = ej.getRightChild().getResult().clone();
-		
-		//copy from right to left
-		for(TokenAttribute att: rightDesc.getAttributes()){
+
+		// copy from right to left
+		for (TokenAttribute att : rightDesc.getAttributes()) {
 			leftDesc.addAttribute(att);
 		}
-		for(EnumSimpleType type: rightDesc.getTypes()){
+		for (EnumSimpleType type : rightDesc.getTypes()) {
 			leftDesc.addType(type);
 		}
-		
-		//set new table names
-		for(TokenAttribute att: leftDesc.getAttributes()){
+
+		// set new table names
+		for (TokenAttribute att : leftDesc.getAttributes()) {
 			att.setTable(ej.getOperatorId().toString());
 		}
 
@@ -66,10 +66,10 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 		Error e = new Error();
 		ResultDesc rDesc = gs.getChild().getResult().clone();
 
-		for(TokenAttribute att: rDesc.getAttributes()){
+		for (TokenAttribute att : rDesc.getAttributes()) {
 			att.setTable(gs.getOperatorId().toString());
 		}
-		
+
 		gs.setResult(rDesc);
 		return e;
 	}
@@ -79,8 +79,8 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 		Error e = new Error();
 		ResultDesc rDesc = new ResultDesc();
 		Vector<TokenIdentifier> aliases = ga.getAliases();
-		
-		for(TokenIdentifier alias: aliases){
+
+		for (TokenIdentifier alias : aliases) {
 			String attName = alias.getValue();
 			TokenAttribute att = new TokenAttribute(attName);
 			EnumSimpleType type = this.types.get(att);
@@ -88,7 +88,7 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 			rDesc.addAttribute(att);
 			rDesc.addType(type);
 		}
-		
+
 		ga.setResult(rDesc);
 		return e;
 	}
@@ -99,19 +99,19 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 		ResultDesc rDesc = new ResultDesc();
 		Vector<AbstractExpression> exprs = gp.getExpressions();
 		Vector<TokenIdentifier> aliases = gp.getAliases();
-		
-		for(int i=0; i<exprs.size(); ++i){
+
+		for (int i = 0; i < exprs.size(); ++i) {
 			AbstractExpression expr = exprs.get(i);
 			EnumSimpleType type = this.types.get(expr);
 			TokenIdentifier alias = aliases.get(i);
-			
+
 			String attName = alias.getValue();
 			TokenAttribute att = new TokenAttribute(attName);
 			att.setTable(gp.getOperatorId().toString());
 			rDesc.addAttribute(att);
-			rDesc.addType(type);	
+			rDesc.addType(type);
 		}
-		
+
 		gp.setResult(rDesc);
 		return e;
 	}
@@ -119,35 +119,34 @@ public class CreateResultVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitTableOperator(TableOperator to) {
 		Error e = new Error();
-		Table table = to.getTable();
 		ResultDesc rDesc = new ResultDesc();
-		
-		for(Attribute attr: table.getAttributes()){
-			String attName = ResultDesc.createResultAtt(to.getTableAlias(), attr.getName());
+
+		for (Attribute attr : to.getAttributes()) {
+			String attName = ResultDesc.createResultAtt(to.getTableAlias(),
+					attr.getName());
 			TokenAttribute att = new TokenAttribute(attName);
 			att.setTable(to.getOperatorId().toString());
 			rDesc.addAttribute(att);
 			rDesc.addType(attr.getDataType());
 		}
-		
+
 		to.setResult(rDesc);
 		return e;
 	}
-	
+
 	@Override
 	public Error visitRename(Rename ro) {
-		Error e = new Error();
+		String[] args = { "Rename operators are currently not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
-	
+
 	@Override
 	public Error visitSQLUnary(SQLUnary sqlOp) {
 		String[] args = { "SQLUnary operators are currently not supported" };
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
-	
-	
 
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {

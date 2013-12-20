@@ -91,6 +91,16 @@ public abstract class AbstractServerStmt {
 	}
 
 	/**
+	 * Parallelizes a given statement
+	 * 
+	 * @return
+	 */
+	public Error parallelize() {
+		// Nothing to do in most cases
+		return new Error();
+	}
+	
+	/**
 	 * Execute a statement
 	 * 
 	 * @return
