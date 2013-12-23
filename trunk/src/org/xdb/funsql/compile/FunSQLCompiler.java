@@ -14,7 +14,7 @@ public class FunSQLCompiler {
 	private Error lastError;
 	
 	private boolean doOptimize = true;
-	private boolean doParallelize = true;
+	private boolean doParallelize = false;
 	private boolean doSemanticAnalysis = true;
 	
 	//getters and setters
