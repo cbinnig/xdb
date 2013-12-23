@@ -57,6 +57,12 @@ public class PartitionDesc implements Serializable{
 	
 	//methods
 	public boolean isCompatible(PartitionDesc partDesc){
+		//true if one input is not partitioned
+		if(partDesc.partType.isNotPartitioned() || 
+				this.partType.isNotPartitioned())
+			return true;
+		
+		//false if one of the following checks fail
 		if(partDesc.partNumber!=this.partNumber)
 			return false;
 		
@@ -66,6 +72,7 @@ public class PartitionDesc implements Serializable{
 		if(!this.partType.isCompatible(partDesc.partType))
 			return false;
 		
+		//else: true
 		return true;
 	}
 	

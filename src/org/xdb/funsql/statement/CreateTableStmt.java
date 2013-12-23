@@ -39,8 +39,7 @@ public class CreateTableStmt extends AbstractServerStmt {
 
 	// Variables to create table object
 	private boolean partitioned = false;
-	private long partitionCount = 0;
-	private EnumPartitionType partitionType;
+	private EnumPartitionType partitionType = EnumPartitionType.NO_PARTITION;
 	private Schema schema = null;
 	private Table table = null;
 	private Vector<Connection> connections = new Vector<Connection>();
@@ -61,7 +60,6 @@ public class CreateTableStmt extends AbstractServerStmt {
 
 	// getters and setters
 	public void addPartition(String partition) {
-		partitionCount++;
 		this.tPartitions.add(new TokenIdentifier(partition));
 	}
 
@@ -205,7 +203,6 @@ public class CreateTableStmt extends AbstractServerStmt {
 		Error lastError = new Error();
 
 		// partitioned call partition table constructor
-		this.table.setPartitionCount(this.partitionCount);
 		this.table.setPartitionType(this.partitionType);
 
 		Set<TokenAttribute> tPartAtts = new HashSet<TokenAttribute>();
@@ -364,6 +361,9 @@ public class CreateTableStmt extends AbstractServerStmt {
 			}
 		}
 
+		//init partition count
+		this.table.setPartitionCount(this.partitions.size());
+		
 		return lastError;
 	}
 

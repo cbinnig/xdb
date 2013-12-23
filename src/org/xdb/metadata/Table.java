@@ -41,10 +41,10 @@ public class Table extends AbstractDatabaseObject {
 	private Map<Long, Partition> partitions = new TreeMap<Long, Partition>();
 	
 	//parameters for partitioning 
-	private EnumPartitionType partitionType;
+	private EnumPartitionType partitionType = EnumPartitionType.NO_PARTITION;
 	private Map<Long, PartitionAttribute> partitionAttributes = new TreeMap<Long, PartitionAttribute>();
-	private boolean partioned;
-	private long partitionCnt;
+	private boolean partioned = false;
+	private Long partitionCnt = 1l;
 	private Long refTableOid = null;	
 
 	/**
@@ -241,7 +241,7 @@ public class Table extends AbstractDatabaseObject {
 		this.refTableOid = refTableOid;
 	}
 
-	public void setPartitionCount(Long partitionCount) {
+	public void setPartitionCount(long partitionCount) {
 		this.partitionCnt = partitionCount;
 	}
 

@@ -22,6 +22,12 @@ public enum EnumPartitionType implements Serializable{
 		else return false;
 	}
 	
+	public boolean isNotPartitioned(){
+		if (this.equals(EnumPartitionType.NO_PARTITION))
+			return true;
+		else return false;
+	}
+	
 	public static EnumPartitionType getValue(String value){
 		if(value.equalsIgnoreCase("HASH"))
 			return HASH;

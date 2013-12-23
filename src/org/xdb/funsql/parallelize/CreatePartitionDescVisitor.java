@@ -44,7 +44,6 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		this.cPlan = cPlan;
 	}
 
-
 	@Override
 	public Error visitGenericAggregation(GenericAggregation ga) {
 		Error err = new Error();
@@ -159,6 +158,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 			for (PartitionAttribute partAtt : to.getPartitionAttributes()) {
 				partDesc.addPartAttributes(new TokenAttribute(partAtt.getName()));
 			}
+			partDesc.setPartNumber(to.getPartitionCount());
 		}
 		this.addPartDesc(to.getOperatorId(), partDesc);
 		return err;
