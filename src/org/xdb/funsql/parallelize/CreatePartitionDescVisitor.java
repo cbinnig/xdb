@@ -47,11 +47,11 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitGenericAggregation(GenericAggregation ga) {
 		Error err = new Error();
-		if(this.op2partDesc.containsKey(ga.getOperatorId()))
+		if(this.containsPartDescs(ga.getOperatorId()))
 			return err;
 			
 		Identifier childId = ga.getChild().getOperatorId();
-		Set<PartitionDesc> childPartDescs = this.op2partDesc.get(childId);
+		Set<PartitionDesc> childPartDescs = this.getPartDescs(childId);
 		
 		if(!this.isPartDescCompatible(childPartDescs, ga.getGroupExpressions())){
 			//create new partitioning description
@@ -84,13 +84,13 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
 		Error err = new Error();
-		if(this.op2partDesc.containsKey(ej.getOperatorId()))
+		if(this.containsPartDescs(ej.getOperatorId()))
 			return err;
 		
 		Identifier leftId = ej.getLeftChild().getOperatorId();
 		Identifier rightId = ej.getRightChild().getOperatorId();
-		Set<PartitionDesc> leftPartDescs = this.op2partDesc.get(leftId);
-		Set<PartitionDesc> rightPartDescs = this.op2partDesc.get(rightId);
+		Set<PartitionDesc> leftPartDescs = this.getPartDescs(leftId);
+		Set<PartitionDesc> rightPartDescs = this.getPartDescs(rightId);
 		Set<PartitionDesc> joinPartDescs = new HashSet<PartitionDesc>();
 		
 		//don't re-partition if both inputs are compatible with join attributes
@@ -123,10 +123,10 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
 		Error err = new Error();
-		if(this.op2partDesc.containsKey(gs.getOperatorId()))
+		if(this.containsPartDescs(gs.getOperatorId()))
 			return err;
 		
-		Set<PartitionDesc> partDescs = this.op2partDesc.get(gs.getChild()
+		Set<PartitionDesc> partDescs = this.getPartDescs(gs.getChild()
 				.getOperatorId());
 		
 		this.addPartDescs(gs.getOperatorId(), partDescs);
@@ -136,10 +136,10 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitGenericProjection(GenericProjection gp) {
 		Error err = new Error();
-		if(this.op2partDesc.containsKey(gp.getOperatorId()))
+		if(this.containsPartDescs(gp.getOperatorId()))
 			return err;
 		
-		Set<PartitionDesc> partDescs = this.op2partDesc.get(gp.getChild()
+		Set<PartitionDesc> partDescs = this.getPartDescs(gp.getChild()
 				.getOperatorId());
 		
 		this.addPartDescs(gp.getOperatorId(), partDescs);
@@ -149,14 +149,17 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitTableOperator(TableOperator to) {
 		Error err = new Error();
-		if(this.op2partDesc.containsKey(to.getOperatorId()))
+		if(this.containsPartDescs(to.getOperatorId()))
 			return err;
 		
 		PartitionDesc partDesc = new PartitionDesc();
 		if (to.isPartitioned()) {
 			partDesc.setPartitionType(to.getPartitionType());
 			for (PartitionAttribute partAtt : to.getPartitionAttributes()) {
-				partDesc.addPartAttributes(new TokenAttribute(partAtt.getName()));
+				String partAttName = ResultDesc.createResultAtt(to.getTableName(), partAtt.getName());
+				String tableName = to.getOperatorId().toString();
+				TokenAttribute tPartAtt = new TokenAttribute(tableName, partAttName);
+				partDesc.addPartAttributes(tPartAtt);
 			}
 			partDesc.setPartNumber(to.getPartitionCount());
 		}
@@ -166,9 +169,15 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitRename(Rename ro) {
-		String[] args = { "Rename operators are currently not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		return e;
+		Error err = new Error();
+		if(this.containsPartDescs(ro.getOperatorId()))
+			return err;
+		
+		Set<PartitionDesc> partDescs = this.getPartDescs(ro.getChild()
+				.getOperatorId());
+		
+		this.addPartDescs(ro.getOperatorId(), partDescs);
+		return err;
 	}
 
 	@Override
@@ -196,14 +205,31 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		if (!this.op2partDesc.containsKey(opId)) {
 			this.op2partDesc.put(opId, new HashSet<PartitionDesc>());
 		}
-		this.op2partDesc.get(opId).add(partDesc);
+		PartitionDesc newPartDesc = new PartitionDesc(partDesc);
+		newPartDesc.renameTable(opId);
+		this.op2partDesc.get(opId).add(newPartDesc);
 		this.cPlan.getOperator(opId).getResult().setPartitionCount(partDesc.getPartitionNumber());
 	}
 
 	private void addPartDescs(Identifier opId, Set<PartitionDesc> partDescs) {
-		PartitionDesc partDesc = partDescs.iterator().next();
-		this.op2partDesc.put(opId, partDescs);
-		this.cPlan.getOperator(opId).getResult().setPartitionCount(partDesc.getPartitionNumber());
+		Set<PartitionDesc> newPartDescs = new HashSet<PartitionDesc>(partDescs.size());
+		int partitionNumber = 1;
+		for(PartitionDesc partDesc: partDescs){
+			partitionNumber = partDesc.getPartitionNumber();
+			PartitionDesc newPartDesc = new PartitionDesc(partDesc);
+			newPartDesc.renameTable(opId);
+			newPartDescs.add(newPartDesc);
+		}
+		this.cPlan.getOperator(opId).getResult().setPartitionCount(partitionNumber);
+		this.op2partDesc.put(opId, newPartDescs);
+	}
+	
+	private Set<PartitionDesc> getPartDescs(Identifier opId){
+		return this.op2partDesc.get(opId);
+	}
+	
+	private boolean containsPartDescs(Identifier opId){
+		return this.op2partDesc.containsKey(opId);
 	}
 	
 	private boolean isPartDescCompatible(Set<PartitionDesc> partDescs, Collection<AbstractExpression> groupExprs) {

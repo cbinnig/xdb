@@ -7,6 +7,7 @@ import java.util.List;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.metadata.EnumPartitionType;
+import org.xdb.utils.Identifier;
 
 /**
  * Describes the partitioning properties of an operator result
@@ -28,6 +29,16 @@ public class PartitionDesc implements Serializable{
 	public PartitionDesc(EnumPartitionType partType, int partNumber){
 		this.partType = partType;
 		this.partNumber = partNumber;
+	}
+	
+	public PartitionDesc(PartitionDesc toCopy){
+		this.partType = toCopy.partType;
+		this.partNumber =toCopy.partNumber;
+		
+		for(TokenAttribute partAtt: toCopy.partAttributes){
+			TokenAttribute newPartAtt = new TokenAttribute(partAtt);
+			this.partAttributes.add(newPartAtt);
+		}
 	}
 	
 	//getters and setters
@@ -81,6 +92,12 @@ public class PartitionDesc implements Serializable{
 			return false;
 		
 		return true;
+	}
+	
+	public void renameTable(Identifier newOpId){
+		for(TokenAttribute partAtt: this.partAttributes){
+			partAtt.setTable(newOpId.toString());
+		}
 	}
 	
 	public String toSqlString() {
