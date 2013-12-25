@@ -1,13 +1,12 @@
 package org.xdb.test.tracker;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CreateFunctionStmt;
+import org.xdb.test.TestCase;
 import org.xdb.test.XDBTestCase;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
@@ -33,7 +32,7 @@ public class TestSQLPlanTranslation extends XDBTestCase {
 
 		stmt = compiler.compile(createConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 		// create table
@@ -48,7 +47,7 @@ public class TestSQLPlanTranslation extends XDBTestCase {
 
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 		dropTableSql = "DROP TABLE \"S\"";
@@ -61,7 +60,7 @@ public class TestSQLPlanTranslation extends XDBTestCase {
 
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 		// execute CreateFunction
@@ -89,7 +88,7 @@ public class TestSQLPlanTranslation extends XDBTestCase {
 		
 		Tuple<QueryTrackerPlan, Error> qPlan = qTrackerServer.getNode().generateQueryTrackerPlan(plan);
 		assertNoError(qPlan.getObject2());
-		Assert.assertNotNull(qPlan.getObject1());
+		TestCase.assertNotNull(qPlan.getObject1());
 		qPlan.getObject1().tracePlan(this.getClass().getName()+"_Tracker");
 		
 		assertEquals(3, qPlan.getObject1().getTrackerOperators().size());

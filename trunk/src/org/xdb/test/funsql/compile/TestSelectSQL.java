@@ -1,11 +1,10 @@
 package org.xdb.test.funsql.compile;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.SelectStmt;
+import org.xdb.test.TestCase;
 import org.xdb.test.XDBTestCase;
 
 public class TestSelectSQL extends XDBTestCase {
@@ -26,7 +25,7 @@ public class TestSelectSQL extends XDBTestCase {
 
 		stmt = compiler.compile(createConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 		//create table
@@ -41,7 +40,7 @@ public class TestSelectSQL extends XDBTestCase {
 
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 		//execute select

@@ -1,7 +1,5 @@
 package org.xdb.test.funsql.compile;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 import org.xdb.Config;
 import org.xdb.funsql.compile.FunSQLCompiler;
@@ -11,6 +9,7 @@ import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.metadata.Catalog;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
+import org.xdb.test.TestCase;
 import org.xdb.test.XDBTestCase;
 
 public class TestCreateTableSQL extends XDBTestCase {
@@ -29,7 +28,7 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		AbstractServerStmt stmt = compiler.compile(createConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		String createTableStmt = 
@@ -41,13 +40,13 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		String dropConnSql = "DROP TABLE \"testOrder\"";
 		stmt = compiler.compile(dropConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 	}
 	
@@ -73,13 +72,13 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		AbstractServerStmt stmt = compiler.compile(createConnSql1);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		
 		AbstractServerStmt stmt2 = compiler.compile(createConnSql2);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt2);
+		TestCase.assertNotNull(stmt2);
 		this.execute(stmt2);
 		
 		
@@ -94,19 +93,19 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		Schema defaultSchema = Catalog.getSchema(Config.COMPILE_DEFAULT_SCHEMA);
 		TokenTable tTable = new TokenTable("testTable1");
 		Table gottable = Catalog.getTable(tTable.hashKey(defaultSchema.getOid()));
-		Assert.assertTrue(gottable.getPartitions().size() == 2);
-		Assert.assertEquals(gottable.getPartitionType(), EnumPartitionType.HASH);
+		TestCase.assertTrue(gottable.getPartitions().size() == 2);
+		TestCase.assertEquals(gottable.getPartitionType(), EnumPartitionType.HASH);
 		
 		String dropConnSql = "DROP TABLE \"testTable1\"";
 		stmt = compiler.compile(dropConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 	}
 	
@@ -131,13 +130,13 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		AbstractServerStmt stmt = compiler.compile(createConnSql1);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		
 		AbstractServerStmt stmt2 = compiler.compile(createConnSql2);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt2);
+		TestCase.assertNotNull(stmt2);
 		this.execute(stmt2);
 		
 		
@@ -174,12 +173,12 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		AbstractServerStmt stmt = compiler.compile(createConnSql1);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		AbstractServerStmt stmt2 = compiler.compile(createConnSql2);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt2);
+		TestCase.assertNotNull(stmt2);
 		this.execute(stmt2);
 		
 		//create tables
@@ -194,7 +193,7 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		createTableStmt = 
@@ -206,14 +205,14 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 			
 		Schema defaultSchema = Catalog.getSchema(Config.COMPILE_DEFAULT_SCHEMA);
 		TokenTable tTable = new TokenTable("T2");
 		Table gotTable = Catalog.getTable(tTable.hashKey(defaultSchema.getOid()));
-		Assert.assertTrue(gotTable.getPartitions().size() == 2);
-		Assert.assertEquals(gotTable.getPartitionType(), EnumPartitionType.REF);
+		TestCase.assertTrue(gotTable.getPartitions().size() == 2);
+		TestCase.assertEquals(gotTable.getPartitionType(), EnumPartitionType.REF);
 		
 		createTableStmt = 
 				"CREATE TABLE \"T3\"( "+
@@ -224,30 +223,30 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		tTable = new TokenTable("T3");
 		gotTable = Catalog.getTable(tTable.hashKey(defaultSchema.getOid()));
-		Assert.assertTrue(gotTable.getPartitions().size() == 2);
-		Assert.assertEquals(gotTable.getPartitionType(), EnumPartitionType.RREF);
+		TestCase.assertTrue(gotTable.getPartitions().size() == 2);
+		TestCase.assertEquals(gotTable.getPartitionType(), EnumPartitionType.RREF);
 		
 		String dropConnSql = "DROP TABLE \"T1\"";
 		stmt = compiler.compile(dropConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		dropConnSql = "DROP TABLE \"T2\"";
 		stmt = compiler.compile(dropConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		dropConnSql = "DROP TABLE \"T3\"";
 		stmt = compiler.compile(dropConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 	}
 	
@@ -272,13 +271,13 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		AbstractServerStmt stmt = compiler.compile(createConnSql1);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		
 		AbstractServerStmt stmt2 = compiler.compile(createConnSql2);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt2);
+		TestCase.assertNotNull(stmt2);
 		this.execute(stmt2);
 		
 		
@@ -291,13 +290,13 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		String dropConnSql = "DROP TABLE \"testTable\"";
 		stmt = compiler.compile(dropConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 	}
 	
@@ -322,13 +321,13 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		AbstractServerStmt stmt = compiler.compile(createConnSql1);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		
 		AbstractServerStmt stmt2 = compiler.compile(createConnSql2);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt2);
+		TestCase.assertNotNull(stmt2);
 		this.execute(stmt2);
 		
 		
@@ -342,13 +341,13 @@ public class TestCreateTableSQL extends XDBTestCase {
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		String dropConnSql = "DROP TABLE \"testTable\"";
 		stmt = compiler.compile(dropConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 	}
 }

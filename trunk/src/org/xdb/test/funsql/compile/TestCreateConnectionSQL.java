@@ -1,10 +1,9 @@
 package org.xdb.test.funsql.compile;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
+import org.xdb.test.TestCase;
 import org.xdb.test.XDBTestCase;
 
 public class TestCreateConnectionSQL extends XDBTestCase {
@@ -22,7 +21,7 @@ public class TestCreateConnectionSQL extends XDBTestCase {
 		
 		AbstractServerStmt stmt = compiler.compile(createConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 		
 		String dropConnSql = "DROP CONNECTION testConnection";
@@ -32,7 +31,7 @@ public class TestCreateConnectionSQL extends XDBTestCase {
 		dropConnSql = "DROP CONNECTION \"testConnection\"";
 		stmt = compiler.compile(dropConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 	}

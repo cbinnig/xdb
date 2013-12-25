@@ -1,7 +1,5 @@
 package org.xdb.test;
 
-import junit.framework.Assert;
-
 import org.xdb.Config;
 import org.xdb.server.CompileServer;
 import org.xdb.server.ComputeServer;
@@ -40,7 +38,7 @@ public class XDBTestCase extends TestCase {
 			assertNoError(computeServer.getError());
 			
 		} catch (Exception e) {
-			Assert.assertTrue(e.toString(), false);
+			TestCase.assertTrue(e.toString(), false);
 		}
 	}
 	

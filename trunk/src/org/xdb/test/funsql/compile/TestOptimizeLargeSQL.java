@@ -1,7 +1,5 @@
 package org.xdb.test.funsql.compile;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 import org.xdb.Config;
 import org.xdb.funsql.compile.FunSQLCompiler;
@@ -16,6 +14,7 @@ import org.xdb.funsql.optimize.Optimizer;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.SelectStmt;
 import org.xdb.funsql.types.EnumSimpleType;
+import org.xdb.test.TestCase;
 import org.xdb.test.XDBTestCase;
 
 public class TestOptimizeLargeSQL extends XDBTestCase {
@@ -37,7 +36,7 @@ public class TestOptimizeLargeSQL extends XDBTestCase {
 
 		stmt = compiler.compile(createConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 		// create table
@@ -53,7 +52,7 @@ public class TestOptimizeLargeSQL extends XDBTestCase {
 
 		stmt = compiler.compile(compString);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 		// compile select

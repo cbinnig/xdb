@@ -1,11 +1,11 @@
 package org.xdb.test.system;
 
-import junit.framework.Assert;
 import org.junit.Test;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CallFunctionStmt;
 import org.xdb.funsql.statement.CreateFunctionStmt;
+import org.xdb.test.TestCase;
 import org.xdb.test.XDBTestCase;
 
 public class TestCallFunctionSQL extends XDBTestCase {
@@ -27,7 +27,7 @@ public class TestCallFunctionSQL extends XDBTestCase {
 
 		stmt = compiler.compile(createConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 		// create table
@@ -42,7 +42,7 @@ public class TestCallFunctionSQL extends XDBTestCase {
 
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 		dropTableSql = "DROP TABLE \"S\"";
@@ -55,7 +55,7 @@ public class TestCallFunctionSQL extends XDBTestCase {
 
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 		// execute CreateFunction
@@ -98,7 +98,7 @@ public class TestCallFunctionSQL extends XDBTestCase {
 
 		stmt = compiler.compile(createConnSql);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 		// create table
@@ -113,7 +113,7 @@ public class TestCallFunctionSQL extends XDBTestCase {
 
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 		dropTableSql = "DROP TABLE \"S\"";
@@ -126,7 +126,7 @@ public class TestCallFunctionSQL extends XDBTestCase {
 
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
-		Assert.assertNotNull(stmt);
+		TestCase.assertNotNull(stmt);
 		this.execute(stmt);
 
 		// execute CreateFunction
