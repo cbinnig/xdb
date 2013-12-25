@@ -5,8 +5,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-import junit.framework.Assert;
-
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.statement.AbstractServerStmt;
@@ -22,7 +20,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 	 * @param error
 	 */
 	protected void assertNoError(Error error) {
-		Assert.assertEquals(Error.NO_ERROR, error);
+		TestCase.assertEquals(Error.NO_ERROR, error);
 	}
 
 	/**
@@ -31,7 +29,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 	 * @param error
 	 */
 	protected void assertError(Error error) {
-		Assert.assertNotSame(Error.NO_ERROR, error);
+		TestCase.assertNotSame(Error.NO_ERROR, error);
 	}
 
 	/**
@@ -45,9 +43,9 @@ public abstract class TestCase extends junit.framework.TestCase {
 			throws Exception {
 		if (rs.next()) {
 			int actualCnt = rs.getInt(1);
-			Assert.assertEquals(expectedCnt, actualCnt);
+			TestCase.assertEquals(expectedCnt, actualCnt);
 		} else {
-			Assert.assertTrue(false);
+			TestCase.assertTrue(false);
 		}
 	}
 

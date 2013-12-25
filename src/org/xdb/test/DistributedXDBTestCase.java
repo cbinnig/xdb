@@ -1,7 +1,5 @@
 package org.xdb.test;
 
-import junit.framework.Assert;
-
 import org.xdb.Config;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.server.CompileServer;
@@ -103,7 +101,7 @@ public class DistributedXDBTestCase extends TestCase {
 					.toArray(new ComputeNodeDesc[this.computeServers.length]); 
 
 		} catch (Exception e) {
-			Assert.assertTrue(e.toString(), false);
+			TestCase.assertTrue(e.toString(), false);
 		}
 	}
 
