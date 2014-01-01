@@ -42,7 +42,7 @@ public class Table extends AbstractDatabaseObject {
 	
 	//parameters for partitioning 
 	private EnumPartitionType partitionType = EnumPartitionType.NO_PARTITION;
-	private Map<Long, PartitionAttribute> partitionAttributes = new TreeMap<Long, PartitionAttribute>();
+	private Map<Long, PartitionAttribute> partitionAtts = new TreeMap<Long, PartitionAttribute>();
 	private boolean partioned = false;
 	private Long partitionCnt = 1l;
 	private Long refTableOid = null;	
@@ -189,7 +189,7 @@ public class Table extends AbstractDatabaseObject {
 	}
 	
 	public Collection<PartitionAttribute> getPartitionAttributes() {
-		return partitionAttributes.values();
+		return partitionAtts.values();
 	}
 	
 	public void addPartition(Partition partition){
@@ -197,7 +197,7 @@ public class Table extends AbstractDatabaseObject {
 	}
 	
 	public void addPartitionAttribute(PartitionAttribute partitionAttributes){
-		this.partitionAttributes.put(partitionAttributes.getPart_att_oid(), partitionAttributes);
+		this.partitionAtts.put(partitionAttributes.getPart_att_oid(), partitionAttributes);
 	}
 	
 	public Collection<Partition> getPartitions(){
@@ -253,7 +253,10 @@ public class Table extends AbstractDatabaseObject {
 		this.partioned = partioned;
 	}
 
-
+	public Table getRefTable(){
+		return Catalog.getTable(this.refTableOid);
+	}
+	
 	public boolean isPartioned() {
 		return partioned;
 	}

@@ -11,98 +11,123 @@ import org.xdb.utils.Identifier;
 
 /**
  * Describes the partitioning properties of an operator result
+ * 
  * @author cbinnig
- *
+ * 
  */
-public class PartitionDesc implements Serializable{
+public class PartitionDesc implements Serializable {
 	private static final long serialVersionUID = 1097865181383599610L;
-	
+
 	private List<TokenAttribute> partAttributes = new LinkedList<TokenAttribute>();
+	private String table = null;
+	private String refTable = null;
 	private EnumPartitionType partType = EnumPartitionType.NO_PARTITION;
-	private int partNumber=1;
-	
-	//constructors
-	public PartitionDesc(){
-		//do nothing
+	private int partNumber = 1;
+
+	// constructors
+	public PartitionDesc() {
+		// do nothing
 	}
-	
-	public PartitionDesc(EnumPartitionType partType, int partNumber){
+
+	public PartitionDesc(EnumPartitionType partType, int partNumber) {
 		this.partType = partType;
 		this.partNumber = partNumber;
 	}
-	
-	public PartitionDesc(PartitionDesc toCopy){
+
+	public PartitionDesc(PartitionDesc toCopy) {
 		this.partType = toCopy.partType;
-		this.partNumber =toCopy.partNumber;
-		
-		for(TokenAttribute partAtt: toCopy.partAttributes){
+		this.partNumber = toCopy.partNumber;
+
+		for (TokenAttribute partAtt : toCopy.partAttributes) {
 			TokenAttribute newPartAtt = new TokenAttribute(partAtt);
 			this.partAttributes.add(newPartAtt);
 		}
+
+		this.table = toCopy.table;
+		this.refTable = toCopy.refTable;
 	}
-	
-	//getters and setters
+
+	// getters and setters
 	public void addPartAttributes(TokenAttribute partAttribute) {
 		this.partAttributes.add(partAttribute);
 	}
-	
+
 	public void setPartitionType(EnumPartitionType partType) {
 		this.partType = partType;
 	}
-	
-	public EnumPartitionType getPartitionType(){
+
+	public EnumPartitionType getPartitionType() {
 		return this.partType;
 	}
-	
+
 	public void setPartNumber(int partNumber) {
 		this.partNumber = partNumber;
 	}
 
-	public int getPartitionNumber(){
+	public int getPartitionNumber() {
 		return this.partNumber;
 	}
-	
-	public boolean isPartitioned(){
+
+	public void setTableName(String table) {
+		this.table = table;
+	}
+
+	public void setRefTableName(String refTable) {
+		this.refTable = refTable;
+	}
+
+	public boolean isPartitioned() {
 		return !this.partType.equals(EnumPartitionType.NO_PARTITION);
 	}
-	
-	//methods
-	public boolean isCompatible(PartitionDesc partDesc){
-		//true if one input is not partitioned
-		if(partDesc.partType.isNotPartitioned() || 
-				this.partType.isNotPartitioned())
+
+	// methods
+	public boolean isCompatible(PartitionDesc partDesc) {
+		// true if one input is not partitioned
+		if (partDesc.partType.isNotPartitioned()
+				|| this.partType.isNotPartitioned())
 			return true;
-		
-		//false if one of the following checks fail
-		if(partDesc.partNumber!=this.partNumber)
+
+		// false if one of the following checks fail
+		if (partDesc.partNumber != this.partNumber)
 			return false;
-		
-		if(!this.partAttributes.equals(partDesc.partAttributes))
-			return false;
-		
-		if(!this.partType.isCompatible(partDesc.partType))
-			return false;
-		
-		//else: true
+
+		// check compatibility of partition types
+		if (this.partType.isHash() && partDesc.partType.isHash()) {
+			if (!this.partAttributes.equals(partDesc.partAttributes))
+				return false;
+		} else if (this.partType.isReference() && partDesc.partType.isHash()) {
+			if (!this.refTable.equals(partDesc.table))
+				return false;
+		} else if (partDesc.partType.isReference() && this.partType.isHash()) {
+			if (!partDesc.refTable.equals(this.table))
+				return false;
+		} else if (this.partType.isReference()
+				&& partDesc.partType.isReference()) {
+			if (!this.refTable.equals(partDesc.table)
+					&& !partDesc.refTable.equals(this.table))
+				return false;
+		}
+		// else: true
 		return true;
 	}
-	
-	public boolean isCompatible(TokenAttribute partAtt){
-		if(this.partAttributes.size()>0 && !this.partAttributes.get(0).equals(partAtt))
+
+	public boolean isCompatible(TokenAttribute partAtt) {
+		if (this.partAttributes.size() > 0
+				&& !this.partAttributes.get(0).equals(partAtt))
 			return false;
-		
+
 		return true;
 	}
-	
-	public void renameTable(Identifier newOpId){
-		for(TokenAttribute partAtt: this.partAttributes){
+
+	public void renameTable(Identifier newOpId) {
+		for (TokenAttribute partAtt : this.partAttributes) {
 			partAtt.setTable(newOpId.toString());
 		}
 	}
-	
+
 	public String toSqlString() {
 		StringBuffer buffer = new StringBuffer();
-		
+
 		buffer.append(AbstractToken.PARTITION);
 		buffer.append(AbstractToken.BLANK);
 		buffer.append(AbstractToken.BY);
@@ -110,9 +135,9 @@ public class PartitionDesc implements Serializable{
 		buffer.append(this.partType);
 		buffer.append(AbstractToken.LBRACE);
 		int tAttCnt = 0;
-		for(TokenAttribute tAtt: this.partAttributes){
+		for (TokenAttribute tAtt : this.partAttributes) {
 			buffer.append(tAtt.getName().toSqlString());
-			if(tAttCnt>0)
+			if (tAttCnt > 0)
 				buffer.append(AbstractToken.COMMA);
 			tAttCnt++;
 		}
@@ -121,34 +146,34 @@ public class PartitionDesc implements Serializable{
 		buffer.append(AbstractToken.PARTITIONS);
 		buffer.append(AbstractToken.BLANK);
 		buffer.append(this.partNumber);
-		
+
 		return buffer.toString();
 	}
-	
+
 	@Override
-	public boolean equals(Object o){
-		if(o==null)
+	public boolean equals(Object o) {
+		if (o == null)
 			return false;
-		
-		PartitionDesc partDesc = (PartitionDesc)o;
-		if(partDesc.partNumber!=this.partNumber)
+
+		PartitionDesc partDesc = (PartitionDesc) o;
+		if (partDesc.partNumber != this.partNumber)
 			return false;
-		
-		for(TokenAttribute partAtt: partDesc.partAttributes){
-			if(!this.partAttributes.contains(partAtt))
+
+		for (TokenAttribute partAtt : partDesc.partAttributes) {
+			if (!this.partAttributes.contains(partAtt))
 				return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return this.toSqlString();
 	}
-	
+
 	@Override
-	public int hashCode(){
+	public int hashCode() {
 		return this.partType.hashCode() % this.partNumber;
 	}
 }
