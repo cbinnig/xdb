@@ -100,6 +100,10 @@ public class TableOperator extends AbstractCompileOperator {
 		return (int)this.table.getPartitionCount();
 	}
 	
+	public String getRefTableName(){
+		return this.table.getRefTable().getName();
+	}
+	
 	public String getAttsDDL(){
 		return this.table.attsToDDL();
 	}
