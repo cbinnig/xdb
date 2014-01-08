@@ -1,5 +1,6 @@
 package org.xdb.funsql.statement;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,8 +38,6 @@ import org.xdb.metadata.Connection;
 import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
-import org.xdb.utils.FlagElem;
-import org.xdb.utils.FlaggedElemVector;
 import org.xdb.utils.Identifier;
 
 public class SelectStmt extends AbstractServerStmt {
@@ -65,8 +64,8 @@ public class SelectStmt extends AbstractServerStmt {
 	private HashMap<String, Attribute> attSymbols = new HashMap<String, Attribute>();
 	private HashMap<TokenAttribute, EnumSimpleType> attTypes = new HashMap<TokenAttribute, EnumSimpleType>();
 	private HashMap<String, Table> varSymbols = new HashMap<String, Table>();
-	private Set<String> usedVariables = new HashSet<String>();	
-		
+	private Set<String> usedVariables = new HashSet<String>();
+
 	// temporary compiler variables
 	private int lastInternalAlias = 0;
 	private Identifier internalAlias = new Identifier("_INT_ALIAS");
@@ -74,9 +73,9 @@ public class SelectStmt extends AbstractServerStmt {
 	private Vector<AbstractPredicate> selectionPreds = new Vector<AbstractPredicate>();
 	private AbstractCompileOperator lastOp = null;
 
-	//Compile plan
-	private CompilePlan plan = new CompilePlan();	
-		
+	// Compile plan
+	private CompilePlan plan = new CompilePlan();
+
 	// constructors
 	public SelectStmt() {
 		this.statementType = EnumStatement.SELECT;
@@ -89,7 +88,7 @@ public class SelectStmt extends AbstractServerStmt {
 
 	public void addSelExpression(AbstractExpression expr) {
 		this.tSelExpr.add(expr);
-		
+
 		if (expr.isAttribute()) {
 			TokenAttribute att = expr.getAttribute();
 			this.tSelAliases.add(att.getName());
@@ -281,7 +280,7 @@ public class SelectStmt extends AbstractServerStmt {
 	}
 
 	/**
-	 * Create join plan for from clause
+	 * Create join plan for from clause and where predicates
 	 * 
 	 * @param lastOp
 	 * @return
@@ -293,197 +292,122 @@ public class SelectStmt extends AbstractServerStmt {
 		if (this.tTableAliases.size() == 1) {
 			TokenIdentifier tTableAlias = this.tTableAliases.get(0);
 			TableOperator tableOp = new TableOperator(tTableAlias);
-
-			// add meta data to plan
-			err = this.addTableToPlan(tableOp);
-			if (err.isError())
-				return err;
+			this.addTableToPlan(tableOp);
 
 			if (this.tWherePredicate != null) {
-				selectionPreds.addAll(this.tWherePredicate.splitAnd());
+				this.selectionPreds.addAll(this.tWherePredicate.splitAnd());
 			}
 			lastOp = tableOp;
 		}
 		// join required
 		else {
-			// check predicate
+			// check if where predicate exists
 			if (this.tWherePredicate == null) {
 				return FunSQLCompiler
 						.createGenericCompileErr("Cartesian product not in SQL statement supported!");
 			}
 
-			Collection<AbstractPredicate> predicates = this.tWherePredicate
-					.splitAnd();
-			HashMap<String, TableOperator> tableOps = new HashMap<String, TableOperator>();
-			// find all equi-join predicates
-			int joinPreds = 0;
-
-			// init new data structure with helper classes
-			AbstractPredicate predicate_t = null;
-			// convert HashSet into vector
-			Vector<AbstractPredicate> predicates_vector = new Vector<AbstractPredicate>();
-			Vector<AbstractCompileOperator> joinOps = new Vector<AbstractCompileOperator>();
-
-			for (AbstractPredicate predicate : predicates) {
-				predicates_vector.add(predicate);
-			}
-			// init necessary
-			FlagElem<AbstractPredicate> f_predicate;
-			FlaggedElemVector<AbstractPredicate> f_predicates_vector = new FlaggedElemVector<AbstractPredicate>(
-					predicates_vector);
-
-			int index = 0;
-			// checker for first element
-			boolean first = true;
-			while (f_predicates_vector.hasfalseElems()) {
-				// get the flagged predicate
-				f_predicate = f_predicates_vector.getFlaggedElem(index);
-
-				// check wether this predicate was already used then continue
-				if (f_predicate.isFlag()) {
-					index = (index + 1) % f_predicates_vector.getSize();
-					continue;
-				}
-				// get predicate without flag
-				predicate_t = f_predicate.getElem();
-				if (predicate_t.isEquiJoinPredicate()) {
-					// found join predicate
-
-					// get join attributes
-					TokenAttribute[] joinAtts = new TokenAttribute[2];
-					int i = 0;
-					for (TokenAttribute tAttr : predicate_t.getAttributes()) {
-						joinAtts[i] = tAttr;
-						i++;
-					}
-
-					TokenTable tLeftTable = joinAtts[0].getTable();
-					TokenTable tRightTable = joinAtts[1].getTable();
-
-					TableOperator leftTableOp = tableOps.get(tLeftTable
-							.getName().hashKey());
-					TableOperator rightTableOp = tableOps.get(tRightTable
-							.getName().hashKey());
-
-					// now check when if last op is null and is equijoin
-					// operator
-					// if no table operators exist for those elements there is
-					// no need for checking for
-					// joint ops because the table was never accessed and
-					// consequently no conflict can arise
-
-					if (leftTableOp == null && rightTableOp == null) {
-						// case one both are not accessed yet
-						// if first ok when not continue
-						if (!first) {
-							index = (index + 1) % f_predicates_vector.getSize();
-							continue;
-						}
-						first = false;
-					} else if ((leftTableOp == null && rightTableOp != null)
-							|| (leftTableOp != null && rightTableOp == null)) {
-						// case two one is already accessed
-						if (joinOps.size() != 0) {
-							// check wether a suitable join is available
-							// find the highest level join op for a a already
-							// accessed Table
-							boolean tester = true;
-							AbstractCompileOperator op;
-							// Could also be done recusive in seperate method
-							if (leftTableOp != null) {
-								op = leftTableOp;
-							} else {
-								op = rightTableOp;
-							}
-							while (tester) {
-								if (op.getParents().size() == 0) {
-									break;
-								} else {
-									op = op.getParents().get(0);
-								}
-							}
-							lastOp = op;
-						}// size Checker
-					} else {
-						// case three both are accessed
-
-						// predicate is not a join predicate any more, but a
-						// selection
-						f_predicates_vector.setUsed(index);
-						selectionPreds.add(predicate_t);
-						index = (index + 1) % f_predicates_vector.getSize();
-						continue;
-
-					}// used check
-
-					// set this predicate ot be userd
-					f_predicates_vector.setUsed(index);
-
-					// join pred is used so increment it for last check
-					joinPreds++;
-					// left table not yet in join path?
-					boolean newLeftTable = false;
-					if (leftTableOp == null) {
-						leftTableOp = new TableOperator(tLeftTable.getName());
-
-						err = this.addTableToPlan(leftTableOp);
-						if (err.isError())
-							return err;
-
-						tableOps.put(tLeftTable.getName().hashKey(),
-								leftTableOp);
-						newLeftTable = true;
-					}
-
-					// right table not yet in join path?
-					boolean newRightTable = false;
-					if (rightTableOp == null) {
-						rightTableOp = new TableOperator(tRightTable.getName());
-
-						err = this.addTableToPlan(rightTableOp);
-						if (err.isError())
-							return err;
-
-						tableOps.put(tRightTable.getName().hashKey(),
-								rightTableOp);
-						newRightTable = true;
-					}
-
-					EquiJoin joinOp = null;
-					// both tables L and R are new: L JOIN R
-					if (newLeftTable && newRightTable) {
-						joinOp = new EquiJoin(leftTableOp, rightTableOp,
-								joinAtts[0], joinAtts[1]);
-					}
-					// only left table is new: LastOp JOIN L (to create left
-					// deep plan)
-					else if (newLeftTable) {
-						joinOp = new EquiJoin(lastOp, leftTableOp, joinAtts[1],
-								joinAtts[0]);
-					}
-					// only right table is new: LastOp JOIN R
-					else {
-						joinOp = new EquiJoin(lastOp, rightTableOp,
-								joinAtts[0], joinAtts[1]);
-					}
-					plan.addOperator(joinOp, false);
-					// add a lastOp to list
-					joinOps.add(joinOp);
-					lastOp = joinOp;
-
-				} else {
-					// keep remaining predicates!
-					selectionPreds.add(predicate_t);
-					f_predicates_vector.setUsed(index);
-				}
-				index = (index + 1) % f_predicates_vector.getSize();
-			}
-
-			if (joinPreds + 1 != this.tTables.size()) {
+			// check that number of potential join predicates is bigger than
+			Set<AbstractPredicate> wherePreds = this.tWherePredicate.splitAnd();
+			if (wherePreds.size() < this.tTableAliases.size() - 1) {
 				return FunSQLCompiler
 						.createGenericCompileErr("Cartesian product not in SQL statement supported!");
 			}
 
+			// remaining where predicates not in join path
+			Set<AbstractPredicate> remainingWherePreds = new HashSet<AbstractPredicate>(
+					wherePreds);
+			// list of join predicates in join path
+			List<AbstractPredicate> joinPreds = new ArrayList<AbstractPredicate>();
+			// list of tables in join path
+			List<TokenIdentifier> joinTables = new ArrayList<TokenIdentifier>();
+			// indexes of right join in join predicates (0=first, 1=second)
+			List<Integer> rightJoinAttIdxs = new ArrayList<Integer>();
+
+			// find seed join predicate and two joined tables
+			for (AbstractPredicate wherePred : wherePreds) {
+				if (wherePred.isEquiJoinPredicate()) {
+					remainingWherePreds.remove(wherePred);
+
+					// add seed join predicate
+					joinPreds.add(wherePred);
+					Collection<TokenAttribute> joinAtts = wherePred
+							.getAttributes();
+
+					// add seed join tables
+					for (TokenAttribute joinAtt : joinAtts) {
+						TokenIdentifier tTableAlias = joinAtt.getTable()
+								.getName();
+						joinTables.add(tTableAlias);
+					}
+
+					// right join attribute is second attribute
+					rightJoinAttIdxs.add(1);
+					break;
+				}
+			}
+
+			// find next join predicate and table to extend join path
+			while (joinTables.size() != this.tTableAliases.size()) {
+				wherePreds = new HashSet<AbstractPredicate>(remainingWherePreds);
+				boolean foundNextJoinPred = false;
+
+				predLoop: for (AbstractPredicate wherePred : wherePreds) {
+					if (wherePred.isEquiJoinPredicate()) {
+
+						TokenAttribute[] joinAtts = wherePred.getAttributes()
+								.toArray(new TokenAttribute[2]);
+						for (int joinAttIdx = 0; joinAttIdx <= 1; ++joinAttIdx) {
+							TokenIdentifier tTableAlias1 = joinAtts[joinAttIdx]
+									.getTable().getName();
+							TokenIdentifier tTableAlias2 = joinAtts[(joinAttIdx + 1) % 2]
+									.getTable().getName();
+							if (joinTables.contains(tTableAlias1)
+									&& !joinTables.contains(tTableAlias2)) {
+								foundNextJoinPred = true;
+								joinAttIdx = (joinAttIdx + 1) % 2;
+								remainingWherePreds.remove(wherePred);
+								joinPreds.add(wherePred);
+								TokenIdentifier tTableAlias = joinAtts[joinAttIdx]
+										.getTable().getName();
+								joinTables.add(tTableAlias);
+								rightJoinAttIdxs.add(joinAttIdx);
+								break predLoop;
+							}
+						}
+					}
+				}
+				if (!foundNextJoinPred) {
+					return FunSQLCompiler
+							.createGenericCompileErr("Cartesian product not in SQL statement supported!");
+				}
+			}
+			wherePreds = new HashSet<AbstractPredicate>(remainingWherePreds);
+
+			// add join and table operations to plan
+			TokenIdentifier tTableAlias = joinTables.get(0);
+			TableOperator tableOp = new TableOperator(tTableAlias);
+			this.lastOp = tableOp;
+			this.addTableToPlan(tableOp);
+			for (int i = 0; i < joinPreds.size(); ++i) {
+				tTableAlias = joinTables.get(i + 1);
+				tableOp = new TableOperator(tTableAlias);
+				AbstractPredicate joinPred = joinPreds.get(i);
+				TokenAttribute[] joinAtts = joinPred.getAttributes().toArray(
+						new TokenAttribute[2]);
+				Integer joinAttIdx = rightJoinAttIdxs.get(i);
+				EquiJoin ej = new EquiJoin(this.lastOp, tableOp,
+						joinAtts[(joinAttIdx + 1) % 2], joinAtts[joinAttIdx]);
+
+				this.addTableToPlan(tableOp);
+				this.plan.addOperator(ej, false);
+				this.lastOp = ej;
+			}
+
+			// set selection predicates for
+			if (wherePreds.size() > 0) {
+				this.selectionPreds.addAll(wherePreds);
+			}
 		}
 
 		return err;
@@ -495,25 +419,23 @@ public class SelectStmt extends AbstractServerStmt {
 	 * @param tableOp
 	 * @param tTableAlias
 	 */
-	private Error addTableToPlan(TableOperator tableOp) {
+	private void addTableToPlan(TableOperator tableOp) {
 		// set table
-		Table table = this.tableSymbols.get(tableOp.getTableAliasToken().hashKey());
+		Table table = this.tableSymbols.get(tableOp.getTableAliasToken()
+				.hashKey());
 		tableOp.setTable(table);
 
 		// set connection if table is no intermediate temporary table
-		// TODO: change for partitioned tables
 		if (!table.isTemp()) {
-			List<Long> connectionOids = table.getConnectionOids(); 
+			List<Long> connectionOids = table.getConnectionOids();
 			for (Long connOid : connectionOids) {
-				Connection conn = Catalog.getConnection(connOid); 
+				Connection conn = Catalog.getConnection(connOid);
 				tableOp.addConnection(conn);
 			}
 		}
 
 		// add table op to plan
 		this.plan.addOperator(tableOp, false);
-
-		return new Error();
 	}
 
 	/**
@@ -661,7 +583,7 @@ public class SelectStmt extends AbstractServerStmt {
 	private Error checkTables() {
 		Error err = new Error();
 		// create mapping of table names and aliases to catalog table objects
-		for (int i = 0; i < this.tTables.size(); ++i) { 
+		for (int i = 0; i < this.tTables.size(); ++i) {
 			TokenTable tTable = this.tTables.get(i);
 			TokenIdentifier tTableAlias = this.tTableAliases.get(i);
 			Table table = null;
@@ -674,7 +596,7 @@ public class SelectStmt extends AbstractServerStmt {
 
 				table = this.varSymbols.get(tTable.hashKey());
 				this.usedVariables.add(tTable.hashKey());
-			} 
+			}
 			// table is defined in catalog
 			else {
 				TokenSchema tSchema = tTable.getSchema();
@@ -688,19 +610,19 @@ public class SelectStmt extends AbstractServerStmt {
 				this.schemaSymbols.put(schema.hashKey(), schema);
 
 				table = Catalog.getTable(tTable.hashKey(schema.getOid()));
-                
+
 				// check for non existing table names
 				if (table == null) {
 					return Catalog.createObjectNotExistsErr(
 							tTable.toSqlString(), EnumDatabaseObject.TABLE);
 				}
 			}
-			
+
 			// check for duplicate table names in statement
 			if (this.tableSymbols.containsKey(tTableAlias.hashKey())) {
 				return createDuplicateTableNameErr(tTableAlias);
 			}
-			this.tableSymbols.put(tTableAlias.hashKey(), table);  
+			this.tableSymbols.put(tTableAlias.hashKey(), table);
 		}
 		return err;
 	}
@@ -805,7 +727,7 @@ public class SelectStmt extends AbstractServerStmt {
 		err = opti.optimize(Config.OPTIMIZER_ACTIVE_RULES_SELECT);
 		return err;
 	}
-	
+
 	@Override
 	public Error parallelize() {
 		Error err = new Error();
@@ -824,5 +746,3 @@ public class SelectStmt extends AbstractServerStmt {
 		return new Error();
 	}
 }
-
-		

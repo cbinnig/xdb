@@ -110,7 +110,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 	}
 
 	public boolean hasResult() {
-		return this.results.size() == 1;
+		return this.results.size() >= 1;
 	}
 
 	public ResultDesc getResult() {
@@ -309,7 +309,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 		// header
 		if (Config.TRACE_COMPILE_PLAN_HEADER) {
 			StringBuffer header = new StringBuffer();
-			if (Config.TRACE_COMPILE_PLAN_PARENTCHILD) {
+			if (Config.TRACE_COMPILE_PLAN_HEADER_PARENTCHILD) {
 				header.append("Parents: ");
 				header.append(this.parents.toString());
 				header.append(AbstractToken.NEWLINE);
@@ -317,7 +317,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 				header.append(this.children.toString());
 				header.append(AbstractToken.NEWLINE);
 			}
-			if (Config.TRACE_COMPILE_PLAN_RESULTS && this.hasResult()) {
+			if (Config.TRACE_COMPILE_PLAN_HEADER_RESULT && this.hasResult()) {
 				header.append("Result:");
 				header.append(AbstractToken.NEWLINE);
 				if (this.getResult() != null) {
@@ -325,6 +325,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 				}
 				header.append(AbstractToken.NEWLINE);
 			}
+			
 			node.getInfo().setHeader(header.toString());
 		}
 
