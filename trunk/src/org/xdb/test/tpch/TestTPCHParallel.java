@@ -155,10 +155,10 @@ group by n_name;
 					"from customer, orders, lineitem, supplier, nation, region " +
 					"where c_custkey = o_custkey " +
 					"and l_orderkey = o_orderkey " +
-					"and s_nationkey = c_nationkey " +
+					"and l_suppkey = s_suppkey  " +
 					"and n_nationkey = s_nationkey " +
 					"and r_regionkey = n_regionkey " +
-					"and l_suppkey = s_suppkey  " +
+					"and s_nationkey = c_nationkey " +
 					"and r_name = 'ASIA' " +
 					"and o_orderdate > date '1994-01-01' "+
 					"and o_orderdate < date '1995-01-01' "+

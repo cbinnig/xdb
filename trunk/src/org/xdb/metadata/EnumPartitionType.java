@@ -39,7 +39,7 @@ public enum EnumPartitionType implements Serializable{
 			return NO_PARTITION;
 	}
 	
-	public static EnumPartitionType getMaterializeType(EnumPartitionType type){
+	public static EnumPartitionType getMaterializeType(){
 		return HASH;
 	}
 	

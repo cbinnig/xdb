@@ -25,16 +25,16 @@ public class Parallelizer {
 	public Error parallelize() {
 		Error err = new Error();
 
+		// repartition
+		err = repartitionOps();
+		if (err.isError())
+			return err;
+		
 		// tracing
 		if (Config.TRACE_PARALLEL_PLAN) {
 			this.compilePlan.tracePlan(compilePlan.getClass()
 					.getCanonicalName() + "_PARALLELIZED");
 		}
-
-		// repartition
-		err = repartitionOps();
-		if (err.isError())
-			return err;
 
 		return err;
 	}

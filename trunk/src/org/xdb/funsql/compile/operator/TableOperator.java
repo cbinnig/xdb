@@ -187,4 +187,17 @@ public class TableOperator extends AbstractCompileOperator {
 	public void renameTableOfAttributes(String oldId, String newId) {
 		//nothing to do :)
 	}
+	
+	@Override
+	public String toString() {
+		StringBuffer value = new StringBuffer();
+		value.append("(");
+		value.append(this.operatorId);
+		value.append(":");
+		value.append(this.type);
+		value.append(" ");
+		value.append(this.tableAlias);
+		value.append(")");
+		return value.toString();
+	}
 }
