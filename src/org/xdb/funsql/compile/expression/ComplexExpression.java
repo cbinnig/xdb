@@ -1,7 +1,9 @@
 package org.xdb.funsql.compile.expression;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
@@ -16,17 +18,27 @@ public class ComplexExpression extends AbstractExpression {
 	private Vector<EnumExprOperator> ops;
 	private Vector<AbstractExpression> exprs2;
 
-	public ComplexExpression() {
+	public ComplexExpression(ComplexExpression toCopy) {
 		super();
 		
-		this.ops = new Vector<EnumExprOperator>();
-		this.exprs2 = new Vector<AbstractExpression>();
+		this.type = toCopy.type;
+		
+		this.expr1 = toCopy.expr1.deepCopy();
+		
+		this.ops = new Vector<EnumExprOperator>(toCopy.ops);
+		
+		this.exprs2 = new Vector<AbstractExpression>(toCopy.exprs2.size());
+		for(AbstractExpression expr2: toCopy.exprs2){
+			this.exprs2.add(expr2.deepCopy());
+		}
 	}
-	
+		
 	public ComplexExpression(EnumExprType type) {
-		this();
+		super();
 		
 		this.type=type;
+		this.ops = new Vector<EnumExprOperator>();
+		this.exprs2 = new Vector<AbstractExpression>();
 	}
 
 	// getters and setters
@@ -107,6 +119,18 @@ public class ComplexExpression extends AbstractExpression {
 		return false;
 	}
 
+	@Override
+	public Set<AggregationExpression> getAggregations() {
+		Set<AggregationExpression> aggExprs = new HashSet<AggregationExpression>();
+		aggExprs.addAll(this.expr1.getAggregations());
+		
+		for(AbstractExpression expr2: this.exprs2){
+			aggExprs.addAll(expr2.getAggregations());
+		}
+		
+		return aggExprs;
+	}
+	
 	@Override
 	public boolean isAggregation() {
 		if(this.expr1.isAggregation())

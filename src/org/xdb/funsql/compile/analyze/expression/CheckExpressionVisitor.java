@@ -2,17 +2,16 @@ package org.xdb.funsql.compile.analyze.expression;
 
 import java.util.Map;
 
+import org.xdb.error.EnumError;
+import org.xdb.error.Error;
 import org.xdb.funsql.compile.expression.AbstractExpression;
 import org.xdb.funsql.compile.expression.AggregationExpression;
 import org.xdb.funsql.compile.expression.ComplexExpression;
 import org.xdb.funsql.compile.expression.SimpleExpression;
-import org.xdb.funsql.compile.operator.EnumAggregation;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenLiteral;
 import org.xdb.funsql.types.EnumSimpleType;
-import org.xdb.error.EnumError;
-import org.xdb.error.Error;
 
 
 /**
@@ -35,8 +34,8 @@ public class CheckExpressionVisitor extends AbstractExpressionVisitor {
 	public Error visitSimpleExpression(SimpleExpression se) {
 		Error e = new Error();
 		if(se.isAttribute()){
-			TokenAttribute tAtt = se.getAttribute();
-			EnumSimpleType type = this.expType.get(tAtt);
+			TokenAttribute ta = se.getAttribute();
+			EnumSimpleType type = this.expType.get(ta);
 			this.expType.put(se, type);
 		}
 		else{
@@ -47,13 +46,17 @@ public class CheckExpressionVisitor extends AbstractExpressionVisitor {
 	}
 
 	@Override
-	public Error visitAggregationExpression(AggregationExpression ce) {
-		Error e = this.visit(ce.getExpression());
-		if (ce.getAggregation() == EnumAggregation.CNT) {
-			this.expType.put(ce, EnumSimpleType.SQL_INTEGER);
+	public Error visitAggregationExpression(AggregationExpression aggExpr) {
+		Error e = this.visit(aggExpr.getExpression());
+		if (aggExpr.getAggregation().isCnt()) {
+			this.expType.put(aggExpr, EnumSimpleType.SQL_INTEGER);
 		}
 		else{
-			this.expType.put(ce, this.expType.get(ce.getExpression()));
+			AbstractExpression expr1 = aggExpr.getExpression();
+			e = visit(expr1);
+			if(e.isError())
+				return e;
+			this.expType.put(aggExpr, this.expType.get(aggExpr.getExpression()));
 		}
 		return e;
 	}

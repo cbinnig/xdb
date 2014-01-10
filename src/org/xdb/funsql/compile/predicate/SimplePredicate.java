@@ -1,7 +1,9 @@
 package org.xdb.funsql.compile.predicate;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -109,8 +111,8 @@ public class SimplePredicate extends AbstractPredicate {
 	}
 
 	@Override
-	public Set<AbstractPredicate> splitAnd() {
-		HashSet<AbstractPredicate> predicates = new HashSet<AbstractPredicate>();
+	public List<AbstractPredicate> splitAnd() {
+		List<AbstractPredicate> predicates = new ArrayList<AbstractPredicate>();
 		predicates.add(this);
 		return predicates;
 	}

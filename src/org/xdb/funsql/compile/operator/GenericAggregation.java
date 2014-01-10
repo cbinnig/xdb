@@ -44,24 +44,21 @@ public class GenericAggregation extends AbstractUnaryOperator {
 	//copy-constructor
 	public GenericAggregation(GenericAggregation toCopy) {
 		super(toCopy);
-		Vector<AbstractExpression> aev = new Vector<AbstractExpression>();
+		
+		this.aggExprs = new Vector<AbstractExpression>();
 		for (AbstractExpression ta : toCopy.aggExprs) {
-			aev.add(ta.clone());
+			this.aggExprs.add(ta.clone());
 		}
-		this.aggExprs = aev;
-		Vector<AbstractExpression> grouping = new Vector<AbstractExpression>();
-
+		
+		this.groupExprs = new Vector<AbstractExpression>();
 		for (AbstractExpression ae : toCopy.groupExprs) {
-			grouping.add(ae.clone());
+			this.groupExprs.add(ae.clone());
 		}
-		this.groupExprs = grouping;
-		Vector<TokenIdentifier> alias = new Vector<TokenIdentifier>();
-
+		
+		this.aliases = new Vector<TokenIdentifier>();
 		for (TokenIdentifier ti : toCopy.aliases) {
-			alias.add(ti);
+			this.aliases.add(ti);
 		}
-
-		this.aliases = alias;
 		
 		this.type = EnumOperator.GENERIC_AGGREGATION;
 	}
@@ -79,6 +76,22 @@ public class GenericAggregation extends AbstractUnaryOperator {
 		return aliases;
 	}
 
+	public Vector<TokenIdentifier> getAggregationAliases() {
+		Vector<TokenIdentifier> aggAliases = new Vector<TokenIdentifier>(this.aggExprs.size());
+		for(int i=0; i<this.aggExprs.size();++i){
+			aggAliases.add(this.aliases.get(i));
+		}
+		return aggAliases;
+	}
+
+	public Vector<TokenIdentifier> getGroupAliases() {
+		Vector<TokenIdentifier> grpAliases = new Vector<TokenIdentifier>(this.groupExprs.size());
+		for(int i=this.aggExprs.size(); i<this.aggExprs.size()+this.groupExprs.size();++i){
+			grpAliases.add(this.aliases.get(i));
+		}
+		return grpAliases;
+	}
+	
 	public void addGroupExpression(AbstractExpression expr) {
 		this.groupExprs.add(expr);
 	}

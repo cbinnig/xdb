@@ -1,7 +1,9 @@
 package org.xdb.funsql.compile.expression;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
@@ -23,8 +25,9 @@ public class SimpleExpression extends AbstractExpression {
 	}
 	
 	public SimpleExpression(SimpleExpression toCopy){
+		this();
 		
-		this.tOper = null;
+		this.tOper = toCopy.tOper;
 	}
 	
 	
@@ -77,6 +80,13 @@ public class SimpleExpression extends AbstractExpression {
 			return false;
 		return true;
 	}
+	
+	@Override
+	public Set<AggregationExpression> getAggregations() {
+		Set<AggregationExpression> aggExprs = new HashSet<AggregationExpression>();
+		return aggExprs;
+	}
+	
 	@Override
 	public boolean isAggregation() {
 		return false;
@@ -93,6 +103,11 @@ public class SimpleExpression extends AbstractExpression {
 	@Override
 	public int size() {
 		return 1;
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.tOper.hashCode();
 	}
 
 	@Override

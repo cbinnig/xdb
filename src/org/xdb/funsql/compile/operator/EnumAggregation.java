@@ -22,6 +22,14 @@ public enum EnumAggregation implements Serializable{
 		this.repr = repr;
 	}	
 	
+	public boolean isAvg(){
+		return this.equals(AVG);
+	}
+	
+	public boolean isCnt(){
+		return this.equals(CNT);
+	}
+	
 	public StringTemplate getSqlTemplate() {
 		return repr;
 	}

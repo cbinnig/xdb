@@ -21,8 +21,8 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 /**
  * @author a.c.mueller
  * This class is a tree visitor that visits the complete compile plan before it's split into
- * tracker plans. The purpose of this plan is to rerename some operators which directly
- * access tables, in order so realize a table entering without subselects
+ * tracker plans. The purpose of this plan is to re-rename some operators which directly
+ * access tables, in order so realize a table entering without sub-selects
  * 
  */
 public class ReRenameAttributesVisitor extends AbstractBottomUpTreeVisitor {

@@ -1,7 +1,5 @@
 package org.xdb.funsql.compile.analyze.operator;
 
-import java.util.Vector;
-
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.expression.RenameExpressionVisitor;
@@ -49,11 +47,15 @@ public class RenameOperatorVisitor extends AbstractBottomUpTreeVisitor {
 	@Override
 	public Error visitGenericAggregation(GenericAggregation ga) {
 		Error e = new Error();
-		Vector<AbstractExpression> exprs = new  Vector<AbstractExpression>();
-		exprs.addAll(ga.getAggregationExpressions());
-		exprs.addAll(ga.getGroupExpressions());
 		
-		for(AbstractExpression expr: exprs){
+		for(AbstractExpression expr: ga.getAggregationExpressions()){
+			RenameExpressionVisitor renameVisitor = new RenameExpressionVisitor(expr, ga.getChild().getOperatorId());
+			e = renameVisitor.visit();
+			if(e.isError())
+				return e;
+		}
+		
+		for(AbstractExpression expr: ga.getGroupExpressions()){
 			RenameExpressionVisitor renameVisitor = new RenameExpressionVisitor(expr, ga.getChild().getOperatorId());
 			e = renameVisitor.visit();
 			if(e.isError())
