@@ -1,6 +1,7 @@
 package org.xdb.funsql.compile.predicate;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,7 +46,7 @@ public abstract class AbstractPredicate extends AbstractToken implements Cloneab
 	
 	public abstract boolean isEquiJoinPredicate();
 	
-	public abstract Set<AbstractPredicate> splitAnd();
+	public abstract List<AbstractPredicate> splitAnd();
 	
 	public abstract Set<AbstractExpression> getAggregations();
 	

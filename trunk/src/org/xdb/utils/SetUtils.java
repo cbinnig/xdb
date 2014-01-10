@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.xdb.funsql.compile.expression.AbstractExpression;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 /**
@@ -61,18 +62,19 @@ public class SetUtils {
 	
 	/**
 	 * Generate String containing all Attributes ready to use in MySQL-Select statements.
-	 * @return String with output of TokenAttribute.toSqlString(), seperated by commata.
+	 * @return String with output of TokenAttribute.toSqlString(), separated by comma.
 	 */
-	public static String stringifyExprVec(Vector<AbstractExpression> attrVec) {
+	public static String stringifyExprVec(Vector<AbstractExpression> exprs) {
 		final StringBuffer attributeListBuffer = new StringBuffer();
 		
-		for(int i = 0; i < attrVec.size(); i++) {
-			if(i != 0)
-				attributeListBuffer.append(", ");
-			attributeListBuffer.append(attrVec.get(i).toSqlString());
+		for(int i = 0; i < exprs.size(); i++) {
+			if(i != 0){
+				attributeListBuffer.append(AbstractToken.COMMA);
+				attributeListBuffer.append(AbstractToken.BLANK);
+			}
+			attributeListBuffer.append(exprs.get(i).toSqlString());
 		}
 		
 		return attributeListBuffer.toString();
 	}
-	
 }

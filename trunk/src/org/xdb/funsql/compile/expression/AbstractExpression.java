@@ -2,6 +2,7 @@ package org.xdb.funsql.compile.expression;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -20,9 +21,11 @@ public abstract class AbstractExpression extends AbstractToken implements Clonea
              return new SimpleExpression( (SimpleExpression)this);
          } else if (this instanceof AggregationExpression) {
              return new AggregationExpression((AggregationExpression)this);
+         }else if (this instanceof ComplexExpression) {
+             return new ComplexExpression((ComplexExpression)this);
          }
 
-         throw new Error("Unknown type of person");
+         throw new Error("Unknown type of expression");
      }
 	
 	public AbstractExpression() {
@@ -69,6 +72,12 @@ public abstract class AbstractExpression extends AbstractToken implements Clonea
 	 * @return
 	 */
 	public abstract boolean isAggregation();
+	
+	/**
+	 * Returns all aggregation expressions in expression
+	 * @return
+	 */
+	public abstract Set<AggregationExpression> getAggregations();
 	
 	/**
 	 * Get number of predicates

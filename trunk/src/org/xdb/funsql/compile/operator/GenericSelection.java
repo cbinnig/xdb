@@ -36,6 +36,7 @@ public class GenericSelection extends AbstractUnaryOperator {
 	// copy-constructor
 	public GenericSelection(GenericSelection toCopy) {
 		super(toCopy);
+		
 		this.predicate = toCopy.predicate.clone();
 
 		this.type = EnumOperator.GENERIC_SELECTION;

@@ -15,7 +15,7 @@ import org.xdb.utils.Identifier;
 
 public class Analyzer {
 	private CompilePlan compilePlan;
-	private HashMap<AbstractToken, EnumSimpleType> expTypes = new HashMap<AbstractToken, EnumSimpleType>();
+	private Map<AbstractToken, EnumSimpleType> expTypes = new HashMap<AbstractToken, EnumSimpleType>();
 
 	public Analyzer(CompilePlan compilePlan,
 			Map<TokenAttribute, EnumSimpleType> attTypes) {
@@ -30,7 +30,7 @@ public class Analyzer {
 			AbstractCompileOperator root = this.compilePlan.getOperator(rootId);
 
 			CheckOperatorVisitor checkOpVisitor = new CheckOperatorVisitor(
-					this.expTypes, root);
+					root, this.expTypes);
 			checkOpVisitor.visit();
 		}
 

@@ -1,6 +1,8 @@
 package org.xdb.funsql.compile.operator;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.xdb.Config;
@@ -74,7 +76,7 @@ public class ResultDesc implements Serializable, Cloneable {
 	public Vector<EnumSimpleType> getTypes() {
 		return this.types;
 	}
-
+	
 	public boolean materialize() {
 		return materialize;
 	}
@@ -108,6 +110,14 @@ public class ResultDesc implements Serializable, Cloneable {
 	}
 
 	// methods
+	public Map<AbstractToken, EnumSimpleType> createAttribute2TypeMap() {
+		Map<AbstractToken, EnumSimpleType> exprTypes = new HashMap<AbstractToken, EnumSimpleType>();
+		for(int i=0; i<this.attributes.size(); ++i){
+			exprTypes.put(this.attributes.get(i), this.types.get(i));
+		}
+		return exprTypes;
+	}
+	
 	public String toSqlString() {
 		StringBuffer tableBuffer = new StringBuffer(AbstractToken.LBRACE);
 		for (int i = 0; i < getNumAttributes(); i++) {

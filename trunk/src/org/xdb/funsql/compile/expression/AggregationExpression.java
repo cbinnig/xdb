@@ -2,11 +2,14 @@ package org.xdb.funsql.compile.expression;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.xdb.funsql.compile.operator.EnumAggregation;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
+import org.xdb.funsql.compile.tokens.TokenStar;
 import org.xdb.utils.StringTemplate;
 
 public class AggregationExpression extends AbstractExpression {
@@ -17,8 +20,10 @@ public class AggregationExpression extends AbstractExpression {
 	
 	
 	public AggregationExpression(AggregationExpression toCopy){
+		this();
 		
-		this.expr =  expr.deepCopy();
+		this.agg = toCopy.agg;
+		this.expr =  toCopy.expr.deepCopy();
 	}
 	
 	public AggregationExpression(){
@@ -49,6 +54,12 @@ public class AggregationExpression extends AbstractExpression {
 	}
 	
 	//methods
+	public static AggregationExpression createCountExpr(){
+		AggregationExpression countExpr = new AggregationExpression();
+		countExpr.setAggregation(EnumAggregation.CNT);
+		countExpr.setExpression(new SimpleExpression(new TokenStar()));
+		return countExpr;
+	}
 	
 	@Override
 	public Collection<TokenAttribute> getAttributes() {
@@ -63,6 +74,14 @@ public class AggregationExpression extends AbstractExpression {
 		return false;
 	}
 
+
+	@Override
+	public Set<AggregationExpression> getAggregations() {
+		Set<AggregationExpression> aggExprs = new HashSet<AggregationExpression>();
+		aggExprs.add(this);
+		return aggExprs;
+	}
+	
 	@Override
 	public String toSqlString() {
 		String sqlValue = this.expr.toSqlString();

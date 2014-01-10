@@ -29,8 +29,8 @@ import org.xdb.funsql.types.EnumSimpleType;
 public class CheckOperatorVisitor extends AbstractBottomUpTreeVisitor {
 	private Map<AbstractToken, EnumSimpleType> expType;
 
-	public CheckOperatorVisitor(Map<AbstractToken, EnumSimpleType> expType,
-			AbstractCompileOperator root) {
+	public CheckOperatorVisitor(AbstractCompileOperator root,
+			Map<AbstractToken, EnumSimpleType> expType) {
 		super(root);
 
 		this.expType = expType;

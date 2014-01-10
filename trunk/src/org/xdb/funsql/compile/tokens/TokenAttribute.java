@@ -151,7 +151,8 @@ public class TokenAttribute extends AbstractTokenOperand{
 	@Override
 	// hashCode is overridden in order to map equal TokenAttributes to the same bucket.
 	public int hashCode() {
-		return this.getName().getValue().hashCode();
+		int hash =  this.getName().getValue().hashCode();
+		return hash;
 	}
 	
 

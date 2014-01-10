@@ -68,7 +68,7 @@ public class SelectStmt extends AbstractServerStmt {
 
 	// temporary compiler variables
 	private int lastInternalAlias = 0;
-	private Identifier internalAlias = new Identifier("_INT_ALIAS");
+	private Identifier internalAlias = new Identifier("_ALIAS_COMPILE");
 	private HashMap<AbstractExpression, TokenIdentifier> internalAliases = new HashMap<AbstractExpression, TokenIdentifier>();
 	private Vector<AbstractPredicate> selectionPreds = new Vector<AbstractPredicate>();
 	private AbstractCompileOperator lastOp = null;
@@ -299,7 +299,7 @@ public class SelectStmt extends AbstractServerStmt {
 			}
 			lastOp = tableOp;
 		}
-		// join required
+		// join required: create left-deep plan
 		else {
 			// check if where predicate exists
 			if (this.tWherePredicate == null) {
@@ -308,20 +308,23 @@ public class SelectStmt extends AbstractServerStmt {
 			}
 
 			// check that number of potential join predicates is bigger than
-			Set<AbstractPredicate> wherePreds = this.tWherePredicate.splitAnd();
+			// number of tables-1
+			List<AbstractPredicate> wherePreds = this.tWherePredicate
+					.splitAnd();
 			if (wherePreds.size() < this.tTableAliases.size() - 1) {
 				return FunSQLCompiler
 						.createGenericCompileErr("Cartesian product not in SQL statement supported!");
 			}
 
-			// remaining where predicates not in join path
-			Set<AbstractPredicate> remainingWherePreds = new HashSet<AbstractPredicate>(
+			// remaining where-predicates not in join path
+			List<AbstractPredicate> remainingWherePreds = new ArrayList<AbstractPredicate>(
 					wherePreds);
-			// list of join predicates in join path
+			// list of join-predicates in join path
 			List<AbstractPredicate> joinPreds = new ArrayList<AbstractPredicate>();
 			// list of tables in join path
 			List<TokenIdentifier> joinTables = new ArrayList<TokenIdentifier>();
-			// indexes of right join in join predicates (0=first, 1=second)
+			// indexes of right join attribute in join predicates (0=first,
+			// 1=second)
 			List<Integer> rightJoinAttIdxs = new ArrayList<Integer>();
 
 			// find seed join predicate and two joined tables
@@ -349,9 +352,11 @@ public class SelectStmt extends AbstractServerStmt {
 
 			// find next join predicate and table to extend join path
 			while (joinTables.size() != this.tTableAliases.size()) {
-				wherePreds = new HashSet<AbstractPredicate>(remainingWherePreds);
+				wherePreds = new ArrayList<AbstractPredicate>(
+						remainingWherePreds);
 				boolean foundNextJoinPred = false;
 
+				// loop over all join predicates in order
 				predLoop: for (AbstractPredicate wherePred : wherePreds) {
 					if (wherePred.isEquiJoinPredicate()) {
 
@@ -362,29 +367,31 @@ public class SelectStmt extends AbstractServerStmt {
 									.getTable().getName();
 							TokenIdentifier tTableAlias2 = joinAtts[(joinAttIdx + 1) % 2]
 									.getTable().getName();
+
+							// if join predicate extends existing join path
+							// than add predicate and table info
 							if (joinTables.contains(tTableAlias1)
 									&& !joinTables.contains(tTableAlias2)) {
 								foundNextJoinPred = true;
-								joinAttIdx = (joinAttIdx + 1) % 2;
 								remainingWherePreds.remove(wherePred);
 								joinPreds.add(wherePred);
-								TokenIdentifier tTableAlias = joinAtts[joinAttIdx]
-										.getTable().getName();
-								joinTables.add(tTableAlias);
+								joinTables.add(tTableAlias2);
+								joinAttIdx = (joinAttIdx + 1) % 2;
 								rightJoinAttIdxs.add(joinAttIdx);
 								break predLoop;
 							}
 						}
 					}
 				}
+
+				// if no join extending predicate was found, then raise an error
 				if (!foundNextJoinPred) {
 					return FunSQLCompiler
 							.createGenericCompileErr("Cartesian product not in SQL statement supported!");
 				}
 			}
-			wherePreds = new HashSet<AbstractPredicate>(remainingWherePreds);
 
-			// add join and table operations to plan
+			// create left deep plan for join path
 			TokenIdentifier tTableAlias = joinTables.get(0);
 			TableOperator tableOp = new TableOperator(tTableAlias);
 			this.lastOp = tableOp;
@@ -395,16 +402,18 @@ public class SelectStmt extends AbstractServerStmt {
 				AbstractPredicate joinPred = joinPreds.get(i);
 				TokenAttribute[] joinAtts = joinPred.getAttributes().toArray(
 						new TokenAttribute[2]);
-				Integer joinAttIdx = rightJoinAttIdxs.get(i);
+				Integer rightJoinAttIdx = rightJoinAttIdxs.get(i);
 				EquiJoin ej = new EquiJoin(this.lastOp, tableOp,
-						joinAtts[(joinAttIdx + 1) % 2], joinAtts[joinAttIdx]);
+						joinAtts[(rightJoinAttIdx + 1) % 2],
+						joinAtts[rightJoinAttIdx]);
 
 				this.addTableToPlan(tableOp);
 				this.plan.addOperator(ej, false);
 				this.lastOp = ej;
 			}
 
-			// set selection predicates for
+			// set remaining predicates for creating the selection operator
+			wherePreds = new ArrayList<AbstractPredicate>(remainingWherePreds);
 			if (wherePreds.size() > 0) {
 				this.selectionPreds.addAll(wherePreds);
 			}
