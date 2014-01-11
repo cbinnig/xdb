@@ -216,7 +216,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 		for (TokenAttribute att : op.getResult().getAttributes()) {
 			this.selectAliases.add(att.getName());
 			AbstractExpression newExpr = op.getExpression(i)
-					.replaceExpressions(this.replaceExprMap);
+					.replaceAttribtues(this.replaceExprMap);
 			this.selectExpressions.add(newExpr);
 			newReplaceMap.put(att.getName(), newExpr);
 			i++;
@@ -276,7 +276,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 			TokenAttribute att = op.getResult().getAttribute(i);
 			this.selectAliases.add(att.getName());
 			AbstractExpression newExpr = op.getAggregationExpression(i)
-					.replaceExpressions(this.replaceExprMap);
+					.replaceAttribtues(this.replaceExprMap);
 			this.aggExpressions.add(newExpr);
 			newReplaceMap.put(att.getName(), newExpr);
 			i++;
@@ -288,7 +288,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 			TokenAttribute att = op.getResult().getAttribute(i);
 			this.selectAliases.add(att.getName());
 			AbstractExpression newExpr = op.getGroupExpression(j)
-					.replaceExpressions(this.replaceExprMap);
+					.replaceAttribtues(this.replaceExprMap);
 			this.groupExpressions.add(newExpr);
 			newReplaceMap.put(att.getName(), newExpr);
 			i++;

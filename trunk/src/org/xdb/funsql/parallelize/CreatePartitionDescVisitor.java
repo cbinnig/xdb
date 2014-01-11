@@ -89,26 +89,31 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		if (!doRepartition) {
 			// create pre-aggregation operator
 			Map<AbstractExpression, AbstractExpression> replaceExpr = new HashMap<AbstractExpression, AbstractExpression>();
-			GenericAggregation preAgg = this.createPreAggregation(ga,
-					replaceExpr);
-
-			// create re-partitioning for pre-aggregation operator
+			
+			// create partitioning description for both aggregation operators
 			PartitionDesc childPartDesc = childPartDescs.iterator().next();
 			EnumPartitionType rePartType = EnumPartitionType
 					.getMaterializeType();
-			PartitionDesc rePartDesc = new PartitionDesc(rePartType,
+			PartitionDesc preAggRePartDesc = new PartitionDesc(rePartType,
 					childPartDesc.getPartitionNumber());
+			PartitionDesc postAggPartDesc = new PartitionDesc(preAggRePartDesc);
+			
+			//Create pre-aggregation operator
+			GenericAggregation preAgg = this.createPreAggregation(ga,
+					replaceExpr);
 			for(TokenIdentifier grpAlias: preAgg.getGroupAliases()){
-				rePartDesc.addPartAttributes(new TokenAttribute(grpAlias));
+				preAggRePartDesc.addPartAttributes(new TokenAttribute(grpAlias));
 			}
-			preAgg.getResult().setPartitionDesc(rePartDesc);
-			this.storePartDesc(preAgg.getOperatorId(), rePartDesc);
+			preAgg.getResult().setPartitionDesc(preAggRePartDesc);
+			this.storePartDesc(preAgg.getOperatorId(), preAggRePartDesc);
 			
 			//create post-aggregation operator
 			GenericAggregation postAgg = this.createPostAggregation(ga, preAgg,
 					replaceExpr);
-
-			this.storePartDesc(postAgg.getOperatorId(), rePartDesc);
+			for(TokenIdentifier grpAlias: postAgg.getGroupAliases()){
+				postAggPartDesc.addPartAttributes(new TokenAttribute(grpAlias));
+			}
+			this.storePartDesc(postAgg.getOperatorId(), preAggRePartDesc);
 		} else {
 			this.storePartDescs(ga.getOperatorId(), childPartDescs);
 		}
@@ -475,7 +480,8 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 
 		agg.setChild(preAgg);
 		preAgg.addParent(agg);
-
+		agg.replaceExpression(replaceExpr);
+		
 		return agg;
 	}
 }

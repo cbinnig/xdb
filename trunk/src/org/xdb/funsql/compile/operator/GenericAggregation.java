@@ -117,6 +117,20 @@ public class GenericAggregation extends AbstractUnaryOperator {
 	}
 
 	//methods
+	public void replaceExpression(Map<AbstractExpression, AbstractExpression> replaceExpr){
+		Vector<AbstractExpression> newAggExprs = new Vector<AbstractExpression>(this.aggExprs.size());
+		for(AbstractExpression aggExpr: this.aggExprs){
+			newAggExprs.add(aggExpr.replaceExpressions(replaceExpr));
+		}
+		this.aggExprs = newAggExprs;
+		
+		Vector<AbstractExpression> newGroupExprs = new Vector<AbstractExpression>(this.groupExprs.size());
+		for(AbstractExpression grpExpr: this.groupExprs){
+			newGroupExprs.add(grpExpr.replaceExpressions(replaceExpr));
+		}
+		this.groupExprs = newGroupExprs;
+	}
+	
 	@Override
 	public String toSqlString() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
