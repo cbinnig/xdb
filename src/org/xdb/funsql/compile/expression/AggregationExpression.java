@@ -120,11 +120,21 @@ public class AggregationExpression extends AbstractExpression {
 	}
 
 	@Override
-	public AbstractExpression replaceExpressions(
+	public AbstractExpression replaceAttribtues(
 			Map<TokenIdentifier, AbstractExpression> exprs) {
-		
+		if(exprs.containsKey(this)){
+			return exprs.get(this);
+		}
+		else{
+			this.expr = this.expr.replaceAttribtues(exprs);
+			return this;
+		}
+	}
+
+	@Override
+	public AbstractExpression replaceExpressions(
+			Map<AbstractExpression, AbstractExpression> exprs) {
 		this.expr = this.expr.replaceExpressions(exprs);
 		return this;
-		
 	}
 }

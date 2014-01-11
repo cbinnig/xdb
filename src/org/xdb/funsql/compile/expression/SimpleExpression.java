@@ -118,7 +118,7 @@ public class SimpleExpression extends AbstractExpression {
 	}
 
 	@Override
-	public AbstractExpression replaceExpressions(
+	public AbstractExpression replaceAttribtues(
 			Map<TokenIdentifier, AbstractExpression> exprs) {
 		if(this.isAttribute()){
 			TokenAttribute att1 = this.getAttribute();
@@ -126,6 +126,15 @@ public class SimpleExpression extends AbstractExpression {
 				return exprs.get(att1.getName());
 		}
 		return this;
+	}
+
+	@Override
+	public AbstractExpression replaceExpressions(
+			Map<AbstractExpression, AbstractExpression> exprs) {
+		if(exprs.containsKey(this))
+			return exprs.get(this);
+		else
+			return this;
 	}
 	
 }

@@ -130,10 +130,10 @@ public class SimplePredicate extends AbstractPredicate {
 	@Override
 	public AbstractPredicate replaceExpressions(
 			Map<TokenIdentifier, AbstractExpression> exprs) {
-		this.expr1.replaceExpressions(exprs);
+		this.expr1.replaceAttribtues(exprs);
 		
 		if(this.expr2!=null){
-			this.expr2.replaceExpressions(exprs);
+			this.expr2.replaceAttribtues(exprs);
 		}
 
 		return this;
