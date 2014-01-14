@@ -133,7 +133,7 @@ public class ResultDesc implements Serializable, Cloneable {
 
 		tableBuffer.append(AbstractToken.RBRACE);
 		// tableBuffer.append(" ENGINE=MEMORY ");
-		if (this.repartition) {
+		if (this.partitionCnt>1 && this.repartition) {
 			tableBuffer.append(AbstractToken.BLANK);
 			tableBuffer.append(this.partDesc.toSqlString());
 		}

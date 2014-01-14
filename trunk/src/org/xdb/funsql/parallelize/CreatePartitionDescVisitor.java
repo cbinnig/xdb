@@ -41,6 +41,7 @@ import org.xdb.utils.Identifier;
 
 /**
  * Annotates each operator in a compile plan with partitioning info
+ * Avoids re-partitioning when result has only 1 partition!!!
  * 
  * @author cbinnig
  * 
@@ -82,20 +83,21 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		Identifier childId = ga.getChild().getOperatorId();
 		Set<PartitionDesc> childPartDescs = this.getPartDescs(childId);
 		Collection<AbstractExpression> groupExprs = ga.getGroupExpressions();
-
+		PartitionDesc childPartDesc = childPartDescs.iterator().next();
+		int partNumber = childPartDesc.getPartitionNumber();
+		
 		boolean doRepartition = this.isPartDescCompatible(childPartDescs,
-				groupExprs);
+				groupExprs) && (partNumber>1);
 
-		if (!doRepartition) {
+		if (doRepartition) {
 			// create pre-aggregation operator
 			Map<AbstractExpression, AbstractExpression> replaceExpr = new HashMap<AbstractExpression, AbstractExpression>();
 			
 			// create partitioning description for both aggregation operators
-			PartitionDesc childPartDesc = childPartDescs.iterator().next();
 			EnumPartitionType rePartType = EnumPartitionType
 					.getMaterializeType();
 			PartitionDesc preAggRePartDesc = new PartitionDesc(rePartType,
-					childPartDesc.getPartitionNumber());
+					partNumber);
 			PartitionDesc postAggPartDesc = new PartitionDesc(preAggRePartDesc);
 			
 			//Create pre-aggregation operator
@@ -135,7 +137,9 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		Set<PartitionDesc> leftPartDescs = this.getPartDescs(leftId);
 		Set<PartitionDesc> rightPartDescs = this.getPartDescs(rightId);
 		Set<PartitionDesc> joinPartDescs = new HashSet<PartitionDesc>();
-
+		PartitionDesc rightPartDesc = rightPartDescs.iterator().next();
+		int rightPartNumber = rightPartDesc.getPartitionNumber();
+		
 		// check if one input must be re-partitioned
 		boolean doRepartition = true;
 		if ((this.isPartDescCompatible(leftPartDescs,
@@ -144,21 +148,22 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 				&& this.isPartDescCompatible(leftPartDescs, rightPartDescs)) {
 			doRepartition = false;
 		}
+		if(rightPartNumber == 1){
+			doRepartition = false;
+		}
 
 		// do re-partition if both inputs are not compatible
 		if (doRepartition) {
-
 			// re-partition left input
 			ResultDesc leftResult = ej.getLeftChild().getResult();
 			leftResult.materialize(true);
 			leftResult.repartition(true);
 
 			// create partition description for re-partitioning left input
-			PartitionDesc rightPartDesc = rightPartDescs.iterator().next();
 			EnumPartitionType leftRePartType = EnumPartitionType
 					.getMaterializeType();
 			PartitionDesc leftRePartDesc = new PartitionDesc(leftRePartType,
-					rightPartDesc.getPartitionNumber());
+					rightPartNumber);
 			leftRePartDesc.addPartAttributes(ej.getLeftTokenAttribute());
 			leftResult.setPartitionDesc(leftRePartDesc);
 
@@ -221,6 +226,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		Set<PartitionDesc> partDescs = this.getPartDescs(ro.getChild()
 				.getOperatorId());
 		this.storePartDescs(ro.getOperatorId(), partDescs);
+		
 		// TODO: Rename attributes according to operator
 
 		return err;
