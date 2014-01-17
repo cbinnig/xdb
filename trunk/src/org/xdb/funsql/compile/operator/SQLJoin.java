@@ -201,7 +201,8 @@ public class SQLJoin extends AbstractJoinOperator {
 		// put join params into map
 		int idx = 0;
 		TokenPair tokenPair;
-		// go backwards throug tokenpairs
+		
+		// go backwards through token pairs
 		for (int n = this.getJointokens().size() - 1; n >= 0; n--) {
 			tokenPair = this.getJointokens().get(n);
 
@@ -252,7 +253,6 @@ public class SQLJoin extends AbstractJoinOperator {
 
 	@Override
 	public SQLJoin clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
 		return (SQLJoin) super.clone();
 	}
 }

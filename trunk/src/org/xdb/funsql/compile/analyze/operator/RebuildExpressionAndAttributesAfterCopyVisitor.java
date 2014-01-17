@@ -19,14 +19,7 @@ import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 
 /**
- * This Visitor is used to rebuild the table names (e.g 1_1) of all operators in
- * a given copies Compile Plan. For this purpose it needs a Map as input contain
- * a mapping from the original Version of an Operator and the copied Version.
- * 
- * This Method should only been used in this context. Because it does not
- * support higher operators like SQL Combined or Renamed
- * 
- * @author A.C.Mueller
+ * TODO: delete this class
  * 
  */
 public class RebuildExpressionAndAttributesAfterCopyVisitor extends
@@ -63,7 +56,6 @@ public class RebuildExpressionAndAttributesAfterCopyVisitor extends
 
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
-		// TODO Auto-generated method stub
 		return error;
 	}
 

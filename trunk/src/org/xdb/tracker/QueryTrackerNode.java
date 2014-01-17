@@ -190,7 +190,7 @@ public class QueryTrackerNode {
 	public static Error annotateCompilePlan(CompilePlan cplan) {
 		Error err = new Error();
 
-		// Annotate Connection
+		// Annotate Connections to each operator of Compile Plan
 		for (Identifier rootId : cplan.getRootIds()) {
 			AbstractCompileOperator root = cplan.getOperator(rootId);
 			AbstractAnnotationVisitor annotationVisitor = AbstractAnnotationVisitor.createAnnotationVisitor(root);

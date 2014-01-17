@@ -69,7 +69,7 @@ public class FunctionCall extends AbstractCompileOperator implements Cloneable {
 	
 	@Override
 	public String toSqlString() {
-		return this.function.toSqlString();//TODO
+		return this.function.toSqlString();
 	}
 	
 	@Override

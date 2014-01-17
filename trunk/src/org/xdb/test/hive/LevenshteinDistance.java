@@ -51,13 +51,4 @@ public class LevenshteinDistance extends UDF {
 		}
 		return 1-((double)distance[length1][length2]) / Math.max(length1, length2);
 	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
 }

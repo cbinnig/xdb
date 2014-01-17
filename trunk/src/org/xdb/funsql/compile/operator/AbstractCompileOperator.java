@@ -196,6 +196,10 @@ public abstract class AbstractCompileOperator implements Serializable {
 		this.parents.set(parentIdx, sqlUnaryOp);
 	}
 
+	public boolean isTable(){
+		return this.type.equals(EnumOperator.TABLE);
+	}
+	
 	// methods
 
 	/**

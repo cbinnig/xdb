@@ -436,7 +436,6 @@ public class SQLUnary extends AbstractUnaryOperator {
 
 	@Override
 	public SQLUnary clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
 		return (SQLUnary) super.clone();
 	}
 

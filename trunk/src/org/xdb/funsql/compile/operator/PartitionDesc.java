@@ -125,7 +125,7 @@ public class PartitionDesc implements Serializable {
 		}
 	}
 
-	public String toSqlString() {
+	public String getRepartDDL() {
 		StringBuffer buffer = new StringBuffer();
 
 		buffer.append(AbstractToken.PARTITION);
@@ -169,7 +169,7 @@ public class PartitionDesc implements Serializable {
 
 	@Override
 	public String toString() {
-		return this.toSqlString();
+		return this.getRepartDDL();
 	}
 
 	@Override

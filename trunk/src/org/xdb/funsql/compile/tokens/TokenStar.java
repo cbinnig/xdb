@@ -19,6 +19,12 @@ public class TokenStar extends AbstractTokenOperand {
 	}
 
 	@Override
+	public boolean isLiteral() {
+		return false;
+	}
+
+	
+	@Override
 	public AbstractTokenOperand clone() {
 		return this;
 	}

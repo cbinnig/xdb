@@ -1,6 +1,5 @@
 package org.xdb.funsql.codegen;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,10 +12,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.xdb.Config;
+import org.xdb.error.EnumError;
+import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.EnumOperator;
+import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.operator.TableOperator;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.metadata.Connection;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
@@ -24,8 +26,6 @@ import org.xdb.tracker.operator.MySQLTrackerOperator;
 import org.xdb.tracker.operator.TableDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
-import org.xdb.error.EnumError;
-import org.xdb.error.Error;
 
 /**
  * Generates a query tracker plan for a given compile plan
@@ -37,8 +37,11 @@ public class CodeGenerator {
 	// constants
 	private static final String TAB1 = "TAB1";
 	private static final String SQL1 = "SQL1";
-	public static final String OUT_SUFFIX = "OUT";
-
+	private static final String PART1 = "PART1";
+	public static final String OUT_PREFIX = "OUT";
+	public static final String PART_PREFIX = "P";
+	public static final String TABLE_PREFIX = "_";
+	
 	// compile plan
 	private CompilePlan compilePlan;
 
@@ -50,18 +53,24 @@ public class CodeGenerator {
 	private Map<Identifier, Set<Identifier>> consumers = new HashMap<Identifier, Set<Identifier>>();
 
 	// mapping: compile operator ID -> tracker operator ID
-	private Map<Identifier, Identifier> compileOp2trackerOp = new HashMap<Identifier, Identifier>();
+	private Map<Identifier, List<Identifier>> compileOp2trackerOp = new HashMap<Identifier, List<Identifier>>();
 
 	// roots of sub-plans: each sub-plan results in one tracker operator
 	private List<Identifier> splitOpIds;
 
 	// templates for SQL code generation
-	private final StringTemplate sqlDMLTemplate = new StringTemplate(
+	private final StringTemplate sqlExecuteDMLTemplate = new StringTemplate(
 			"INSERT INTO <<" + TAB1 + ">> (<" + SQL1 + ">)");
 
-	private final StringTemplate sqlDDLTemplate = new StringTemplate("<<"
+	private final StringTemplate sqlInOutDDLTemplate = new StringTemplate("<<"
 			+ TAB1 + ">> <" + SQL1 + ">");
 
+	private final StringTemplate sqlSelectPartDMLTemplate = new StringTemplate(
+			"SELECT * FROM <<" + TAB1 + ">>  PARTITION (<" + PART1 + ">)");
+
+	private final StringTemplate sqlUnionPartDMLTemplate = new StringTemplate(
+			"SELECT * FROM <<" + TAB1 + ">>");
+	
 	// last error
 	private Error err;
 
@@ -75,6 +84,19 @@ public class CodeGenerator {
 	// getter and setter
 	public QueryTrackerPlan getQueryTrackerPlan() {
 		return this.qtPlan;
+	}
+
+	private void addCompileOp2TrackerOp(Identifier compileId,
+			Identifier trackerId) {
+		List<Identifier> trackerIds;
+
+		if (!this.compileOp2trackerOp.containsKey(compileId)) {
+			trackerIds = new ArrayList<Identifier>();
+			this.compileOp2trackerOp.put(compileId, trackerIds);
+		} else {
+			trackerIds = this.compileOp2trackerOp.get(compileId);
+		}
+		trackerIds.add(trackerId);
 	}
 
 	// methods
@@ -104,11 +126,277 @@ public class CodeGenerator {
 		}
 
 		// generate a tracker operators
-		this.generateTrackerPlan();
+		this.genTrackerPlan();
 		if (this.err.isError())
 			return this.err;
 
 		return this.err;
+	}
+
+	/**
+	 * Optimize compile plan for MySQL code generation
+	 */
+	private void optimize() {
+		if (!Config.CODEGEN_OPTIMIZE)
+			return;
+
+		int i = 1;
+		for (Identifier splitOpId : this.splitOpIds) {
+			// get splitOp from compile plan as root for optimization
+			AbstractCompileOperator splitOp = this.compilePlan
+					.getOperator(splitOpId);
+			this.err = combineJoins(splitOp);
+			if (this.err.isError())
+				return;
+
+			if (Config.TRACE_CODEGEN_PLAN)
+				this.compilePlan.tracePlan(compilePlan.getClass()
+						.getCanonicalName()
+						+ "_CODEGEN_PHASE"
+						+ i
+						+ "_"
+						+ splitOp.getOperatorId() + "_CombinedJoins");
+
+			// get splitOp again since it might have be replaced
+			splitOp = this.compilePlan.getOperator(splitOpId);
+			this.err = combineUnaryOps(splitOp);
+			if (this.err.isError())
+				return;
+
+			if (Config.TRACE_CODEGEN_PLAN)
+				this.compilePlan.tracePlan(compilePlan.getClass()
+						.getCanonicalName()
+						+ "_CODEGEN_PHASE"
+						+ i
+						+ "_"
+						+ splitOp.getOperatorId() + "_CombinedUnaries");
+
+			// get splitOp again since it might have be replaced
+			splitOp = this.compilePlan.getOperator(splitOpId);
+			this.err = combineSQLOps(splitOp);
+			if (this.err.isError())
+				return;
+
+			if (Config.TRACE_CODEGEN_PLAN)
+				this.compilePlan.tracePlan(compilePlan.getClass()
+						.getCanonicalName()
+						+ "_CODEGEN_PHASE"
+						+ i
+						+ "_"
+						+ splitOp.getOperatorId() + "_Combined");
+			++i;
+		}
+	}
+
+	/**
+	 * Renames attributes to original names in tables
+	 * e.g., from LINEITEM_L_ORDERKEY to L_ORDERKEY
+	 */
+	private void rename() {
+		ReRenameAttributesVisitor renameVisitor;
+		for (AbstractCompileOperator root : this.compilePlan
+				.getRootsCollection()) {
+			renameVisitor = new ReRenameAttributesVisitor(root);
+			this.err = renameVisitor.visit();
+
+			if (err.isError())
+				return;
+		}
+	}
+
+	/**
+	 * Generates (parallelized) QueryTrackerPlan 
+	 * (which includes repartitioning) 
+	 */
+	private void genTrackerPlan() {
+
+		// for each sub-plan generate a tracker operator
+		for (Identifier splitOpId : this.splitOpIds) {
+			AbstractCompileOperator splitCompileOp = this.compilePlan
+					.getOperator(splitOpId);
+			AbstractTrackerOperator trackerOp = null;
+			try {
+				ResultDesc splitResult = splitCompileOp.getResult();
+
+				// generate one tracker operator for each partition
+				for (int i = 0; i < splitResult.getPartitionCount(); ++i) {
+					trackerOp = this.genTrackerOp(splitCompileOp, i);
+				}
+
+			} catch (URISyntaxException e) {
+				String[] args = { e.toString() };
+				this.err = new Error(EnumError.COMPILER_GENERIC, args);
+				return;
+			}
+
+			// add mapping: compile operator -> tracker operator
+			this.addCompileOp2TrackerOp(splitCompileOp.getOperatorId(),
+					trackerOp.getOperatorId());
+		}
+
+		// connect tracker operator in QueryTrackerPlan
+		for (Map.Entry<Identifier, Set<Identifier>> entry : this.sources
+				.entrySet()) {
+			this.qtPlan.setSources(entry.getKey(), entry.getValue());
+		}
+
+		for (Map.Entry<Identifier, Set<Identifier>> entry : this.consumers
+				.entrySet()) {
+			this.qtPlan.setConsumers(entry.getKey(), entry.getValue());
+		}
+	}
+
+	private void addTrackerExecuteDML(MySQLTrackerOperator trackerOp,
+			AbstractCompileOperator compileOp) {
+		// add DML statement for execution
+		Identifier outTableId = this.genOutputTableName(compileOp);
+		String outTableName = outTableId.toString();
+		String executeDML = genExecuteDML(compileOp);
+		Map<String, String> args = new HashMap<String, String>();
+		args.put(SQL1, executeDML);
+		args.put(TAB1, outTableName);
+		executeDML = this.sqlExecuteDMLTemplate.toString(args);
+		trackerOp.addExecuteSQL(new StringTemplate(executeDML));
+	}
+
+	private void addTrackerOutputDDL(MySQLTrackerOperator trackerOp,
+			AbstractCompileOperator compileOp) {
+		Identifier outTableId = this.genOutputTableName(compileOp);
+		String outTableName = outTableId.toString();
+
+		Map<String, String> args = new HashMap<String, String>();
+		ResultDesc outputResult = compileOp.getResult();
+		String outAttsDDL = outputResult.getAttsDDL();
+		args.put(SQL1, outAttsDDL);
+		args.put(TAB1, outTableName);
+		outAttsDDL = this.sqlInOutDDLTemplate.toString(args);
+
+		// add output table w repartition specification
+		if (outputResult.repartition()) {
+			String repartitionDDL = outputResult.getRepartDDL();
+			trackerOp.addOutTable(outTableName, outAttsDDL, repartitionDDL);
+
+			// add one output view for each partition
+			for (Integer i = 0; i < outputResult.getPartitionCount(); ++i) {
+				Identifier outViewId = this.genOutputTableName(compileOp, i);
+				args.put(TAB1, outTableName);
+				args.put(PART1, i.toString());
+
+				String outputViewName = outViewId.toString();
+				String selectPartDML = sqlSelectPartDMLTemplate.toString(args);
+
+				trackerOp.addOutView(outputViewName, selectPartDML);
+			}
+		}
+		// add output table w/o repartition specification
+		else {
+			trackerOp.addOutTable(outTableName, outAttsDDL);
+		}
+	}
+
+	private void addTrackerInputDDL(MySQLTrackerOperator trackerOp,
+			AbstractCompileOperator compileOp, int partNum) {
+		
+		Map<String, String> args = new HashMap<String, String>();
+		Set<AbstractCompileOperator> inputCompileOps = this
+				.getInputOps(compileOp);
+		
+		//for each input operator create input DDL
+		for (AbstractCompileOperator inputCompileOp : inputCompileOps) {
+			// generate input DDL
+			ResultDesc inputResult = inputCompileOp.getResult();
+
+			/** Create input table DDL **/
+			Identifier inTableId = this.genInputTableName(inputCompileOp);
+			String inTableName = inTableId.toString();
+			String inAttsDDL = inputResult.getAttsDDL();
+			args.put(SQL1, inAttsDDL);
+			
+			// if input is a table -> use a different name
+			if (inputCompileOp.isTable()) {
+				inTableName = TABLE_PREFIX + inTableName;
+			}
+			
+			if (inputResult.repartition()) {
+				StringBuffer sqlUnionDML = new StringBuffer();
+				for(int i=0; i<partNum;++i){
+					Identifier inPartId = this.genOutputTableName(
+							inputCompileOp, partNum);
+					String inPartName = inPartId.toString();
+					args.put(TAB1, inPartName);
+					inAttsDDL = this.sqlInOutDDLTemplate.toString(args);
+					
+					trackerOp
+					.addInTable(inPartName, new StringTemplate(inAttsDDL));
+					
+					if(i>0){
+						sqlUnionDML.append(AbstractToken.BLANK);
+						sqlUnionDML.append(AbstractToken.UNION);
+						sqlUnionDML.append(AbstractToken.BLANK);
+					}
+					
+					sqlUnionDML.append(AbstractToken.LBRACE);
+					sqlUnionDML.append(this.sqlUnionPartDMLTemplate.toString(args));
+					sqlUnionDML.append(AbstractToken.RBRACE);
+				}
+				trackerOp.addInView(inTableName, sqlUnionDML.toString());
+			} else {
+				
+				args.put(TAB1, inTableName);
+				inAttsDDL = this.sqlInOutDDLTemplate.toString(args);
+				trackerOp
+						.addInTable(inTableName, new StringTemplate(inAttsDDL));
+			}
+
+			/** Create input table description **/
+			// if input is a table: add catalog info to tracker operator
+			if (inputCompileOp.isTable()) { // table
+				TableOperator inputTableOp = (TableOperator) inputCompileOp;
+
+				if (inputResult.repartition()) {
+					TableDesc tableDesc = new TableDesc(
+							inputTableOp.getTableName(partNum), inputTableOp.getURIs(partNum));
+					trackerOp.setInTableSource(inTableName, tableDesc);
+				} else {
+					TableDesc tableDesc = new TableDesc(
+							inputTableOp.getTableName(), inputTableOp.getURIs());
+					trackerOp.setInTableSource(inTableName, tableDesc);
+				}
+			}
+			// else: use intermediate result as table (with _OUT suffix)
+			else {
+				// if input is repartitioned
+				if (inputResult.repartition()) {
+					// create one input per partition
+					int remotePart = 0;
+					for (Identifier inTrackerOpId : this.compileOp2trackerOp
+							.get(inputCompileOp.getOperatorId())) {
+
+						Identifier inPartRemoteId = this.genOutputTableName(
+								inputCompileOp, remotePart);
+						Identifier inPartId = this.genInputTableName(inputCompileOp);
+						String inPartName = inPartId.toString();
+
+						TableDesc tableDesc = new TableDesc(
+								inPartRemoteId.toString(), inTrackerOpId);
+						trackerOp.setInTableSource(inPartName, tableDesc);
+						this.addTrackerDependency(inTrackerOpId,
+								trackerOp.getOperatorId());
+					}
+				} else {
+					// create one input table
+					Identifier inTableRemoteId = this
+							.genOutputTableName(inputCompileOp);
+					Identifier inTrackerOpId = this.compileOp2trackerOp.get(
+							inputCompileOp.getOperatorId()).get(partNum);
+					TableDesc tableDesc = new TableDesc(
+							inTableRemoteId.toString(), inTrackerOpId);
+					trackerOp.setInTableSource(inTableName, tableDesc);
+					this.addTrackerDependency(inTrackerOpId,
+							trackerOp.getOperatorId());
+				}
+			}
+		}
 	}
 
 	/**
@@ -119,85 +407,23 @@ public class CodeGenerator {
 	 * @return
 	 * @throws URISyntaxException
 	 */
-	private AbstractTrackerOperator generateTrackerOp(
-			AbstractCompileOperator compileOp) throws URISyntaxException {
-
+	private AbstractTrackerOperator genTrackerOp(
+			AbstractCompileOperator compileOp, int partNum)
+			throws URISyntaxException {
 		// generate a new MySQL operator
 		MySQLTrackerOperator trackerOp = new MySQLTrackerOperator();
 		this.qtPlan.addOperator(trackerOp);
 
-		// add DML statement for execution of operator
-		String outTableName = compileOp.getOperatorId().clone()
-				.append(OUT_SUFFIX).toString();
-		String executeDML = generateExecuteDML(compileOp);
-		HashMap<String, String> args = new HashMap<String, String>();
-		args.put(SQL1, executeDML);
-		args.put(TAB1, outTableName);
-		executeDML = this.sqlDMLTemplate.toString(args);
-		trackerOp.addExecuteSQL(new StringTemplate(executeDML));
+		// add DML statement for execution
+		this.addTrackerExecuteDML(trackerOp, compileOp);
 
-		// add DDL statement for creating output table
-		String outDDL = generateResultDDL(compileOp);
-		args.put(SQL1, outDDL);
-		outDDL = this.sqlDDLTemplate.toString(args);
-		trackerOp.addOutTable(outTableName, new StringTemplate(outDDL));
+		// add DDL statements for output tables
+		this.addTrackerOutputDDL(trackerOp, compileOp);
 
-		// add DDL statements for each input table
-		Set<AbstractCompileOperator> inputCompileOps = getInputOps(compileOp);
-		for (AbstractCompileOperator inputCompileOp : inputCompileOps) {
+		// add DDL statements for input tables
+		this.addTrackerInputDDL(trackerOp, compileOp, partNum);
 
-			// generate input DDL
-			TableOperator inputTableOp = null;
-			String inDDL = null;
-			String inTableName = inputCompileOp.getOperatorId().clone()
-					.toString();
-
-			// if input is a table, use other table name for input
-			if (inputCompileOp.getType().equals(EnumOperator.TABLE)) {
-				inputTableOp = (TableOperator) inputCompileOp;
-				inTableName = TableOperator.TABLE_PREFIX + inTableName;
-				inDDL = inputTableOp.getAttsDDL();
-			}
-			// else is input is a sub-plan
-			else {
-				inDDL = generateResultDDL(inputCompileOp);
-			}
-
-			args.put(SQL1, inDDL);
-			args.put(TAB1, inTableName);
-			inDDL = this.sqlDDLTemplate.toString(args);
-			trackerOp.addInTable(inTableName, new StringTemplate(inDDL));
-
-			// if input is a table: add catalog info to tracker operator
-			if (inputCompileOp.getType().equals(EnumOperator.TABLE)) { // table
-				
-				// Add all connections to the table description
-				List<Connection> tableConnections = inputTableOp
-						.getConnections();
-				List<URI> uris = new ArrayList<URI>();
-				for (Connection connection : tableConnections) {
-					uris.add(URI.create(connection.getUrl()));
-				}
-
-				TableDesc tableDesc = new TableDesc(inputTableOp.getTableName(), uris);
-
-				trackerOp.setInTableSource(inTableName, tableDesc);
-			}
-			// else: use intermediate result as table (with _OUT suffix)
-			else {
-				String inTableNameRemote = inputCompileOp.getOperatorId()
-						.clone().append(OUT_SUFFIX).toString();
-				Identifier inTrackerOpId = this.compileOp2trackerOp
-						.get(inputCompileOp.getOperatorId());
-				TableDesc tableDesc = new TableDesc(inTableNameRemote,
-						inTrackerOpId);
-				trackerOp.setInTableSource(inTableName, tableDesc);
-				this.addTrackerDependency(inTrackerOpId,
-						trackerOp.getOperatorId());
-			}
-		}
-
-		// add connections from compile plan to tracker operator
+		// add connections to tracker operator
 		Set<AbstractCompileOperator> queryTrackerCompileOps = getQueryTrackerCompileOps(compileOp);
 		List<Connection> trackerOpConnections = extractTrackerOpConnections(queryTrackerCompileOps);
 		trackerOp.setTrackerOpConnections(trackerOpConnections);
@@ -362,39 +588,51 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Generate DDL statement to store output of a tracker operator from result
-	 * description of compile operator (i.e., root of sub-plan)
-	 * 
-	 * @param compileOp
-	 * @return
-	 */
-	private String generateResultDDL(AbstractCompileOperator compileOp) {
-		return compileOp.getResult().toSqlString();
-	}
-
-	/**
 	 * Generate DML statement for execution
 	 * 
 	 * @param compileOp
 	 * @return
 	 */
-	private String generateExecuteDML(AbstractCompileOperator compileOp) {
-		HashMap<String, String> args = new HashMap<String, String>();
-		StringTemplate sqlTemplate = new StringTemplate(compileOp.toSqlString());
+	private String genExecuteDML(AbstractCompileOperator compileOp) {
+		Map<String, String> args = new HashMap<String, String>();
+		String executeDML = compileOp.toSqlString();
+
+		StringTemplate sqlTemplate = new StringTemplate(executeDML);
 		for (AbstractCompileOperator childOp : compileOp.getChildren()) {
 			if (!this.splitOpIds.contains(childOp.getOperatorId())) {
-				// generate code: use no "(...)" for tables
-				if (childOp.getType().equals(EnumOperator.TABLE)) {
-					args.put(childOp.getOperatorId().toString(),
-							this.generateExecuteDML(childOp));
-				} else {
-					args.put(childOp.getOperatorId().toString(),
-							"(" + this.generateExecuteDML(childOp) + ")");
+				String childExecuteDML = this.genExecuteDML(childOp);
+
+				// generate code: use "(...)" for sub-queries
+				if (!childOp.isTable()) {
+					childExecuteDML = AbstractToken.LBRACE + childExecuteDML
+							+ AbstractToken.RBRACE;
 				}
+				args.put(childOp.getOperatorId().toString(), childExecuteDML);
 			}
 		}
 
 		return sqlTemplate.toString(args);
+	}
+
+	private Identifier genOutputTableName(
+			final AbstractCompileOperator compileOp) {
+		return compileOp.getOperatorId().clone().append(OUT_PREFIX);
+	}
+
+	private Identifier genOutputTableName(
+			final AbstractCompileOperator compileOp, final int partNum) {
+		return compileOp.getOperatorId().clone().append(PART_PREFIX + partNum)
+				.append(OUT_PREFIX);
+	}
+
+	private Identifier genInputTableName(final AbstractCompileOperator compileOp) {
+		return compileOp.getOperatorId().clone();
+	}
+
+	@SuppressWarnings("unused")
+	private Identifier genInputTableName(
+			final AbstractCompileOperator compileOp, final int partNum) {
+		return compileOp.getOperatorId().clone().append(PART_PREFIX + partNum);
 	}
 
 	/**
@@ -415,107 +653,6 @@ public class CodeGenerator {
 				return null;
 		}
 		return splitVisitor.getSplitOpIds();
-	}
-
-	/**
-	 * Renames attributes to original names in tables
-	 */
-	private void rename() {
-		ReRenameAttributesVisitor renameVisitor;
-		for (AbstractCompileOperator root : this.compilePlan
-				.getRootsCollection()) {
-			renameVisitor = new ReRenameAttributesVisitor(root);
-			this.err = renameVisitor.visit();
-
-			if (err.isError())
-				return;
-		}
-	}
-
-	/**
-	 * Optimize compile plan for MySQL code generation
-	 */
-	private void optimize() {
-		if (!Config.CODEGEN_OPTIMIZE)
-			return;
-
-		int i = 1;
-		for (Identifier splitOpId : this.splitOpIds) {
-			// get splitOp from compile plan as root for optimization
-			AbstractCompileOperator splitOp = this.compilePlan
-					.getOperator(splitOpId);
-			this.err = combineJoins(splitOp);
-			if (this.err.isError())
-				return;
-
-			if (Config.TRACE_CODEGEN_PLAN)
-				this.compilePlan.tracePlan(compilePlan.getClass()
-						.getCanonicalName()
-						+ "_CODEGEN_PHASE"
-						+ i
-						+ "_"
-						+ splitOp.getOperatorId() + "_CombinedJoins");
-
-			// get splitOp again since it might have be replaced
-			splitOp = this.compilePlan.getOperator(splitOpId);
-			this.err = combineUnaryOps(splitOp);
-			if (this.err.isError())
-				return;
-
-			if (Config.TRACE_CODEGEN_PLAN)
-				this.compilePlan.tracePlan(compilePlan.getClass()
-						.getCanonicalName()
-						+ "_CODEGEN_PHASE"
-						+ i
-						+ "_"
-						+ splitOp.getOperatorId() + "_CombinedUnaries");
-
-			// get splitOp again since it might have be replaced
-			splitOp = this.compilePlan.getOperator(splitOpId);
-			this.err = combineSQLOps(splitOp);
-			if (this.err.isError())
-				return;
-
-			if (Config.TRACE_CODEGEN_PLAN)
-				this.compilePlan.tracePlan(compilePlan.getClass()
-						.getCanonicalName()
-						+ "_CODEGEN_PHASE"
-						+ i
-						+ "_"
-						+ splitOp.getOperatorId() + "_Combined");
-			++i;
-		}
-	}
-
-	private void generateTrackerPlan() {
-		// for each sub-plan generate a tracker operator
-		for (Identifier splitOpId : this.splitOpIds) {
-			AbstractCompileOperator splitCompileOp = this.compilePlan
-					.getOperator(splitOpId);
-			AbstractTrackerOperator trackerOp = null;
-			try {
-				trackerOp = generateTrackerOp(splitCompileOp);
-			} catch (URISyntaxException e) {
-				String[] args = { e.toString() };
-				this.err = new Error(EnumError.COMPILER_GENERIC, args);
-				return;
-			}
-
-			// add mapping: compile operator -> tracker operator
-			this.compileOp2trackerOp.put(splitCompileOp.getOperatorId(),
-					trackerOp.getOperatorId());
-		}
-
-		// add sources and consumers to plan
-		for (Map.Entry<Identifier, Set<Identifier>> entry : this.sources
-				.entrySet()) {
-			this.qtPlan.setSources(entry.getKey(), entry.getValue());
-		}
-
-		for (Map.Entry<Identifier, Set<Identifier>> entry : this.consumers
-				.entrySet()) {
-			this.qtPlan.setConsumers(entry.getKey(), entry.getValue());
-		}
 	}
 
 	/**

@@ -38,9 +38,12 @@ public class CheckExpressionVisitor extends AbstractExpressionVisitor {
 			EnumSimpleType type = this.expType.get(ta);
 			this.expType.put(se, type);
 		}
-		else{
+		else if(se.isLiteral()){
 			TokenLiteral lit = (TokenLiteral)se.getOper();
 			this.expType.put(se, lit.getDataType());
+		}
+		else{ //expression is STAR
+			this.expType.put(se, EnumSimpleType.SQL_INTEGER);
 		}
 		return e;
 	}

@@ -244,7 +244,7 @@ public class TestTPCHBasketAnalysisParallel extends DistributedTPCHTestCase {
 		udfOp.setInTableSource(
 				UDF_IN_TABLE,
 				new TableDesc(this.getUnionOutTableName(), unionOp
-						.getOperatorId(),partition));
+						.getOperatorId()));
 
 		/*final Set<Identifier> unionConsumers = new HashSet<Identifier>();
 		unionConsumers.add(u);*/

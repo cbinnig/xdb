@@ -79,13 +79,6 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 	}
 
 	@Override
-	public Error visitFunctionCall(FunctionCall fc) {
-		String[] args = { "Codegen: Split plan for function call not supported" };
-		Error e = new Error(EnumError.COMPILER_GENERIC, args);
-		return e;
-	}
-
-	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
 		doSplit(sa);
 		return err;
@@ -125,5 +118,12 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 	public Error visitSQLCombined(SQLCombined absOp) {
 		doSplit(absOp);
 		return err;
+	}
+	
+	@Override
+	public Error visitFunctionCall(FunctionCall fc) {
+		String[] args = { "Codegen: Split plan for function call not supported" };
+		Error e = new Error(EnumError.COMPILER_GENERIC, args);
+		return e;
 	}
 }
