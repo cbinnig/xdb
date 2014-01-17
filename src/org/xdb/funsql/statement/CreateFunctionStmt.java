@@ -187,7 +187,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 			this.function = Catalog.getFunction(this.tFun.hashKey(schema
 					.getOid()));
 			if (this.function != null) {
-				return Catalog.createObjectAlreadyExistsErr(this.function);// TODO:update?
+				return Catalog.createObjectAlreadyExistsErr(this.function);
 			}
 
 			// check if functions which are called exist
@@ -300,7 +300,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 					tfc.getFun()).hashKey());// plan of called function
 			// replace in parameters of called function with subplans of the
 			// variables in present function
-			if (!tfc.getInVars().isEmpty()) {// TODO
+			if (!tfc.getInVars().isEmpty()) {
 				int i = 0;
 				for (TokenVariable cVar : this.fCache.getInVars(this.calls.get(
 						tfc.getFun()).hashKey())) {// Signatur der Funktion

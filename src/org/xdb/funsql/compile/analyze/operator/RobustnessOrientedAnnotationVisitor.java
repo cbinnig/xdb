@@ -35,7 +35,6 @@ public class RobustnessOrientedAnnotationVisitor extends AbstractAnnotationVisit
 	 */
 	public RobustnessOrientedAnnotationVisitor(AbstractCompileOperator root) {
 		super(root);
-		// TODO Auto-generated constructor stub
 	}
 
 

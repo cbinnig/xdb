@@ -25,4 +25,9 @@ public abstract class TokenLiteral extends AbstractTokenOperand{
 	public boolean isAttribute() {
 		return false;
 	}
+	
+	@Override
+	public boolean isLiteral() {
+		return true;
+	}
 }

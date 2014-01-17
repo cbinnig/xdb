@@ -112,6 +112,11 @@ public class TokenAttribute extends AbstractTokenOperand{
 	}
 	
 	@Override
+	public boolean isLiteral() {
+		return false;
+	}
+	
+	@Override
 	public TokenAttribute clone(){
 		TokenAttribute att = new TokenAttribute(this);
 		return att;

@@ -200,7 +200,8 @@ public class SQLCombined extends AbstractJoinOperator {
 
 		String templateString = "";
 		vars.put("RESULT", results);
-		// put join params into map
+		
+		// put join parameters into map
 		int idx = 0;
 		TokenPair tokenPair;
 
@@ -334,7 +335,6 @@ public class SQLCombined extends AbstractJoinOperator {
 
 	@Override
 	public SQLCombined clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
 		return (SQLCombined) super.clone();
 	}
 

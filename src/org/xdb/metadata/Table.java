@@ -139,8 +139,6 @@ public class Table extends AbstractDatabaseObject {
 		this.schemaOid = schemaOid;
 	}
 
-	// TODO change it to return all available connections for 
-	// a certain table. Map<long, connection> "Abdallah" 	
 	public List<Long> getConnectionOids(){
 		List<Long> connectionOids = new ArrayList<Long>();
 		for(Connection connec : this.connections.values()){
@@ -156,9 +154,7 @@ public class Table extends AbstractDatabaseObject {
 		}
 		return (long) -1;
 	} 
-	
 
-	
 	private void addConnection(Long connectionOid, Connection connection) {
 		this.connections.put(connectionOid, connection);
 	}
@@ -342,5 +338,4 @@ public class Table extends AbstractDatabaseObject {
 		
 		return tableBuffer.toString();
 	}
-
 }

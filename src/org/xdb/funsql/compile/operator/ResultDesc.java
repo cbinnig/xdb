@@ -26,7 +26,7 @@ public class ResultDesc implements Serializable, Cloneable {
 
 	private boolean materialize = false;
 	private boolean repartition = false;
-	private PartitionDesc partDesc = null;
+	private PartitionDesc rePartDesc = null; //only set for repartitioning
 	protected int partitionCnt = 1;
 
 	// constructors
@@ -94,11 +94,11 @@ public class ResultDesc implements Serializable, Cloneable {
 	}
 
 	public void setPartitionDesc(PartitionDesc partDesc) {
-		this.partDesc = partDesc;
+		this.rePartDesc = partDesc;
 	}
 
 	public PartitionDesc getRePartitionDesc() {
-		return this.partDesc;
+		return this.rePartDesc;
 	}
 
 	public int getPartitionCount() {
@@ -118,10 +118,18 @@ public class ResultDesc implements Serializable, Cloneable {
 		return exprTypes;
 	}
 	
-	public String toSqlString() {
+	public String toSqlString(){
+		StringBuffer sqlBuffer = new StringBuffer();
+		sqlBuffer.append(this.getAttsDDL());
+		sqlBuffer.append(AbstractToken.BLANK);
+		sqlBuffer.append(this.getRepartDDL());
+		return sqlBuffer.toString();
+	}
+	
+	public String getAttsDDL() {
 		StringBuffer tableBuffer = new StringBuffer(AbstractToken.LBRACE);
-		for (int i = 0; i < getNumAttributes(); i++) {
-			if (i != 0) {
+		for (int i = 0; i < getNumAttributes(); ++i) {
+			if (i > 0) {
 				tableBuffer.append(AbstractToken.COMMA);
 				tableBuffer.append(AbstractToken.BLANK);
 			}
@@ -130,15 +138,16 @@ public class ResultDesc implements Serializable, Cloneable {
 			tableBuffer.append(AbstractToken.BLANK);
 			tableBuffer.append(getType(i));
 		}
-
 		tableBuffer.append(AbstractToken.RBRACE);
-		// tableBuffer.append(" ENGINE=MEMORY ");
-		if (this.partitionCnt>1 && this.repartition) {
-			tableBuffer.append(AbstractToken.BLANK);
-			tableBuffer.append(this.partDesc.toSqlString());
-		}
-
+	
 		return tableBuffer.toString();
+	}
+	
+	public String getRepartDDL(){
+		if (this.partitionCnt>1 && this.repartition) {
+			return this.rePartDesc.getRepartDDL();
+		}
+		return "";
 	}
 
 	@Override
@@ -156,10 +165,10 @@ public class ResultDesc implements Serializable, Cloneable {
 		if (Config.TRACE_COMPILE_PLAN_HEADER_RESULT_PARTITIONING) {
 			value.append("Partitions: ");
 			value.append(this.partitionCnt);
-			if (this.repartition && this.partDesc != null) {
+			if (this.repartition && this.rePartDesc != null) {
 				value.append(AbstractToken.NEWLINE);
 				value.append("Re-Partitioning: ");
-				value.append(this.partDesc);
+				value.append(this.rePartDesc);
 				value.append(AbstractToken.NEWLINE);
 			}
 		}

@@ -76,9 +76,11 @@ public class SimpleExpression extends AbstractExpression {
 
 	@Override
 	public boolean isAttribute() {
-		if(!this.tOper.isAttribute())
-			return false;
-		return true;
+		return this.tOper.isAttribute();
+	}
+	
+	public boolean isLiteral() {
+		return this.tOper.isLiteral();
 	}
 	
 	@Override

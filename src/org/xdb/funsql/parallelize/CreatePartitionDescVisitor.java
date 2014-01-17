@@ -86,7 +86,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		PartitionDesc childPartDesc = childPartDescs.iterator().next();
 		int partNumber = childPartDesc.getPartitionNumber();
 		
-		boolean doRepartition = this.isPartDescCompatible(childPartDescs,
+		boolean doRepartition = !this.isPartDescCompatible(childPartDescs,
 				groupExprs) && (partNumber>1);
 
 		if (doRepartition) {
@@ -243,7 +243,13 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		// Create partitioning description from meta data of table
 		PartitionDesc partDesc = new PartitionDesc();
 		if (to.isPartitioned()) {
+			partDesc.setPartNumber(to.getPartitionCount());
+			partDesc.setTableName(to.getTableName());
 			partDesc.setPartitionType(to.getPartitionType());
+			if (to.getPartitionType().isReference()) {
+				partDesc.setRefTableName(to.getRefTableName());
+			}
+			
 			for (PartitionAttribute partAtt : to.getPartitionAttributes()) {
 				String partAttName = ResultDesc.createResultAtt(
 						to.getTableName(), partAtt.getName());
@@ -251,13 +257,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 				TokenAttribute tPartAtt = new TokenAttribute(tableName,
 						partAttName);
 				partDesc.addPartAttributes(tPartAtt);
-			}
-			partDesc.setPartNumber(to.getPartitionCount());
-			partDesc.setTableName(to.getTableName());
-
-			if (to.getPartitionType().isReference()) {
-				partDesc.setRefTableName(to.getRefTableName());
-			}
+			}	
 		}
 		this.storePartDesc(to.getOperatorId(), partDesc);
 		return err;
@@ -298,6 +298,8 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		newPartDesc.renameTable(opId);
 		this.op2partDesc.get(opId).clear();
 		this.op2partDesc.get(opId).add(newPartDesc);
+		
+		//annotate operator with partition count
 		this.cPlan.getOperator(opId).getResult()
 				.setPartitionCount(partDesc.getPartitionNumber());
 	}
@@ -317,9 +319,9 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 
 		Set<PartitionDesc> newPartDescs = new HashSet<PartitionDesc>(
 				partDescs.size());
-		int partitionNumber = 1;
+		int partitionCount = 1;
 		for (PartitionDesc partDesc : partDescs) {
-			partitionNumber = partDesc.getPartitionNumber();
+			partitionCount = partDesc.getPartitionNumber();
 			if (removeNoPartition && !partDesc.isPartitioned())
 				continue;
 
@@ -327,9 +329,11 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 			newPartDesc.renameTable(opId);
 			newPartDescs.add(newPartDesc);
 		}
-		this.cPlan.getOperator(opId).getResult()
-				.setPartitionCount(partitionNumber);
 		this.op2partDesc.put(opId, newPartDescs);
+		
+		//annotate operator with partition count
+		this.cPlan.getOperator(opId).getResult()
+						.setPartitionCount(partitionCount);
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package org.xdb.funsql.compile.operator;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Connection;
 import org.xdb.metadata.EnumPartitionType;
+import org.xdb.metadata.Partition;
 import org.xdb.metadata.PartitionAttribute;
 import org.xdb.metadata.Table;
 import org.xdb.utils.Identifier;
@@ -24,6 +26,7 @@ import com.oy.shared.lm.graph.GraphNode;
 public class TableOperator extends AbstractCompileOperator {
 	private static final long serialVersionUID = 997138204723229392L;
 	public static final String TABLE_PREFIX = "_";
+	public static final String PART_PREFIX = "P_";
 	
 	private final StringTemplate sqlTemplate = new StringTemplate("<<OP1>>");
 	
@@ -73,8 +76,49 @@ public class TableOperator extends AbstractCompileOperator {
 		return (this.connections.size()>=1)? connections.get(0) : null;
 	}
 
-	public void setConnection(Connection connection) {
+	public void addConnection(Connection connection) {
 		this.connections.add(connection);
+	}
+
+	public List<Connection> getConnections() {
+		return connections;
+	}
+	
+	public List<URI> getURIs(){
+		List<URI> uris = new ArrayList<URI>();
+		for (Connection connection : connections) {
+			uris.add(URI.create(connection.getUrl()));
+		}
+		return uris;
+	}
+	
+	public  List<URI> getURIs(int partNum){
+		//TODO: needs to be fixed for partitions
+		return this.getURIs();
+	}
+	
+	public String getAttsDDL(){
+		return this.table.attsToDDL();
+	}
+	
+	public String getTableName(){
+		return this.table.getName();
+	}
+
+	public String getTableName(int partNum){
+		return this.table.getName()+PART_PREFIX+partNum;
+	}
+	
+	public void setTable(Table table) {
+		this.table = table;
+	}
+
+	public Collection<Attribute> getAttributes(){
+		return this.table.getAttributes();
+	}
+	
+	public Collection<Partition> getPartitions(){
+		return this.table.getPartitions();
 	}
 	
 	public Collection<PartitionAttribute> getPartitionAttributes(){
@@ -82,10 +126,6 @@ public class TableOperator extends AbstractCompileOperator {
 			return this.table.getPartitionAttributes();
 		else 
 			return null;
-	}
-	
-	public long getNumParts(){
-		return this.table.getPartitionCount();
 	}
 	
 	public boolean isPartitioned(){
@@ -104,29 +144,6 @@ public class TableOperator extends AbstractCompileOperator {
 		return this.table.getRefTable().getName();
 	}
 	
-	public String getAttsDDL(){
-		return this.table.attsToDDL();
-	}
-	
-	public String getTableName(){
-		return this.table.getName();
-	}
-
-	public void setTable(Table table) {
-		this.table = table;
-	}
-
-	public Collection<Attribute> getAttributes(){
-		return this.table.getAttributes();
-	}
-	
-	public List<Connection> getConnections() {
-		return connections;
-	}
-
-	public void addConnection(Connection connection) {
-		this.connections.add(connection);
-	}
 	
 	// methods
 	/**

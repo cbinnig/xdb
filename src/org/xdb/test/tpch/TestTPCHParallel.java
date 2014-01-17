@@ -6,6 +6,8 @@ import org.xdb.test.XDBTestCase;
 
 public class TestTPCHParallel extends XDBTestCase {
 	private CompileClient client = new CompileClient();
+	
+	//TODO: Check that partition names are always P0, P1, ...
 	private String[] schemaDDLs = {
 			"CREATE CONNECTION TPCH1 " +
 			"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
@@ -151,7 +153,8 @@ and o_orderdate < DATE('1995-01-01 00:00:00')
 group by n_name;
 		 */
 		String q5 = "Select n_name, " +
-					"sum(l_extendedprice * (1-l_discount)) as revenue " +
+					"sum(l_extendedprice * (1-l_discount)) as revenue, " +
+					"avg(l_extendedprice * (1-l_discount)) as avgrevenue " +
 					"from customer, orders, lineitem, supplier, nation, region " +
 					"where c_custkey = o_custkey " +
 					"and l_orderkey = o_orderkey " +
