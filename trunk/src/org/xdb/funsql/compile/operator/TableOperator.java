@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
@@ -26,7 +27,7 @@ import com.oy.shared.lm.graph.GraphNode;
 public class TableOperator extends AbstractCompileOperator {
 	private static final long serialVersionUID = 997138204723229392L;
 	public static final String TABLE_PREFIX = "_";
-	public static final String PART_PREFIX = "P_";
+	public static final String PART_PREFIX = "_P";
 	
 	private final StringTemplate sqlTemplate = new StringTemplate("<<OP1>>");
 	
@@ -35,7 +36,6 @@ public class TableOperator extends AbstractCompileOperator {
 	
 	// meta data attributes
 	private Table table = new Table();
-	private List<Connection> connections = new ArrayList<Connection>();
 	
 	// constructors
 	public TableOperator(TokenIdentifier tableAlias) {
@@ -55,7 +55,6 @@ public class TableOperator extends AbstractCompileOperator {
 		super(toCopy);
 		
 		this.tableAlias = toCopy.tableAlias.clone();
-		this.connections = new ArrayList<Connection>(toCopy.connections);
 		this.table = new Table(toCopy.table);
 	}
 
@@ -72,29 +71,34 @@ public class TableOperator extends AbstractCompileOperator {
 		return tableAlias;
 	}
 	
-	public Connection getConnection() {
-		return (this.connections.size()>=1)? connections.get(0) : null;
+	public Collection<Connection> getConnections() {
+		if(!this.table.isPartioned()){
+			return this.table.getConnections();
+		}
+		return new Vector<Connection>();
 	}
-
-	public void addConnection(Connection connection) {
-		this.connections.add(connection);
-	}
-
-	public List<Connection> getConnections() {
-		return connections;
+	
+	public Collection<Connection> getConnections(int partNum) {
+		if(this.table.isPartioned()){
+			return this.table.getPartition(partNum).getConnections();
+		}
+		return new Vector<Connection>();
 	}
 	
 	public List<URI> getURIs(){
 		List<URI> uris = new ArrayList<URI>();
-		for (Connection connection : connections) {
+		for (Connection connection : this.getConnections()) {
 			uris.add(URI.create(connection.getUrl()));
 		}
 		return uris;
 	}
 	
 	public  List<URI> getURIs(int partNum){
-		//TODO: needs to be fixed for partitions
-		return this.getURIs();
+		List<URI> uris = new ArrayList<URI>();
+		for (Connection connection : this.getConnections(partNum)) {
+			uris.add(URI.create(connection.getUrl()));
+		}
+		return uris;
 	}
 	
 	public String getAttsDDL(){

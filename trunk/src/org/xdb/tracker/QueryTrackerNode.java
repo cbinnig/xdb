@@ -145,17 +145,13 @@ public class QueryTrackerNode {
 		cplan.init();
 		Error err = new Error();
 
-		// 1. Parallelize compile plan
-		// Parallelizer parallelizer = new Parallelizer(cplan);
-		// parallelizer.parallelize();
-
-		// 2. annotate compile plan (materialize flags, connections)
+		// 1. annotate compile plan (materialize flags, connections)
 		err = annotateCompilePlan(cplan);
 		if (err.isError()) {
 			return err;
 		}
 
-		// 3. Generate query tracker plan
+		// 2. Generate query tracker plan
 		Tuple<QueryTrackerPlan, Error> qPlanErr = generateQueryTrackerPlan(cplan);
 		QueryTrackerPlan qplan = qPlanErr.getObject1();
 		err = qPlanErr.getObject2();
@@ -163,14 +159,14 @@ public class QueryTrackerNode {
 			return err;
 		}
 
-		// 4. Deploy query tracker plan
+		// 3. Deploy query tracker plan
 		err = qplan.deployPlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;
 		}
 
-		// 3. Execute query tracker plan
+		// 4. Execute query tracker plan
 		err = qplan.executePlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();

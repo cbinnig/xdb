@@ -34,7 +34,6 @@ import org.xdb.funsql.parallelize.Parallelizer;
 import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Catalog;
-import org.xdb.metadata.Connection;
 import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
@@ -433,15 +432,6 @@ public class SelectStmt extends AbstractServerStmt {
 		Table table = this.tableSymbols.get(tableOp.getTableAliasToken()
 				.hashKey());
 		tableOp.setTable(table);
-
-		// set connection if table is no intermediate temporary table
-		if (!table.isTemp()) {
-			List<Long> connectionOids = table.getConnectionOids();
-			for (Long connOid : connectionOids) {
-				Connection conn = Catalog.getConnection(connOid);
-				tableOp.addConnection(conn);
-			}
-		}
 
 		// add table op to plan
 		this.plan.addOperator(tableOp, false);

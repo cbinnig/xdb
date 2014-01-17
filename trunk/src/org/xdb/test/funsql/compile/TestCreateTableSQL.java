@@ -88,8 +88,8 @@ public class TestCreateTableSQL extends XDBTestCase {
 				"  T1_C2 VARCHAR," +
 				"  T1_C3 INT" +
 				") PARTIONED BY HASH ( T1_C1, T1_C2 ) ( " +
-				" P1 IN CONNECTION  \"testConnection1\"," +
-				" P2 IN CONNECTION  \"testConnection2\" )";
+				" P0 IN CONNECTION  \"testConnection1\"," +
+				" P1 IN CONNECTION  \"testConnection2\" )";
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
@@ -188,8 +188,8 @@ public class TestCreateTableSQL extends XDBTestCase {
 				"  C2 VARCHAR," +
 				"  C3 INT" +
 				") PARTIONED BY HASH ( C1, C2 ) ( " +
-				"P1 IN CONNECTION  \"testConnection1\"," +
-				"P2 IN CONNECTION  \"testConnection2\" )";
+				"P0 IN CONNECTION  \"testConnection1\"," +
+				"P1 IN CONNECTION  \"testConnection2\" )";
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());
@@ -336,8 +336,8 @@ public class TestCreateTableSQL extends XDBTestCase {
 				"  A INT," +
 				"  B VARCHAR" +
 				") PARTIONED BY HASH ( A ) ( " +
-				"P1 REPLICATED IN CONNECTION  \"testConnection1\", \"testConnection2\", "+
-				"P2 REPLICATED IN CONNECTION  \"testConnection1\", \"testConnection2\" )";
+				"P0 REPLICATED IN CONNECTION  \"testConnection1\", \"testConnection2\", "+
+				"P1 REPLICATED IN CONNECTION  \"testConnection1\", \"testConnection2\" )";
 		
 		stmt = compiler.compile(createTableStmt);
 		this.assertNoError(compiler.getLastError());

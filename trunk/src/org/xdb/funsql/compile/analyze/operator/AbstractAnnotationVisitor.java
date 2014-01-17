@@ -22,12 +22,10 @@ public abstract class AbstractAnnotationVisitor extends AbstractBottomUpTreeVisi
 	
 	public static AbstractAnnotationVisitor createAnnotationVisitor(AbstractCompileOperator root){
 		switch(Config.QUERYTRACKER_STRATEGY){
-		case PERFORMANCE:
-			return new PerfOrientedAnnotationVisitor(root);
-		case ROBUST:
-			return new RobustnessOrientedAnnotationVisitor(root);
+		case SIMPLE:
+			return new SimpleAnnotationVisitor(root);
 		default:
-			return null;
+			return new SimpleAnnotationVisitor(root);
 		}
 	}
 }

@@ -23,9 +23,7 @@ import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.compile.tokens.TokenIntegerLiteral;
 import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
-import org.xdb.metadata.Connection;
 import org.xdb.metadata.Table;
-import org.xdb.store.EnumStore;
 import org.xdb.test.XDBTestCase;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
@@ -57,10 +55,7 @@ public class TestPlanTranslation extends XDBTestCase {
 		// tables
 		final TableOperator tableOpR = new TableOperator(new TokenIdentifier("R"));
 		final TableOperator tableOpS = new TableOperator(new TokenIdentifier("S"));
-		
-		tableOpR.addConnection(new Connection("INVALID_CONNECTION", "mysql://127.0.0.1/xdbR", "user", "password", EnumStore.MYSQL));
-		tableOpS.addConnection(new Connection("INVALID_CONNECTION", "mysql://127.0.0.1/xdbS", "user", "password", EnumStore.MYSQL));
-		
+	
 		plan.addOperator(tableOpR, false);
 		plan.addOperator(tableOpS, false);
 		
@@ -166,8 +161,6 @@ public class TestPlanTranslation extends XDBTestCase {
 		//setup statement
 		//input table
 		final TableOperator tableOp = new TableOperator(new TokenIdentifier("R"));
-		//assign a connection for tracking purposes
-		tableOp.addConnection(new Connection("INVALID_CONNECTION", "mysql://127.0.0.1/xdb", "user", "password", EnumStore.MYSQL));
 		
 		//select operator
 		final GenericProjection selectOp = new GenericProjection(tableOp);
@@ -227,8 +220,6 @@ public class TestPlanTranslation extends XDBTestCase {
 		//setup statement
 		//input table
 		final TableOperator tableOp = new TableOperator(new TokenIdentifier("R"));
-		//assign a connection for tracking purposes
-		tableOp.addConnection(new Connection("INVALID_CONNECTION", "mysql://127.0.0.1/xdb", "user", "password", EnumStore.MYSQL));
 		
 		//select operator
 		final GenericSelection selectOp = new GenericSelection(tableOp);
@@ -287,8 +278,6 @@ public class TestPlanTranslation extends XDBTestCase {
 		//setup statement
 		//input table
 		final TableOperator tableOp = new TableOperator(new TokenIdentifier("R"));
-		//assign a connection for tracking purposes
-		tableOp.addConnection(new Connection("INVALID_CONNECTION", "mysql://127.0.0.1/xdb", "user", "password", EnumStore.MYSQL));
 		
 		//select operator
 		final GenericAggregation selectOp = new GenericAggregation(tableOp);
@@ -357,12 +346,8 @@ public class TestPlanTranslation extends XDBTestCase {
 		//input table
 		final TableOperator lTableOp = new TableOperator(new TokenIdentifier("R"));
 		final TableOperator rTableOp = new TableOperator(new TokenIdentifier("S"));
-		//assign a connection for tracking purposes
-		lTableOp.addConnection(new Connection("INVALID_CONNECTION", "mysql://127.0.0.1/xdbR", "user", "password", EnumStore.MYSQL));
-		rTableOp.addConnection(new Connection("INVALID_CONNECTION", "mysql://127.0.0.1/xdbS", "user", "password", EnumStore.MYSQL));
 		
 		//add tableOps to plan (gen id), create join attributes, create join op, add join op to plan
-		
 		plan.addOperator(lTableOp, false); //root 
 		plan.addOperator(rTableOp, false); //root
 		

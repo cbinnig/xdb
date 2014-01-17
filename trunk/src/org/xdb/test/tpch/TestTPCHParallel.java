@@ -39,8 +39,8 @@ public class TestTPCHParallel extends XDBTestCase {
 			"L_SHIPMODE     	VARCHAR," +
 			"L_COMMENT      	VARCHAR" +
 			") PARTIONED BY HASH ( L_ORDERKEY ) ( " +
-			" P1 IN CONNECTION TPCH1," +
-			" P2 IN CONNECTION TPCH2 )",
+			" P0 IN CONNECTION TPCH1," +
+			" P1 IN CONNECTION TPCH2 )",
 			
 			"CREATE TABLE ORDERS  ( " +
 			"O_ORDERKEY       INTEGER, " +

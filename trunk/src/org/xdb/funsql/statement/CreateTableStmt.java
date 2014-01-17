@@ -189,6 +189,8 @@ public class CreateTableStmt extends AbstractServerStmt {
 		// initialize connection for partitioned table
 		else {
 			lastError = initPartitioning();
+			if (lastError.isError())
+				return lastError;
 		}
 
 		return lastError;
@@ -315,6 +317,11 @@ public class CreateTableStmt extends AbstractServerStmt {
 				Partition part = new Partition(this.table.getOid(),
 						tPartition.getValue());
 
+				if(!part.getName().equals(Table.PART_PREFIX+i)){
+					return this
+							.createGenericCompileErr("Partitions must be names P0, P1, ..., Pn!");
+				}
+				
 				// put partition into hash map and add to table
 				this.partitions.put(part.getName(), part);
 
@@ -350,7 +357,7 @@ public class CreateTableStmt extends AbstractServerStmt {
 				this.partitions.put(part.getName(), part);
 				
 				//add connections to part
-				for(Connection conn: part.getConnections()){
+				for(Connection conn: refPart.getConnections()){
 					part.addConnection(conn);
 					this.partToConnections.add(new PartitionToConnection(
 							part.getOid(), conn.getOid()));
