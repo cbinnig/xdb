@@ -1,6 +1,7 @@
 package org.xdb.funsql.compile.operator;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -76,28 +77,12 @@ public abstract class AbstractCompileOperator implements Serializable {
 	public Vector<AbstractCompileOperator> getParents() {
 		return this.parents;
 	}
-
-	/**
-	 * Get wished connection.
-	 * 
-	 * @return wished connection, null if not set
-	 */ 
-	public Connection getWishedConnection(){
-		if(this.wishedConnections.isEmpty())
-			return null;
-		
-		return this.wishedConnections.iterator().next();
-	}
 	
 	public Set<Connection> getWishedConnections() {
 		return wishedConnections;
 	}
-	
-	public void addWishedConnection(final Connection conn) {
-		this.wishedConnections.add(conn);
-	}
 
-	public void addWishedConnections(Set<Connection> wishedConnections) {
+	public void addWishedConnections(Collection<Connection> wishedConnections) {
 		this.wishedConnections.addAll(wishedConnections);
 	}
 

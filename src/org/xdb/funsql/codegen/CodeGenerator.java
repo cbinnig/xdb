@@ -246,6 +246,11 @@ public class CodeGenerator {
 		}
 	}
 
+	/**
+	 * Adds execute statements to new tracker operator
+	 * @param trackerOp
+	 * @param compileOp
+	 */
 	private void addTrackerExecuteDML(MySQLTrackerOperator trackerOp,
 			AbstractCompileOperator compileOp) {
 		// add DML statement for execution
@@ -259,6 +264,11 @@ public class CodeGenerator {
 		trackerOp.addExecuteSQL(new StringTemplate(executeDML));
 	}
 
+	/**
+	 * Adds DDL statements for output tables/views to new tracker operator
+	 * @param trackerOp
+	 * @param compileOp
+	 */
 	private void addTrackerOutputDDL(MySQLTrackerOperator trackerOp,
 			AbstractCompileOperator compileOp) {
 		Identifier outTableId = this.genOutputTableName(compileOp);
@@ -294,6 +304,12 @@ public class CodeGenerator {
 		}
 	}
 
+	/**
+	 * Adds DDL statements for input tables/views to new tracker operator
+	 * @param trackerOp
+	 * @param compileOp
+	 * @param partNum
+	 */
 	private void addTrackerInputDDL(MySQLTrackerOperator trackerOp,
 			AbstractCompileOperator compileOp, int partNum) {
 		
@@ -353,7 +369,7 @@ public class CodeGenerator {
 			if (inputCompileOp.isTable()) { // table
 				TableOperator inputTableOp = (TableOperator) inputCompileOp;
 
-				if (inputResult.repartition()) {
+				if (inputTableOp.isPartitioned()) {
 					TableDesc tableDesc = new TableDesc(
 							inputTableOp.getTableName(partNum), inputTableOp.getURIs(partNum));
 					trackerOp.setInTableSource(inTableName, tableDesc);
