@@ -9,6 +9,7 @@ public class TestSuiteTPCH extends TestSuite
   {
     TestSuite suite = new TestSuite( TestSuiteTPCH.class.getPackage().getName() );
     suite.addTestSuite( TestTPCH.class );
+    suite.addTestSuite( TestTPCHParallel.class );
     return suite;
   }
 }

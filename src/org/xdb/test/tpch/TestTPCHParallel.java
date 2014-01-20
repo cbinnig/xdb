@@ -152,7 +152,7 @@ and o_orderdate > DATE('1994-01-01 00:00:00')
 and o_orderdate < DATE('1995-01-01 00:00:00')
 group by n_name;
 		 */
-		String q5 = "Select n_name, " +
+		String q5 = "Select n_nationkey, " +
 					"sum(l_extendedprice * (1-l_discount)) as revenue, " +
 					"avg(l_extendedprice * (1-l_discount)) as avgrevenue " +
 					"from customer, orders, lineitem, supplier, nation, region " +
@@ -165,7 +165,7 @@ group by n_name;
 					"and r_name = 'ASIA' " +
 					"and o_orderdate > date '1994-01-01' "+
 					"and o_orderdate < date '1995-01-01' "+
-					"group by n_name;";
+					"group by n_nationkey;";
 		this.executeStmt(q5);
 		
 	}

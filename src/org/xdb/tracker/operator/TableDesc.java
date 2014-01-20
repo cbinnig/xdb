@@ -19,7 +19,7 @@ public class TableDesc implements Serializable {
 		//table connections 
 		private List<URI> uris;
 		
-		//constructors
+		//constructor for intermediate result
 		public TableDesc(String tableName, Identifier operatorId) {
 			super();
 			this.tableName = tableName;
@@ -27,7 +27,7 @@ public class TableDesc implements Serializable {
 			
 		}
 		
-		// Multiple connections support. 
+		//constructor for real table
 		public TableDesc(String tableName, List<URI> uris) {
 			super();
 			this.tableName = tableName;

@@ -1,10 +1,12 @@
 package org.xdb.tracker;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -64,6 +66,7 @@ public class QueryTrackerPlan implements Serializable {
 	private ComputeServersMonitor computeServersMonitor = null;
 
 	// tracker plan
+	private final List<Identifier> trackerOpsOrder = new ArrayList<Identifier>();
 	private final Map<Identifier, AbstractTrackerOperator> trackerOps = new HashMap<Identifier, AbstractTrackerOperator>();
 	private final Map<Identifier, Set<Identifier>> consumers = new HashMap<Identifier, Set<Identifier>>();
 	private final Map<Identifier, Set<Identifier>> sources = new HashMap<Identifier, Set<Identifier>>();
@@ -212,7 +215,8 @@ public class QueryTrackerPlan implements Serializable {
 		Identifier opId = this.planId.clone().append(lastTrackerOpId++);
 		op.setOperatorId(opId);
 		trackerOps.put(opId, op);
-
+		trackerOpsOrder.add(opId);
+		
 		// add operator as leave and root
 		this.leaves.add(opId);
 		this.roots.add(opId);
@@ -271,9 +275,9 @@ public class QueryTrackerPlan implements Serializable {
 		}
 	}
 
-	
 	/**
 	 * Adds a new consumer for given tracker operator with operId
+	 * 
 	 * @param operId
 	 * @param opConsumerID
 	 */
@@ -427,14 +431,13 @@ public class QueryTrackerPlan implements Serializable {
 	 * @return
 	 */
 	public Error deployPlan(Map<Identifier, OperatorDesc> currentDeployment) {
-		this.currentDeployment.putAll(currentDeployment);
-
 		// distribute plan to compute nodes
+		this.currentDeployment.putAll(currentDeployment);
 		distributePlan();
 		if (err.isError())
 			return this.err;
 
-		// trace execution plan
+		// trace plan
 		if (Config.TRACE_EXECUTE_PLAN) {
 			this.err = this.traceDeployment(this.getClass().getCanonicalName()
 					+ "_EXECUTE");
@@ -450,7 +453,6 @@ public class QueryTrackerPlan implements Serializable {
 	 * @return
 	 */
 	public Error deployPlan() {
-
 		// request compute nodes
 		requestComputeNodes();
 		if (err.isError())
@@ -466,7 +468,7 @@ public class QueryTrackerPlan implements Serializable {
 		if (err.isError())
 			return this.err;
 
-		// trace execution plan
+		// trace plan
 		if (Config.TRACE_EXECUTE_PLAN) {
 			this.err = this.traceDeployment(this.getClass().getCanonicalName()
 					+ "_EXECUTE");
@@ -644,10 +646,9 @@ public class QueryTrackerPlan implements Serializable {
 	 */
 	private void distributePlan() {
 		// distribute all operators in deployment
-		for (final Entry<Identifier, OperatorDesc> entry : this.currentDeployment
-				.entrySet()) {
-			final Identifier trackerOpId = entry.getKey();
-			final OperatorDesc executeOpDesc = entry.getValue();
+		for (Identifier trackerOpId: this.trackerOpsOrder) {
+			final OperatorDesc executeOpDesc = this.currentDeployment.get(trackerOpId);
+			
 			final AbstractTrackerOperator trackerOp = trackerOps
 					.get(trackerOpId);
 
@@ -691,11 +692,8 @@ public class QueryTrackerPlan implements Serializable {
 	 */
 	private void distributePlanRobustness() {
 		// distribute all operators in deployment
-		for (final Entry<Identifier, OperatorDesc> entry : this.currentDeployment
-				.entrySet()) {
-
-			final Identifier trackerOpId = entry.getKey();
-			final OperatorDesc executeOpDesc = entry.getValue();
+		for (Identifier trackerOpId: this.trackerOpsOrder) {
+			final OperatorDesc executeOpDesc = this.currentDeployment.get(trackerOpId);
 			// Do not distribute, the deployed, running, finished operators.
 
 			if (executeOpDesc.getOperatorStatus() != QueryOperatorStatus.REDEPLOYED)
@@ -778,7 +776,7 @@ public class QueryTrackerPlan implements Serializable {
 		final Error error = new Error();
 		final Graph graph = GraphFactory.newGraph();
 
-		final HashMap<Identifier, GraphNode> nodes = new HashMap<Identifier, GraphNode>();
+		final Map<Identifier, GraphNode> nodes = new HashMap<Identifier, GraphNode>();
 
 		// add nodes to plan
 		for (Identifier opId : this.executeOps.keySet()) {
@@ -798,7 +796,8 @@ public class QueryTrackerPlan implements Serializable {
 
 			for (Identifier toId : entry.getValue()) {
 				GraphNode to = nodes.get(toId);
-				graph.addEdge(from, to);
+				if (from != null && to != null)
+					graph.addEdge(from, to);
 			}
 		}
 
@@ -820,9 +819,18 @@ public class QueryTrackerPlan implements Serializable {
 		for (Identifier opId : this.trackerOps.keySet()) {
 			GraphNode node = graph.addNode();
 			AbstractTrackerOperator op = this.trackerOps.get(opId);
-			node.getInfo().setCaption(op.toString());
-			node.getInfo().setHeader(op.getOutTables().toString());
-			node.getInfo().setFooter(op.getInTables().toString());
+			String caption = op.toString();
+			if (Config.TRACE_TRACKER_SHORT_CAPTIONS)
+				caption = caption.substring(0,
+						Config.TRACE_TRACKER_SHORT_CAPTIONS_CHARS);
+			node.getInfo().setCaption(caption);
+
+			if (Config.TRACE_TRACKER_PLAN_HEADER)
+				node.getInfo().setHeader(op.getOutTables().toString());
+
+			if (Config.TRACE_TRACKER_PLAN_FOOTER)
+				node.getInfo().setFooter(op.getInTables().toString());
+
 			nodes.put(opId, node);
 		}
 

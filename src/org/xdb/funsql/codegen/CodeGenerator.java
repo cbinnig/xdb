@@ -35,13 +35,14 @@ import org.xdb.utils.StringTemplate;
  */
 public class CodeGenerator {
 	// constants
+	private static final String VIEW1 = "VIEW1";
 	private static final String TAB1 = "TAB1";
 	private static final String SQL1 = "SQL1";
 	private static final String PART1 = "PART1";
 	public static final String OUT_PREFIX = "OUT";
 	public static final String PART_PREFIX = "P";
 	public static final String TABLE_PREFIX = "_";
-	
+
 	// compile plan
 	private CompilePlan compilePlan;
 
@@ -59,18 +60,21 @@ public class CodeGenerator {
 	private List<Identifier> splitOpIds;
 
 	// templates for SQL code generation
-	private final StringTemplate sqlExecuteDMLTemplate = new StringTemplate(
+	private final StringTemplate sqlInsertSelectTemplate = new StringTemplate(
 			"INSERT INTO <<" + TAB1 + ">> (<" + SQL1 + ">)");
 
 	private final StringTemplate sqlInOutDDLTemplate = new StringTemplate("<<"
 			+ TAB1 + ">> <" + SQL1 + ">");
 
-	private final StringTemplate sqlSelectPartDMLTemplate = new StringTemplate(
-			"SELECT * FROM <<" + TAB1 + ">>  PARTITION (<" + PART1 + ">)");
+	private final StringTemplate sqlViewSelectPartTemplate = new StringTemplate(
+			"<<" + VIEW1 + ">> AS SELECT * FROM <<" + TAB1 + ">>  PARTITION(P<" + PART1 + ">)");
 
-	private final StringTemplate sqlUnionPartDMLTemplate = new StringTemplate(
-			"SELECT * FROM <<" + TAB1 + ">>");
+	private final StringTemplate sqlSelectAllTemplate = new StringTemplate(
+			"<<" + TAB1 + ">>");
 	
+	private final StringTemplate sqlViewTemplate = new StringTemplate(
+			"<<" + VIEW1 + ">> AS <" + SQL1 + ">");
+
 	// last error
 	private Error err;
 
@@ -189,8 +193,8 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Renames attributes to original names in tables
-	 * e.g., from LINEITEM_L_ORDERKEY to L_ORDERKEY
+	 * Renames attributes to original names in tables e.g., from
+	 * LINEITEM_L_ORDERKEY to L_ORDERKEY
 	 */
 	private void rename() {
 		ReRenameAttributesVisitor renameVisitor;
@@ -205,8 +209,7 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Generates (parallelized) QueryTrackerPlan 
-	 * (which includes repartitioning) 
+	 * Generates (parallelized) QueryTrackerPlan (which includes repartitioning)
 	 */
 	private void genTrackerPlan() {
 
@@ -221,6 +224,9 @@ public class CodeGenerator {
 				// generate one tracker operator for each partition
 				for (int i = 0; i < splitResult.getPartitionCount(); ++i) {
 					trackerOp = this.genTrackerOp(splitCompileOp, i);
+					// add mapping: compile operator -> tracker operator
+					this.addCompileOp2TrackerOp(splitCompileOp.getOperatorId(),
+							trackerOp.getOperatorId());
 				}
 
 			} catch (URISyntaxException e) {
@@ -228,10 +234,6 @@ public class CodeGenerator {
 				this.err = new Error(EnumError.COMPILER_GENERIC, args);
 				return;
 			}
-
-			// add mapping: compile operator -> tracker operator
-			this.addCompileOp2TrackerOp(splitCompileOp.getOperatorId(),
-					trackerOp.getOperatorId());
 		}
 
 		// connect tracker operator in QueryTrackerPlan
@@ -248,6 +250,7 @@ public class CodeGenerator {
 
 	/**
 	 * Adds execute statements to new tracker operator
+	 * 
 	 * @param trackerOp
 	 * @param compileOp
 	 */
@@ -260,17 +263,18 @@ public class CodeGenerator {
 		Map<String, String> args = new HashMap<String, String>();
 		args.put(SQL1, executeDML);
 		args.put(TAB1, outTableName);
-		executeDML = this.sqlExecuteDMLTemplate.toString(args);
+		executeDML = this.sqlInsertSelectTemplate.toString(args);
 		trackerOp.addExecuteSQL(new StringTemplate(executeDML));
 	}
 
 	/**
 	 * Adds DDL statements for output tables/views to new tracker operator
+	 * 
 	 * @param trackerOp
 	 * @param compileOp
 	 */
 	private void addTrackerOutputDDL(MySQLTrackerOperator trackerOp,
-			AbstractCompileOperator compileOp) {
+			AbstractCompileOperator compileOp, int partNum) {
 		Identifier outTableId = this.genOutputTableName(compileOp);
 		String outTableName = outTableId.toString();
 
@@ -288,12 +292,15 @@ public class CodeGenerator {
 
 			// add one output view for each partition
 			for (Integer i = 0; i < outputResult.getPartitionCount(); ++i) {
-				Identifier outViewId = this.genOutputTableName(compileOp, i);
+				Identifier outViewId = this.genOutputTableName(compileOp, partNum);
+				outViewId.append(i);
+				String outputViewName = outViewId.toString();
+				
 				args.put(TAB1, outTableName);
 				args.put(PART1, i.toString());
-
-				String outputViewName = outViewId.toString();
-				String selectPartDML = sqlSelectPartDMLTemplate.toString(args);
+				args.put(VIEW1, outputViewName);
+				
+				String selectPartDML = sqlViewSelectPartTemplate.toString(args);
 
 				trackerOp.addOutView(outputViewName, selectPartDML);
 			}
@@ -306,18 +313,19 @@ public class CodeGenerator {
 
 	/**
 	 * Adds DDL statements for input tables/views to new tracker operator
+	 * 
 	 * @param trackerOp
 	 * @param compileOp
 	 * @param partNum
 	 */
 	private void addTrackerInputDDL(MySQLTrackerOperator trackerOp,
 			AbstractCompileOperator compileOp, int partNum) {
-		
+
 		Map<String, String> args = new HashMap<String, String>();
 		Set<AbstractCompileOperator> inputCompileOps = this
 				.getInputOps(compileOp);
-		
-		//for each input operator create input DDL
+
+		// for each input operator create input DDL
 		for (AbstractCompileOperator inputCompileOp : inputCompileOps) {
 			// generate input DDL
 			ResultDesc inputResult = inputCompileOp.getResult();
@@ -327,56 +335,61 @@ public class CodeGenerator {
 			String inTableName = inTableId.toString();
 			String inAttsDDL = inputResult.getAttsDDL();
 			args.put(SQL1, inAttsDDL);
-			
+
 			// if input is a table -> use a different name
 			if (inputCompileOp.isTable()) {
 				inTableName = TABLE_PREFIX + inTableName;
 			}
-			
+
 			if (inputResult.repartition()) {
 				StringBuffer sqlUnionDML = new StringBuffer();
-				for(int i=0; i<partNum;++i){
-					Identifier inPartId = this.genOutputTableName(
-							inputCompileOp, partNum);
+				for (int i = 0; i < inputResult.getPartitionCount(); ++i) {
+					Identifier inPartId = this.genInputTableName(
+							inputCompileOp);
+					inPartId.append(i);
 					String inPartName = inPartId.toString();
 					args.put(TAB1, inPartName);
 					inAttsDDL = this.sqlInOutDDLTemplate.toString(args);
-					
-					trackerOp
-					.addInTable(inPartName, new StringTemplate(inAttsDDL));
-					
-					if(i>0){
+
+					trackerOp.addInTable(inPartName, new StringTemplate(
+							inAttsDDL));
+
+					if (i > 0) {
 						sqlUnionDML.append(AbstractToken.BLANK);
 						sqlUnionDML.append(AbstractToken.UNION);
 						sqlUnionDML.append(AbstractToken.BLANK);
 					}
-					
+
 					sqlUnionDML.append(AbstractToken.LBRACE);
-					sqlUnionDML.append(this.sqlUnionPartDMLTemplate.toString(args));
+					sqlUnionDML.append(this.sqlSelectAllTemplate
+							.toString(args));
 					sqlUnionDML.append(AbstractToken.RBRACE);
 				}
-				trackerOp.addInView(inTableName, sqlUnionDML.toString());
+				args.put(VIEW1, inTableName);
+				args.put(SQL1, sqlUnionDML.toString());
+				trackerOp.addInView(inTableName, this.sqlViewTemplate.toString(args));
 			} else {
-				
+
 				args.put(TAB1, inTableName);
 				inAttsDDL = this.sqlInOutDDLTemplate.toString(args);
 				trackerOp
 						.addInTable(inTableName, new StringTemplate(inAttsDDL));
 			}
 
-			/** Create input table description **/
+			/** Create input table description and dependencies**/
 			// if input is a table: add catalog info to tracker operator
 			if (inputCompileOp.isTable()) { // table
 				TableOperator inputTableOp = (TableOperator) inputCompileOp;
 
-				if (inputTableOp.isPartitioned()) {
+				if (inputTableOp.isPartitioned() ) {
 					TableDesc tableDesc = new TableDesc(
-							inputTableOp.getTableName(partNum), inputTableOp.getURIs(partNum));
-					trackerOp.setInTableSource(inTableName, tableDesc);
+							inputTableOp.getTableName(partNum),
+							inputTableOp.getURIs(partNum));
+					trackerOp.addInTableFederated(inTableName, tableDesc);
 				} else {
 					TableDesc tableDesc = new TableDesc(
 							inputTableOp.getTableName(), inputTableOp.getURIs());
-					trackerOp.setInTableSource(inTableName, tableDesc);
+					trackerOp.addInTableFederated(inTableName, tableDesc);
 				}
 			}
 			// else: use intermediate result as table (with _OUT suffix)
@@ -384,20 +397,25 @@ public class CodeGenerator {
 				// if input is repartitioned
 				if (inputResult.repartition()) {
 					// create one input per partition
-					int remotePart = 0;
+					int remotePartNum = 0;
 					for (Identifier inTrackerOpId : this.compileOp2trackerOp
 							.get(inputCompileOp.getOperatorId())) {
 
 						Identifier inPartRemoteId = this.genOutputTableName(
-								inputCompileOp, remotePart);
-						Identifier inPartId = this.genInputTableName(inputCompileOp);
+								inputCompileOp, remotePartNum);
+						inPartRemoteId.append(partNum);
+						
+						Identifier inPartId = this
+								.genInputTableName(inputCompileOp);
+						inPartId.append(remotePartNum);
 						String inPartName = inPartId.toString();
-
+						
 						TableDesc tableDesc = new TableDesc(
 								inPartRemoteId.toString(), inTrackerOpId);
-						trackerOp.setInTableSource(inPartName, tableDesc);
+						trackerOp.addInTableFederated(inPartName, tableDesc);
 						this.addTrackerDependency(inTrackerOpId,
 								trackerOp.getOperatorId());
+						remotePartNum++;
 					}
 				} else {
 					// create one input table
@@ -407,7 +425,7 @@ public class CodeGenerator {
 							inputCompileOp.getOperatorId()).get(partNum);
 					TableDesc tableDesc = new TableDesc(
 							inTableRemoteId.toString(), inTrackerOpId);
-					trackerOp.setInTableSource(inTableName, tableDesc);
+					trackerOp.addInTableFederated(inTableName, tableDesc);
 					this.addTrackerDependency(inTrackerOpId,
 							trackerOp.getOperatorId());
 				}
@@ -434,7 +452,7 @@ public class CodeGenerator {
 		this.addTrackerExecuteDML(trackerOp, compileOp);
 
 		// add DDL statements for output tables
-		this.addTrackerOutputDDL(trackerOp, compileOp);
+		this.addTrackerOutputDDL(trackerOp, compileOp, partNum);
 
 		// add DDL statements for input tables
 		this.addTrackerInputDDL(trackerOp, compileOp, partNum);

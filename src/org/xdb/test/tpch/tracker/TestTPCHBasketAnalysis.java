@@ -123,7 +123,7 @@ public class TestTPCHBasketAnalysis extends DistributedTPCHTestCase {
                 final Set<Identifier> udfOpSources = new HashSet<Identifier>();
                 udfOpSources.add(unionOp.getOperatorId());
                 qPlan.setSources(udfOp.getOperatorId(), udfOpSources);
-                udfOp.setInTableSource(
+                udfOp.addInTableFederated(
                                 UDF_IN_TABLE,
                                 new TableDesc(this.getUnionOutTableName(), unionOp
                                                 .getOperatorId()));
