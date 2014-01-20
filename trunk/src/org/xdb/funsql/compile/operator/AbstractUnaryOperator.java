@@ -20,7 +20,7 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 	public AbstractUnaryOperator(AbstractCompileOperator child) {
 		super(1);
 
-		this.children.add(child);
+		this.setChild(child);
 		child.addParent(this);
 	}
 
@@ -47,7 +47,8 @@ public abstract class AbstractUnaryOperator extends AbstractCompileOperator {
 	}
 
 	public void setChild(AbstractCompileOperator child) {
-		this.children.set(0, child);
+		this.children.clear();
+		this.children.add(child);
 	}
 
 	@Override

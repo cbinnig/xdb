@@ -61,6 +61,13 @@ public class AggregationExpression extends AbstractExpression {
 		return countExpr;
 	}
 	
+	public static AggregationExpression createSumExpr(TokenIdentifier id){
+		AggregationExpression countExpr = new AggregationExpression();
+		countExpr.setAggregation(EnumAggregation.SUM);
+		countExpr.setExpression(new SimpleExpression(new TokenAttribute(id)));
+		return countExpr;
+	}
+	
 	@Override
 	public Collection<TokenAttribute> getAttributes() {
 		return this.expr.getAttributes();

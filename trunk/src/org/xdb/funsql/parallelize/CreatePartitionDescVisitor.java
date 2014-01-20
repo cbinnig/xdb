@@ -410,18 +410,23 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 
 	private GenericAggregation createPreAggregation(GenericAggregation agg,
 			Map<AbstractExpression, AbstractExpression> replaceExprs) {
+		agg.getChild().clearParents();
 		GenericAggregation preAgg = new GenericAggregation(agg.getChild());
-		AggregationExpression cntExpr = AggregationExpression.createCountExpr();
-
+		TokenIdentifier internalCntAlias = new TokenIdentifier(
+				generateInternalAlias());
+		AggregationExpression sumExpr = AggregationExpression.createSumExpr(internalCntAlias);
+		
 		// add all aggregation expressions and replace AVG by SUM and COUNT
-		boolean foundAvg = false;
+		boolean addCount = false;
 		for (AbstractExpression expr : agg.getAggregationExpressions()) {
 			for (AggregationExpression aggExpr : expr.getAggregations()) {
+				boolean foundAvg = false;
 				AggregationExpression aggExprClone = new AggregationExpression(
 						aggExpr);
 				if (aggExprClone.getAggregation().isAvg()) {
 					aggExprClone.setAggregation(EnumAggregation.SUM);
 					foundAvg = true;
+					addCount = true;
 				}
 				preAgg.addAggregationExpression(aggExprClone);
 				TokenIdentifier internalAlias = new TokenIdentifier(
@@ -439,7 +444,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 							EnumExprType.MULT_EXPRESSION);
 					replaceAvgExpr.setExpr1(replaceAggExpr);
 					replaceAvgExpr.addOp(EnumExprOperator.SQL_DIV);
-					replaceAvgExpr.addExpr2(cntExpr);
+					replaceAvgExpr.addExpr2(sumExpr);
 					replaceExprs.put(aggExpr, replaceAvgExpr);
 				} else {
 					replaceExprs.put(aggExpr, replaceAggExpr);
@@ -448,11 +453,10 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		}
 
 		// if extra count aggregation is needed
-		if (foundAvg) {
+		if (addCount) {
+			AggregationExpression cntExpr = AggregationExpression.createCountExpr();
 			preAgg.addAggregationExpression(cntExpr);
-			TokenIdentifier internalAlias = new TokenIdentifier(
-					generateInternalAlias());
-			preAgg.addAlias(internalAlias);
+			preAgg.addAlias(internalCntAlias);
 		}
 
 		// add group-by expressions
@@ -489,7 +493,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 			Map<AbstractExpression, AbstractExpression> replaceExpr) {
 
 		agg.setChild(preAgg);
-		preAgg.addParent(agg);
+		preAgg.setParent(agg);
 		agg.replaceExpression(replaceExpr);
 		
 		return agg;

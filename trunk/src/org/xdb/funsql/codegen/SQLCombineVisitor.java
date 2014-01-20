@@ -81,7 +81,7 @@ public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
 		
 		if(this.lastop.getType().equals(EnumOperator.SQL_JOIN)){
 			SQLCombined sqlc = new SQLCombined((SQLJoin)this.lastop);
-			this.compileplan.replaceOperator(absOp.getOperatorId(), sqlc,true);
+			this.compileplan.replaceOperator(absOp.getOperatorId(), sqlc);
 
 			sqlc.mergeSQLUnaryParent(absOp);
 		

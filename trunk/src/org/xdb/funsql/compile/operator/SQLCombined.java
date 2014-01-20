@@ -51,8 +51,7 @@ public class SQLCombined extends AbstractJoinOperator {
 	// select clause
 	private Vector<AbstractExpression> selectExpressions = new Vector<AbstractExpression>();
 	private Vector<TokenIdentifier> selectAliases = new Vector<TokenIdentifier>();
-	private Vector<AbstractExpression> aggExpressions = new Vector<AbstractExpression>();
-
+	
 	// where clause
 	private AbstractPredicate wherePred;
 
@@ -79,7 +78,6 @@ public class SQLCombined extends AbstractJoinOperator {
 	public void mergeSQLUnaryParent(SQLUnary sqlU) {
 		// Scenario SQL Join is child and Unary is parent
 
-		this.aggExpressions = sqlU.getAggExpressions();
 		this.selectExpressions = sqlU.getSelectExpressions();
 		this.selectAliases = sqlU.getSelectAliases();
 		this.wherePred = sqlU.getWherePred();
@@ -87,9 +85,6 @@ public class SQLCombined extends AbstractJoinOperator {
 		this.groupExpressions = sqlU.getGroupExpressions();
 
 		// rebuild expressions
-
-		renameExpression(this.aggExpressions);
-
 		renameExpression(this.selectExpressions);
 
 		renameExpression(this.groupExpressions);
@@ -291,11 +286,6 @@ public class SQLCombined extends AbstractJoinOperator {
 			Vector<String> renamedOps) {
 		boolean renamed = super.renameAttributes(renamedAttributes, renamedOps);
 		Error e = new Error();
-		for (AbstractExpression expr : this.aggExpressions) {
-			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(
-					expr, renamedAttributes);
-			e = renameVisitor.visit();
-		}
 		for (AbstractExpression expr : this.groupExpressions) {
 			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(
 					expr, renamedAttributes);
