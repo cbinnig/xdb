@@ -54,6 +54,9 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 
+		builder.append(this.getOperatorId());
+		builder.append(":");
+		builder.append(AbstractToken.NEWLINE);
 		for (StringTemplate exeSQL : executeSQLs) {
 			builder.append(exeSQL.toString());
 			builder.append(AbstractToken.NEWLINE);

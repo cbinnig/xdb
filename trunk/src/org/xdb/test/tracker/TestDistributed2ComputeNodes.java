@@ -66,7 +66,7 @@ public class TestDistributed2ComputeNodes extends DistributedXDBTestCase {
 		final Set<Identifier> op2Sources = new HashSet<Identifier>();
 		op2Sources.add(op1.getOperatorId());
 		qPlan.setSources(op2.getOperatorId(), op2Sources);
-		op2.setInTableSource("R2", new TableDesc("R1", op1.getOperatorId()));
+		op2.addInTableFederated("R2", new TableDesc("R1", op1.getOperatorId()));
 
 		// deploy and execute plan
 		Error err = qPlan.deployPlan();

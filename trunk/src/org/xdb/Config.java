@@ -96,6 +96,12 @@ public class Config implements Serializable {
 	public static boolean TRACE_COMPILE_PLAN_HEADER_RESULT_SCHEMA = false;
 	public static boolean TRACE_COMPILE_PLAN_HEADER_RESULT_PARTITIONING = true;
 	
+	public static boolean TRACE_TRACKER_PLAN_HEADER = false;
+	public static boolean TRACE_TRACKER_PLAN_FOOTER = false;
+	public static boolean TRACE_TRACKER_SHORT_CAPTIONS = true;
+	public static int TRACE_TRACKER_SHORT_CAPTIONS_CHARS = 50;
+	
+	
 	public static boolean TRACE_OPTIMIZED_PLAN = false;
 	public static boolean TRACE_CODEGEN_PLAN = false;
 	public static boolean TRACE_TRACKER_PLAN = false;
@@ -139,6 +145,9 @@ public class Config implements Serializable {
 				"TRACE_COMPILE_PLAN_HEADER_RESULT_PARTITIONING", 
 				"TRACE_COMPILE_PLAN_HEADER_RESULT_SCHEMA",
 				"TRACE_COMPILE_PLAN_FOOTER",
+				"TRACE_TRACKER_PLAN_HEADER",
+				"TRACE_TRACKER_PLAN_FOOTER",
+				"TRACE_TRACKER_PLAN_CAPTIONS",
 				"TRACE_OPTIMIZED_PLAN", 
 				"TRACE_TRACKER_PLAN",
 				"TRACE_EXECUTE_PLAN", 

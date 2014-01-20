@@ -26,8 +26,8 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	// constants
 	protected static final String CREATE_TABLE_DDL = "CREATE TABLE IF NOT EXISTS ";
 	protected static final String DROP_TABLE_DDL = "DROP TABLE IF EXISTS ";
-	protected static final String CREATE_VIEW_DDL = "CREATE VIEW IF NOT EXISTS ";
-	protected static final String DROP_VIEW_DDL = "DROP VIEW IF EXISTS ";
+	protected static final String CREATE_VIEW_DDL = "CREATE VIEW ";
+	protected static final String DROP_VIEW_DDL = "DROP VIEW ";
 
 	private static final String OUTPUT_TABLE_DDL = " ENGINE=MEMORY";
 
@@ -60,8 +60,8 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	// map: output table name -> PartitionInfo String
 	protected HashMap<String, String> outTablesPartDesc = new HashMap<String, String>();
 
-	// map: input table name -> TableDesc
-	protected HashMap<String, TableDesc> inTablesDescs = new HashMap<String, TableDesc>();
+	// map: federated table names -> TableDesc
+	protected HashMap<String, TableDesc> inFederatedTables = new HashMap<String, TableDesc>();
 
 	// list: possible connections
 	// "ranked based on the frequencies of the connections"
@@ -105,13 +105,9 @@ public abstract class AbstractTrackerOperator implements Serializable {
 		return isRoot;
 	}
 
-	public void setInTableSource(final String tableName,
+	public void addInTableFederated(final String tableName,
 			final TableDesc tableDesc) {
-		inTablesDescs.put(tableName, tableDesc);
-	}
-
-	public Collection<TableDesc> getInTableSources() {
-		return this.inTablesDescs.values();
+		inFederatedTables.put(tableName, tableDesc);
 	}
 
 	public void addInTable(final String tableName, final StringTemplate tableDDL) {
@@ -194,8 +190,8 @@ public abstract class AbstractTrackerOperator implements Serializable {
 		Map<String, String> args = new HashMap<String, String>();
 
 		// generate DDLs to open operator: input tables
-		for (String tableName : this.inTables.keySet()) {
-			TableDesc inTableDesc = this.inTablesDescs.get(tableName);
+		for (String tableName : this.inFederatedTables.keySet()) {
+			TableDesc inTableDesc = this.inFederatedTables.get(tableName);
 			String deployTableName = genDeployName(tableName, deployOperId);
 
 			// input table is an intermediate result
@@ -212,8 +208,7 @@ public abstract class AbstractTrackerOperator implements Serializable {
 						deployOperId, sourceTableName, sourceOperId, sourceURL);
 				execOp.addOpenSQL(deployTableDDL);
 
-				// if URL of source operator is local then use directly its
-				// output
+				// if URL of source is local then use directly table
 				if (isLocalInput(sourceURL, deployURL)) {
 					// get description of source Table
 					Identifier sourceDeployOperId = sourceOp.getOperatorID();
@@ -222,7 +217,7 @@ public abstract class AbstractTrackerOperator implements Serializable {
 							sourceDeployOperId);
 				}
 
-				args.put(tableName, "SELECT * FROM " + deployTableName);
+				args.put(tableName, "(SELECT * FROM " + deployTableName+")");
 			}
 			// input table is stored in an XDB instance
 			else {

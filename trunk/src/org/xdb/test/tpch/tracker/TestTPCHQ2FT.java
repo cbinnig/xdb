@@ -273,7 +273,7 @@ public class TestTPCHQ2FT extends DistributedTPCHTestCase {
 			opUpperLeaf.addInTable("UNION_IN", unionDDL);  
 			for (Identifier identifier : lowerRoots) {
 				AbstractTrackerOperator opLowerRoot = qPlan.getTrackerOperator(identifier);  
-				opUpperLeaf.setInTableSource("UNION_IN", new TableDesc("UNION_OUT", opLowerRoot.getOperatorId()));
+				opUpperLeaf.addInTableFederated("UNION_IN", new TableDesc("UNION_OUT", opLowerRoot.getOperatorId()));
                 
 			}
 			qPlan.setSources(upperLeaf, lowerRoots);

@@ -24,18 +24,17 @@ import org.xdb.tracker.operator.TableDesc;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
-public abstract class DistributedTPCHTestCase extends
-		DistributedXDBTestCase {
+public abstract class DistributedTPCHTestCase extends DistributedXDBTestCase {
 
 	// static fields
 	protected static final int NUMBER_COMPUTE_DBS = Config.TEST_NODE_COUNT
-			* Config.TEST_PARTS_PER_NODE; 
+			* Config.TEST_PARTS_PER_NODE;
 	private static final String TPCH_DB_NAME = Config.TEST_DB_NAME;
-	private static Integer LAST_EXEC_OP_ID = 1; 
+	private static Integer LAST_EXEC_OP_ID = 1;
 
 	// test into
 	protected int numberOfSubops = NUMBER_COMPUTE_DBS;
-	
+
 	// need to be set by child class
 	protected int expectedCnt = 0;
 	protected String subqueryDDL = "";
@@ -69,7 +68,7 @@ public abstract class DistributedTPCHTestCase extends
 	protected String getUnionInTableName() {
 		return "UNION_IN";
 	}
-	
+
 	protected String getUnionOutTableName() {
 		return "UNION_OUT";
 	}
@@ -98,7 +97,7 @@ public abstract class DistributedTPCHTestCase extends
 
 			String unionOutTableName = getSubqueryOutTableName(i);
 			String unionInTableName = getUnionInTableName(i);
-			unionOp.setInTableSource(unionInTableName, new TableDesc(
+			unionOp.addInTableFederated(unionInTableName, new TableDesc(
 					unionOutTableName, subqueryOps[i].getOperatorId()));
 		}
 	}
@@ -116,9 +115,9 @@ public abstract class DistributedTPCHTestCase extends
 		String unionOutTableName = getUnionOutTableName();
 		StringTemplate unionOutDDL = new StringTemplate("<" + unionOutTableName
 				+ "> " + unionDDL);
-		
 
-		unionOp.addOutTable(unionOutTableName, unionOutDDL, this.unionPartitionDDL);
+		unionOp.addOutTable(unionOutTableName, unionOutDDL,
+				this.unionPartitionDDL);
 
 		// DDL for all inputs of union
 		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
@@ -133,11 +132,11 @@ public abstract class DistributedTPCHTestCase extends
 		StringBuffer unionTMPDDL = new StringBuffer("INSERT INTO <");
 		unionTMPDDL.append(unionOutTableName);
 		unionTMPDDL.append("> ");
-		unionTMPDDL.append(this.unionPreDML); 
+		unionTMPDDL.append(this.unionPreDML);
 		unionTMPDDL.append(" ( ");
 		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
 			String unionInTableName = getUnionInTableName(i);
- 
+
 			unionTMPDDL.append("(<");
 			unionTMPDDL.append(unionInTableName);
 			unionTMPDDL.append(">)");
@@ -164,31 +163,34 @@ public abstract class DistributedTPCHTestCase extends
 	 */
 	protected void createSubqueryOps(QueryTrackerPlan qPlan,
 			MySQLTrackerOperator[] subOps) {
-		
+
 		for (int i = 0; i < NUMBER_COMPUTE_DBS; ++i) {
 			subOps[i] = new MySQLTrackerOperator();
 
 			// DDL for output of sub-query operator
 			String subOpOutTableName = getSubqueryOutTableName(i);
-			StringTemplate subOpOutDDL = new StringTemplate("<" + subOpOutTableName
-					+ "> " + subqueryDDL);
+			StringTemplate subOpOutDDL = new StringTemplate("<"
+					+ subOpOutTableName + "> " + subqueryDDL);
 			subOps[i].addOutTable(subOpOutTableName, subOpOutDDL);
 
 			// DML for sub-query operators
-			StringTemplate subqueryDMLTempl = new StringTemplate(this.subqueryDML);
+			StringTemplate subqueryDMLTempl = new StringTemplate(
+					this.subqueryDML);
 			HashMap<String, String> args = new HashMap<String, String>();
-			
+
 			// name of database must be different if do not run locally
-			// however if we run local, we just use the normal database name of the configuration
+			// however if we run local, we just use the normal database name of
+			// the configuration
 			String dbName = TPCH_DB_NAME;
-			if(!this.isRunLocal()){
-				dbName+=(i+1);
+			if (!this.isRunLocal()) {
+				dbName += (i + 1);
 			}
-			
+
 			args.put("TPCH_DB_NAME", dbName);
-			
+
 			StringTemplate subqueryDML = new StringTemplate("insert into <"
-					+ subOpOutTableName + "> " + subqueryDMLTempl.toString(args));
+					+ subOpOutTableName + "> "
+					+ subqueryDMLTempl.toString(args));
 
 			subOps[i].addExecuteSQL(subqueryDML);
 
@@ -213,7 +215,7 @@ public abstract class DistributedTPCHTestCase extends
 			Identifier execOpId = trackerOpId.clone().append(nextExecOpId());
 
 			OperatorDesc executeOperDesc = new OperatorDesc(execOpId,
-					this.getComputeNode(i/Config.TEST_PARTS_PER_NODE));
+					this.getComputeNode(i / Config.TEST_PARTS_PER_NODE));
 			currentDeployment.put(trackerOpId, executeOperDesc);
 		}
 
@@ -225,41 +227,50 @@ public abstract class DistributedTPCHTestCase extends
 		currentDeployment.put(trackerOpId, executeOperDesc);
 
 		return currentDeployment;
-	} 
-	
-	protected void setConnectionList(Map<Identifier, AbstractTrackerOperator> trackerOps, List<Identifier> opIds, Identifier unionOpId, ComputeNodeDesc[] computeNodes) {
-	    
-		this.allConnections.clear();
-		for(int i=0; i < NUMBER_COMPUTE_DBS; i++){
-	    	  
-			  AbstractTrackerOperator trackerOp = trackerOps.get(opIds.get(i)); 
-			  // Set the connection list 
-			  List<Connection> opConnections = new ArrayList<Connection>();  
-			  ComputeNodeDesc computeNodeDesc = computeNodes[i/Config.TEST_PARTS_PER_NODE]; 
-			  // Create the first connection 
-			  Connection conn = new Connection("Connection_"+i/Config.TEST_PARTS_PER_NODE,"mysql://"+computeNodeDesc.getUrl()+"/"+Config.TEST_DB_NAME,
-					  Config.METADATA_USER, Config.METADATA_PASSWORD, EnumStore.MYSQL); 
-			  
-			  opConnections.add(conn);
-			  opConnections.add(conn); 
-			  if(i%Config.TEST_PARTS_PER_NODE == 0)
-                  this.allConnections.add(conn);
-			  trackerOp.setTrackerOpConnections(opConnections);	  
-	      }   
-		  
-		  // Set the connection of union operator  
-		  ComputeNodeDesc computeNodeDesc = computeNodes[0]; 
-		  Connection conn = new Connection("Connection_0","mysql://"+computeNodeDesc.getUrl()+"/"+Config.TEST_DB_NAME,
-				  Config.METADATA_USER, Config.METADATA_PASSWORD, EnumStore.MYSQL);  
-		  AbstractTrackerOperator unionTrackerOp = trackerOps.get(unionOpId);   
-		  List<Connection> opConnections = new ArrayList<Connection>();  
-		  opConnections.add(conn); 
-		  opConnections.add(conn); 
-		  unionTrackerOp.setTrackerOpConnections(opConnections);  
-		  	  
 	}
-	
-	protected static String prettyPrintResultSet(ResultSet resultSet, int rowCount) throws SQLException{
+
+	protected void setConnectionList(
+			Map<Identifier, AbstractTrackerOperator> trackerOps,
+			List<Identifier> opIds, Identifier unionOpId,
+			ComputeNodeDesc[] computeNodes) {
+
+		this.allConnections.clear();
+		for (int i = 0; i < NUMBER_COMPUTE_DBS; i++) {
+
+			AbstractTrackerOperator trackerOp = trackerOps.get(opIds.get(i));
+			// Set the connection list
+			List<Connection> opConnections = new ArrayList<Connection>();
+			ComputeNodeDesc computeNodeDesc = computeNodes[i
+					/ Config.TEST_PARTS_PER_NODE];
+			// Create the first connection
+			Connection conn = new Connection("Connection_" + i
+					/ Config.TEST_PARTS_PER_NODE, "mysql://"
+					+ computeNodeDesc.getUrl() + "/" + Config.TEST_DB_NAME,
+					Config.METADATA_USER, Config.METADATA_PASSWORD,
+					EnumStore.MYSQL);
+
+			opConnections.add(conn);
+			opConnections.add(conn);
+			if (i % Config.TEST_PARTS_PER_NODE == 0)
+				this.allConnections.add(conn);
+			trackerOp.setTrackerOpConnections(opConnections);
+		}
+
+		// Set the connection of union operator
+		ComputeNodeDesc computeNodeDesc = computeNodes[0];
+		Connection conn = new Connection("Connection_0", "mysql://"
+				+ computeNodeDesc.getUrl() + "/" + Config.TEST_DB_NAME,
+				Config.METADATA_USER, Config.METADATA_PASSWORD, EnumStore.MYSQL);
+		AbstractTrackerOperator unionTrackerOp = trackerOps.get(unionOpId);
+		List<Connection> opConnections = new ArrayList<Connection>();
+		opConnections.add(conn);
+		opConnections.add(conn);
+		unionTrackerOp.setTrackerOpConnections(opConnections);
+
+	}
+
+	protected static String prettyPrintResultSet(ResultSet resultSet,
+			int rowCount) throws SQLException {
 		StringBuilder returnValue = new StringBuilder();
 		ResultSetMetaData rsmd = resultSet.getMetaData();
 		int columnCount = rsmd.getColumnCount();
@@ -270,9 +281,9 @@ public abstract class DistributedTPCHTestCase extends
 			}
 		}
 		returnValue.append("\n");
-		
+
 		int i = 0;
-		while (resultSet.next() && i < rowCount){
+		while (resultSet.next() && i < rowCount) {
 			for (int j = 1; j <= rsmd.getColumnCount(); j++) {
 				returnValue.append(resultSet.getString(j));
 				if (j < columnCount) {
@@ -299,7 +310,6 @@ public abstract class DistributedTPCHTestCase extends
 		// deploy plan to compute nodes
 		Error err = qPlan.deployPlan(deployment);
 
-		
 		if (err.isError())
 			qPlan.cleanPlanOnError();
 		this.assertNoError(err);
@@ -312,13 +322,13 @@ public abstract class DistributedTPCHTestCase extends
 
 		final Map<Identifier, OperatorDesc> currentDeployment = qPlan
 				.getCurrentDeployment();
-		
+
 		OperatorDesc rootDesc = currentDeployment.get(resultOpId);
 		Identifier resultTable = rootDesc.getOperatorID();
-		String rootUrl = "jdbc:mysql://"+rootDesc.getComputeNode().getUrl()+"/"+Config.COMPUTE_DB_NAME;
-		final ResultSet rs = this
-				.executeComputeQuery(rootUrl, "SELECT COUNT(*) FROM " + resultTable
-						+ "_" + resultTableName);
+		String rootUrl = "jdbc:mysql://" + rootDesc.getComputeNode().getUrl()
+				+ "/" + Config.COMPUTE_DB_NAME;
+		final ResultSet rs = this.executeComputeQuery(rootUrl,
+				"SELECT COUNT(*) FROM " + resultTable + "_" + resultTableName);
 		int actualCnt = 0;
 		if (rs.next()) {
 			actualCnt = rs.getInt(1);
@@ -328,17 +338,18 @@ public abstract class DistributedTPCHTestCase extends
 			// verify results
 			assertEquals(expectedCnt, actualCnt);
 		}
-		if (actualCnt>0){
-			final ResultSet results = this.executeComputeQuery(rootUrl,"SELECT * FROM " + resultTable + "_" + resultTableName);
+		if (actualCnt > 0) {
+			final ResultSet results = this.executeComputeQuery(rootUrl,
+					"SELECT * FROM " + resultTable + "_" + resultTableName);
 			System.out.println(prettyPrintResultSet(results, 10));
 		}
 
 		// clean plan
 		this.assertNoError(qPlan.cleanPlan());
-	} 
-	
-	
-	protected Error executeQuery (QueryTrackerPlan qplan, boolean injectFailure, int numFailures, long executionTime){
+	}
+
+	protected Error executeQuery(QueryTrackerPlan qplan, boolean injectFailure,
+			int numFailures, long executionTime) {
 
 		Error err = new Error();
 
@@ -348,14 +359,15 @@ public abstract class DistributedTPCHTestCase extends
 			qplan.cleanPlanOnError();
 			return err;
 		}
-        
-		// Inject failure(s) 
-		if(injectFailure){ 
-			FailureSimulatorFT failureSimulatorFT = new FailureSimulatorFT(numFailures, qplan, this.allConnections, executionTime); 
+
+		// Inject failure(s)
+		if (injectFailure) {
+			FailureSimulatorFT failureSimulatorFT = new FailureSimulatorFT(
+					numFailures, qplan, this.allConnections, executionTime);
 			failureSimulatorFT.start();
 		}
-		
-		// Execute query tracker plan 
+
+		// Execute query tracker plan
 		err = qplan.executePlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
@@ -365,27 +377,28 @@ public abstract class DistributedTPCHTestCase extends
 		// Clean up
 		err = qplan.cleanPlan();
 		if (err.isError()) {
-			qplan.cleanPlanOnError(); 
+			qplan.cleanPlanOnError();
 			return err;
-		}  
-		
+		}
+
 		return err;
 	}
-	
+
 	/**
-	 * Executes the Query Tracker Plan with multiple outputtables and checks if results size is correct
+	 * Executes the Query Tracker Plan with multiple outputtables and checks if
+	 * results size is correct
 	 * 
 	 * @param qPlan
 	 * @param unionOp
 	 * @throws SQLException
 	 */
 	protected void executeQuery(QueryTrackerPlan qPlan,
-			Map<Identifier, OperatorDesc> deployment, Map<Identifier,String> resultOpIds) throws SQLException {
+			Map<Identifier, OperatorDesc> deployment,
+			Map<Identifier, String> resultOpIds) throws SQLException {
 
 		// deploy plan to compute nodes
 		Error err = qPlan.deployPlan(deployment);
 
-		
 		if (err.isError())
 			qPlan.cleanPlanOnError();
 		this.assertNoError(err);
@@ -403,31 +416,32 @@ public abstract class DistributedTPCHTestCase extends
 			OperatorDesc rootDesc = currentDeployment.get(resultOpId);
 			String resultTableName = resultOpIds.get(resultOpId);
 			Identifier resultTable = rootDesc.getOperatorID();
-			String rootUrl = "jdbc:mysql://"+rootDesc.getComputeNode().getUrl()+"/"+Config.COMPUTE_DB_NAME;
-			final ResultSet rs = this
-				.executeComputeQuery(rootUrl, "SELECT COUNT(*) FROM " + resultTable
-						+ "_" + resultTableName);
-		
+			String rootUrl = "jdbc:mysql://"
+					+ rootDesc.getComputeNode().getUrl() + "/"
+					+ Config.COMPUTE_DB_NAME;
+			final ResultSet rs = this.executeComputeQuery(rootUrl,
+					"SELECT COUNT(*) FROM " + resultTable + "_"
+							+ resultTableName);
+
 			if (rs.next()) {
-			actualCnt += rs.getInt(1);
+				actualCnt += rs.getInt(1);
 			}
-			
-			if (actualCnt>0){
-				final ResultSet results = this.executeComputeQuery(rootUrl,"SELECT * FROM " + resultTable + "_" + resultTableName);
-			
+
+			if (actualCnt > 0) {
+				final ResultSet results = this.executeComputeQuery(rootUrl,
+						"SELECT * FROM " + resultTable + "_" + resultTableName);
+
 				System.out.println(prettyPrintResultSet(results, 10));
 			}
 
 		}
-		
-	
+
 		if (expectedCnt > 0) {
 			// verify results
 			assertEquals(expectedCnt, actualCnt);
 		}
-		
-		//assertTrue(expectedCnt >0);
-	
+
+		// assertTrue(expectedCnt >0);
 
 		// clean plan
 		this.assertNoError(qPlan.cleanPlan());
