@@ -133,7 +133,7 @@ public class GenericAggregation extends AbstractUnaryOperator {
 	
 	@Override
 	public String toSqlString() {
-		final HashMap<String, String> vars = new HashMap<String, String>();
+		final Map<String, String> vars = new HashMap<String, String>();
 		vars.put("OP1", getChild().getOperatorId().toString());
 		vars.put("AGG_ATTRS", SetUtils.stringifyExprVec(aggExprs));
 		vars.put("GROUP_ATTRS", SetUtils.stringifyExprVec(groupExprs));

@@ -74,8 +74,16 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 * 
 	 * @return set of all dependency operators, empty set if no given
 	 */
+	public boolean isRoot(){
+		return this.parents.size()==0;
+	}
+	
 	public Vector<AbstractCompileOperator> getParents() {
 		return this.parents;
+	}
+	
+	public void clearParents() {
+		this.parents.clear();;
 	}
 	
 	public Set<Connection> getWishedConnections() {
@@ -157,6 +165,11 @@ public abstract class AbstractCompileOperator implements Serializable {
 		this.parents = parents;
 	}
 
+	public void setParent(AbstractCompileOperator parent) {
+		this.parents.clear();
+		this.parents.add(parent);
+	}
+	
 	public void addParent(AbstractCompileOperator parent) {
 		this.parents.add(parent);
 	}

@@ -42,7 +42,7 @@ public class JoinCombineVisitor extends AbstractTopDownTreeVisitor {
 			}else {
 				//create new sql join
 				SQLJoin sqljoin =  new SQLJoin((EquiJoin)ej);
-				this.plan.replaceOperator(ej.getOperatorId(), sqljoin, false);
+				this.plan.replaceOperator(ej.getOperatorId(), sqljoin);
 				this.lastOp = sqljoin;
 			}
 		}else{

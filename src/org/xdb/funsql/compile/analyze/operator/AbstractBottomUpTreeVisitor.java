@@ -17,6 +17,9 @@ public abstract class AbstractBottomUpTreeVisitor extends AbstractTreeVisitor {
 		if(this.stop)
 			return e;
 		
+		if(absOp==null)
+			System.out.println("STOP");
+		
 		for(AbstractCompileOperator child: absOp.getChildren()){
 			e = this.visit(child);
 			if(e.isError())

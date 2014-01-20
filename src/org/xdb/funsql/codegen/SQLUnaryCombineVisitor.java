@@ -1,6 +1,7 @@
 package org.xdb.funsql.codegen;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
@@ -28,10 +29,11 @@ import org.xdb.utils.Identifier;
 public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 		
 	private SQLUnary sqlUnaryOp = null;
+	private AbstractUnaryOperator lastUnaryOp = null;
+	
 	private int parentIdx = 0;
-	private boolean isLastOp = false;
 	private CompilePlan plan;
-	private HashSet<Identifier> combinedOps = new HashSet<Identifier>();
+	private Set<Identifier> toRemoveOps = new HashSet<Identifier>();
 
 	private Error err = new Error();
 
@@ -41,44 +43,14 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 		this.plan = plan;
 	}
 
-	private void init(AbstractUnaryOperator op) {
-		if(this.sqlUnaryOp!=null){
-			this.plan.removeOperator(this.sqlUnaryOp.getOperatorId());
-		}
-		
-		this.sqlUnaryOp = new SQLUnary(op.getChild());
-		this.plan.addOperator(this.sqlUnaryOp, false);
-		this.sqlUnaryOp.cut();
-		this.parentIdx = op.getChild().findParent(op);
-		this.isLastOp = false;
-		this.combinedOps.clear();
-	}
-
-	private void checkLastOp(AbstractCompileOperator op) {
-		this.combinedOps.add(op.getOperatorId());
-		
-		if (op.getParents().size() > 1) {
-			this.isLastOp = true;
-		}
-	}
-
-	@Override
-	public Error visitEquiJoin(EquiJoin ej) {
-		if(this.sqlUnaryOp != null){
-			this.plan.removeOperator(this.sqlUnaryOp.getOperatorId());
-			this.sqlUnaryOp = null;
-		}
-		return err;
-	}
-
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
-		if (this.sqlUnaryOp == null || this.isLastOp)
-			this.init(gs);
+		if (this.sqlUnaryOp == null)
+			this.initVisitor(gs);
 
 		// add operator to combined operator
 		if (!this.sqlUnaryOp.addSelection(gs)) {
-			this.isLastOp = true;
+			this.stop();
 			return err;
 		}
 
@@ -90,12 +62,12 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
-		if (this.sqlUnaryOp == null || this.isLastOp)
-			this.init(sa);
+		if (this.sqlUnaryOp == null )
+			this.initVisitor(sa);
 
 		// add operator to combined operator
 		if (!this.sqlUnaryOp.addAggregation(sa)) {
-			this.isLastOp = true;
+			this.stop();
 			return err;
 		}
 
@@ -107,68 +79,27 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitGenericProjection(GenericProjection gp) {
-		if (this.sqlUnaryOp == null || this.isLastOp)
-			this.init(gp);
+		if (this.sqlUnaryOp == null )
+			this.initVisitor(gp);
 
 		// add operator to combined operator
-		if (!this.sqlUnaryOp.addProjection(gp)) {
-			this.isLastOp = true;
-			return err;
-		}
+		this.sqlUnaryOp.addProjection(gp);
 
-		// projection is always last operator, thus paste new operator into plan
-		this.isLastOp = true;
-		if (this.sqlUnaryOp.countOperators() > 1) {
-			this.paste(gp);
-		}
-
-		return err;
-	}
-
-	
-	private void paste(GenericProjection gp){
-		// add result description
+		// projection is always last operator
+		this.lastUnaryOp = gp;
+		this.stop();
 		
-	
-		this.sqlUnaryOp.setResult(gp.getResult());
-		
-		// replace projection by combined operator
-		plan.replaceOperator(gp.getOperatorId(), this.sqlUnaryOp, true);
-		
-		// paste to parents
-		for (AbstractCompileOperator parent : gp.getParents()) {
-			int childIdx = parent.findChild(gp);
-			parent.replaceChild(childIdx, this.sqlUnaryOp);
-		}
-		this.sqlUnaryOp.addParents(gp.getParents());
-	
-		// remove link to old parent 
-		this.sqlUnaryOp.getChild().replaceParent(parentIdx, this.sqlUnaryOp);
-		
-		//remove other operators form plan
-		for(Identifier opId: this.combinedOps){
-			this.plan.removeOperator(opId);
-		}
-		
-
-		// reset SQLUnary operator
-
-		this.sqlUnaryOp = null;
-	}
-	
-	@Override
-	public Error visitTableOperator(TableOperator to) {
 		return err;
 	}
 
 	@Override
 	public Error visitRename(Rename renameOp) {
-		if (this.sqlUnaryOp == null || this.isLastOp)
-			this.init(renameOp);
+		if (this.sqlUnaryOp == null )
+			this.initVisitor(renameOp);
 
 		// add operator to combined operator
 		if (!this.sqlUnaryOp.addRename(renameOp)) {
-			this.isLastOp = true;
+			this.stop();
 			return err;
 		}
 
@@ -179,25 +110,114 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 	}
 
 	@Override
-	public Error visitSQLUnary(SQLUnary sqlOp) {
-
-		Error e = new Error();
-		return e;
+	public Error visitTableOperator(TableOperator to) {
+		return err;
 	}
 
+
+	@Override
+	public Error visitEquiJoin(EquiJoin ej) {
+		this.resetVisitor();
+		return err;
+	}
+	
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
+		this.resetVisitor();
+		return err;
+	}
+	
+	@Override
+	public Error visitSQLUnary(SQLUnary sqlOp) {
+		this.resetVisitor();
+		return err;
+	}
+
+
+	@Override
+	public Error visitSQLCombined(SQLCombined absOp) {
+		this.resetVisitor();
+		return err;
+	}
+
+	/**
+	 * Make sure that we only combine operator above joins up to the next
+	 * projection or aggregation
+	 */
+	private void resetVisitor(){
 		if(this.sqlUnaryOp != null){
 			this.plan.removeOperator(this.sqlUnaryOp.getOperatorId());
 			this.sqlUnaryOp = null;
 		}
-		return err;
+	}
+
+	/**
+	 * Initializes combined operator
+	 * @param op
+	 */
+	private void initVisitor(AbstractUnaryOperator op) {
+		if(this.sqlUnaryOp!=null){
+			this.plan.removeOperator(this.sqlUnaryOp.getOperatorId());
+		}
+		
+		this.sqlUnaryOp = new SQLUnary(op.getChild());
+		this.plan.addOperator(this.sqlUnaryOp, false);
+		this.sqlUnaryOp.cut();
+		this.parentIdx = op.getChild().findParent(op);
+		this.toRemoveOps.clear();
 	}
 
 	@Override
-	public Error visitSQLCombined(SQLCombined absOp) {
-		Error e = new Error();
-		return e;
-
+	public void stop(){
+		if (this.sqlUnaryOp.countOperators() > 1) {
+			this.paste(this.lastUnaryOp);
+		}
+		
+		super.stop();
+	}
+	
+	/**
+	 * Checks if we need to stop at the current operator
+	 * @param op
+	 */
+	private void checkLastOp(AbstractUnaryOperator op) {
+		this.lastUnaryOp = op;
+		
+		if (op.getResult().materialize()) {
+			this.stop();
+		}
+		else{
+			this.toRemoveOps.add(op.getOperatorId());
+		}
+	}
+	
+	/**
+	 * Paste new operator to position of given projection operator
+	 * @param unaryOp
+	 */
+	private void paste(AbstractUnaryOperator unaryOp){
+		// add result description
+		this.sqlUnaryOp.setResult(unaryOp.getResult());
+		
+		// replace unaryOp by combined operator
+		plan.replaceOperator(unaryOp.getOperatorId(), this.sqlUnaryOp);
+		
+		// paste to parents
+		for (AbstractCompileOperator parent : unaryOp.getParents()) {
+			int childIdx = parent.findChild(unaryOp);
+			parent.replaceChild(childIdx, this.sqlUnaryOp);
+		}
+		this.sqlUnaryOp.addParents(unaryOp.getParents());
+	
+		// remove link to old parent 
+		this.sqlUnaryOp.getChild().replaceParent(parentIdx, this.sqlUnaryOp);
+		
+		//remove other operators form plan
+		for(Identifier opId: this.toRemoveOps){
+			this.plan.removeOperator(opId);
+		}
+		
+		// reset SQLUnary operator
+		this.sqlUnaryOp = null;
 	}
 }

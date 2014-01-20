@@ -29,6 +29,7 @@ import com.oy.shared.lm.graph.GraphNode;
  * @author cbinnig
  * 
  */
+//TODO: clean up mess with select expressions and aggregation expressions somehow
 public class SQLUnary extends AbstractUnaryOperator {
 
 	private static final long serialVersionUID = 2611698550463734434L;
@@ -38,8 +39,6 @@ public class SQLUnary extends AbstractUnaryOperator {
 			"SELECT <SELECT> ");
 
 	private final StringTemplate fromTemplate = new StringTemplate(
-			"FROM (<<OP1>>) AS <OP1> ");
-	private final StringTemplate fromTemplate2 = new StringTemplate(
 			"FROM <<OP1>> AS <OP1> ");
 	private final StringTemplate whereTemplate = new StringTemplate(
 			" WHERE <WHERE> ");
@@ -65,7 +64,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 	// other info
 	private Map<TokenIdentifier, AbstractExpression> replaceExprMap = new HashMap<TokenIdentifier, AbstractExpression>();
 	private int countOps = 0;
-	private boolean addedLastOp = true;
+	private boolean addedLastOp = true; //flag if last operator was added
 
 	public SQLUnary(AbstractCompileOperator child) {
 		super(child);
@@ -111,8 +110,9 @@ public class SQLUnary extends AbstractUnaryOperator {
 		final Vector<String> selAliasVec = new Vector<String>(
 				this.selectAliases.size());
 		int i = 0;
-		while (i < this.selectExpressions.size()) {
-			selExprVec.add(this.selectExpressions.get(i).toSqlString());
+		Vector<AbstractExpression> selExprs = this.getSelectExpressions();
+		while (i < selExprs.size()) {
+			selExprVec.add(selExprs.get(i).toSqlString());
 			selAliasVec.add(this.selectAliases.get(i).toSqlString());
 			i++;
 		}
@@ -123,12 +123,8 @@ public class SQLUnary extends AbstractUnaryOperator {
 		vars.clear();
 		// whether use table or other complex template
 		vars.put("OP1", getChild().getOperatorId().toString());
-		if (getChild().getType().equals(EnumOperator.TABLE)) {
-			sqlStmt.append(fromTemplate2.toString(vars));
-		} else {
-			sqlStmt.append(fromTemplate.toString(vars));
-		}
-
+		sqlStmt.append(fromTemplate.toString(vars));
+		
 		// where clause
 		sqlStmt.append(getWhereClause());
 		// having clause
@@ -215,8 +211,8 @@ public class SQLUnary extends AbstractUnaryOperator {
 		Map<TokenIdentifier, AbstractExpression> newReplaceMap = new HashMap<TokenIdentifier, AbstractExpression>();
 		for (TokenAttribute att : op.getResult().getAttributes()) {
 			this.selectAliases.add(att.getName());
-			AbstractExpression newExpr = op.getExpression(i)
-					.replaceAttribtues(this.replaceExprMap);
+			AbstractExpression newExpr = op.getExpression(i).replaceAttribtues(
+					this.replaceExprMap);
 			this.selectExpressions.add(newExpr);
 			newReplaceMap.put(att.getName(), newExpr);
 			i++;
@@ -356,44 +352,29 @@ public class SQLUnary extends AbstractUnaryOperator {
 
 	// getters and setters
 	public Vector<AbstractExpression> getSelectExpressions() {
-		return selectExpressions;
-	}
-
-	public void setSelectExpressions(
-			Vector<AbstractExpression> selectExpressions) {
-		this.selectExpressions = selectExpressions;
+		if(this.selectExpressions.size()>0)
+			return selectExpressions;
+		else{
+			Vector<AbstractExpression> selExprs = new Vector<AbstractExpression>(this.aggExpressions);
+			selExprs.addAll(this.groupExpressions);
+			return selExprs;
+		}
 	}
 
 	public Vector<TokenIdentifier> getSelectAliases() {
 		return selectAliases;
 	}
 
-	public void setSelectAliases(Vector<TokenIdentifier> selectAliases) {
-		this.selectAliases = selectAliases;
-	}
-
 	public Vector<AbstractExpression> getAggExpressions() {
 		return aggExpressions;
-	}
-
-	public void setAggExpressions(Vector<AbstractExpression> aggExpressions) {
-		this.aggExpressions = aggExpressions;
 	}
 
 	public AbstractPredicate getWherePred() {
 		return wherePred;
 	}
 
-	public void setWherePred(AbstractPredicate wherePred) {
-		this.wherePred = wherePred;
-	}
-
 	public AbstractPredicate getHavingPred() {
 		return havingPred;
-	}
-
-	public void setHavingPred(AbstractPredicate havingPred) {
-		this.havingPred = havingPred;
 	}
 
 	public Vector<AbstractExpression> getGroupExpressions() {
@@ -406,11 +387,6 @@ public class SQLUnary extends AbstractUnaryOperator {
 
 	public Map<TokenIdentifier, AbstractExpression> getReplaceExprMap() {
 		return replaceExprMap;
-	}
-
-	public void setReplaceExprMap(
-			Map<TokenIdentifier, AbstractExpression> replaceExprMap) {
-		this.replaceExprMap = replaceExprMap;
 	}
 
 	@Override

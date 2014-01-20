@@ -4,10 +4,14 @@ import org.xdb.client.CompileClient;
 import org.xdb.error.Error;
 import org.xdb.test.XDBTestCase;
 
+/**
+ * Test case with partitioned TPC-H schema
+ * @author cbinnig
+ *
+ */
 public class TestTPCHParallel extends XDBTestCase {
 	private CompileClient client = new CompileClient();
 	
-	//TODO: Check that partition names are always P0, P1, ...
 	private String[] schemaDDLs = {
 			"CREATE CONNECTION TPCH1 " +
 			"URL 'jdbc:mysql://127.0.0.1/tpch_s01' " + 
@@ -127,13 +131,14 @@ public class TestTPCHParallel extends XDBTestCase {
 		this.executeStmt(q3);
 	}
 	
-	public void testQ5(){
+	public void testQ5withAvgAndNationkeyAsGroupBy(){
 		
 		/*
 		 * 
 		 * Select 
-n_name,
-sum(l_extendedprice * (1-l_discount)) as revenue
+n_nationkey,
+sum(l_extendedprice * (1-l_discount)) as revenue,
+avg(l_extendedprice * (1-l_discount)) as avgrevenue
 from 
 customer,
 orders,
@@ -150,7 +155,7 @@ and r_regionkey = n_regionkey
 and r_name = 'ASIA'
 and o_orderdate > DATE('1994-01-01 00:00:00')
 and o_orderdate < DATE('1995-01-01 00:00:00')
-group by n_name;
+group by n_nationkey;
 		 */
 		String q5 = "Select n_nationkey, " +
 					"sum(l_extendedprice * (1-l_discount)) as revenue, " +
