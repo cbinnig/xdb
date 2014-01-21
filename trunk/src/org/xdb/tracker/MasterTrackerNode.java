@@ -17,6 +17,7 @@ import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.QueryTrackerClient;
 import org.xdb.doomdb.DoomDBPlan;
+import org.xdb.doomdb.DoomDBPlanDesc;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
@@ -204,6 +205,11 @@ public class MasterTrackerNode {
 		return err;
 	}
 	
+	/**
+	 * Generate query tracker plan for DoomDB without executing it
+	 * @param plan
+	 * @return
+	 */
 	public Tuple<Error, DoomDBPlan> generateDoomDBQPlan(final CompilePlan plan) {
 		// logging
 		logger.log(Level.INFO,
@@ -222,6 +228,51 @@ public class MasterTrackerNode {
 		return this.generateDoomDBQPlanOnQueryTracker(qTracker, plan);
 	}
 
+	/**
+	 * Executes query tracker plan for given DoomDBPlan
+	 * @param dplanDesc
+	 * @return
+	 */
+	public Error executeDoomDBQPlan(DoomDBPlanDesc dplanDesc){
+		Error err = new Error();
+		
+		if(!this.planAssignment.containsKey(dplanDesc.getCompilePlanId())){
+			String[] args = { "MasterTracker: No query tracker available!" };
+			err = new Error(EnumError.TRACKER_GENERIC, args);
+			return err;
+		}
+		
+		QueryTrackerNodeDesc qTracker = this.planAssignment.get(dplanDesc.getCompilePlanId());
+		final QueryTrackerClient qClient = this.queryTrackerClients.get(qTracker);
+		
+		qClient.executeDoomDBQPlan(dplanDesc);
+		
+		return err;
+	}
+	
+	
+	/**
+	 * Executes query tracker plan for given DoomDBPlan
+	 * @param dplanDesc
+	 * @return
+	 */
+	public Tuple<Error, Boolean> finishedDoomDBQPlan(DoomDBPlanDesc dplanDesc){
+		Error err = new Error();
+		
+		if(!this.planAssignment.containsKey(dplanDesc.getCompilePlanId())){
+			String[] args = { "MasterTracker: No query tracker available!" };
+			err = new Error(EnumError.TRACKER_GENERIC, args);
+			return new Tuple<Error, Boolean>(err, false);
+		}
+		
+		QueryTrackerNodeDesc qTracker = this.planAssignment.get(dplanDesc.getCompilePlanId());
+		final QueryTrackerClient qClient = this.queryTrackerClients.get(qTracker);
+		
+		Tuple<Error, Boolean> result = qClient.finishedDoomDBQPlan(dplanDesc);
+		
+		return result;
+	}
+	
 	/**
 	 * Determines next query tracker using a round-robin scheme
 	 * 
@@ -261,7 +312,7 @@ public class MasterTrackerNode {
 	}
 	
 	/**
-	 * Generates query tracker plan on query tracker
+	 * Generates query tracker plan on query tracker for DoomDB
 	 * @param tracker
 	 * @param plan
 	 * @return

@@ -12,6 +12,7 @@ import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.QueryTrackerClient;
 import org.xdb.doomdb.DoomDBPlan;
+import org.xdb.doomdb.DoomDBPlanDesc;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
@@ -77,6 +78,16 @@ public class MasterTrackerServer extends AbstractServer {
 					out.writeObject(result.getObject2());
 					err = result.getObject1();
 					break;
+				case CMD_DOOMDB_EXECUTE_PLAN:
+					final DoomDBPlanDesc dPlanDesc = (DoomDBPlanDesc)in.readObject();
+					err = tracker.executeDoomDBQPlan(dPlanDesc);
+					break;
+				case CMD_DOOMDB_FINISHED_PLAN:
+					final DoomDBPlanDesc dPlanDesc2 = (DoomDBPlanDesc)in.readObject();
+					Tuple<Error, Boolean> result2 = tracker.finishedDoomDBQPlan(dPlanDesc2);
+					out.writeObject(result2.getObject2());
+					err = result2.getObject1();
+					break;
 				
 				}
 			} catch (final Exception e) {
@@ -94,7 +105,8 @@ public class MasterTrackerServer extends AbstractServer {
 	public static final int CMD_REQUEST_COMPUTE_NODE = 4;
 
 	public static final int CMD_DOOMDB_GENERATE_PLAN = 100;
-	
+	public static final int CMD_DOOMDB_EXECUTE_PLAN = 101;
+	public static final int CMD_DOOMDB_FINISHED_PLAN = 102;
 	
 	// Master tracker node which executes cmds
 	private final MasterTrackerNode tracker;
@@ -146,7 +158,7 @@ public class MasterTrackerServer extends AbstractServer {
 		
 		if(server.getError().isError()){
 			server.stopServer();
-			System.out.println("Compute server error ("+server.getError()+")");
+			System.out.println("Master tracker server error ("+server.getError()+")");
 		}
 	}
 

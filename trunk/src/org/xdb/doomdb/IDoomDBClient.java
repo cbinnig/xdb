@@ -4,6 +4,8 @@ import java.util.List;
 
 public interface IDoomDBClient {
 
+	void setSchema(DoomDBSchema schema);
+	
 	/**
 	 * Sets the Query of the Game with String query
 	 * 

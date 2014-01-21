@@ -30,4 +30,10 @@ public class CompileClient extends AbstractClient {
 		return this.executeCmd(this.url, this.port,
 				CompileServer.CMD_EXECUTE_WO_RESULT, args);
 	}
+	
+	public Error resetCatalog() {
+		Object[] args = { };
+		return this.executeCmd(this.url, this.port,
+				CompileServer.CMD_RESET_CATALOG, args);
+	}
 }

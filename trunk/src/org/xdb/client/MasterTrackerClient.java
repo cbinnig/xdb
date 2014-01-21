@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.xdb.Config;
 import org.xdb.doomdb.DoomDBPlan;
+import org.xdb.doomdb.DoomDBPlanDesc;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
@@ -112,5 +113,29 @@ public class MasterTrackerClient extends AbstractClient {
 		Tuple<Error, DoomDBPlan> resultDoomDBPlan = new Tuple<Error, DoomDBPlan>(
 				result.getObject1(), (DoomDBPlan) result.getObject2());
 		return resultDoomDBPlan;
+	}
+	
+	/**
+	 * Execute query tracker plan for DoomDBPlan
+	 * @param dplanDesc
+	 * @return
+	 */
+	public Error executeDoomDBPlan(final DoomDBPlanDesc dplanDesc){
+		Object[] args = { dplanDesc };
+		Error err =  this.executeCmd(this.url, this.port,
+				MasterTrackerServer.CMD_DOOMDB_EXECUTE_PLAN, args);
+		return err;
+	}
+	
+	/**
+	 * Checks if query tracker plan for DoomDBPlan is finished
+	 * @param dplanDesc
+	 * @return
+	 */
+	public Tuple<Error, Boolean> isDoomDBPlanFinished(final DoomDBPlanDesc dplanDesc){
+		Object[] args = { dplanDesc };
+		Tuple<Error, Object> result =  this.executeCmdWithResult(this.url, this.port,
+				MasterTrackerServer.CMD_DOOMDB_FINISHED_PLAN, args);
+		return new Tuple<Error, Boolean>(result.getObject1(), (Boolean)result.getObject2());
 	}
 }

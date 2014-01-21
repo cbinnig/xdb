@@ -8,6 +8,7 @@ import java.util.logging.Level;
 
 import org.xdb.Config;
 import org.xdb.doomdb.DoomDBPlan;
+import org.xdb.doomdb.DoomDBPlanDesc;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.funsql.compile.CompilePlan;
@@ -21,6 +22,8 @@ public class QueryTrackerServer extends AbstractServer {
 	public static final int CMD_OPERATOR_READY = 2;
 	
 	public static final int CMD_DOOMDB_GENERATE_PLAN = 100;
+	public static final int CMD_DOOMDB_EXECUTE_PLAN = 101;
+	public static final int CMD_DOOMDB_FINISHED_PLAN = 102;
 	
 	private final QueryTrackerNode tracker;
 
@@ -82,6 +85,20 @@ public class QueryTrackerServer extends AbstractServer {
 					out.writeObject(result.getObject2());
 					err = result.getObject1();
 					break;
+				case CMD_DOOMDB_EXECUTE_PLAN:
+					//got new compile plan
+					final DoomDBPlanDesc dplanDesc = (DoomDBPlanDesc) in.readObject();
+					
+					err = tracker.executeDoomDBQPlan(dplanDesc);
+					break;
+				case CMD_DOOMDB_FINISHED_PLAN:
+					//got new compile plan
+					final DoomDBPlanDesc dplanDesc2 = (DoomDBPlanDesc) in.readObject();
+					
+					Tuple<Error, Boolean> result2 = tracker.finishedDoomDBQPlan(dplanDesc2);
+					out.writeObject(result2.getObject2());
+					err = result2.getObject1();
+					break;
 				}
 				out.writeObject(err);
 				out.flush();
@@ -116,7 +133,7 @@ public class QueryTrackerServer extends AbstractServer {
 		
 		if(server.getError().isError()){
 			server.stopServer();
-			System.out.println("Compute server error ("+server.getError()+")");
+			System.out.println("Query tracker server error ("+server.getError()+")");
 		}
 	}
 
