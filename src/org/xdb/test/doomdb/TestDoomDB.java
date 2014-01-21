@@ -4,6 +4,7 @@ import org.xdb.client.DoomDBClient;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.doomdb.DoomDBSchema;
 import org.xdb.test.DistributedXDBTestCase;
+import org.xdb.utils.Identifier;
 
 /**
  * Test case with partitioned TPC-H schema
@@ -40,12 +41,23 @@ public class TestDoomDB extends DistributedXDBTestCase {
 		DoomDBPlan dplan = this.dClient.getPlan();
 		dplan.tracePlan();
 		
-		System.out.print("Running ");
+		System.out.println("--------------------");
+		System.out.println("Query Deployment: ");
+		for(Identifier opId: dplan.getNodes()){
+			System.out.println("\t"+opId+":"+dplan.getComputeNode(opId));
+		}
+		System.out.println("--------------------");
+		System.out.println("");
+		
+		System.out.println("--------------------");
+		System.out.println("Query Execution: ");
+		System.out.print("\tRunning ");
 		this.dClient.startQuery();
 		while(!this.dClient.isQueryFinished()){
 			System.out.print(".");
 			Thread.sleep(500);
 		}
 		System.out.println(" Finished!");
+		System.out.println("--------------------");
 	}
 }

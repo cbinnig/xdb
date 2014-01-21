@@ -140,7 +140,7 @@ public class QueryTrackerNode {
 	 * @param cplan
 	 * @return
 	 */
-	private Tuple<Error, QueryTrackerPlan> prepareExecution(
+	private Tuple<Error, QueryTrackerPlan> executePlanPhase1(
 			final CompilePlan cplan) {
 		// initialize compile plan: get logger back
 		cplan.init();
@@ -160,6 +160,13 @@ public class QueryTrackerNode {
 			return new Tuple<Error, QueryTrackerPlan>(err, null);
 		}
 
+		// 3. Deploy query tracker plan
+		err = qplan.deployPlan();
+		if (err.isError()) {
+			qplan.cleanPlanOnError();
+			return new Tuple<Error, QueryTrackerPlan>(err, null);
+		}
+
 		return new Tuple<Error, QueryTrackerPlan>(err, qplan);
 	}
 
@@ -169,14 +176,8 @@ public class QueryTrackerNode {
 	 * @param qplan
 	 * @return
 	 */
-	private Error executeQPlan(QueryTrackerPlan qplan) {
+	private Error executePlanPhase2(QueryTrackerPlan qplan) {
 		Error err = new Error();
-		// 3. Deploy query tracker plan
-		err = qplan.deployPlan();
-		if (err.isError()) {
-			qplan.cleanPlanOnError();
-			return err;
-		}
 
 		// 4. Execute query tracker plan
 		err = qplan.executePlan();
@@ -207,7 +208,7 @@ public class QueryTrackerNode {
 		QueryTrackerPlan qplan = null;
 
 		// 1. prepare execution
-		Tuple<Error, QueryTrackerPlan> qPLanResult = prepareExecution(cplan);
+		Tuple<Error, QueryTrackerPlan> qPLanResult = executePlanPhase1(cplan);
 		err = qPLanResult.getObject1();
 		qplan = qPLanResult.getObject2();
 		if (err.isError()) {
@@ -216,7 +217,7 @@ public class QueryTrackerNode {
 		}
 
 		// 2. execute prepared plan
-		err = this.executeQPlan(qplan);
+		err = this.executePlanPhase2(qplan);
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
 			return err;
@@ -230,7 +231,7 @@ public class QueryTrackerNode {
 		QueryTrackerPlan qplan = null;
 
 		// 1. prepare execution
-		Tuple<Error, QueryTrackerPlan> qPLanResult = prepareExecution(cplan);
+		Tuple<Error, QueryTrackerPlan> qPLanResult = this.executePlanPhase1(cplan);
 		err = qPLanResult.getObject1();
 		qplan = qPLanResult.getObject2();
 		if (err.isError()) {
@@ -240,38 +241,41 @@ public class QueryTrackerNode {
 
 		// 2. create DoomDBPlan
 		DoomDBPlan dplan = new DoomDBPlan(cplan.getPlanId(), qplan.getPlanId());
+		dplan.setDeployment(qplan.getCurrentDeployment());
 		qplan.initDoomDBFromQPlan(dplan);
 		return new Tuple<Error, DoomDBPlan>(err, dplan);
 	}
 
 	/**
 	 * Execute a prepared query tracker plan for a given DoomDBPlan
+	 * 
 	 * @param dplanDesc
 	 * @return
 	 */
-	public Error executeDoomDBQPlan(DoomDBPlanDesc dplanDesc){
+	public Error executeDoomDBQPlan(DoomDBPlanDesc dplanDesc) {
 		Error err = new Error();
-		if(!this.qPlans.containsKey(dplanDesc.getQtrackerPlanId())){
-			String[] args = { "Plan with id " + dplanDesc.getQtrackerPlanId() + " not found in "
-					+ this.qPlans.keySet() };
+		if (!this.qPlans.containsKey(dplanDesc.getQtrackerPlanId())) {
+			String[] args = { "Plan with id " + dplanDesc.getQtrackerPlanId()
+					+ " not found in " + this.qPlans.keySet() };
 			this.logger.log(Level.SEVERE, args[0]);
 			return new Error(EnumError.TRACKER_GENERIC, args);
 		}
 		QueryTrackerPlan qplan = this.qPlans.get(dplanDesc.getQtrackerPlanId());
-		err = this.executeQPlan(qplan);
+		err = this.executePlanPhase2(qplan);
 		return err;
 	}
-	
+
 	/**
 	 * Check if a query tracker plan for a given DoomDBPlan has finished running
+	 * 
 	 * @param dplanDesc
 	 * @return
 	 */
-	public Tuple<Error, Boolean> finishedDoomDBQPlan(DoomDBPlanDesc dplanDesc){
+	public Tuple<Error, Boolean> finishedDoomDBQPlan(DoomDBPlanDesc dplanDesc) {
 		Error err = new Error();
-		if(!this.qPlans.containsKey(dplanDesc.getQtrackerPlanId())){
-			String[] args = { "Plan with id " + dplanDesc.getQtrackerPlanId() + " not found in "
-					+ this.qPlans.keySet() };
+		if (!this.qPlans.containsKey(dplanDesc.getQtrackerPlanId())) {
+			String[] args = { "Plan with id " + dplanDesc.getQtrackerPlanId()
+					+ " not found in " + this.qPlans.keySet() };
 			this.logger.log(Level.SEVERE, args[0]);
 			err = new Error(EnumError.TRACKER_GENERIC, args);
 			return new Tuple<Error, Boolean>(err, false);
@@ -279,9 +283,10 @@ public class QueryTrackerNode {
 		QueryTrackerPlan qplan = this.qPlans.get(dplanDesc.getQtrackerPlanId());
 		return new Tuple<Error, Boolean>(err, qplan.isExecuted());
 	}
-	
+
 	/**
 	 * Annotate compile plan with connections
+	 * 
 	 * @param cplan
 	 * @return
 	 */

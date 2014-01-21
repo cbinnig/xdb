@@ -1,6 +1,7 @@
 package org.xdb.doomdb;
 
-import java.util.List;
+import org.xdb.execute.ComputeNodeDesc;
+import org.xdb.utils.Identifier;
 
 public interface IDoomDBClient {
 
@@ -31,23 +32,21 @@ public interface IDoomDBClient {
 	 * @return ITree<String>
 	 */
 	DoomDBPlan getPlan();
-
+	
 	/**
-	 * gets the current Node for a specific Operation in the Tree
+	 * gets the estimated Time (in ms) how long the Query will need to finish
 	 * 
-	 * @param operation
-	 * @return Tree<String>
+	 * @return length of time in ms
 	 */
-	String getCurrentNode(String operation);
+	long getEstimatedTime();
 
 	
 	/**
-	 * gets all possible Nodes in the Tree that can run a specific Operation
-	 * 
+	 * gets the current Node for a specific Operation
 	 * @param operation
-	 * @return ArrayList<Tree<String>>
+	 * @return
 	 */
-	List<String> getPossibleNodes(String operation);
+	ComputeNodeDesc getCurrentNode(Identifier opId);
 
 	/**
 	 * get Number of Nodes for Processing the Plan
@@ -61,19 +60,12 @@ public interface IDoomDBClient {
 	 * 
 	 * @param node
 	 */
-	void killNode(String node);
-
-	/**
-	 * gets the estimated Time (in ms) how long the Query will need to finish
-	 * 
-	 * @return length of time in ms
-	 */
-	long getTime();
+	void killNode(ComputeNodeDesc nodeDesc);
 
 	/**
 	 * recovers Node node from EStatus terminated to Estatus running.
 	 * 
 	 * @param node
 	 */
-	void recoverNode(String node);
+	void recoverNode(ComputeNodeDesc nodeDesc);
 }

@@ -1,15 +1,15 @@
 package org.xdb.client;
 
-import java.util.List;
-
 import org.xdb.Config;
 import org.xdb.client.statement.ClientStmt;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.doomdb.DoomDBSchema;
 import org.xdb.doomdb.IDoomDBClient;
 import org.xdb.error.Error;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.CompileServer;
+import org.xdb.utils.Identifier;
 import org.xdb.utils.Tuple;
 
 /**
@@ -96,7 +96,7 @@ public class DoomDBClient extends AbstractClient implements IDoomDBClient {
 	@Override
 	public boolean isQueryFinished() {
 		if(this.dplan==null){
-			throw new RuntimeException("Provide a query before starting it!");
+			throw new RuntimeException("Provide a query before!");
 		}
 		Tuple<Error, Boolean> result =  mClient.isDoomDBPlanFinished(dplan.getPlanDesc());
 		this.raiseError(result.getObject1());
@@ -110,35 +110,30 @@ public class DoomDBClient extends AbstractClient implements IDoomDBClient {
 		
 		return 0;
 	}
-	
-	
+
 	@Override
-	public String getCurrentNode(String operation) {
-		// TODO Auto-generated method stub
-		return null;
+	public long getEstimatedTime() {
+		if(this.dplan==null){
+			throw new RuntimeException("Provide a query before!");
+		}
+		return dplan.getEstimatedTime();
 	}
 
 	@Override
-	public List<String> getPossibleNodes(String operation) {
-		// TODO Auto-generated method stub
-		return null;
+	public ComputeNodeDesc getCurrentNode(Identifier opId) {
+		if(this.dplan==null){
+			throw new RuntimeException("Provide a query before!");
+		}
+		return this.dplan.getComputeNode(opId);
 	}
 
 	@Override
-	public void killNode(String node) {
+	public void killNode(ComputeNodeDesc nodeDesc) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
-	public void recoverNode(String node) {
+	public void recoverNode(ComputeNodeDesc nodeDesc) {
 		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public long getTime() {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 }
