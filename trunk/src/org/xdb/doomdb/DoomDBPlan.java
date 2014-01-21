@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.xdb.error.Error;
+import org.xdb.execute.ComputeNodeDesc;
+import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.utils.Dotty;
 import org.xdb.utils.Identifier;
 
@@ -23,10 +25,10 @@ public class DoomDBPlan implements Serializable {
 	private static final String TRACE_FILE_NAME = DoomDBPlan.class.getName();
 	
 	private DoomDBPlanDesc planDesc = null;
-
 	private Set<Identifier> nodes = new HashSet<Identifier>();
 	private Map<Identifier, List<Identifier>> edges = new HashMap<Identifier, List<Identifier>>();
-
+	private Map<Identifier, OperatorDesc> deployment = new HashMap<Identifier, OperatorDesc>();
+	
 	public DoomDBPlan() {
 	}
 
@@ -60,6 +62,23 @@ public class DoomDBPlan implements Serializable {
 
 	public List<Identifier> getEdges(String from) {
 		return this.edges.get(from);
+	}
+	
+	public void setDeployment(Map<Identifier, OperatorDesc> deployment){
+		this.deployment.clear();
+		this.deployment.putAll(deployment);
+	}
+	
+	public ComputeNodeDesc getComputeNode(Identifier opId){
+		if(this.deployment.containsKey(opId)){
+			return this.deployment.get(opId).getComputeNode();
+		}
+		return null;
+	}
+	
+	public long getEstimatedTime(){
+		//TODO: change hard coded estimate!!!
+		return this.nodes.size() * 500;
 	}
 	
 	public Error tracePlan() {
