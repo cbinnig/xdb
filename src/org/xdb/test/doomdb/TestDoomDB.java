@@ -1,10 +1,9 @@
 package org.xdb.test.doomdb;
 
 import org.xdb.client.DoomDBClient;
-import org.xdb.doomdb.DoomDBPlan;
-import org.xdb.doomdb.DoomDBSchema;
+import org.xdb.doomdb.IDoomDBClient;
+import org.xdb.doomdb.IDoomDBPlan;
 import org.xdb.test.DistributedXDBTestCase;
-import org.xdb.utils.Identifier;
 
 /**
  * Test case with partitioned TPC-H schema
@@ -17,10 +16,10 @@ public class TestDoomDB extends DistributedXDBTestCase {
 		super(2);
 	}
 
-	private DoomDBClient dClient = new DoomDBClient();
+	private IDoomDBClient dClient = new DoomDBClient();
 
 	public void testWith2Levels() throws Exception{
-		this.dClient.setSchema(DoomDBSchema.TPCH_2PARTS);
+		this.dClient.setSchema("TPCH (2 Parts)");
 		
 		String q  = "Select n_nationkey, " +
 					"sum(l_extendedprice * (1-l_discount)) as revenue, " +
@@ -38,18 +37,18 @@ public class TestDoomDB extends DistributedXDBTestCase {
 					"group by n_nationkey;";
 		
 		this.dClient.setQuery(q);
-		DoomDBPlan dplan = this.dClient.getPlan();
+		IDoomDBPlan dplan = this.dClient.getPlan();
 		dplan.tracePlan();
 		
 		System.out.println("--------------------");
 		System.out.println("Query Info: ");
 		System.out.println("\tQuery String: "+q);
-		System.out.println("\tEstimated Runtime: "+dplan.getEstimatedTime());
+		System.out.println("\tEstimated Runtime: "+this.dClient.getEstimatedTime());
 		System.out.println("");
 		
 		System.out.println("Query Deployment: ");
-		for(Identifier opId: dplan.getNodes()){
-			System.out.println("\t"+opId+":"+dplan.getComputeNode(opId));
+		for(String opId: dplan.getOperators()){
+			System.out.println("\t"+opId+":"+this.dClient.getNode(opId));
 		}
 		System.out.println("");
 		
