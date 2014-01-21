@@ -22,7 +22,7 @@ public class CompileServerNode {
 		return err;
 	}
 	
-	public synchronized Tuple<Error, DoomDBPlan> doomDBCompileStmt(final ClientStmt clientStmt){
+	public Tuple<Error, DoomDBPlan> doomDBCompileStmt(final ClientStmt clientStmt){
 		Error err = new Error();
 		final FunSQLCompiler compiler = new FunSQLCompiler();
 		final AbstractServerStmt serverStmt = compiler.compile(clientStmt.getStmt());

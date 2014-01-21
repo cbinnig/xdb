@@ -22,8 +22,7 @@ public class DoomDBPlan implements Serializable {
 	private static final long serialVersionUID = -1963805350351443744L;
 	private static final String TRACE_FILE_NAME = DoomDBPlan.class.getName();
 	
-	private Identifier compilePlanId;
-	private Identifier qtrackerPlanId;
+	private DoomDBPlanDesc planDesc = null;
 
 	private Set<Identifier> nodes = new HashSet<Identifier>();
 	private Map<Identifier, List<Identifier>> edges = new HashMap<Identifier, List<Identifier>>();
@@ -32,18 +31,13 @@ public class DoomDBPlan implements Serializable {
 	}
 
 	public DoomDBPlan(Identifier compilePlanId, Identifier qtrackerPlanId) {
-		this.compilePlanId = compilePlanId;
-		this.qtrackerPlanId = qtrackerPlanId;
+		this.planDesc = new DoomDBPlanDesc(compilePlanId, qtrackerPlanId);
+	}
+
+	public DoomDBPlanDesc getPlanDesc(){
+		return this.planDesc;
 	}
 	
-	public Identifier getCompilePlanId() {
-		return compilePlanId;
-	}
-
-	public Identifier getQtrackerPlanId() {
-		return qtrackerPlanId;
-	}
-
 	public void addNode(Identifier node) {
 		this.nodes.add(node);
 	}
@@ -69,7 +63,7 @@ public class DoomDBPlan implements Serializable {
 	}
 	
 	public Error tracePlan() {
-		String fileName = TRACE_FILE_NAME + this.compilePlanId.toString();
+		String fileName = TRACE_FILE_NAME + this.planDesc.getCompilePlanId().toString();
 		final Error error = new Error();
 		final Graph graph = GraphFactory.newGraph();
 

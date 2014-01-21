@@ -42,6 +42,9 @@ public class CompileServer extends AbstractServer {
 			try {
 
 				switch (cmd) {
+				case CMD_RESET_CATALOG:
+					err = resetCatalog();
+					break;
 				case CMD_EXECUTE_W_RESULT:
 				case CMD_EXECUTE_WO_RESULT:
 					final ClientStmt execStmt = (ClientStmt)in.readObject();
@@ -67,11 +70,11 @@ public class CompileServer extends AbstractServer {
 	}
 
 	// constants for commands
-	public static final int CMD_EXECUTE_WO_RESULT = 1;
-	public static final int CMD_EXECUTE_W_RESULT = 2;
+	public static final int CMD_RESET_CATALOG= 1;
+	public static final int CMD_EXECUTE_WO_RESULT = 2;
+	public static final int CMD_EXECUTE_W_RESULT = 3;
 
 	public static final int CMD_DOOMDB_COMPILE = 100;
-	public static final int CMD_DOOMDB_EXECUTE = 101;
 	
 	private final CompileServerNode compileNode;
 	
@@ -104,6 +107,15 @@ public class CompileServer extends AbstractServer {
 		return Catalog.delete();
 	}
 
+	
+	public static synchronized Error resetCatalog() {
+		Error err =  Catalog.delete();
+		if(err.isError())
+			return err;
+		
+		return Catalog.load();
+	}
+	
 	/**
 	 * Start server from cmd
 	 * 
@@ -115,7 +127,7 @@ public class CompileServer extends AbstractServer {
 		
 		if(server.getError().isError()){
 			server.stopServer();
-			System.out.println("Compute server error ("+server.getError()+")");
+			System.out.println("Compile server error ("+server.getError()+")");
 		}
 	}
 }

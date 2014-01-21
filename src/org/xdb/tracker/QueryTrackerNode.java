@@ -11,6 +11,7 @@ import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.doomdb.DoomDBPlan;
+import org.xdb.doomdb.DoomDBPlanDesc;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
@@ -184,7 +185,7 @@ public class QueryTrackerNode {
 			return err;
 		}
 
-		// 4. Clean query tracker plan
+		// 5. Clean query tracker plan
 		err = qplan.cleanPlan();
 		if (err.isError()) {
 			qplan.cleanPlanOnError();
@@ -243,6 +244,47 @@ public class QueryTrackerNode {
 		return new Tuple<Error, DoomDBPlan>(err, dplan);
 	}
 
+	/**
+	 * Execute a prepared query tracker plan for a given DoomDBPlan
+	 * @param dplanDesc
+	 * @return
+	 */
+	public Error executeDoomDBQPlan(DoomDBPlanDesc dplanDesc){
+		Error err = new Error();
+		if(!this.qPlans.containsKey(dplanDesc.getQtrackerPlanId())){
+			String[] args = { "Plan with id " + dplanDesc.getQtrackerPlanId() + " not found in "
+					+ this.qPlans.keySet() };
+			this.logger.log(Level.SEVERE, args[0]);
+			return new Error(EnumError.TRACKER_GENERIC, args);
+		}
+		QueryTrackerPlan qplan = this.qPlans.get(dplanDesc.getQtrackerPlanId());
+		err = this.executeQPlan(qplan);
+		return err;
+	}
+	
+	/**
+	 * Check if a query tracker plan for a given DoomDBPlan has finished running
+	 * @param dplanDesc
+	 * @return
+	 */
+	public Tuple<Error, Boolean> finishedDoomDBQPlan(DoomDBPlanDesc dplanDesc){
+		Error err = new Error();
+		if(!this.qPlans.containsKey(dplanDesc.getQtrackerPlanId())){
+			String[] args = { "Plan with id " + dplanDesc.getQtrackerPlanId() + " not found in "
+					+ this.qPlans.keySet() };
+			this.logger.log(Level.SEVERE, args[0]);
+			err = new Error(EnumError.TRACKER_GENERIC, args);
+			return new Tuple<Error, Boolean>(err, false);
+		}
+		QueryTrackerPlan qplan = this.qPlans.get(dplanDesc.getQtrackerPlanId());
+		return new Tuple<Error, Boolean>(err, qplan.isExecuted());
+	}
+	
+	/**
+	 * Annotate compile plan with connections
+	 * @param cplan
+	 * @return
+	 */
 	public static Error annotateCompilePlan(CompilePlan cplan) {
 		Error err = new Error();
 
