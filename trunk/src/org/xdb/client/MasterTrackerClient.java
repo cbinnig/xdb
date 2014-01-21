@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.xdb.Config;
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
@@ -56,18 +57,6 @@ public class MasterTrackerClient extends AbstractClient {
 	}
 
 	/**
-	 * Execute given compile plan using master tracker
-	 * 
-	 * @param plan
-	 * @return
-	 */
-	public Error executePlan(final CompilePlan plan) {
-		Object[] args = { plan };
-		return this.executeCmd(this.url, this.port,
-				MasterTrackerServer.CMD_EXECUTE_PLAN, args);
-	}
-
-	/**
 	 * Request compute nodes from master tracker for execution
 	 * 
 	 * @param requiredNodes
@@ -88,8 +77,7 @@ public class MasterTrackerClient extends AbstractClient {
 			out.writeInt(MasterTrackerServer.CMD_REQUEST_COMPUTE_NODE);
 			out.writeObject(wishList);
 			out.flush();
-			computeNodes = (Map<String, ComputeNodeDesc>) in
-					.readObject();
+			computeNodes = (Map<String, ComputeNodeDesc>) in.readObject();
 			err = (Error) in.readObject();
 
 			server.close();
@@ -97,7 +85,32 @@ public class MasterTrackerClient extends AbstractClient {
 		} catch (final Exception e) {
 			err = createClientError(url, e);
 		}
-		return new Tuple<Map<String, ComputeNodeDesc>, Error>(
-				computeNodes, err);
+		return new Tuple<Map<String, ComputeNodeDesc>, Error>(computeNodes, err);
+	}
+
+	/**
+	 * Execute given compile plan using master tracker
+	 * 
+	 * @param plan
+	 * @return
+	 */
+	public Error executePlan(final CompilePlan plan) {
+		Object[] args = { plan };
+		return this.executeCmd(this.url, this.port,
+				MasterTrackerServer.CMD_EXECUTE_PLAN, args);
+	}
+
+	/**
+	 * Generate tracker plan for given compile plan and return DoomDBPlan with
+	 * operator IDs
+	 */
+	public Tuple<Error, DoomDBPlan> generateDoomDBPlan(final CompilePlan plan) {
+		Object[] args = { plan };
+		Tuple<Error, Object> result = this.executeCmdWithResult(this.url,
+				this.port, MasterTrackerServer.CMD_DOOMDB_GENERATE_PLAN, args);
+
+		Tuple<Error, DoomDBPlan> resultDoomDBPlan = new Tuple<Error, DoomDBPlan>(
+				result.getObject1(), (DoomDBPlan) result.getObject2());
+		return resultDoomDBPlan;
 	}
 }

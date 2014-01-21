@@ -1,11 +1,13 @@
 package org.xdb.client;
 
 import org.xdb.Config;
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.QueryTrackerServer;
+import org.xdb.utils.Tuple;
 
 /**
  * Client to talk to Query Tracker Server
@@ -32,6 +34,20 @@ public class QueryTrackerClient extends AbstractClient {
 		Object[] args = { plan };
 		return this.executeCmd(this.url, this.port,
 				QueryTrackerServer.CMD_EXECUTE_PLAN, args);
+	}
+	
+	/**
+	 * Generate tracker plan for given compile plan and return DoomDBPlan with
+	 * operator IDs
+	 */
+	public Tuple<Error, DoomDBPlan> generateDoomDBPlan(final CompilePlan plan) {
+		Object[] args = { plan };
+		Tuple<Error, Object> result = this.executeCmdWithResult(this.url,
+				this.port, QueryTrackerServer.CMD_DOOMDB_GENERATE_PLAN, args);
+
+		Tuple<Error, DoomDBPlan> resultDoomDBPlan = new Tuple<Error, DoomDBPlan>(
+				result.getObject1(), (DoomDBPlan) result.getObject2());
+		return resultDoomDBPlan;
 	}
 
 	/**

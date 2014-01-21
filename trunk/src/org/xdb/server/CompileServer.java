@@ -8,10 +8,11 @@ import java.util.logging.Level;
 
 import org.xdb.Config;
 import org.xdb.client.statement.ClientStmt;
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.Error;
-import org.xdb.funsql.compile.FunSQLCompiler;
-import org.xdb.funsql.statement.AbstractServerStmt;
+import org.xdb.funsql.compile.CompileServerNode;
 import org.xdb.metadata.Catalog;
+import org.xdb.utils.Tuple;
 
 /**
  * 
@@ -43,27 +44,15 @@ public class CompileServer extends AbstractServer {
 				switch (cmd) {
 				case CMD_EXECUTE_W_RESULT:
 				case CMD_EXECUTE_WO_RESULT:
-					final ClientStmt clientStmt = (ClientStmt)in.readObject();
-					logger.log(Level.INFO, "CompileServer: Received client stmt:" + clientStmt.getStmt());
-
-					final FunSQLCompiler compiler = new FunSQLCompiler();
-					final AbstractServerStmt serverStmt = compiler.compile(clientStmt.getStmt());
-					err = compiler.getLastError();
-					if(err.isError()) {
-						return err;
-					}
-
-					err = serverStmt.execute();
-
-					if(err.isError()) {
-						return err;
-					}
-
-					//TODO: extract results from statement
-					if(cmd == CMD_EXECUTE_W_RESULT){
-
-					}
-
+					final ClientStmt execStmt = (ClientStmt)in.readObject();
+					logger.log(Level.INFO, "CompileServer: Received client stmt:" + execStmt.getStmt());
+					err = compileNode.compileAndExecuteStmt(execStmt);
+					break;
+				case CMD_DOOMDB_COMPILE:
+					final ClientStmt compileStmt = (ClientStmt)in.readObject();
+					logger.log(Level.INFO, "CompileServer: Received client stmt:" + compileStmt.getStmt());
+					Tuple<Error, DoomDBPlan> result = compileNode.doomDBCompileStmt(compileStmt);
+					out.writeObject(result.getObject2());
 					break;
 				default:
 					err = createCmdError(cmd);
@@ -81,11 +70,17 @@ public class CompileServer extends AbstractServer {
 	public static final int CMD_EXECUTE_WO_RESULT = 1;
 	public static final int CMD_EXECUTE_W_RESULT = 2;
 
+	public static final int CMD_DOOMDB_COMPILE = 100;
+	public static final int CMD_DOOMDB_EXECUTE = 101;
+	
+	private final CompileServerNode compileNode;
+	
 	// constructors
 	public CompileServer() {
 		super();
-		port = Config.COMPILE_PORT;
-
+		this.port = Config.COMPILE_PORT;
+		this.compileNode = new CompileServerNode();
+		
 		err = Catalog.load();
 		logger.log(Level.INFO, "Catalog loaded ... ");
 	}

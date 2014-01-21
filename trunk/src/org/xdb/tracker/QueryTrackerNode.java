@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
@@ -39,9 +40,9 @@ public class QueryTrackerNode {
 	private final QueryTrackerNodeDesc description;
 
 	// query tracker plans
-	private Map<Identifier, QueryTrackerPlan> qPlans = new HashMap<Identifier, QueryTrackerPlan>(); 
-	
-	// Compute servers monitor 
+	private Map<Identifier, QueryTrackerPlan> qPlans = new HashMap<Identifier, QueryTrackerPlan>();
+
+	// Compute servers monitor
 	private ComputeServersMonitor computeServerMonitor;
 
 	// logger
@@ -53,12 +54,12 @@ public class QueryTrackerNode {
 	}
 
 	public QueryTrackerNode(final String address) throws Exception {
-		this.computeClient = new ComputeClient(); 
+		this.computeClient = new ComputeClient();
 		this.computeServerMonitor = new ComputeServersMonitor();
 		this.description = new QueryTrackerNodeDesc(address);
 		this.masterTrackerClient = new MasterTrackerClient();
 		this.logger = XDBLog.getLogger(this.getClass().getName());
-	} 
+	}
 
 	// getters and setters
 	/**
@@ -69,9 +70,10 @@ public class QueryTrackerNode {
 	public void addPlan(QueryTrackerPlan plan) {
 		this.qPlans.put(plan.getPlanId(), plan);
 	}
-	
+
 	/**
 	 * Add plan with manually given id to monitored plans
+	 * 
 	 * @param planId
 	 * @param plan
 	 */
@@ -132,15 +134,13 @@ public class QueryTrackerNode {
 	}
 
 	/**
-	 * Execute a given compile plan
+	 * Phase 1 of execution: prepare query tracker plan for execution
 	 * 
-	 * @param plan
+	 * @param cplan
 	 * @return
 	 */
-	public Error executePlan(final CompilePlan cplan) {
-		logger.log(Level.INFO, "Query tracker " + this.description.getUrl()
-				+ " received compileplan: " + cplan.getPlanId());
-
+	private Tuple<Error, QueryTrackerPlan> prepareExecution(
+			final CompilePlan cplan) {
 		// initialize compile plan: get logger back
 		cplan.init();
 		Error err = new Error();
@@ -148,7 +148,7 @@ public class QueryTrackerNode {
 		// 1. annotate compile plan (materialize flags, connections)
 		err = annotateCompilePlan(cplan);
 		if (err.isError()) {
-			return err;
+			return new Tuple<Error, QueryTrackerPlan>(err, null);
 		}
 
 		// 2. Generate query tracker plan
@@ -156,9 +156,20 @@ public class QueryTrackerNode {
 		QueryTrackerPlan qplan = qPlanErr.getObject1();
 		err = qPlanErr.getObject2();
 		if (err.isError()) {
-			return err;
+			return new Tuple<Error, QueryTrackerPlan>(err, null);
 		}
 
+		return new Tuple<Error, QueryTrackerPlan>(err, qplan);
+	}
+
+	/**
+	 * Phase 2 of execution: actually execute prepared query tracker plan
+	 * 
+	 * @param qplan
+	 * @return
+	 */
+	private Error executeQPlan(QueryTrackerPlan qplan) {
+		Error err = new Error();
 		// 3. Deploy query tracker plan
 		err = qplan.deployPlan();
 		if (err.isError()) {
@@ -179,18 +190,68 @@ public class QueryTrackerNode {
 			qplan.cleanPlanOnError();
 			return err;
 		}
+		return err;
+	}
+
+	/**
+	 * Execute a given compile plan
+	 * 
+	 * @param plan
+	 * @return
+	 */
+	public Error executePlan(final CompilePlan cplan) {
+		logger.log(Level.INFO, "Query tracker " + this.description.getUrl()
+				+ " received compileplan: " + cplan.getPlanId());
+		Error err = new Error();
+		QueryTrackerPlan qplan = null;
+
+		// 1. prepare execution
+		Tuple<Error, QueryTrackerPlan> qPLanResult = prepareExecution(cplan);
+		err = qPLanResult.getObject1();
+		qplan = qPLanResult.getObject2();
+		if (err.isError()) {
+			qplan.cleanPlanOnError();
+			return err;
+		}
+
+		// 2. execute prepared plan
+		err = this.executeQPlan(qplan);
+		if (err.isError()) {
+			qplan.cleanPlanOnError();
+			return err;
+		}
 
 		return err;
-	}  
-	
+	}
+
+	public Tuple<Error, DoomDBPlan> generateDoomDBQPlan(final CompilePlan cplan) {
+		Error err = new Error();
+		QueryTrackerPlan qplan = null;
+
+		// 1. prepare execution
+		Tuple<Error, QueryTrackerPlan> qPLanResult = prepareExecution(cplan);
+		err = qPLanResult.getObject1();
+		qplan = qPLanResult.getObject2();
+		if (err.isError()) {
+			qplan.cleanPlanOnError();
+			return new Tuple<Error, DoomDBPlan>(err, new DoomDBPlan());
+		}
+
+		// 2. create DoomDBPlan
+		DoomDBPlan dplan = new DoomDBPlan(cplan.getPlanId(), qplan.getPlanId());
+		qplan.initDoomDBFromQPlan(dplan);
+		return new Tuple<Error, DoomDBPlan>(err, dplan);
+	}
+
 	public static Error annotateCompilePlan(CompilePlan cplan) {
 		Error err = new Error();
 
 		// Annotate Connections to each operator of Compile Plan
 		for (Identifier rootId : cplan.getRootIds()) {
 			AbstractCompileOperator root = cplan.getOperator(rootId);
-			AbstractAnnotationVisitor annotationVisitor = AbstractAnnotationVisitor.createAnnotationVisitor(root);
-			
+			AbstractAnnotationVisitor annotationVisitor = AbstractAnnotationVisitor
+					.createAnnotationVisitor(root);
+
 			err = annotationVisitor.visit();
 			if (err.isError()) {
 				return err;
@@ -199,9 +260,8 @@ public class QueryTrackerNode {
 
 		return err;
 
-	} 
-	
-	
+	}
+
 	/**
 	 * Method used to request ComputeNodes from MasterTracker
 	 * 
@@ -225,10 +285,11 @@ public class QueryTrackerNode {
 	 */
 	public Error operatorReady(final AbstractExecuteOperator execOp) {
 		Identifier execOpId = execOp.getOperatorId();
-		Identifier planId = execOpId.getParentId(0);  
-		QueryTrackerPlan qPlan = this.qPlans.get(planId); 
-		if(qPlan==null){
-			String[] args = {"Plan with id "+planId+" not found in "+this.qPlans.keySet()};
+		Identifier planId = execOpId.getParentId(0);
+		QueryTrackerPlan qPlan = this.qPlans.get(planId);
+		if (qPlan == null) {
+			String[] args = { "Plan with id " + planId + " not found in "
+					+ this.qPlans.keySet() };
 			this.logger.log(Level.SEVERE, args[0]);
 			return new Error(EnumError.TRACKER_GENERIC, args);
 		}
@@ -243,9 +304,11 @@ public class QueryTrackerNode {
 	}
 
 	/**
-	 * @param computeServerMonitor the computeServerMonitor to set
+	 * @param computeServerMonitor
+	 *            the computeServerMonitor to set
 	 */
-	public void setComputeServerMonitor(ComputeServersMonitor computeServerMonitor) {
+	public void setComputeServerMonitor(
+			ComputeServersMonitor computeServerMonitor) {
 		this.computeServerMonitor = computeServerMonitor;
 	}
 }

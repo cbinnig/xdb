@@ -16,12 +16,14 @@ import java.util.logging.Logger;
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.QueryTrackerClient;
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.Tuple;
 
 public class MasterTrackerNode {
 	/** Compute nodes information **/
@@ -66,8 +68,6 @@ public class MasterTrackerNode {
 	// logger
 	private final Logger logger;
 
-	// error handling
-	private Error err = new Error();
 
 	/** Monitoring threads **/
 
@@ -107,9 +107,6 @@ public class MasterTrackerNode {
 	}
 
 	// getters and setters
-	public Error getLastError() {
-		return this.err;
-	}
 
 	public int getRunningPlans() {
 		return runningPlans.size();
@@ -194,16 +191,35 @@ public class MasterTrackerNode {
 				"MasterTracker: Received CompilePlan for execution: " + plan);
 
 		// get query tracker
+		Error err = new Error();
 		final QueryTrackerNodeDesc qTracker = getAvailableQueryTracker();
 		if (qTracker == null) {
 			String[] args = { "MasterTracker: No query tracker available!" };
-			this.err = new Error(EnumError.TRACKER_GENERIC, args);
-			return this.err;
+			err = new Error(EnumError.TRACKER_GENERIC, args);
+			return err;
 		}
 
 		// execute plan on query tracker
-		this.err = this.executeOnQueryTracker(qTracker, plan);
-		return this.err;
+		err = this.executeOnQueryTracker(qTracker, plan);
+		return err;
+	}
+	
+	public Tuple<Error, DoomDBPlan> generateDoomDBQPlan(final CompilePlan plan) {
+		// logging
+		logger.log(Level.INFO,
+				"MasterTracker: Received CompilePlan for generating DoomDBPlan: " + plan);
+
+		// get query tracker
+		Error err = new Error();
+		final QueryTrackerNodeDesc qTracker = getAvailableQueryTracker();
+		if (qTracker == null) {
+			String[] args = { "MasterTracker: No query tracker available!" };
+			err = new Error(EnumError.TRACKER_GENERIC, args);
+			return new Tuple<Error, DoomDBPlan>(err, new DoomDBPlan());
+		}
+
+		// execute plan on query tracker
+		return this.generateDoomDBQPlanOnQueryTracker(qTracker, plan);
 	}
 
 	/**
@@ -232,15 +248,38 @@ public class MasterTrackerNode {
 	 */
 	public Error executeOnQueryTracker(final QueryTrackerNodeDesc tracker,
 			final CompilePlan plan) {
-
+		Error err = new Error();
+		
 		// add plan to monitored plans
 		this.runningPlans.put(plan.getPlanId(), plan);
 		this.planAssignment.put(plan.getPlanId(), tracker);
 
 		// execute plan using client
 		final QueryTrackerClient client = this.queryTrackerClients.get(tracker);
-		this.err = client.executePlan(plan);
-		return this.err;
+		err = client.executePlan(plan);
+		return err;
+	}
+	
+	/**
+	 * Generates query tracker plan on query tracker
+	 * @param tracker
+	 * @param plan
+	 * @return
+	 */
+	public Tuple<Error, DoomDBPlan> generateDoomDBQPlanOnQueryTracker(final QueryTrackerNodeDesc tracker,
+			final CompilePlan plan) {
+		Error err = new Error();
+		
+		// add plan to monitored plans
+		this.runningPlans.put(plan.getPlanId(), plan);
+		this.planAssignment.put(plan.getPlanId(), tracker);
+
+		// execute plan using client
+		final QueryTrackerClient client = this.queryTrackerClients.get(tracker);
+		Tuple<Error, DoomDBPlan> result = client.generateDoomDBPlan(plan);
+		err = result.getObject1();
+		DoomDBPlan doomDBPlan = result.getObject2();
+		return new Tuple<Error, DoomDBPlan> (err, doomDBPlan);
 	}
 
 	/**
