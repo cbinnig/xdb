@@ -42,6 +42,14 @@ public interface IDoomDBClient {
 
 	
 	/**
+	 * checks status of operator if it is alive 
+	 * 
+	 * @param opId
+	 * @return
+	 */
+	boolean isAlive(Identifier opId);
+	
+	/**
 	 * gets the compute node executing an operator
 	 * @param operation
 	 * @return
@@ -62,8 +70,17 @@ public interface IDoomDBClient {
 	void killNode(ComputeNodeDesc nodeDesc);
 
 	/**
+	 * kills one specific operator 
+	 * 
+	 * @param killOpId
+	 */
+	void killOperator(Identifier killOpId);
+	
+	/**
 	 * sets MTTR = mean time to repair a compute node in ms
 	 * @param time
 	 */
 	void setMTTR(int time);
+	
+	
 }

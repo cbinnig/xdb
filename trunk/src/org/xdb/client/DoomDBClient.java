@@ -1,5 +1,6 @@
 package org.xdb.client;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.xdb.Config;
@@ -93,6 +94,14 @@ public class DoomDBClient extends AbstractClient implements IDoomDBClient {
 			}
 		}.start();
 	}
+	
+	public boolean isAlive(Identifier opId){
+		if (this.dplan == null) {
+			throw new RuntimeException("Provide a query before!");
+		}
+		
+		return this.dplan.isAlive(opId);
+	}
 
 	@Override
 	public boolean isQueryFinished() {
@@ -131,13 +140,21 @@ public class DoomDBClient extends AbstractClient implements IDoomDBClient {
 
 	@Override
 	public void killNode(ComputeNodeDesc nodeDesc) {
-		@SuppressWarnings("unused")
 		Set<Identifier> killedOps = this.dplan.getOperators(nodeDesc);
-		
-		//TODO: set status of all killed operators to ABORTED in query tracker plan
+		this.killOperators(killedOps);
 	}
 
 
+	@Override
+	public void killOperator(Identifier killOpId) {
+		Set<Identifier> killedOps = new HashSet<Identifier>();
+		this.killOperators(killedOps);
+	}
+	
+	private void killOperators(Set<Identifier> killedOps){
+		//TODO: set status of all killed operators to ABORTED in query tracker plan 
+	}
+	
 	@Override
 	public void setMTTR(int time) {
 		// TODO: change monitoring interval in query tracker plan
