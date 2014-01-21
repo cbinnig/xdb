@@ -8,7 +8,7 @@ import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.out.GRAPHtoDOTtoGIF;
 
 public class Dotty {
-	public static void dot2Img(Graph graph, String fileName){
+	public static String dot2Img(Graph graph, String fileName){
 		final String path = Config.DOT_TRACE_PATH;
 		final String dotFileName = path + fileName + ".dot";
 		final String gifFileName = path + fileName + ".gif";
@@ -18,5 +18,7 @@ public class Dotty {
 		} catch (final IOException e) {
 			// do nothing
 		}
+		
+		return gifFileName;
 	}
 }

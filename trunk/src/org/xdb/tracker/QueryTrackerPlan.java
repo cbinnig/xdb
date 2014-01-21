@@ -193,12 +193,12 @@ public class QueryTrackerPlan implements Serializable {
 	// methods
 	public void initDoomDBFromQPlan(DoomDBPlan dplan){
 		for(Identifier node: this.trackerOpsOrder){
-			dplan.addNode(node);
+			dplan.addOperator(node.toString());
 		}
 		
 		for(Identifier from: this.consumers.keySet()){
 			for(Identifier to: this.consumers.get(from)){
-				dplan.addEdge(from, to);
+				dplan.addDependency(from.toString(), to.toString());
 			}
 		}
 	}

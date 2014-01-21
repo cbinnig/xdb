@@ -1,11 +1,13 @@
 package org.xdb.doomdb;
 
-import org.xdb.execute.ComputeNodeDesc;
-import org.xdb.utils.Identifier;
 
 public interface IDoomDBClient {
 
-	void setSchema(DoomDBSchema schema);
+	/**
+	 * Create database schema selected when starting the game
+	 * @param schema
+	 */
+	void setSchema(String schemaName);
 	
 	/**
 	 * Sets the Query of the Game with String query
@@ -31,7 +33,7 @@ public interface IDoomDBClient {
 	 * 
 	 * @return ITree<String>
 	 */
-	DoomDBPlan getPlan();
+	IDoomDBPlan getPlan();
 	
 	/**
 	 * gets the estimated Time (in ms) how long the Query will need to finish
@@ -47,14 +49,14 @@ public interface IDoomDBClient {
 	 * @param opId
 	 * @return
 	 */
-	boolean isAlive(Identifier opId);
+	boolean isAlive(String opId);
 	
 	/**
 	 * gets the compute node executing an operator
 	 * @param operation
 	 * @return
 	 */
-	ComputeNodeDesc getNode(Identifier opId);
+	String getNode(String opId);
 
 	/**
 	 * get number of nodes for processing the plan
@@ -67,20 +69,12 @@ public interface IDoomDBClient {
 	 * kills a specific compute node 
 	 * @param nodeDesc
 	 */
-	void killNode(ComputeNodeDesc nodeDesc);
+	void killNode(String nodeDesc);
 
-	/**
-	 * kills one specific operator 
-	 * 
-	 * @param killOpId
-	 */
-	void killOperator(Identifier killOpId);
 	
 	/**
 	 * sets MTTR = mean time to repair a compute node in ms
 	 * @param time
 	 */
 	void setMTTR(int time);
-	
-	
 }

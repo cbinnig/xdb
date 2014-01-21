@@ -1,18 +1,15 @@
 package org.xdb.client;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.xdb.Config;
 import org.xdb.client.statement.ClientStmt;
 import org.xdb.doomdb.DoomDBPlan;
-import org.xdb.doomdb.DoomDBSchema;
+import org.xdb.doomdb.EnumDoomDBSchema;
 import org.xdb.doomdb.IDoomDBClient;
 import org.xdb.error.Error;
-import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.CompileServer;
-import org.xdb.utils.Identifier;
 import org.xdb.utils.Tuple;
 
 /**
@@ -20,7 +17,7 @@ import org.xdb.utils.Tuple;
  */
 public class DoomDBClient extends AbstractClient implements IDoomDBClient {
 	private DoomDBPlan dplan = null;
-	private DoomDBSchema schema = null;
+	private EnumDoomDBSchema schema = null;
 
 	private CompileClient cClient = new CompileClient();
 	private MasterTrackerClient mClient = new MasterTrackerClient();
@@ -51,7 +48,8 @@ public class DoomDBClient extends AbstractClient implements IDoomDBClient {
 	}
 
 	@Override
-	public void setSchema(DoomDBSchema schema) {
+	public void setSchema(String schemaName) {
+		EnumDoomDBSchema schema = EnumDoomDBSchema.enumOf(schemaName);
 		Error err = cClient.resetCatalog();
 		this.raiseError(err);
 
@@ -74,6 +72,7 @@ public class DoomDBClient extends AbstractClient implements IDoomDBClient {
 		this.raiseError(result.getObject1());
 
 		this.dplan = (DoomDBPlan) result.getObject2();
+		this.dplan.tracePlan();
 	}
 
 	@Override
@@ -95,7 +94,7 @@ public class DoomDBClient extends AbstractClient implements IDoomDBClient {
 		}.start();
 	}
 	
-	public boolean isAlive(Identifier opId){
+	public boolean isAlive(String opId){
 		if (this.dplan == null) {
 			throw new RuntimeException("Provide a query before!");
 		}
@@ -131,30 +130,20 @@ public class DoomDBClient extends AbstractClient implements IDoomDBClient {
 	}
 
 	@Override
-	public ComputeNodeDesc getNode(Identifier opId) {
+	public String getNode(String opId) {
 		if (this.dplan == null) {
 			throw new RuntimeException("Provide a query before!");
 		}
-		return this.dplan.getComputeNode(opId);
+		return this.dplan.getComputeNode(opId).toString();
 	}
 
 	@Override
-	public void killNode(ComputeNodeDesc nodeDesc) {
-		Set<Identifier> killedOps = this.dplan.getOperators(nodeDesc);
-		this.killOperators(killedOps);
-	}
-
-
-	@Override
-	public void killOperator(Identifier killOpId) {
-		Set<Identifier> killedOps = new HashSet<Identifier>();
-		this.killOperators(killedOps);
-	}
-	
-	private void killOperators(Set<Identifier> killedOps){
+	public void killNode(String nodeDesc) {
+		@SuppressWarnings("unused")
+		Set<String> killedOps = this.dplan.getOperators(nodeDesc);
 		//TODO: set status of all killed operators to ABORTED in query tracker plan 
 	}
-	
+
 	@Override
 	public void setMTTR(int time) {
 		// TODO: change monitoring interval in query tracker plan

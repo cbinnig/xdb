@@ -1,8 +1,14 @@
 package org.xdb.doomdb;
 
-public enum DoomDBSchema {
-	TPCH_2PARTS;
+public enum EnumDoomDBSchema {
+	TPCH_2PARTS("TPCH (2 Parts)");
 
+	private String schemaName;
+	
+	private EnumDoomDBSchema(String schemaName){
+		this.schemaName = schemaName;
+	}
+	
 	private String[] tpchCreateDDLs = {
 			"CREATE CONNECTION TPCH1 "
 					+ "URL 'jdbc:mysql://127.0.0.1/tpch_s01' "
@@ -82,5 +88,13 @@ public enum DoomDBSchema {
 		default:
 			return 0;
 		}
+	}
+	
+	public static EnumDoomDBSchema enumOf(String schemaName){
+		for(EnumDoomDBSchema schema: EnumDoomDBSchema.values()){
+			if(schema.schemaName.equals(schemaName))
+				return schema;
+		}
+		return null;
 	}
 }
