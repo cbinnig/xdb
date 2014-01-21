@@ -55,6 +55,10 @@ public class OperatorDesc implements Serializable {
 	}
 	
 	// methods
+	public boolean isAlive(){
+		return this.operatorStatus.isAlive();
+	}
+	
 	@Override
 	public int hashCode() {
 		return this.execOpId.hashCode();

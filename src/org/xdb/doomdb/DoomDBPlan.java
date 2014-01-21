@@ -98,6 +98,15 @@ public class DoomDBPlan implements Serializable {
 		return this.nodes.size() * 250;
 	}
 	
+	public boolean isAlive(Identifier opId){
+		if(!this.deployment.containsKey(opId)){
+			return false;
+		}
+		
+		OperatorDesc operDesc = this.deployment.get(opId);
+		return operDesc.isAlive();
+	}
+	
 	public Error tracePlan() {
 		String fileName = TRACE_FILE_NAME + this.planDesc.getCompilePlanId().toString();
 		final Error error = new Error();
