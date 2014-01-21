@@ -11,6 +11,7 @@ import java.util.Vector;
 
 import org.xdb.Config;
 import org.xdb.client.MasterTrackerClient;
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
@@ -38,6 +39,7 @@ import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.Tuple;
 
 public class SelectStmt extends AbstractServerStmt {
 	// select
@@ -58,17 +60,17 @@ public class SelectStmt extends AbstractServerStmt {
 	private AbstractPredicate tHavingPredicate;
 
 	// compiler variables
-	private HashMap<String, Schema> schemaSymbols = new HashMap<String, Schema>();
-	private HashMap<String, Table> tableSymbols = new HashMap<String, Table>();
-	private HashMap<String, Attribute> attSymbols = new HashMap<String, Attribute>();
-	private HashMap<TokenAttribute, EnumSimpleType> attTypes = new HashMap<TokenAttribute, EnumSimpleType>();
-	private HashMap<String, Table> varSymbols = new HashMap<String, Table>();
+	private Map<String, Schema> schemaSymbols = new HashMap<String, Schema>();
+	private Map<String, Table> tableSymbols = new HashMap<String, Table>();
+	private Map<String, Attribute> attSymbols = new HashMap<String, Attribute>();
+	private Map<TokenAttribute, EnumSimpleType> attTypes = new HashMap<TokenAttribute, EnumSimpleType>();
+	private Map<String, Table> varSymbols = new HashMap<String, Table>();
 	private Set<String> usedVariables = new HashSet<String>();
 
 	// temporary compiler variables
 	private int lastInternalAlias = 0;
 	private Identifier internalAlias = new Identifier("_ALIAS_COMPILE");
-	private HashMap<AbstractExpression, TokenIdentifier> internalAliases = new HashMap<AbstractExpression, TokenIdentifier>();
+	private Map<AbstractExpression, TokenIdentifier> internalAliases = new HashMap<AbstractExpression, TokenIdentifier>();
 	private Vector<AbstractPredicate> selectionPreds = new Vector<AbstractPredicate>();
 	private AbstractCompileOperator lastOp = null;
 
@@ -743,5 +745,12 @@ public class SelectStmt extends AbstractServerStmt {
 			return err;
 
 		return new Error();
+	}
+
+	@Override
+	public Tuple<Error, DoomDBPlan> generateDoomDBQPlan() {
+		MasterTrackerClient client = new MasterTrackerClient();
+		Tuple<Error, DoomDBPlan> result = client.generateDoomDBPlan(this.plan);
+		return result;
 	}
 }

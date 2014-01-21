@@ -1,6 +1,8 @@
-package org.xdb.test.tpch;
+package org.xdb.test.doomdb;
 
 import org.xdb.client.CompileClient;
+import org.xdb.client.DoomDBClient;
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.Error;
 import org.xdb.test.DistributedXDBTestCase;
 
@@ -9,14 +11,15 @@ import org.xdb.test.DistributedXDBTestCase;
  * @author cbinnig
  *
  */
-public class TestTPCHParallel extends DistributedXDBTestCase {
+public class TestDoomDB extends DistributedXDBTestCase {
 	
-	public TestTPCHParallel() {
+	public TestDoomDB() {
 		super(2);
 	}
 
 
-	private CompileClient client = new CompileClient();
+	private CompileClient cClient = new CompileClient();
+	private DoomDBClient dClient = new DoomDBClient();
 	
 	private String[] schemaDDLs = {
 			"CREATE CONNECTION TPCH1 " +
@@ -114,56 +117,14 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 	}
 	
 	private void executeStmt(String stmt){
-		Error error = client.executeStmt(stmt);
+		Error error = cClient.executeStmt(stmt);
 		this.assertNoError(error);
 	}
 	
-	public void testQ3(){
-		String q3 = "" +
-				"select l_orderkey, " +
-				"sum(l_extendedprice*(1-l_discount)) as revenue, " +
-				"o_orderdate, " +
-				"o_shippriority " +
-				"from customer, " +
-				"orders, " +
-				"lineitem " +
-				"where c_mktsegment = 'BUILDING' and " +
-				"c_custkey = o_custkey and " +
-				"l_orderkey = o_orderkey and " +
-				"o_orderdate < date '1995-03-15' and " +
-				"l_shipdate > date '1995-03-15' " +
-				"group by l_orderkey, o_orderdate, o_shippriority";
+
+	public void testWith2Levels(){
 		
-		this.executeStmt(q3);
-	}
-	
-	public void testQ5withAvgAndNationkeyAsGroupBy(){
-		
-		/*
-		 * 
-		 * Select 
-n_nationkey,
-sum(l_extendedprice * (1-l_discount)) as revenue,
-avg(l_extendedprice * (1-l_discount)) as avgrevenue
-from 
-customer,
-orders,
-lineitem,
-supplier,
-nation,
-region
-where c_custkey = o_custkey
-and l_orderkey = o_orderkey
-and l_suppkey = s_suppkey
-and c_nationkey = s_nationkey
-and s_nationkey = n_nationkey
-and r_regionkey = n_regionkey
-and r_name = 'ASIA'
-and o_orderdate > DATE('1994-01-01 00:00:00')
-and o_orderdate < DATE('1995-01-01 00:00:00')
-group by n_nationkey;
-		 */
-		String q5 = "Select n_nationkey, " +
+		String q  = "Select n_nationkey, " +
 					"sum(l_extendedprice * (1-l_discount)) as revenue, " +
 					"avg(l_extendedprice * (1-l_discount)) as avgrevenue " +
 					"from customer, orders, lineitem, supplier, nation, region " +
@@ -177,8 +138,10 @@ group by n_nationkey;
 					"and o_orderdate > date '1994-01-01' "+
 					"and o_orderdate < date '1995-01-01' "+
 					"group by n_nationkey;";
-		this.executeStmt(q5);
 		
+		this.dClient.setQuery(q);
+		DoomDBPlan dplan = this.dClient.getPlan();
+		dplan.tracePlan();
 	}
 	
 	

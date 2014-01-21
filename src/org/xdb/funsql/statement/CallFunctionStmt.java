@@ -1,6 +1,7 @@
 package org.xdb.funsql.statement;
 
 import org.xdb.client.MasterTrackerClient;
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.FunSQLCompiler;
@@ -10,29 +11,30 @@ import org.xdb.metadata.Catalog;
 import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Function;
 import org.xdb.metadata.Schema;
+import org.xdb.utils.Tuple;
 
 public class CallFunctionStmt extends AbstractServerStmt {
 	private TokenFunction tFunction;
 	private FunctionCache cache = FunctionCache.getCache();
 	private CompilePlan fPlan;
 
-	//constructors
+	// constructors
 	public CallFunctionStmt() {
 		super();
 		this.statementType = EnumStatement.CALL_FUNCTION;
 	}
-	
+
 	public CallFunctionStmt(String function) {
 		this();
 
 		this.tFunction = new TokenFunction(function);
 	}
 
-	//getters and setters
-	public void setFunction(TokenFunction function){
-		this.tFunction=function;
+	// getters and setters
+	public void setFunction(TokenFunction function) {
+		this.tFunction = function;
 	}
-	
+
 	public void setSchema(String schema) {
 		this.tFunction.setSchema(schema);
 	}
@@ -48,24 +50,24 @@ public class CallFunctionStmt extends AbstractServerStmt {
 			return Catalog.createObjectNotExistsErr(this.tFunction.getName()
 					.toString(), EnumDatabaseObject.FUNCTION);
 		}
-		
-		if(this.cache.hasPlan(functionKey)){
+
+		if (this.cache.hasPlan(functionKey)) {
 			this.fPlan = this.cache.getPlan(functionKey);
-		}
-		else{
+		} else {
 			FunSQLCompiler compiler = new FunSQLCompiler();
-			
-			//make sure that we enable the right compiler phases
+
+			// make sure that we enable the right compiler phases
 			compiler.doSemanticAnalysis(false);
 			compiler.doOptimize(true);
-			
-			CreateFunctionStmt fStmt = (CreateFunctionStmt) compiler.compile(function.getSource());
-			if(compiler.getLastError().isError()){
+
+			CreateFunctionStmt fStmt = (CreateFunctionStmt) compiler
+					.compile(function.getSource());
+			if (compiler.getLastError().isError()) {
 				return compiler.getLastError();
 			}
 			this.fPlan = fStmt.getPlan();
 		}
-		
+
 		return new Error();
 	}
 
@@ -73,10 +75,16 @@ public class CallFunctionStmt extends AbstractServerStmt {
 	public Error execute() {
 		MasterTrackerClient client = new MasterTrackerClient();
 		Error err = client.executePlan(this.fPlan);
-		if(err.isError())
+		if (err.isError())
 			return err;
-		
+
 		return new Error();
 	}
 
+	@Override
+	public Tuple<Error, DoomDBPlan> generateDoomDBQPlan() {
+		MasterTrackerClient client = new MasterTrackerClient();
+		Tuple<Error, DoomDBPlan> result = client.generateDoomDBPlan(this.fPlan);
+		return result;
+	}
 }

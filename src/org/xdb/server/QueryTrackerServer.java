@@ -7,17 +7,21 @@ import java.net.Socket;
 import java.util.logging.Level;
 
 import org.xdb.Config;
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerNodeDesc;
+import org.xdb.utils.Tuple;
 
 public class QueryTrackerServer extends AbstractServer {
 
 	public static final int CMD_EXECUTE_PLAN = 1;
 	public static final int CMD_OPERATOR_READY = 2;
-
+	
+	public static final int CMD_DOOMDB_GENERATE_PLAN = 100;
+	
 	private final QueryTrackerNode tracker;
 
 	public QueryTrackerServer() throws Exception{
@@ -72,6 +76,12 @@ public class QueryTrackerServer extends AbstractServer {
 				case CMD_OPERATOR_READY:
 					final AbstractExecuteOperator op = (AbstractExecuteOperator) in.readObject();
 					err = tracker.operatorReady(op);
+				case CMD_DOOMDB_GENERATE_PLAN:
+					final CompilePlan cplan2 = (CompilePlan) in.readObject();
+					Tuple<Error, DoomDBPlan> result = tracker.generateDoomDBQPlan(cplan2);
+					out.writeObject(result.getObject2());
+					err = result.getObject1();
+					break;
 				}
 				out.writeObject(err);
 				out.flush();

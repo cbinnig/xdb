@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
@@ -167,17 +168,10 @@ public class QueryTrackerPlan implements Serializable {
 		return this.consumers;
 	}
 
-	/**
-	 * @return the queryExecutionTime
-	 */
 	public long getQueryExecutionTime() {
 		return queryExecutionTime;
 	}
 
-	/**
-	 * @param queryExecutionTime
-	 *            the queryExecutionTime to set
-	 */
 	public void setQueryExecutionTime(long queryExecutionTime) {
 		this.queryExecutionTime = queryExecutionTime;
 	}
@@ -192,7 +186,18 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	// methods
-
+	public void initDoomDBFromQPlan(DoomDBPlan dplan){
+		for(Identifier node: this.trackerOpsOrder){
+			dplan.addNode(node);
+		}
+		
+		for(Identifier from: this.consumers.keySet()){
+			for(Identifier to: this.consumers.get(from)){
+				dplan.addEdge(from, to);
+			}
+		}
+	}
+	
 	/**
 	 * Assigns query tracker to plan
 	 * 
@@ -935,5 +940,4 @@ public class QueryTrackerPlan implements Serializable {
 	public Map<Identifier, Set<Identifier>> getReceivedReadySignals() {
 		return receivedReadySignals;
 	}
-
 }

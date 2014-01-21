@@ -30,7 +30,6 @@ public class Config implements Serializable {
 	public static boolean MASTERTRACKER_MONITOR_ACTIVATED = false;
 	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false;  
 	
-
 	// Compute Server
 	public static String COMPUTE_DRIVER_CLASS = "com.mysql.jdbc.Driver";
 	public static String COMPUTE_DB_URL = "jdbc:mysql://127.0.0.1/";
@@ -42,7 +41,7 @@ public class Config implements Serializable {
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
 	public static boolean COMPUTE_CLEAN_RESULTS = true;
 	public static boolean COMPUTE_CLEAN_PLAN = true;
-
+	
 	// Compile Server
 	public static String METADATA_DRIVER_CLASS = "com.mysql.jdbc.Driver";
 	public static String METADATA_DB_URL = "jdbc:mysql://127.0.0.1/xdb_schema";

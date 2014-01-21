@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
+import org.xdb.utils.Tuple;
 
 /**
  * Abstract client implementation to talk to server components via sockets
@@ -79,5 +80,37 @@ public abstract class AbstractClient {
 		}
 
 		return err;
+	}
+	
+	
+	protected Tuple<Error, Object> executeCmdWithResult(final String url, final int port, int cmd, Object[] args) {
+		Error err = new Error();
+		Object obj = null;
+		
+		try {
+			Socket server = new Socket(url, port);
+			final ObjectOutputStream out = new ObjectOutputStream(
+					server.getOutputStream());
+
+			
+			out.writeInt(cmd);
+			out.flush();
+			for(Object arg: args){
+				out.writeObject(arg);
+				out.flush();
+			}
+
+			final ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
+			obj = in.readObject();
+			err = (Error) in.readObject();
+			
+			server.close();
+
+		} catch (final Exception e) {
+			err = createClientError(url, e);
+		}
+
+		return new Tuple<Error, Object>(err, obj);
 	}
 }

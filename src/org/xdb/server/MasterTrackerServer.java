@@ -11,12 +11,14 @@ import java.util.logging.Level;
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.QueryTrackerClient;
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.tracker.MasterTrackerNode;
 import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.tracker.signals.RegisterSignal;
+import org.xdb.utils.Tuple;
 
 public class MasterTrackerServer extends AbstractServer {
 
@@ -64,11 +66,16 @@ public class MasterTrackerServer extends AbstractServer {
 					final Set<String> requiredNodes = (Set<String>) in
 							.readObject();
 					out.writeObject(tracker.getAvailableComputeNodes(requiredNodes));
-					err = tracker.getLastError();
 					break;
 				case CMD_EXECUTE_PLAN:
-					final CompilePlan plan = (CompilePlan) in.readObject();
-					err = tracker.executePlan(plan);
+					final CompilePlan cplan1 = (CompilePlan) in.readObject();
+					err = tracker.executePlan(cplan1);
+					break;
+				case CMD_DOOMDB_GENERATE_PLAN:
+					final CompilePlan cplan2 = (CompilePlan) in.readObject();
+					Tuple<Error, DoomDBPlan> result = tracker.generateDoomDBQPlan(cplan2);
+					out.writeObject(result.getObject2());
+					err = result.getObject1();
 					break;
 				
 				}
@@ -86,6 +93,9 @@ public class MasterTrackerServer extends AbstractServer {
 	public static final int CMD_REGISTER_QUERYTRACKER_NODE = 3;
 	public static final int CMD_REQUEST_COMPUTE_NODE = 4;
 
+	public static final int CMD_DOOMDB_GENERATE_PLAN = 100;
+	
+	
 	// Master tracker node which executes cmds
 	private final MasterTrackerNode tracker;
 

@@ -1,7 +1,9 @@
 package org.xdb.funsql.statement;
 
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
+import org.xdb.utils.Tuple;
 
 /**
  * Implements a statement on the server side
@@ -107,6 +109,15 @@ public abstract class AbstractServerStmt {
 	 */
 	public abstract Error execute();
 
+	
+	/**
+	 * Generates query tracker plan for statement and returns DoomDBPlan
+	 * @return
+	 */
+	public Tuple<Error, DoomDBPlan> generateDoomDBQPlan(){
+		return new Tuple<Error, DoomDBPlan>(null, null);
+	}
+	
 	/**
 	 * Return SQL representation of statement
 	 * 

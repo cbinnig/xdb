@@ -110,6 +110,4 @@ public class DistributedXDBTestCase extends TestCase {
 		compileServer.stopServer();
 		mTrackerServer.stopServer();
 	} 
-	
-	
 }
