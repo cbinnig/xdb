@@ -88,6 +88,7 @@ public class QueryTrackerPlan implements Serializable {
 	// Stop signaling while monitoring (redeploying) operators, and signaling
 	// once finishing the monitoring.
 	private final ReentrantLock monitoringLock = new ReentrantLock();
+	private int monitoringInterval = Config.QUERYTRACKER_MONITOR_INTERVAL;
 
 	// logger
 	private transient Logger logger;
@@ -107,6 +108,10 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	// getter and setter
+	public void setMonitoringInterval(int interval){
+		this.monitoringInterval = interval;
+	}
+	
 	public Set<Identifier> getLeaves() {
 		return Collections.unmodifiableSet(leaves);
 	}
@@ -377,6 +382,7 @@ public class QueryTrackerPlan implements Serializable {
 		if (err.isError()) {
 			return err;
 		}
+		
 		// start execution on leave operators
 		for (final Identifier leaveId : leaves) {
 			final OperatorDesc leaveOpDesc = currentDeployment.get(leaveId);
@@ -392,6 +398,8 @@ public class QueryTrackerPlan implements Serializable {
 		while (!this.isExecuted() && !this.err.isError()) {
 			if (Config.QUERYTRACKER_MONITOR_ACTIVATED) {
 				try {
+					Thread.sleep(monitoringInterval);
+					
 					// Starting the compute servers monitoring.
 					// Lock to prevent operator signaling.
 					monitoringLock.lock();
@@ -403,12 +411,10 @@ public class QueryTrackerPlan implements Serializable {
 						logger.log(Level.INFO, "Monitoring detected a failure!");
 						// re-deploy the failed operators
 						redeployFailedOperators();
-
 					}
 
 					// unlock to allow operators signaling.
 					monitoringLock.unlock();
-					Thread.sleep(Config.QUERYTRACKER_MONITOR_INTERVAL);
 
 					// Wait to the next monitor
 				} catch (InterruptedException e) {

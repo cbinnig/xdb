@@ -23,6 +23,6 @@ Antlr:
 
 2. Startup
 ---------------
-- Start mysqld_safe at least with option federated (which should be given by my.cnf)
-- Execute test suite (no standalone version yet).
+- Start mysqld_safe at least with option federated (which should be given by the my.cnf file)
+- Execute test suite (TestSuiteXDB)
   

@@ -42,30 +42,28 @@ public interface IDoomDBClient {
 
 	
 	/**
-	 * gets the current Node for a specific Operation
+	 * gets the compute node executing an operator
 	 * @param operation
 	 * @return
 	 */
-	ComputeNodeDesc getCurrentNode(Identifier opId);
+	ComputeNodeDesc getNode(Identifier opId);
 
 	/**
-	 * get Number of Nodes for Processing the Plan
+	 * get number of nodes for processing the plan
 	 * 
 	 * @return Number of Nodes
 	 */
 	int getNodeCount();
 
 	/**
-	 * Kills a specific Node in the Tree
-	 * 
-	 * @param node
+	 * kills a specific compute node 
+	 * @param nodeDesc
 	 */
 	void killNode(ComputeNodeDesc nodeDesc);
 
 	/**
-	 * recovers Node node from EStatus terminated to Estatus running.
-	 * 
-	 * @param node
+	 * sets MTTR = mean time to repair a compute node in ms
+	 * @param time
 	 */
-	void recoverNode(ComputeNodeDesc nodeDesc);
+	void setMTTR(int time);
 }
