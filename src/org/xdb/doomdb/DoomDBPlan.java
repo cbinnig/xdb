@@ -24,9 +24,16 @@ public class DoomDBPlan implements Serializable {
 	private static final long serialVersionUID = -1963805350351443744L;
 	private static final String TRACE_FILE_NAME = DoomDBPlan.class.getName();
 	
+	//plan IDs
 	private DoomDBPlanDesc planDesc = null;
+	
+	//nodes = operators
 	private Set<Identifier> nodes = new HashSet<Identifier>();
+	
+	//edges = connections between operators: from -> [to]
 	private Map<Identifier, List<Identifier>> edges = new HashMap<Identifier, List<Identifier>>();
+	
+	// deployment of operators on compute nodes: opId -> compute node
 	private Map<Identifier, OperatorDesc> deployment = new HashMap<Identifier, OperatorDesc>();
 	
 	public DoomDBPlan() {
@@ -76,9 +83,19 @@ public class DoomDBPlan implements Serializable {
 		return null;
 	}
 	
+	public Set<Identifier> getOperators(ComputeNodeDesc compNode){
+		Set<Identifier> ops = new HashSet<Identifier>();
+		for(Map.Entry<Identifier, OperatorDesc> entry :this.deployment.entrySet()){
+			if(entry.getValue().getComputeNode().equalsWPort(compNode)){
+				ops.add(entry.getKey());
+			}
+		}
+		return ops;
+	}
+	
 	public long getEstimatedTime(){
 		//TODO: change hard coded estimate!!!
-		return this.nodes.size() * 500;
+		return this.nodes.size() * 250;
 	}
 	
 	public Error tracePlan() {

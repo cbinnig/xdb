@@ -42,14 +42,17 @@ public class TestDoomDB extends DistributedXDBTestCase {
 		dplan.tracePlan();
 		
 		System.out.println("--------------------");
+		System.out.println("Query Info: ");
+		System.out.println("\tQuery String: "+q);
+		System.out.println("\tEstimated Runtime: "+dplan.getEstimatedTime());
+		System.out.println("");
+		
 		System.out.println("Query Deployment: ");
 		for(Identifier opId: dplan.getNodes()){
 			System.out.println("\t"+opId+":"+dplan.getComputeNode(opId));
 		}
-		System.out.println("--------------------");
 		System.out.println("");
 		
-		System.out.println("--------------------");
 		System.out.println("Query Execution: ");
 		System.out.print("\tRunning ");
 		this.dClient.startQuery();

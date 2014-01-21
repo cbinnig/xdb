@@ -34,4 +34,14 @@ public class ComputeNodeDesc extends AbstractNodeDesc {
 	public int hashCode() {
 		return this.url.hashCode() + this.port;
 	}
+	
+	public boolean equalsWPort(ComputeNodeDesc compNode){
+		if(!compNode.url.equals(this.url))
+			return false;
+		
+		if(compNode.port!=this.port)
+			return false;
+		
+		return true;
+	}
 }
