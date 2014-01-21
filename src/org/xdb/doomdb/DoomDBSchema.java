@@ -1,7 +1,7 @@
 package org.xdb.doomdb;
 
 public enum DoomDBSchema {
-	TPCH;
+	TPCH_2PARTS;
 
 	private String[] tpchCreateDDLs = {
 			"CREATE CONNECTION TPCH1 "
@@ -68,7 +68,7 @@ public enum DoomDBSchema {
 
 	public String[] getCreateDDL() {
 		switch (this) {
-		case TPCH:
+		case TPCH_2PARTS:
 			return this.tpchCreateDDLs;
 		default:
 			return null;
@@ -77,7 +77,7 @@ public enum DoomDBSchema {
 	
 	public int getPartitions(){
 		switch (this) {
-		case TPCH:
+		case TPCH_2PARTS:
 			return 2;
 		default:
 			return 0;

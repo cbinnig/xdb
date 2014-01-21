@@ -20,7 +20,7 @@ public class TestDoomDB extends DistributedXDBTestCase {
 	private DoomDBClient dClient = new DoomDBClient();
 
 	public void testWith2Levels() throws Exception{
-		this.dClient.setSchema(DoomDBSchema.TPCH);
+		this.dClient.setSchema(DoomDBSchema.TPCH_2PARTS);
 		
 		String q  = "Select n_nationkey, " +
 					"sum(l_extendedprice * (1-l_discount)) as revenue, " +
