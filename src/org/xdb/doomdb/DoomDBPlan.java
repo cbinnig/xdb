@@ -35,6 +35,9 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	// deployment of operators on compute nodes: opId -> compute node
 	private Map<Identifier, OperatorDesc> deployment = new HashMap<Identifier, OperatorDesc>();
 	
+	// compute nodes used in current deployment
+	private Map<String, ComputeNodeDesc> nodes = new HashMap<String, ComputeNodeDesc>();
+	
 	public DoomDBPlan() {
 	}
 
@@ -73,9 +76,13 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	public void setDeployment(Map<Identifier, OperatorDesc> deployment){
 		this.deployment.clear();
 		this.deployment.putAll(deployment);
+		
+		for(OperatorDesc operDesc: deployment.values()){
+			this.nodes.put(operDesc.getComputeNode().toString(), operDesc.getComputeNode());
+		}
 	}
 	
-	public ComputeNodeDesc getComputeNode(String opIdString){
+	public ComputeNodeDesc getComputeNodeByOp(String opIdString){
 		Identifier opId = new Identifier(opIdString);
 		if(this.deployment.containsKey(opId)){
 			return this.deployment.get(opId).getComputeNode();
@@ -83,14 +90,15 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		return null;
 	}
 	
-	public Set<String> getOperators(String compNode){
-		Set<String> ops = new HashSet<String>();
-		for(Map.Entry<Identifier, OperatorDesc> entry :this.deployment.entrySet()){
-			if(entry.getValue().getComputeNode().toString().equals(compNode)){
-				ops.add(entry.getKey().toString());
-			}
+	public ComputeNodeDesc getComputeNode(String compNodeDesc){
+		if(this.nodes.containsKey(compNodeDesc)){
+			return this.nodes.get(compNodeDesc);
 		}
-		return ops;
+		return null;
+	}
+	
+	public int getComputeNodeCount(){
+		return this.nodes.size();
 	}
 	
 	public long getEstimatedTime(){

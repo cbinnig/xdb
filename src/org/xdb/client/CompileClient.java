@@ -13,9 +13,8 @@ public class CompileClient extends AbstractClient {
 
 	// constructors
 	public CompileClient() {
+		super(Config.COMPILE_URL, Config.COMPILE_PORT);
 		this.logger = XDBLog.getLogger(this.getClass().getName());
-		this.port = Config.COMPILE_PORT;
-		this.url = Config.COMPILE_URL;
 	}
 
 	/**
@@ -27,13 +26,11 @@ public class CompileClient extends AbstractClient {
 	public Error executeStmt(String stmt) {
 		ClientStmt clientStmt = new ClientStmt(stmt);
 		Object[] args = { clientStmt };
-		return this.executeCmd(this.url, this.port,
-				CompileServer.CMD_EXECUTE_WO_RESULT, args);
+		return this.executeCmd(CompileServer.CMD_EXECUTE_WO_RESULT, args);
 	}
-	
+
 	public Error resetCatalog() {
-		Object[] args = { };
-		return this.executeCmd(this.url, this.port,
-				CompileServer.CMD_RESET_CATALOG, args);
+		Object[] args = {};
+		return this.executeCmd(CompileServer.CMD_RESET_CATALOG, args);
 	}
 }

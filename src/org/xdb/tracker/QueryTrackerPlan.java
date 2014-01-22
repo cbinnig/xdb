@@ -568,13 +568,13 @@ public class QueryTrackerPlan implements Serializable {
 				.createComputeNodesWishList();
 
 		// ask master tracker for nodes
-		final Tuple<Map<String, ComputeNodeDesc>, Error> resultRequest = tracker
+		final Tuple<Error, Map<String, ComputeNodeDesc>> resultRequest = tracker
 				.requestComputeNodes(requiredNodes);
 
 		// read result
 		final Map<String, ComputeNodeDesc> allocatedNodes = resultRequest
-				.getObject1();
-		this.err = resultRequest.getObject2();
+				.getObject2();
+		this.err = resultRequest.getObject1();
 
 		// assign nodes
 		this.resourceScheduler.assignComputeNodes(allocatedNodes);

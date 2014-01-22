@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.QueryTrackerClient;
+import org.xdb.doomdb.DoomDBClusterDesc;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.doomdb.DoomDBPlanDesc;
 import org.xdb.error.Error;
@@ -72,6 +73,16 @@ public class MasterTrackerServer extends AbstractServer {
 					final CompilePlan cplan1 = (CompilePlan) in.readObject();
 					err = tracker.executePlan(cplan1);
 					break;
+				case CMD_START_COMPUTE_SERVER:
+					final ComputeNodeDesc compNodeDesc = (ComputeNodeDesc)in.readObject();
+					ComputeServer compServer = new ComputeServer(compNodeDesc.getPort());
+					compServer.startServer();
+					err = compServer.getError();
+					break;
+				case CMD_DOOMDB_START_CLUSTER:
+					final DoomDBClusterDesc clusterDesc = (DoomDBClusterDesc)in.readObject();
+					err = tracker.startDoomDBCluster(clusterDesc);
+					break;
 				case CMD_DOOMDB_GENERATE_PLAN:
 					final CompilePlan cplan2 = (CompilePlan) in.readObject();
 					Tuple<Error, DoomDBPlan> result = tracker.generateDoomDBQPlan(cplan2);
@@ -103,10 +114,13 @@ public class MasterTrackerServer extends AbstractServer {
 	public static final int CMD_EXECUTE_PLAN = 2;
 	public static final int CMD_REGISTER_QUERYTRACKER_NODE = 3;
 	public static final int CMD_REQUEST_COMPUTE_NODE = 4;
+	public static final int CMD_START_COMPUTE_SERVER = 5;
 
-	public static final int CMD_DOOMDB_GENERATE_PLAN = 100;
-	public static final int CMD_DOOMDB_EXECUTE_PLAN = 101;
-	public static final int CMD_DOOMDB_FINISHED_PLAN = 102;
+	public static final int CMD_DOOMDB_START_CLUSTER = 100;
+	public static final int CMD_DOOMDB_GENERATE_PLAN = 101;
+	public static final int CMD_DOOMDB_EXECUTE_PLAN = 102;
+	public static final int CMD_DOOMDB_FINISHED_PLAN = 103;
+
 	
 	// Master tracker node which executes cmds
 	private final MasterTrackerNode tracker;

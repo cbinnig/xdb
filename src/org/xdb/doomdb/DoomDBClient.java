@@ -1,32 +1,59 @@
-package org.xdb.client;
+package org.xdb.doomdb;
 
-import java.util.Set;
-
-import org.xdb.Config;
+import org.xdb.client.CompileClient;
+import org.xdb.client.ComputeClient;
+import org.xdb.client.MasterTrackerClient;
 import org.xdb.client.statement.ClientStmt;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.doomdb.EnumDoomDBSchema;
 import org.xdb.doomdb.IDoomDBClient;
+import org.xdb.doomdb.IDoomDBPlan;
 import org.xdb.error.Error;
-import org.xdb.logging.XDBLog;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.server.CompileServer;
 import org.xdb.utils.Tuple;
 
 /**
  * DoomDBClient to talk to XDB
  */
-public class DoomDBClient extends AbstractClient implements IDoomDBClient {
+public class DoomDBClient implements IDoomDBClient {
+	
+	/**
+	 * Thread to restart a compute server after a given MTTR
+	 * @author cbinnig
+	 *
+	 */
+	private class RestartComputeServer extends Thread{
+		private ComputeNodeDesc compNodeDesc;
+		
+		public RestartComputeServer(ComputeNodeDesc compNodeDesc){
+			this.compNodeDesc = compNodeDesc;
+		}
+		
+		@Override
+		public void run(){
+			try {
+				Thread.sleep(DoomDBClient.this.mttr);
+			} catch (InterruptedException e) {
+				//Do nothing
+			}
+			DoomDBClient.this.mClient.startComputeServer(this.compNodeDesc);
+		}
+	}
+	
 	private DoomDBPlan dplan = null;
 	private EnumDoomDBSchema schema = null;
 
 	private CompileClient cClient = new CompileClient();
 	private MasterTrackerClient mClient = new MasterTrackerClient();
+	private ComputeClient compClient = new ComputeClient();
+	
+	private int mttr = 5000;
 
 	// constructors
-	public DoomDBClient() {
-		this.logger = XDBLog.getLogger(this.getClass().getName());
-		this.port = Config.COMPILE_PORT;
-		this.url = Config.COMPILE_URL;
+	public DoomDBClient(DoomDBClusterDesc clusterDesc) {
+		Error err = this.mClient.startDoomDBCluster(clusterDesc);
+		this.raiseError(err);
 	}
 
 	// getters and setters
@@ -67,8 +94,7 @@ public class DoomDBClient extends AbstractClient implements IDoomDBClient {
 
 		ClientStmt clientStmt = new ClientStmt(query);
 		Object[] args = { clientStmt };
-		Tuple<Error, Object> result = this.executeCmdWithResult(this.url,
-				this.port, CompileServer.CMD_DOOMDB_COMPILE, args);
+		Tuple<Error, Object> result = this.cClient.executeCmdWithResult(CompileServer.CMD_DOOMDB_COMPILE, args);
 		this.raiseError(result.getObject1());
 
 		this.dplan = (DoomDBPlan) result.getObject2();
@@ -76,7 +102,7 @@ public class DoomDBClient extends AbstractClient implements IDoomDBClient {
 	}
 
 	@Override
-	public DoomDBPlan getPlan() {
+	public IDoomDBPlan getPlan() {
 		return this.dplan;
 	}
 
@@ -115,10 +141,11 @@ public class DoomDBClient extends AbstractClient implements IDoomDBClient {
 
 	@Override
 	public int getNodeCount() {
-		if (this.schema != null)
-			return this.schema.getPartitions();
-
-		return 0;
+		if (this.dplan == null) {
+			throw new RuntimeException("Provide a query before!");
+		}
+		
+		return this.dplan.getComputeNodeCount();
 	}
 
 	@Override
@@ -134,19 +161,19 @@ public class DoomDBClient extends AbstractClient implements IDoomDBClient {
 		if (this.dplan == null) {
 			throw new RuntimeException("Provide a query before!");
 		}
-		return this.dplan.getComputeNode(opId).toString();
+		return this.dplan.getComputeNodeByOp(opId).toString();
 	}
 
 	@Override
 	public void killNode(String nodeDesc) {
-		@SuppressWarnings("unused")
-		Set<String> killedOps = this.dplan.getOperators(nodeDesc);
-		//TODO: set status of all killed operators to ABORTED in query tracker plan 
+		ComputeNodeDesc computeNodeDesc = this.dplan.getComputeNodeByOp(nodeDesc);
+		compClient.stopComputeServer(computeNodeDesc);
+		RestartComputeServer restartThread = new RestartComputeServer(computeNodeDesc);
+		restartThread.start();
 	}
 
 	@Override
-	public void setMTTR(int time) {
-		// TODO: change monitoring interval in query tracker plan
-		
+	public void setMTTR(int mttr) {
+		this.mttr = mttr;
 	}
 }

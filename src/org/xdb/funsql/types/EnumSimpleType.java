@@ -6,7 +6,7 @@ import org.xdb.error.Error;
 public enum EnumSimpleType implements Cloneable {
 	SQL_NOTYPE, SQL_INTEGER, SQL_VARCHAR, SQL_CHAR, SQL_DECIMAL, SQL_DATE;
 
-	private static final EnumSimpleType[] values = { SQL_INTEGER, SQL_VARCHAR,
+	private static final EnumSimpleType[] values = { SQL_NOTYPE, SQL_INTEGER, SQL_VARCHAR,
 			SQL_CHAR, SQL_DECIMAL, SQL_DATE };
 
 	public boolean isSet() {
