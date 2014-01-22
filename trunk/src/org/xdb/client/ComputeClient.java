@@ -27,9 +27,8 @@ public class ComputeClient extends AbstractClient {
 	}
 
 	public ComputeClient(String url, int port) {
+		super(url, port);
 		this.logger = XDBLog.getLogger(this.getClass().getName());
-		this.port = port;
-		this.url = url;
 	}
 
 	/**
@@ -124,7 +123,7 @@ public class ComputeClient extends AbstractClient {
 	public Error closeOperator(final OperatorDesc dest) {
 		return this.closeOperator(dest.getComputeNode(), dest.getOperatorID());
 	}
-	
+
 	/**
 	 * Stop compute server
 	 * 
@@ -137,9 +136,10 @@ public class ComputeClient extends AbstractClient {
 		return this.executeCmd(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_STOP_SERVER, args);
 	}
-	
+
 	/**
 	 * Ping compute server
+	 * 
 	 * @param url
 	 * @return
 	 */
@@ -148,17 +148,19 @@ public class ComputeClient extends AbstractClient {
 		return this.executeCmd(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_PING_SERVER, args);
 	}
-    
+
 	/**
 	 * Kill failed operator.
-	 * @param url 
+	 * 
+	 * @param url
 	 * @param failedExecOpId
 	 * @return
 	 */
-	public Error killFailedOperator(ComputeNodeDesc url, Identifier failedExecOpId) {
-        final KillSignal killSignal = new KillSignal(failedExecOpId); 
-        Object[] args = {killSignal};
-        return this.executeCmd(url.getUrl(), url.getPort(),
+	public Error killFailedOperator(ComputeNodeDesc url,
+			Identifier failedExecOpId) {
+		final KillSignal killSignal = new KillSignal(failedExecOpId);
+		Object[] args = { killSignal };
+		return this.executeCmd(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_KILL_SIGNAL, args);
 	}
 }

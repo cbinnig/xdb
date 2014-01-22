@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.QueryTrackerClient;
+import org.xdb.doomdb.DoomDBClusterDesc;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.doomdb.DoomDBPlanDesc;
 import org.xdb.error.EnumError;
@@ -23,6 +24,9 @@ import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
+import org.xdb.server.CompileServer;
+import org.xdb.server.ComputeServer;
+import org.xdb.server.QueryTrackerServer;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.Tuple;
 
@@ -308,6 +312,42 @@ public class MasterTrackerNode {
 		// execute plan using client
 		final QueryTrackerClient client = this.queryTrackerClients.get(tracker);
 		err = client.executePlan(plan);
+		return err;
+	}
+	
+	/**
+	 * Starts a doom DB cluster locally on node of master tracker
+	 * @param clusterDesc
+	 * @return
+	 * @throws Exception 
+	 */
+	public Error startDoomDBCluster(DoomDBClusterDesc clusterDesc) throws Exception{
+		Error err = new Error();
+		
+		CompileServer compilerServer = new CompileServer();
+		compilerServer.startServer();
+		err = compilerServer.getError();
+		if(err.isError()){
+			return err;
+		}
+		
+		QueryTrackerServer qtServer = new QueryTrackerServer();
+		qtServer.startServer();
+		err = qtServer.getError();
+		if(err.isError()){
+			return err;
+		}
+		
+		int startPort = clusterDesc.getStartPort();
+		for(int i=0; i<clusterDesc.getNumberOfNodes(); ++i){
+			ComputeServer computeServer = new ComputeServer(startPort+i);
+			computeServer.startServer();
+			err = computeServer.getError();
+			if(err.isError()){
+				return err;
+			}
+		}
+		
 		return err;
 	}
 	

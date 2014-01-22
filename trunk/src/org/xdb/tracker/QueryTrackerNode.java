@@ -315,10 +315,10 @@ public class QueryTrackerNode {
 	 * @param wishList
 	 * @return
 	 */
-	public Tuple<Map<String, ComputeNodeDesc>, Error> requestComputeNodes(
+	public Tuple<Error, Map<String, ComputeNodeDesc>> requestComputeNodes(
 			final Set<String> wishList) {
 
-		final Tuple<Map<String, ComputeNodeDesc>, Error> tuple = this.masterTrackerClient
+		final Tuple<Error, Map<String, ComputeNodeDesc>> tuple = this.masterTrackerClient
 				.requestComputeNodes(wishList);
 
 		return tuple;
