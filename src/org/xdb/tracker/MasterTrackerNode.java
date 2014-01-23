@@ -439,7 +439,6 @@ public class MasterTrackerNode {
 	 */
 	public synchronized Error registerComputeNode(final ComputeNodeDesc desc) {
 		final Error err = new Error();
-
 		logger.log(Level.INFO, "Registered ComputeNode at MasterTracker: "
 				+ desc);
 

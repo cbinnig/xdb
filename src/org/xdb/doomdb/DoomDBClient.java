@@ -43,7 +43,8 @@ public class DoomDBClient implements IDoomDBClient {
 	
 	private DoomDBPlan dplan = null;
 	private EnumDoomDBSchema schema = null;
-
+	private DoomDBClusterDesc clusterDesc = null;
+	
 	private CompileClient cClient = new CompileClient();
 	private MasterTrackerClient mClient = new MasterTrackerClient();
 	private ComputeClient compClient = new ComputeClient();
@@ -52,8 +53,16 @@ public class DoomDBClient implements IDoomDBClient {
 
 	// constructors
 	public DoomDBClient(DoomDBClusterDesc clusterDesc) {
+		this.clusterDesc = clusterDesc;
+	}
+	
+	@Override
+	public boolean startDB() {
 		Error err = this.mClient.startDoomDBCluster(clusterDesc);
-		this.raiseError(err);
+		if(err.isError())
+			return false;
+		
+		return true;
 	}
 
 	// getters and setters
@@ -166,7 +175,7 @@ public class DoomDBClient implements IDoomDBClient {
 
 	@Override
 	public void killNode(String nodeDesc) {
-		ComputeNodeDesc computeNodeDesc = this.dplan.getComputeNodeByOp(nodeDesc);
+		ComputeNodeDesc computeNodeDesc = this.dplan.getComputeNode(nodeDesc);
 		compClient.stopComputeServer(computeNodeDesc);
 		RestartComputeServer restartThread = new RestartComputeServer(computeNodeDesc);
 		restartThread.start();
