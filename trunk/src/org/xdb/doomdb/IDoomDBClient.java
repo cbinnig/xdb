@@ -4,6 +4,12 @@ package org.xdb.doomdb;
 public interface IDoomDBClient {
 
 	/**
+	 * Starts DB and results true if possible
+	 * @return
+	 */
+	boolean startDB();
+	
+	/**
 	 * Create database schema selected when starting the game
 	 * @param schema
 	 */

@@ -1,5 +1,6 @@
 package org.xdb.test.doomdb;
 
+import org.xdb.Config;
 import org.xdb.doomdb.DoomDBClient;
 import org.xdb.doomdb.DoomDBClusterDesc;
 import org.xdb.doomdb.IDoomDBClient;
@@ -18,18 +19,34 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 
 	@Override
 	public void setUp() {
-		mTrackerServer = new MasterTrackerServer();
-		mTrackerServer.startServer();
-		assertNoError(mTrackerServer.getError());
-		
 		DoomDBClusterDesc clusterDesc = new DoomDBClusterDesc(2);
 		this.dClient = new DoomDBClient(clusterDesc);
 		this.dClient.setMTTR(100);
+		
+		if(Config.TEST_RUN_LOCAL){
+			mTrackerServer = new MasterTrackerServer();
+			mTrackerServer.startServer();
+			assertNoError(mTrackerServer.getError());
+			assertTrue(this.dClient.startDB());
+		}
+		else{
+			System.out.print("Waiting for master tracker to start up!");
+			while(!this.dClient.startDB()){
+				System.out.print(".");
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					//Do nothing
+				}
+			}
+			System.out.println("");
+		}
 	}
 	
 	@Override
 	public void tearDown() {
-		mTrackerServer.stopServer();
+		if(Config.TEST_RUN_LOCAL)
+			mTrackerServer.stopServer();
 	} 
 
 	public void testWith2Levels() throws Exception {
@@ -63,7 +80,8 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 
 		System.out.println("Query Deployment: ");
 		for (String opId : dplan.getOperators()) {
-			System.out.println("\t" + opId + ":" + this.dClient.getNode(opId));
+			String nodeDesc = this.dClient.getNode(opId);
+			System.out.println("\t" + opId + ":" + nodeDesc);
 		}
 		System.out.println("");
 

@@ -131,9 +131,9 @@ public class ComputeClient extends AbstractClient {
 	 * @param operatorId
 	 * @return
 	 */
-	public Error stopComputeServer(final ComputeNodeDesc url) {
+	public Error stopComputeServer(final ComputeNodeDesc compNode) {
 		Object[] args = {};
-		return this.executeCmd(url.getUrl(), url.getPort(),
+		return this.executeCmd(compNode.getUrl(), compNode.getPort(),
 				ComputeServer.CMD_STOP_SERVER, args);
 	}
 
