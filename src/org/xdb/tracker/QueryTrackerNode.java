@@ -212,7 +212,8 @@ public class QueryTrackerNode {
 		err = qPLanResult.getObject1();
 		qplan = qPLanResult.getObject2();
 		if (err.isError()) {
-			qplan.cleanPlanOnError();
+			if(qplan != null)
+				qplan.cleanPlanOnError();
 			return err;
 		}
 

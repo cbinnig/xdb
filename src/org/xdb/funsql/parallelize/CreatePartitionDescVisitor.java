@@ -105,6 +105,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 					replaceExpr);
 			for(TokenIdentifier grpAlias: preAgg.getGroupAliases()){
 				preAggRePartDesc.addPartAttributes(new TokenAttribute(grpAlias));
+				break; //only first group by attribute is used for partitioning
 			}
 			preAgg.getResult().setPartitionDesc(preAggRePartDesc);
 			this.storePartDesc(preAgg.getOperatorId(), preAggRePartDesc);

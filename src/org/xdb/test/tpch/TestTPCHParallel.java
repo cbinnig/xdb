@@ -137,12 +137,12 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 		this.executeStmt(q3);
 	}
 	
-	public void testQ5withAvgAndNationkeyAsGroupBy(){
+	public void testQ5WithAvg(){
 		
 		/*
 		 * 
 		 * Select 
-n_nationkey,
+n_name,
 sum(l_extendedprice * (1-l_discount)) as revenue,
 avg(l_extendedprice * (1-l_discount)) as avgrevenue
 from 
@@ -161,9 +161,9 @@ and r_regionkey = n_regionkey
 and r_name = 'ASIA'
 and o_orderdate > DATE('1994-01-01 00:00:00')
 and o_orderdate < DATE('1995-01-01 00:00:00')
-group by n_nationkey;
+group by n_nationkey, n_name;
 		 */
-		String q5 = "Select n_nationkey, " +
+		String q5 = "Select n_name, " +
 					"sum(l_extendedprice * (1-l_discount)) as revenue, " +
 					"avg(l_extendedprice * (1-l_discount)) as avgrevenue " +
 					"from customer, orders, lineitem, supplier, nation, region " +
@@ -176,9 +176,8 @@ group by n_nationkey;
 					"and r_name = 'ASIA' " +
 					"and o_orderdate > date '1994-01-01' "+
 					"and o_orderdate < date '1995-01-01' "+
-					"group by n_nationkey;";
+					"group by n_nationkey, n_name;";
 		this.executeStmt(q5);
-		
 	}
 	
 	

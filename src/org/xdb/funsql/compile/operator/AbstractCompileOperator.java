@@ -198,6 +198,10 @@ public abstract class AbstractCompileOperator implements Serializable {
 		return this.type.equals(EnumOperator.TABLE);
 	}
 	
+	public boolean isAggregation(){
+		return this.type.equals(EnumOperator.GENERIC_AGGREGATION);
+	}
+	
 	// methods
 
 	/**

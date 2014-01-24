@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.xdb.Config;
 import org.xdb.execute.operators.AbstractExecuteOperator;
@@ -163,8 +164,8 @@ public abstract class AbstractTrackerOperator implements Serializable {
 		return this.trackerOpConnections;
 	}
 
-	public void setTrackerOpConnections(List<Connection> trackerOpConnections) {
-		this.trackerOpConnections = trackerOpConnections;
+	public void setTrackerOpConnections(Set<Connection> trackerConns) {
+		this.trackerOpConnections.addAll(trackerConns);
 	}
 
 	// methods
