@@ -5,7 +5,6 @@ package org.xdb.funsql.compile.analyze.operator;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -33,22 +32,22 @@ public class SimpleAnnotationVisitor extends AbstractAnnotationVisitor {
 
 
 	@Override
-	public Error visitEquiJoin(EquiJoin ej) {
-		applyGlobalMaterializeRules(ej);
+	public Error visitEquiJoin(EquiJoin equiJoin) {
+		applyGlobalMaterializeRules(equiJoin);
 		
-		ej.addWishedConnections(ej.getRightChild().getWishedConnections());
-		ej.addWishedConnections(ej.getLeftChild().getWishedConnections());
+		equiJoin.addWishedConnections(equiJoin.getRightChild().getWishedConnections());
+		equiJoin.addWishedConnections(equiJoin.getLeftChild().getWishedConnections());
 		
 		return Error.NO_ERROR;
 	}
 
 
 	@Override
-	public Error visitSQLJoin(SQLJoin ej) {
-		applyGlobalMaterializeRules(ej);
+	public Error visitSQLJoin(SQLJoin sqlJoin) {
+		applyGlobalMaterializeRules(sqlJoin);
 		
-		for (AbstractCompileOperator op : ej.getChildren()) {
-			ej.addWishedConnections(op.getWishedConnections());   
+		for (AbstractCompileOperator op : sqlJoin.getChildren()) {
+			sqlJoin.addWishedConnections(op.getWishedConnections());   
 			
 		}
 		return Error.NO_ERROR;
@@ -56,62 +55,67 @@ public class SimpleAnnotationVisitor extends AbstractAnnotationVisitor {
 
 
 	@Override
-	public Error visitGenericSelection(GenericSelection gs) {
-		applyGlobalMaterializeRules(gs);
+	public Error visitGenericSelection(GenericSelection selOp) {
+		applyGlobalMaterializeRules(selOp);
 		
-		gs.addWishedConnections(gs.getChild().getWishedConnections());
+		selOp.addWishedConnections(selOp.getChild().getWishedConnections());
 		return Error.NO_ERROR;
 	}
 
 	@Override
-	public Error visitGenericAggregation(GenericAggregation sa) {
-		applyGlobalMaterializeRules(sa);
+	public Error visitGenericAggregation(GenericAggregation aggOp) {
+		applyGlobalMaterializeRules(aggOp);
 		
-		sa.addWishedConnections(sa.getChild().getWishedConnections());
+		aggOp.addWishedConnections(aggOp.getChild().getWishedConnections());
 		return Error.NO_ERROR;
 	}
 
 
 	@Override
-	public Error visitGenericProjection(GenericProjection gp) {
-		applyGlobalMaterializeRules(gp);
+	public Error visitGenericProjection(GenericProjection projectOp) {
+		applyGlobalMaterializeRules(projectOp);
 		
-		gp.addWishedConnections(gp.getChild().getWishedConnections());
-		if(gp.getChild().getType().equals(EnumOperator.GENERIC_AGGREGATION)){
-			gp.getResult().materialize(true);
+		projectOp.addWishedConnections(projectOp.getChild().getWishedConnections());
+		if(projectOp.getChild().isAggregation()){
+			projectOp.getResult().materialize(true);
 		}
 		return Error.NO_ERROR;
 	}
 
 
 	@Override
-	public Error visitTableOperator(TableOperator to) {
-		applyGlobalMaterializeRules(to);
+	public Error visitTableOperator(TableOperator tableOp) {
+		applyGlobalMaterializeRules(tableOp);
 		
-		to.addWishedConnections(to.getConnections());
+		tableOp.addWishedConnections(tableOp.getConnections());
 		return Error.NO_ERROR;
 	}
 
 
 	@Override
-	public Error visitRename(Rename ro) {
-		applyGlobalMaterializeRules(ro);
+	public Error visitRename(Rename renameOp) {
+		applyGlobalMaterializeRules(renameOp);
 		
-		ro.addWishedConnections(ro.getChild().getWishedConnections());
+		renameOp.addWishedConnections(renameOp.getChild().getWishedConnections());
 		return Error.NO_ERROR;
 	}
 
 
 	@Override
-	public Error visitSQLUnary(SQLUnary absOp){
-		applyGlobalMaterializeRules(absOp);
+	public Error visitSQLUnary(SQLUnary unaryOp){
+		applyGlobalMaterializeRules(unaryOp);
+		unaryOp.addWishedConnections(unaryOp.getChild().getWishedConnections());
 		return Error.NO_ERROR;
 	}
 
 
 	@Override
-	public Error visitSQLCombined(SQLCombined absOp) {
-		applyGlobalMaterializeRules(absOp);
+	public Error visitSQLCombined(SQLCombined sqlCombined) {
+		applyGlobalMaterializeRules(sqlCombined);
+		for (AbstractCompileOperator op : sqlCombined.getChildren()) {
+			sqlCombined.addWishedConnections(op.getWishedConnections());   
+			
+		}
 		return Error.NO_ERROR;
 	}
 }

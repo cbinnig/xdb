@@ -2,13 +2,10 @@ package org.xdb.funsql.codegen;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.xdb.Config;
@@ -20,6 +17,7 @@ import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.metadata.Connection;
+import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
 import org.xdb.tracker.operator.MySQLTrackerOperator;
@@ -67,13 +65,14 @@ public class CodeGenerator {
 			+ TAB1 + ">> <" + SQL1 + ">");
 
 	private final StringTemplate sqlViewSelectPartTemplate = new StringTemplate(
-			"<<" + VIEW1 + ">> AS SELECT * FROM <<" + TAB1 + ">>  PARTITION(P<" + PART1 + ">)");
+			"<<" + VIEW1 + ">> AS SELECT * FROM <<" + TAB1 + ">>  PARTITION(P<"
+					+ PART1 + ">)");
 
-	private final StringTemplate sqlSelectAllTemplate = new StringTemplate(
-			"<<" + TAB1 + ">>");
-	
-	private final StringTemplate sqlViewTemplate = new StringTemplate(
-			"<<" + VIEW1 + ">> AS <" + SQL1 + ">");
+	private final StringTemplate sqlSelectAllTemplate = new StringTemplate("<<"
+			+ TAB1 + ">>");
+
+	private final StringTemplate sqlViewTemplate = new StringTemplate("<<"
+			+ VIEW1 + ">> AS <" + SQL1 + ">");
 
 	// last error
 	private Error err;
@@ -117,6 +116,10 @@ public class CodeGenerator {
 		this.optimize();
 		if (this.err.isError())
 			return this.err;
+		
+		//TODO: call annotation a 2nd time to get connections for all operators
+		//TODO: annotation phase must be split into annotating mat-flags and conns
+		QueryTrackerNode.annotateCompilePlan(this.compilePlan);
 
 		// rename attributes to original names
 		this.rename();
@@ -292,14 +295,15 @@ public class CodeGenerator {
 
 			// add one output view for each partition
 			for (Integer i = 0; i < outputResult.getPartitionCount(); ++i) {
-				Identifier outViewId = this.genOutputTableName(compileOp, partNum);
+				Identifier outViewId = this.genOutputTableName(compileOp,
+						partNum);
 				outViewId.append(i);
 				String outputViewName = outViewId.toString();
-				
+
 				args.put(TAB1, outTableName);
 				args.put(PART1, i.toString());
 				args.put(VIEW1, outputViewName);
-				
+
 				String selectPartDML = sqlViewSelectPartTemplate.toString(args);
 
 				trackerOp.addOutView(outputViewName, selectPartDML);
@@ -344,8 +348,8 @@ public class CodeGenerator {
 			if (inputResult.repartition()) {
 				StringBuffer sqlUnionDML = new StringBuffer();
 				for (int i = 0; i < inputResult.getPartitionCount(); ++i) {
-					Identifier inPartId = this.genInputTableName(
-							inputCompileOp);
+					Identifier inPartId = this
+							.genInputTableName(inputCompileOp);
 					inPartId.append(i);
 					String inPartName = inPartId.toString();
 					args.put(TAB1, inPartName);
@@ -361,13 +365,14 @@ public class CodeGenerator {
 					}
 
 					sqlUnionDML.append(AbstractToken.LBRACE);
-					sqlUnionDML.append(this.sqlSelectAllTemplate
-							.toString(args));
+					sqlUnionDML
+							.append(this.sqlSelectAllTemplate.toString(args));
 					sqlUnionDML.append(AbstractToken.RBRACE);
 				}
 				args.put(VIEW1, inTableName);
 				args.put(SQL1, sqlUnionDML.toString());
-				trackerOp.addInView(inTableName, this.sqlViewTemplate.toString(args));
+				trackerOp.addInView(inTableName,
+						this.sqlViewTemplate.toString(args));
 			} else {
 
 				args.put(TAB1, inTableName);
@@ -376,12 +381,12 @@ public class CodeGenerator {
 						.addInTable(inTableName, new StringTemplate(inAttsDDL));
 			}
 
-			/** Create input table description and dependencies**/
+			/** Create input table description and dependencies **/
 			// if input is a table: add catalog info to tracker operator
 			if (inputCompileOp.isTable()) { // table
 				TableOperator inputTableOp = (TableOperator) inputCompileOp;
 
-				if (inputTableOp.isPartitioned() ) {
+				if (inputTableOp.isPartitioned()) {
 					TableDesc tableDesc = new TableDesc(
 							inputTableOp.getTableName(partNum),
 							inputTableOp.getURIs(partNum));
@@ -404,12 +409,12 @@ public class CodeGenerator {
 						Identifier inPartRemoteId = this.genOutputTableName(
 								inputCompileOp, remotePartNum);
 						inPartRemoteId.append(partNum);
-						
+
 						Identifier inPartId = this
 								.genInputTableName(inputCompileOp);
 						inPartId.append(remotePartNum);
 						String inPartName = inPartId.toString();
-						
+
 						TableDesc tableDesc = new TableDesc(
 								inPartRemoteId.toString(), inTrackerOpId);
 						trackerOp.addInTableFederated(inPartName, tableDesc);
@@ -458,73 +463,10 @@ public class CodeGenerator {
 		this.addTrackerInputDDL(trackerOp, compileOp, partNum);
 
 		// add connections to tracker operator
-		Set<AbstractCompileOperator> queryTrackerCompileOps = getQueryTrackerCompileOps(compileOp);
-		List<Connection> trackerOpConnections = extractTrackerOpConnections(queryTrackerCompileOps);
+		Set<Connection> trackerOpConnections = compileOp.getWishedConnections();
 		trackerOp.setTrackerOpConnections(trackerOpConnections);
 
 		return trackerOp;
-	}
-
-	/**
-	 * Union all the connections from a sub-plan, rank them based on the
-	 * frequencies of the connections and return a list of "ranked" connections
-	 * as a possible connections for a tracker operator.
-	 * 
-	 * @param inputCompileOps
-	 *            : a set of compile operators
-	 * 
-	 * @rerun a set of connections
-	 */
-	private List<Connection> extractTrackerOpConnections(
-			Set<AbstractCompileOperator> inputCompileOps) {
-
-		// A hash map used to store the connections and their counts/repetitions
-		Map<Connection, Integer> connectionsCounterMap = new HashMap<Connection, Integer>();
-		// Going through every compile operator, get its wished connection and
-		// store them in a hash map to count.
-		for (AbstractCompileOperator abstractCompileOperator : inputCompileOps) {
-
-			Set<Connection> compileOpConnections = abstractCompileOperator
-					.getWishedConnections();
-
-			for (Connection connection : compileOpConnections) {
-				if (connectionsCounterMap.containsKey(connection)) {
-					connectionsCounterMap.put(connection,
-							connectionsCounterMap.get(connection) + 1);
-
-				} else {
-					connectionsCounterMap.put(connection, 1);
-				}
-			}
-
-		}
-
-		// Sort the hash map to get the ranked connections
-		List<Connection> rankedConnections = sortHashMapConnections(connectionsCounterMap
-				.entrySet());
-
-		return rankedConnections;
-	}
-
-	private List<Connection> sortHashMapConnections(
-			Set<Entry<Connection, Integer>> entrySet) {
-		List<Entry<Connection, Integer>> connections = new ArrayList<Entry<Connection, Integer>>(
-				entrySet);
-		Collections.sort(connections,
-				new Comparator<Entry<Connection, Integer>>() {
-					@Override
-					public int compare(Entry<Connection, Integer> arg0,
-							Entry<Connection, Integer> arg1) {
-						return (arg0.getValue() > arg1.getValue() ? -1 : (arg0
-								.getValue() == arg1.getValue() ? 0 : 1));
-					}
-				});
-
-		List<Connection> rankedConnections = new ArrayList<Connection>();
-		for (Entry<Connection, Integer> entry : connections) {
-			rankedConnections.add(entry.getKey());
-		}
-		return rankedConnections;
 	}
 
 	/**
@@ -591,33 +533,6 @@ public class CodeGenerator {
 
 		for (AbstractCompileOperator childOp : compileOp.getChildren()) {
 			getInputOps(inputOps, childOp);
-		}
-	}
-
-	private Set<AbstractCompileOperator> getQueryTrackerCompileOps(
-			AbstractCompileOperator compileOp) {
-
-		Set<AbstractCompileOperator> compileOps = new HashSet<AbstractCompileOperator>();
-		compileOps.add(compileOp);
-		for (AbstractCompileOperator childOp : compileOp.getChildren()) {
-			getQueryTrackerCompileOps(compileOps, childOp);
-		}
-
-		return compileOps;
-	}
-
-	private void getQueryTrackerCompileOps(
-			Set<AbstractCompileOperator> compileOps,
-			AbstractCompileOperator compileOp) {
-
-		if (this.splitOpIds.contains(compileOp.getOperatorId())) {
-			return;
-		} else {
-			compileOps.add(compileOp);
-		}
-
-		for (AbstractCompileOperator childOp : compileOp.getChildren()) {
-			getQueryTrackerCompileOps(compileOps, childOp);
 		}
 	}
 

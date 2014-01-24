@@ -239,7 +239,7 @@ public abstract class DistributedTPCHTestCase extends DistributedXDBTestCase {
 
 			AbstractTrackerOperator trackerOp = trackerOps.get(opIds.get(i));
 			// Set the connection list
-			List<Connection> opConnections = new ArrayList<Connection>();
+			Set<Connection> opConnections = new HashSet<Connection>();
 			ComputeNodeDesc computeNodeDesc = computeNodes[i
 					/ Config.TEST_PARTS_PER_NODE];
 			// Create the first connection
@@ -262,7 +262,7 @@ public abstract class DistributedTPCHTestCase extends DistributedXDBTestCase {
 				+ computeNodeDesc.getUrl() + "/" + Config.TEST_DB_NAME,
 				Config.METADATA_USER, Config.METADATA_PASSWORD, EnumStore.MYSQL);
 		AbstractTrackerOperator unionTrackerOp = trackerOps.get(unionOpId);
-		List<Connection> opConnections = new ArrayList<Connection>();
+		Set<Connection> opConnections = new HashSet<Connection>();
 		opConnections.add(conn);
 		opConnections.add(conn);
 		unionTrackerOp.setTrackerOpConnections(opConnections);
