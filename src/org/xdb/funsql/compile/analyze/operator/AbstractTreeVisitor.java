@@ -20,8 +20,17 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	protected AbstractCompileOperator treeRoot = null;
 	protected boolean stop = false;
 	
+	public AbstractTreeVisitor(){
+		this.stop = true;
+	}
+	
 	public AbstractTreeVisitor(AbstractCompileOperator root) {
-		treeRoot = root;
+		this.treeRoot = root;
+	}
+	
+	public void setRoot(AbstractCompileOperator root){
+		this.treeRoot = root;
+		this.stop = false;
 	}
 
 	public Error visit(){

@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.analyze.operator.AbstractTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.TableOperator;
@@ -250,6 +251,28 @@ public class CompilePlan implements Serializable {
 				+ " to compile plan " + this.planId);
 
 		this.operators.put(opId, op);
+	}
+	
+	/**
+	 * Apply visitor to compile plan
+	 * @param visitor
+	 * @return
+	 */
+	public Error applyVisitor(AbstractTreeVisitor visitor){
+		Error err = new Error();
+
+		for (Identifier rootId : this.getRootIds()) {
+			AbstractCompileOperator root = this.getOperator(rootId);
+			visitor.setRoot(root);
+			
+			err = visitor.visit();
+			if (err.isError()) {
+				return err;
+			}
+		}
+
+		return err;
+
 	}
 
 	/**
