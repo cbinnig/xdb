@@ -18,8 +18,7 @@ import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
-import org.xdb.funsql.compile.analyze.operator.AbstractAnnotationVisitor;
-import org.xdb.funsql.compile.operator.AbstractCompileOperator;
+import org.xdb.funsql.compile.analyze.operator.SimpleAnnotationVisitor;
 import org.xdb.logging.XDBLog;
 import org.xdb.monitor.ComputeServersMonitor;
 import org.xdb.utils.Identifier;
@@ -293,19 +292,8 @@ public class QueryTrackerNode {
 	 */
 	public static Error annotateCompilePlan(CompilePlan cplan) {
 		Error err = new Error();
-
-		// Annotate Connections to each operator of Compile Plan
-		for (Identifier rootId : cplan.getRootIds()) {
-			AbstractCompileOperator root = cplan.getOperator(rootId);
-			AbstractAnnotationVisitor annotationVisitor = AbstractAnnotationVisitor
-					.createAnnotationVisitor(root);
-
-			err = annotationVisitor.visit();
-			if (err.isError()) {
-				return err;
-			}
-		}
-
+		SimpleAnnotationVisitor visitor = new SimpleAnnotationVisitor();
+		cplan.applyVisitor(visitor);
 		return err;
 
 	}

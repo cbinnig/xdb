@@ -6,6 +6,10 @@ import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 
 public abstract class AbstractBottomUpTreeVisitor extends AbstractTreeVisitor {
 
+	public AbstractBottomUpTreeVisitor(){
+		super();
+	}
+	
 	public AbstractBottomUpTreeVisitor(AbstractCompileOperator root) {
 		super(root);
 	}

@@ -22,10 +22,10 @@ import org.xdb.funsql.compile.operator.TableOperator;
  */
 public class SimpleAnnotationVisitor extends AbstractAnnotationVisitor { 
 
-
-	/**
-	 * @param root
-	 */
+	public SimpleAnnotationVisitor(){
+		super();
+	}
+	
 	public SimpleAnnotationVisitor(AbstractCompileOperator root) {
 		super(root);
 	}
