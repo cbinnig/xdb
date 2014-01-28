@@ -12,12 +12,12 @@ import org.xdb.Config;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
+import org.xdb.funsql.compile.analyze.operator.MaterializationAnnotationVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.metadata.Connection;
-import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
 import org.xdb.tracker.operator.MySQLTrackerOperator;
@@ -74,14 +74,10 @@ public class CodeGenerator {
 	private final StringTemplate sqlViewTemplate = new StringTemplate("<<"
 			+ VIEW1 + ">> AS <" + SQL1 + ">");
 
-	// last error
-	private Error err;
-
 	// constructor
 	public CodeGenerator(CompilePlan compilePlan) {
 		super();
 		this.compilePlan = compilePlan;
-		this.err = new Error();
 	}
 
 	// getter and setter
@@ -109,22 +105,25 @@ public class CodeGenerator {
 	 * @return
 	 */
 	public Error generate() {
+		Error err = new Error();
+		
 		// split compile plan into sub-plans
 		this.splitOpIds = extractSplitOps();
 
 		// optimize plan for code generation
-		this.optimize();
-		if (this.err.isError())
-			return this.err;
+		err = this.optimize();
+		if (err.isError())
+			return err;
 		
-		//TODO: call annotation a 2nd time to get connections for all operators
-		//TODO: annotation phase must be split into annotating mat-flags and conns
-		QueryTrackerNode.annotateCompilePlan(this.compilePlan);
-
+		// annotate compile plan with connections
+		err = this.annotateCompilePlan();
+		if (err.isError())
+			return err;
+		
 		// rename attributes to original names
-		this.rename();
-		if (this.err.isError())
-			return this.err;
+		err = this.rename();
+		if (err.isError())
+			return err;
 
 		// trace compile plan before generating a tracker plan
 		if (Config.TRACE_CODEGEN_PLAN) {
@@ -133,28 +132,29 @@ public class CodeGenerator {
 		}
 
 		// generate a tracker operators
-		this.genTrackerPlan();
-		if (this.err.isError())
-			return this.err;
+		err = this.genTrackerPlan();
+		if (err.isError())
+			return err;
 
-		return this.err;
+		return err;
 	}
 
 	/**
 	 * Optimize compile plan for MySQL code generation
 	 */
-	private void optimize() {
+	private Error optimize() {
+		Error err = new Error();
 		if (!Config.CODEGEN_OPTIMIZE)
-			return;
+			return err;
 
 		int i = 1;
 		for (Identifier splitOpId : this.splitOpIds) {
 			// get splitOp from compile plan as root for optimization
 			AbstractCompileOperator splitOp = this.compilePlan
 					.getOperator(splitOpId);
-			this.err = combineJoins(splitOp);
-			if (this.err.isError())
-				return;
+			err = combineJoins(splitOp);
+			if (err.isError())
+				return err;
 
 			if (Config.TRACE_CODEGEN_PLAN)
 				this.compilePlan.tracePlan(compilePlan.getClass()
@@ -166,9 +166,9 @@ public class CodeGenerator {
 
 			// get splitOp again since it might have be replaced
 			splitOp = this.compilePlan.getOperator(splitOpId);
-			this.err = combineUnaryOps(splitOp);
-			if (this.err.isError())
-				return;
+			err = combineUnaryOps(splitOp);
+			if (err.isError())
+				return err;
 
 			if (Config.TRACE_CODEGEN_PLAN)
 				this.compilePlan.tracePlan(compilePlan.getClass()
@@ -180,9 +180,9 @@ public class CodeGenerator {
 
 			// get splitOp again since it might have be replaced
 			splitOp = this.compilePlan.getOperator(splitOpId);
-			this.err = combineSQLOps(splitOp);
-			if (this.err.isError())
-				return;
+			err = combineSQLOps(splitOp);
+			if (err.isError())
+				return err;
 
 			if (Config.TRACE_CODEGEN_PLAN)
 				this.compilePlan.tracePlan(compilePlan.getClass()
@@ -193,29 +193,42 @@ public class CodeGenerator {
 						+ splitOp.getOperatorId() + "_Combined");
 			++i;
 		}
+		return err;
 	}
+	
+	private Error annotateCompilePlan() {
+		Error err = new Error();
+		MaterializationAnnotationVisitor visitor = new MaterializationAnnotationVisitor();
+		this.compilePlan.applyVisitor(visitor);
+		return err;
+
+	}
+
 
 	/**
 	 * Renames attributes to original names in tables e.g., from
 	 * LINEITEM_L_ORDERKEY to L_ORDERKEY
 	 */
-	private void rename() {
+	private Error rename() {
+		Error err = new Error();
 		ReRenameAttributesVisitor renameVisitor;
 		for (AbstractCompileOperator root : this.compilePlan
 				.getRootsCollection()) {
 			renameVisitor = new ReRenameAttributesVisitor(root);
-			this.err = renameVisitor.visit();
+			err = renameVisitor.visit();
 
 			if (err.isError())
-				return;
+				return err;
 		}
+		return err;
 	}
 
 	/**
 	 * Generates (parallelized) QueryTrackerPlan (which includes repartitioning)
 	 */
-	private void genTrackerPlan() {
-
+	private Error genTrackerPlan() {
+		Error err = new Error();
+		
 		// for each sub-plan generate a tracker operator
 		for (Identifier splitOpId : this.splitOpIds) {
 			AbstractCompileOperator splitCompileOp = this.compilePlan
@@ -234,8 +247,8 @@ public class CodeGenerator {
 
 			} catch (URISyntaxException e) {
 				String[] args = { e.toString() };
-				this.err = new Error(EnumError.COMPILER_GENERIC, args);
-				return;
+				err = new Error(EnumError.COMPILER_GENERIC, args);
+				return err;
 			}
 		}
 
@@ -249,6 +262,8 @@ public class CodeGenerator {
 				.entrySet()) {
 			this.qtPlan.setConsumers(entry.getKey(), entry.getValue());
 		}
+		
+		return err;
 	}
 
 	/**
@@ -463,7 +478,7 @@ public class CodeGenerator {
 		this.addTrackerInputDDL(trackerOp, compileOp, partNum);
 
 		// add connections to tracker operator
-		Set<Connection> trackerOpConnections = compileOp.getWishedConnections();
+		List<Connection> trackerOpConnections = compileOp.getWishedConnections();
 		trackerOp.setTrackerOpConnections(trackerOpConnections);
 
 		return trackerOp;
@@ -596,10 +611,7 @@ public class CodeGenerator {
 		for (AbstractCompileOperator root : this.compilePlan
 				.getRootsCollection()) {
 			splitVisitor.reset(root);
-			this.err = splitVisitor.visit();
-
-			if (err.isError())
-				return null;
+			splitVisitor.visit();
 		}
 		return splitVisitor.getSplitOpIds();
 	}

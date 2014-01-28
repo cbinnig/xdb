@@ -9,16 +9,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.xdb.Config;
+import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
-import org.xdb.utils.Identifier;
-import org.xdb.utils.StringTemplate;
-import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.metadata.Connection;
+import org.xdb.utils.Identifier;
+import org.xdb.utils.StringTemplate;
 
 public abstract class AbstractTrackerOperator implements Serializable {
 
@@ -164,7 +163,7 @@ public abstract class AbstractTrackerOperator implements Serializable {
 		return this.trackerOpConnections;
 	}
 
-	public void setTrackerOpConnections(Set<Connection> trackerConns) {
+	public void setTrackerOpConnections(List<Connection> trackerConns) {
 		this.trackerOpConnections.addAll(trackerConns);
 	}
 
