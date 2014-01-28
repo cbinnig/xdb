@@ -18,7 +18,7 @@ import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
-import org.xdb.funsql.compile.analyze.operator.SimpleAnnotationVisitor;
+import org.xdb.funsql.compile.analyze.operator.MaterializationAnnotationVisitor;
 import org.xdb.logging.XDBLog;
 import org.xdb.monitor.ComputeServersMonitor;
 import org.xdb.utils.Identifier;
@@ -285,14 +285,14 @@ public class QueryTrackerNode {
 	}
 
 	/**
-	 * Annotate compile plan with connections
+	 * Annotate compile plan with materialization flags
 	 * 
 	 * @param cplan
 	 * @return
 	 */
-	public static Error annotateCompilePlan(CompilePlan cplan) {
+	private Error annotateCompilePlan(CompilePlan cplan) {
 		Error err = new Error();
-		SimpleAnnotationVisitor visitor = new SimpleAnnotationVisitor();
+		MaterializationAnnotationVisitor visitor = new MaterializationAnnotationVisitor();
 		cplan.applyVisitor(visitor);
 		return err;
 

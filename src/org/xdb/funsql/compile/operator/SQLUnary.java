@@ -98,7 +98,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 	@Override
 	public String toSqlString() {
 		// check for missing info
-		if (this.selectExpressions.size() == 0)
+		if (this.selectAliases.size() == 0)
 			return null;
 
 		final HashMap<String, String> vars = new HashMap<String, String>();
@@ -106,7 +106,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 
 		// select clause
 		final Vector<String> selExprVec = new Vector<String>(
-				this.selectExpressions.size());
+				this.selectAliases.size());
 		final Vector<String> selAliasVec = new Vector<String>(
 				this.selectAliases.size());
 		int i = 0;

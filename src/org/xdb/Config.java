@@ -6,7 +6,6 @@ import java.util.BitSet;
 import java.util.Properties;
 import java.util.logging.Level;
 
-import org.xdb.tracker.EnumQueryTrackerStrategy;
 import org.xdb.tracker.scheduler.EnumResourceScheduler;
 import org.xdb.utils.Identifier;
 
@@ -73,8 +72,7 @@ public class Config implements Serializable {
 	// Query Tracker Server
 	public static int QUERYTRACKER_PORT = 55600;
 	public static EnumResourceScheduler QUERYTRACKER_SCHEDULER = EnumResourceScheduler.SIMPLE;
-	public static EnumQueryTrackerStrategy QUERYTRACKER_STRATEGY = EnumQueryTrackerStrategy.SIMPLE;
-
+	
 	// Query Tracker Server: Code generation
 	public static boolean CODEGEN_OPTIMIZE = true;
 
@@ -212,13 +210,6 @@ public class Config implements Serializable {
 					OPTIMIZER_ACTIVE_RULES_SELECT.set(i++, (bit == '1') ? true
 							: false);
 				}
-			}
-			if (props.containsKey("QUERYTRACKER_STRATEGY")) {
-				String qtStrategy = props.getProperty("QUERYTRACKER_STRATEGY").trim();
-				EnumQueryTrackerStrategy tempQtStrat = EnumQueryTrackerStrategy
-						.valueOf(qtStrategy);
-				if (tempQtStrat != null)
-					QUERYTRACKER_STRATEGY = tempQtStrat;
 			}
 			if (props.containsKey("QUERYTRACKER_SCHEDULER")) {
 				String qtScheduler = props

@@ -4,11 +4,11 @@ import org.junit.Test;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.FunSQLCompiler;
+import org.xdb.funsql.compile.analyze.operator.MaterializationAnnotationVisitor;
 import org.xdb.funsql.statement.AbstractServerStmt;
 import org.xdb.funsql.statement.CreateFunctionStmt;
 import org.xdb.test.TestCase;
 import org.xdb.test.XDBTestCase;
-import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.utils.Tuple;
 
@@ -83,7 +83,7 @@ public class TestSQLPlanTranslation extends XDBTestCase {
 		
 		final CompilePlan plan = fStmt.getPlan();
 		
-		Error annotation = QueryTrackerNode.annotateCompilePlan(plan);
+		Error annotation = this.annotateCompilePlan(plan);
 		assertNoError(annotation);
 		
 		Tuple<QueryTrackerPlan, Error> qPlan = qTrackerServer.getNode().generateQueryTrackerPlan(plan);
@@ -92,5 +92,13 @@ public class TestSQLPlanTranslation extends XDBTestCase {
 		qPlan.getObject1().tracePlan(this.getClass().getName()+"_Tracker");
 		
 		assertEquals(3, qPlan.getObject1().getTrackerOperators().size());
+	}
+	
+	private Error annotateCompilePlan(CompilePlan cplan) {
+		Error err = new Error();
+		MaterializationAnnotationVisitor mvisitor = new MaterializationAnnotationVisitor();
+		cplan.applyVisitor(mvisitor);
+		
+		return err;
 	}
 }

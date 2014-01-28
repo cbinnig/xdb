@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.xdb.funsql.compile.analyze.operator;
 
 import org.xdb.error.Error;
@@ -15,107 +12,92 @@ import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 
-/** 
- * set the wished connections list and the naive materialization strategy 
- * @author Abdallah 
- *
+/**
+ * Sets materialization flag for each operator. If an operator is root
+ * (parents.size==0) or if an operator has more than 1 parent, then the flag is
+ * set o true
+ * 
+ * @author cbinnig
+ * 
  */
-public class SimpleAnnotationVisitor extends AbstractAnnotationVisitor { 
+public class MaterializationAnnotationVisitor extends
+		AbstractBottomUpTreeVisitor {
 
-	public SimpleAnnotationVisitor(){
+	public MaterializationAnnotationVisitor() {
 		super();
 	}
-	
-	public SimpleAnnotationVisitor(AbstractCompileOperator root) {
+
+	public MaterializationAnnotationVisitor(AbstractCompileOperator root) {
 		super(root);
 	}
-
 
 	@Override
 	public Error visitEquiJoin(EquiJoin equiJoin) {
 		applyGlobalMaterializeRules(equiJoin);
-		
-		equiJoin.addWishedConnections(equiJoin.getRightChild().getWishedConnections());
-		equiJoin.addWishedConnections(equiJoin.getLeftChild().getWishedConnections());
-		
-		return Error.NO_ERROR;
+		return new Error();
 	}
-
 
 	@Override
 	public Error visitSQLJoin(SQLJoin sqlJoin) {
 		applyGlobalMaterializeRules(sqlJoin);
-		
-		for (AbstractCompileOperator op : sqlJoin.getChildren()) {
-			sqlJoin.addWishedConnections(op.getWishedConnections());   
-			
-		}
-		return Error.NO_ERROR;
+		return new Error();
 	}
-
 
 	@Override
 	public Error visitGenericSelection(GenericSelection selOp) {
 		applyGlobalMaterializeRules(selOp);
-		
-		selOp.addWishedConnections(selOp.getChild().getWishedConnections());
-		return Error.NO_ERROR;
+		return new Error();
 	}
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation aggOp) {
 		applyGlobalMaterializeRules(aggOp);
-		
-		aggOp.addWishedConnections(aggOp.getChild().getWishedConnections());
-		return Error.NO_ERROR;
+		return new Error();
 	}
-
 
 	@Override
 	public Error visitGenericProjection(GenericProjection projectOp) {
 		applyGlobalMaterializeRules(projectOp);
-		
-		projectOp.addWishedConnections(projectOp.getChild().getWishedConnections());
-		if(projectOp.getChild().isAggregation()){
+
+		if (projectOp.getChild().isAggregation()) {
 			projectOp.getResult().materialize(true);
 		}
-		return Error.NO_ERROR;
+		return new Error();
 	}
-
 
 	@Override
 	public Error visitTableOperator(TableOperator tableOp) {
 		applyGlobalMaterializeRules(tableOp);
-		
-		tableOp.addWishedConnections(tableOp.getConnections());
-		return Error.NO_ERROR;
+		return new Error();
 	}
-
 
 	@Override
 	public Error visitRename(Rename renameOp) {
 		applyGlobalMaterializeRules(renameOp);
-		
-		renameOp.addWishedConnections(renameOp.getChild().getWishedConnections());
-		return Error.NO_ERROR;
+		return new Error();
 	}
-
 
 	@Override
-	public Error visitSQLUnary(SQLUnary unaryOp){
+	public Error visitSQLUnary(SQLUnary unaryOp) {
 		applyGlobalMaterializeRules(unaryOp);
-		unaryOp.addWishedConnections(unaryOp.getChild().getWishedConnections());
-		return Error.NO_ERROR;
+		return new Error();
 	}
-
 
 	@Override
 	public Error visitSQLCombined(SQLCombined sqlCombined) {
 		applyGlobalMaterializeRules(sqlCombined);
-		for (AbstractCompileOperator op : sqlCombined.getChildren()) {
-			sqlCombined.addWishedConnections(op.getWishedConnections());   
-			
+		return new Error();
+	}
+
+	/**
+	 * Force materialize if - an operator has no parent (i.e, it is a root) an
+	 * operator has > 1 parents
+	 * 
+	 * @param op
+	 */
+	protected void applyGlobalMaterializeRules(final AbstractCompileOperator op) {
+		if (op.getParents().size() != 1) {
+			op.getResult().materialize(true);
 		}
-		return Error.NO_ERROR;
 	}
 }
