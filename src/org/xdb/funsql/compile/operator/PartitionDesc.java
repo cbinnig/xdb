@@ -22,21 +22,21 @@ public class PartitionDesc implements Serializable {
 	private String table = null;
 	private String refTable = null;
 	private EnumPartitionType partType = EnumPartitionType.NO_PARTITION;
-	private int partNumber = 1;
+	private int partCount = 1;
 
 	// constructors
 	public PartitionDesc() {
 		// do nothing
 	}
 
-	public PartitionDesc(EnumPartitionType partType, int partNumber) {
+	public PartitionDesc(EnumPartitionType partType, int partCount) {
 		this.partType = partType;
-		this.partNumber = partNumber;
+		this.partCount = partCount;
 	}
 
 	public PartitionDesc(PartitionDesc toCopy) {
 		this.partType = toCopy.partType;
-		this.partNumber = toCopy.partNumber;
+		this.partCount = toCopy.partCount;
 
 		for (TokenAttribute partAtt : toCopy.partAttributes) {
 			TokenAttribute newPartAtt = new TokenAttribute(partAtt);
@@ -60,12 +60,12 @@ public class PartitionDesc implements Serializable {
 		return this.partType;
 	}
 
-	public void setPartNumber(int partNumber) {
-		this.partNumber = partNumber;
+	public void setPartCount(int partCount) {
+		this.partCount = partCount;
 	}
 
-	public int getPartitionNumber() {
-		return this.partNumber;
+	public int getPartitionCount() {
+		return this.partCount;
 	}
 
 	public void setTableName(String table) {
@@ -88,7 +88,7 @@ public class PartitionDesc implements Serializable {
 			return true;
 
 		// false if one of the following checks fail
-		if (partDesc.partNumber != this.partNumber)
+		if (partDesc.partCount != this.partCount)
 			return false;
 
 		// check compatibility of partition types
@@ -145,7 +145,7 @@ public class PartitionDesc implements Serializable {
 		buffer.append(AbstractToken.BLANK);
 		buffer.append(AbstractToken.PARTITIONS);
 		buffer.append(AbstractToken.BLANK);
-		buffer.append(this.partNumber);
+		buffer.append(this.partCount);
 
 		return buffer.toString();
 	}
@@ -156,7 +156,7 @@ public class PartitionDesc implements Serializable {
 			return false;
 
 		PartitionDesc partDesc = (PartitionDesc) o;
-		if (partDesc.partNumber != this.partNumber)
+		if (partDesc.partCount != this.partCount)
 			return false;
 
 		for (TokenAttribute partAtt : partDesc.partAttributes) {
@@ -174,6 +174,6 @@ public class PartitionDesc implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return this.partType.hashCode() % this.partNumber;
+		return this.partType.hashCode() % this.partCount;
 	}
 }

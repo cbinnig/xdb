@@ -106,7 +106,7 @@ public class CodeGenerator {
 	 */
 	public Error generate() {
 		Error err = new Error();
-		
+
 		// split compile plan into sub-plans
 		this.splitOpIds = extractSplitOps();
 
@@ -114,12 +114,12 @@ public class CodeGenerator {
 		err = this.optimize();
 		if (err.isError())
 			return err;
-		
+
 		// annotate compile plan with connections
 		err = this.annotateCompilePlan();
 		if (err.isError())
 			return err;
-		
+
 		// rename attributes to original names
 		err = this.rename();
 		if (err.isError())
@@ -195,7 +195,7 @@ public class CodeGenerator {
 		}
 		return err;
 	}
-	
+
 	private Error annotateCompilePlan() {
 		Error err = new Error();
 		MaterializationAnnotationVisitor visitor = new MaterializationAnnotationVisitor();
@@ -203,7 +203,6 @@ public class CodeGenerator {
 		return err;
 
 	}
-
 
 	/**
 	 * Renames attributes to original names in tables e.g., from
@@ -228,7 +227,7 @@ public class CodeGenerator {
 	 */
 	private Error genTrackerPlan() {
 		Error err = new Error();
-		
+
 		// for each sub-plan generate a tracker operator
 		for (Identifier splitOpId : this.splitOpIds) {
 			AbstractCompileOperator splitCompileOp = this.compilePlan
@@ -262,7 +261,7 @@ public class CodeGenerator {
 				.entrySet()) {
 			this.qtPlan.setConsumers(entry.getKey(), entry.getValue());
 		}
-		
+
 		return err;
 	}
 
@@ -304,7 +303,8 @@ public class CodeGenerator {
 		outAttsDDL = this.sqlInOutDDLTemplate.toString(args);
 
 		// add output table w repartition specification
-		if (outputResult.repartition()) {
+		if (outputResult.repartition()
+				&& outputResult.getRePartitionCount() > 1) {
 			String repartitionDDL = outputResult.getRepartDDL();
 			trackerOp.addOutTable(outTableName, outAttsDDL, repartitionDDL);
 
@@ -360,34 +360,39 @@ public class CodeGenerator {
 				inTableName = TABLE_PREFIX + inTableName;
 			}
 
+			// if input is has more than one partition
 			if (inputResult.repartition()) {
 				StringBuffer sqlUnionDML = new StringBuffer();
 				for (int i = 0; i < inputResult.getPartitionCount(); ++i) {
+					// input table name
 					Identifier inPartId = this
 							.genInputTableName(inputCompileOp);
 					inPartId.append(i);
 					String inPartName = inPartId.toString();
 					args.put(TAB1, inPartName);
-					inAttsDDL = this.sqlInOutDDLTemplate.toString(args);
 
+					// input table DDL
+					inAttsDDL = this.sqlInOutDDLTemplate.toString(args);
 					trackerOp.addInTable(inPartName, new StringTemplate(
 							inAttsDDL));
 
+					// input view DDL
 					if (i > 0) {
 						sqlUnionDML.append(AbstractToken.BLANK);
 						sqlUnionDML.append(AbstractToken.UNION);
 						sqlUnionDML.append(AbstractToken.BLANK);
 					}
-
 					sqlUnionDML.append(AbstractToken.LBRACE);
 					sqlUnionDML
 							.append(this.sqlSelectAllTemplate.toString(args));
 					sqlUnionDML.append(AbstractToken.RBRACE);
 				}
+
 				args.put(VIEW1, inTableName);
 				args.put(SQL1, sqlUnionDML.toString());
 				trackerOp.addInView(inTableName,
 						this.sqlViewTemplate.toString(args));
+
 			} else {
 
 				args.put(TAB1, inTableName);
@@ -414,22 +419,31 @@ public class CodeGenerator {
 			}
 			// else: use intermediate result as table (with _OUT suffix)
 			else {
-				// if input is repartitioned
+				// if input is has more than one partition
 				if (inputResult.repartition()) {
 					// create one input per partition
 					int remotePartNum = 0;
 					for (Identifier inTrackerOpId : this.compileOp2trackerOp
 							.get(inputCompileOp.getOperatorId())) {
 
-						Identifier inPartRemoteId = this.genOutputTableName(
-								inputCompileOp, remotePartNum);
-						inPartRemoteId.append(partNum);
+						// remote table name
+						Identifier inPartRemoteId = null;
+						if (inputCompileOp.getResult().getRePartitionCount() > 1) {
+							inPartRemoteId = this.genOutputTableName(
+									inputCompileOp, remotePartNum);
+							inPartRemoteId.append(partNum);
+						} else {
+							inPartRemoteId = this
+									.genOutputTableName(inputCompileOp);
+						}
 
+						// local table name
 						Identifier inPartId = this
 								.genInputTableName(inputCompileOp);
 						inPartId.append(remotePartNum);
 						String inPartName = inPartId.toString();
 
+						// table description
 						TableDesc tableDesc = new TableDesc(
 								inPartRemoteId.toString(), inTrackerOpId);
 						trackerOp.addInTableFederated(inPartName, tableDesc);
@@ -478,7 +492,8 @@ public class CodeGenerator {
 		this.addTrackerInputDDL(trackerOp, compileOp, partNum);
 
 		// add connections to tracker operator
-		List<Connection> trackerOpConnections = compileOp.getWishedConnections();
+		List<Connection> trackerOpConnections = compileOp
+				.getWishedConnections();
 		trackerOp.setTrackerOpConnections(trackerOpConnections);
 
 		return trackerOp;
@@ -591,12 +606,6 @@ public class CodeGenerator {
 
 	private Identifier genInputTableName(final AbstractCompileOperator compileOp) {
 		return compileOp.getOperatorId().clone();
-	}
-
-	@SuppressWarnings("unused")
-	private Identifier genInputTableName(
-			final AbstractCompileOperator compileOp, final int partNum) {
-		return compileOp.getOperatorId().clone().append(PART_PREFIX + partNum);
 	}
 
 	/**
