@@ -18,7 +18,7 @@ import org.xdb.funsql.compile.operator.TableOperator;
 public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	
 	protected AbstractCompileOperator treeRoot = null;
-	protected boolean stop = false;
+	private boolean stop = false;
 	
 	public AbstractTreeVisitor(){
 		this.stop = true;
@@ -50,7 +50,7 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	public Error visit(AbstractCompileOperator absOp) {
 		Error e = new Error();
 		
-		if(e.isError() || this.stop)
+		if(this.stop)
 			return e;
 		
 		switch(absOp.getType()){

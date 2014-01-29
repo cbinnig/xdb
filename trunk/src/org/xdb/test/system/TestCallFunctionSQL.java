@@ -14,6 +14,7 @@ public class TestCallFunctionSQL extends XDBTestCase {
 	public void testSimpleCall() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
 		compiler.doOptimize(true);
+		compiler.doParallelize(false);
 		
 		// create connection -> no error
 		String dropConnSql = "DROP CONNECTION \"testConnection\"";
@@ -85,6 +86,7 @@ public class TestCallFunctionSQL extends XDBTestCase {
 	public void testComplexCall() {
 		FunSQLCompiler compiler = new FunSQLCompiler();
 		compiler.doOptimize(false);
+		compiler.doParallelize(false);
 		
 		// create connection -> no error
 		String dropConnSql = "DROP CONNECTION \"testConnection\"";
@@ -189,6 +191,5 @@ public class TestCallFunctionSQL extends XDBTestCase {
 		this.assertNoError(compiler.getLastError());
 		fCallStmt3.getPlan().tracePlan(this.getClass().getName()+"_complex_f4");
 		this.assertNoError(fCallStmt3.execute());
-		
 	}
 }
