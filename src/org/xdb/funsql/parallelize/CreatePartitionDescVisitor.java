@@ -101,21 +101,29 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 			PartitionDesc preAggRePartDesc = new PartitionDesc(rePartType,
 					preAggPartCnt);
 			PartitionDesc postAggPartDesc = new PartitionDesc(preAggRePartDesc);
-
+			
+			
 			// Create pre-aggregation operator
 			GenericAggregation preAgg = this.createPreAggregation(ga,
-					replaceExpr);
-			for (TokenIdentifier grpAlias : preAgg.getGroupAliases()) {
-				preAggRePartDesc
-						.addPartAttributes(new TokenAttribute(grpAlias));
-
-				// do not re-partition if group by attribute is non-numeric
+								replaceExpr);			
+			if(ga.getGroupExpressions().size()==0){
+				//re-part to 1 part if no group-by expressions exist
+				preAggRePartDesc.setPartCount(1);
+				postAggPartCnt = 1;
+			}
+			else{ 
+				// re-part to 1 part if group by attribute is non-numeric
 				EnumSimpleType groupType = preAgg.getResult().getType(
 						preAgg.getAggregationExpressions().size());
 				if (!groupType.isNumeric()){
 					preAggRePartDesc.setPartCount(1);
 					postAggPartCnt = 1;
 				}
+			}
+				
+			for (TokenIdentifier grpAlias : preAgg.getGroupAliases()) {
+				preAggRePartDesc
+						.addPartAttributes(new TokenAttribute(grpAlias));
 
 				break; // only first group by attribute is used for partitioning
 			}

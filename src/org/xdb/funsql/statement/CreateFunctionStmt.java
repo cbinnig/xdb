@@ -20,6 +20,7 @@ import org.xdb.funsql.compile.tokens.TokenFunctionCall;
 import org.xdb.funsql.compile.tokens.TokenSchema;
 import org.xdb.funsql.compile.tokens.TokenVariable;
 import org.xdb.funsql.optimize.Optimizer;
+import org.xdb.funsql.parallelize.Parallelizer;
 import org.xdb.funsql.types.EnumSimpleType;
 import org.xdb.metadata.Attribute;
 import org.xdb.metadata.Catalog;
@@ -328,6 +329,14 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		return e;
 	}
 
+	@Override
+	public Error parallelize() {
+		Error err = new Error();
+		Parallelizer para = new Parallelizer(this.functionPlan);
+		err = para.parallelize();
+		return err;
+	}
+	
 	private Error checkCallParameters(TokenFunctionCall call) {
 		Error e = new Error();
 		// check Input Parameters of a FunctionCall

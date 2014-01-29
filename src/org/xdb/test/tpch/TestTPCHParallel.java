@@ -87,6 +87,26 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 			"S_COMMENT VARCHAR" +
 			") PARTIONED BY RREF ( S_SUPPKEY REFERENCES LINEITEM.L_SUPPKEY )",
 			
+			"CREATE TABLE PARTSUPP ( " +
+			"	PS_PARTKEY     INTEGER, " +
+			"	PS_SUPPKEY     INTEGER, " +
+			"	PS_AVAILQTY    INTEGER, " +
+			"	PS_SUPPLYCOST  DECIMAL, " +
+			"	PS_COMMENT     VARCHAR " +
+			") PARTIONED BY RREF ( PS_SUPPKEY REFERENCES SUPPLIER.S_SUPPKEY );",
+			
+			"CREATE TABLE PART  ( " +
+			"P_PARTKEY     INTEGER," +
+			"P_NAME        VARCHAR, " +
+			"P_MFGR        VARCHAR, " +
+			"P_BRAND       VARCHAR, " +
+			"P_TYPE        VARCHAR, " +
+			"P_SIZE        INTEGER, " +
+			"P_CONTAINER   VARCHAR, " +
+			"P_RETAILPRICE DECIMAL, " +
+			"P_COMMENT     VARCHAR" +
+			") PARTIONED BY RREF ( P_PARTKEY REFERENCES PARTSUPP.PS_PARTKEY );",
+					
 			"CREATE TABLE NATION (  " +
 			"N_NATIONKEY INTEGER, " +
 			"N_NAME VARCHAR," +
@@ -141,7 +161,7 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 		l_returnflag,
 		l_linestatus;
 		 */
-	public void testQ1() {
+	public void testQ01() {
 		String q1 = "select	l_returnflag,	"
 				+ "l_linestatus,	"
 				+ "sum(l_quantity) as sum_qty,	"
@@ -158,7 +178,107 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 		executeStmt(q1);
 	}
 
-	public void testQ3(){
+	@SuppressWarnings("unused")
+	public void testQ02(){
+		/*
+		select
+			s_acctbal,
+			s_name,
+			n_name,
+			p_partkey,
+			p_mfgr,
+			s_address,
+			s_phone,
+			s_comment
+		from
+			part,
+			supplier,
+			partsupp,
+			nation,
+			region
+		where
+			p_partkey = ps_partkey
+			and s_suppkey = ps_suppkey
+			and p_size = :1
+			and p_type like '%:2'
+			and s_nationkey = n_nationkey
+			and n_regionkey = r_regionkey
+			and r_name = ':3'
+			and ps_supplycost = (
+				select
+					min(ps_supplycost)
+				from
+					partsupp,
+					supplier,
+					nation,
+					region
+				where
+					p_partkey = ps_partkey
+					and s_suppkey = ps_suppkey
+					and s_nationkey = n_nationkey
+					and n_regionkey = r_regionkey
+					and r_name = ':3'
+			)
+		order by
+			s_acctbal desc,
+			n_name,
+			s_name,
+			p_partkey;
+		 */
+				String createQ2 = "CREATE FUNCTION q2( OUT o1 TABLE) \n" +
+						"BEGIN \n" +
+						"  :t1 = " +
+						"		select" + 
+						"			min(ps_supplycost) as min_supplycost, " +
+						"			ps_partkey"+ 
+						"		from " + 
+						"			partsupp," + 
+						"			supplier," + 
+						"			nation," + 
+						"			region" + 
+						"		where " + 
+						"			s_suppkey = ps_suppkey" + 
+						"			and s_nationkey = n_nationkey" + 
+						"			and n_regionkey = r_regionkey" + 
+						"			and r_name = 'EUROPE'" +
+						"		group by" +
+						"			ps_partkey;" +
+						"\n"+
+						"	:o1 = select" + 
+						"			s_acctbal," + 
+						"			s_name," + 
+						"			n_name," + 
+						"			p_partkey," + 
+						"			p_mfgr," + 
+						"			s_address," + 
+						"			s_phone," + 
+						"			s_comment " + 
+						"		from " + 
+						"			part," + 
+						"			supplier," + 
+						"			partsupp as ps," + 
+						"			nation," + 
+						"			region," +
+						"			:t1 as temp1 " + 
+						"		where" + 
+						"			p_partkey = ps.ps_partkey" + 
+						"			and s_suppkey = ps.ps_suppkey" +
+						"			and temp1.ps_partkey = ps.ps_partkey" +
+						"			and temp1.min_supplycost = ps.ps_supplycost" + 
+						"			and p_size = 15" + 
+						"			and p_type like '%BRASS'" + 
+						"			and s_nationkey = n_nationkey" + 
+						"			and n_regionkey = r_regionkey" + 
+						"			and r_name = 'EUROPE';"+ 
+						"END;";
+				
+		String callQ2 = "CALL FUNCTION q2;";
+
+		//executeStmt(createQ2);
+		//executeStmt(callQ2);
+	}
+
+	public void testQ03(){
 		String q3 = "" +
 				"select l_orderkey, " +
 				"sum(l_extendedprice*(1-l_discount)) as revenue, " +
@@ -177,7 +297,7 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 		this.executeStmt(q3);
 	}
 	
-	public void testQ5WithAvg(){
+	public void testQ05WithAvg(){
 		
 		/*
 		 * 
@@ -219,6 +339,91 @@ group by n_nationkey, n_name;
 					"group by n_nationkey, n_name;";
 		this.executeStmt(q5);
 	}
+	
+	public void testQ06(){
+		/*select
+	sum(l_extendedprice * l_discount) as revenue
+from
+	lineitem
+where
+	l_shipdate >= date '1994-01-01'
+	and l_shipdate < date '1994-01-01' + interval '1' year
+	and l_discount between 0.0 and 0.7
+	and l_quantity < 24;
+	*/
+		
+		String q6 = "select sum(l_extendedprice * l_discount) as revenue " +
+				"from lineitem " +
+				"where l_shipdate >= date '1994-01-01' " +
+				"and l_shipdate < date '1995-01-01' " +
+				"and l_discount >= 0.0 " +
+				"and l_discount < 0.9 " +
+				"and l_quantity < 24; ";
+		this.executeStmt(q6);	
+		
+	}
+	
+	public void testQ10(){/*
+	select
+	c_custkey,
+	c_name,
+	sum(l_extendedprice * (1 - l_discount)) as revenue,
+	c_acctbal,
+	n_name,
+	c_address,
+	c_phone,
+	c_comment
+from
+	customer,
+	orders,
+	lineitem,
+	nation
+where
+	c_custkey = o_custkey
+	and l_orderkey = o_orderkey
+	and o_orderdate >= date '1994-01-01'
+	and o_orderdate < date '1994-04-01'
+	and l_returnflag = 'R'
+	and c_nationkey = n_nationkey
+group by
+	c_custkey,
+	c_name,
+	c_acctbal,
+	c_phone,
+	n_name,
+	c_address,
+	c_comment;*/
+		String q10 = "select "+
+						"c_custkey, "+
+						"c_name, "+
+						"sum(l_extendedprice * (1 - l_discount)) as revenue, "+
+						"c_acctbal, "+
+						"n_name, "+
+						"c_address, "+
+						"c_phone, "+
+						"c_comment " +
+					"from "+
+						"customer, "+
+						"orders, "+
+						"lineitem, "+
+						"nation " +
+					"where "+
+						"c_custkey = o_custkey "+
+						"and l_orderkey = o_orderkey "+
+						"and o_orderdate >= date '1994-01-01' "+
+						"and o_orderdate < date '1994-04-01' "+
+						"and l_returnflag = 'R' "+
+						"and c_nationkey = n_nationkey " +
+					"group by "+
+						"c_custkey, " +
+						"c_name, "+
+						"c_acctbal, "+
+						"c_phone, "+
+						"n_name, "+
+						"c_address, "+
+						"c_comment;" ;
+		this.executeStmt(q10);
+	}	
 	
 	
 	@Override
