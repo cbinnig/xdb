@@ -156,7 +156,7 @@ order by
 	l_returnflag,
 	l_linestatus;
 	 */
-	public void testQ1(){
+	public void testQ01(){
 		String q1 = 
 				"select	l_returnflag,	" +
 				"l_linestatus,	" +
@@ -175,7 +175,7 @@ order by
 		executeStmt(q1);
 	}
 	
-	public void testQ2(){
+	public void testQ02(){
 /*
 select
 	s_acctbal,
@@ -274,7 +274,7 @@ order by
 		executeStmt(callQ2);
 	}
 	
-	public void testQ3(){
+	public void testQ03(){
 		String q3 = "" +
 				"select l_orderkey, " +
 				"sum(l_extendedprice*(1-l_discount)) as revenue, " +
@@ -292,7 +292,7 @@ order by
 		
 		this.executeStmt(q3);
 	}
-	public void testQ5(){
+	public void testQ05(){
 		
 		/*
 		 * 
@@ -335,7 +335,7 @@ group by n_name;
 	}
 	
 	
-	public void testQ6(){
+	public void testQ06(){
 		/*select
 	sum(l_extendedprice * l_discount) as revenue
 from
