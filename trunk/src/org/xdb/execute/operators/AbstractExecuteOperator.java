@@ -124,24 +124,23 @@ public abstract class AbstractExecuteOperator implements Serializable {
 		try {
 
 			Class.forName(Config.COMPUTE_DRIVER_CLASS);
-			this.conn = DriverManager.getConnection(this.dburl
-					+ this.dbname, this.dbuser, this.dbpasswd);
+			this.conn = DriverManager.getConnection(this.dburl + this.dbname,
+					this.dbuser, this.dbpasswd);
 
 			// compile open and close statements
 			for (String ddl : this.openSQLs) {
-				//System.out.println(this.getOperatorId()+">"+ddl+";");
-				
+				// System.out.println(this.getOperatorId()+">"+ddl+";");
 				this.openStmts.add(this.conn.prepareStatement(ddl));
 			}
 
 			for (String ddl : this.closeSQLs) {
-				//System.out.println(ddl);
+				// System.out.println(ddl);
 				this.closeStmts.add(this.conn.prepareStatement(ddl));
 			}
 
 			// execute openStmts
 			for (PreparedStatement stmt : this.openStmts) {
-				//System.out.println("Execute stmt "+ stmt.toString());
+				// System.out.println("Execute stmt "+ stmt.toString());
 				stmt.execute();
 			}
 

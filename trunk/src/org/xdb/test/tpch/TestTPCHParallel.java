@@ -141,7 +141,7 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 		l_returnflag,
 		l_linestatus;
 		 */
-	/*public void testQ1() {
+	public void testQ1() {
 		String q1 = "select	l_returnflag,	"
 				+ "l_linestatus,	"
 				+ "sum(l_quantity) as sum_qty,	"
@@ -156,7 +156,7 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 				+ "group by l_returnflag, l_linestatus";
 
 		executeStmt(q1);
-	}*/
+	}
 
 	public void testQ3(){
 		String q3 = "" +

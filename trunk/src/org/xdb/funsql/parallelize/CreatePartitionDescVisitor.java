@@ -40,8 +40,8 @@ import org.xdb.metadata.PartitionAttribute;
 import org.xdb.utils.Identifier;
 
 /**
- * Annotates each operator in a compile plan with partitioning info
- * Avoids re-partitioning when result has only 1 partition!!!
+ * Annotates each operator in a compile plan with partitioning info Avoids
+ * re-partitioning when result has only 1 partition!!!
  * 
  * @author cbinnig
  * 
@@ -84,43 +84,61 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		Set<PartitionDesc> childPartDescs = this.getPartDescs(childId);
 		Collection<AbstractExpression> groupExprs = ga.getGroupExpressions();
 		PartitionDesc childPartDesc = childPartDescs.iterator().next();
-		int partNumber = childPartDesc.getPartitionNumber();
-		
+		int preAggPartCnt = childPartDesc.getPartitionCount();
+
 		boolean doRepartition = !this.isPartDescCompatible(childPartDescs,
-				groupExprs) && (partNumber>1);
+				groupExprs) && (preAggPartCnt > 1);
 
 		if (doRepartition) {
+			int postAggPartCnt = preAggPartCnt;
+			
 			// create pre-aggregation operator
 			Map<AbstractExpression, AbstractExpression> replaceExpr = new HashMap<AbstractExpression, AbstractExpression>();
-			
+
 			// create partitioning description for both aggregation operators
 			EnumPartitionType rePartType = EnumPartitionType
 					.getMaterializeType();
 			PartitionDesc preAggRePartDesc = new PartitionDesc(rePartType,
-					partNumber);
+					preAggPartCnt);
 			PartitionDesc postAggPartDesc = new PartitionDesc(preAggRePartDesc);
-			
-			//Create pre-aggregation operator
+
+			// Create pre-aggregation operator
 			GenericAggregation preAgg = this.createPreAggregation(ga,
 					replaceExpr);
-			for(TokenIdentifier grpAlias: preAgg.getGroupAliases()){
-				preAggRePartDesc.addPartAttributes(new TokenAttribute(grpAlias));
-				break; //only first group by attribute is used for partitioning
+			for (TokenIdentifier grpAlias : preAgg.getGroupAliases()) {
+				preAggRePartDesc
+						.addPartAttributes(new TokenAttribute(grpAlias));
+
+				// do not re-partition if group by attribute is non-numeric
+				EnumSimpleType groupType = preAgg.getResult().getType(
+						preAgg.getAggregationExpressions().size());
+				if (!groupType.isNumeric()){
+					preAggRePartDesc.setPartCount(1);
+					postAggPartCnt = 1;
+				}
+
+				break; // only first group by attribute is used for partitioning
 			}
 			preAgg.getResult().setPartitionDesc(preAggRePartDesc);
 			this.storePartDesc(preAgg.getOperatorId(), preAggRePartDesc);
+			preAgg.getResult().setPartitionCount(preAggPartCnt);
 			
-			//create post-aggregation operator
+			// create post-aggregation operator
 			GenericAggregation postAgg = this.createPostAggregation(ga, preAgg,
 					replaceExpr);
-			for(TokenIdentifier grpAlias: postAgg.getGroupAliases()){
+			for (TokenIdentifier grpAlias : postAgg.getGroupAliases()) {
 				postAggPartDesc.addPartAttributes(new TokenAttribute(grpAlias));
 			}
 			this.storePartDesc(postAgg.getOperatorId(), preAggRePartDesc);
+			postAgg.getResult().setPartitionCount(postAggPartCnt);
 		} else {
+			//store partition description
 			this.storePartDescs(ga.getOperatorId(), childPartDescs);
+			
+			// set partition count of operator
+			ga.getResult().setPartitionCount(preAggPartCnt);
 		}
-
+		
 		return err;
 	}
 
@@ -139,7 +157,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		Set<PartitionDesc> rightPartDescs = this.getPartDescs(rightId);
 		Set<PartitionDesc> joinPartDescs = new HashSet<PartitionDesc>();
 		PartitionDesc rightPartDesc = rightPartDescs.iterator().next();
-		int rightPartNumber = rightPartDesc.getPartitionNumber();
+		int rightPartCnt = rightPartDesc.getPartitionCount();
 		
 		// check if one input must be re-partitioned
 		boolean doRepartition = true;
@@ -149,7 +167,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 				&& this.isPartDescCompatible(leftPartDescs, rightPartDescs)) {
 			doRepartition = false;
 		}
-		if(rightPartNumber == 1){
+		if (rightPartCnt == 1) {
 			doRepartition = false;
 		}
 
@@ -164,7 +182,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 			EnumPartitionType leftRePartType = EnumPartitionType
 					.getMaterializeType();
 			PartitionDesc leftRePartDesc = new PartitionDesc(leftRePartType,
-					rightPartNumber);
+					rightPartCnt);
 			leftRePartDesc.addPartAttributes(ej.getLeftTokenAttribute());
 			leftResult.setPartitionDesc(leftRePartDesc);
 
@@ -180,6 +198,10 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 
 		// add partition specification to operator
 		this.storePartDescs(ej.getOperatorId(), joinPartDescs);
+		
+		// set partition count of operator
+		ej.getResult().setPartitionCount(rightPartCnt);
+				
 		return err;
 	}
 
@@ -195,6 +217,10 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		Set<PartitionDesc> partDescs = this.getPartDescs(gs.getChild()
 				.getOperatorId());
 		this.storePartDescs(gs.getOperatorId(), partDescs);
+
+		// Set partition count of operator
+		int childPartCnt = gs.getChild().getResult().getPartitionCount();
+		gs.getResult().setPartitionCount(childPartCnt);
 
 		return err;
 	}
@@ -212,6 +238,10 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 				.getOperatorId());
 		this.storePartDescs(gp.getOperatorId(), partDescs);
 
+		// set partition count of operator
+		int childPartCnt = gp.getChild().getResult().getPartitionCount();
+		gp.getResult().setPartitionCount(childPartCnt);
+
 		return err;
 	}
 
@@ -224,11 +254,14 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 			return err;
 
 		// use partitioning description of input for selection operator
+		// TODO: Rename attributes according to operator
 		Set<PartitionDesc> partDescs = this.getPartDescs(ro.getChild()
 				.getOperatorId());
 		this.storePartDescs(ro.getOperatorId(), partDescs);
-		
-		// TODO: Rename attributes according to operator
+
+		// set partition count of operator
+		int childPartCnt = ro.getChild().getResult().getPartitionCount();
+		ro.getResult().setPartitionCount(childPartCnt);
 
 		return err;
 	}
@@ -243,14 +276,16 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 
 		// Create partitioning description from meta data of table
 		PartitionDesc partDesc = new PartitionDesc();
+		int partCnt = 1;
 		if (to.isPartitioned()) {
-			partDesc.setPartNumber(to.getPartitionCount());
+			partCnt = to.getPartitionCount();
+			partDesc.setPartCount(partCnt);
 			partDesc.setTableName(to.getTableName());
 			partDesc.setPartitionType(to.getPartitionType());
 			if (to.getPartitionType().isReference()) {
 				partDesc.setRefTableName(to.getRefTableName());
 			}
-			
+
 			for (PartitionAttribute partAtt : to.getPartitionAttributes()) {
 				String partAttName = ResultDesc.createResultAtt(
 						to.getTableName(), partAtt.getName());
@@ -258,9 +293,13 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 				TokenAttribute tPartAtt = new TokenAttribute(tableName,
 						partAttName);
 				partDesc.addPartAttributes(tPartAtt);
-			}	
+			}
 		}
 		this.storePartDesc(to.getOperatorId(), partDesc);
+
+		// set partition count of operator
+		to.getResult().setPartitionCount(partCnt);
+
 		return err;
 	}
 
@@ -280,7 +319,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitSQLCombined(SQLCombined absOp) {
-		String[] args = { "SQLCombinedOperators are currently not supported" };
+		String[] args = { "SQLCombined operators are currently not supported" };
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
 	}
@@ -299,10 +338,6 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		newPartDesc.renameTable(opId);
 		this.op2partDesc.get(opId).clear();
 		this.op2partDesc.get(opId).add(newPartDesc);
-		
-		//annotate operator with partition count
-		this.cPlan.getOperator(opId).getResult()
-				.setPartitionCount(partDesc.getPartitionNumber());
 	}
 
 	/**
@@ -320,9 +355,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 
 		Set<PartitionDesc> newPartDescs = new HashSet<PartitionDesc>(
 				partDescs.size());
-		int partitionCount = 1;
 		for (PartitionDesc partDesc : partDescs) {
-			partitionCount = partDesc.getPartitionNumber();
 			if (removeNoPartition && !partDesc.isPartitioned())
 				continue;
 
@@ -331,10 +364,6 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 			newPartDescs.add(newPartDesc);
 		}
 		this.op2partDesc.put(opId, newPartDescs);
-		
-		//annotate operator with partition count
-		this.cPlan.getOperator(opId).getResult()
-						.setPartitionCount(partitionCount);
 	}
 
 	/**
@@ -415,8 +444,9 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		GenericAggregation preAgg = new GenericAggregation(agg.getChild());
 		TokenIdentifier internalCntAlias = new TokenIdentifier(
 				generateInternalAlias());
-		AggregationExpression sumExpr = AggregationExpression.createSumExpr(internalCntAlias);
-		
+		AggregationExpression sumExpr = AggregationExpression
+				.createSumExpr(internalCntAlias);
+
 		// add all aggregation expressions and replace AVG by SUM and COUNT
 		boolean addCount = false;
 		for (AbstractExpression expr : agg.getAggregationExpressions()) {
@@ -455,7 +485,8 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 
 		// if extra count aggregation is needed
 		if (addCount) {
-			AggregationExpression cntExpr = AggregationExpression.createCountExpr();
+			AggregationExpression cntExpr = AggregationExpression
+					.createCountExpr();
 			preAgg.addAggregationExpression(cntExpr);
 			preAgg.addAlias(internalCntAlias);
 		}
@@ -496,7 +527,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		agg.setChild(preAgg);
 		preAgg.setParent(agg);
 		agg.replaceExpression(replaceExpr);
-		
+
 		return agg;
 	}
 }

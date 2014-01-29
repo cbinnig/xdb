@@ -15,6 +15,16 @@ public enum EnumSimpleType implements Cloneable {
 
 		return true;
 	}
+	
+	public boolean isNumeric(){
+		switch(this){
+		case SQL_INTEGER:
+		case SQL_DECIMAL:
+			return true;
+		default:
+			return false;
+		}
+	}
 
 	public static EnumSimpleType get(int i) {
 		return values[i];
