@@ -85,7 +85,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	public Error visit(AbstractCompileOperator absOp) {
 		// visit this operator
 		err = super.visit(absOp);
-		if (err.isError() || this.stop)
+		if (err.isError() || this.stopped())
 			return err;
 
 		// set status for next child

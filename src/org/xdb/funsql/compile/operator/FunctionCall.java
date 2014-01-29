@@ -15,7 +15,7 @@ import com.oy.shared.lm.graph.GraphNode;
 public class FunctionCall extends AbstractCompileOperator implements Cloneable {
 
 	private static final long serialVersionUID = -7332127330583927641L;
-	private Vector<AbstractCompileOperator> children;
+	private Vector<AbstractCompileOperator> children = new Vector<AbstractCompileOperator>();
 	private TokenFunction function;
 	
 	//constructors
