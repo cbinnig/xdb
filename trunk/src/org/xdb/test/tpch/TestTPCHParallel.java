@@ -178,7 +178,7 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 		executeStmt(q1);
 	}
 
-	@SuppressWarnings("unused")
+	//TODO: Check Parallel Q2 since it gives no results
 	public void testQ02(){
 		/*
 		select
@@ -274,8 +274,8 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 				
 		String callQ2 = "CALL FUNCTION q2;";
 
-		//executeStmt(createQ2);
-		//executeStmt(callQ2);
+		executeStmt(createQ2);
+		executeStmt(callQ2);
 	}
 
 	public void testQ03(){

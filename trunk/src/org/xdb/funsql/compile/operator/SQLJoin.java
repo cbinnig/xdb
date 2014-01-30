@@ -2,6 +2,7 @@ package org.xdb.funsql.compile.operator;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -121,8 +122,6 @@ public class SQLJoin extends AbstractJoinOperator {
 
 		// redirect Children from merged Equi-Join
 		int oldindex = this.children.indexOf(equiJoin);
-		if(oldindex==-1)
-			System.out.println("STOP");
 		if (!this.children.contains(equiJoin.getLeftChild())) {
 			this.children.set(oldindex, equiJoin.getLeftChild());
 		}
@@ -137,7 +136,6 @@ public class SQLJoin extends AbstractJoinOperator {
 
 		parents = equiJoin.getRightChild().getParents();
 		parents.set(parents.indexOf(equiJoin), this);
-
 	}
 
 	/**
@@ -189,15 +187,11 @@ public class SQLJoin extends AbstractJoinOperator {
 
 		HashMap<String, String> vars = new HashMap<String, String>();
 
-		String results = "";
-		for (AbstractCompileOperator child : this.getChildren()) {
-			results = SetUtils.buildAliasString(
-					child.resultAttributesWothTableToSQL(),
-					child.resultAttributesToSQL())
-					+ "," + results;
-		}
-		results = results.substring(0, results.lastIndexOf(','));
-
+		//TODO: use attributes names with table names instead aliases two times
+		List<String> aliases = SetUtils.attributesToSQLString(getResult()
+				.getAttributes());
+		String results = SetUtils.buildAliasString(aliases, aliases);
+		
 		String templateString = "";
 		vars.put("RESULT", results);
 		// put join params into map

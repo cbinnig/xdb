@@ -56,7 +56,7 @@ public class GenericSelection extends AbstractUnaryOperator {
 	public String toSqlString() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
 		vars.put("RESULTS", SetUtils.buildAliasString(getChild()
-				.resultAttributesWothTableToSQL(), resultAttributesToSQL()));
+				.resultAttributesWOTableToSQL(), resultAttributesToSQL()));
 		vars.put("OP1", getChild().getOperatorId().toString());
 		vars.put("PRED", predicate.toSqlString());
 		if (this.getChild().getType().equals(EnumOperator.TABLE)) {

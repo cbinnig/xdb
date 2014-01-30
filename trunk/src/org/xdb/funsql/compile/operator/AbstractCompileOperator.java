@@ -283,7 +283,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 * 
 	 * @return
 	 */
-	protected List<String> resultAttributesWothTableToSQL() {
+	protected List<String> resultAttributesWOTableToSQL() {
 		return SetUtils.attributesWithTableToSQLString(getResult()
 				.getAttributes());
 	}
