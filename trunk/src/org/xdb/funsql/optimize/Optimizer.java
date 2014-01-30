@@ -69,8 +69,7 @@ public class Optimizer {
 	private Error pushSelections() {
 		Error err = new Error();
 
-		SelectionPushDownVisitor pushDownVisitor = new SelectionPushDownVisitor(
-				null, compilePlan);
+		SelectionPushDownVisitor pushDownVisitor = new SelectionPushDownVisitor(compilePlan);
 		for (AbstractCompileOperator root : this.compilePlan
 				.getRootsCollection()) {
 			boolean modified = true;
@@ -95,10 +94,12 @@ public class Optimizer {
 	 */
 	private Error combineSelections() {
 		Error err = new Error();
+		SelectionCombineVisitor combineVisitor = new SelectionCombineVisitor();
+		
 		for (AbstractCompileOperator root : this.compilePlan
 				.getRootsCollection()) {
-			SelectionCombineVisitor combineVisitor = new SelectionCombineVisitor(
-					root);
+			
+			combineVisitor.reset(root);
 			err = combineVisitor.visit();
 
 			if (err.isError())

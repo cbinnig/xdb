@@ -121,6 +121,8 @@ public class SQLJoin extends AbstractJoinOperator {
 
 		// redirect Children from merged Equi-Join
 		int oldindex = this.children.indexOf(equiJoin);
+		if(oldindex==-1)
+			System.out.println("STOP");
 		if (!this.children.contains(equiJoin.getLeftChild())) {
 			this.children.set(oldindex, equiJoin.getLeftChild());
 		}

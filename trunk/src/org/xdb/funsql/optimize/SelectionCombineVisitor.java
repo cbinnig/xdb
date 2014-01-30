@@ -21,7 +21,10 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 public class SelectionCombineVisitor extends AbstractTopDownTreeVisitor {
 	private AbstractCompileOperator lastOp = null;
-	private Error err = new Error();
+	
+	public SelectionCombineVisitor() {
+		super();
+	}
 	
 	public SelectionCombineVisitor(AbstractCompileOperator root) {
 		super(root);
@@ -29,12 +32,14 @@ public class SelectionCombineVisitor extends AbstractTopDownTreeVisitor {
 
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
+		Error err = new Error();
 		this.lastOp = ej;
 		return err;
 	}
 
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
+		Error err = new Error();
 		//combine two subsequent selections
 		if(this.lastOp.getType() == EnumOperator.GENERIC_SELECTION){
 			//cut last selection
@@ -59,36 +64,42 @@ public class SelectionCombineVisitor extends AbstractTopDownTreeVisitor {
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
+		Error err = new Error();
 		this.lastOp = sa;
 		return err;
 	}
 
 	@Override
 	public Error visitGenericProjection(GenericProjection gp) {
+		Error err = new Error();
 		this.lastOp = gp;
 		return err;
 	}
 
 	@Override
 	public Error visitTableOperator(TableOperator to) {
+		Error err = new Error();
 		this.lastOp = to;
 		return err;
 	}
 
 	@Override
 	public Error visitRename(Rename ro) {
+		Error err = new Error();
 		this.lastOp = ro;
 		return err;
 	}
 
 	@Override
 	public Error visitSQLUnary(SQLUnary sqlOp) {
+		Error err = new Error();
 		this.lastOp = sqlOp;
 		return err;
 	}
 
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
+		Error err = new Error();
 		this.lastOp = ej;
 		return err;
 	}

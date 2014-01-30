@@ -29,7 +29,8 @@ import com.oy.shared.lm.graph.GraphNode;
  * @author cbinnig
  * 
  */
-//TODO: clean up mess with select expressions and aggregation expressions somehow
+// TODO: clean up mess with select expressions and aggregation expressions
+// somehow
 public class SQLUnary extends AbstractUnaryOperator {
 
 	private static final long serialVersionUID = 2611698550463734434L;
@@ -64,7 +65,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 	// other info
 	private Map<TokenIdentifier, AbstractExpression> replaceExprMap = new HashMap<TokenIdentifier, AbstractExpression>();
 	private int countOps = 0;
-	private boolean addedLastOp = true; //flag if last operator was added
+	private boolean addedLastOp = true; // flag if last operator was added
 
 	public SQLUnary(AbstractCompileOperator child) {
 		super(child);
@@ -75,7 +76,6 @@ public class SQLUnary extends AbstractUnaryOperator {
 		for (TokenAttribute att : child.getResult().getAttributes()) {
 			SimpleExpression expr = new SimpleExpression(att);
 			this.replaceExprMap.put(att.getName(), expr);
-
 		}
 	}
 
@@ -87,7 +87,6 @@ public class SQLUnary extends AbstractUnaryOperator {
 	 */
 	public SQLUnary(SQLUnary toCopy) {
 		super(toCopy);
-
 	}
 
 	public int countOperators() {
@@ -124,7 +123,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 		// whether use table or other complex template
 		vars.put("OP1", getChild().getOperatorId().toString());
 		sqlStmt.append(fromTemplate.toString(vars));
-		
+
 		// where clause
 		sqlStmt.append(getWhereClause());
 		// having clause
@@ -308,7 +307,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 	}
 
 	@Override
-	public boolean renameAttributes(HashMap<String, String> renamedAttributes,
+	public boolean renameAttributes(Map<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
 		boolean renamed = super.renameAttributes(renamedAttributes, renamedOps);
 		@SuppressWarnings("unused")
@@ -352,10 +351,11 @@ public class SQLUnary extends AbstractUnaryOperator {
 
 	// getters and setters
 	public Vector<AbstractExpression> getSelectExpressions() {
-		if(this.selectExpressions.size()>0)
+		if (this.selectExpressions.size() > 0)
 			return selectExpressions;
-		else{
-			Vector<AbstractExpression> selExprs = new Vector<AbstractExpression>(this.aggExpressions);
+		else {
+			Vector<AbstractExpression> selExprs = new Vector<AbstractExpression>(
+					this.aggExpressions);
 			selExprs.addAll(this.groupExpressions);
 			return selExprs;
 		}

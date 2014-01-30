@@ -58,10 +58,6 @@ public class MaterializationAnnotationVisitor extends
 	@Override
 	public Error visitGenericProjection(GenericProjection projectOp) {
 		applyGlobalMaterializeRules(projectOp);
-
-		if (projectOp.getChild().isAggregation()) {
-			projectOp.getResult().materialize(true);
-		}
 		return new Error();
 	}
 

@@ -4,7 +4,6 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractTopDownTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -23,80 +22,87 @@ import org.xdb.funsql.compile.operator.TableOperator;
  */
 public class JoinCombineVisitor extends AbstractTopDownTreeVisitor {
 	
-	private AbstractCompileOperator lastOp = null;
-	private Error err = new Error();
+	private SQLJoin sqlJoin = null;
 	private CompilePlan plan;
 	
 	public JoinCombineVisitor(AbstractCompileOperator root, CompilePlan plan) {
 		super(root);
 		this.plan = plan;
 	}
-
-	@Override
-	public Error visitEquiJoin(EquiJoin ej) {
-		//check if it's null then do nothing just change the last op
-		if(this.lastOp != null){
-			 if(this.lastOp.getType().equals(EnumOperator.SQL_JOIN)){
-				//merge new equi join into existing sql join
-				((SQLJoin)this.lastOp).mergeChildJoinOp(ej);
-			}else {
-				//create new sql join
-				SQLJoin sqljoin =  new SQLJoin((EquiJoin)ej);
-				this.plan.replaceOperator(ej.getOperatorId(), sqljoin);
-				this.lastOp = sqljoin;
-			}
-		}else{
-			this.lastOp = ej;
-		}
-		
-		return this.err;
+	
+	public JoinCombineVisitor(CompilePlan plan) {
+		super();
+		this.plan = plan;
 	}
 
 	@Override
-	public Error visitGenericSelection(GenericSelection gs) {
-		this.lastOp = gs;
+	public void reset(AbstractCompileOperator root){
+		super.reset(root);
+		this.sqlJoin=null;
+	}
+	
+	@Override
+	public Error visitEquiJoin(EquiJoin ej) {
+		Error err = new Error();
+		if(this.sqlJoin!=null){
+			//merge new equi join into existing sql join
+			this.sqlJoin.mergeChildJoinOp(ej);
+			this.plan.removeOperator(ej.getOperatorId());
+		}else {
+			//create new sql join
+			SQLJoin sqljoin =  new SQLJoin((EquiJoin)ej);
+			this.plan.replaceOperator(ej.getOperatorId(), sqljoin);
+			this.sqlJoin = sqljoin;
+		}
 		return err;
+	}
+	
+
+	@Override
+	public Error visitGenericSelection(GenericSelection gs) {
+		this.sqlJoin = null;
+		return new Error();
 	}
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
-		this.lastOp = sa;
-		return err;
+		this.sqlJoin = null;
+		return new Error();
 	}
 
 	@Override
 	public Error visitGenericProjection(GenericProjection gp) {
-		this.lastOp = gp;
-		return err;
+		this.sqlJoin = null;
+		return new Error();
 	}
 
 	@Override
 	public Error visitTableOperator(TableOperator to) {
-		this.lastOp = to;
-		return err;
+		this.sqlJoin = null;
+		return new Error();
 	}
 
 	@Override
 	public Error visitRename(Rename ro) {
-		this.lastOp = ro;
-		return err;
+		this.sqlJoin = null;
+		return new Error();
 	}
 
 	@Override
 	public Error visitSQLUnary(SQLUnary absOp) {
-		this.lastOp = absOp;
-		return err;
+		this.sqlJoin = null;
+		return new Error();
 	}
 
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
-		this.lastOp = ej;
-		return err;
+		this.sqlJoin = null;
+		return new Error();
 	}
 
 	@Override
 	public Error visitSQLCombined(SQLCombined absOp) {
-		this.lastOp = absOp;
-		return err;
+		this.sqlJoin = null;
+		return new Error();
 	}
 }

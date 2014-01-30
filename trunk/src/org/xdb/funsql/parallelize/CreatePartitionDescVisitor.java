@@ -166,6 +166,9 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		Set<PartitionDesc> joinPartDescs = new HashSet<PartitionDesc>();
 		PartitionDesc rightPartDesc = rightPartDescs.iterator().next();
 		int rightPartCnt = rightPartDesc.getPartitionCount();
+		PartitionDesc leftPartDesc = leftPartDescs.iterator().next();
+		int leftPartCnt = leftPartDesc.getPartitionCount();
+		int partCnt = (rightPartCnt>leftPartCnt?rightPartCnt:leftPartCnt);
 		
 		// check if one input must be re-partitioned
 		boolean doRepartition = true;
@@ -191,8 +194,10 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 					.getMaterializeType();
 			PartitionDesc leftRePartDesc = new PartitionDesc(leftRePartType,
 					rightPartCnt);
-			leftRePartDesc.addPartAttributes(ej.getLeftTokenAttribute());
+			TokenAttribute partAtt = new TokenAttribute(ej.getLeftTokenAttribute());
+			leftRePartDesc.addPartAttributes(partAtt);
 			leftResult.setPartitionDesc(leftRePartDesc);
+			partCnt = rightPartCnt;
 
 			// add partition descriptions
 			joinPartDescs.add(leftRePartDesc);
@@ -208,7 +213,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		this.storePartDescs(ej.getOperatorId(), joinPartDescs);
 		
 		// set partition count of operator
-		ej.getResult().setPartitionCount(rightPartCnt);
+		ej.getResult().setPartitionCount(partCnt);
 				
 		return err;
 	}

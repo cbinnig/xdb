@@ -3,6 +3,7 @@ package org.xdb.funsql.compile.operator;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
@@ -35,14 +36,16 @@ public class PartitionDesc implements Serializable {
 	}
 
 	public PartitionDesc(PartitionDesc toCopy) {
-		this.partType = toCopy.partType;
-		this.partCount = toCopy.partCount;
-
+		if(toCopy==null)
+			System.out.println("STOP");
+		
 		for (TokenAttribute partAtt : toCopy.partAttributes) {
 			TokenAttribute newPartAtt = new TokenAttribute(partAtt);
 			this.partAttributes.add(newPartAtt);
 		}
 
+		this.partType = toCopy.partType;
+		this.partCount = toCopy.partCount;
 		this.table = toCopy.table;
 		this.refTable = toCopy.refTable;
 	}
@@ -175,5 +178,17 @@ public class PartitionDesc implements Serializable {
 	@Override
 	public int hashCode() {
 		return this.partType.hashCode() % this.partCount;
+	}
+	
+	public boolean renameAttributes(Map<String, String> renamedAttributes){
+		boolean renamed = false;
+		for (TokenAttribute tA : this.partAttributes) {
+			if (renamedAttributes.containsKey(tA.getName().getValue())) {
+				if (tA.renameAttribute(renamedAttributes))
+					renamed = true;
+			}
+		}
+		
+		return renamed;
 	}
 }

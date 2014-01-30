@@ -35,6 +35,30 @@ public class ResultDesc implements Serializable, Cloneable {
 		this.types = new Vector<EnumSimpleType>();
 	}
 
+	public ResultDesc(ResultDesc rDesc) {
+		this();
+
+		// clone attributes
+		for (TokenAttribute att : rDesc.attributes) {
+			TokenAttribute newAtt = new TokenAttribute(att.getName().clone());
+			newAtt.setTable(att.getTable().getName().clone());
+			this.attributes.add(newAtt);
+		}
+
+		// clone types
+		for (EnumSimpleType type : rDesc.types) {
+			this.types.add(type);
+		}
+		
+		//other attributes
+		this.materialize(rDesc.materialize);
+		this.repartition = rDesc.repartition;
+		this.partitionCnt = rDesc.partitionCnt;
+		
+		if(this.repartition)
+			this.rePartDesc = new PartitionDesc(rDesc.rePartDesc);
+	}
+
 	public ResultDesc(int size) {
 		this.attributes = new Vector<TokenAttribute>(size);
 		this.types = new Vector<EnumSimpleType>(size);
@@ -160,6 +184,8 @@ public class ResultDesc implements Serializable, Cloneable {
 	@Override
 	public String toString() {
 		StringBuffer value = new StringBuffer();
+		value.append("Materlialization: "+this.materialize );
+		value.append(AbstractToken.NEWLINE);
 		if (Config.TRACE_COMPILE_PLAN_HEADER_RESULT_SCHEMA) {
 			value.append("Attributes: ");
 			value.append(this.attributes);
@@ -184,19 +210,7 @@ public class ResultDesc implements Serializable, Cloneable {
 
 	@Override
 	public ResultDesc clone() {
-		ResultDesc rDesc = new ResultDesc();
-		for (TokenAttribute att : this.attributes) {
-			TokenAttribute newAtt = new TokenAttribute(att.getName().clone());
-			if (att.getTable() == null)
-				System.err.println(att);
-			else
-				newAtt.setTable(att.getTable().getName().clone());
-			rDesc.attributes.add(newAtt);
-		}
-
-		for (EnumSimpleType type : this.types) {
-			rDesc.types.add(type);
-		}
+		ResultDesc rDesc = new ResultDesc(this);
 		return rDesc;
 	}
 
@@ -209,5 +223,20 @@ public class ResultDesc implements Serializable, Cloneable {
 
 	public int size() {
 		return this.attributes.size();
+	}
+	
+	public boolean renameAttributes(Map<String, String> renamedAttributes){
+		boolean renamed = false;
+		for (TokenAttribute tA : this.attributes) {
+			if (renamedAttributes.containsKey(tA.getName().getValue())) {
+				if (tA.renameAttribute(renamedAttributes))
+					renamed = true;
+			}
+		}
+		
+		if(this.repartition){
+			this.rePartDesc.renameAttributes(renamedAttributes);
+		}
+		return renamed;
 	}
 }

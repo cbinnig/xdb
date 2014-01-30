@@ -1,6 +1,6 @@
 package org.xdb.funsql.codegen;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.predicate.AbstractPredicateVisitor;
@@ -16,8 +16,8 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 public class ReReNamePredicateVisitor extends AbstractPredicateVisitor {
 
 	private Error e = new Error();
-	private HashMap<String, String> renamedAttributes;
-	public ReReNamePredicateVisitor(AbstractPredicate pred, HashMap<String, String> renamedAttributes) {
+	private Map<String, String> renamedAttributes;
+	public ReReNamePredicateVisitor(AbstractPredicate pred, Map<String, String> renamedAttributes) {
 		super(pred);
 		this.renamedAttributes = renamedAttributes;
 	}

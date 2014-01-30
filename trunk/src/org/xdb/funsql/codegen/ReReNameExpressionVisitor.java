@@ -1,6 +1,6 @@
 package org.xdb.funsql.codegen;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.expression.AbstractExpressionVisitor;
@@ -16,8 +16,8 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
  *
  */
 public class ReReNameExpressionVisitor extends AbstractExpressionVisitor {
-	private HashMap<String, String> renamedAttributes;
-	public ReReNameExpressionVisitor(AbstractExpression expr, HashMap<String, String> renamedAttributes) {
+	private Map<String, String> renamedAttributes;
+	public ReReNameExpressionVisitor(AbstractExpression expr, Map<String, String> renamedAttributes) {
 		super(expr);
 		this.renamedAttributes = renamedAttributes;
 	}

@@ -12,7 +12,6 @@ import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractBinaryOperator;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.AbstractJoinOperator;
 import org.xdb.funsql.compile.operator.AbstractUnaryOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
@@ -52,9 +51,12 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	private boolean doWaitNextVisit = true;
 	private CompilePlan plan;
 
-	private Error err = new Error();
-
 	// constructors
+	public SelectionPushDownVisitor(CompilePlan plan) {
+		super();
+		this.plan = plan;
+	}
+	
 	public SelectionPushDownVisitor(AbstractCompileOperator root, CompilePlan plan) {
 		super(root);
 		this.plan = plan;
@@ -71,18 +73,21 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	}
 
 	// methods
+	@Override
 	public void reset(AbstractCompileOperator root) {
-		this.treeRoot = root;
+		super.reset(root);
+		
 		this.cutSelection = null;
 		this.lastOp = null;
 		this.modifiedPlan = false;
 		this.nextChildIdx = 0;
 		this.doWaitNextVisit = true;
-		this.err = new Error();
 	}
 
 	@Override
 	public Error visit(AbstractCompileOperator absOp) {
+		Error err = new Error();
+		
 		// visit this operator
 		err = super.visit(absOp);
 		if (err.isError() || this.stopped())
@@ -113,12 +118,14 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
+		Error err = new Error();
 		this.pushDown(ej);
 		return err;
 	}
 
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
+		Error err = new Error();
 		// pick selection
 		if (this.cutSelection == null
 				&& !this.finishedSelections.contains(gs.getOperatorId())) {
@@ -134,24 +141,28 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
+		Error err = new Error();
 		this.pushDown(sa);
 		return err;
 	}
 
 	@Override
 	public Error visitGenericProjection(GenericProjection gp) {
+		Error err = new Error();
 		this.pushDown(gp);
 		return err;
 	}
 
 	@Override
 	public Error visitTableOperator(TableOperator to) {
+		Error err = new Error();
 		this.paste();
 		return err;
 	}
 
 	@Override
 	public Error visitRename(Rename ro) {
+		Error err = new Error();
 		this.pushDown(ro);
 		return err;
 	}
@@ -228,7 +239,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 				this.plan.addOperator(this.cutSelection, false);
 				this.doWaitNextVisit = false;
 				this.cutSelection.cut();
-				this.err = this.visit();
+				this.visit();
 			}
 
 			return true;
@@ -285,16 +296,6 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 				return;
 			}
 		}
-	}
-	/**
-	 * pushDown selection over SQLJoin or SQLCombined
-	 * 
-	 * @param op
-	 */
-	private void pushDown(AbstractJoinOperator op) {
-		String[] args = {"Operator of type "+op.getType()+" not supported"};
-		this.err = new Error(EnumError.COMPILER_GENERIC, args);
-		return;
 	}
 	
 	/**
@@ -353,13 +354,15 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 	}
 
 	@Override
-	public Error visitSQLJoin(SQLJoin ej) {
-		this.pushDown(ej);
+	public Error visitSQLJoin(SQLJoin op) {
+		Error err = new Error();
+		String[] args = {"SQLJoin operators are currently not supported"};
+		err = new Error(EnumError.COMPILER_GENERIC, args);
 		return err;
 	}
 
 	@Override
-	public Error visitSQLCombined(SQLCombined absOp) {
+	public Error visitSQLCombined(SQLCombined op) {
 		String[] args = { "SQLCombined operators are currently not supported" };
 		Error e = new Error(EnumError.COMPILER_GENERIC, args);
 		return e;
