@@ -43,7 +43,7 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 		// compile statements
 		try {
 			for (final String dml : executeSQLs) {
-				//System.out.println(this.getOperatorId()+">"+ dml+";");
+				// System.out.println(this.getOperatorId()+">"+ dml+";");
 				executeStmts.add(conn.prepareStatement(dml));
 			}
 		} catch (final Exception e) {

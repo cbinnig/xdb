@@ -65,9 +65,9 @@ public class EquiJoin extends AbstractBinaryOperator {
 		final HashMap<String, String> vars = new HashMap<String, String>();
 
 		final List<String> lAttributes = getLeftChild()
-				.resultAttributesWothTableToSQL();
+				.resultAttributesWOTableToSQL();
 		final List<String> rAttributes = getRightChild()
-				.resultAttributesWothTableToSQL();
+				.resultAttributesWOTableToSQL();
 		final List<String> aliasVec = resultAttributesToSQL();
 
 		final List<String> lAliases = aliasVec.subList(0, lAttributes.size());
