@@ -123,17 +123,17 @@ public class ReRenameAttributesVisitor extends AbstractBottomUpTreeVisitor {
 
 
 	/**
-	 * This Method renames the result set of a given operator. The idiviual Attributes
+	 * This Method renames the result set of a given operator. The individual Attributes
 	 * from the result set are only renamed when there is a need to, which means
 	 * that the source op of the attribute is a table
-	 * @param ej AbstractCompileOperator Opertor to rename the resultset for
+	 * @param ej AbstractCompileOperator Operator to rename the result set for
 	 */
-	private void renameResultSet(AbstractCompileOperator ej) {
+	private void renameResultSet(AbstractCompileOperator op) {
 		// call operator method
-		boolean renamed = ej.renameAttributes(renamedAttributes,renamedOps);
+		boolean renamed = op.renameAttributes(renamedAttributes,renamedOps);
 		// if one element was renamed than add the opp to renamed ops
 		if(renamed){
-			this.renamedOps.add(ej.getOperatorId().toString());
+			this.renamedOps.add(op.getOperatorId().toString());
 		}
 	}
 

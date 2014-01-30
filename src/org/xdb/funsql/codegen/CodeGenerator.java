@@ -12,7 +12,7 @@ import org.xdb.Config;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
-import org.xdb.funsql.compile.analyze.operator.MaterializationAnnotationVisitor;
+import org.xdb.funsql.compile.analyze.operator.ConnectionAnnotationVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.operator.TableOperator;
@@ -26,7 +26,7 @@ import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
 /**
- * Generates a query tracker plan for a given compile plan
+ * Generates a query tracker plan form a given compile plan
  * 
  * @author cbinnig
  * 
@@ -147,12 +147,20 @@ public class CodeGenerator {
 		if (!Config.CODEGEN_OPTIMIZE)
 			return err;
 
+		JoinCombineVisitor joinCombineVisitor = new JoinCombineVisitor(
+				this.compilePlan);
+		SQLUnaryCombineVisitor unaryCombineVisitor = new SQLUnaryCombineVisitor(
+				this.compilePlan);
+		SQLCombineVisitor sqlCombineVisitor = new SQLCombineVisitor(
+				this.compilePlan);
+
 		int i = 1;
 		for (Identifier splitOpId : this.splitOpIds) {
 			// get splitOp from compile plan as root for optimization
 			AbstractCompileOperator splitOp = this.compilePlan
 					.getOperator(splitOpId);
-			err = combineJoins(splitOp);
+			joinCombineVisitor.reset(splitOp);
+			err = joinCombineVisitor.visit();
 			if (err.isError())
 				return err;
 
@@ -166,7 +174,8 @@ public class CodeGenerator {
 
 			// get splitOp again since it might have be replaced
 			splitOp = this.compilePlan.getOperator(splitOpId);
-			err = combineUnaryOps(splitOp);
+			unaryCombineVisitor.reset(splitOp);
+			err = unaryCombineVisitor.visit();
 			if (err.isError())
 				return err;
 
@@ -180,7 +189,8 @@ public class CodeGenerator {
 
 			// get splitOp again since it might have be replaced
 			splitOp = this.compilePlan.getOperator(splitOpId);
-			err = combineSQLOps(splitOp);
+			sqlCombineVisitor.reset(splitOp);
+			err = sqlCombineVisitor.visit();
 			if (err.isError())
 				return err;
 
@@ -198,7 +208,7 @@ public class CodeGenerator {
 
 	private Error annotateCompilePlan() {
 		Error err = new Error();
-		MaterializationAnnotationVisitor visitor = new MaterializationAnnotationVisitor();
+		ConnectionAnnotationVisitor visitor = new ConnectionAnnotationVisitor();
 		this.compilePlan.applyVisitor(visitor);
 		return err;
 
@@ -593,17 +603,36 @@ public class CodeGenerator {
 		return sqlTemplate.toString(args);
 	}
 
+	/**
+	 * Generate name for output table for given compile operator
+	 * 
+	 * @param compileOp
+	 * @return
+	 */
 	private Identifier genOutputTableName(
 			final AbstractCompileOperator compileOp) {
 		return compileOp.getOperatorId().clone().append(OUT_PREFIX);
 	}
 
+	/**
+	 * Generate name for output table for given compile operator and partition
+	 * 
+	 * @param compileOp
+	 * @param partNum
+	 * @return
+	 */
 	private Identifier genOutputTableName(
 			final AbstractCompileOperator compileOp, final int partNum) {
 		return compileOp.getOperatorId().clone().append(PART_PREFIX + partNum)
 				.append(OUT_PREFIX);
 	}
 
+	/**
+	 * Generate name for input table for given compile operator
+	 * 
+	 * @param compileOp
+	 * @return
+	 */
 	private Identifier genInputTableName(final AbstractCompileOperator compileOp) {
 		return compileOp.getOperatorId().clone();
 	}
@@ -616,54 +645,12 @@ public class CodeGenerator {
 	 * @return
 	 */
 	private List<Identifier> extractSplitOps() {
-		SplitPlanVisitor splitVisitor = new SplitPlanVisitor(null);
+		SplitPlanVisitor splitVisitor = new SplitPlanVisitor();
 		for (AbstractCompileOperator root : this.compilePlan
 				.getRootsCollection()) {
 			splitVisitor.reset(root);
 			splitVisitor.visit();
 		}
 		return splitVisitor.getSplitOpIds();
-	}
-
-	/**
-	 * Combine operators in plan to SQLJoinOps
-	 * 
-	 * @return
-	 */
-	private Error combineJoins(AbstractCompileOperator root) {
-		Error err = new Error();
-		JoinCombineVisitor combineVisitor = new JoinCombineVisitor(root,
-				this.compilePlan);
-		err = combineVisitor.visit();
-
-		return err;
-	}
-
-	/**
-	 * Combine operators in plan to SQLUnaryOps
-	 * 
-	 * @return
-	 */
-	private Error combineUnaryOps(AbstractCompileOperator root) {
-		Error err = new Error();
-		SQLUnaryCombineVisitor combineVisitor = new SQLUnaryCombineVisitor(
-				root, this.compilePlan);
-		err = combineVisitor.visit();
-
-		return err;
-	}
-
-	/**
-	 * Combine operators in plan to SQLOps
-	 * 
-	 * @return
-	 */
-	private Error combineSQLOps(AbstractCompileOperator root) {
-		Error err = new Error();
-		SQLCombineVisitor combineVisitor = new SQLCombineVisitor(root,
-				this.compilePlan);
-		err = combineVisitor.visit();
-
-		return err;
 	}
 }

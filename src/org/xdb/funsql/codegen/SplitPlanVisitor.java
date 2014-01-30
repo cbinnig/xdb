@@ -35,7 +35,11 @@ public class SplitPlanVisitor extends AbstractBottomUpTreeVisitor {
 	// last error
 	private Error err = new Error();
 
-	// constructor
+	// constructors
+	public SplitPlanVisitor() {
+		super();
+	}
+	
 	public SplitPlanVisitor(AbstractCompileOperator root) {
 		super(root);
 	}

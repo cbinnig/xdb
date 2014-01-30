@@ -1,6 +1,9 @@
 package org.xdb.funsql.compile.analyze.operator;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
@@ -14,23 +17,25 @@ import org.xdb.funsql.compile.operator.SQLCombined;
 import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
+import org.xdb.utils.Identifier;
 
 public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	
 	protected AbstractCompileOperator treeRoot = null;
 	private boolean stop = false;
+	private Set<Identifier> visitedOps = new HashSet<Identifier>();
 	
 	public AbstractTreeVisitor(){
-		this.stop = true;
+		this.stop = false;
 	}
 	
 	public AbstractTreeVisitor(AbstractCompileOperator root) {
 		this.treeRoot = root;
 	}
 	
-	public void setRoot(AbstractCompileOperator root){
-		this.treeRoot = root;
+	public void reset(AbstractCompileOperator root){
 		this.stop = false;
+		this.treeRoot = root;
 	}
 
 	public Error visit(){
@@ -52,6 +57,11 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 		
 		if(this.stop)
 			return e;
+		
+		if(this.visitedOps.contains(absOp.getOperatorId()))
+			return e;
+		
+		this.visitedOps.add(absOp.getOperatorId());
 		
 		switch(absOp.getType()){
 		case EQUI_JOIN:

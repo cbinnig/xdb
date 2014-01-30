@@ -263,16 +263,14 @@ public class CompilePlan implements Serializable {
 
 		for (Identifier rootId : this.getRootIds()) {
 			AbstractCompileOperator root = this.getOperator(rootId);
-			visitor.setRoot(root);
+			visitor.reset(root);
 			
 			err = visitor.visit();
 			if (err.isError()) {
 				return err;
 			}
 		}
-
 		return err;
-
 	}
 
 	/**

@@ -39,10 +39,23 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 
 	public SQLUnaryCombineVisitor(AbstractCompileOperator root, CompilePlan plan) {
 		super(root);
-
+		this.plan = plan;
+	}
+	
+	public SQLUnaryCombineVisitor(CompilePlan plan) {
+		super();
 		this.plan = plan;
 	}
 
+	@Override
+	public void reset(AbstractCompileOperator root){
+		super.reset(root);
+		this.lastUnaryOp=null;
+		this.sqlUnaryOp = null;
+		this.parentIdx=0;
+		this.toRemoveOps.clear();
+	}
+	
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
 		if (this.sqlUnaryOp == null)
@@ -192,7 +205,8 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 	}
 	
 	/**
-	 * Paste new operator to position of given projection operator
+	 * Paste new SQLUnary operator to position of given unary operator
+	 * and use result of this operator
 	 * @param unaryOp
 	 */
 	private void paste(AbstractUnaryOperator unaryOp){

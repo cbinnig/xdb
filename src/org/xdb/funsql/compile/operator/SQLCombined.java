@@ -282,7 +282,7 @@ public class SQLCombined extends AbstractJoinOperator {
 	}
 
 	@Override
-	public boolean renameAttributes(HashMap<String, String> renamedAttributes,
+	public boolean renameAttributes(Map<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
 		boolean renamed = super.renameAttributes(renamedAttributes, renamedOps);
 		Error e = new Error();

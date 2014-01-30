@@ -232,14 +232,14 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 						"			min(ps_supplycost) as min_supplycost, " +
 						"			ps_partkey"+ 
 						"		from " + 
-						"			partsupp," + 
-						"			supplier," + 
 						"			nation," + 
-						"			region" + 
+						"			region," + 
+						"			supplier," + 
+						"			partsupp" + 
 						"		where " + 
-						"			s_suppkey = ps_suppkey" + 
+						"			r_regionkey = n_regionkey" + 
 						"			and s_nationkey = n_nationkey" + 
-						"			and n_regionkey = r_regionkey" + 
+						"			and s_suppkey = ps_suppkey" + 
 						"			and r_name = 'EUROPE'" +
 						"		group by" +
 						"			ps_partkey;" +
@@ -254,21 +254,21 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 						"			s_phone," + 
 						"			s_comment " + 
 						"		from " + 
-						"			part," + 
+						"			region," +
+						"			nation," + 
 						"			supplier," + 
 						"			partsupp as ps," + 
-						"			nation," + 
-						"			region," +
+						"			part," + 
 						"			:t1 as temp1 " + 
 						"		where" + 
-						"			p_partkey = ps.ps_partkey" + 
-						"			and s_suppkey = ps.ps_suppkey" +
-						"			and temp1.ps_partkey = ps.ps_partkey" +
+						"			r_regionkey = n_regionkey" + 
+						"			and n_nationkey = s_nationkey" + 
+						"			and s_suppkey = ps.ps_suppkey" + //TODO: Problem when removing ps
+						"			and ps.ps_partkey = p_partkey" + 
+						"			and ps.ps_partkey=temp1.ps_partkey" +
 						"			and temp1.min_supplycost = ps.ps_supplycost" + 
 						"			and p_size = 15" + 
 						"			and p_type like '%BRASS'" + 
-						"			and s_nationkey = n_nationkey" + 
-						"			and n_regionkey = r_regionkey" + 
 						"			and r_name = 'EUROPE';"+ 
 						"END;";
 				

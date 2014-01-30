@@ -145,8 +145,9 @@ public class QueryTrackerNode {
 		cplan.init();
 		Error err = new Error();
 
-		// 1. annotate compile plan (materialize flags, connections)
-		err = annotateCompilePlan(cplan);
+		// 1. annotate compile plan with materialize flags
+		MaterializationAnnotationVisitor visitor = new MaterializationAnnotationVisitor();
+		err = cplan.applyVisitor(visitor);
 		if (err.isError()) {
 			return new Tuple<Error, QueryTrackerPlan>(err, null);
 		}
@@ -284,19 +285,6 @@ public class QueryTrackerNode {
 		return new Tuple<Error, Boolean>(err, qplan.isExecuted());
 	}
 
-	/**
-	 * Annotate compile plan with materialization flags
-	 * 
-	 * @param cplan
-	 * @return
-	 */
-	private Error annotateCompilePlan(CompilePlan cplan) {
-		Error err = new Error();
-		MaterializationAnnotationVisitor visitor = new MaterializationAnnotationVisitor();
-		cplan.applyVisitor(visitor);
-		return err;
-
-	}
 
 	/**
 	 * Method used to request ComputeNodes from MasterTracker

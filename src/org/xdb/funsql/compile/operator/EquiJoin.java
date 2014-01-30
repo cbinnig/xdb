@@ -157,7 +157,7 @@ public class EquiJoin extends AbstractBinaryOperator {
 	}
 
 	@Override
-	public boolean renameAttributes(HashMap<String, String> renamedAttributes,
+	public boolean renameAttributes(Map<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
 		String newName;
 		// rename join tokens

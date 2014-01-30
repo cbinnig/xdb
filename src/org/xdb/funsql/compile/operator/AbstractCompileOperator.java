@@ -3,7 +3,6 @@ package org.xdb.funsql.compile.operator;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -11,7 +10,6 @@ import java.util.Vector;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
-import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.metadata.Connection;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
@@ -115,7 +113,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 
 	public void setResult(ResultDesc result) {
 		if (this.results.size() == 1)
-			this.setResult(result);
+			this.results.set(0, result);
 		else
 			this.results.add(result);
 	}
@@ -262,15 +260,14 @@ public abstract class AbstractCompileOperator implements Serializable {
 	 * @param renamedOps
 	 * @return boolean to verify if some elements of this operator were renamed
 	 */
-	public boolean renameAttributes(HashMap<String, String> renamedAttributes,
+	public boolean renameAttributes(Map<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
 		
 		boolean renamed = false;
 
 		// rename result attributes
-		for (TokenAttribute tA : getResult().getAttributes()) {
-			if (renamedAttributes.containsKey(tA.getName().getValue())) {
-				if (tA.renameAttribute(renamedAttributes))
+		for (ResultDesc rDesc: this.results) {
+			if(rDesc.renameAttributes(renamedAttributes)){
 					renamed = true;
 			}
 		}

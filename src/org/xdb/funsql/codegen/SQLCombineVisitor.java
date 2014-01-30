@@ -27,13 +27,24 @@ public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
 
 	private AbstractCompileOperator lastop = null;
 	private Error err = new Error(); 
-	private CompilePlan compileplan;
+	private CompilePlan plan;
 	
-	public SQLCombineVisitor(AbstractCompileOperator root, CompilePlan compilePlan) {
+	public SQLCombineVisitor(AbstractCompileOperator root, CompilePlan plan) {
 		super(root);
-		this.compileplan = compilePlan;
+		this.plan = plan;
 	}
-
+	
+	public SQLCombineVisitor(CompilePlan plan) {
+		super();
+		this.plan = plan;
+	}
+	
+	@Override
+	public void reset(AbstractCompileOperator root){
+		super.reset(root);
+		this.lastop=null;
+	}
+	
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
 		this.lastop = ej;
@@ -79,13 +90,13 @@ public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
 	@Override
 	public Error visitSQLUnary(SQLUnary absOp) {
 		
-		if(this.lastop.getType().equals(EnumOperator.SQL_JOIN)){
+		if(this.lastop!=null && this.lastop.getType().equals(EnumOperator.SQL_JOIN)){
 			SQLCombined sqlc = new SQLCombined((SQLJoin)this.lastop);
-			this.compileplan.replaceOperator(absOp.getOperatorId(), sqlc);
+			this.plan.replaceOperator(absOp.getOperatorId(), sqlc);
 
 			sqlc.mergeSQLUnaryParent(absOp);
 		
-			this.compileplan.removeOperator(this.lastop.getOperatorId());
+			this.plan.removeOperator(this.lastop.getOperatorId());
 			
 			this.lastop = sqlc;
 		} 

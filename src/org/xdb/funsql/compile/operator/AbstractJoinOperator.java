@@ -1,13 +1,13 @@
 package org.xdb.funsql.compile.operator;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
-import org.xdb.utils.TokenPair;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.TokenPair;
 
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
@@ -83,7 +83,7 @@ public abstract class AbstractJoinOperator extends AbstractCompileOperator {
 		return err;
 	}
 
-	public void renameJoinTokens(HashMap<String, String> renamedAttributes,
+	public void renameJoinTokens(Map<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
 		String newName;
 		for (TokenPair tP : getJointokens()) {
@@ -105,7 +105,7 @@ public abstract class AbstractJoinOperator extends AbstractCompileOperator {
 	}
 
 	@Override
-	public boolean renameAttributes(HashMap<String, String> renamedAttributes,
+	public boolean renameAttributes(Map<String, String> renamedAttributes,
 			Vector<String> renamedOps) {
 		boolean renamed = false;
 		// call super Method
