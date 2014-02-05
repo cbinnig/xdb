@@ -171,14 +171,20 @@ public class DataPartitioner {
 		//int numberOfPartitions = this.filesMap.size();
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 
-		String line = "";
+		String line = ""; 
+		int lineCounter = 0; 
 		while ((line = br.readLine()) != null) { 
+			/*
 			if(isIntHashing)
 			    hash = Utils.calculateIntHash(line, partitionIndices); 
 			else 
 				hash = Utils.calculateHash(line, partitionIndices);
 			
-			partitionNumber = (hash % numberOfPartitions + numberOfPartitions) % numberOfPartitions; 
+			partitionNumber = (hash % numberOfPartitions + numberOfPartitions) % numberOfPartitions;   
+			*/
+			
+			partitionNumber = lineCounter%numberOfPartitions; 
+			lineCounter++;
 
 			// Check if the partial partitioning is set 
 			// so one partition is written at once.  
