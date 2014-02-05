@@ -41,13 +41,17 @@ public class DataPartitioner {
 	// them later when writing to the partitions file.
 	private Map<Integer, BufferedOutputStream> filesMap;
 	private Set<String> referenceKeys;
-	private BitSet writtenLines;
+	private BitSet writtenLines; 
+	private BitSet duplicatedLines; 
 
 	private int chunkSize = 100000; 
 	private boolean chunkMode = false;
 	
 	private int partitionNumber; 
-	private boolean partialPatitioningMode = false; 
+	private boolean partialPatitioningMode = false;  
+	
+	private boolean rangePartitioningMode = false;
+	private Integer [] partiotnRange = new Integer [2] ; 
 	
 	private static final String NEW_LINE = System.getProperty("line.separator");
 	private static final String CSV_SEPARATOR = "\\|";
@@ -56,14 +60,14 @@ public class DataPartitioner {
 	public DataPartitioner() {
 		this.filesMap = new HashMap<Integer, BufferedOutputStream>();
 		this.referenceKeys = new HashSet<String>(chunkSize); 
-		this.writtenLines = new BitSet(chunkSize);
-
+		this.writtenLines = new BitSet(chunkSize); 
+		this.duplicatedLines = new BitSet(chunkSize); 
 	} 
 	
 	/**
 	 * @return the partialPatitioningMode
 	 */
-	public boolean isPartialPatitioningMode() {
+	private boolean isPartialPatitioningMode() {
 		return partialPatitioningMode;
 	}
 
@@ -74,12 +78,21 @@ public class DataPartitioner {
 		this.partialPatitioningMode = partialPatitioningMode;  
 		this.partitionNumber = partitionNumber; 
 		System.out.println("The partial partitoning is set and the partion required is: "+this.partitionNumber);
+	} 
+	
+    public void setRangePartitioningMode(boolean rangePartitioningMode, String rangePartitions) {  
+		this.rangePartitioningMode = rangePartitioningMode;
+		this.partiotnRange[0] = Integer.parseInt(rangePartitions.split(",")[0].trim()); 
+		this.partiotnRange[1] = Integer.parseInt(rangePartitions.split(",")[1].trim());
+		System.out.println("The range partitoning is set and the partion required is: "+this.partiotnRange);
+
 	}
 
 	// methods
-	public void initChunking(int size, int loadFactor) {
+	private void initChunking(int size, int loadFactor) {
 		referenceKeys = new HashSet<String>(size, loadFactor); 
-		writtenLines = new BitSet(size);
+		writtenLines = new BitSet(size); 
+		duplicatedLines = new BitSet(chunkSize);
 		chunkMode = true;
 		chunkSize = size;
 	}
@@ -92,23 +105,30 @@ public class DataPartitioner {
 	 * @param numberofPartitions
 	 * @param outputFolder 
 	 */
-	public void initFilesMap(String fileName, int numberofPartitions, String outputFolder)
+	private void initFilesMap(String fileName, int numberofPartitions, String outputFolder)
 			throws Exception {
 
 		String fileType = Utils.getFileType(fileName);
     
 		// delete old partitions if they are existing, in case of
 		// re-partitioning 
-		Utils.deleteOldPartitions(fileName, this.partialPatitioningMode, this.partitionNumber, outputFolder);
+		Utils.deleteOldPartitions(fileName, this.partialPatitioningMode, this.partitionNumber, 
+				this.rangePartitioningMode, this.partiotnRange, outputFolder);
         
 
 		for (int i = 0; i < numberofPartitions; i++) {  
+			
+			// Check the range partitioning. 
+			if(this.rangePartitioningMode && (i < this.partiotnRange[0] || i > this.partiotnRange[1])) 
+				continue;
+			
 			// Check if the partial partitioning is set 
 			// so one partition is created at once. 
 			if(isPartialPatitioningMode() && i != this.partitionNumber) {
 				System.out.println("Partition number: "+i+ " excluded from the partitoning");
 				continue; 
-			} 
+			}  
+			
 			
 			// Adding the partition number as a part of the file name.
 			File file;
@@ -168,10 +188,16 @@ public class DataPartitioner {
 			filesMap.get(partitionNumber).write(NEW_LINE.getBytes());
 		}
 		for (int i = 0; i < filesMap.size(); i++) { 
+			
+			// Check the range partitioning. 
+			//if(this.rangePartitioningMode && (i < this.partiotnRange[0] || i > this.partiotnRange[1])) 
+			  //  continue;
+			
 			// Check if the partial partitioning is set 
-			// so one partition is written at once. 
-			if(isPartialPatitioningMode() && i != this.partitionNumber) 
-			    continue; 
+			// so one partition is written at once.  
+			//if(isPartialPatitioningMode() && i != this.partitionNumber) 
+			  //  continue; 
+			
 			filesMap.get(i).flush();
 			filesMap.get(i).close();
 			System.out.println("Partition number " + i + " has been written.");
@@ -229,14 +255,15 @@ public class DataPartitioner {
 	 * @param numberOfReferencePartitions
 	 *            the number of partitions desired. (the number of the reference
 	 *            file partitions)
+	 * @param isReversed 
 	 * @throws Exception
 	 * 
 	 */
 	private void partitionDataByReference(String file, String partitionIndices,
 			String referenceFile, String referenceIndices,
-			int numberOfReferencePartitions, int chunkSize) throws Exception {
+			int numberOfReferencePartitions, int chunkSize, boolean isReversed) throws Exception {
 
-		System.out.println("Reference indixes: " + referenceIndices );
+		System.out.println("Reference indices: " + referenceIndices );
 		String directory = Utils.getFileDirectory(file);
 		Integer partitionsIndicesList[] = Utils
 				.getKeyIndicesFromString(partitionIndices.trim());
@@ -244,6 +271,11 @@ public class DataPartitioner {
 				.getKeyIndicesFromString(referenceIndices.trim());
 
 		for (int i = 0; i < numberOfReferencePartitions; i++) {
+			
+			// Check the range partitioning. 
+			if(this.rangePartitioningMode && (i < this.partiotnRange[0] || i > this.partiotnRange[1])) 
+				continue;
+			
 			// Check if the partial partitioning is set 
 			// so one partition is written at once. 
 			if(isPartialPatitioningMode() && i != this.partitionNumber) {
@@ -264,12 +296,12 @@ public class DataPartitioner {
 			    referenceKeys.add(referenceKey.toString().trim());
 				++counter;
 				if (chunkMode && (counter % chunkSize) == 0) {
-					writePartition(file, partitionsIndicesList, i);
+					writePartition(file, partitionsIndicesList, i, isReversed);
 					referenceKeys.clear();
 				}
 
 			}
-			writePartition(file, partitionsIndicesList, i);
+			writePartition(file, partitionsIndicesList, i, isReversed);
 			referenceKeys.clear();
 			this.filesMap.get(i).close();
 			writtenLines.clear();
@@ -296,7 +328,7 @@ public class DataPartitioner {
 	 *            write.
 	 */
 	private void writePartition(String file, Integer[] partitionIndicesList,
-			int partitionNumber) {
+			int partitionNumber, boolean isReversed) {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String line = "";
@@ -319,10 +351,19 @@ public class DataPartitioner {
 				}
 
 				// If the line match with the reference line, write it to the
-				// partition.
+				// partition. 
+				StringBuffer appendDuplicateFlag = new StringBuffer(line);
 				if (referenceKeys.contains(partitionKey.toString().trim())) {
-					filesMap.get(partitionNumber).write(line.getBytes());
-					filesMap.get(partitionNumber).write(NEW_LINE.getBytes()); 
+					if(this.duplicatedLines.get(linesCounter)){  
+						appendDuplicateFlag.append("1"); 
+
+					} else {
+						appendDuplicateFlag.append("0"); 
+						this.duplicatedLines.set(linesCounter);
+
+					}
+					filesMap.get(partitionNumber).write(appendDuplicateFlag.toString().getBytes());
+					filesMap.get(partitionNumber).write(NEW_LINE.getBytes());  
 					writtenLines.set(linesCounter);
 					count++;
 				}  
@@ -357,20 +398,22 @@ public class DataPartitioner {
 		opt.addOption("h", false, "Print help for the partitioner tool");
 		opt.addOption("f", true, "The file to be partitioned");
 		opt.addOption("m", true, "The partitioning method (hashing|reference)");
-		opt.addOption("k", true, "The indexes of the key columns (e.g., 1,2,4)");
+		opt.addOption("k", true, "The indecis of the key columns (e.g., 1,2,4)");
 		opt.addOption("n", true, "The number of partitions");
 		opt.addOption("rf", true, "The referenced table name (for reference partitioning)");
 		opt.addOption("rk", true, "The key column indexes in the reference table (for reference partitioning)");
 		opt.addOption("c", true, "The chunk size (optional)"); 
 		opt.addOption("p", true, "The partition's number (optional)"); 
 		opt.addOption("t", true, "The type of the key (int|String)");  
-		opt.addOption("o", true, "The output partitions directory (optional)"); 
+		opt.addOption("o", true, "The output partitions directory (optional)");  
+		opt.addOption("rp", true, "The range of required partitions i.e. 2,6 the partions required are from 2 to 6 (Optional)");
 
 		// Some default values.
 		String file = ""; 
 		String outputFolder = "";
 		String partitionMethod;
-		String partitionIndices;
+		String partitionIndices; 
+		String rangePartitions = "";
 		int numberOfPartitions = 3;
 		int chunkSize = 0; 
 		int partitionNumber = 0; 
@@ -424,6 +467,7 @@ public class DataPartitioner {
 			if(cl.hasOption('t')){
 				keyType = cl.getOptionValue('t'); 
 				if(keyType.equalsIgnoreCase("int")) 
+					System.out.println("Hashing partitioning based on Integer column");
 					isIntHashing = true;
 			} 
 			
@@ -431,16 +475,18 @@ public class DataPartitioner {
 				outputFolder = cl.getOptionValue('o'); 
 			} else {
 				outputFolder = file;
-			}
-
+			} 
+			
+			if(cl.hasOption("rp")) {
+				rangePartitions = cl.getOptionValue("rp"); 
+				dataPartitioner.setRangePartitioningMode(true, rangePartitions);
+			} 
+			
 			// reference partitioning: additional parameters
-			if (partitionMethod.equalsIgnoreCase("reference")) {
+			if (partitionMethod.equalsIgnoreCase("reference") || partitionMethod.equalsIgnoreCase("r-reference")) {
 				String referenceFile = cl.getOptionValue("rf");
 				String referenceIndecis = cl.getOptionValue("rk");
-				System.out.println("Reference key" + referenceIndecis);
-				System.out.println("Reference file" + referenceFile);
 				
-
 				// Check if the the reference table is partitioned
 				//numberOfPartitions = dataPartitioner.isTablePartitoned(file,
 				//		referenceFile); 
@@ -453,10 +499,17 @@ public class DataPartitioner {
 				}
 				// Create a output files
 				dataPartitioner.initFilesMap(file, numberOfPartitions, outputFolder);
-				// Do the reference partitioning
+				// Do the reference partitioning 
+				boolean isReversed = false; 
+				if(partitionMethod.equalsIgnoreCase("r-reference")) {
+					isReversed = true; 
+					System.out.println("Reverse Partitioning is on...");
+				}
+					
 				dataPartitioner.partitionDataByReference(file,
 						partitionIndices, referenceFile, referenceIndecis,
-						numberOfPartitions, chunkSize);
+						numberOfPartitions, chunkSize, isReversed);
+				
 
 			}
 			// hash partitioning
@@ -483,6 +536,5 @@ public class DataPartitioner {
 			e.printStackTrace();
 		}
 	}
-
 
 }
