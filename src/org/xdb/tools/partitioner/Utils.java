@@ -56,8 +56,11 @@ public class Utils {
 	 * Delete old files (partitions). 
 	 * 
 	 * @param fileName the name of the file to delete its partitions
+	 * @param partiotnRange 
+	 * @param rangePartitioningMode 
 	 */
-	public static void deleteOldPartitions(String fileName, boolean partialPartitionsMode, int partitionNumber, String outputFolder) {
+	public static void deleteOldPartitions(String fileName, boolean partialPartitionsMode, int partitionNumber, 
+			boolean rangePartitioningMode, Integer[] partiotnRange, String outputFolder) {
         
 		String directory;
 		if(fileName.equalsIgnoreCase(outputFolder))
@@ -77,7 +80,16 @@ public class Utils {
 			File file = new File(directory + File.separator + info[i]);
 			if (!file.isFile()) { 
 				continue;
-			}  
+			} 
+			
+			// Check the range partitioning case.
+			if(rangePartitioningMode){
+				for(int p = partiotnRange[0]; p <= partiotnRange[1]; p++) { 
+					if(info[i].indexOf(Utils.getFileName(fileName)+"_p"+p) == -1) 
+						break;
+					
+				}
+			}
 			
 			if(partialPartitionsMode && info[i].indexOf(Utils.getFileName(fileName)+"_p"+partitionNumber) == -1)
 				continue;
@@ -107,7 +119,7 @@ public class Utils {
 		StringBuffer keysString = new StringBuffer();
 		
 		//if (keys.length == 1 && Integer.)
-		for(int i=0; i < keys.length; i++){
+		for(int i=keys.length-1; i >= 0; i--){
 			keysString.append(lineTokens[keys[i]].trim() );
 		}  
 		
