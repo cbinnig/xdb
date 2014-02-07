@@ -12,11 +12,13 @@ public class MutualRedundancySizeFinder {
 	private int numberOfPartitions;
 	private DatabaseAbstractionLayer db;
 	private MyMath myMath;
+	private double maxFrequency;
 
 
 
 	public MutualRedundancySizeFinder(int numberOfPartitions) {
 		try {
+			maxFrequency = -1;
 			myMath = new MyMath();
 			db = DatabaseAbstractionLayer.getInstance();
 			this.numberOfPartitions = numberOfPartitions;
@@ -28,15 +30,20 @@ public class MutualRedundancySizeFinder {
 	public double findRedundancy(Table table, ForeignKey fk) throws Exception{
 		double totalTableSize = 0;
 		Set<String> attList = fk.getSourceAttributeList();
-		Map<String, Integer> histogram = table.buildHistogram(db, attList);
+		Map<String, Integer> histogram = db.buildHistogram(table, attList);
 		for (String key :  histogram.keySet()){
 			int frequency = histogram.get(key);
+			if (frequency > maxFrequency) maxFrequency = frequency;
 			double copies = findAverageNumberOfCopies(frequency);
 			if (copies <= 0)
 				throw new Exception ("Method MutualRedundancySizeFinder.findRedundancy: Copies cannot be negative");
 			totalTableSize += copies;
 		}
 		return totalTableSize;
+	}
+	
+	public double getMaxFrequency() {
+		return maxFrequency;
 	}
 
 	private double findAverageNumberOfCopies(int frequency) throws Exception {

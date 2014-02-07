@@ -297,7 +297,7 @@ public class DataPartitioner {
 				StringBuffer referenceKey = new StringBuffer();
 				for (int j = 0; j < referenceIndicesList.length; j++) {
 					referenceKey.append(refLineTokens[referenceIndicesList[j]].trim());
-
+					referenceKey.append(CSV_SEPARATOR);
 				} 	 
 			    referenceKeys.add(referenceKey.toString().trim());
 				++counter;
@@ -353,6 +353,7 @@ public class DataPartitioner {
 
 					index = partitionIndicesList[i];
 					partitionKey.append(lineTokens[index].trim());
+					partitionKey.append(CSV_SEPARATOR);
 
 				}
 

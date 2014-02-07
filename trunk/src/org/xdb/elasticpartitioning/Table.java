@@ -33,28 +33,6 @@ public class Table {
 		return tableSize;
 	}
 
-	public Map<String, Integer> buildHistogram(DatabaseAbstractionLayer db, Set<String> atts) throws SQLException{
-		Map<String, Integer> histogram = new HashMap<String, Integer>();
-		ResultSet rs = db.select(this, new ArrayList<String>(atts));
-		String s;
-		while(rs.next()){
-			s = concateColumns(rs, atts.size());
-			if (histogram.containsKey(s))
-				histogram.put(s, histogram.get(s)+1);
-			else histogram.put(s, 1);
-		}
-		return histogram;
-	}
-
-	private String concateColumns(ResultSet rs, int columnCnt) throws SQLException {
-		StringBuilder sb = new StringBuilder();
-		for (int i=1; i< columnCnt; i++){
-			sb.append(rs.getString(i));
-			sb.append("|");
-		}
-		sb.append(rs.getString(columnCnt));
-		return sb.toString();
-	}
 
 	@Override
 	public boolean equals(Object obj) {
