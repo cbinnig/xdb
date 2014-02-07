@@ -134,6 +134,7 @@ public class Runner {
 					System.out.println("Redundancy factor for Edge " + e + " is " + rf);
 				}
 			}
+			System.out.println("Maximum frequency: " + redFinder.getMaxFrequency());
 			return redundancyFactor;
 		}
 		catch(Exception e){
@@ -212,6 +213,7 @@ public class Runner {
 			System.out.println(MASP);
 			Map<Edge, Double> redundancyFactor = runner.findEdgesRedundancyFactor(MASP);
 			System.out.println("Redundancy factors are calculated.");
+			System.out.println();
 			
 			// printing the redundancyFactor
 			for (Edge e : redundancyFactor.keySet())

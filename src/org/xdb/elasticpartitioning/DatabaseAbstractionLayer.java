@@ -6,8 +6,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 
 public class DatabaseAbstractionLayer {
@@ -71,6 +76,7 @@ public class DatabaseAbstractionLayer {
 			String query = "SELECT " + cnames + " FROM " + table.getTableName();
 			preparedStatement = conn.prepareStatement(query);
 			rs = preparedStatement.executeQuery();
+			preparedStatement.close();
 			return rs;
 
 		} catch (SQLException ex) {
@@ -88,9 +94,16 @@ public class DatabaseAbstractionLayer {
 			String query = "SELECT COUNT(*) FROM " + table.getTableName();
 			preparedStatement = conn.prepareStatement(query);
 			rs = preparedStatement.executeQuery();
+			
+			//Statement stmt = conn.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, 
+			//           java.sql.ResultSet.CONCUR_READ_ONLY);//These are defaults though,I believe
+			//stmt.setFetchSize(Integer.MIN_VALUE);
+		
 			int size = 0;
 			while(rs.next())
 				size = rs.getInt(1);
+			
+			preparedStatement.close();
 			return size;
 
 		} catch (SQLException ex) {
@@ -100,5 +113,46 @@ public class DatabaseAbstractionLayer {
 			throw ex;
 		} 
 	}
+	
+	public Map<String, Integer> buildHistogram(Table table, Set<String> atts) throws SQLException{
+		Map<String, Integer> histogram = new HashMap<String, Integer>();
+		List<String> columnNames = new ArrayList<String>(atts);
+		
+		try{
+			StringBuilder cnames = new StringBuilder();
+			for (int i=0; i< columnNames.size()-1; i++){
+				cnames.append(columnNames.get(i) + ", ");
+			}
+			cnames.append(columnNames.get(columnNames.size()-1));
+			String query = "SELECT " + cnames + " FROM " + table.getTableName();
+			preparedStatement = conn.prepareStatement(query);
+			rs = preparedStatement.executeQuery();
+			
+			String s;
+			while(rs.next()){
+				// first, we need to concate columns
+				StringBuilder sb = new StringBuilder();
+				for (int i=1; i< atts.size(); i++){
+					sb.append(rs.getString(i));
+					sb.append("|");
+				}
+				sb.append(rs.getString(atts.size()));
+				s = sb.toString();
+				
+				// Now we add it to our histogram
+				if (histogram.containsKey(s))
+					histogram.put(s, histogram.get(s)+1);
+				else histogram.put(s, 1);
+			}
+			preparedStatement.close();
+			return histogram;
 
+		} catch (SQLException ex) {
+			System.out.println("SQLException: " + ex.getMessage()); 
+			System.out.println("SQLState: " + ex.getSQLState()); 
+			System.out.println("VendorError: " + ex.getErrorCode()); 
+			throw ex;
+		} 
+		
+	}
 }
