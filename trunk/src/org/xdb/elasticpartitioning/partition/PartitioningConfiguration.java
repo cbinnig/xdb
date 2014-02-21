@@ -1,23 +1,23 @@
-package org.xdb.elasticpartitioning;
+package org.xdb.elasticpartitioning.partition;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.xdb.elasticpartitioning.graph.Node;
+import org.xdb.elasticpartitioning.database.Table;
 
 public class PartitioningConfiguration {
-	private Map<Node, PartitioningType> partConfig;
+	private Map<Table, PartitioningType> partConfig;
 	private double dataSize;
 	
 	public PartitioningConfiguration() {
-		partConfig = new HashMap<Node, PartitioningType>(); 
+		partConfig = new HashMap<Table, PartitioningType>(); 
 	}
 	
-	public void addPartitionedNode(Node node, PartitioningType type){
-		partConfig.put(node, type);
+	public void addPartitionedTable(Table table, PartitioningType type){
+		partConfig.put(table, type);
 	}
 	
-	public Map<Node, PartitioningType> getPartitioningConfig() {
+	public Map<Table, PartitioningType> getPartitioningConfig() {
 		return partConfig;
 	}
 	
@@ -32,8 +32,8 @@ public class PartitioningConfiguration {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (Node node: partConfig.keySet()){
-			sb.append(node.getContent() + ": " + partConfig.get(node));
+		for (Table table: partConfig.keySet()){
+			sb.append(table + ": " + partConfig.get(table));
 			sb.append("\n");
 		}
 		sb.append("Total data size: " + Math.round(dataSize *100.0)/100.0);

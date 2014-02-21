@@ -1,4 +1,4 @@
-package org.xdb.elasticpartitioning;
+package org.xdb.elasticpartitioning.partition;
 
 public enum PartitioningType {
 	Hash,

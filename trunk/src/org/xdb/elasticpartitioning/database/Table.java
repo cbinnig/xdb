@@ -1,4 +1,4 @@
-package org.xdb.elasticpartitioning;
+package org.xdb.elasticpartitioning.database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
