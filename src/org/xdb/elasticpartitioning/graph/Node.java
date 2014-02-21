@@ -1,24 +1,30 @@
 package org.xdb.elasticpartitioning.graph;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import org.xdb.elasticpartitioning.Table;
+import org.xdb.elasticpartitioning.database.Table;
 
 
 public class Node{
 	private List<Edge> outEdges;
 	private List<Edge> inEdges;
 	private Table content;
+	private Set<Node> neighbors;
 	
 	public Node(Table content) {
 		this.content = content;
 		outEdges = new ArrayList<Edge>();
 		inEdges = new ArrayList<Edge>();
+		neighbors = new HashSet<Node>();
 	}
-	public Node(Node node){
-		this(node.content);
+	
+	public Node(Node original){
+		this(original.content);
 	}
+	
 	
 	public void setContent(Table content) {
 		this.content = content;
@@ -26,6 +32,10 @@ public class Node{
 	
 	public Table getContent() {
 		return content;
+	}
+	
+	public Set<Node> getNeighbors(){
+		return neighbors;
 	}
 	
 	public List<Edge> getOutEdges() {
@@ -37,10 +47,12 @@ public class Node{
 	}
 	protected void addOutEdge(Edge e){
 		this.outEdges.add(e);
+		this.neighbors.add(e.getDestination());
 		
 	}
 	protected void addInEdge(Edge e){
 		this.inEdges.add(e);
+		this.neighbors.add(e.getSource());
 	}
 	
 	@Override
