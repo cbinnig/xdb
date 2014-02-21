@@ -1,19 +1,28 @@
 package org.xdb.elasticpartitioning.util;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 public class MyMath {
 	private Map<Pair, BigInteger> combinatorialSaver;
 	private Map<Pair, BigInteger> stirlingSaver;
 	private Map<Integer, BigInteger> factorialSaver;
-    BufferedReader br;
-	
+
 
 
 	public MyMath() {
@@ -22,7 +31,7 @@ public class MyMath {
 		factorialSaver = new HashMap<Integer, BigInteger>();
 		factorialSaver.put(0, new BigInteger("1"));
 		factorialSaver.put(1, new BigInteger("1"));
-		
+/*
 		try {
 			br = new BufferedReader(new FileReader(FilesLocation.STIRLING_FILE));
 			String line = br.readLine();
@@ -31,19 +40,22 @@ public class MyMath {
 			int boxes;
 			BigInteger value;
 			Pair pair;
-	        while (line != null) {
-	        	st = new StringTokenizer(line, "\t");
-	        	balls = Integer.parseInt(st.nextToken());
-	        	boxes = Integer.parseInt(st.nextToken());
-	        	value = new BigInteger(st.nextToken());
-	        	pair = new Pair(balls, boxes);
-	        	stirlingSaver.put(pair, value);
-	            line = br.readLine();
+			while (line != null) {
+				st = new StringTokenizer(line, "\t");
+				balls = Integer.parseInt(st.nextToken());
+				boxes = Integer.parseInt(st.nextToken());
+				value = new BigInteger(st.nextToken());
+				pair = new Pair(balls, boxes);
+				stirlingSaver.put(pair, value);
+				line = br.readLine();
 
-	        }
+			}
+			br.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		*/
 
 
 	}
@@ -104,42 +116,46 @@ public class MyMath {
 			return sum;
 		}
 	}
-	public static void main(String[] args) {
-		MyMath myMath = new MyMath();
-		System.out.println( myMath.combinationWithNonEmptyBoxes(222, 148));
-		/*
-		try {
-
-			File file = new File("./stirling1.txt");
-			// if file doesnt exists, then create it
-			if (!file.exists()) {
-				file.createNewFile();
-			}
-
-			FileWriter fw = new FileWriter(file.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fw);
-
-			System.out.println("Done");
-
-
-			MyMath myMath = new MyMath();
-			for (int frequency = 1; frequency < 10; frequency++){
-				for (int copies = 1; copies <= frequency; copies++){
-					String s = frequency + "\t" + copies + "\t" + myMath.combinationWithNonEmptyBoxes(frequency, copies);
-					bw.write(s);
-					bw.write("\n");
-				}
-				System.out.println(frequency + " done.");
-			}
-			bw.close();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-	}
 	
+	public static List<List<Integer>> powerSet(Set<Integer> originalSet) {
+        List<List<Integer>> sets = new ArrayList<List<Integer>>();
+        if (originalSet.isEmpty()) {
+            sets.add(new ArrayList<Integer>());
+            return sets;
+        }
+        List<Integer> list = new ArrayList<Integer>(originalSet);
+        Integer head = list.get(0);
+        Set<Integer> rest = new HashSet<Integer>(list.subList(1, list.size()));
+        for (List<Integer> set : powerSet(rest)) {
+            List<Integer> newSet = new ArrayList<Integer>();
+            newSet.add(head);
+            newSet.addAll(set);
+            sets.add(newSet);
+            sets.add(set);
+        }
+        return sets;
+    }
+	
+	public static void main(String[] args) {
+		Set<Integer> a = new HashSet<Integer>();
+		a.add(2);
+		a.add(3);
+		a.add(4);
+		a.add(5);
+		a.add(6);
+		
+		List<List<Integer>> b = MyMath.powerSet(a);
+		Comparator<List<Integer>> comparator = new Comparator<List<Integer>>() {
+
+			@Override
+			public int compare(List<Integer> o1, List<Integer> o2) {
+				if (o1.size() < o2.size()) return -1;
+				else return 1;
+			}
+		};
+		Collections.sort(b, comparator);
+		System.out.println(b);
+	}
 }
 
 class Pair{
