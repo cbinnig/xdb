@@ -210,7 +210,7 @@ public class Runner {
 					Edge edge = refGraph.getEdgeWithTableNames(sourceTable, targetTable, sourceAttribute, targetAttribute);
 					if (edge==null)
 						edge = refGraph.addEdge(sourceTable, targetTable, sourceAttribute, targetAttribute);
-					query.addEquiJoinPredicate(edge);						
+					query.addEquiJoinPredicate(edge.getRelation(), edge.getSource().getContent(), edge.getDestination().getContent(), 0);
 				}
 				refGraph.addQuery(query);
 			}

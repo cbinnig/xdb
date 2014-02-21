@@ -34,27 +34,32 @@ public class Query {
 		return Integer.toString(queryID);
 	}
 
-	public void addEquiJoinPredicate(Edge edge) {
+	public void addEquiJoinPredicate(ForeignKey fk, Table firstTable, Table secondTable, double weight) {
+		Node source = new Node(firstTable);
+		Node destination = new Node(secondTable);
+		
+		Edge edge = new Edge(fk, source, destination, weight);
+		
 		joinPath.add(edge);
 		
 		
 		Set<Node> newNeighbors;
-		if (! nodeNeighbors.containsKey(edge.getSource()))
+		if (! nodeNeighbors.containsKey(source))
 			newNeighbors = new HashSet<Node>();
 		else 
-			newNeighbors = nodeNeighbors.get(edge.getSource());
+			newNeighbors = nodeNeighbors.get(source);
 		
-		newNeighbors.add(edge.getDestination());
-		nodeNeighbors.put(edge.getSource(), newNeighbors);
+		newNeighbors.add(destination);
+		nodeNeighbors.put(source, newNeighbors);
 	
 		newNeighbors = null;
-		if (! nodeNeighbors.containsKey(edge.getDestination()))
+		if (! nodeNeighbors.containsKey(destination))
 			newNeighbors = new HashSet<Node>();
 		else 
-			newNeighbors = nodeNeighbors.get(edge.getDestination());
+			newNeighbors = nodeNeighbors.get(destination);
 		
-		newNeighbors.add(edge.getSource());
-		nodeNeighbors.put(edge.getDestination(), newNeighbors);
+		newNeighbors.add(source);
+		nodeNeighbors.put(destination, newNeighbors);
 	}
 	
 	public Set<Node> getNeighbors(Node node){

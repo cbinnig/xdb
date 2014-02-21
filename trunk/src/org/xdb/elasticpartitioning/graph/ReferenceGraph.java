@@ -26,6 +26,7 @@ import org.xdb.elasticpartitioning.util.MyMath;
 public class ReferenceGraph {
 	private List<Node> nodes;
 	private List<Edge> edges;
+	//private Map<Node, Set<Node>> nodeNeighbors;
 	private Map<String, Node> tableNameToNodeMap;
 	private Map<String, Edge> edgeInfoToEdgeMap;
 	private List<Query> queries;
@@ -58,7 +59,8 @@ public class ReferenceGraph {
 		for (Query originalQuery: original.queries){
 			Query newQuery = new Query(originalQuery.getQueryID());
 			for(Edge originalEdge: originalQuery.getJoinPath())
-				newQuery.addEquiJoinPredicate(this.edgeInfoToEdgeMap.get(originalEdge.getNormalizedStringRepresentation()));
+				newQuery.addEquiJoinPredicate(originalEdge.getRelation(), originalEdge.getSource().getContent(),
+						originalEdge.getDestination().getContent(), 0);
 			this.addQuery(newQuery);
 		}
 		
@@ -219,7 +221,11 @@ public class ReferenceGraph {
 		// in order to make sure that deletion doesn't cause mess with iterator, 
 		// we start from the end and come to the start
 		for (int i=queries.size()-1; i>=0; i--)
-			if (toBeRemovedQueriesIndexes[i]) queries.remove(i);
+			if (toBeRemovedQueriesIndexes[i]){
+				System.out.println("Query " + queries.get(i).toString() + " is discarded.");
+				queries.remove(i);
+			
+			}
 	}
 	
 	public SubGraph findBestGraphPartitioning() throws Exception{
@@ -258,7 +264,7 @@ public class ReferenceGraph {
 		
 		for (List<Integer> subSet: allSubSets){
 			Collections.sort(subSet);
-		
+
 			for (Query query: queries){
 				if (subSet.contains(query.getQueryID()))
 					continue;
@@ -269,11 +275,34 @@ public class ReferenceGraph {
 				
 				SubGraph sg = bestSubGraph.get(subSet.toString());
 				SubGraph currentGraph = sg.mergeQuery(singleQueryRefGraph);
+				for (ReferenceGraph rg: currentGraph.getConnectedComponents())
+					System.out.print(rg.getQueries());
+				System.out.println();
 				String newSet = currentGraph.getStringRepresentation();
 				if (!bestSubGraph.containsKey(newSet) || bestSubGraph.get(newSet).getTotalCost() > currentGraph.getTotalCost())
 					bestSubGraph.put(newSet, currentGraph);
 			}
 		}
+		double totalSize=0;
+		List<Integer> setOfAllQueries = allSubSets.get(allSubSets.size()-1);
+		Collections.sort(setOfAllQueries);
+		SubGraph finalGraph = bestSubGraph.get(setOfAllQueries.toString());
+		
+		System.out.println("Final Graph:");
+		int i=1;
+		for (ReferenceGraph refGraph: finalGraph.getConnectedComponents()){
+			System.out.println("-------- Component " + i + " --------");
+			System.out.println(refGraph.getPartitioningConfiguration().toString());
+			System.out.println();
+			totalSize += refGraph.getPartitioningConfiguration().getDataSize();
+			i++;
+		}
+		double originalSize = 0;
+		for (String tableName: this.tableNameToNodeMap.keySet())
+			originalSize += tableNameToNodeMap.get(tableName).getContent().getTableSize();
+		System.out.println();
+		System.out.println("Size after partitioning: " + Math.round(originalSize*100)/100 );
+		System.out.println("Size after partitioning: " + Math.round(totalSize*100)/100 );
 		return null;
 	}
 	
@@ -316,7 +345,7 @@ public class ReferenceGraph {
 		optimalConfig.setDataSize(Double.MAX_VALUE);
 
 		for (Node hashedNode: this.getNodes()){
-			System.out.println("If table " + hashedNode.getContent().getTableName() + " is to be hash-partitioned:");	
+			//System.out.println("If table " + hashedNode.getContent().getTableName() + " is to be hash-partitioned:");	
 			PartitioningConfiguration config = new PartitioningConfiguration();
 			Queue<Node> queue = new LinkedList<Node>();
 			Set<Node> alreadyVisitedNodes = new HashSet<Node>();
@@ -325,7 +354,7 @@ public class ReferenceGraph {
 			Map<Node, Double> sizeFactor = new HashMap<Node, Double>();
 			sizeFactor.put(hashedNode, new Double(1));
 			config.addPartitionedTable(hashedNode.getContent(), PartitioningType.Hash);
-			System.out.println("\t" + "table " + hashedNode.getContent().getTableName() + " will be Hash, size: " + hashedNode.getContent().getTableSize());
+			//System.out.println("\t" + "table " + hashedNode.getContent().getTableName() + " will be Hash, size: " + hashedNode.getContent().getTableSize());
 
 
 			double totalSize = 0;
@@ -345,7 +374,7 @@ public class ReferenceGraph {
 					if (expectedSizeFactor > pmd.getNumberOfPartitions()) expectedSizeFactor = pmd.getNumberOfPartitions();
 					sizeFactor.put(child, expectedSizeFactor);
 					queue.add(child);
-					System.out.println("\t" + "table " + child.getContent().getTableName() + " will be RR, size: " + child.getContent().getTableSize() * sizeFactor.get(child));
+					//System.out.println("\t" + "table " + child.getContent().getTableName() + " will be RR, size: " + child.getContent().getTableSize() * sizeFactor.get(child));
 
 				}	
 				for (Edge inEdge : n.getInEdges()){
@@ -356,7 +385,7 @@ public class ReferenceGraph {
 					if (expectedSizeFactor > pmd.getNumberOfPartitions()) expectedSizeFactor = pmd.getNumberOfPartitions();
 					sizeFactor.put(child, expectedSizeFactor);
 					queue.add(child);
-					System.out.println("\t" + "table " + child.getContent().getTableName() + " will be R, size: " + child.getContent().getTableSize() * sizeFactor.get(child));
+					//System.out.println("\t" + "table " + child.getContent().getTableName() + " will be R, size: " + child.getContent().getTableSize() * sizeFactor.get(child));
 
 				}
 			}
@@ -365,11 +394,11 @@ public class ReferenceGraph {
 				throw new GraphNotConnectedException("Graph must be connected in order to find the optimal configuration");
 			}
 			config.setDataSize(totalSize);
-			System.out.println("\t" + totalSize);
+			//System.out.println("\t" + totalSize);
 			if (totalSize < optimalConfig.getDataSize()) optimalConfig = config;
 		}
-		System.out.println("*********************");
-		System.out.println("The optimal node to hash is: " + optimalConfig );
+		//System.out.println("*********************");
+		//System.out.println("The optimal node to hash is: " + optimalConfig );
 		return optimalConfig;
 	}
 	
@@ -390,6 +419,10 @@ public class ReferenceGraph {
 		}
 		newRefGraph.addQuery(query);
 		return newRefGraph;
+	}
+	public Set<Node> getNeighbors(String tableName){
+		Node node = this.getNodeWithTableName(tableName);
+		return node.getNeighbors();
 	}
 
 }

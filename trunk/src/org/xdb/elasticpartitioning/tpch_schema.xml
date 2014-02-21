@@ -4,7 +4,7 @@
 		<password>xroot</password>
 		<server>localhost</server>
 		<port>3306</port>
-		<dbname>tpch_s001</dbname>
+		<dbname>tpch_s1</dbname>
 		<null-symbol>NULL</null-symbol>
 	</database-config>
 	<partitioning-config>
@@ -171,7 +171,6 @@
 	</schema>
 	<workload>
 		<queries>
-			<!--
 			<query>
 				<query-number>2</query-number>
 				<equi-join>
@@ -226,6 +225,98 @@
 			<query>
 				<query-number>5</query-number>
 				<equi-join>
+					<source-table>SUPPLIER</source-table>
+					<target-table>NATION</target-table>
+					<source-attribute>S_NATIONKEY</source-attribute>
+					<target-attribute>N_NATIONKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>NATION</source-table>
+					<target-table>REGION</target-table>
+					<source-attribute>N_REGIONKEY</source-attribute>
+					<target-attribute>R_REGIONKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>CUSTOMER</source-table>
+					<target-table>NATION</target-table>
+					<source-attribute>C_NATIONKEY</source-attribute>
+					<target-attribute>N_NATIONKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>ORDERS</source-table>
+					<target-table>CUSTOMER</target-table>
+					<source-attribute>O_CUSTKEY</source-attribute>
+					<target-attribute>C_CUSTKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>ORDERS</target-table>
+					<source-attribute>L_ORDERKEY</source-attribute>
+					<target-attribute>O_ORDERKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>SUPPLIER</target-table>
+					<source-attribute>L_SUPPKEY</source-attribute>
+					<target-attribute>S_SUPPKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>7</query-number>
+				<equi-join>
+					<source-table>SUPPLIER</source-table>
+					<target-table>NATION</target-table>
+					<source-attribute>S_NATIONKEY</source-attribute>
+					<target-attribute>N_NATIONKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>CUSTOMER</source-table>
+					<target-table>NATION</target-table>
+					<source-attribute>C_NATIONKEY</source-attribute>
+					<target-attribute>N_NATIONKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>ORDERS</source-table>
+					<target-table>CUSTOMER</target-table>
+					<source-attribute>O_CUSTKEY</source-attribute>
+					<target-attribute>C_CUSTKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>ORDERS</target-table>
+					<source-attribute>L_ORDERKEY</source-attribute>
+					<target-attribute>O_ORDERKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>SUPPLIER</target-table>
+					<source-attribute>L_SUPPKEY</source-attribute>
+					<target-attribute>S_SUPPKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>8</query-number>
+				<equi-join>
+					<source-table>SUPPLIER</source-table>
+					<target-table>NATION</target-table>
+					<source-attribute>S_NATIONKEY</source-attribute>
+					<target-attribute>N_NATIONKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>NATION</source-table>
+					<target-table>REGION</target-table>
+					<source-attribute>N_REGIONKEY</source-attribute>
+					<target-attribute>R_REGIONKEY</target-attribute>
+				</equi-join>
+				<!--
+				<equi-join>
+					<source-table>CUSTOMER</source-table>
+					<target-table>NATION</target-table>
+					<source-attribute>C_NATIONKEY</source-attribute>
+					<target-attribute>N_NATIONKEY</target-attribute>
+				</equi-join>
+				-->
+				<equi-join>
 					<source-table>ORDERS</source-table>
 					<target-table>CUSTOMER</target-table>
 					<source-attribute>O_CUSTKEY</source-attribute>
@@ -244,11 +335,53 @@
 					<target-attribute>S_SUPPKEY</target-attribute>
 				</equi-join>
 				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>PART</target-table>
+					<source-attribute>L_PARTKEY</source-attribute>
+					<target-attribute>P_PARTKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>9</query-number>
+				<equi-join>
+				<equi-join>
+					<source-table>PARTSUPP</source-table>
+					<target-table>PART</target-table>
+					<source-attribute>PS_PARTKEY</source-attribute>
+					<target-attribute>P_PARTKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>PARTSUPP</source-table>
+					<target-table>SUPPLIER</target-table>
+					<source-attribute>PS_SUPPKEY</source-attribute>
+					<target-attribute>S_SUPPKEY</target-attribute>
+				</equi-join>
 					<source-table>SUPPLIER</source-table>
 					<target-table>NATION</target-table>
 					<source-attribute>S_NATIONKEY</source-attribute>
 					<target-attribute>N_NATIONKEY</target-attribute>
 				</equi-join>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>ORDERS</target-table>
+					<source-attribute>L_ORDERKEY</source-attribute>
+					<target-attribute>O_ORDERKEY</target-attribute>
+				</equi-join>
+				<!-- <equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>SUPPLIER</target-table>
+					<source-attribute>L_SUPPKEY</source-attribute>
+					<target-attribute>S_SUPPKEY</target-attribute>
+				</equi-join> -->
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>PART</target-table>
+					<source-attribute>L_PARTKEY</source-attribute>
+					<target-attribute>P_PARTKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>10</query-number>
 				<equi-join>
 					<source-table>CUSTOMER</source-table>
 					<target-table>NATION</target-table>
@@ -256,13 +389,175 @@
 					<target-attribute>N_NATIONKEY</target-attribute>
 				</equi-join>
 				<equi-join>
-					<source-table>NATION</source-table>
-					<target-table>REGION</target-table>
-					<source-attribute>N_REGIONKEY</source-attribute>
-					<target-attribute>R_REGIONKEY</target-attribute>
+					<source-table>ORDERS</source-table>
+					<target-table>CUSTOMER</target-table>
+					<source-attribute>O_CUSTKEY</source-attribute>
+					<target-attribute>C_CUSTKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>ORDERS</target-table>
+					<source-attribute>L_ORDERKEY</source-attribute>
+					<target-attribute>O_ORDERKEY</target-attribute>
 				</equi-join>
 			</query>
-			-->
+			<query>
+				<query-number>11</query-number>
+				<equi-join>
+					<source-table>PARTSUPP</source-table>
+					<target-table>SUPPLIER</target-table>
+					<source-attribute>PS_SUPPKEY</source-attribute>
+					<target-attribute>S_SUPPKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>SUPPLIER</source-table>
+					<target-table>NATION</target-table>
+					<source-attribute>S_NATIONKEY</source-attribute>
+					<target-attribute>N_NATIONKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>12</query-number>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>ORDERS</target-table>
+					<source-attribute>L_ORDERKEY</source-attribute>
+					<target-attribute>O_ORDERKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>13</query-number>
+				<equi-join>
+					<source-table>ORDERS</source-table>
+					<target-table>CUSTOMER</target-table>
+					<source-attribute>O_CUSTKEY</source-attribute>
+					<target-attribute>C_CUSTKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>14</query-number>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>PART</target-table>
+					<source-attribute>L_PARTKEY</source-attribute>
+					<target-attribute>P_PARTKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>15</query-number>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>SUPPLIER</target-table>
+					<source-attribute>L_SUPPKEY</source-attribute>
+					<target-attribute>S_SUPPKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>16</query-number>
+				<equi-join>
+					<source-table>PARTSUPP</source-table>
+					<target-table>PART</target-table>
+					<source-attribute>PS_PARTKEY</source-attribute>
+					<target-attribute>P_PARTKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>17</query-number>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>PART</target-table>
+					<source-attribute>L_PARTKEY</source-attribute>
+					<target-attribute>P_PARTKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>18</query-number>
+				<equi-join>
+					<source-table>ORDERS</source-table>
+					<target-table>CUSTOMER</target-table>
+					<source-attribute>O_CUSTKEY</source-attribute>
+					<target-attribute>C_CUSTKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>ORDERS</target-table>
+					<source-attribute>L_ORDERKEY</source-attribute>
+					<target-attribute>O_ORDERKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>19</query-number>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>PART</target-table>
+					<source-attribute>L_PARTKEY</source-attribute>
+					<target-attribute>P_PARTKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>20</query-number>
+				<equi-join>
+					<source-table>PARTSUPP</source-table>
+					<target-table>PART</target-table>
+					<source-attribute>PS_PARTKEY</source-attribute>
+					<target-attribute>P_PARTKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>PARTSUPP</source-table>
+					<target-table>SUPPLIER</target-table>
+					<source-attribute>PS_SUPPKEY</source-attribute>
+					<target-attribute>S_SUPPKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>SUPPLIER</source-table>
+					<target-table>NATION</target-table>
+					<source-attribute>S_NATIONKEY</source-attribute>
+					<target-attribute>N_NATIONKEY</target-attribute>
+				</equi-join>
+				<!-- <equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>SUPPLIER</target-table>
+					<source-attribute>L_SUPPKEY</source-attribute>
+					<target-attribute>S_SUPPKEY</target-attribute>
+				</equi-join> -->
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>PART</target-table>
+					<source-attribute>L_PARTKEY</source-attribute>
+					<target-attribute>P_PARTKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>21</query-number>
+				<equi-join>
+					<source-table>SUPPLIER</source-table>
+					<target-table>NATION</target-table>
+					<source-attribute>S_NATIONKEY</source-attribute>
+					<target-attribute>N_NATIONKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>ORDERS</target-table>
+					<source-attribute>L_ORDERKEY</source-attribute>
+					<target-attribute>O_ORDERKEY</target-attribute>
+				</equi-join>
+				<equi-join>
+					<source-table>LINEITEM</source-table>
+					<target-table>SUPPLIER</target-table>
+					<source-attribute>L_SUPPKEY</source-attribute>
+					<target-attribute>S_SUPPKEY</target-attribute>
+				</equi-join>
+			</query>
+			<query>
+				<query-number>22</query-number>
+				<equi-join>
+					<source-table>ORDERS</source-table>
+					<target-table>CUSTOMER</target-table>
+					<source-attribute>O_CUSTKEY</source-attribute>
+					<target-attribute>C_CUSTKEY</target-attribute>
+				</equi-join>
+			</query>
+			<!--
 			<query>
 				<query-number>1</query-number>
 				<equi-join>
@@ -368,6 +663,7 @@
 					<target-attribute>R_REGIONKEY</target-attribute>
 				</equi-join>
 			</query>
+			-->
 		</queries>
 	</workload>
 </database>	
