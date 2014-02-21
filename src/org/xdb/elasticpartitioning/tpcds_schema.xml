@@ -1,14 +1,17 @@
 <database>
-	<config>
+	<database-config>
 		<username>xroot</username>
 		<password>xroot</password>
 		<server>localhost</server>
 		<port>3306</port>
-		<dbname>tpcds_s1</dbname>
-		<null-symbol>0</null-symbol>
+		<dbname>tpds_s1</dbname>
+		<null-symbol>NULL</null-symbol>
+	</database-config>
+	<partitioning-config>
+		<workload-driven>true</workload-driven>
 		<partition-cnt>10</partition-cnt>
 		<samplesize-ratio>1</samplesize-ratio>
-	</config>
+	</partitioning-config>
 	<schema>
 		<tables>
 			<table>

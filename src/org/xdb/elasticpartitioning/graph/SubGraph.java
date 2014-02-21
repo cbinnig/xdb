@@ -143,7 +143,7 @@ public class SubGraph {
 		// to the node in the query
 		Set<Node> unionNeighbors = new HashSet<Node>();
 		if (refGraph.containsNode(current))
-			unionNeighbors.addAll(current.getNeighbors());
+			unionNeighbors.addAll(refGraph.getNeighbors(current.getContent().getTableName()));
 		if (query.containsNode(current))
 			unionNeighbors.addAll(query.getNeighbors(current));
 		
