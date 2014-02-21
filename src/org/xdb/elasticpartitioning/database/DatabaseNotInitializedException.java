@@ -1,4 +1,4 @@
-package org.xdb.elasticpartitioning;
+package org.xdb.elasticpartitioning.database;
 
 public class DatabaseNotInitializedException extends Exception {
 	private static final long serialVersionUID = 4091973014845582082L;

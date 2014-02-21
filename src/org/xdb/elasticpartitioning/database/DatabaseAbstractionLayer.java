@@ -1,4 +1,4 @@
-package org.xdb.elasticpartitioning;
+package org.xdb.elasticpartitioning.database;
 
 
 import java.sql.Connection;
@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import org.xdb.elasticpartitioning.util.Settings;
+
+import com.amazonaws.services.s3.internal.Constants;
 
 
 public class DatabaseAbstractionLayer {
@@ -114,7 +118,7 @@ public class DatabaseAbstractionLayer {
 		} 
 	}
 	
-	public Map<String, Integer> buildHistogram(Table table, Set<String> atts) throws SQLException{
+	public Map<String, Integer> buildHistogram(Table table, Set<String> atts, double sampleSizeRatio) throws SQLException{
 		Map<String, Integer> histogram = new HashMap<String, Integer>();
 		List<String> columnNames = new ArrayList<String>(atts);
 		
@@ -124,7 +128,11 @@ public class DatabaseAbstractionLayer {
 				cnames.append(columnNames.get(i) + ", ");
 			}
 			cnames.append(columnNames.get(columnNames.size()-1));
-			String query = "SELECT " + cnames + " FROM " + table.getTableName();
+			String query;
+			if (sampleSizeRatio < 1)
+				query = "SELECT " + cnames + " FROM " + table.getTableName() + " WHERE rand() <= " + sampleSizeRatio;
+			else 
+				query = "SELECT " + cnames + " FROM " + table.getTableName();
 			preparedStatement = conn.prepareStatement(query);
 			rs = preparedStatement.executeQuery();
 			
@@ -138,6 +146,9 @@ public class DatabaseAbstractionLayer {
 				}
 				sb.append(rs.getString(atts.size()));
 				s = sb.toString();
+				
+				// check if the foreign key is null
+				if (s.equals(Settings.NULL_SYMBOL)) continue;
 				
 				// Now we add it to our histogram
 				if (histogram.containsKey(s))
