@@ -234,7 +234,7 @@ public class ReferenceGraph {
 		if (pmd == null)
 			throw new Exception("Partitioning MetaData is not set.");
 		
-		
+		List<Map<String, SubGraph>> levelSubGraph = new ArrayList<Map<String, SubGraph>>();
 		Map<String, SubGraph> bestSubGraph = new HashMap<String, SubGraph>();
 		Set<Integer> queryIDs = new HashSet<Integer>();
 		for (Query query: queries){
@@ -246,6 +246,7 @@ public class ReferenceGraph {
 			
 			queryIDs.add(query.getQueryID());
 		}
+		levelSubGraph.add(bestSubGraph);
 		
 		List<List<Integer>> allSubSets = MyMath.powerSet(queryIDs);
 		
@@ -262,31 +263,52 @@ public class ReferenceGraph {
 			throw new Exception("First element of the subset list is expected to be empty set");
 		else allSubSets.remove(0);
 		
+		
+		List<Integer> setOfAllQueries = allSubSets.get(allSubSets.size()-1);
+		Collections.sort(setOfAllQueries);
+		
+		
+		// we also remove the last element of the list since it contains all queries
+		// and cannot be merged with any query (since it already contains them
+		allSubSets.remove(allSubSets.size()-1);
+		
+		
+		int level = 1;
+		levelSubGraph.add(levelSubGraph.get(0));
+		Map<String, SubGraph> bestPreviousLevelSubGraph = levelSubGraph.get(0);
+		Map<String, SubGraph> bestCurrentLevelSubGraph = new HashMap<String, SubGraph>();
+		
 		for (List<Integer> subSet: allSubSets){
 			Collections.sort(subSet);
-
+			if (subSet.size() > level){
+				System.out.println(subSet.size());
+				level = subSet.size();
+				// now, the old "current-level" becomes current "old level"
+				// and we add a new empty "current-level"
+				bestPreviousLevelSubGraph = new HashMap<String, SubGraph>(bestCurrentLevelSubGraph);
+				bestCurrentLevelSubGraph = new HashMap<String, SubGraph>();
+			}
+			
 			for (Query query: queries){
 				if (subSet.contains(query.getQueryID()))
 					continue;
 				
 				List<Query> wrapper = new ArrayList<Query>();
 				wrapper.add(query);
-				ReferenceGraph singleQueryRefGraph = bestSubGraph.get(wrapper.toString()).getConnectedComponents().get(0);
+				ReferenceGraph singleQueryRefGraph = levelSubGraph.get(0).get(wrapper.toString()).getConnectedComponents().get(0);
 				
-				SubGraph sg = bestSubGraph.get(subSet.toString());
+				SubGraph sg = bestPreviousLevelSubGraph.get(subSet.toString());
 				SubGraph currentGraph = sg.mergeQuery(singleQueryRefGraph);
-				for (ReferenceGraph rg: currentGraph.getConnectedComponents())
-					System.out.print(rg.getQueries());
-				System.out.println();
+				//for (ReferenceGraph rg: currentGraph.getConnectedComponents())
+				//	System.out.print(rg.getQueries());
+				//System.out.println();
 				String newSet = currentGraph.getStringRepresentation();
-				if (!bestSubGraph.containsKey(newSet) || bestSubGraph.get(newSet).getTotalCost() > currentGraph.getTotalCost())
-					bestSubGraph.put(newSet, currentGraph);
+				if (!bestCurrentLevelSubGraph.containsKey(newSet) || bestCurrentLevelSubGraph.get(newSet).getTotalCost() > currentGraph.getTotalCost())
+					bestCurrentLevelSubGraph.put(newSet, currentGraph);
 			}
 		}
 		double totalSize=0;
-		List<Integer> setOfAllQueries = allSubSets.get(allSubSets.size()-1);
-		Collections.sort(setOfAllQueries);
-		SubGraph finalGraph = bestSubGraph.get(setOfAllQueries.toString());
+		SubGraph finalGraph = bestCurrentLevelSubGraph.get(setOfAllQueries.toString());
 		
 		System.out.println("Final Graph:");
 		int i=1;
@@ -321,7 +343,7 @@ public class ReferenceGraph {
 					double sizeBeforePartitioning = destTable.getTableSize();
 					double rf = sizeAfterPartitioning/sizeBeforePartitioning;
 					redundancyFactor.put(e, rf);
-					System.out.println("Redundancy factor for Edge " + e + " is " + rf);
+					System.out.println("Red-factor for edge " + e + " = " + rf);
 				}
 			}
 			
@@ -353,7 +375,7 @@ public class ReferenceGraph {
 
 			Map<Node, Double> sizeFactor = new HashMap<Node, Double>();
 			sizeFactor.put(hashedNode, new Double(1));
-			config.addPartitionedTable(hashedNode.getContent(), PartitioningType.Hash);
+			config.addPartitionedTable(hashedNode.getContent(), null, PartitioningType.Hash);
 			//System.out.println("\t" + "table " + hashedNode.getContent().getTableName() + " will be Hash, size: " + hashedNode.getContent().getTableSize());
 
 
@@ -369,7 +391,7 @@ public class ReferenceGraph {
 					Node child = outEdge.getDestination();
 					if (alreadyVisitedNodes.contains(child)) continue;
 
-					config.addPartitionedTable(child.getContent(), PartitioningType.ReverseReferece);
+					config.addPartitionedTable(child.getContent(), n.getContent(), PartitioningType.ReverseReferece);
 					double expectedSizeFactor = redundancyFactor.get(outEdge)*sizeFactor.get(n);
 					if (expectedSizeFactor > pmd.getNumberOfPartitions()) expectedSizeFactor = pmd.getNumberOfPartitions();
 					sizeFactor.put(child, expectedSizeFactor);
@@ -380,7 +402,7 @@ public class ReferenceGraph {
 				for (Edge inEdge : n.getInEdges()){
 					Node child = inEdge.getSource();
 					if (alreadyVisitedNodes.contains(child)) continue;
-					config.addPartitionedTable(child.getContent(), PartitioningType.Reference);
+					config.addPartitionedTable(child.getContent(), n.getContent(), PartitioningType.Reference);
 					double expectedSizeFactor = sizeFactor.get(n);
 					if (expectedSizeFactor > pmd.getNumberOfPartitions()) expectedSizeFactor = pmd.getNumberOfPartitions();
 					sizeFactor.put(child, expectedSizeFactor);

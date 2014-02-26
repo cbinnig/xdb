@@ -4,7 +4,7 @@
 		<password>xroot</password>
 		<server>localhost</server>
 		<port>3306</port>
-		<dbname>tpch_s1</dbname>
+		<dbname>tpch_s001</dbname>
 		<null-symbol>NULL</null-symbol>
 	</database-config>
 	<partitioning-config>
@@ -344,7 +344,6 @@
 			<query>
 				<query-number>9</query-number>
 				<equi-join>
-				<equi-join>
 					<source-table>PARTSUPP</source-table>
 					<target-table>PART</target-table>
 					<source-attribute>PS_PARTKEY</source-attribute>
@@ -356,6 +355,7 @@
 					<source-attribute>PS_SUPPKEY</source-attribute>
 					<target-attribute>S_SUPPKEY</target-attribute>
 				</equi-join>
+				<equi-join>
 					<source-table>SUPPLIER</source-table>
 					<target-table>NATION</target-table>
 					<source-attribute>S_NATIONKEY</source-attribute>
