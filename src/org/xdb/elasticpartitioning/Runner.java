@@ -18,6 +18,7 @@ import org.xdb.elasticpartitioning.database.Query;
 import org.xdb.elasticpartitioning.database.Table;
 import org.xdb.elasticpartitioning.graph.Edge;
 import org.xdb.elasticpartitioning.graph.ReferenceGraph;
+import org.xdb.elasticpartitioning.partition.PartitioningConfiguration;
 import org.xdb.elasticpartitioning.partition.PartitioningMetaData;
 import org.xdb.elasticpartitioning.util.Settings;
 
@@ -238,7 +239,9 @@ public class Runner {
 
 			
 			if (runner.partitioningMetaData.getWorkloadDrivenPartitioning()){
+				System.out.println("Number of queries before reduction: " + refGraph.getQueries().size());
 				refGraph.removeRedundantQueries();
+				System.out.println("Number of queries after reduction: " + refGraph.getQueries().size());
 				refGraph.findBestGraphPartitioning();
 				
 			}
@@ -262,7 +265,10 @@ public class Runner {
 				t1 = System.nanoTime();
 				for (Edge e : redundancyFactor.keySet())
 					System.out.println(e + " : " + redundancyFactor.get(e));
-				MASP.findOptimalConfigurationInAConnectedComponent();
+				PartitioningConfiguration optimalConfig = MASP.findOptimalConfigurationInAConnectedComponent();
+				System.out.println();
+				System.out.println("Optimal partitioning configuration");
+				System.out.println(optimalConfig.toString());
 				t2 = System.nanoTime();
 				elapsedTime = (t2-t1)/1000000;
 				runner.calculationTime += elapsedTime;
