@@ -191,11 +191,11 @@ public class ReferenceGraph {
 			return tableNameToNodeMap.get(tableName);
 		else throw new Exception("Table " + tableName + " is not defined.");
 	}
-	public Edge getEdgeWithTableNames(String sourceTable, String targetTable, String sourceAttribute, String targetAttribute) throws Exception {
+	public Edge getEdgeWithTableNames(String sourceTable, String targetTable, String sourceAttribute, String targetAttribute){
 		String representation = Edge.normalizedStringRepresentation(sourceTable, targetTable, sourceAttribute, targetAttribute);
 		if (edgeInfoToEdgeMap.containsKey(representation))
 			return edgeInfoToEdgeMap.get(representation);
-		else throw new Exception("Edge " + representation + " not found.");
+		else return null;
 	}
 	
 	public void addQuery(Query query) {
@@ -335,8 +335,8 @@ public class ReferenceGraph {
 		for (String tableName: this.tableNameToNodeMap.keySet())
 			originalSize += tableNameToNodeMap.get(tableName).getContent().getTableSize();
 		System.out.println();
-		System.out.println("Size after partitioning: " + Math.round(originalSize*100)/100 );
-		System.out.println("Size after partitioning: " + Math.round(totalSize*100)/100 );
+		System.out.println("Size (in rows) before partitioning: " + Math.round(originalSize*100)/100 );
+		System.out.println("Size (in rows) after partitioning: " + Math.round(totalSize*100)/100 );
 		return null;
 	}
 	
