@@ -130,15 +130,17 @@ public class DatabaseAbstractionLayer {
 			cnames.append(columnNames.get(columnNames.size()-1));
 			String query;
 			if (sampleSizeRatio < 1)
-				query = "SELECT " + cnames + " FROM " + table.getTableName() + " WHERE rand() <= " + sampleSizeRatio;
-			else 
-				query = "SELECT " + cnames + " FROM " + table.getTableName();
+				query = "SELECT " + cnames + ", COUNT(" + cnames + ")  FROM " + table.getTableName() + " WHERE rand() <= " + sampleSizeRatio + " GROUP BY " + cnames;
+			else
+				query = "SELECT " + cnames + ", COUNT(" + cnames + ")  FROM " + table.getTableName() + " GROUP BY " + cnames;
 			preparedStatement = conn.prepareStatement(query);
 			rs = preparedStatement.executeQuery();
 			
 			String s;
 			while(rs.next()){
+				/*
 				// first, we need to concate columns
+				
 				StringBuilder sb = new StringBuilder();
 				for (int i=1; i< atts.size(); i++){
 					sb.append(rs.getString(i));
@@ -154,6 +156,10 @@ public class DatabaseAbstractionLayer {
 				if (histogram.containsKey(s))
 					histogram.put(s, histogram.get(s)+1);
 				else histogram.put(s, 1);
+				*/
+				if (rs.getString(1).equals(Settings.NULL_SYMBOL)) continue;
+				
+				histogram.put(rs.getString(1), rs.getInt(2));
 			}
 			preparedStatement.close();
 			return histogram;

@@ -137,8 +137,9 @@ public class Runner {
 	 * This function CHANGES its ReferenceGraph input, and add edges to it
 	 * @param doc
 	 * @param refGraph
+	 * @throws Exception 
 	 */
-	private void loadForeignKeysFromXML(Document doc, ReferenceGraph refGraph) {
+	private void loadForeignKeysFromXML(Document doc, ReferenceGraph refGraph) throws Exception {
 		NodeList nList = null;
 		Element element;
 
@@ -183,7 +184,7 @@ public class Runner {
 		}
 	}
 
-	private void loadQueriesFromXML(Document doc, ReferenceGraph refGraph) {
+	private void loadQueriesFromXML(Document doc, ReferenceGraph refGraph) throws Exception {
 		NodeList nList = null;
 		Element element;
 
@@ -221,13 +222,17 @@ public class Runner {
 	
 
 	public static void main(String[] args) {
+		String schema_file;
+		if (args.length == 1)
+			schema_file = args[0];
+		else schema_file = Settings.SCHEMA_FILE;
 		Runner runner = new Runner();
 		try {
 			long elapsedTime;
 			long t1, t2;
 			// First, read the XML file, and make the reference graph
 			t1 = System.nanoTime();
-			ReferenceGraph refGraph = runner.loadXMLConfig(Settings.SCHEMA_FILE);
+			ReferenceGraph refGraph = runner.loadXMLConfig(schema_file);
 			t2 = System.nanoTime();
 			elapsedTime = (t2-t1)/1000000;
 			runner.dbTime += elapsedTime;
