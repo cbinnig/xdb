@@ -16,7 +16,7 @@ public class SubGraph {
 		this.connectedComponents = new ArrayList<ReferenceGraph>();
 	}
 	
-	public SubGraph(SubGraph original) {
+	public SubGraph(SubGraph original) throws Exception {
 		this();
 		for (ReferenceGraph connectedComponent: original.connectedComponents)
 			this.connectedComponents.add(new ReferenceGraph(connectedComponent));
@@ -33,14 +33,14 @@ public class SubGraph {
 		return cost;
 	}
 
-	public void addConnectedComponent(List<Query> querySet) throws GraphNotConnectedException{
+	public void addConnectedComponent(List<Query> querySet) throws Exception{
 		ReferenceGraph refGraph = formReferenceGraph(querySet);
 		PartitioningConfiguration partConfig = refGraph.findOptimalConfigurationInAConnectedComponent();
 		refGraph.setPartitioningConfiguration(partConfig);
 		connectedComponents.add(refGraph);
 	}
 	
-	private static ReferenceGraph formReferenceGraph(List<Query> querySet) {
+	private static ReferenceGraph formReferenceGraph(List<Query> querySet) throws Exception {
 		ReferenceGraph refGraph = new ReferenceGraph();
 		for (Query query: querySet){
 			for(Edge edge: query.getJoinPath()){
@@ -62,7 +62,7 @@ public class SubGraph {
 		return refGraph;
 	}
 
-	public SubGraph mergeQuery(ReferenceGraph singleQueryReferenceGraph) throws GraphNotConnectedException{
+	public SubGraph mergeQuery(ReferenceGraph singleQueryReferenceGraph) throws Exception{
 		Query query = singleQueryReferenceGraph.getQueries().get(0);
 		double leastOverhead = Double.MAX_VALUE;
 		ReferenceGraph chosenRefGraph = null;
@@ -93,7 +93,7 @@ public class SubGraph {
 		return bestMergedResult;	
 	}
 
-	private static boolean isMergible(ReferenceGraph connectedComponent, Query query) {
+	private static boolean isMergible(ReferenceGraph connectedComponent, Query query) throws Exception {
 		/**
 		 *  Like directed graphs, we can use DFS to detect cycle in an undirected graph
 		 *  in O(V+E) time. We do a DFS traversal of the given graph. For every visited
@@ -135,7 +135,7 @@ public class SubGraph {
 	}
 	
 	private static boolean isMergibleHelper(ReferenceGraph refGraph, Query query,
-			Set<Node> visited, Node current, Node parent) {
+			Set<Node> visited, Node current, Node parent) throws Exception {
 		
 		visited.add(current);
 		

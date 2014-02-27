@@ -43,7 +43,7 @@ public class ReferenceGraph {
 		queries = new ArrayList<Query>();
 		partitioningConfiguration = null;
 	}
-	public ReferenceGraph(ReferenceGraph original) {
+	public ReferenceGraph(ReferenceGraph original) throws Exception {
 		this();
 		
 		for (Node node: original.getNodes())
@@ -81,7 +81,7 @@ public class ReferenceGraph {
 	}
 	
 	public Edge addEdge(String sourceTable, String targetTable,
-			String sourceAttribute, String targetAttribute) {
+			String sourceAttribute, String targetAttribute) throws Exception {
 		// just to make sure that A.a = B.b maps to the same bucket
 		// where B.b = A.a has already mapped.
 		Node source = getNodeWithTableName(sourceTable);
@@ -142,7 +142,7 @@ public class ReferenceGraph {
 		return output;
 	}
 
-	public ReferenceGraph findMASP(){
+	public ReferenceGraph findMASP() throws Exception{
 		Map<Table,Set<Table>> forest = new HashMap<Table,Set<Table>>();
 		for(Node node: this.nodes){
 			//Each set stores the known vertices reachable from this vertex
@@ -186,16 +186,16 @@ public class ReferenceGraph {
 		return MASP;
 	}
 	
-	public Node getNodeWithTableName(String tableName) {
+	public Node getNodeWithTableName(String tableName) throws Exception {
 		if (tableNameToNodeMap.containsKey(tableName))
 			return tableNameToNodeMap.get(tableName);
-		else return null;
+		else throw new Exception("Table " + tableName + " is not defined.");
 	}
-	public Edge getEdgeWithTableNames(String sourceTable, String targetTable, String sourceAttribute, String targetAttribute) {
+	public Edge getEdgeWithTableNames(String sourceTable, String targetTable, String sourceAttribute, String targetAttribute) throws Exception {
 		String representation = Edge.normalizedStringRepresentation(sourceTable, targetTable, sourceAttribute, targetAttribute);
 		if (edgeInfoToEdgeMap.containsKey(representation))
 			return edgeInfoToEdgeMap.get(representation);
-		else return null;
+		else throw new Exception("Edge " + representation + " not found.");
 	}
 	
 	public void addQuery(Query query) {
@@ -208,23 +208,35 @@ public class ReferenceGraph {
 	
 	public void removeRedundantQueries(){
 		boolean[] toBeRemovedQueriesIndexes = new boolean[queries.size()];	// default value is false
+		
+		// isASubSetOf[j] stores the QueryID of the query which is a superset of query[j]
+		int[] isASubSetOf = new int[queries.size()];
+		int[] howManyChildren = new int[queries.size()];
+		for (int i=0; i<queries.size(); i++)
+			howManyChildren[i]=0;
 		for (int i=0; i<queries.size(); i++){
 			if (toBeRemovedQueriesIndexes[i]) continue;
 			for (int j=0; j<queries.size();j++){
 				if (i==j) continue;
-				if (queries.get(i).isSuperSetOf(queries.get(j)))
+				if (queries.get(i).isSuperSetOf(queries.get(j))){
 					toBeRemovedQueriesIndexes[j]=true;
+					isASubSetOf[j] = queries.get(i).getQueryID();
+					howManyChildren[i] += howManyChildren[j] + 1;
+				}
 			}
 		}
 		
 		// now remove all the elements with flag=true
 		// in order to make sure that deletion doesn't cause mess with iterator, 
 		// we start from the end and come to the start
+		for (int i=0;i<queries.size(); i++)
+			if (!toBeRemovedQueriesIndexes[i])
+				System.out.println("Query " + queries.get(i).toString() + " has " + howManyChildren[i] + " children");
+		
 		for (int i=queries.size()-1; i>=0; i--)
 			if (toBeRemovedQueriesIndexes[i]){
-				System.out.println("Query " + queries.get(i).toString() + " is discarded.");
+				System.out.println("Query " + queries.get(i).toString() + " is merged into " + isASubSetOf[i]);
 				queries.remove(i);
-			
 			}
 	}
 	
@@ -424,7 +436,7 @@ public class ReferenceGraph {
 		return optimalConfig;
 	}
 	
-	public ReferenceGraph mergeWith(Query query) {
+	public ReferenceGraph mergeWith(Query query) throws Exception {
 		ReferenceGraph newRefGraph = new ReferenceGraph(this);
 		for (Edge edge: query.getJoinPath()){
 			if (newRefGraph.containsEdge(edge)) continue;
@@ -442,7 +454,7 @@ public class ReferenceGraph {
 		newRefGraph.addQuery(query);
 		return newRefGraph;
 	}
-	public Set<Node> getNeighbors(String tableName){
+	public Set<Node> getNeighbors(String tableName) throws Exception{
 		Node node = this.getNodeWithTableName(tableName);
 		return node.getNeighbors();
 	}
