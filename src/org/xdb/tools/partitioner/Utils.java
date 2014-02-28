@@ -124,7 +124,7 @@ public class Utils {
 		}  
 		
 	
-		Integer a = Integer.parseInt(keysString.toString());
+		Long a = Long.parseLong(keysString.toString());
 		hash = a.hashCode();
 		//hash = keysString.toString().hashCode(); 
 		
