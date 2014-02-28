@@ -170,15 +170,18 @@ public class DataPartitioner {
 	 */
 	private void partitionDataByHashing(String fileName, String indices, int numberOfPartitions, boolean isIntHashing)
 			throws Exception {
-
+		// Return the indices in an array format	166			// Return the indices in an array format
+		Integer[] partitionIndices = Utils.getKeyIndicesFromString(indices.trim());
+		
 		int partitionNumber = 0;
 		//int numberOfPartitions = this.filesMap.size();
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 
 		String line = ""; 
-		int lineCounter = 0; 
+		//int lineCounter = 0; 
+		int hash = 0; 
 		while ((line = br.readLine()) != null) { 
-
+			
 			if(isIntHashing)
 				hash = Utils.calculateIntHash(line, partitionIndices); 
 			else 
