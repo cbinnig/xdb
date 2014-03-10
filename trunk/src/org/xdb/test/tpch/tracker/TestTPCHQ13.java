@@ -26,10 +26,11 @@ public class TestTPCHQ13 extends DistributedTPCHTestCase {
 				"FROM " + 
 				"    ( SELECT c_custkey as custdist, " + 
 				"             count(o_orderkey) as c_count" + 
-				"     FROM <TPCH_DB_NAME>.customer " + 
-				"     LEFT OUTER JOIN <TPCH_DB_NAME>.orders ON c_custkey = o_custkey " + 
-				"     AND o_comment NOT LIKE '%unusual%accounts%' " + 
-				"     GROUP BY c_custkey ) AS c_orders " + 
+				"     FROM <TPCH_DB_NAME>.customer, <TPCH_DB_NAME>.orders where  " + 
+				"     c_custkey = o_custkey " + 
+				"     AND o_comment NOT LIKE '%unusual%accounts%'" + 
+				"     GROUP BY c_custkey union select c_custkey as custdist, " +
+				" 0 as c_count From <TPCH_DB_NAME>.customer where c_hasorder=0 GROUP BY c_custkey ) AS c_orders " + 
 				"GROUP BY c_count;";
 		
 		this.unionDDL = "(c_count INTEGER, custdist INTEGER)";

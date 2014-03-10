@@ -23,6 +23,7 @@ public class TestTPCHQ1 extends DistributedTPCHTestCase {
 
 		this.subqueryDDL = "(l_returnflag CHAR, l_linestatus CHAR, sum_qty DECIMAL(65,2), sum_base_price DECIMAL(65,2), sum_disc_price DECIMAL(65,2), sum_charge DECIMAL(65,2), " +
 		 "avg_qty DECIMAL(65,2), avg_price DECIMAL(65,2), avg_disc DECIMAL(65,2), count_order INTEGER)";
+		
 		this.subqueryDML = "select " + 
 				"	l_returnflag, " + 
 				"	l_linestatus, " + 
