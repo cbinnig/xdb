@@ -6,27 +6,21 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.apache.hadoop.util.hash.Hash;
 import org.xdb.elasticpartitioning.database.DatabaseAbstractionLayer;
 import org.xdb.elasticpartitioning.database.DatabaseNotInitializedException;
 import org.xdb.elasticpartitioning.database.ForeignKey;
 import org.xdb.elasticpartitioning.database.Table;
-import org.xdb.elasticpartitioning.graph.Edge;
-import org.xdb.elasticpartitioning.graph.ReferenceGraph;
-import org.xdb.elasticpartitioning.util.Settings;
 import org.xdb.elasticpartitioning.util.MyMath;
+import org.xdb.elasticpartitioning.util.Settings;
 
 public class MutualRedundancySizeFinder {
 	private int numberOfPartitions;
 	private DatabaseAbstractionLayer db;
-	private MyMath myMath;
 	private double maxFrequency;
 	private double sampleSizeRatio;
 	private long dbTime;
@@ -38,7 +32,7 @@ public class MutualRedundancySizeFinder {
 	public MutualRedundancySizeFinder(int numberOfPartitions, double sampleSizeRatio) {
 		try {
 			maxFrequency = -1;
-			myMath = new MyMath();
+			new MyMath();
 			//DatabaseAbstractionLayer.initialize("xroot", "xroot", "localhost", "3306", "tpch_s01");
 			db = DatabaseAbstractionLayer.getInstance();
 			this.numberOfPartitions = numberOfPartitions;

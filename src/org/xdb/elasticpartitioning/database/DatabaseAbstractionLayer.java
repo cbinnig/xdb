@@ -6,7 +6,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,8 +14,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.xdb.elasticpartitioning.util.Settings;
-
-import com.amazonaws.services.s3.internal.Constants;
 
 
 public class DatabaseAbstractionLayer {
@@ -136,7 +133,6 @@ public class DatabaseAbstractionLayer {
 			preparedStatement = conn.prepareStatement(query);
 			rs = preparedStatement.executeQuery();
 			
-			String s;
 			while(rs.next()){
 				/*
 				// first, we need to concate columns
