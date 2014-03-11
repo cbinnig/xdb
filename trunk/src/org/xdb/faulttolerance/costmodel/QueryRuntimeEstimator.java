@@ -104,7 +104,6 @@ public class QueryRuntimeEstimator {
 	// achieve a certain success rate. 
 	// TODO using simpler way to get R
 	private int calculateReattempts(BigDecimal querySuccessProbability) {
-		BigFunctions bigFunctions = new BigFunctions();
 		int reattempts = 0; // initial
 		BigDecimal queryFailureProbability = new BigDecimal(1).subtract(querySuccessProbability); 
 		System.out.println(queryFailureProbability);
@@ -135,10 +134,6 @@ public class QueryRuntimeEstimator {
     private BigDecimal calculateFailureProbForNode(Level level){
     	double meatTimeBetweenFailure = level.getNodeClass().getMeanTimeBetweenFailure();
     	return new BigDecimal(1).subtract(new BigDecimal(Math.pow(2.87, -1*(level.getLevelRuntimeEstimate()+level.getMaterializationRuntimeestimate())/meatTimeBetweenFailure)));
-	} 
-    
-    private BigDecimal calculateFailureProbForLevel(Level level){
-		return new BigDecimal(1).subtract(calculateSuccessProbForLevel(level));
 	} 
     
     private BigDecimal calculateSuccessProbForLevel(Level level){ 
