@@ -18,29 +18,6 @@ import org.xdb.utils.Tuple;
  */
 public class DoomDBClient implements IDoomDBClient {
 	
-	/**
-	 * Thread to restart a compute server after a given MTTR
-	 * @author cbinnig
-	 *
-	 */
-	private class RestartComputeServer extends Thread{
-		private ComputeNodeDesc compNodeDesc;
-		
-		public RestartComputeServer(ComputeNodeDesc compNodeDesc){
-			this.compNodeDesc = compNodeDesc;
-		}
-		
-		@Override
-		public void run(){
-			try {
-				Thread.sleep(DoomDBClient.this.mttr);
-			} catch (InterruptedException e) {
-				//Do nothing
-			}
-			DoomDBClient.this.mClient.startComputeServer(this.compNodeDesc);
-		}
-	}
-	
 	private DoomDBPlan dplan = null;
 	private EnumDoomDBSchema schema = null;
 	private DoomDBClusterDesc clusterDesc = null;
@@ -49,10 +26,15 @@ public class DoomDBClient implements IDoomDBClient {
 	private MasterTrackerClient mClient = new MasterTrackerClient();
 	private ComputeClient compClient = new ComputeClient();
 	
-	private int mttr = 5000;
+	//time in seconds
+	private int mttr;
+	private int mtbf;
 
 	// constructors
-	public DoomDBClient(DoomDBClusterDesc clusterDesc) {
+	public DoomDBClient(DoomDBClusterDesc clusterDesc, int mttr, int mtbf) {
+		this.mtbf = mtbf;
+		this.mttr = mttr;
+		
 		this.clusterDesc = clusterDesc;
 	}
 	
@@ -174,9 +156,9 @@ public class DoomDBClient implements IDoomDBClient {
 	}
 
 	@Override
-	public void killNode(String nodeDesc) { 
-		ComputeNodeDesc computeNodeDesc = this.dplan.getComputeNode(nodeDesc);
-		compClient.restartComputeNode(computeNodeDesc, this.mttr);
+	public void killNode(ComputeNodeDesc computeNodeDesc) { 
+		//ComputeNodeDesc computeNodeDesc = this.dplan.getComputeNode(nodeDesc);
+		compClient.restartComputeNode(computeNodeDesc, this.mttr*1000);
 		//RestartComputeServer restartThread = new RestartComputeServer(computeNodeDesc);
 		//restartThread.start();
 	}
@@ -184,5 +166,21 @@ public class DoomDBClient implements IDoomDBClient {
 	@Override
 	public void setMTTR(int mttr) {
 		this.mttr = mttr;
+	}
+
+	@Override
+	public void setMTBF(int mtbf) {
+		this.mtbf = mtbf;
+		
+	}
+
+	@Override
+	public int getMTTR() {
+		return this.mttr;
+	}
+
+	@Override
+	public int getMTBF() {
+		return this.mtbf;
 	}
 }

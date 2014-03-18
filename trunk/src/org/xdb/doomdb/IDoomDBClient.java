@@ -1,5 +1,7 @@
 package org.xdb.doomdb;
 
+import org.xdb.execute.ComputeNodeDesc;
+
 
 public interface IDoomDBClient {
 
@@ -75,7 +77,7 @@ public interface IDoomDBClient {
 	 * kills a specific compute node 
 	 * @param nodeDesc
 	 */
-	void killNode(String nodeDesc);
+	void killNode(ComputeNodeDesc nodeDesc);
 
 	
 	/**
@@ -83,4 +85,10 @@ public interface IDoomDBClient {
 	 * @param time
 	 */
 	void setMTTR(int time);
+	
+	void setMTBF(int time);
+	
+	int getMTTR();
+	
+	int getMTBF();
 }
