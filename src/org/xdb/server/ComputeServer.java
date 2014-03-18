@@ -15,6 +15,7 @@ import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
+import org.xdb.execute.signals.RestartSignal;
 
 /**
  * Server which accepts compute commands and calls handler (separate thread)
@@ -79,6 +80,11 @@ public class ComputeServer extends AbstractServer {
 					final KillSignal killSignal = (KillSignal) in.readObject(); 
 					logger.log(Level.INFO, "Received kill signal for operator:" + killSignal.getFailedExecOpId());
                     err = compute.killOperator(killSignal); 
+                    break; 
+				case CMD_RESTART_SERVER: 
+					final RestartSignal restartSignal = (RestartSignal) in.readObject();  
+					logger.log(Level.INFO, "Received restart server signal");
+                    err = ComputeServer.this.restartComputeNode(restartSignal); 
                     break;
 				default:
 					err = createCmdError(cmd);
@@ -107,6 +113,29 @@ public class ComputeServer extends AbstractServer {
 
 		this.port = port;
 		this.compute = new ComputeNode(port);
+	}
+    
+	// restart the server for DoomDB/Fault Tolerance 
+	public Error restartComputeNode(RestartSignal restartSignal) {
+		// stop Mysql and rerun it again. It is assumed to kill 
+		// the compute node automatically, otherwise we kill it 
+		// manually 
+		MysqlRunManager sqlManager = new MysqlRunManager();
+		sqlManager.start();  
+		// kill the compute node if needed   
+		
+		// stop the compute server  
+		ComputeServer.this.stopServer();
+        // wait the meantime between failure 
+		// the time the compute server supposed to be off! 
+		try {
+			Thread.sleep(restartSignal.getTimeToRepair());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}  
+		this.startServer();
+		
+		return this.err;
 	}
 
 	// methods

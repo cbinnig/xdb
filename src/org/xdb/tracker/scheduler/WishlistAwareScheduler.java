@@ -79,5 +79,22 @@ public class WishlistAwareScheduler extends AbstractResourceScheduler {
 
 		// get assigned compute node for url
 		return this.assignedComputeNodes.get(wishUrl);
+	} 
+	
+	// Used for DoomDB and Fault Tolerance purpose. 
+	// Return the all connections possible for one op  
+	@Override
+	public List<ComputeNodeDesc> getAllComputeNodes(final Identifier opId){
+		List<ComputeNodeDesc> allComputeNodes = new ArrayList<ComputeNodeDesc>();
+		// no wished location for operator
+		if (!this.wishLocations.containsKey(opId))
+			return null; 
+		
+		List<String> connUrls = this.wishLocations.get(opId); 
+		for (String connUrl : connUrls) {
+			allComputeNodes.add(this.assignedComputeNodes.get(connUrl));
+		}
+		
+		return allComputeNodes;
 	}
 }

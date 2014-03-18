@@ -21,7 +21,8 @@ public class Config implements Serializable {
 
 	// General
 	public static String LOCALHOST = "127.0.0.1";
-	public static String CONFIG_FILE = "./config/xdb.conf";
+	public static String CONFIG_FILE = "./config/xdb.conf"; 
+	public static String MYSQL_DIR = "/usr/local/mysql/bin/";
 
 	// Monitoring
 	public static int MASTERTRACKER_MONITOR_INTERVAL = 2000;  
@@ -132,7 +133,7 @@ public class Config implements Serializable {
 				"TEST_FT_RECORDS_LIMIT" };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
-				"TEST_DB_NAME" };
+				"TEST_DB_NAME", "MYSQL_DIR" };
 
 		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS", "COMPUTE_CLEAN_PLAN",
 				"TRACE_PARALLEL_PLAN",

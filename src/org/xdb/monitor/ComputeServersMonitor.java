@@ -2,6 +2,7 @@ package org.xdb.monitor;
 
 import org.xdb.client.ComputeClient;
 import org.xdb.error.Error;
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.operators.QueryOperatorStatus;
 import org.xdb.tracker.QueryTrackerPlan;
@@ -97,12 +98,34 @@ public class ComputeServersMonitor{
 			OperatorDesc opDesc = qtPlan.getCurrentDeployment().get(identifier);
 			err = this.computeClient.pingComputeServer(opDesc.getComputeNode());  
 			if (err.isError() || opDesc.getOperatorStatus() == QueryOperatorStatus.ABORTED) { 
+				// for DoomDb  
+				markFailedOpsOnFailedComputeNd(identifier);
+	
 				// Update the current deployment with the failed operator  
 				opDesc.setOperatorStatus(QueryOperatorStatus.ABORTED); 
-				setFailureDetected(true);
+				setFailureDetected(true); 
+				// if a certain compute node is failed then change the status of each op 
+				// deployed on that node to be FAILED 
 				
 			} 
 		} 
 		
+	} 
+	
+	/**
+	 * Once a compute node (server) is failed detected, then mark the whole 
+	 * operators deployed on that compute server as failed in order to 
+	 * re-deploy them if necessary. 
+	 *  
+	 */
+	private void markFailedOpsOnFailedComputeNd(Identifier identifier){
+		OperatorDesc opDesc = qtPlan.getCurrentDeployment().get(identifier);  
+		ComputeNodeDesc failedNodeDesc = opDesc.getComputeNode();
+		for (Identifier identifierOp : qtPlan.getCurrentDeployment().keySet()) { 
+			OperatorDesc tempOpDesc = qtPlan.getCurrentDeployment().get(identifierOp);  
+			if(tempOpDesc.getComputeNode().equalsWPort(failedNodeDesc)) {
+				tempOpDesc.setOperatorStatus(QueryOperatorStatus.ABORTED);
+			}
+		}
 	}
 }

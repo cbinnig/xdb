@@ -1,6 +1,7 @@
 package org.xdb.tracker.scheduler;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.xdb.execute.ComputeNodeDesc;
@@ -31,5 +32,11 @@ public class SimpleResourceScheduler extends AbstractResourceScheduler {
 	@Override
 	public ComputeNodeDesc getComputeNode(Identifier operId) {
 		return this.assignedComputeNodes.get(AbstractResourceScheduler.RANDOM_COMPUTE_NODE);
+	}
+
+	@Override
+	public List<ComputeNodeDesc> getAllComputeNodes(Identifier opId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

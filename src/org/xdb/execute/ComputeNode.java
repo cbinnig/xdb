@@ -290,6 +290,15 @@ public class ComputeNode {
 		
 		this.receivedReadySignals.remove(op.getOperatorId().getParentId(1));	    
 		return err;
+	} 
+	
+	public Error restartComputeNode(){
+		Error err = new Error(); 
+		// restart the mysql server 
+		// sleep the meantime between failure 
+		
+		
+		return err; 
 	}
 
 	/**

@@ -19,7 +19,8 @@ import org.xdb.logging.XDBLog;
  */
 public abstract class AbstractServer {
 
-	// CMDs
+	// CMDs 
+	public static final int CMD_RESTART_SERVER = -3;
 	public static final int CMD_STOP_SERVER = -2;
 	public static final int CMD_PING_SERVER = -1;
 

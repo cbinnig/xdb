@@ -1,6 +1,7 @@
 package org.xdb.tracker.scheduler;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -101,4 +102,6 @@ public abstract class AbstractResourceScheduler {
 	public ComputeNodeDesc getComputeNode(final Identifier operId, int nodeNumber){
 		return this.getComputeNode(operId);
 	}
+
+	public abstract List<ComputeNodeDesc> getAllComputeNodes(Identifier opId);
 }

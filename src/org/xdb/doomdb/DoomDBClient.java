@@ -174,11 +174,11 @@ public class DoomDBClient implements IDoomDBClient {
 	}
 
 	@Override
-	public void killNode(String nodeDesc) {
+	public void killNode(String nodeDesc) { 
 		ComputeNodeDesc computeNodeDesc = this.dplan.getComputeNode(nodeDesc);
-		compClient.stopComputeServer(computeNodeDesc);
-		RestartComputeServer restartThread = new RestartComputeServer(computeNodeDesc);
-		restartThread.start();
+		compClient.restartComputeNode(computeNodeDesc, this.mttr);
+		//RestartComputeServer restartThread = new RestartComputeServer(computeNodeDesc);
+		//restartThread.start();
 	}
 
 	@Override
