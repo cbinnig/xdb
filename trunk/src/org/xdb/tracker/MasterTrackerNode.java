@@ -338,13 +338,27 @@ public class MasterTrackerNode {
 			return err;
 		}
 		
-		int startPort = clusterDesc.getStartPort();
-		for(int i=0; i<clusterDesc.getNumberOfNodes(); ++i){
-			ComputeServer computeServer = new ComputeServer(startPort+i);
-			computeServer.startServer();
-			err = computeServer.getError();
-			if(err.isError()){
-				return err;
+		int startPort = clusterDesc.getStartPort(); 
+		
+		// Run doomdb cluster locally 
+		if(Config.TEST_RUN_LOCAL) {
+			for(int i=0; i<clusterDesc.getNumberOfNodes(); ++i){
+				ComputeServer computeServer = new ComputeServer(startPort+i);
+				computeServer.startServer();
+				err = computeServer.getError();
+				if(err.isError()){
+					return err;
+				}
+			} 
+		} else {
+			// distributed run 
+			System.out.print("Waiting for " + clusterDesc.getNumberOfNodes()
+					+ " computer server: ");
+			int noComputeServers = 0;
+			while (noComputeServers < clusterDesc.getNumberOfNodes()) {
+				noComputeServers = getNoComputeServers();
+				System.out.print(noComputeServers);
+				Thread.sleep(1000);
 			}
 		}
 		

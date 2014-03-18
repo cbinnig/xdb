@@ -5,7 +5,11 @@ import org.xdb.doomdb.DoomDBClient;
 import org.xdb.doomdb.DoomDBClusterDesc;
 import org.xdb.doomdb.IDoomDBClient;
 import org.xdb.doomdb.IDoomDBPlan;
+import org.xdb.execute.ComputeNodeDesc;
+import org.xdb.server.CompileServer;
+import org.xdb.server.ComputeServer;
 import org.xdb.server.MasterTrackerServer;
+import org.xdb.server.QueryTrackerServer;
 
 /**
  * Test case with partitioned TPC-H schema
@@ -15,32 +19,28 @@ import org.xdb.server.MasterTrackerServer;
  */
 public class TestDoomDB extends org.xdb.test.TestCase {
 	private IDoomDBClient dClient;
-	private MasterTrackerServer mTrackerServer;
+	private MasterTrackerServer mTrackerServer; 
+	
+	protected CompileServer compileServer;
+	private ComputeServer[] computeServers;
+	private QueryTrackerServer qTrackerServer;
+	private ComputeNodeDesc[] computeNodes;
+	private int numberOfComputeServers;
+	private boolean runLocal;
 
 	@Override
 	public void setUp() {
+	    
 		DoomDBClusterDesc clusterDesc = new DoomDBClusterDesc(2);
 		this.dClient = new DoomDBClient(clusterDesc);
 		this.dClient.setMTTR(100);
 		
-		if(Config.TEST_RUN_LOCAL){
-			mTrackerServer = new MasterTrackerServer();
-			mTrackerServer.startServer();
-			assertNoError(mTrackerServer.getError());
-			assertTrue(this.dClient.startDB());
-		}
-		else{
-			System.out.print("Waiting for master tracker to start up!");
-			while(!this.dClient.startDB()){
-				System.out.print(".");
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					//Do nothing
-				}
-			}
-			System.out.println("");
-		}
+		mTrackerServer = new MasterTrackerServer();
+		mTrackerServer.startServer(); 
+		
+		assertNoError(mTrackerServer.getError());
+		assertTrue(this.dClient.startDB());
+		
 	}
 	
 	@Override
@@ -94,5 +94,75 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		}
 		System.out.println(" Finished!");
 		System.out.println("--------------------");
+	}
+
+	/**
+	 * @return the computeServers
+	 */
+	public ComputeServer[] getComputeServers() {
+		return computeServers;
+	}
+
+	/**
+	 * @param computeServers the computeServers to set
+	 */
+	public void setComputeServers(ComputeServer[] computeServers) {
+		this.computeServers = computeServers;
+	}
+
+	/**
+	 * @return the qTrackerServer
+	 */
+	public QueryTrackerServer getqTrackerServer() {
+		return qTrackerServer;
+	}
+
+	/**
+	 * @param qTrackerServer the qTrackerServer to set
+	 */
+	public void setqTrackerServer(QueryTrackerServer qTrackerServer) {
+		this.qTrackerServer = qTrackerServer;
+	}
+
+	/**
+	 * @return the computeNodes
+	 */
+	public ComputeNodeDesc[] getComputeNodes() {
+		return computeNodes;
+	}
+
+	/**
+	 * @param computeNodes the computeNodes to set
+	 */
+	public void setComputeNodes(ComputeNodeDesc[] computeNodes) {
+		this.computeNodes = computeNodes;
+	}
+
+	/**
+	 * @return the numberOfComputeServers
+	 */
+	public int getNumberOfComputeServers() {
+		return numberOfComputeServers;
+	}
+
+	/**
+	 * @param numberOfComputeServers the numberOfComputeServers to set
+	 */
+	public void setNumberOfComputeServers(int numberOfComputeServers) {
+		this.numberOfComputeServers = numberOfComputeServers;
+	}
+
+	/**
+	 * @return the runLocal
+	 */
+	public boolean isRunLocal() {
+		return runLocal;
+	}
+
+	/**
+	 * @param runLocal the runLocal to set
+	 */
+	public void setRunLocal(boolean runLocal) {
+		this.runLocal = runLocal;
 	}
 }

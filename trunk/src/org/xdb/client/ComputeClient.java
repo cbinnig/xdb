@@ -8,6 +8,7 @@ import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
+import org.xdb.execute.signals.RestartSignal;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.ComputeServer;
 import org.xdb.utils.Identifier;
@@ -162,5 +163,19 @@ public class ComputeClient extends AbstractClient {
 		Object[] args = { killSignal };
 		return this.executeCmd(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_KILL_SIGNAL, args);
+	} 
+	/**
+	 * Restart Compute Node  
+	 * 
+	 * @param url
+	 * @param mttr: mean time to repair 
+	 * @return
+	 */
+	public Error restartComputeNode(ComputeNodeDesc url, int mttr) {
+		final RestartSignal restartSignal = new RestartSignal(); 
+		restartSignal.setTimeToRepair(mttr);
+        Object[] args = { restartSignal };
+		return this.executeCmd(url.getUrl(), url.getPort(),
+				ComputeServer.CMD_RESTART_SERVER, args);
 	}
 }

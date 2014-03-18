@@ -78,7 +78,11 @@ public class QueryRuntimeEstimator {
 	public void setSuccessRate(double successRate) {
 		this.successRate = successRate;
 	}  
- 
+     
+	/**
+	 * Calculate the number of re-attempts required for 
+	 * each materialization configuration  
+	 */
 	public void estimateReattemptsForMaterlialization(){
 		for(int i=0; i<matPlans.size(); i++){
 			MaterializedPlan matPlan =  matPlans.get(i);
@@ -93,7 +97,7 @@ public class QueryRuntimeEstimator {
 			int reattempts = calculateReattempts(querySuccessProbability);
 			this.setReattemptsForDifferentMaterializations(matPlan, reattempts); 
 			// set the number of reattempts, failure probability, and 
-			// success probability. 
+			// success probability for each materialization configuration  
 			matPlan.setReattempts(reattempts); 
 			matPlan.setSuccessProbability(querySuccessProbability); 
 			matPlan.setFailureProbability(new BigDecimal(1).subtract(querySuccessProbability, MathContext.DECIMAL128));
@@ -101,28 +105,13 @@ public class QueryRuntimeEstimator {
 	} 
 	
 	// Calculate the number of re-attempts required to 
-	// achieve a certain success rate. 
-	// TODO using simpler way to get R
+	// achieve a certain success rate.  
 	private int calculateReattempts(BigDecimal querySuccessProbability) {
 		int reattempts = 0; // initial
 		BigDecimal queryFailureProbability = new BigDecimal(1).subtract(querySuccessProbability); 
-		System.out.println(queryFailureProbability);
-		//double successProb = querySuccessProbability*
-			//	(1-Math.pow(queryFailureProbability, reattempts+1))/(1-queryFailureProbability);  
-
-		//reattempts = (int) Math.ceil((Math.log10(1-this.successRate)/Math.log10(queryFailureProbability))-1);
 		BigDecimal big1 = new BigDecimal(Math.log(1-this.successRate)); 
-		//BigDecimal big2 = new BigDecimal(Math.log(queryFailureProbability.longValue()));  
 		BigDecimal big2 = BigFunctions.ln(queryFailureProbability, 1000); 
-		reattempts = (int) (Math.ceil(big1.divide(big2, MathContext.DECIMAL128).doubleValue()) ) -1; 
-	    /*
-		while(successProb < this.successRate) { 
-			if(reattempts > 100000) 
-				break;
-			reattempts++;  
-			successProb = querySuccessProbability*
-				(1-Math.pow(queryFailureProbability, reattempts))/(1-queryFailureProbability);
-		} */
+		reattempts = (int) (Math.ceil(big1.divide(big2, MathContext.DECIMAL128).doubleValue()) ) -1;
 		
 		return reattempts;
 	}
@@ -136,6 +125,11 @@ public class QueryRuntimeEstimator {
     	return new BigDecimal(1).subtract(new BigDecimal(Math.pow(2.87, -1*(level.getLevelRuntimeEstimate()+level.getMaterializationRuntimeestimate())/meatTimeBetweenFailure)));
 	} 
     
+    @SuppressWarnings("unused")
+	private BigDecimal calculateFailureProbForLevel(Level level){
+		return new BigDecimal(1).subtract(calculateSuccessProbForLevel(level));
+	} 
+
     private BigDecimal calculateSuccessProbForLevel(Level level){ 
     	int numberOfNodePerLevel = level.getNodeClass().getNumberOfNodesPerClass();
 		BigDecimal successProbNode = calculateSuccessProbForNode(level); 

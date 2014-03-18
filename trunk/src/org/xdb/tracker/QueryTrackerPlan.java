@@ -607,8 +607,13 @@ public class QueryTrackerPlan implements Serializable {
 		}
 
 		// identify best node using a resource scheduler
-		ComputeNodeDesc assignedNode = this.resourceScheduler
-				.getComputeNode(operId);
+		//ComputeNodeDesc assignedNode = this.resourceScheduler
+			//	.getComputeNode(operId);
+		// bring the wish list 
+		// ping the connections one by one 
+		// pick the first available one 
+		List<ComputeNodeDesc> allComputeNode = this.resourceScheduler.getAllComputeNodes(operId); 
+		ComputeNodeDesc assignedNode = pickAvailableConnection(allComputeNode);
 		if (assignedNode == null) {
 			String args[] = { "No node could be assigned to tracker operator "
 					+ operId.toString() };
@@ -646,6 +651,26 @@ public class QueryTrackerPlan implements Serializable {
 		// prepare deployment of all consumers
 		for (final Identifier consumerId : consumers.get(operId)) {
 			prepareDeployment(consumerId, status);
+		}
+	}
+    
+	// Ping the compute nodes and select the first one available. 
+	private ComputeNodeDesc pickAvailableConnection(List<ComputeNodeDesc> allComputeNode) {
+
+		Error err = new Error(); 
+		while(true) { 
+			for (ComputeNodeDesc ComputeNodeDesc : allComputeNode) {
+				err = this.computeClient.pingComputeServer(ComputeNodeDesc); 
+				if(!err.isError()) {
+					return ComputeNodeDesc;
+				} 
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					
+				}
+
+			}
 		}
 	}
 
