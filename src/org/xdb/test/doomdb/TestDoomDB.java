@@ -31,9 +31,8 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 	@Override
 	public void setUp() {
 	    
-		DoomDBClusterDesc clusterDesc = new DoomDBClusterDesc(2);
-		this.dClient = new DoomDBClient(clusterDesc);
-		this.dClient.setMTTR(100);
+		DoomDBClusterDesc clusterDesc = new DoomDBClusterDesc(1);
+		this.dClient = new DoomDBClient(clusterDesc, 5, 600);
 		
 		mTrackerServer = new MasterTrackerServer();
 		mTrackerServer.startServer(); 
@@ -87,7 +86,12 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 
 		System.out.println("Query Execution: ");
 		System.out.print("\tRunning ");
-		this.dClient.startQuery();
+		this.dClient.startQuery(); 
+		
+		// Start DoomDb failure Simulator after starting the query. 
+		DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(this.dClient);  
+		doomDBFailureSimulator.start();
+		
 		while (!this.dClient.isQueryFinished()) {
 			System.out.print(".");
 			Thread.sleep(500);

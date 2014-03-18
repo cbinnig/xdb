@@ -57,7 +57,10 @@ public class Config implements Serializable {
 
 	// Compile Server: Optimizer
 	public static BitSet OPTIMIZER_ACTIVE_RULES_FUNCTION = new BitSet();
-	public static BitSet OPTIMIZER_ACTIVE_RULES_SELECT = new BitSet();
+	public static BitSet OPTIMIZER_ACTIVE_RULES_SELECT = new BitSet(); 
+	
+	// DoomDB 
+	public static String SHOOTED_COMPUTE_NODES = "127.0.0.1:55700";
 
 	static {
 		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(0, false); //push selections
@@ -133,7 +136,7 @@ public class Config implements Serializable {
 				"TEST_FT_RECORDS_LIMIT" };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
-				"TEST_DB_NAME", "MYSQL_DIR" };
+				"TEST_DB_NAME", "MYSQL_DIR", "SHOOTED_COMPUTE_NODES" };
 
 		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS", "COMPUTE_CLEAN_PLAN",
 				"TRACE_PARALLEL_PLAN",
