@@ -40,7 +40,7 @@ public class Table extends AbstractDatabaseObject {
 
 	private Long schemaOid = -1l;
 	private Map<Long, Attribute> attributes = new TreeMap<Long, Attribute>();
-	private Map<Long, Connection> connections = new TreeMap<Long, Connection>();
+	private List<Connection> connections = new ArrayList<Connection>();
 	private List<Partition> partitions = new ArrayList<Partition>();
 
 	// parameters for partitioning
@@ -72,8 +72,8 @@ public class Table extends AbstractDatabaseObject {
 			this.partitions.add(partition);
 		}
 
-		for (Connection connection : toCopy.connections.values()) {
-			this.connections.put(connection.getOid(), connection);
+		for (Connection connection : toCopy.connections) {
+			this.connections.add(connection);
 		}
 
 	}
@@ -147,32 +147,12 @@ public class Table extends AbstractDatabaseObject {
 		this.schemaOid = schemaOid;
 	}
 
-	public Collection<Connection> getConnections(){
-		return this.connections.values();
-	}
-	
-	public List<Long> getConnectionOids() {
-		List<Long> connectionOids = new ArrayList<Long>();
-		for (Connection connec : this.connections.values()) {
-			connectionOids.add(connec.getOid());
-		}
-		return connectionOids;
-	}
-
-	public Long getConnectionOid() {
-		// not replicated
-		for (Connection connec : this.connections.values()) {
-			return connec.getOid();
-		}
-		return (long) -1;
-	}
-
-	private void addConnection(Long connectionOid, Connection connection) {
-		this.connections.put(connectionOid, connection);
+	public List<Connection> getConnections(){
+		return this.connections;
 	}
 
 	public void addConnection(Connection connection) {
-		this.addConnection(connection.getOid(), connection);
+		this.connections.add(connection);
 	}
 
 	public void addConnections(Collection<Connection> connections) {

@@ -422,7 +422,7 @@ public class CodeGenerator {
 					trackerOp.addInTableFederated(inTableName, tableDesc);
 				} else {
 					TableDesc tableDesc = new TableDesc(
-							inputTableOp.getTableName(), inputTableOp.getURIs());
+							inputTableOp.getTableName(), inputTableOp.getURIs(partNum));
 					trackerOp.addInTableFederated(inTableName, tableDesc);
 				}
 			}
@@ -502,7 +502,7 @@ public class CodeGenerator {
 
 		// add connections to tracker operator
 		List<Connection> trackerOpConnections = compileOp
-				.getWishedConnections();
+				.getWishedConnections(partNum);
 		trackerOp.setTrackerOpConnections(trackerOpConnections);
 
 		return trackerOp;

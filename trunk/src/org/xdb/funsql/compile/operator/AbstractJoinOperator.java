@@ -49,7 +49,7 @@ public abstract class AbstractJoinOperator extends AbstractCompileOperator {
 		return jointokens;
 	}
 
-	public void addChildren(AbstractCompileOperator child) {
+	public void addChild(AbstractCompileOperator child) {
 		this.children.add(child);
 	}
 

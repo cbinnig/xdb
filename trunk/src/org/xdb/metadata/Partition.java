@@ -1,7 +1,8 @@
 package org.xdb.metadata;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 
 import org.xdb.funsql.compile.tokens.AbstractToken;
 
@@ -35,7 +36,7 @@ public class Partition extends AbstractDatabaseObject {
 	
 	private long tableOid;
 	
-	private HashMap<Long, Connection> connections = new HashMap<Long, Connection>();
+	private List<Connection> connections = new ArrayList<Connection>();
 	
 	private static Partition prototype = new Partition();
 
@@ -49,10 +50,10 @@ public class Partition extends AbstractDatabaseObject {
 		this.tableOid = toCopy.tableOid;
 		
 		// Copy HashMap
-		this.connections = new HashMap<Long, Connection>();
+		this.connections = new ArrayList<Connection>(toCopy.connections.size());
 	
-		for(Connection connection :toCopy.connections.values() ){
-			this.connections.put(connection.getOid(), new Connection(connection));
+		for(Connection connection :toCopy.connections ){
+			this.connections.add(new Connection(connection));
 		}
 	}
 	
@@ -79,12 +80,8 @@ public class Partition extends AbstractDatabaseObject {
 	}
 	
 	//getter and setters
-	private void addConnection(Long connectionOid, Connection connection) {
-		this.connections.put(connectionOid, connection);
-	}
-	
 	public void addConnection(Connection connection){
-		this.addConnection(connection.getOid(), connection);
+		this.connections.add(connection);
 	}
 	
 	public void addConnections(Collection<Connection> connections){
@@ -93,8 +90,8 @@ public class Partition extends AbstractDatabaseObject {
 		}
 	}
 	
-	public Collection<Connection> getConnections(){
-		return this.connections.values();
+	public List<Connection> getConnections(){
+		return this.connections;
 	}
 	
 	@Override

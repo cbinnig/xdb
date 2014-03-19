@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.xdb.Config;
 import org.xdb.error.Error;
@@ -71,26 +70,13 @@ public class TableOperator extends AbstractCompileOperator {
 		return tableAlias;
 	}
 	
-	public Collection<Connection> getConnections() {
-		if(!this.table.isPartioned()){
-			return this.table.getConnections();
-		}
-		return new Vector<Connection>();
-	}
-	
-	public Collection<Connection> getConnections(int partNum) {
+	public List<Connection> getConnections(int partNum) {
 		if(this.table.isPartioned()){
 			return this.table.getPartition(partNum).getConnections();
 		}
-		return new Vector<Connection>();
-	}
-	
-	public List<URI> getURIs(){
-		List<URI> uris = new ArrayList<URI>();
-		for (Connection connection : this.getConnections()) {
-			uris.add(URI.create(connection.getUrl()));
+		else{
+			return this.table.getConnections();
 		}
-		return uris;
 	}
 	
 	public  List<URI> getURIs(int partNum){

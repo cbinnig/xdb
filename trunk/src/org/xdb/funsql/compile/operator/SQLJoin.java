@@ -131,7 +131,7 @@ public class SQLJoin extends AbstractJoinOperator {
 
 		parents.set(parents.indexOf(equiJoin), this);
 		if (!this.children.contains(equiJoin.getRightChild())) {
-			this.addChildren(equiJoin.getRightChild());
+			this.addChild(equiJoin.getRightChild());
 		}
 
 		parents = equiJoin.getRightChild().getParents();

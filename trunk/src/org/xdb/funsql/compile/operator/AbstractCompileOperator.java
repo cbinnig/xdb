@@ -2,7 +2,6 @@ package org.xdb.funsql.compile.operator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -26,7 +25,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 	protected EnumOperator type;
 	protected Vector<AbstractCompileOperator> children = new Vector<AbstractCompileOperator>();
 	protected Vector<AbstractCompileOperator> parents = new Vector<AbstractCompileOperator>(); 
-	protected List<Connection> wishedConnections = new ArrayList<Connection>();  
+	protected Vector<List<Connection>> wishedConnections = new Vector<List<Connection>>();  
 	
     // unique operator id
 	protected Identifier operatorId;
@@ -42,7 +41,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 		this.children = new Vector<AbstractCompileOperator>(toCopy.children);
 		this.parents = new Vector<AbstractCompileOperator>(toCopy.parents);
 		this.type = toCopy.type;
-		this.wishedConnections = new ArrayList<Connection>(toCopy.wishedConnections);
+		this.wishedConnections = new Vector<List<Connection>>(toCopy.wishedConnections);
 		
 		this.results = new Vector<ResultDesc>();		
 		for (ResultDesc rd : toCopy.results) {
@@ -83,12 +82,20 @@ public abstract class AbstractCompileOperator implements Serializable {
 		this.parents.clear();;
 	}
 	
-	public List<Connection> getWishedConnections() {
-		return wishedConnections;
+	public List<Connection> getWishedConnections(int partNum) {
+		return wishedConnections.get(partNum);
 	}
 
-	public void addWishedConnections(Collection<Connection> wishedConnections) {
-		this.wishedConnections.addAll(wishedConnections);
+	public void addWishedConnections(int partNum, List<Connection> wishedConnections) {
+		if(partNum+1>=this.wishedConnections.size()){
+			this.wishedConnections.setSize(partNum+1);
+		}
+			
+		if(this.wishedConnections.get(partNum)==null){
+			this.wishedConnections.set(partNum, new ArrayList<Connection>());
+		}
+		
+		this.wishedConnections.get(partNum).addAll(wishedConnections);
 	}
 
 	public Identifier getOperatorId() {
