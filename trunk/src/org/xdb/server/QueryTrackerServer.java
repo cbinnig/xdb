@@ -88,7 +88,6 @@ public class QueryTrackerServer extends AbstractServer {
 				case CMD_DOOMDB_EXECUTE_PLAN:
 					//got new compile plan
 					final DoomDBPlanDesc dplanDesc = (DoomDBPlanDesc) in.readObject();
-					
 					err = tracker.executeDoomDBQPlan(dplanDesc);
 					break;
 				case CMD_DOOMDB_FINISHED_PLAN:
