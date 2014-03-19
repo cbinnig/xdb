@@ -97,12 +97,14 @@ public class ComputeServersMonitor{
 			
 			OperatorDesc opDesc = qtPlan.getCurrentDeployment().get(identifier);
 			err = this.computeClient.pingComputeServer(opDesc.getComputeNode());  
-			if (err.isError() || opDesc.getOperatorStatus() == QueryOperatorStatus.ABORTED) { 
+			if (err.isError() /*|| opDesc.getOperatorStatus() == QueryOperatorStatus.ABORTED*/) { 
+				System.out.println("Killed Compute Node has been Detected: "+
+			                        opDesc.getComputeNode().getUrl()+":"+opDesc.getComputeNode().getPort());
 				// for DoomDb  
 				markFailedOpsOnFailedComputeNd(identifier);
 	
 				// Update the current deployment with the failed operator  
-				opDesc.setOperatorStatus(QueryOperatorStatus.ABORTED); 
+				//opDesc.setOperatorStatus(QueryOperatorStatus.ABORTED); 
 				setFailureDetected(true); 
 				// if a certain compute node is failed then change the status of each op 
 				// deployed on that node to be FAILED 
