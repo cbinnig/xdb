@@ -1,24 +1,19 @@
-/**
- * 
- */
 package org.xdb.funsql.compile.analyze.operator;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.AbstractJoinOperator;
+import org.xdb.funsql.compile.operator.AbstractUnaryOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.Rename;
+import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.operator.SQLCombined;
 import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
-import org.xdb.metadata.Connection;
 
 /**
  * Annotates each operator in compile plan with possible connections where
@@ -27,8 +22,8 @@ import org.xdb.metadata.Connection;
  * intersected. If the result is empty, then the connections of the left-most
  * operator are used.
  * 
- * @author Abdallah
- * 
+ * @author cbinnig
+ *
  */
 public class ConnectionAnnotationVisitor extends AbstractBottomUpTreeVisitor {
 
@@ -40,109 +35,100 @@ public class ConnectionAnnotationVisitor extends AbstractBottomUpTreeVisitor {
 		super(root);
 	}
 
-	/**
-	 * intersects two lists of operators and makes sure that result is not empty
-	 * 
-	 * @param leftConns
-	 * @param rightConns
-	 * @return
-	 */
-	private List<Connection> intersectNotEmpty(List<Connection> leftConns,
-			List<Connection> rightConns) {
-		List<Connection> conns = new ArrayList<Connection>();
-		for (Connection leftConn : leftConns) {
-			if (rightConns.contains(leftConn))
-				conns.add(leftConn);
-		}
-		if (conns.isEmpty())
-			conns.addAll(leftConns);
-
-		return conns;
-	}
-
-	/**
-	 * Annotates a given abstract join operator with intersection of all input
-	 * connections
-	 * 
-	 * @param abstractJoin
-	 */
-	private void annotateAbstractJoin(AbstractJoinOperator abstractJoin) {
-		int i = 0;
-		List<Connection> conns = null;
-		for (AbstractCompileOperator op : abstractJoin.getChildren()) {
-			if (i == 0) {
-				conns = op.getWishedConnections();
-			} else {
-				List<Connection> conns2 = op.getWishedConnections();
-				conns = this.intersectNotEmpty(conns, conns2);
-			}
-		}
-
-		abstractJoin.addWishedConnections(conns);
-	}
-
 	@Override
 	public Error visitEquiJoin(EquiJoin equiJoin) {
-		List<Connection> leftConns = equiJoin.getRightChild()
-				.getWishedConnections();
-		List<Connection> rightConns = equiJoin.getRightChild()
-				.getWishedConnections();
-		List<Connection> conns = this.intersectNotEmpty(leftConns, rightConns);
-		if (conns.isEmpty())
-			conns.addAll(leftConns);
-
-		equiJoin.addWishedConnections(conns);
-
+		ResultDesc result = equiJoin.getResult();
+		int partCnt = result.getPartitionCount();
+		int childIdx = 0;
+		if(equiJoin.getChild(childIdx).getResult().getPartitionCount()!=partCnt){
+			childIdx = 1;
+		}
+			
+		for(int i=0; i<result.getPartitionCount(); ++i){
+			equiJoin.addWishedConnections(i, equiJoin.getChild(childIdx).getWishedConnections(i));
+		}
 		return new Error();
+		
 	}
 
 	@Override
 	public Error visitSQLJoin(SQLJoin sqlJoin) {
-		annotateAbstractJoin(sqlJoin);
-		return new Error();
+		return this.visitJoin(sqlJoin);
 	}
 
 	@Override
 	public Error visitSQLCombined(SQLCombined sqlCombined) {
-		annotateAbstractJoin(sqlCombined);
-		return new Error();
+		return this.visitJoin(sqlCombined);
 	}
 
 	@Override
 	public Error visitGenericSelection(GenericSelection selOp) {
-		selOp.addWishedConnections(selOp.getChild().getWishedConnections());
+		ResultDesc result = selOp.getResult();
+		for(int i=0; i<result.getPartitionCount(); ++i){
+			selOp.addWishedConnections(i ,selOp.getChild().getWishedConnections(i));
+		}
 		return new Error();
 	}
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation aggOp) {
-		aggOp.addWishedConnections(aggOp.getChild().getWishedConnections());
-		return new Error();
+		return this.visitUnaryOp(aggOp);
 	}
 
 	@Override
 	public Error visitGenericProjection(GenericProjection projectOp) {
-		projectOp.addWishedConnections(projectOp.getChild()
-				.getWishedConnections());
-		return new Error();
-	}
-
-	@Override
-	public Error visitTableOperator(TableOperator tableOp) {
-		tableOp.addWishedConnections(tableOp.getConnections());
-		return new Error();
+		return this.visitUnaryOp(projectOp);
 	}
 
 	@Override
 	public Error visitRename(Rename renameOp) {
-		renameOp.addWishedConnections(renameOp.getChild()
-				.getWishedConnections());
-		return new Error();
+		return this.visitUnaryOp(renameOp);
 	}
 
 	@Override
 	public Error visitSQLUnary(SQLUnary unaryOp) {
-		unaryOp.addWishedConnections(unaryOp.getChild().getWishedConnections());
+		return this.visitUnaryOp(unaryOp);
+	}
+	
+	@Override
+	public Error visitTableOperator(TableOperator tableOp) {
+		ResultDesc result = tableOp.getResult();
+		for(int i=0; i<result.getPartitionCount(); ++i){
+			tableOp.addWishedConnections(i, tableOp.getConnections(i));
+		}
+		return new Error();
+	}
+	
+	/**
+	 * Visit unary operators
+	 * @param op
+	 * @return
+	 */
+	private Error visitUnaryOp(AbstractUnaryOperator op){
+		ResultDesc result = op.getResult();
+		for(int i=0; i<result.getPartitionCount(); ++i){
+			op.addWishedConnections(i, op.getChild().getWishedConnections(i));
+		}
+		return new Error();
+	}
+	
+	/**
+	 * Visit join operators
+	 * @param op
+	 * @return
+	 */
+	private Error visitJoin(AbstractJoinOperator op) {
+		ResultDesc result = op.getResult();
+		int partCnt = result.getPartitionCount();
+		int childIdx = 0;
+		for(AbstractCompileOperator childOp : op.getChildren()){
+			if(childOp.getResult().getPartitionCount()==partCnt)
+				break;
+			childIdx++;
+		}
+		for(int i=0; i<partCnt; ++i){
+			op.addWishedConnections(i, op.getChild(childIdx).getWishedConnections(i));
+		}
 		return new Error();
 	}
 }
