@@ -76,6 +76,7 @@ public class Config implements Serializable {
 	// Query Tracker Server
 	public static int QUERYTRACKER_PORT = 55600;
 	public static EnumResourceScheduler QUERYTRACKER_SCHEDULER = EnumResourceScheduler.SIMPLE;
+	public static int QUERYTRACKER_TOLERATED_ERRORS = 3; 
 	
 	// Query Tracker Server: Code generation
 	public static boolean CODEGEN_OPTIMIZE = true;
