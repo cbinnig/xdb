@@ -89,8 +89,8 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		this.dClient.startQuery(); 
 		
 		// Start DoomDb failure Simulator after starting the query. 
-		DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(this.dClient);  
-		doomDBFailureSimulator.start();
+		// DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(this.dClient);  
+		// doomDBFailureSimulator.start();
 		
 		while (!this.dClient.isQueryFinished()) {
 			System.out.print(".");

@@ -56,6 +56,7 @@ public class CompileServer extends AbstractServer {
 					logger.log(Level.INFO, "CompileServer: Received client stmt:" + compileStmt.getStmt());
 					Tuple<Error, DoomDBPlan> result = compileNode.doomDBCompileStmt(compileStmt);
 					out.writeObject(result.getObject2());
+					err = result.getObject1();
 					break;
 				default:
 					err = createCmdError(cmd);

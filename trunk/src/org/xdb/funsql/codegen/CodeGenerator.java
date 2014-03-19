@@ -211,7 +211,6 @@ public class CodeGenerator {
 		ConnectionAnnotationVisitor visitor = new ConnectionAnnotationVisitor();
 		this.compilePlan.applyVisitor(visitor);
 		return err;
-
 	}
 
 	/**
