@@ -249,7 +249,7 @@ public class MasterTrackerNode {
 		QueryTrackerNodeDesc qTracker = this.planAssignment.get(dplanDesc.getCompilePlanId());
 		final QueryTrackerClient qClient = this.queryTrackerClients.get(qTracker);
 		
-		qClient.executeDoomDBQPlan(dplanDesc);
+		err = qClient.executeDoomDBQPlan(dplanDesc);
 		
 		return err;
 	}
