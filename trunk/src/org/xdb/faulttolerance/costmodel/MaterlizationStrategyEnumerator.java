@@ -29,7 +29,7 @@ public class MaterlizationStrategyEnumerator {
     
 
 	/**
-	 * enumerate materialization 
+	 * enumerate materialization using simple binary enumerator  
 	 */
 	public void enumerateQueryPlan(){
         List<Operator> allOperator = this.queryPlan.getAllOperators();  

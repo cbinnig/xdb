@@ -6,7 +6,6 @@ public class Operator {
 	private String type;   
 	private boolean isMaterilaized;  
 	private boolean isForcedMaterlialized; 
-	
 	private double opRunTimeEstimate; 
 	private double opMaterializationTimeEstimate; 
 
