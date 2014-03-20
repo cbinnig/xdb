@@ -1,8 +1,7 @@
 package org.xdb.test.doomdb;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
+import java.util.Vector;
 
 import org.xdb.doomdb.IDoomDBClient;
 import org.xdb.execute.ComputeNodeDesc;
@@ -10,13 +9,12 @@ import org.xdb.execute.ComputeNodeDesc;
 public class DoomDBFailureSimulator extends Thread {
 
 	private IDoomDBClient dbClient; 
-	private List<ComputeNodeDesc> failedNodesDesc = new ArrayList<ComputeNodeDesc>();
+	private Vector<ComputeNodeDesc> failedNodesDesc;
 
 
 	public DoomDBFailureSimulator(IDoomDBClient dClient) {  
-		this.setDbClient(dClient);  
-		this.failedNodesDesc = this.dbClient.getPlan().getNodes();
-			
+		this.dbClient = dClient;  
+		this.failedNodesDesc = new Vector<ComputeNodeDesc>(this.dbClient.getPlan().getNodes());			
 	}		
 
 
@@ -36,37 +34,4 @@ public class DoomDBFailureSimulator extends Thread {
 			}
 		}
 	}
-
-
-	/**
-	 * @return the dbClient
-	 */
-	public IDoomDBClient getDbClient() {
-		return dbClient;
-	}
-
-
-	/**
-	 * @param dbClient the dbClient to set
-	 */
-	public void setDbClient(IDoomDBClient dbClient) {
-		this.dbClient = dbClient;
-	}
-
-
-	/**
-	 * @return the failedNodesDesc
-	 */
-	public List<ComputeNodeDesc> getFailedNodesDesc() {
-		return failedNodesDesc;
-	}
-
-
-	/**
-	 * @param failedNodesDesc the failedNodesDesc to set
-	 */
-	public void setFailedNodesDesc(List<ComputeNodeDesc> failedNodesDesc) {
-		this.failedNodesDesc = failedNodesDesc;
-	} 
-
 }

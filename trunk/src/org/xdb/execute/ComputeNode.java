@@ -85,31 +85,21 @@ public class ComputeNode {
 	 * 
 	 * @return
 	 */
-	public Error startup(boolean reCreateTmpDB) {
+	public Error startup(boolean doRestart) {
 		// register at master tracker
 		Error err = mTrackerClient.registerNode(computeNodeDesc);
 		if (err.isError())
 			return err;
 
-		// recreate XDB temporary database of compute node
+		// test connection to MySQL and
+		// recreate XDB_TMP database on initial start (not on restart)
 		try {
 			Class.forName(Config.COMPUTE_DRIVER_CLASS);
-			Connection conn = null;
+			Connection conn = DriverManager.getConnection(
+					Config.COMPUTE_DB_URL, Config.COMPUTE_DB_USER,
+					Config.COMPUTE_DB_PASSWD);
 
-			int numOfErrs = 0;
-			while (conn==null) {
-				try {
-					conn = DriverManager.getConnection(Config.COMPUTE_DB_URL,
-							Config.COMPUTE_DB_USER, Config.COMPUTE_DB_PASSWD);
-					Thread.sleep(Config.COMPUTE_THINKTIME);
-				} catch (SQLException e) {
-					numOfErrs++;
-					if (numOfErrs == Config.COMPUTE_TOLERATED_ERRORS)
-						throw e;
-				}
-			}
-
-			if (reCreateTmpDB) {
+			if (doRestart) {
 				Statement stmt = conn.createStatement();
 				stmt.execute("DROP DATABASE IF EXISTS "
 						+ Config.COMPUTE_DB_NAME);
@@ -341,7 +331,7 @@ public class ComputeNode {
 	 *            Exception
 	 * @return Error
 	 */
-	private Error createMySQLError(Exception e) {
+	public static Error createMySQLError(Exception e) {
 		String[] args = { e.toString() + "," + e.getCause() };
 		Error err = new Error(EnumError.MYSQL_ERROR, args);
 		return err;

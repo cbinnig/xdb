@@ -2,6 +2,7 @@ package org.xdb.doomdb;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -145,7 +146,7 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		return Dotty.dot2Img(graph, fileName);
 	} 
 	
-	public List<ComputeNodeDesc> getNodes(){
-		return (List<ComputeNodeDesc>) this.nodes.values();
+	public Collection<ComputeNodeDesc> getNodes(){
+		return this.nodes.values();
 	}
 }

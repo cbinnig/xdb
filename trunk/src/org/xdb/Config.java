@@ -40,7 +40,6 @@ public class Config implements Serializable {
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
 	public static boolean COMPUTE_CLEAN_RESULTS = true;
 	public static boolean COMPUTE_CLEAN_PLAN = true;
-	public static int COMPUTE_TOLERATED_ERRORS = 3; 
 	public static int COMPUTE_THINKTIME = 1000; 
 	public static String COMPUTE_MYSQL_DIR = "/usr/local/mysql/bin/";
 

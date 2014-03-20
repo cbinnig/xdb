@@ -62,9 +62,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 				+ "and l_suppkey = s_suppkey  "
 				+ "and n_nationkey = s_nationkey "
 				+ "and r_regionkey = n_regionkey "
-				+ "and s_nationkey = c_nationkey " + "and r_name = 'ASIA' "
-				+ "and o_orderdate > date '1994-01-01' "
-				+ "and o_orderdate < date '1995-01-01' "
+				+ "and s_nationkey = c_nationkey "
 				+ "group by n_nationkey;";
 
 		this.dClient.setQuery(q);
@@ -90,9 +88,9 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		System.out.print("\tRunning ");
 		this.dClient.startQuery(); 
 		
-		// Start DoomDb failure Simulator after starting the query. 
-		//DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(this.dClient);  
-		//doomDBFailureSimulator.start();
+		// Start DoomDb failure Simulator after starting the query.
+		DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(this.dClient);  
+		doomDBFailureSimulator.start();
 		
 		while (!this.dClient.isQueryFinished()) {
 			System.out.print(".");
