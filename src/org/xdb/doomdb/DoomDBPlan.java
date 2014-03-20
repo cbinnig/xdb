@@ -143,5 +143,9 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		}
 
 		return Dotty.dot2Img(graph, fileName);
+	} 
+	
+	public List<ComputeNodeDesc> getNodes(){
+		return (List<ComputeNodeDesc>) this.nodes.values();
 	}
 }

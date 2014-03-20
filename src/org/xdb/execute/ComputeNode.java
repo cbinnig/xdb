@@ -40,16 +40,16 @@ public class ComputeNode {
 
 	// Map of operatorId -> operator
 	private final Map<Identifier, AbstractExecuteOperator> operators = Collections
-	.synchronizedMap(new HashMap<Identifier, AbstractExecuteOperator>());;
+			.synchronizedMap(new HashMap<Identifier, AbstractExecuteOperator>());;
 
 	// Map of consumer -> sources which are ready
 	private final Map<Identifier, HashSet<Identifier>> receivedReadySignals = Collections
-			.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());; 
-	
-	// Map of operator ->  which are ready
+			.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());;
+
+	// Map of operator -> which are ready
 	public static final Map<Identifier, Long> executingOperator = Collections
-			.synchronizedMap(new HashMap<Identifier, Long>());; 
-			
+			.synchronizedMap(new HashMap<Identifier, Long>());;
+
 	private final Lock readySignalsLock = new ReentrantLock();
 
 	// Compute node description (i.e., available threads on node)
@@ -70,38 +70,52 @@ public class ComputeNode {
 		this.logger = XDBLog.getLogger(this.getClass().getName());
 		this.timeMeasure = XDBExecuteTimeMeasurement
 				.getXDBExecuteTimeMeasurement("op_runtime");
-		
-		//register at master tracker
+
+		// register at master tracker
 		this.mTrackerClient = new MasterTrackerClient();
 	}
 
-	public ComputeNodeDesc getComputeNode(){
+	public ComputeNodeDesc getComputeNode() {
 		return this.computeNodeDesc;
 	}
-	
+
 	/**
 	 * Starts up compute node and drops all temporary tables of compute DB by
 	 * recreating the database
 	 * 
 	 * @return
 	 */
-	public Error startup() {
-		//register at master tracker
+	public Error startup(boolean reCreateTmpDB) {
+		// register at master tracker
 		Error err = mTrackerClient.registerNode(computeNodeDesc);
-		if(err.isError())
+		if (err.isError())
 			return err;
-		
+
 		// recreate XDB temporary database of compute node
 		try {
-
 			Class.forName(Config.COMPUTE_DRIVER_CLASS);
-			Connection conn = DriverManager.getConnection(
-					Config.COMPUTE_DB_URL, Config.COMPUTE_DB_USER,
-					Config.COMPUTE_DB_PASSWD);
-			Statement stmt = conn.createStatement();
-			stmt.execute("DROP DATABASE IF EXISTS " + Config.COMPUTE_DB_NAME);
-			stmt.execute("CREATE DATABASE " + Config.COMPUTE_DB_NAME);
-			stmt.close();
+			Connection conn = null;
+
+			int numOfErrs = 0;
+			while (conn==null) {
+				try {
+					conn = DriverManager.getConnection(Config.COMPUTE_DB_URL,
+							Config.COMPUTE_DB_USER, Config.COMPUTE_DB_PASSWD);
+					Thread.sleep(Config.COMPUTE_THINKTIME);
+				} catch (SQLException e) {
+					numOfErrs++;
+					if (numOfErrs == Config.COMPUTE_TOLERATED_ERRORS)
+						throw e;
+				}
+			}
+
+			if (reCreateTmpDB) {
+				Statement stmt = conn.createStatement();
+				stmt.execute("DROP DATABASE IF EXISTS "
+						+ Config.COMPUTE_DB_NAME);
+				stmt.execute("CREATE DATABASE " + Config.COMPUTE_DB_NAME);
+				stmt.close();
+			}
 			conn.close();
 
 		} catch (SQLException e) {
@@ -142,10 +156,13 @@ public class ComputeNode {
 		Error err = new Error();
 
 		final Identifier srcExecuteOpId = signal.getSource();
-		final Identifier srcTrackerOpId = (srcExecuteOpId.equals(Config.COMPUTE_NOOP_ID))?srcExecuteOpId:srcExecuteOpId.getParentId(1);
-		final Identifier consumerExecuteOpId = signal.getConsumer(); 
-		final Identifier consumerTrackerOpId = (consumerExecuteOpId.equals(Config.COMPUTE_NOOP_ID))?consumerExecuteOpId:consumerExecuteOpId.getParentId(1);
-
+		final Identifier srcTrackerOpId = (srcExecuteOpId
+				.equals(Config.COMPUTE_NOOP_ID)) ? srcExecuteOpId
+				: srcExecuteOpId.getParentId(1);
+		final Identifier consumerExecuteOpId = signal.getConsumer();
+		final Identifier consumerTrackerOpId = (consumerExecuteOpId
+				.equals(Config.COMPUTE_NOOP_ID)) ? consumerExecuteOpId
+				: consumerExecuteOpId.getParentId(1);
 
 		// Get signaled operator
 		AbstractExecuteOperator op = null;
@@ -153,7 +170,6 @@ public class ComputeNode {
 		if (op == null) {
 			return err;
 		}
-
 
 		logger.log(Level.INFO, "Received READY_SIGNAL for operator: "
 				+ consumerExecuteOpId + " from source: " + srcExecuteOpId);
@@ -164,25 +180,27 @@ public class ComputeNode {
 		HashSet<Identifier> sourceTrackerIds = null;
 		if (!this.receivedReadySignals.containsKey(consumerTrackerOpId)) {
 			sourceTrackerIds = new HashSet<Identifier>();
-			this.receivedReadySignals.put(consumerTrackerOpId, sourceTrackerIds);
+			this.receivedReadySignals
+					.put(consumerTrackerOpId, sourceTrackerIds);
 		} else {
-			sourceTrackerIds = this.receivedReadySignals.get(consumerTrackerOpId);
+			sourceTrackerIds = this.receivedReadySignals
+					.get(consumerTrackerOpId);
 		}
 		sourceTrackerIds.add(srcTrackerOpId);
 
 		if (sourceTrackerIds.containsAll(op.getSourceTrackerIds())) {
-			
+
 			logger.log(Level.INFO, "All READY_SIGNALs received for operator: "
-					+ op.getOperatorId()+", "+op.getSourceTrackerIds());
+					+ op.getOperatorId() + ", " + op.getSourceTrackerIds());
 			execute = true;
 		}
 		readySignalsLock.unlock();
 
 		// execute operator
-		if (execute) { 
-			OperatorExecutor executor = new OperatorExecutor(op);  
+		if (execute) {
+			OperatorExecutor executor = new OperatorExecutor(op);
 			executingOperator.put(op.getOperatorId(), executor.getId());
-			executor.start(); 
+			executor.start();
 			return executor.getLastError();
 		}
 
@@ -219,86 +237,90 @@ public class ComputeNode {
 	private class OperatorExecutor extends Thread {
 		private AbstractExecuteOperator op;
 		private Error err = new Error();
-		
+
 		public OperatorExecutor(AbstractExecuteOperator op) {
 			super();
 			this.op = op;
 		}
-		
-		public Error getLastError(){
+
+		public Error getLastError() {
 			return this.err;
 		}
 
 		private void executeOperator(final AbstractExecuteOperator op) {
 			// start timer
 			timeMeasure.start(op.getOperatorId().toString());
-			
+
 			// execute operator
 			this.err = op.execute();
-				
+
 			// stop timer
 			timeMeasure.stop(op.getOperatorId().toString());
-			
-			// send READY_SIGNAL to QueryTracker who takes care of error handling
+
+			// send READY_SIGNAL to QueryTracker who takes care of error
+			// handling
 			QueryTrackerClient queryTrackerClient = op.getQueryTrackerClient();
 			logger.log(
 					Level.INFO,
 					"Send READY_SIGNAL from operator " + op.getOperatorId()
 							+ " to Query Tracker "
-							+ queryTrackerClient.getUrl()); 
+							+ queryTrackerClient.getUrl());
 			ComputeNode.executingOperator.remove(op.getOperatorId());
 			this.err = queryTrackerClient.operatorReady(op);
 		}
 
 		@Override
-		public void run() {  
-			
+		public void run() {
+
 			this.executeOperator(op);
 		}
-	} 
-	
+	}
+
 	/**
-	 * kill the failed operator if it is running, otherwise 
-	 * remove it from the execution plan. 
+	 * kill the failed operator if it is running, otherwise remove it from the
+	 * execution plan.
 	 * 
-	 * @param killSignal the failed operator op id. 
+	 * @param killSignal
+	 *            the failed operator op id.
 	 * @return
 	 */
 	public Error killOperator(KillSignal killSignal) {
-		
-		Error err = new Error (); 
-		Identifier failedExecOpId = killSignal.getFailedExecOpId(); 
-		
+
+		Error err = new Error();
+		Identifier failedExecOpId = killSignal.getFailedExecOpId();
+
 		final AbstractExecuteOperator op = operators.get(failedExecOpId);
-		 
-		if(!executingOperator.containsKey(failedExecOpId)) {  
-			logger.log(Level.INFO, "Failed Operator "+failedExecOpId+" has been removed from the execution plan");
-			this.removeOperator(op);  
+
+		if (!executingOperator.containsKey(failedExecOpId)) {
+			logger.log(Level.INFO, "Failed Operator " + failedExecOpId
+					+ " has been removed from the execution plan");
+			this.removeOperator(op);
 		} else {
-			Set<Thread> threadSet = Thread.getAllStackTraces().keySet(); 
-			Long failedOpThreadId = executingOperator.get(failedExecOpId); 
-			for (Thread thread : threadSet) { 
-				if(thread != null && thread.getId() == failedOpThreadId){
-					logger.log(Level.INFO, "Failed Operator "+failedExecOpId +" running on thread "+thread.getId()+" has been interrupted"); 
+			Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+			Long failedOpThreadId = executingOperator.get(failedExecOpId);
+			for (Thread thread : threadSet) {
+				if (thread != null && thread.getId() == failedOpThreadId) {
+					logger.log(Level.INFO, "Failed Operator " + failedExecOpId
+							+ " running on thread " + thread.getId()
+							+ " has been interrupted");
 					thread.interrupt();
 					break;
-					
-				}
-			} 
 
-		} 
-		
-		this.receivedReadySignals.remove(op.getOperatorId().getParentId(1));	    
+				}
+			}
+
+		}
+
+		this.receivedReadySignals.remove(op.getOperatorId().getParentId(1));
 		return err;
-	} 
-	
-	public Error restartComputeNode(){
-		Error err = new Error(); 
-		// restart the mysql server 
-		// sleep the meantime between failure 
-		
-		
-		return err; 
+	}
+
+	public Error restartComputeNode() {
+		Error err = new Error();
+		// restart the mysql server
+		// sleep the meantime between failure
+
+		return err;
 	}
 
 	/**
@@ -325,5 +347,4 @@ public class ComputeNode {
 		return err;
 	}
 
-	
 }

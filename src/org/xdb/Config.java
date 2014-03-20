@@ -22,7 +22,6 @@ public class Config implements Serializable {
 	// General
 	public static String LOCALHOST = "127.0.0.1";
 	public static String CONFIG_FILE = "./config/xdb.conf"; 
-	public static String MYSQL_DIR = "/usr/local/mysql/bin/";
 
 	// Monitoring
 	public static int MASTERTRACKER_MONITOR_INTERVAL = 2000;  
@@ -41,6 +40,10 @@ public class Config implements Serializable {
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
 	public static boolean COMPUTE_CLEAN_RESULTS = true;
 	public static boolean COMPUTE_CLEAN_PLAN = true;
+	public static int COMPUTE_TOLERATED_ERRORS = 3; 
+	public static int COMPUTE_THINKTIME = 1000; 
+	public static String COMPUTE_MYSQL_DIR = "/usr/local/mysql/bin/";
+
 	
 	// Compile Server
 	public static String METADATA_DRIVER_CLASS = "com.mysql.jdbc.Driver";

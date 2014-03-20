@@ -34,10 +34,12 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		DoomDBClusterDesc clusterDesc = new DoomDBClusterDesc(1);
 		this.dClient = new DoomDBClient(clusterDesc, 5, 600);
 		
-		mTrackerServer = new MasterTrackerServer();
-		mTrackerServer.startServer(); 
+		if(Config.TEST_RUN_LOCAL){
+			mTrackerServer = new MasterTrackerServer();
+			mTrackerServer.startServer(); 
+			assertNoError(mTrackerServer.getError());
+		}
 		
-		assertNoError(mTrackerServer.getError());
 		assertTrue(this.dClient.startDB());
 		
 	}
@@ -89,8 +91,8 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		this.dClient.startQuery(); 
 		
 		// Start DoomDb failure Simulator after starting the query. 
-		DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(this.dClient);  
-		doomDBFailureSimulator.start();
+		//DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(this.dClient);  
+		//doomDBFailureSimulator.start();
 		
 		while (!this.dClient.isQueryFinished()) {
 			System.out.print(".");

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.xdb.Config;
 import org.xdb.doomdb.IDoomDBClient;
 import org.xdb.execute.ComputeNodeDesc;
 
@@ -14,11 +13,9 @@ public class DoomDBFailureSimulator extends Thread {
 	private List<ComputeNodeDesc> failedNodesDesc = new ArrayList<ComputeNodeDesc>();
 
 
-	public DoomDBFailureSimulator(IDoomDBClient dClient) { 
+	public DoomDBFailureSimulator(IDoomDBClient dClient) {  
 		this.setDbClient(dClient);  
-		// read the list of "supposed" failed nodes from the config file  
-		String failedNodes = Config.SHOOTED_COMPUTE_NODES; 
-		this.setFailedNodesDesc(failedNodes);
+		this.failedNodesDesc = this.dbClient.getPlan().getNodes();
 			
 	}		
 
@@ -68,16 +65,8 @@ public class DoomDBFailureSimulator extends Thread {
 	/**
 	 * @param failedNodesDesc the failedNodesDesc to set
 	 */
-	public void setFailedNodesDesc(String failedNodes) {
-		String[] failedNodesArray = failedNodes.split(",");  
-		for (String computeNodeHostandPort : failedNodesArray) { 
-			String host = computeNodeHostandPort.split(":")[0].trim();
-			int port = Integer.parseInt(computeNodeHostandPort.split(":")[1].trim());
-			
-			ComputeNodeDesc computeNodeDesc = new ComputeNodeDesc(host, port); 
-			this.failedNodesDesc.add(computeNodeDesc);
-		}
-		
+	public void setFailedNodesDesc(List<ComputeNodeDesc> failedNodesDesc) {
+		this.failedNodesDesc = failedNodesDesc;
 	} 
 
 }
