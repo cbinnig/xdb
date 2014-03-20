@@ -6,19 +6,18 @@ import org.xdb.Config;
  * @author Abdallah Fault Tolerance DoomDB Thread used to simulate the node
  *         failure by restarting the mysql server on a certian compute node.
  */
-public class MysqlRunManager extends Thread {
+public class MysqlRunManager {
 
-	@Override
-	public void run() {
+	public void restart() {
 		MysqlRunManager obj = new MysqlRunManager();
 		// stopping the server
-		String stopCommand = "sudo " + Config.MYSQL_DIR
+		String stopCommand = "sudo " + Config.COMPUTE_MYSQL_DIR
 				+ "mysqladmin shutdown -u" + Config.COMPUTE_DB_USER + " -p"
 				+ Config.COMPUTE_DB_PASSWD;
 		obj.executeCommand(stopCommand, true);
 
 		// Starting the server
-		String runCommand = "sudo " + Config.MYSQL_DIR + "mysqld_safe";
+		String runCommand = "sudo " + Config.COMPUTE_MYSQL_DIR + "mysqld_safe";
 		obj.executeCommand(runCommand, false);
 	}
 

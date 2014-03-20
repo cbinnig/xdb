@@ -645,11 +645,10 @@ public class QueryTrackerPlan implements Serializable {
 
 			// Kill the failed operator, and replace it with new operator in te
 			// current deployment.
-			OperatorDesc failedOp = this.currentDeployment.get(operId);
 			// send signal to kill the operator if it is running.
-			Identifier failedExecuteId = failedOp.getOperatorID();
-			this.err = this.computeClient.killFailedOperator(
-					failedOp.getComputeNode(), failedExecuteId);
+			//Identifier failedExecuteId = failedOp.getOperatorID();
+			//this.err = this.computeClient.killFailedOperator(
+				//	failedOp.getComputeNode(), failedExecuteId);
 			currentDeployment.remove(operId);
 			currentDeployment.put(operId, executeOpDesc);
 			return;

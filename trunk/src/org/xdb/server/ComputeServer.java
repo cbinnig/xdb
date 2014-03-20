@@ -117,23 +117,33 @@ public class ComputeServer extends AbstractServer {
     
 	// restart the server for DoomDB/Fault Tolerance 
 	public Error restartComputeNode(RestartSignal restartSignal) {
+		// stop the compute server  
+		ComputeServer.this.stopServer();
+		        
+		long startTime = System.currentTimeMillis();
+		
 		// stop Mysql and rerun it again. It is assumed to kill 
 		// the compute node automatically, otherwise we kill it 
 		// manually 
 		MysqlRunManager sqlManager = new MysqlRunManager();
-		sqlManager.start();  
-		// kill the compute node if needed   
+		sqlManager.restart();  
 		
-		// stop the compute server  
-		ComputeServer.this.stopServer();
-        // wait the meantime between failure 
+		//calculate mttr
+		long mttrMysql = System.currentTimeMillis() - startTime;
+		long mttr = restartSignal.getTimeToRepair();
+		if(mttrMysql<mttr)
+			mttr -= mttrMysql;
+		else
+			mttr = 0;
+		
+		// wait the meantime between failure 
 		// the time the compute server supposed to be off! 
 		try {
-			Thread.sleep(restartSignal.getTimeToRepair());
+			Thread.sleep(mttr);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}  
-		this.startServer();
+		this.restartServer();
 		
 		return this.err;
 	}
@@ -152,11 +162,17 @@ public class ComputeServer extends AbstractServer {
 		return this.compute.getComputeNode();
 	}
 
+	public synchronized void restartServer(){
+		super.startServer();
+		
+		this.err = this.compute.startup(false);
+	}
+	
 	@Override
 	public synchronized void startServer(){
 		super.startServer();
 		
-		this.err = this.compute.startup();
+		this.err = this.compute.startup(true);
 	}
 	
 	/**
