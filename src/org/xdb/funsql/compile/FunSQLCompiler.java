@@ -68,6 +68,8 @@ public class FunSQLCompiler {
 					return null;
 			}
 			
+			//TODO: add fault-tolerizer
+			
 			return statement;
 
 		} catch (RecognitionException e) {
