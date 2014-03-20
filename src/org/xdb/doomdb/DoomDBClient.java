@@ -1,13 +1,10 @@
 package org.xdb.doomdb;
 
+import org.xdb.Config;
 import org.xdb.client.CompileClient;
 import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.client.statement.ClientStmt;
-import org.xdb.doomdb.DoomDBPlan;
-import org.xdb.doomdb.EnumDoomDBSchema;
-import org.xdb.doomdb.IDoomDBClient;
-import org.xdb.doomdb.IDoomDBPlan;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.server.CompileServer;
@@ -20,6 +17,7 @@ public class DoomDBClient implements IDoomDBClient {
 	
 	private DoomDBPlan dplan = null;
 	private EnumDoomDBSchema schema = null;
+	private String query = null;
 	private DoomDBClusterDesc clusterDesc = null;
 	
 	private CompileClient cClient = new CompileClient();
@@ -27,14 +25,15 @@ public class DoomDBClient implements IDoomDBClient {
 	private ComputeClient compClient = new ComputeClient();
 	
 	//time in seconds
-	private int mttr;
-	private int mtbf;
+	private int mttr = Config.DOOMDB_MTTR;
+	private int mtbf = Config.DOOMDB_MTBF;
+	private long startTime = 0;
+	private long endTime = 0;
+	private long runTime = 0;
+	private int killedNodes = 0;
 
 	// constructors
-	public DoomDBClient(DoomDBClusterDesc clusterDesc, int mttr, int mtbf) {
-		this.mtbf = mtbf;
-		this.mttr = mttr;
-		
+	public DoomDBClient(DoomDBClusterDesc clusterDesc) {
 		this.clusterDesc = clusterDesc;
 	}
 	
@@ -47,14 +46,13 @@ public class DoomDBClient implements IDoomDBClient {
 		return true;
 	}
 
-	// getters and setters
+	// internal methods
 	private void raiseError(Error err) {
 		if (err.isError()) {
 			throw new RuntimeException(err.toString());
 		}
 	}
 
-	// methods
 	private Error executeDDLs(String[] schemaDDLs) {
 		Error err = new Error();
 		for (String schemaDDL : schemaDDLs) {
@@ -64,7 +62,15 @@ public class DoomDBClient implements IDoomDBClient {
 		}
 		return err;
 	}
+	
+	public void killNode(ComputeNodeDesc computeNodeDesc) { 
+		this.killedNodes++;
+		Error err = compClient.restartComputeNode(computeNodeDesc, mttr*1000);
+		raiseError(err);
+	}
 
+	
+	// interface methods
 	@Override
 	public void setSchema(String schemaName) {
 		EnumDoomDBSchema schema = EnumDoomDBSchema.enumOf(schemaName);
@@ -78,11 +84,12 @@ public class DoomDBClient implements IDoomDBClient {
 	}
 
 	@Override
-	public void setQuery(String query) {
+	public void setQuery(int queryNum) {
 		if (this.schema == null) {
 			throw new RuntimeException("Provide a schema before!");
 		}
 
+		this.query = this.schema.getQuery(queryNum);
 		ClientStmt clientStmt = new ClientStmt(query);
 		Object[] args = { clientStmt };
 		Tuple<Error, Object> result = this.cClient.executeCmdWithResult(CompileServer.CMD_DOOMDB_COMPILE, args);
@@ -93,8 +100,13 @@ public class DoomDBClient implements IDoomDBClient {
 	}
 
 	@Override
-	public IDoomDBPlan getPlan() {
+	public DoomDBPlan getPlan() {
 		return this.dplan;
+	}
+	
+	@Override
+	public String getQuery(){
+		return this.query;
 	}
 
 	@Override
@@ -103,20 +115,14 @@ public class DoomDBClient implements IDoomDBClient {
 			throw new RuntimeException("Provide a query before!");
 		}
 
+		this.startTime = System.currentTimeMillis()/1000;
+		
 		new Thread() {
 			public void run() {
 				Error err = mClient.executeDoomDBPlan(dplan.getPlanDesc());
 				raiseError(err);
 			}
 		}.start();
-	}
-	
-	public boolean isAlive(String opId){
-		if (this.dplan == null) {
-			throw new RuntimeException("Provide a query before!");
-		}
-		
-		return this.dplan.isAlive(opId);
 	}
 
 	@Override
@@ -127,7 +133,17 @@ public class DoomDBClient implements IDoomDBClient {
 		Tuple<Error, Boolean> result = mClient.isDoomDBPlanFinished(dplan
 				.getPlanDesc());
 		this.raiseError(result.getObject1());
-		return result.getObject2();
+		boolean isFinished =  result.getObject2();
+		
+		if(isFinished){
+			this.endTime = System.currentTimeMillis() / 1000;
+			this.runTime = this.endTime - this.startTime;
+			if(this.killedNodes>0)
+				this.mtbf = (int)this.runTime / this.killedNodes;
+			//Config.write("DOOMDB_MTBF", ""+this.mtbf);
+		}
+		
+		return isFinished;
 	}
 
 	@Override
@@ -140,26 +156,13 @@ public class DoomDBClient implements IDoomDBClient {
 	}
 
 	@Override
-	public long getEstimatedTime() {
+	public void killNode(String node) { 
 		if (this.dplan == null) {
 			throw new RuntimeException("Provide a query before!");
 		}
-		return dplan.getEstimatedTime();
-	}
-
-	@Override
-	public String getNode(String opId) {
-		if (this.dplan == null) {
-			throw new RuntimeException("Provide a query before!");
-		}
-		return this.dplan.getComputeNodeByOp(opId).toString();
-	}
-
-	@Override
-	public void killNode(ComputeNodeDesc computeNodeDesc) { 
-		//TODO: start separate thread for killing
-		Error err = compClient.restartComputeNode(computeNodeDesc, this.mttr*1000);
-		this.raiseError(err);
+		
+		ComputeNodeDesc computeNodeDesc = this.dplan.getComputeNode(node);
+		this.killNode(computeNodeDesc);
 	}
 
 	@Override
@@ -170,7 +173,6 @@ public class DoomDBClient implements IDoomDBClient {
 	@Override
 	public void setMTBF(int mtbf) {
 		this.mtbf = mtbf;
-		
 	}
 
 	@Override

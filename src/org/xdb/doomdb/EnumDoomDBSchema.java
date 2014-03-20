@@ -1,14 +1,20 @@
 package org.xdb.doomdb;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum EnumDoomDBSchema {
 	TPCH_2PARTS("TPCH (2 Parts)");
 
-	private String schemaName;
-	
-	private EnumDoomDBSchema(String schemaName){
-		this.schemaName = schemaName;
-	}
-	
+	String tpchQ5 = "Select n_nationkey, "
+			+ "sum(l_extendedprice * (1-l_discount)) as revenue, "
+			+ "avg(l_extendedprice * (1-l_discount)) as avgrevenue "
+			+ "from customer, orders, lineitem, supplier, nation, region "
+			+ "where c_custkey = o_custkey " + "and l_orderkey = o_orderkey "
+			+ "and l_suppkey = s_suppkey  " + "and n_nationkey = s_nationkey "
+			+ "and r_regionkey = n_regionkey "
+			+ "and s_nationkey = c_nationkey " + "group by n_nationkey;";
+
 	private String[] tpchCreateDDLs = {
 			"CREATE CONNECTION TPCH1 "
 					+ "URL 'jdbc:mysql://127.0.0.1/tpch_s01' "
@@ -72,6 +78,14 @@ public enum EnumDoomDBSchema {
 					+ "R_NAME VARCHAR," + "R_COMMENT VARCHAR"
 					+ ") REPLICATED IN CONNECTION TPCH1, TPCH2;" };
 
+	private String schemaName;
+	private Map<Integer, String> queries = new HashMap<Integer, String>();
+
+	private EnumDoomDBSchema(String schemaName) {
+		this.schemaName = schemaName;
+		this.queries.put(5, this.tpchQ5);
+	}
+
 	public String[] getCreateDDL() {
 		switch (this) {
 		case TPCH_2PARTS:
@@ -80,8 +94,8 @@ public enum EnumDoomDBSchema {
 			return null;
 		}
 	}
-	
-	public int getPartitions(){
+
+	public int getPartitions() {
 		switch (this) {
 		case TPCH_2PARTS:
 			return 2;
@@ -89,12 +103,19 @@ public enum EnumDoomDBSchema {
 			return 0;
 		}
 	}
+
+	public String getQuery(int i){
+		if(this.queries.containsKey(i))
+			return this.queries.get(i);
+		
+		throw new RuntimeException("Query '"+i+"' not supported!");
+	}
 	
-	public static EnumDoomDBSchema enumOf(String schemaName){
-		for(EnumDoomDBSchema schema: EnumDoomDBSchema.values()){
-			if(schema.schemaName.equals(schemaName))
+	public static EnumDoomDBSchema enumOf(String schemaName) {
+		for (EnumDoomDBSchema schema : EnumDoomDBSchema.values()) {
+			if (schema.schemaName.equals(schemaName))
 				return schema;
 		}
-		return null;
+		throw new RuntimeException("Schema '"+schemaName+"' not supported!");
 	}
 }

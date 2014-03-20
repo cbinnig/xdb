@@ -1,6 +1,7 @@
 package org.xdb;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.Serializable;
 import java.util.BitSet;
 import java.util.Properties;
@@ -42,7 +43,6 @@ public class Config implements Serializable {
 	public static boolean COMPUTE_CLEAN_PLAN = true;
 	public static int COMPUTE_THINKTIME = 1000; 
 	public static String COMPUTE_MYSQL_DIR = "/usr/local/mysql/bin/";
-
 	
 	// Compile Server
 	public static String METADATA_DRIVER_CLASS = "com.mysql.jdbc.Driver";
@@ -57,13 +57,9 @@ public class Config implements Serializable {
 	public static String COMPILE_URL = "127.0.0.1";
 	public static String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
 
-	// Compile Server: Optimizer
+	// Optimizer
 	public static BitSet OPTIMIZER_ACTIVE_RULES_FUNCTION = new BitSet();
 	public static BitSet OPTIMIZER_ACTIVE_RULES_SELECT = new BitSet(); 
-	
-	// DoomDB 
-	public static String SHOOTED_COMPUTE_NODES = "127.0.0.1:55700";
-
 	static {
 		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(0, false); //push selections
 		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(1, true); //combine selections
@@ -123,9 +119,34 @@ public class Config implements Serializable {
 	public static boolean TEST_FT_CHECKPOINTING = false; 
 	public static int TEST_FT_RECORDS_LIMIT = 10;
 	
+	// DoomDB
+	public static int DOOMDB_MTBF = 10; //in s
+	public static int DOOMDB_MTTR = 5; //in s
+	
 	// Load xdb.conf
 	static {
 		load();
+	}
+	
+	/**
+	 * Change a property in file
+	 * @param key
+	 * @param value
+	 */
+	public static synchronized void write(String key, String value){
+		Properties props;
+		props = new Properties();
+		try {
+			// Integer
+			props.load(new FileReader(CONFIG_FILE));
+			props.setProperty(key, value);
+			props.store(new FileWriter(CONFIG_FILE), "//XDB Config File");
+			
+			load();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
@@ -136,7 +157,8 @@ public class Config implements Serializable {
 				"COMPILE_PORT", "MASTERTRACKER_PORT",
 				"QUERYTRACKER_PORT", "TEST_NODE_COUNT",
 				"TEST_FT_NUMBER_OF_FAILURES", "TEST_FT_NUMBER_OF_RUNS", "TEST_PARTS_PER_NODE", 
-				"TEST_FT_RECORDS_LIMIT" };
+				"TEST_FT_RECORDS_LIMIT", 
+				"DOOMDB_MTBF", "DOOMDB_MTTR" };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
 				"TEST_DB_NAME", "MYSQL_DIR", "SHOOTED_COMPUTE_NODES" };

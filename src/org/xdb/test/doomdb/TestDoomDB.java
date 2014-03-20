@@ -3,8 +3,7 @@ package org.xdb.test.doomdb;
 import org.xdb.Config;
 import org.xdb.doomdb.DoomDBClient;
 import org.xdb.doomdb.DoomDBClusterDesc;
-import org.xdb.doomdb.IDoomDBClient;
-import org.xdb.doomdb.IDoomDBPlan;
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.server.CompileServer;
 import org.xdb.server.ComputeServer;
@@ -18,7 +17,7 @@ import org.xdb.server.QueryTrackerServer;
  * 
  */
 public class TestDoomDB extends org.xdb.test.TestCase {
-	private IDoomDBClient dClient;
+	private DoomDBClient dClient;
 	private MasterTrackerServer mTrackerServer; 
 	
 	protected CompileServer compileServer;
@@ -32,7 +31,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 	public void setUp() {
 	    
 		DoomDBClusterDesc clusterDesc = new DoomDBClusterDesc(1);
-		this.dClient = new DoomDBClient(clusterDesc, 5, 600);
+		this.dClient = new DoomDBClient(clusterDesc);
 		
 		if(Config.TEST_RUN_LOCAL){
 			mTrackerServer = new MasterTrackerServer();
@@ -52,34 +51,21 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 
 	public void testWith2Levels() throws Exception {
 		this.dClient.setSchema("TPCH (2 Parts)");
-
-		String q = "Select n_nationkey, "
-				+ "sum(l_extendedprice * (1-l_discount)) as revenue, "
-				+ "avg(l_extendedprice * (1-l_discount)) as avgrevenue "
-				+ "from customer, orders, lineitem, supplier, nation, region "
-				+ "where c_custkey = o_custkey "
-				+ "and l_orderkey = o_orderkey "
-				+ "and l_suppkey = s_suppkey  "
-				+ "and n_nationkey = s_nationkey "
-				+ "and r_regionkey = n_regionkey "
-				+ "and s_nationkey = c_nationkey "
-				+ "group by n_nationkey;";
-
-		this.dClient.setQuery(q);
-		IDoomDBPlan dplan = this.dClient.getPlan();
+		this.dClient.setQuery(5);
+		DoomDBPlan dplan = this.dClient.getPlan();
 		dplan.tracePlan();
-
+		
 		System.out.println("--------------------");
 		System.out.println("Query Info: ");
-		System.out.println("\tQuery String: " + q);
+		System.out.println("\tQuery String: " + this.dClient.getQuery());
 		System.out.println("\tEstimated Runtime: "
-				+ this.dClient.getEstimatedTime());
+				+ dplan.getEstimatedTime());
 		System.out.println("\tNode count: " + this.dClient.getNodeCount());
 		System.out.println("");
 
 		System.out.println("Query Deployment: ");
 		for (String opId : dplan.getOperators()) {
-			String nodeDesc = this.dClient.getNode(opId);
+			String nodeDesc = dplan.getNodeForOperator(opId);
 			System.out.println("\t" + opId + ":" + nodeDesc);
 		}
 		System.out.println("");
@@ -88,7 +74,6 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		System.out.print("\tRunning ");
 		this.dClient.startQuery(); 
 		
-		// Start DoomDb failure Simulator after starting the query.
 		DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(this.dClient);  
 		doomDBFailureSimulator.start();
 		
