@@ -1,8 +1,5 @@
 package org.xdb.doomdb;
 
-import org.xdb.execute.ComputeNodeDesc;
-
-
 public interface IDoomDBClient {
 
 	/**
@@ -22,7 +19,14 @@ public interface IDoomDBClient {
 	 * 
 	 * @param query
 	 */
-	void setQuery(String query);
+	void setQuery(int queryNum);
+
+	
+	/**
+	 * Return query string
+	 * @return
+	 */
+	String getQuery();
 
 	/**
 	 * Starts execution of the Query
@@ -44,29 +48,6 @@ public interface IDoomDBClient {
 	IDoomDBPlan getPlan();
 	
 	/**
-	 * gets the estimated Time (in ms) how long the Query will need to finish
-	 * 
-	 * @return length of time in ms
-	 */
-	long getEstimatedTime();
-
-	
-	/**
-	 * checks status of operator if it is alive 
-	 * 
-	 * @param opId
-	 * @return
-	 */
-	boolean isAlive(String opId);
-	
-	/**
-	 * gets the compute node executing an operator
-	 * @param operation
-	 * @return
-	 */
-	String getNode(String opId);
-
-	/**
 	 * get number of nodes for processing the plan
 	 * 
 	 * @return Number of Nodes
@@ -77,18 +58,30 @@ public interface IDoomDBClient {
 	 * kills a specific compute node 
 	 * @param nodeDesc
 	 */
-	void killNode(ComputeNodeDesc nodeDesc);
+	void killNode(String nodeDesc);
 
 	
 	/**
-	 * sets MTTR = mean time to repair a compute node in ms
+	 * sets MTTR = mean time to repair a compute node in s
 	 * @param time
 	 */
 	void setMTTR(int time);
 	
+	/**
+	 * Set MTBF = mean time between failure a compute node in s
+	 * @param time
+	 */
 	void setMTBF(int time);
 	
+	/**
+	 * Get MTTR
+	 * @return
+	 */
 	int getMTTR();
 	
+	/**
+	 * Get MTBF
+	 * @return
+	 */
 	int getMTBF();
 }

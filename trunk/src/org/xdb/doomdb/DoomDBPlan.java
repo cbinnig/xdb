@@ -39,6 +39,7 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	// compute nodes used in current deployment
 	private Map<String, ComputeNodeDesc> nodes = new HashMap<String, ComputeNodeDesc>();
 	
+	// constructors
 	public DoomDBPlan() {
 	}
 
@@ -46,6 +47,7 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		this.planDesc = new DoomDBPlanDesc(compilePlanId, qtrackerPlanId);
 	}
 
+	// getters and setters
 	public DoomDBPlanDesc getPlanDesc(){
 		return this.planDesc;
 	}
@@ -64,10 +66,6 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		}
 
 		tos.add(to);
-	}
-
-	public Set<String> getOperators() {
-		return this.ops;
 	}
 
 	public List<String> getDependencies(String from) {
@@ -98,15 +96,16 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		return null;
 	}
 	
+	public Collection<ComputeNodeDesc> getComputeNodes(){
+		return this.nodes.values();
+	}
+	
 	public int getComputeNodeCount(){
 		return this.nodes.size();
 	}
 	
-	public long getEstimatedTime(){
-		//TODO: change hard coded estimate!!!
-		return this.ops.size() * 250;
-	}
-	
+	// internal methods
+	@Override
 	public boolean isAlive(String opIdString){
 		Identifier opId = new Identifier(opIdString);
 		
@@ -118,6 +117,28 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		return operDesc.isAlive();
 	}
 	
+	@Override
+	public long getEstimatedTime(){
+		//TODO: change hard coded estimate!!!
+		return this.ops.size() * 250;
+	}
+	
+	@Override
+	public Set<String> getOperators() {
+		return this.ops;
+	}
+		
+	@Override
+	public Collection<String> getNodes(){
+		return this.nodes.keySet();
+	}
+	
+	@Override
+	public String getNodeForOperator(String opId) {
+		return this.getComputeNodeByOp(opId).toString();
+	}
+	
+	@Override
 	public String tracePlan() {
 		String fileName = TRACE_FILE_NAME + this.planDesc.getCompilePlanId().toString();
 		final Graph graph = GraphFactory.newGraph();
@@ -145,8 +166,4 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 
 		return Dotty.dot2Img(graph, fileName);
 	} 
-	
-	public Collection<ComputeNodeDesc> getNodes(){
-		return this.nodes.values();
-	}
 }
