@@ -57,15 +57,18 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 	 * Execute prepared DML statements
 	 */
 	protected Error executeOperator() {
-		
+
 		try {
 			for (final PreparedStatement stmt : executeStmts) {
 				stmt.execute();
 			}
-		} catch (final Exception e) {
+		} catch (final RuntimeException e) {
 			err = createMySQLError(e);
 		}
-		
+		catch (final Exception e) {
+			err = createMySQLError(e);
+		} 
+
 		return err;
 	}
 
@@ -78,14 +81,14 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 
 		return err;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		
+
 		builder.append(super.toString());
-		
-		for(String exeSQL : this.executeSQLs) {
+
+		for (String exeSQL : this.executeSQLs) {
 			builder.append(exeSQL.toString());
 			builder.append(AbstractToken.NEWLINE);
 		}

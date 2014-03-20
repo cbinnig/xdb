@@ -1,6 +1,6 @@
 package org.xdb.doomdb;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 import org.xdb.execute.ComputeNodeDesc;
@@ -18,5 +18,5 @@ public interface IDoomDBPlan {
 	  */
 	 String tracePlan(); 
 	 
-	 List<ComputeNodeDesc> getNodes();
+	 Collection<ComputeNodeDesc> getNodes();
 }

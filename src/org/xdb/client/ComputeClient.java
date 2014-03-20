@@ -1,5 +1,9 @@
 package org.xdb.client;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
@@ -42,7 +46,7 @@ public class ComputeClient extends AbstractClient {
 	public Error openOperator(final ComputeNodeDesc url,
 			final AbstractExecuteOperator op) {
 		Object[] args = { op };
-		return this.executeCmd(url.getUrl(), url.getPort(),
+		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_OPEN_OP, args);
 	}
 
@@ -58,7 +62,7 @@ public class ComputeClient extends AbstractClient {
 			final ComputeNodeDesc url, final Identifier destOpId) {
 		final ReadySignal signal = new ReadySignal(sourceOpId, destOpId);
 		Object[] args = { signal };
-		return this.executeCmd(url.getUrl(), url.getPort(),
+		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_READY_SIGNAL, args);
 	}
 
@@ -110,7 +114,7 @@ public class ComputeClient extends AbstractClient {
 			final Identifier operatorId) {
 		final CloseSignal signal = new CloseSignal(operatorId);
 		Object[] args = { signal };
-		return this.executeCmd(url.getUrl(), url.getPort(),
+		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_CLOSE_SIGNAL, args);
 	}
 
@@ -134,7 +138,7 @@ public class ComputeClient extends AbstractClient {
 	 */
 	public Error stopComputeServer(final ComputeNodeDesc compNode) {
 		Object[] args = {};
-		return this.executeCmd(compNode.getUrl(), compNode.getPort(),
+		return this.executeCmdIgnoreCommErr(compNode.getUrl(), compNode.getPort(),
 				ComputeServer.CMD_STOP_SERVER, args);
 	}
 
@@ -161,9 +165,10 @@ public class ComputeClient extends AbstractClient {
 			Identifier failedExecOpId) {
 		final KillSignal killSignal = new KillSignal(failedExecOpId);
 		Object[] args = { killSignal };
-		return this.executeCmd(url.getUrl(), url.getPort(),
+		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_KILL_SIGNAL, args);
 	} 
+	
 	/**
 	 * Restart Compute Node  
 	 * 
@@ -175,7 +180,46 @@ public class ComputeClient extends AbstractClient {
 		final RestartSignal restartSignal = new RestartSignal(); 
 		restartSignal.setTimeToRepair(mttr);
         Object[] args = { restartSignal };
-		return this.executeCmd(url.getUrl(), url.getPort(),
+		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_RESTART_SERVER, args);
+	}
+	
+	
+	/**
+	 * Execute given command with arguments on server (with given URL and port)
+	 * 
+	 * @param url
+	 * @param port
+	 * @param cmd
+	 * @param args
+	 * @return
+	 */
+	protected Error executeCmdIgnoreCommErr(final String url, final int port, int cmd,
+			Object[] args) {
+		Error err = new Error();
+
+		try {
+			Socket server = new Socket(url, port);
+			final ObjectOutputStream out = new ObjectOutputStream(
+					server.getOutputStream());
+
+			out.writeInt(cmd);
+			out.flush();
+			for (Object arg : args) {
+				out.writeObject(arg);
+				out.flush();
+			}
+
+			final ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
+			err = (Error) in.readObject();
+
+			server.close();
+
+		} catch (final Exception e) {
+			//Ignore communication errors
+		}
+
+		return err;
 	}
 }

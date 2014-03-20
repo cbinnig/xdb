@@ -1,41 +1,68 @@
 package org.xdb.server;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Vector;
+
+import org.xdb.error.Error;
 import org.xdb.Config;
+import org.xdb.execute.ComputeNode;
 
 /**
- * @author Abdallah Fault Tolerance DoomDB Thread used to simulate the node
- *         failure by restarting the mysql server on a certian compute node.
+ * Manager for MySQL database e.g. for killing all running queries
+ * 
+ * @author cbinnig
+ *
  */
 public class MysqlRunManager {
 
-	public void restart() {
-		MysqlRunManager obj = new MysqlRunManager();
-		// stopping the server
-		String stopCommand = "sudo " + Config.COMPUTE_MYSQL_DIR
-				+ "mysqladmin shutdown -u" + Config.COMPUTE_DB_USER + " -p"
-				+ Config.COMPUTE_DB_PASSWD;
-		obj.executeCommand(stopCommand, true);
+	/**
+	 * Kill all queries runing in MySQL
+	 * @return
+	 */
+	public Error killAllQueries() {
+		Error err = new Error();
 
-		// Starting the server
-		String runCommand = "sudo " + Config.COMPUTE_MYSQL_DIR + "mysqld_safe";
-		obj.executeCommand(runCommand, false);
-	}
-
-	private void executeCommand(String command, boolean doWait) {
 		try {
-			System.out.println("Starting " + command);
-			Process p = Runtime.getRuntime().exec(command);
-			if (doWait) {
-				int returnCode = p.waitFor();
-				if (returnCode > 0)
-					throw new RuntimeException("Could not restart Mysql");
+			Class.forName(Config.COMPUTE_DRIVER_CLASS);
+			Connection conn = DriverManager.getConnection(
+					Config.COMPUTE_DB_URL, Config.COMPUTE_DB_USER,
+					Config.COMPUTE_DB_PASSWD);
+
+			// get all process IDs
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt
+					.executeQuery("SELECT concat('KILL ',id,';') FROM information_schema.processlist where state='executing'");
+			
+			Vector<String> killQueries = new Vector<String>();
+			while (rs.next()) {
+				killQueries.add(rs.getString(1));
 			}
-			System.out.println("Executed " + command);
+			stmt.close();
+			
+			// kill all processes
+			Statement killStmt = conn.createStatement();
+			for(String killQuery: killQueries){
+				System.err.println(killQuery);
+				try {
+					killStmt.execute(killQuery);
+				}
+				catch (Exception e) {
+					//no errors
+				}
+			}
+			killStmt.close();
+			
+			conn.close();
 
+		} catch (SQLException e) {
+			err = ComputeNode.createMySQLError(e);
 		} catch (Exception e) {
-			e.printStackTrace();
+			err = ComputeNode.createMySQLError(e);
 		}
-
+		return err;
 	}
-
 }
