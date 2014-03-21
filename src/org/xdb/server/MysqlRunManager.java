@@ -6,10 +6,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.xdb.error.Error;
 import org.xdb.Config;
 import org.xdb.execute.ComputeNode;
+import org.xdb.logging.XDBLog;
 
 /**
  * Manager for MySQL database e.g. for killing all running queries
@@ -18,6 +21,12 @@ import org.xdb.execute.ComputeNode;
  *
  */
 public class MysqlRunManager {
+
+	protected Logger logger;
+	
+	public MysqlRunManager() {
+		this.logger = XDBLog.getLogger(this.getClass().getName());
+	}
 
 	/**
 	 * Kill all queries runing in MySQL
@@ -46,7 +55,7 @@ public class MysqlRunManager {
 			// kill all processes
 			Statement killStmt = conn.createStatement();
 			for(String killQuery: killQueries){
-				System.err.println(killQuery);
+				this.logger.log(Level.INFO, killQuery);
 				try {
 					killStmt.execute(killQuery);
 				}

@@ -8,32 +8,43 @@ import org.xdb.execute.ComputeNodeDesc;
 
 public class DoomDBFailureSimulator extends Thread {
 
-	private DoomDBClient dbClient; 
+	private DoomDBClient dbClient;
 	private Vector<ComputeNodeDesc> failedNodesDesc;
 
-
-	public DoomDBFailureSimulator(DoomDBClient dClient) {  
-		this.dbClient = dClient;  
-		this.failedNodesDesc = new Vector<ComputeNodeDesc>(this.dbClient.getPlan().getComputeNodes());			
-	}		
-
+	public DoomDBFailureSimulator(DoomDBClient dClient) {
+		this.dbClient = dClient;
+		this.failedNodesDesc = new Vector<ComputeNodeDesc>(this.dbClient
+				.getPlan().getComputeNodes());
+	}
 
 	@Override
-	public void run() { 
+	public void run() {
 		int failedNodesNumber = this.failedNodesDesc.size();
-		// Note: change the condition later  
-		Random randomGenarator = new Random();  
-		// Sleep specified time depends on the runtime of a query.  
-		while(!this.dbClient.isQueryFinished()){ 
-			int failedNodeIndex = randomGenarator.nextInt(failedNodesNumber);  
-			ComputeNodeDesc node2Kill = this.failedNodesDesc.get(failedNodeIndex);
-			
-		    this.dbClient.killNode(node2Kill); 
-		    try {
-				Thread.sleep(this.dbClient.getMTBF()*1000);
-			} catch (InterruptedException e) {
-				//do nothing
+		// Note: change the condition later
+		Random randomGenarator = new Random();
+		// Sleep specified time depends on the runtime of a query.
+		try {
+			while (!this.dbClient.isQueryFinished()) {
+
+				int failedNodeIndex = randomGenarator
+						.nextInt(failedNodesNumber);
+				ComputeNodeDesc node2Kill = this.failedNodesDesc
+						.get(failedNodeIndex);
+
+				int mtbf = this.dbClient.getMTBF();
+				//System.err.println("Kill " + this.getId());
+				this.dbClient.killNode(node2Kill);
+
+				try {
+					Thread.sleep(mtbf * 1000);
+				} catch (InterruptedException e) {
+					// do nothing
+				}
 			}
+		} catch (Exception e) {
+			// do nothing
+		} finally {
+			this.interrupt();
 		}
 	}
 }

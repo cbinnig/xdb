@@ -4,11 +4,8 @@ import org.xdb.Config;
 import org.xdb.doomdb.DoomDBClient;
 import org.xdb.doomdb.DoomDBClusterDesc;
 import org.xdb.doomdb.DoomDBPlan;
-import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.server.CompileServer;
-import org.xdb.server.ComputeServer;
 import org.xdb.server.MasterTrackerServer;
-import org.xdb.server.QueryTrackerServer;
 
 /**
  * Test case with partitioned TPC-H schema
@@ -19,42 +16,40 @@ import org.xdb.server.QueryTrackerServer;
 public class TestDoomDB extends org.xdb.test.TestCase {
 	private DoomDBClient dClient;
 	private MasterTrackerServer mTrackerServer; 
-	
-	protected CompileServer compileServer;
-	private ComputeServer[] computeServers;
-	private QueryTrackerServer qTrackerServer;
-	private ComputeNodeDesc[] computeNodes;
-	private int numberOfComputeServers;
-	private boolean runLocal;
+	private CompileServer compilerServer;
 
 	@Override
 	public void setUp() {
-	    
-		DoomDBClusterDesc clusterDesc = new DoomDBClusterDesc(1);
-		this.dClient = new DoomDBClient(clusterDesc);
-		
+	    // start master tracker if test is executed locally
 		if(Config.TEST_RUN_LOCAL){
-			mTrackerServer = new MasterTrackerServer();
-			mTrackerServer.startServer(); 
+			this.mTrackerServer = new MasterTrackerServer();
+			this.mTrackerServer.startServer(); 
 			assertNoError(mTrackerServer.getError());
+			
+			this.compilerServer = new CompileServer();
+			this.compilerServer.startServer();
+			assertNoError(compilerServer.getError());
 		}
 		
+		// wait for compute servers given in cluster specification
+		DoomDBClusterDesc clusterDesc = new DoomDBClusterDesc(1);
+		this.dClient = new DoomDBClient(clusterDesc);
 		assertTrue(this.dClient.startDB());
-		
 	}
 	
 	@Override
 	public void tearDown() {
-		if(Config.TEST_RUN_LOCAL)
-			mTrackerServer.stopServer();
+		if(Config.TEST_RUN_LOCAL){
+			this.mTrackerServer.stopServer();
+			this.compilerServer.stopServer();
+		}
 	} 
 
-	public void testWith2Levels() throws Exception {
-		this.dClient.setSchema("TPCH (2 Parts)");
-		this.dClient.setQuery(5);
+	private void runPlan(){
 		DoomDBPlan dplan = this.dClient.getPlan();
 		dplan.tracePlan();
 		
+		// show plan details
 		System.out.println("--------------------");
 		System.out.println("Query Info: ");
 		System.out.println("\tQuery String: " + this.dClient.getQuery());
@@ -62,7 +57,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 				+ dplan.getEstimatedTime());
 		System.out.println("\tNode count: " + this.dClient.getNodeCount());
 		System.out.println("");
-
+		
 		System.out.println("Query Deployment: ");
 		for (String opId : dplan.getOperators()) {
 			String nodeDesc = dplan.getNodeForOperator(opId);
@@ -70,6 +65,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		}
 		System.out.println("");
 
+		// execute plan w failures
 		System.out.println("Query Execution: ");
 		System.out.print("\tRunning ");
 		this.dClient.startQuery(); 
@@ -79,79 +75,29 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		
 		while (!this.dClient.isQueryFinished()) {
 			System.out.print(".");
-			Thread.sleep(500);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// do nothing
+			}
 		}
+		doomDBFailureSimulator.interrupt();
+		
 		System.out.println(" Finished!");
 		System.out.println("--------------------");
 	}
-
-	/**
-	 * @return the computeServers
-	 */
-	public ComputeServer[] getComputeServers() {
-		return computeServers;
+	
+	public void testWith2Parts() throws Exception {
+		this.dClient.setMTBF(10);
+		this.dClient.setSchema("TPCH (2 Parts)");
+		this.dClient.setQuery(5);
+		this.runPlan();
 	}
-
-	/**
-	 * @param computeServers the computeServers to set
-	 */
-	public void setComputeServers(ComputeServer[] computeServers) {
-		this.computeServers = computeServers;
-	}
-
-	/**
-	 * @return the qTrackerServer
-	 */
-	public QueryTrackerServer getqTrackerServer() {
-		return qTrackerServer;
-	}
-
-	/**
-	 * @param qTrackerServer the qTrackerServer to set
-	 */
-	public void setqTrackerServer(QueryTrackerServer qTrackerServer) {
-		this.qTrackerServer = qTrackerServer;
-	}
-
-	/**
-	 * @return the computeNodes
-	 */
-	public ComputeNodeDesc[] getComputeNodes() {
-		return computeNodes;
-	}
-
-	/**
-	 * @param computeNodes the computeNodes to set
-	 */
-	public void setComputeNodes(ComputeNodeDesc[] computeNodes) {
-		this.computeNodes = computeNodes;
-	}
-
-	/**
-	 * @return the numberOfComputeServers
-	 */
-	public int getNumberOfComputeServers() {
-		return numberOfComputeServers;
-	}
-
-	/**
-	 * @param numberOfComputeServers the numberOfComputeServers to set
-	 */
-	public void setNumberOfComputeServers(int numberOfComputeServers) {
-		this.numberOfComputeServers = numberOfComputeServers;
-	}
-
-	/**
-	 * @return the runLocal
-	 */
-	public boolean isRunLocal() {
-		return runLocal;
-	}
-
-	/**
-	 * @param runLocal the runLocal to set
-	 */
-	public void setRunLocal(boolean runLocal) {
-		this.runLocal = runLocal;
+	
+	public void testWith4Parts() throws Exception {
+		this.dClient.setMTBF(20);
+		this.dClient.setSchema("TPCH (4 Parts)");
+		this.dClient.setQuery(5);
+		this.runPlan();
 	}
 }

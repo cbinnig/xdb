@@ -30,6 +30,7 @@ public abstract class AbstractToken implements Serializable{
 	public static final String AND = "AND";
 	public static final String OR = "OR";
 	public static final String NOT = "NOT";
+	public static final String IN = "IN";
 	
 	public static final String PLUS = "+";
 	public static final String MINUS = "-";
@@ -54,11 +55,13 @@ public abstract class AbstractToken implements Serializable{
 	public static final String VALUES = "VALUES";
 	public static final String MAX = "MAX";
 	public static final String UNION = "UNION";
+	public static final String CONNECTION = "CONNECTION";
 
 	public static final String FIELDS = "FIELDS";
 	public static final String LINES = "LINES";
 	public static final String TERMINATED = "TERMINATED";
 	
+	public static final String PARTNAME = "P";
 	public static final String PARTITION = "PARTITION";
 	public static final String PARTITIONS = "PARTITIONS";
 	
