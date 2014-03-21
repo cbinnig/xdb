@@ -1,1 +1,3 @@
-java -cp ./bin/ org.xdb.server.QueryTrackerServer
+java -cp ./bin/:\
+./lib/xdb.jar \
+org.xdb.server.QueryTrackerServer
