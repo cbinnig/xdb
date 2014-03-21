@@ -22,14 +22,14 @@ public class Config implements Serializable {
 
 	// General
 	public static String LOCALHOST = "127.0.0.1";
-	public static String CONFIG_FILE = "./config/xdb.conf"; 
+	public static String CONFIG_FILE = "./config/xdb.conf";
 
 	// Monitoring
-	public static int MASTERTRACKER_MONITOR_INTERVAL = 2000;  
-	public static int QUERYTRACKER_MONITOR_INTERVAL = 100; 
+	public static int MASTERTRACKER_MONITOR_INTERVAL = 2000;
+	public static int QUERYTRACKER_MONITOR_INTERVAL = 100;
 	public static boolean MASTERTRACKER_MONITOR_ACTIVATED = false;
-	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false;  
-	
+	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false;
+
 	// Compute Server
 	public static String COMPUTE_DRIVER_CLASS = "com.mysql.jdbc.Driver";
 	public static String COMPUTE_DB_URL = "jdbc:mysql://127.0.0.1/";
@@ -41,9 +41,9 @@ public class Config implements Serializable {
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
 	public static boolean COMPUTE_CLEAN_RESULTS = true;
 	public static boolean COMPUTE_CLEAN_PLAN = true;
-	public static int COMPUTE_THINKTIME = 1000; 
+	public static int COMPUTE_THINKTIME = 1000;
 	public static String COMPUTE_MYSQL_DIR = "/usr/local/mysql/bin/";
-	
+
 	// Compile Server
 	public static String METADATA_DRIVER_CLASS = "com.mysql.jdbc.Driver";
 	public static String METADATA_DB_URL = "jdbc:mysql://127.0.0.1/xdb_schema";
@@ -59,12 +59,12 @@ public class Config implements Serializable {
 
 	// Optimizer
 	public static BitSet OPTIMIZER_ACTIVE_RULES_FUNCTION = new BitSet();
-	public static BitSet OPTIMIZER_ACTIVE_RULES_SELECT = new BitSet(); 
+	public static BitSet OPTIMIZER_ACTIVE_RULES_SELECT = new BitSet();
 	static {
-		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(0, false); //push selections
-		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(1, true); //combine selections
-		OPTIMIZER_ACTIVE_RULES_SELECT.set(0, false); //push selections
-		OPTIMIZER_ACTIVE_RULES_SELECT.set(1, true); //combine selections
+		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(0, false); // push selections
+		OPTIMIZER_ACTIVE_RULES_FUNCTION.set(1, true); // combine selections
+		OPTIMIZER_ACTIVE_RULES_SELECT.set(0, false); // push selections
+		OPTIMIZER_ACTIVE_RULES_SELECT.set(1, true); // combine selections
 	}
 
 	// Master Tracker Server
@@ -74,7 +74,7 @@ public class Config implements Serializable {
 	// Query Tracker Server
 	public static int QUERYTRACKER_PORT = 55600;
 	public static EnumResourceScheduler QUERYTRACKER_SCHEDULER = EnumResourceScheduler.SIMPLE;
-	
+
 	// Query Tracker Server: Code generation
 	public static boolean CODEGEN_OPTIMIZE = true;
 
@@ -94,13 +94,12 @@ public class Config implements Serializable {
 	public static boolean TRACE_COMPILE_PLAN_HEADER_RESULT = true;
 	public static boolean TRACE_COMPILE_PLAN_HEADER_RESULT_SCHEMA = false;
 	public static boolean TRACE_COMPILE_PLAN_HEADER_RESULT_PARTITIONING = true;
-	
+
 	public static boolean TRACE_TRACKER_PLAN_HEADER = false;
 	public static boolean TRACE_TRACKER_PLAN_FOOTER = false;
 	public static boolean TRACE_TRACKER_SHORT_CAPTIONS = true;
 	public static int TRACE_TRACKER_SHORT_CAPTIONS_CHARS = 50;
-	
-	
+
 	public static boolean TRACE_OPTIMIZED_PLAN = false;
 	public static boolean TRACE_CODEGEN_PLAN = false;
 	public static boolean TRACE_TRACKER_PLAN = false;
@@ -114,28 +113,29 @@ public class Config implements Serializable {
 
 	// Fault-tolerance testing
 	public static int TEST_FT_NUMBER_OF_RUNS = 100;
-	public static int TEST_FT_NUMBER_OF_FAILURES = 1; 
-	public static boolean TEST_FT_CHECKPOINTING = false; 
+	public static int TEST_FT_NUMBER_OF_FAILURES = 1;
+	public static boolean TEST_FT_CHECKPOINTING = false;
 	public static int TEST_FT_RECORDS_LIMIT = 10;
-	
+
 	// DoomDB
-	public static int DOOMDB_MTBF = 10; //in s
-	public static int DOOMDB_MTTR = 5; //in s
-	public static String DOOMDB_CONFIG_FILE = "./config/doomdb.conf"; 
+	public static int DOOMDB_MTBF = 10; // in s
+	public static int DOOMDB_MTTR = 5; // in s
+	public static String DOOMDB_CONFIG_FILE = "./config/doomdb.conf";
 	public static String DOOMDB_NAME = "tpch_s01";
-	
+
 	// Load xdb.conf
 	static {
 		load();
 		loadDoom();
 	}
-	
+
 	/**
 	 * Change a property in file
+	 * 
 	 * @param key
 	 * @param value
 	 */
-	private static synchronized void write(String key, String value, String file){
+	private static synchronized void write(String key, String value, String file) {
 		Properties props;
 		props = new Properties();
 		try {
@@ -143,7 +143,7 @@ public class Config implements Serializable {
 			props.load(new FileReader(file));
 			props.setProperty(key, value);
 			props.store(new FileWriter(file), "");
-			
+
 			load();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -151,20 +151,21 @@ public class Config implements Serializable {
 		}
 	}
 
-	public static synchronized void write(String key, String value){
+	public static synchronized void write(String key, String value) {
 		write(key, value, CONFIG_FILE);
 	}
-	
-	public static synchronized void writeDoom(String key, String value){
+
+	public static synchronized void writeDoom(String key, String value) {
 		write(key, value, DOOMDB_CONFIG_FILE);
 	}
-		
+
 	/**
 	 * Load user configuration from file and override default values
 	 */
 	private static void loadDoom() {
-		String[] intProperties = { 
-				"DOOMDB_MTBF", "DOOMDB_MTTR" };
+		String[] intProperties = { "DOOMDB_MTBF", "DOOMDB_MTTR" };
+
+		String[] stringProperties = { "DOOMDB_NAME" };
 
 		Properties props;
 		props = new Properties();
@@ -173,10 +174,18 @@ public class Config implements Serializable {
 			props.load(new FileReader(DOOMDB_CONFIG_FILE));
 			for (String intProperty : intProperties) {
 				if (props.containsKey(intProperty)) {
-					Config.class.getField(intProperty)
-							.setInt(null,
-									Integer.parseInt(props.get(intProperty.trim())
-											.toString().trim()));
+					Config.class.getField(intProperty).setInt(
+							null,
+							Integer.parseInt(props.get(intProperty.trim())
+									.toString().trim()));
+				}
+			}
+
+			// String
+			for (String stringProperty : stringProperties) {
+				if (props.containsKey(stringProperty)) {
+					Config.class.getField(stringProperty).set(null,
+							props.getProperty(stringProperty.trim()));
 				}
 			}
 
@@ -185,41 +194,33 @@ public class Config implements Serializable {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * Load user configuration from file and override default values
 	 */
 	private static void load() {
 		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
-				"COMPILE_PORT", "MASTERTRACKER_PORT",
-				"QUERYTRACKER_PORT", "TEST_NODE_COUNT",
-				"TEST_FT_NUMBER_OF_FAILURES", "TEST_FT_NUMBER_OF_RUNS", "TEST_PARTS_PER_NODE", 
-				"TEST_FT_RECORDS_LIMIT"};
+				"COMPILE_PORT", "MASTERTRACKER_PORT", "QUERYTRACKER_PORT",
+				"TEST_NODE_COUNT", "TEST_FT_NUMBER_OF_FAILURES",
+				"TEST_FT_NUMBER_OF_RUNS", "TEST_PARTS_PER_NODE",
+				"TEST_FT_RECORDS_LIMIT" };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
 				"TEST_DB_NAME", "MYSQL_DIR", "SHOOTED_COMPUTE_NODES" };
 
-		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS", "COMPUTE_CLEAN_PLAN",
-				"TRACE_PARALLEL_PLAN",
-				"TRACE_COMPILE_PLAN", 
-				"TRACE_COMPILE_PLAN_HEADER", 
-				"TRACE_COMPILE_PLAN_HEADER_RESULT", 
-				"TRACE_COMPILE_PLAN_HEADER_RESULT_PARTITIONING", 
+		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS",
+				"COMPUTE_CLEAN_PLAN", "TRACE_PARALLEL_PLAN",
+				"TRACE_COMPILE_PLAN", "TRACE_COMPILE_PLAN_HEADER",
+				"TRACE_COMPILE_PLAN_HEADER_RESULT",
+				"TRACE_COMPILE_PLAN_HEADER_RESULT_PARTITIONING",
 				"TRACE_COMPILE_PLAN_HEADER_RESULT_SCHEMA",
-				"TRACE_COMPILE_PLAN_FOOTER",
-				"TRACE_TRACKER_PLAN_HEADER",
-				"TRACE_TRACKER_PLAN_FOOTER",
-				"TRACE_TRACKER_PLAN_CAPTIONS",
-				"TRACE_OPTIMIZED_PLAN", 
-				"TRACE_TRACKER_PLAN",
-				"TRACE_EXECUTE_PLAN", 
-				"TRACE_CODEGEN_PLAN",
-				"LOG_EXECUTION_TIME", 
-				"CODEGEN_OPTIMIZE", 
-				"TEST_RUN_LOCAL",
-				"QUERYTRACKER_MONITOR_ACTIVATED", 
-				"MASTERTRACKER_MONITOR_ACTIVATED",
-				"TEST_FT_CHECKPOINTING"};
+				"TRACE_COMPILE_PLAN_FOOTER", "TRACE_TRACKER_PLAN_HEADER",
+				"TRACE_TRACKER_PLAN_FOOTER", "TRACE_TRACKER_PLAN_CAPTIONS",
+				"TRACE_OPTIMIZED_PLAN", "TRACE_TRACKER_PLAN",
+				"TRACE_EXECUTE_PLAN", "TRACE_CODEGEN_PLAN",
+				"LOG_EXECUTION_TIME", "CODEGEN_OPTIMIZE", "TEST_RUN_LOCAL",
+				"QUERYTRACKER_MONITOR_ACTIVATED",
+				"MASTERTRACKER_MONITOR_ACTIVATED", "TEST_FT_CHECKPOINTING" };
 
 		Properties props;
 		props = new Properties();
@@ -228,10 +229,10 @@ public class Config implements Serializable {
 			props.load(new FileReader(CONFIG_FILE));
 			for (String intProperty : intProperties) {
 				if (props.containsKey(intProperty)) {
-					Config.class.getField(intProperty)
-							.setInt(null,
-									Integer.parseInt(props.get(intProperty.trim())
-											.toString().trim()));
+					Config.class.getField(intProperty).setInt(
+							null,
+							Integer.parseInt(props.get(intProperty.trim())
+									.toString().trim()));
 				}
 			}
 
@@ -259,8 +260,8 @@ public class Config implements Serializable {
 			}
 
 			if (props.containsKey("OPTIMIZER_ACTIVE_RULES_FUNCTION")) {
-				String ruleBitSet = props
-						.getProperty("OPTIMIZER_ACTIVE_RULES_FUNCTION").trim();
+				String ruleBitSet = props.getProperty(
+						"OPTIMIZER_ACTIVE_RULES_FUNCTION").trim();
 				int i = 0;
 				for (char bit : ruleBitSet.toCharArray()) {
 					OPTIMIZER_ACTIVE_RULES_FUNCTION.set(i++,
@@ -268,8 +269,8 @@ public class Config implements Serializable {
 				}
 			}
 			if (props.containsKey("OPTIMIZER_ACTIVE_RULES_SELECT")) {
-				String ruleBitSet = props
-						.getProperty("OPTIMIZER_ACTIVE_RULES_SELECT").trim();
+				String ruleBitSet = props.getProperty(
+						"OPTIMIZER_ACTIVE_RULES_SELECT").trim();
 				int i = 0;
 				for (char bit : ruleBitSet.toCharArray()) {
 					OPTIMIZER_ACTIVE_RULES_SELECT.set(i++, (bit == '1') ? true
