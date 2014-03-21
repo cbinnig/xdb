@@ -982,8 +982,6 @@ public class Catalog {
 		insertSql.append(AbstractToken.SEMI);
 
 		String sqlInfile = insertSql.toString();
-		System.out.println(sqlInfile);
-		
 		Error err = executeUpdate(sqlInfile);
 		return err;
 	}

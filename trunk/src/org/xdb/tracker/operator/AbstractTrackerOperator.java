@@ -29,7 +29,7 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	protected static final String CREATE_VIEW_DDL = "CREATE VIEW ";
 	protected static final String DROP_VIEW_DDL = "DROP VIEW ";
 
-	private static final String OUTPUT_TABLE_DDL = " ENGINE=MEMORY";
+	private static final String OUTPUT_TABLE_DDL = " ENGINE="+Config.COMPUTE_ENGINE;
 
 	private static final StringTemplate INPUT_TABLE_DDL = new StringTemplate(
 			" ENGINE=FEDERATED CONNECTION='mysql://" + Config.COMPUTE_DB_USER

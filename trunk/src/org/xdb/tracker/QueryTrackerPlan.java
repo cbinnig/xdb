@@ -79,6 +79,7 @@ public class QueryTrackerPlan implements Serializable {
 	private final Map<Identifier, AbstractExecuteOperator> executeOps = new HashMap<Identifier, AbstractExecuteOperator>();
 	private final Map<Identifier, Set<Identifier>> receivedReadySignals = Collections
 			.synchronizedMap(new HashMap<Identifier, Set<Identifier>>());
+	private Boolean isExecuted = false;
 	
 	// helper to measure execution time
 	private final XDBExecuteTimeMeasurement timeMeasure;
@@ -108,6 +109,14 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	// getter and setter
+	public synchronized void setExecuted() {
+		this.isExecuted = true;
+	}
+	
+	public synchronized boolean isExecuted() {
+		return isExecuted;
+	}
+	
 	public void setMonitoringInterval(int interval) {
 		this.monitoringInterval = interval;
 	}
@@ -316,7 +325,7 @@ public class QueryTrackerPlan implements Serializable {
 	 * 
 	 * @return
 	 */
-	public boolean isExecuted() {
+	private boolean isExecutedInternal() {
 		for (Identifier rootId : this.roots) {
 			if (!this.getTrackerOperator(rootId).isExecuted()) {
 				return false;
@@ -324,7 +333,7 @@ public class QueryTrackerPlan implements Serializable {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Closes all operators in the plan. Result tables are kept if configuration
 	 * is set accordingly
@@ -395,7 +404,7 @@ public class QueryTrackerPlan implements Serializable {
 		}
 
 		// wait until plan is executed or error occurred
-		while (!this.isExecuted() && !this.err.isError()) {
+		while (!this.isExecutedInternal() && !this.err.isError()) {
 			if (Config.QUERYTRACKER_MONITOR_ACTIVATED) {
 				try {
 					Thread.sleep(monitoringInterval);
@@ -434,6 +443,9 @@ public class QueryTrackerPlan implements Serializable {
 		this.timeMeasure.stop(this.getPlanId().toString());
 		this.setQueryExecutionTime(this.timeMeasure.getExecutionTime(this
 				.getPlanId().toString()));
+		
+		this.setExecuted();
+		
 		return err;
 	}
 

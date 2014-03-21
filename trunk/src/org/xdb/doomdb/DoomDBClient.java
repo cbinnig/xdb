@@ -42,9 +42,11 @@ public class DoomDBClient implements IDoomDBClient {
 	
 	@Override
 	public boolean startDB() {
-		Error err = this.mClient.startDoomDBCluster(clusterDesc);
-		if(err.isError())
+		this.err = this.mClient.startDoomDBCluster(clusterDesc);
+		if(this.err.isError()){
+			System.err.println(err.toString());
 			return false;
+		}
 		
 		return true;
 	}
