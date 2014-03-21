@@ -68,10 +68,8 @@ public class MasterTrackerNode {
 	private final Map<Identifier, QueryTrackerNodeDesc> planAssignment = new HashMap<Identifier, QueryTrackerNodeDesc>();
 
 	/** Helper **/
-
 	// logger
 	private final Logger logger;
-
 
 	/** Monitoring threads **/
 
@@ -207,16 +205,18 @@ public class MasterTrackerNode {
 		err = this.executeOnQueryTracker(qTracker, plan);
 		return err;
 	}
-	
+
 	/**
 	 * Generate query tracker plan for DoomDB without executing it
+	 * 
 	 * @param plan
 	 * @return
 	 */
 	public Tuple<Error, DoomDBPlan> generateDoomDBQPlan(final CompilePlan plan) {
 		// logging
 		logger.log(Level.INFO,
-				"MasterTracker: Received CompilePlan for generating DoomDBPlan: " + plan);
+				"MasterTracker: Received CompilePlan for generating DoomDBPlan: "
+						+ plan);
 
 		// get query tracker
 		Error err = new Error();
@@ -233,49 +233,54 @@ public class MasterTrackerNode {
 
 	/**
 	 * Executes query tracker plan for given DoomDBPlan
+	 * 
 	 * @param dplanDesc
 	 * @return
 	 */
-	public Error executeDoomDBQPlan(DoomDBPlanDesc dplanDesc){
+	public Error executeDoomDBQPlan(DoomDBPlanDesc dplanDesc) {
 		Error err = new Error();
-		
-		if(!this.planAssignment.containsKey(dplanDesc.getCompilePlanId())){
+
+		if (!this.planAssignment.containsKey(dplanDesc.getCompilePlanId())) {
 			String[] args = { "MasterTracker: No query tracker available!" };
 			err = new Error(EnumError.TRACKER_GENERIC, args);
 			return err;
 		}
-		
-		QueryTrackerNodeDesc qTracker = this.planAssignment.get(dplanDesc.getCompilePlanId());
-		final QueryTrackerClient qClient = this.queryTrackerClients.get(qTracker);
-		
+
+		QueryTrackerNodeDesc qTracker = this.planAssignment.get(dplanDesc
+				.getCompilePlanId());
+		final QueryTrackerClient qClient = this.queryTrackerClients
+				.get(qTracker);
+
 		err = qClient.executeDoomDBQPlan(dplanDesc);
-		
+
 		return err;
 	}
-	
-	
+
 	/**
 	 * Executes query tracker plan for given DoomDBPlan
+	 * 
 	 * @param dplanDesc
 	 * @return
 	 */
-	public Tuple<Error, Boolean> finishedDoomDBQPlan(DoomDBPlanDesc dplanDesc){
+	public Tuple<Error, Boolean> finishedDoomDBQPlan(DoomDBPlanDesc dplanDesc) {
 		Error err = new Error();
-		
-		if(!this.planAssignment.containsKey(dplanDesc.getCompilePlanId())){
+
+		if (!this.planAssignment.containsKey(dplanDesc.getCompilePlanId())) {
 			String[] args = { "MasterTracker: No query tracker available!" };
 			err = new Error(EnumError.TRACKER_GENERIC, args);
 			return new Tuple<Error, Boolean>(err, false);
 		}
-		
-		QueryTrackerNodeDesc qTracker = this.planAssignment.get(dplanDesc.getCompilePlanId());
-		final QueryTrackerClient qClient = this.queryTrackerClients.get(qTracker);
-		
+
+		QueryTrackerNodeDesc qTracker = this.planAssignment.get(dplanDesc
+				.getCompilePlanId());
+		final QueryTrackerClient qClient = this.queryTrackerClients
+				.get(qTracker);
+
 		Tuple<Error, Boolean> result = qClient.finishedDoomDBQPlan(dplanDesc);
-		
+
 		return result;
 	}
-	
+
 	/**
 	 * Determines next query tracker using a round-robin scheme
 	 * 
@@ -303,7 +308,7 @@ public class MasterTrackerNode {
 	public Error executeOnQueryTracker(final QueryTrackerNodeDesc tracker,
 			final CompilePlan plan) {
 		Error err = new Error();
-		
+
 		// add plan to monitored plans
 		this.runningPlans.put(plan.getPlanId(), plan);
 		this.planAssignment.put(plan.getPlanId(), tracker);
@@ -313,37 +318,41 @@ public class MasterTrackerNode {
 		err = client.executePlan(plan);
 		return err;
 	}
-	
+
 	/**
 	 * Starts a doom DB cluster locally on node of master tracker
+	 * 
 	 * @param clusterDesc
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public Error startDoomDBCluster(DoomDBClusterDesc clusterDesc) throws Exception{
+	public Error startDoomDBCluster(DoomDBClusterDesc clusterDesc)
+			throws Exception {
 		Error err = new Error();
-		
-		QueryTrackerServer doomQTServer = new QueryTrackerServer();
-		doomQTServer.startServer();
-		err = doomQTServer.getError();
-		if(err.isError()){
-			return err;
+
+		if (this.queryTrackerNodes.isEmpty()) {
+			QueryTrackerServer qTServer = new QueryTrackerServer();
+			qTServer.startServer();
+			err = qTServer.getError();
+			if (err.isError()) {
+				return err;
+			}
 		}
-		
-		int startPort = clusterDesc.getStartPort(); 
-		
-		// Run doomdb cluster locally 
-		if(Config.TEST_RUN_LOCAL) {
-			for(int i=0; i<clusterDesc.getNumberOfNodes(); ++i){
-				ComputeServer computeServer = new ComputeServer(startPort+i);
+
+		int startPort = clusterDesc.getStartPort();
+
+		// Run doomdb cluster locally
+		if (Config.TEST_RUN_LOCAL) {
+			for (int i = 0; i < clusterDesc.getNumberOfNodes(); ++i) {
+				ComputeServer computeServer = new ComputeServer(startPort + i);
 				computeServer.startServer();
 				err = computeServer.getError();
-				if(err.isError()){
+				if (err.isError()) {
 					return err;
 				}
-			} 
+			}
 		} else {
-			// distributed run 
+			// distributed run
 			System.out.print("Waiting for " + clusterDesc.getNumberOfNodes()
 					+ " computer server: ");
 			int noComputeServers = 0;
@@ -353,21 +362,21 @@ public class MasterTrackerNode {
 				Thread.sleep(1000);
 			}
 		}
-		
+
 		return err;
 	}
 
-	
 	/**
 	 * Generates query tracker plan on query tracker for DoomDB
+	 * 
 	 * @param tracker
 	 * @param plan
 	 * @return
 	 */
-	public Tuple<Error, DoomDBPlan> generateDoomDBQPlanOnQueryTracker(final QueryTrackerNodeDesc tracker,
-			final CompilePlan plan) {
+	public Tuple<Error, DoomDBPlan> generateDoomDBQPlanOnQueryTracker(
+			final QueryTrackerNodeDesc tracker, final CompilePlan plan) {
 		Error err = new Error();
-		
+
 		// add plan to monitored plans
 		this.runningPlans.put(plan.getPlanId(), plan);
 		this.planAssignment.put(plan.getPlanId(), tracker);
@@ -377,7 +386,7 @@ public class MasterTrackerNode {
 		Tuple<Error, DoomDBPlan> result = client.generateDoomDBPlan(plan);
 		err = result.getObject1();
 		DoomDBPlan doomDBPlan = result.getObject2();
-		return new Tuple<Error, DoomDBPlan> (err, doomDBPlan);
+		return new Tuple<Error, DoomDBPlan>(err, doomDBPlan);
 	}
 
 	/**
