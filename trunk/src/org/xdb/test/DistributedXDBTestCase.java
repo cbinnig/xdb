@@ -15,7 +15,6 @@ import org.xdb.server.QueryTrackerServer;
  * 
  */
 public class DistributedXDBTestCase extends TestCase {
-	protected CompileServer compileServer;
 	private MasterTrackerServer mTrackerServer;
 	private ComputeServer[] computeServers;
 	private QueryTrackerServer qTrackerServer;
@@ -61,10 +60,6 @@ public class DistributedXDBTestCase extends TestCase {
 		assertNoError(CompileServer.deleteCatalog());
 
 		try {
-			compileServer = new CompileServer();
-			compileServer.startServer();
-			assertNoError(compileServer.getError());
-			
 			// start master tracker server
 			mTrackerServer = new MasterTrackerServer();
 			mTrackerServer.startServer();
@@ -107,7 +102,6 @@ public class DistributedXDBTestCase extends TestCase {
 
 	@Override
 	public void tearDown() {
-		compileServer.stopServer();
 		mTrackerServer.stopServer();
 	} 
 }

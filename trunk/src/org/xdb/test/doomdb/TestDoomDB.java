@@ -4,7 +4,6 @@ import org.xdb.Config;
 import org.xdb.doomdb.DoomDBClient;
 import org.xdb.doomdb.DoomDBClusterDesc;
 import org.xdb.doomdb.DoomDBPlan;
-import org.xdb.server.CompileServer;
 import org.xdb.server.MasterTrackerServer;
 
 /**
@@ -16,8 +15,7 @@ import org.xdb.server.MasterTrackerServer;
 public class TestDoomDB extends org.xdb.test.TestCase {
 	private DoomDBClient dClient;
 	private MasterTrackerServer mTrackerServer; 
-	private CompileServer compilerServer;
-
+	
 	@Override
 	public void setUp() {
 	    // start master tracker if test is executed locally
@@ -25,10 +23,6 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 			this.mTrackerServer = new MasterTrackerServer();
 			this.mTrackerServer.startServer(); 
 			assertNoError(mTrackerServer.getError());
-			
-			this.compilerServer = new CompileServer();
-			this.compilerServer.startServer();
-			assertNoError(compilerServer.getError());
 		}
 		
 		// wait for compute servers given in cluster specification
@@ -41,7 +35,6 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 	public void tearDown() {
 		if(Config.TEST_RUN_LOCAL){
 			this.mTrackerServer.stopServer();
-			this.compilerServer.stopServer();
 		}
 	} 
 

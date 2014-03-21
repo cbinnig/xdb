@@ -99,6 +99,16 @@ public class CompileServer extends AbstractServer {
 		handler.start();
 	}
 
+	@Override
+	public synchronized void startServer(){
+		super.startServer();
+	}
+	
+	@Override
+	public synchronized void stopServer(){
+		super.stopServer();
+	}
+	
 	/**
 	 * Deleted catalog content
 	 * 

@@ -10,7 +10,6 @@ import org.xdb.server.QueryTrackerServer;
 
 public class ExecuteTPCHBenchmarkXDB extends ExecuteTPCHBenchmark{
 	private CompileClient client = new CompileClient();
-	private CompileServer compileServer;
 	private MasterTrackerServer mTrackerServer;
 	private QueryTrackerServer qTrackerServer;
 	private ComputeServer computeServer;
@@ -120,9 +119,6 @@ public class ExecuteTPCHBenchmarkXDB extends ExecuteTPCHBenchmark{
 		try {
 			CompileServer.deleteCatalog();
 			
-			compileServer = new CompileServer();
-			compileServer.startServer();
-
 			mTrackerServer = new MasterTrackerServer();
 			mTrackerServer.startServer();
 
@@ -141,7 +137,6 @@ public class ExecuteTPCHBenchmarkXDB extends ExecuteTPCHBenchmark{
 	}
 
 	protected void cleanup() {
-		compileServer.stopServer();
 		mTrackerServer.stopServer();
 		qTrackerServer.stopServer();
 		computeServer.stopServer();

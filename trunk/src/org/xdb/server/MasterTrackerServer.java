@@ -121,6 +121,8 @@ public class MasterTrackerServer extends AbstractServer {
 	public static final int CMD_DOOMDB_EXECUTE_PLAN = 102;
 	public static final int CMD_DOOMDB_FINISHED_PLAN = 103;
 
+	// Compile Server
+	private final CompileServer compileServer = new CompileServer();
 	
 	// Master tracker node which executes cmds
 	private final MasterTrackerNode tracker;
@@ -148,6 +150,14 @@ public class MasterTrackerServer extends AbstractServer {
 	}
 
 	//methods
+	@Override
+	public synchronized void startServer(){
+		super.startServer();
+		
+		this.compileServer.startServer();
+	}
+	
+	@Override
 	public synchronized void stopServer() {
 		super.stopServer();
 		
@@ -161,6 +171,8 @@ public class MasterTrackerServer extends AbstractServer {
 		for(QueryTrackerClient qTClient: this.tracker.getQueryTrackerClients()){
 			qTClient.stopQueryTrackerServer();
 		}
+		
+		this.compileServer.stopServer();
 	}
 	
 	/**
