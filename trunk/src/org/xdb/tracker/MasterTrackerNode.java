@@ -24,7 +24,6 @@ import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
-import org.xdb.server.CompileServer;
 import org.xdb.server.ComputeServer;
 import org.xdb.server.QueryTrackerServer;
 import org.xdb.utils.Identifier;
@@ -324,16 +323,9 @@ public class MasterTrackerNode {
 	public Error startDoomDBCluster(DoomDBClusterDesc clusterDesc) throws Exception{
 		Error err = new Error();
 		
-		CompileServer compilerServer = new CompileServer();
-		compilerServer.startServer();
-		err = compilerServer.getError();
-		if(err.isError()){
-			return err;
-		}
-		
-		QueryTrackerServer qtServer = new QueryTrackerServer();
-		qtServer.startServer();
-		err = qtServer.getError();
+		QueryTrackerServer doomQTServer = new QueryTrackerServer();
+		doomQTServer.startServer();
+		err = doomQTServer.getError();
 		if(err.isError()){
 			return err;
 		}
@@ -364,6 +356,7 @@ public class MasterTrackerNode {
 		
 		return err;
 	}
+
 	
 	/**
 	 * Generates query tracker plan on query tracker for DoomDB

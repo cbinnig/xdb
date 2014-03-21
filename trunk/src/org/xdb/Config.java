@@ -74,7 +74,6 @@ public class Config implements Serializable {
 	// Query Tracker Server
 	public static int QUERYTRACKER_PORT = 55600;
 	public static EnumResourceScheduler QUERYTRACKER_SCHEDULER = EnumResourceScheduler.SIMPLE;
-	public static int QUERYTRACKER_TOLERATED_ERRORS = 3; 
 	
 	// Query Tracker Server: Code generation
 	public static boolean CODEGEN_OPTIMIZE = true;
@@ -122,10 +121,13 @@ public class Config implements Serializable {
 	// DoomDB
 	public static int DOOMDB_MTBF = 10; //in s
 	public static int DOOMDB_MTTR = 5; //in s
+	public static String DOOMDB_CONFIG_FILE = "./config/doomdb.conf"; 
+	public static String DOOMDB_NAME = "tpch_s01";
 	
 	// Load xdb.conf
 	static {
 		load();
+		loadDoom();
 	}
 	
 	/**
@@ -133,14 +135,14 @@ public class Config implements Serializable {
 	 * @param key
 	 * @param value
 	 */
-	public static synchronized void write(String key, String value){
+	private static synchronized void write(String key, String value, String file){
 		Properties props;
 		props = new Properties();
 		try {
 			// Integer
-			props.load(new FileReader(CONFIG_FILE));
+			props.load(new FileReader(file));
 			props.setProperty(key, value);
-			props.store(new FileWriter(CONFIG_FILE), "//XDB Config File");
+			props.store(new FileWriter(file), "");
 			
 			load();
 		} catch (Exception e) {
@@ -149,6 +151,41 @@ public class Config implements Serializable {
 		}
 	}
 
+	public static synchronized void write(String key, String value){
+		write(key, value, CONFIG_FILE);
+	}
+	
+	public static synchronized void writeDoom(String key, String value){
+		write(key, value, DOOMDB_CONFIG_FILE);
+	}
+		
+	/**
+	 * Load user configuration from file and override default values
+	 */
+	private static void loadDoom() {
+		String[] intProperties = { 
+				"DOOMDB_MTBF", "DOOMDB_MTTR" };
+
+		Properties props;
+		props = new Properties();
+		try {
+			// Integer
+			props.load(new FileReader(DOOMDB_CONFIG_FILE));
+			for (String intProperty : intProperties) {
+				if (props.containsKey(intProperty)) {
+					Config.class.getField(intProperty)
+							.setInt(null,
+									Integer.parseInt(props.get(intProperty.trim())
+											.toString().trim()));
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+	
 	/**
 	 * Load user configuration from file and override default values
 	 */
@@ -157,8 +194,7 @@ public class Config implements Serializable {
 				"COMPILE_PORT", "MASTERTRACKER_PORT",
 				"QUERYTRACKER_PORT", "TEST_NODE_COUNT",
 				"TEST_FT_NUMBER_OF_FAILURES", "TEST_FT_NUMBER_OF_RUNS", "TEST_PARTS_PER_NODE", 
-				"TEST_FT_RECORDS_LIMIT", 
-				"DOOMDB_MTBF", "DOOMDB_MTTR" };
+				"TEST_FT_RECORDS_LIMIT"};
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
 				"TEST_DB_NAME", "MYSQL_DIR", "SHOOTED_COMPUTE_NODES" };

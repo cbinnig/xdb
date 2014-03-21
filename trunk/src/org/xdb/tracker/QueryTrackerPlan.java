@@ -79,8 +79,7 @@ public class QueryTrackerPlan implements Serializable {
 	private final Map<Identifier, AbstractExecuteOperator> executeOps = new HashMap<Identifier, AbstractExecuteOperator>();
 	private final Map<Identifier, Set<Identifier>> receivedReadySignals = Collections
 			.synchronizedMap(new HashMap<Identifier, Set<Identifier>>());
-	private int toleratedErrors = Config.QUERYTRACKER_TOLERATED_ERRORS;
-
+	
 	// helper to measure execution time
 	private final XDBExecuteTimeMeasurement timeMeasure;
 	private long queryExecutionTime;
@@ -396,14 +395,7 @@ public class QueryTrackerPlan implements Serializable {
 		}
 
 		// wait until plan is executed or error occurred
-		int numberOfErrors = 0;
-		while (!this.isExecuted() && numberOfErrors < this.toleratedErrors) {
-			if (this.err.isError()) {
-				System.err.println("Retry " + numberOfErrors);
-				numberOfErrors++;
-				this.err = new Error();
-			}
-
+		while (!this.isExecuted() && !this.err.isError()) {
 			if (Config.QUERYTRACKER_MONITOR_ACTIVATED) {
 				try {
 					Thread.sleep(monitoringInterval);
@@ -430,12 +422,13 @@ public class QueryTrackerPlan implements Serializable {
 					if (monitoringLock.isLocked())
 						monitoringLock.unlock();
 				}
-			} else
+			} else {
 				try {
 					Thread.sleep(Config.QUERYTRACKER_MONITOR_INTERVAL);
 				} catch (InterruptedException e) {
 
 				}
+			}
 		}
 
 		this.timeMeasure.stop(this.getPlanId().toString());

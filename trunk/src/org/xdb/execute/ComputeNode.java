@@ -305,14 +305,6 @@ public class ComputeNode {
 		return err;
 	}
 
-	public Error restartComputeNode() {
-		Error err = new Error();
-		// restart the mysql server
-		// sleep the meantime between failure
-
-		return err;
-	}
-
 	/**
 	 * Removes operator from node
 	 * 
