@@ -49,12 +49,9 @@ public class TestLoadDataInfileStmt extends XDBTestCase {
 		LoadDataInfileStmt loadDataInfileStmt = (LoadDataInfileStmt) compiler
 					.compile("LOAD DATA INFILE \"sql/test.tbl\" INTO TABLE R");
 
-		System.out.println(compiler.getLastError());
 		this.assertNoError(compiler.getLastError());
-		
 		loadDataInfileStmt.execute();
 		this.assertNoError(compiler.getLastError());
-		
 	}
 
 }

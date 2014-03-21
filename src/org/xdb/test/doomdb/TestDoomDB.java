@@ -26,7 +26,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		}
 		
 		// wait for compute servers given in cluster specification
-		DoomDBClusterDesc clusterDesc = new DoomDBClusterDesc(1);
+		DoomDBClusterDesc clusterDesc = new DoomDBClusterDesc(Config.DOOMDB_CLUSTER_SIZE);
 		this.dClient = new DoomDBClient(clusterDesc);
 		assertTrue(this.dClient.startDB());
 	}

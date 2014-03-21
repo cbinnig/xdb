@@ -21,13 +21,14 @@ public enum EnumDoomDBSchema {
 			+ "and r_regionkey = n_regionkey "
 			+ "and s_nationkey = c_nationkey " + "group by n_nationkey;";
 
+	private static String CONNURL = "CONNURL";
 	private static String CONNAME = "CONNAME";
 	private static String HASHCONNS = "HASHCONNS";
 	private static String REPCONNS = "REPONNS";
 	
 	private static StringTemplate xdbConnDDL = new StringTemplate(
 			"CREATE CONNECTION <" + CONNAME + "> "
-					+ "URL 'jdbc:mysql://127.0.0.1/"+Config.DOOMDB_NAME+"' "
+					+ "URL 'jdbc:mysql://<"+CONNURL+">/"+Config.DOOMDB_NAME+"' "
 					+ "USER '" + Config.COMPUTE_DB_USER + "' " + "PASSWORD '"
 					+ Config.COMPUTE_DB_PASSWD + "' " + "STORE 'XDB';");
 
@@ -107,6 +108,8 @@ public enum EnumDoomDBSchema {
 	}
 	
 	private static Vector<String> createTPCHXParts(int parts){
+		String[] conns = Config.DOOMDB_COMPUTE_NODES.split(",");
+		
 		Vector<String> tpchXParts = new Vector<String>();
 		
 		String connPrefix = "TPCH";
@@ -121,6 +124,7 @@ public enum EnumDoomDBSchema {
 			
 			//add connection DDLs to tpchXParts
 			args.put(CONNAME, connName);
+			args.put(CONNURL, conns[i%Config.DOOMDB_CLUSTER_SIZE]);
 			tpchXParts.add(xdbConnDDL.toString(args));
 			
 			//repConns and refConns

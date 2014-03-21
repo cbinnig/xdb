@@ -42,7 +42,7 @@ public class Config implements Serializable {
 	public static boolean COMPUTE_CLEAN_RESULTS = true;
 	public static boolean COMPUTE_CLEAN_PLAN = true;
 	public static int COMPUTE_THINKTIME = 1000;
-	public static String COMPUTE_MYSQL_DIR = "/usr/local/mysql/bin/";
+	public static String COMPUTE_ENGINE = "MEMORY";
 
 	// Compile Server
 	public static String METADATA_DRIVER_CLASS = "com.mysql.jdbc.Driver";
@@ -73,7 +73,7 @@ public class Config implements Serializable {
 
 	// Query Tracker Server
 	public static int QUERYTRACKER_PORT = 55600;
-	public static EnumResourceScheduler QUERYTRACKER_SCHEDULER = EnumResourceScheduler.SIMPLE;
+	public static EnumResourceScheduler QUERYTRACKER_SCHEDULER = EnumResourceScheduler.WISHLIST_AWARE;
 
 	// Query Tracker Server: Code generation
 	public static boolean CODEGEN_OPTIMIZE = true;
@@ -118,10 +118,12 @@ public class Config implements Serializable {
 	public static int TEST_FT_RECORDS_LIMIT = 10;
 
 	// DoomDB
+	public static String DOOMDB_CONFIG_FILE = "./config/doomdb.conf";
 	public static int DOOMDB_MTBF = 10; // in s
 	public static int DOOMDB_MTTR = 5; // in s
-	public static String DOOMDB_CONFIG_FILE = "./config/doomdb.conf";
 	public static String DOOMDB_NAME = "tpch_s01";
+	public static int DOOMDB_CLUSTER_SIZE = 4; // in s
+	public static String DOOMDB_COMPUTE_NODES = "127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1";
 
 	// Load xdb.conf
 	static {
@@ -163,9 +165,10 @@ public class Config implements Serializable {
 	 * Load user configuration from file and override default values
 	 */
 	private static void loadDoom() {
-		String[] intProperties = { "DOOMDB_MTBF", "DOOMDB_MTTR" };
+		String[] intProperties = { "DOOMDB_MTBF", "DOOMDB_MTTR",
+				"DOOMDB_CLUSTER_SIZE" };
 
-		String[] stringProperties = { "DOOMDB_NAME" };
+		String[] stringProperties = { "DOOMDB_NAME", "DOOMDB_COMPUTE_NODES" };
 
 		Properties props;
 		props = new Properties();
@@ -206,7 +209,7 @@ public class Config implements Serializable {
 				"TEST_FT_RECORDS_LIMIT" };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
-				"TEST_DB_NAME", "MYSQL_DIR", "SHOOTED_COMPUTE_NODES" };
+				"TEST_DB_NAME", "COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES" };
 
 		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS",
 				"COMPUTE_CLEAN_PLAN", "TRACE_PARALLEL_PLAN",
