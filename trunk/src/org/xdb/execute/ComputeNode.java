@@ -47,7 +47,7 @@ public class ComputeNode {
 			.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());;
 
 	// Map of operator -> which are ready
-	public static final Map<Identifier, Long> executingOperator = Collections
+	private final Map<Identifier, Long> executingOperator = Collections
 			.synchronizedMap(new HashMap<Identifier, Long>());;
 
 	private final Lock readySignalsLock = new ReentrantLock();
@@ -85,7 +85,7 @@ public class ComputeNode {
 	 * 
 	 * @return
 	 */
-	public Error startup(boolean doRestart) {
+	public synchronized Error startup(boolean doRestart) {
 		// register at master tracker
 		Error err = mTrackerClient.registerNode(computeNodeDesc);
 		if (err.isError())
@@ -99,7 +99,7 @@ public class ComputeNode {
 					Config.COMPUTE_DB_URL, Config.COMPUTE_DB_USER,
 					Config.COMPUTE_DB_PASSWD);
 
-			if (doRestart) {
+			if (!doRestart) {
 				Statement stmt = conn.createStatement();
 				stmt.execute("DROP DATABASE IF EXISTS "
 						+ Config.COMPUTE_DB_NAME);
@@ -112,6 +112,41 @@ public class ComputeNode {
 			err = createMySQLError(e);
 		} catch (Exception e) {
 			err = createMySQLError(e);
+		}
+
+		return err;
+	}
+	
+	/**
+	 * Shut down compute node and kill all operators
+	 * @return
+	 */
+	public synchronized Error shutdown() {
+		Error err = this.killAllOperators();
+		this.operators.clear();
+		this.executingOperator.clear();
+		return err;
+	}
+
+	/**
+	 * Kill all threads running an operator
+	 * @return
+	 */
+	private Error killAllOperators() {
+		Error err = new Error();
+
+		Set<Long> runningThreads = new HashSet<Long>(
+				this.executingOperator.values());
+		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+		for (Thread thread : threadSet) {
+			if (thread != null && runningThreads.contains(thread.getId())) {
+				thread.interrupt();
+				System.err.println("Killing thread "+thread.getId());
+				while (!thread.isAlive()) {
+					// do nothing
+				}
+				System.err.println("Killed thread "+thread.getId());
+			}
 		}
 
 		return err;
@@ -156,11 +191,11 @@ public class ComputeNode {
 
 		// Get signaled operator
 		AbstractExecuteOperator op = null;
-		op = operators.get(consumerExecuteOpId);
-		if (op == null) {
+		if (!operators.containsKey(consumerExecuteOpId)) {
 			return err;
 		}
 
+		op = operators.get(consumerExecuteOpId);
 		logger.log(Level.INFO, "Received READY_SIGNAL for operator: "
 				+ consumerExecuteOpId + " from source: " + srcExecuteOpId);
 
@@ -255,14 +290,18 @@ public class ComputeNode {
 					"Send READY_SIGNAL from operator " + op.getOperatorId()
 							+ " to Query Tracker "
 							+ queryTrackerClient.getUrl());
-			ComputeNode.executingOperator.remove(op.getOperatorId());
+			executingOperator.remove(op.getOperatorId());
 			this.err = queryTrackerClient.operatorReady(op);
 		}
 
 		@Override
 		public void run() {
-
-			this.executeOperator(op);
+			try{
+				this.executeOperator(op);
+			}
+			catch(Exception e){
+				//ignore other exceptions
+			}
 		}
 	}
 
@@ -313,7 +352,7 @@ public class ComputeNode {
 	private synchronized void removeOperator(final AbstractExecuteOperator op) {
 		this.operators.remove(op.getOperatorId());
 		this.receivedReadySignals.remove(op.getOperatorId());
-
+		this.executingOperator.remove(op.getOperatorId());
 	}
 
 	/**

@@ -17,6 +17,7 @@ import org.xdb.doomdb.DoomDBPlanDesc;
 import org.xdb.doomdb.DoomDBPlanStatus;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
+import org.xdb.execute.signals.RestartSignal;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.tracker.MasterTrackerNode;
 import org.xdb.tracker.QueryTrackerNodeDesc;
@@ -83,6 +84,10 @@ public class MasterTrackerServer extends AbstractServer {
 				case CMD_DOOMDB_START_CLUSTER:
 					final DoomDBClusterDesc clusterDesc = (DoomDBClusterDesc)in.readObject();
 					err = tracker.startDoomDBCluster(clusterDesc);
+					break; 
+				case CMD_DOOMDB_KILL_NODE:  
+					final RestartSignal restartSignal = (RestartSignal) in.readObject();
+					err = tracker.killComputeNode(restartSignal); 
 					break;
 				case CMD_DOOMDB_GENERATE_PLAN:
 					final CompilePlan cplan2 = (CompilePlan) in.readObject();
@@ -120,7 +125,8 @@ public class MasterTrackerServer extends AbstractServer {
 	public static final int CMD_DOOMDB_START_CLUSTER = 100;
 	public static final int CMD_DOOMDB_GENERATE_PLAN = 101;
 	public static final int CMD_DOOMDB_EXECUTE_PLAN = 102;
-	public static final int CMD_DOOMDB_FINISHED_PLAN = 103;
+	public static final int CMD_DOOMDB_FINISHED_PLAN = 103; 
+	public static final int CMD_DOOMDB_KILL_NODE = 104;
 
 	// Compile Server
 	private final CompileServer compileServer = new CompileServer();

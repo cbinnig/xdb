@@ -23,6 +23,7 @@ import org.xdb.doomdb.DoomDBPlanStatus;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
+import org.xdb.execute.signals.RestartSignal;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.ComputeServer;
@@ -269,7 +270,7 @@ public class MasterTrackerNode {
 		if (!this.planAssignment.containsKey(dplanDesc.getCompilePlanId())) {
 			String[] args = { "MasterTracker: No query tracker available!" };
 			err = new Error(EnumError.TRACKER_GENERIC, args);
-			return new Tuple<Error, DoomDBPlanStatus>(err, new DoomDBPlanStatus(false, null));
+			return new Tuple<Error, DoomDBPlanStatus>(err, new DoomDBPlanStatus(false, null, err));
 		}
 
 		QueryTrackerNodeDesc qTracker = this.planAssignment.get(dplanDesc
@@ -365,7 +366,9 @@ public class MasterTrackerNode {
 		}
 
 		return err;
-	}
+	} 
+	
+	
 
 	/**
 	 * Generates query tracker plan on query tracker for DoomDB
@@ -473,6 +476,14 @@ public class MasterTrackerNode {
 		}
 		computeNode2Availability.put(desc, true);
 
+		return err;
+	}
+
+	public Error killComputeNode(RestartSignal restartSignal) {
+		Error err = new Error(); 
+		logger.log(Level.INFO, "Command Received from DoomDb to kill ComputeNode: "
+				+ restartSignal.getComputeNodeDecs()); 
+		err = this.computeClient.restartComputeNode(restartSignal.getComputeNodeDecs(), restartSignal.getTimeToRepair());
 		return err;
 	}
 }

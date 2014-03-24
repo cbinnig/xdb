@@ -46,7 +46,8 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 				// System.out.println(this.getOperatorId()+">"+ dml+";");
 				executeStmts.add(conn.prepareStatement(dml));
 			}
-		} catch (final Exception e) {
+		} 
+		catch (final Exception e) {
 			err = createMySQLError(e);
 		}
 		return err;
@@ -62,8 +63,8 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 			for (final PreparedStatement stmt : executeStmts) {
 				stmt.execute();
 			}
-		} catch (final RuntimeException e) {
-			err = createMySQLError(e);
+		} catch (final com.mysql.jdbc.exceptions.jdbc4.CommunicationsException e) {
+			throw new RuntimeException(e); 
 		}
 		catch (final Exception e) {
 			err = createMySQLError(e);

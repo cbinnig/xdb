@@ -239,7 +239,9 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 * @return Error
 	 */
 	protected Error createMySQLError(Exception e) {
-		String[] args = { e.toString() + "," + e.getCause() };
+		e.printStackTrace();
+		
+		String[] args = { this.getOperatorId()+" > " + e.toString() + "," + e.getCause() };
 		Error err = new Error(EnumError.MYSQL_ERROR, args);
 		return err;
 	}
