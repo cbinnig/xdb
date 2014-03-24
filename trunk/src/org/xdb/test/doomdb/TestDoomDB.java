@@ -18,6 +18,10 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 	
 	@Override
 	public void setUp() {
+		//Activate monitors
+		Config.MASTERTRACKER_MONITOR_ACTIVATED = true;
+		Config.QUERYTRACKER_MONITOR_ACTIVATED = true;
+		
 	    // start master tracker if test is executed locally
 		if(Config.TEST_RUN_LOCAL){
 			this.mTrackerServer = new MasterTrackerServer();

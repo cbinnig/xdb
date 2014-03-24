@@ -3,6 +3,7 @@ package org.xdb.client;
 import org.xdb.Config;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.doomdb.DoomDBPlanDesc;
+import org.xdb.doomdb.DoomDBPlanStatus;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.funsql.compile.CompilePlan;
@@ -53,14 +54,14 @@ public class QueryTrackerClient extends AbstractClient {
 	 * @param dplanDesc
 	 * @return
 	 */
-	public Tuple<Error, Boolean> finishedDoomDBQPlan(
+	public Tuple<Error, DoomDBPlanStatus> finishedDoomDBQPlan(
 			final DoomDBPlanDesc dplanDesc) {
 		Object[] args = { dplanDesc };
 		Tuple<Error, Object> result = this.executeCmdWithResult(
 				QueryTrackerServer.CMD_DOOMDB_FINISHED_PLAN, args);
 
-		return new Tuple<Error, Boolean>(result.getObject1(),
-				(Boolean) result.getObject2());
+		return new Tuple<Error, DoomDBPlanStatus>(result.getObject1(),
+				(DoomDBPlanStatus) result.getObject2());
 	}
 
 	/**

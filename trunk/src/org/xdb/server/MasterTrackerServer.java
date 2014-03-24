@@ -14,6 +14,7 @@ import org.xdb.client.QueryTrackerClient;
 import org.xdb.doomdb.DoomDBClusterDesc;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.doomdb.DoomDBPlanDesc;
+import org.xdb.doomdb.DoomDBPlanStatus;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
@@ -95,7 +96,7 @@ public class MasterTrackerServer extends AbstractServer {
 					break;
 				case CMD_DOOMDB_FINISHED_PLAN:
 					final DoomDBPlanDesc dPlanDesc2 = (DoomDBPlanDesc)in.readObject();
-					Tuple<Error, Boolean> result2 = tracker.finishedDoomDBQPlan(dPlanDesc2);
+					Tuple<Error, DoomDBPlanStatus> result2 = tracker.finishedDoomDBQPlan(dPlanDesc2);
 					out.writeObject(result2.getObject2());
 					err = result2.getObject1();
 					break;
