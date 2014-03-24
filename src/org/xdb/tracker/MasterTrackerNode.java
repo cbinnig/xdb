@@ -19,6 +19,7 @@ import org.xdb.client.QueryTrackerClient;
 import org.xdb.doomdb.DoomDBClusterDesc;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.doomdb.DoomDBPlanDesc;
+import org.xdb.doomdb.DoomDBPlanStatus;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
@@ -262,13 +263,13 @@ public class MasterTrackerNode {
 	 * @param dplanDesc
 	 * @return
 	 */
-	public Tuple<Error, Boolean> finishedDoomDBQPlan(DoomDBPlanDesc dplanDesc) {
+	public Tuple<Error, DoomDBPlanStatus> finishedDoomDBQPlan(DoomDBPlanDesc dplanDesc) {
 		Error err = new Error();
 
 		if (!this.planAssignment.containsKey(dplanDesc.getCompilePlanId())) {
 			String[] args = { "MasterTracker: No query tracker available!" };
 			err = new Error(EnumError.TRACKER_GENERIC, args);
-			return new Tuple<Error, Boolean>(err, false);
+			return new Tuple<Error, DoomDBPlanStatus>(err, new DoomDBPlanStatus(false, null));
 		}
 
 		QueryTrackerNodeDesc qTracker = this.planAssignment.get(dplanDesc
@@ -276,7 +277,7 @@ public class MasterTrackerNode {
 		final QueryTrackerClient qClient = this.queryTrackerClients
 				.get(qTracker);
 
-		Tuple<Error, Boolean> result = qClient.finishedDoomDBQPlan(dplanDesc);
+		Tuple<Error, DoomDBPlanStatus> result = qClient.finishedDoomDBQPlan(dplanDesc);
 
 		return result;
 	}

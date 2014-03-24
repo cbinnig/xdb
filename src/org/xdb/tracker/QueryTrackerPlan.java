@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import org.xdb.Config;
 import org.xdb.client.ComputeClient;
 import org.xdb.doomdb.DoomDBPlan;
+import org.xdb.doomdb.DoomDBPlanStatus;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
@@ -109,6 +110,10 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	// getter and setter
+	public DoomDBPlanStatus getDoomDBPlanStatus(){
+		DoomDBPlanStatus planStatus = new DoomDBPlanStatus(this.isExecuted(), this.getCurrentDeployment());
+		return planStatus;
+	}
 	public synchronized void setExecuted() {
 		this.isExecuted = true;
 	}

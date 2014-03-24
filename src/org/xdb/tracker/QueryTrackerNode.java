@@ -12,6 +12,7 @@ import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.doomdb.DoomDBPlanDesc;
+import org.xdb.doomdb.DoomDBPlanStatus;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
@@ -272,17 +273,18 @@ public class QueryTrackerNode {
 	 * @param dplanDesc
 	 * @return
 	 */
-	public Tuple<Error, Boolean> finishedDoomDBQPlan(DoomDBPlanDesc dplanDesc) {
+	public Tuple<Error, DoomDBPlanStatus> finishedDoomDBQPlan(DoomDBPlanDesc dplanDesc) {
 		Error err = new Error();
 		if (!this.qPlans.containsKey(dplanDesc.getQtrackerPlanId())) {
 			String[] args = { "Plan with id " + dplanDesc.getQtrackerPlanId()
 					+ " not found in " + this.qPlans.keySet() };
 			this.logger.log(Level.SEVERE, args[0]);
 			err = new Error(EnumError.TRACKER_GENERIC, args);
-			return new Tuple<Error, Boolean>(err, false);
+			return new Tuple<Error, DoomDBPlanStatus>(err, new DoomDBPlanStatus(false, null));
 		}
 		QueryTrackerPlan qplan = this.qPlans.get(dplanDesc.getQtrackerPlanId());
-		return new Tuple<Error, Boolean>(err, qplan.isExecuted());
+		DoomDBPlanStatus planStatus = qplan.getDoomDBPlanStatus();
+		return new Tuple<Error, DoomDBPlanStatus>(err, planStatus);
 	}
 
 

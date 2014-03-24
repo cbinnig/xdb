@@ -137,20 +137,25 @@ public class DoomDBClient implements IDoomDBClient {
 			throw new RuntimeException(err.toString());
 		}
 		
-		Tuple<Error, Boolean> result = mClient.isDoomDBPlanFinished(dplan
+		//get doom plan status
+		Tuple<Error, DoomDBPlanStatus> result = mClient.isDoomDBPlanFinished(dplan
 				.getPlanDesc());
 		this.raiseError(result.getObject1());
-		boolean isFinished =  result.getObject2();
+		DoomDBPlanStatus planStatus =  result.getObject2();
+
+		//set deployment
+		dplan.setDeployment(planStatus.getDeployment());
+		dplan.tracePlan();
 		
-		if(isFinished){
+		//measure time if plan has finished
+		if(planStatus.isFinished()){
 			this.endTime = System.currentTimeMillis() / 1000;
 			this.runTime = this.endTime - this.startTime;
 			if(this.killedNodes>0)
 				this.mtbf = (int)this.runTime / this.killedNodes;
 			Config.writeDoom("DOOMDB_MTBF", ""+this.mtbf);
 		}
-		
-		return isFinished;
+		return planStatus.isFinished();
 	}
 
 	@Override

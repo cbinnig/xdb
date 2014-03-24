@@ -29,6 +29,7 @@ public class OperatorDesc implements Serializable {
 		super();
 		this.execOpId = execOpId;
 		this.computeNode = computeNode;
+		this.operatorStatus = QueryOperatorStatus.DEPLOYED;
 	}
 
 	// getter and setters

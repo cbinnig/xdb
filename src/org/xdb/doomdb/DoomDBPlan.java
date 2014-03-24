@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.xdb.execute.ComputeNodeDesc;
@@ -34,7 +35,7 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	private Map<String, List<String>> dependencies = new HashMap<String, List<String>>();
 	
 	// deployment of operators on compute nodes: opId -> compute node
-	private Map<Identifier, OperatorDesc> deployment = new HashMap<Identifier, OperatorDesc>();
+	private Map<String, OperatorDesc> deployment = new HashMap<String, OperatorDesc>();
 	
 	// compute nodes used in current deployment
 	private Map<String, ComputeNodeDesc> nodes = new HashMap<String, ComputeNodeDesc>();
@@ -74,9 +75,10 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	
 	public void setDeployment(Map<Identifier, OperatorDesc> deployment){
 		this.deployment.clear();
-		this.deployment.putAll(deployment);
-		
-		for(OperatorDesc operDesc: deployment.values()){
+		this.nodes.clear();
+		for(Entry<Identifier, OperatorDesc> entry: deployment.entrySet()){
+			OperatorDesc operDesc = entry.getValue();
+			this.deployment.put(entry.getKey().toString(), operDesc);
 			this.nodes.put(operDesc.getComputeNode().toString(), operDesc.getComputeNode());
 		}
 	}
@@ -143,23 +145,28 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		String fileName = TRACE_FILE_NAME + this.planDesc.getCompilePlanId().toString();
 		final Graph graph = GraphFactory.newGraph();
 
-		final Map<String, GraphNode> nodes = new HashMap<String, GraphNode>();
+		final Map<String, GraphNode> dottyNodes = new HashMap<String, GraphNode>();
 
 		// add nodes to plan
 		for (String opId : this.ops) {
 			GraphNode node = graph.addNode();
-			node.getInfo().setCaption(opId.toString());
-			nodes.put(opId, node);
+			OperatorDesc operDesc = this.deployment.get(opId);
+			StringBuilder operText = new StringBuilder(opId);
+			operText.append("\n(");
+			operText.append(operDesc.getOperatorStatus().toString());
+			operText.append(")");
+			node.getInfo().setCaption(operText.toString());
+			dottyNodes.put(opId, node);
 		}
 
 		// add edges to plan
 		for (Map.Entry<String, List<String>> entry : this.dependencies
 				.entrySet()) {
 			String fromId = entry.getKey();
-			GraphNode from = nodes.get(fromId);
+			GraphNode from = dottyNodes.get(fromId);
 
 			for (String toId : entry.getValue()) {
-				GraphNode to = nodes.get(toId);
+				GraphNode to = dottyNodes.get(toId);
 				graph.addEdge(to, from);
 			}
 		}

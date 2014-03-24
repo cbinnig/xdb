@@ -7,6 +7,7 @@ import org.xdb.Config;
 import org.xdb.doomdb.DoomDBClusterDesc;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.doomdb.DoomDBPlanDesc;
+import org.xdb.doomdb.DoomDBPlanStatus;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.funsql.compile.CompilePlan;
@@ -138,16 +139,18 @@ public class MasterTrackerClient extends AbstractClient {
 
 	/**
 	 * Checks if query tracker plan for DoomDBPlan is finished
+	 * and returns current deployment
 	 * 
 	 * @param dplanDesc
 	 * @return
 	 */
-	public Tuple<Error, Boolean> isDoomDBPlanFinished(
+	public Tuple<Error, DoomDBPlanStatus> isDoomDBPlanFinished(
 			final DoomDBPlanDesc dplanDesc) {
 		Object[] args = { dplanDesc };
 		Tuple<Error, Object> result = this.executeCmdWithResult(
 				MasterTrackerServer.CMD_DOOMDB_FINISHED_PLAN, args);
-		return new Tuple<Error, Boolean>(result.getObject1(),
-				(Boolean) result.getObject2());
+		
+		return new Tuple<Error, DoomDBPlanStatus>(result.getObject1(),
+				(DoomDBPlanStatus) result.getObject2());
 	}
 }
