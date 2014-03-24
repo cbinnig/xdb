@@ -74,6 +74,9 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	}
 	
 	public void setDeployment(Map<Identifier, OperatorDesc> deployment){
+		if(deployment==null)
+			return;
+				
 		this.deployment.clear();
 		this.nodes.clear();
 		for(Entry<Identifier, OperatorDesc> entry: deployment.entrySet()){

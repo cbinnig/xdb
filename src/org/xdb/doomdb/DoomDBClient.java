@@ -2,7 +2,6 @@ package org.xdb.doomdb;
 
 import org.xdb.Config;
 import org.xdb.client.CompileClient;
-import org.xdb.client.ComputeClient;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.client.statement.ClientStmt;
 import org.xdb.error.Error;
@@ -25,7 +24,6 @@ public class DoomDBClient implements IDoomDBClient {
 	// clients for communication
 	private CompileClient cClient = new CompileClient();
 	private MasterTrackerClient mClient = new MasterTrackerClient();
-	private ComputeClient compClient = new ComputeClient();
 	
 	//time in seconds
 	private int mttr = Config.DOOMDB_MTTR;
@@ -68,7 +66,7 @@ public class DoomDBClient implements IDoomDBClient {
 	
 	public void killNode(ComputeNodeDesc computeNodeDesc) { 
 		this.killedNodes++;
-		Error err = compClient.restartComputeNode(computeNodeDesc, mttr*1000);
+		Error err = mClient.restartComputeNode(computeNodeDesc, mttr*1000);
 		raiseError(err);
 	}
 
@@ -133,16 +131,16 @@ public class DoomDBClient implements IDoomDBClient {
 		if (this.dplan == null) {
 			throw new RuntimeException("Provide a query before!");
 		}
-		else if(err.isError()){
-			throw new RuntimeException(err.toString());
-		}
 		
-		//get doom plan status
+		//get doom plan status and stop if execution error occurred
 		Tuple<Error, DoomDBPlanStatus> result = mClient.isDoomDBPlanFinished(dplan
 				.getPlanDesc());
 		this.raiseError(result.getObject1());
 		DoomDBPlanStatus planStatus =  result.getObject2();
-
+		if(planStatus.getError().isError()){
+			throw new RuntimeException(planStatus.getError().toString());
+		}
+		
 		//set deployment
 		dplan.setDeployment(planStatus.getDeployment());
 		dplan.tracePlan();

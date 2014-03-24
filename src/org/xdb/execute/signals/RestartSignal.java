@@ -2,6 +2,7 @@ package org.xdb.execute.signals;
 
 import java.io.Serializable;
 
+import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.utils.Identifier;
 
 public class RestartSignal implements Serializable { 
@@ -12,6 +13,8 @@ public class RestartSignal implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private Identifier failedExecOpId;  
+	
+	private ComputeNodeDesc computeNodeDecs;
 	
 	private int timeToRepair; 
 	
@@ -42,6 +45,20 @@ public class RestartSignal implements Serializable {
 	 */
 	public void setTimeToRepair(int timeToRepair) {
 		this.timeToRepair = timeToRepair;
+	}
+
+	/**
+	 * @return the computeNodeDecs
+	 */
+	public ComputeNodeDesc getComputeNodeDecs() {
+		return computeNodeDecs;
+	}
+
+	/**
+	 * @param computeNodeDecs the computeNodeDecs to set
+	 */
+	public void setComputeNodeDecs(ComputeNodeDesc computeNodeDecs) {
+		this.computeNodeDecs = computeNodeDecs;
 	} 
 	
 

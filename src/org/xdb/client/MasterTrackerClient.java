@@ -10,6 +10,7 @@ import org.xdb.doomdb.DoomDBPlanDesc;
 import org.xdb.doomdb.DoomDBPlanStatus;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
+import org.xdb.execute.signals.RestartSignal;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.MasterTrackerServer;
@@ -152,5 +153,14 @@ public class MasterTrackerClient extends AbstractClient {
 		
 		return new Tuple<Error, DoomDBPlanStatus>(result.getObject1(),
 				(DoomDBPlanStatus) result.getObject2());
+	}
+
+	public Error restartComputeNode(ComputeNodeDesc computeNodeDesc, int mttr) {
+		final RestartSignal restartSignal = new RestartSignal(); 
+		restartSignal.setTimeToRepair(mttr); 
+		restartSignal.setComputeNodeDecs(computeNodeDesc);
+        Object[] args = { restartSignal };
+		return this.executeCmd(
+				MasterTrackerServer.CMD_DOOMDB_KILL_NODE, args);
 	}
 }

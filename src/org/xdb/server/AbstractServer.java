@@ -81,7 +81,7 @@ public abstract class AbstractServer {
 			serverThread.interrupt();
 
 			// wait until thread is stopped
-			while (!serverThread.isInterrupted()) {
+			while (!serverThread.isAlive()) {
 				try {
 					Thread.sleep(10);
 				} catch (InterruptedException e) {

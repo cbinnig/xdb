@@ -44,7 +44,7 @@ public class MysqlRunManager {
 			// get all process IDs
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt
-					.executeQuery("SELECT concat('KILL ',id,';') FROM information_schema.processlist where state='executing'");
+					.executeQuery("SELECT concat('KILL ',id,';') FROM information_schema.processlist where info is not null and info not like '%processlist%'");
 			
 			Vector<String> killQueries = new Vector<String>();
 			while (rs.next()) {

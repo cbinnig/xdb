@@ -111,9 +111,10 @@ public class QueryTrackerPlan implements Serializable {
 
 	// getter and setter
 	public DoomDBPlanStatus getDoomDBPlanStatus(){
-		DoomDBPlanStatus planStatus = new DoomDBPlanStatus(this.isExecuted(), this.getCurrentDeployment());
+		DoomDBPlanStatus planStatus = new DoomDBPlanStatus(this.isExecuted(), this.getCurrentDeployment(), this.err);
 		return planStatus;
 	}
+	
 	public synchronized void setExecuted() {
 		this.isExecuted = true;
 	}
@@ -516,7 +517,7 @@ public class QueryTrackerPlan implements Serializable {
 		// starting traverse the query plan from the roots.
 		traverseQueryTrackerPlan(this.roots);
 		handleUndeployedFailedOperators();
-		distributePlanRobustness();
+		distributeFailedOpsInPlan();
 		this.computeServersMonitor.setFailureDetected(false);
 	}
 
@@ -561,7 +562,7 @@ public class QueryTrackerPlan implements Serializable {
 			// has to be indeed a stuck point for the whole plan.
 			if (!this.leaves.contains(opId)
 					&& operator.getOperatorStatus() == QueryOperatorStatus.ABORTED) {
-				prepareDeployment(opId, QueryOperatorStatus.REDEPLOYED);
+				prepareDeployment(opId, QueryOperatorStatus.REDEPLOY);
 				traverseQueryTrackerPlan(this.getSources(opId));
 
 			} else if (!this.leaves.contains(opId)) {
@@ -570,7 +571,7 @@ public class QueryTrackerPlan implements Serializable {
 					&& operator.getOperatorStatus() // if it is leave, re-deploy
 													// it and continue iteration
 					== QueryOperatorStatus.ABORTED) { // among the siblings.
-				prepareDeployment(opId, QueryOperatorStatus.REDEPLOYED);
+				prepareDeployment(opId, QueryOperatorStatus.REDEPLOY);
 
 			}
 		}
@@ -648,7 +649,7 @@ public class QueryTrackerPlan implements Serializable {
 		// set the status of the operator to DEPLOYED
 		executeOpDesc.setOperatorStatus(status);
 
-		if (status == QueryOperatorStatus.REDEPLOYED) {
+		if (status == QueryOperatorStatus.REDEPLOY) {
 			logger.log(Level.INFO,
 					"Current Deployment has been updated with the new "
 							+ "deployment of the failed operator: " + operId);
@@ -746,16 +747,17 @@ public class QueryTrackerPlan implements Serializable {
 	 * Distribute the failed operators
 	 * 
 	 */
-	private void distributePlanRobustness() {
+	private void distributeFailedOpsInPlan() {
 		// distribute all operators in deployment
 		for (Identifier trackerOpId : this.trackerOpsOrder) {
 			final OperatorDesc executeOpDesc = this.currentDeployment
 					.get(trackerOpId);
 			// Do not distribute, the deployed, running, finished operators.
 
-			if (executeOpDesc.getOperatorStatus() != QueryOperatorStatus.REDEPLOYED)
+			if (executeOpDesc.getOperatorStatus() != QueryOperatorStatus.REDEPLOY)
 				continue;
 
+			executeOpDesc.setOperatorStatus(QueryOperatorStatus.DEPLOYED);
 			final AbstractTrackerOperator trackerOp = trackerOps
 					.get(trackerOpId);
 

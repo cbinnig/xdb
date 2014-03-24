@@ -9,7 +9,7 @@ package org.xdb.execute.operators;
  */
 public enum QueryOperatorStatus {
     DEPLOYED, 	// Operator is deployed without failure (First Deployment) 
-    REDEPLOYED, // Operator is re-deployed after failure.
+    REDEPLOY, // Operator is re-deployed after failure.
     RUNNING, 	// Operator is executing 
     FINISHED, 	// Operator is finished
     ABORTED, 	// Operator is failed. 
@@ -22,7 +22,7 @@ public enum QueryOperatorStatus {
     	else if(this.equals(DEPLOYED)){
     		return true;
     	}
-    	else if(this.equals(REDEPLOYED)){
+    	else if(this.equals(REDEPLOY)){
     		return true;
     	}
     	return false;

@@ -118,7 +118,7 @@ public class ComputeServer extends AbstractServer {
 	// restart the server for DoomDB/Fault Tolerance 
 	public Error restartComputeServer(RestartSignal restartSignal) {
 		// stop compute server  
-		ComputeServer.this.stopServer();       
+		this.stopServer();       
 		
 		// kill all running queries
 		MysqlRunManager sqlManager = new MysqlRunManager();
@@ -157,14 +157,21 @@ public class ComputeServer extends AbstractServer {
 	public synchronized void restartServer(){
 		super.startServer();
 		
-		this.err = this.compute.startup(false);
+		this.err = this.compute.startup(true);
 	}
 	
 	@Override
 	public synchronized void startServer(){
 		super.startServer();
 		
-		this.err = this.compute.startup(true);
+		this.err = this.compute.startup(false);
+	}
+	
+	@Override
+	public synchronized void stopServer(){
+		super.stopServer();
+		
+		this.err = this.compute.shutdown();
 	}
 	
 	/**
