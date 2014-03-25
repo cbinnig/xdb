@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
@@ -16,6 +15,8 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.utils.Identifier;
+
+import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 
 /**
  * Abstract executable operator implementation with an iterator interface -
@@ -56,6 +57,9 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	protected Vector<String> closeSQLs = new Vector<String>();
 	protected transient Vector<PreparedStatement> closeStmts;
 
+	//status
+	protected EnumOperatorStatus status = EnumOperatorStatus.INIT;
+	
 	// helper
 	protected Error err = new Error();
 	private transient QueryTrackerClient queryTrackerClient;
@@ -67,6 +71,10 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	}
 
 	// getters and setters
+	public EnumOperatorStatus getStatus(){
+		return this.status;
+	}
+	
 	public Error getLastError() {
 		return this.err;
 	}
@@ -144,10 +152,14 @@ public abstract class AbstractExecuteOperator implements Serializable {
 				stmt.execute();
 			}
 
-		} catch (SQLException e) {
+		} 
+		catch (final CommunicationsException e) {
+			err = createMySQLError(e);
+			this.status = EnumOperatorStatus.ABORTED;
+		}
+		catch (Exception e) {
 			this.err = createMySQLError(e);
-		} catch (Exception e) {
-			this.err = createMySQLError(e);
+			this.status = EnumOperatorStatus.FAILED;
 		}
 
 		if (this.err.isError())
@@ -155,7 +167,10 @@ public abstract class AbstractExecuteOperator implements Serializable {
 
 		// call operator specific open method
 		this.err = openOperator();
-
+		if (this.err.isError())
+			return this.err;
+		
+		this.status = EnumOperatorStatus.DEPLOYED;
 		return this.err;
 	}
 
@@ -173,7 +188,11 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 */
 	public Error execute() {
 
+		this.status = EnumOperatorStatus.RUNNING;
 		this.err = executeOperator();
+		if(!err.isError())
+			this.status = EnumOperatorStatus.FINISHED;
+		
 		return this.err;
 	}
 
@@ -198,29 +217,28 @@ public abstract class AbstractExecuteOperator implements Serializable {
 			for (PreparedStatement stmt : this.closeStmts) {
 				stmt.execute();
 			}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			this.err = createMySQLError(e);
-		}
-
-		if (this.err.isError())
 			return this.err;
+		}
 
 		// clean up statements
 		this.openStmts.clear();
 		this.closeStmts.clear();
 
+		// call operator specific close method
+		this.err = this.closeOperator();
+		if(this.err.isError())
+			return this.err;
+				
 		// close connection
 		try {
 			this.conn.close();
 		} catch (Exception e) {
 			this.err = createMySQLError(e);
+			return this.err;
 		}
 
-		if (this.err.isError())
-			return this.err;
-
-		// call operator specific close method
-		this.err = this.closeOperator();
 		return this.err;
 	}
 
@@ -239,8 +257,7 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 * @return Error
 	 */
 	protected Error createMySQLError(Exception e) {
-		e.printStackTrace();
-		
+		//e.printStackTrace();
 		String[] args = { this.getOperatorId()+" > " + e.toString() + "," + e.getCause() };
 		Error err = new Error(EnumError.MYSQL_ERROR, args);
 		return err;

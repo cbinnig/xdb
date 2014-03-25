@@ -23,7 +23,6 @@ public class ReadySignal implements Serializable {
 
 	// constructors
 	public ReadySignal(Identifier source, Identifier consumer) {
-
 		this.source = source;
 		this.consumer = consumer;
 	}

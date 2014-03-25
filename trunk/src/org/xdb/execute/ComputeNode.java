@@ -141,11 +141,11 @@ public class ComputeNode {
 		for (Thread thread : threadSet) {
 			if (thread != null && runningThreads.contains(thread.getId())) {
 				thread.interrupt();
-				System.err.println("Killing thread "+thread.getId());
+				//System.err.println("Killing thread "+thread.getId());
 				while (!thread.isAlive()) {
 					// do nothing
 				}
-				System.err.println("Killed thread "+thread.getId());
+				//System.err.println("Killed thread "+thread.getId());
 			}
 		}
 
@@ -161,7 +161,7 @@ public class ComputeNode {
 	public Error openOperator(final AbstractExecuteOperator op) {
 		Error err = new Error();
 
-		operators.put(op.getOperatorId(), op);
+		this.operators.put(op.getOperatorId(), op);
 
 		// open operator
 		logger.log(Level.INFO, "Open operator: " + op.getOperatorId());
@@ -288,6 +288,7 @@ public class ComputeNode {
 			logger.log(
 					Level.INFO,
 					"Send READY_SIGNAL from operator " + op.getOperatorId()
+							+ " with status "+op.getStatus()
 							+ " to Query Tracker "
 							+ queryTrackerClient.getUrl());
 			executingOperator.remove(op.getOperatorId());
@@ -301,6 +302,7 @@ public class ComputeNode {
 			}
 			catch(Exception e){
 				//ignore other exceptions
+				//e.printStackTrace();
 			}
 		}
 	}

@@ -21,7 +21,6 @@ import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.MaterializationAnnotationVisitor;
 import org.xdb.logging.XDBLog;
-import org.xdb.monitor.ComputeServersMonitor;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.Tuple;
 
@@ -42,10 +41,7 @@ public class QueryTrackerNode {
 
 	// query tracker plans
 	private Map<Identifier, QueryTrackerPlan> qPlans = new HashMap<Identifier, QueryTrackerPlan>();
-
-	// Compute servers monitor
-	private ComputeServersMonitor computeServerMonitor;
-
+	
 	// logger
 	private final Logger logger;
 
@@ -56,7 +52,6 @@ public class QueryTrackerNode {
 
 	public QueryTrackerNode(final String address) throws Exception {
 		this.computeClient = new ComputeClient();
-		this.computeServerMonitor = new ComputeServersMonitor();
 		this.description = new QueryTrackerNodeDesc(address);
 		this.masterTrackerClient = new MasterTrackerClient();
 		this.logger = XDBLog.getLogger(this.getClass().getName());
@@ -320,21 +315,5 @@ public class QueryTrackerNode {
 			return new Error(EnumError.TRACKER_GENERIC, args);
 		}
 		return qPlan.operatorReady(execOp);
-	}
-
-	/**
-	 * @return the computeServerMonitor
-	 */
-	public ComputeServersMonitor getComputeServerMonitor() {
-		return this.computeServerMonitor;
-	}
-
-	/**
-	 * @param computeServerMonitor
-	 *            the computeServerMonitor to set
-	 */
-	public void setComputeServerMonitor(
-			ComputeServersMonitor computeServerMonitor) {
-		this.computeServerMonitor = computeServerMonitor;
 	}
 }

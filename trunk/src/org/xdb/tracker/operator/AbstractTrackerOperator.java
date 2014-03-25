@@ -372,8 +372,6 @@ public abstract class AbstractTrackerOperator implements Serializable {
 			final Identifier opID, final String sourceTableName,
 			final Identifier sourceOpID, final String sourceNode) {
 		final StringTemplate tableTemplate = inTables.get(tableName);
-		if(tableTemplate==null)
-			System.out.println("STOP");
 		final StringBuffer tableDDL = new StringBuffer(CREATE_TABLE_DDL);
 
 		// create table DDL
