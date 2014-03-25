@@ -111,18 +111,6 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	
 	// internal methods
 	@Override
-	public boolean isAlive(String opIdString){
-		Identifier opId = new Identifier(opIdString);
-		
-		if(!this.deployment.containsKey(opId)){
-			return false;
-		}
-		
-		OperatorDesc operDesc = this.deployment.get(opId);
-		return operDesc.isAlive();
-	}
-	
-	@Override
 	public long getEstimatedTime(){
 		//TODO: change hard coded estimate!!!
 		return this.ops.size() * 250;

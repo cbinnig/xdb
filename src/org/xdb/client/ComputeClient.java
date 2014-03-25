@@ -9,6 +9,7 @@ import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.OperatorDesc;
+import org.xdb.execute.operators.EnumOperatorStatus;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
@@ -16,6 +17,7 @@ import org.xdb.execute.signals.RestartSignal;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.ComputeServer;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.Tuple;
 
 /**
  * Client to talk to Compute Server.
@@ -43,11 +45,20 @@ public class ComputeClient extends AbstractClient {
 	 * @param op
 	 * @return
 	 */
-	public Error openOperator(final ComputeNodeDesc url,
+	public Tuple<Error, EnumOperatorStatus> openOperator(final ComputeNodeDesc url,
 			final AbstractExecuteOperator op) {
 		Object[] args = { op };
-		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),
+		Tuple<Error, Object> result =  this.executeCmdWithResultIgnoreCommErr(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_OPEN_OP, args);
+		
+		Tuple<Error, EnumOperatorStatus> resultStatus = new Tuple<Error, EnumOperatorStatus>(result.getObject1(),
+				(EnumOperatorStatus)result.getObject2());
+		
+		//set status due to communication error
+		if(resultStatus.getObject2() == null)
+			resultStatus.setObject2(EnumOperatorStatus.ABORTED);
+		
+		return resultStatus;
 	}
 
 	/**
@@ -221,5 +232,39 @@ public class ComputeClient extends AbstractClient {
 		}
 
 		return err;
+	}
+	
+	/**
+	 * Execute given command with arguments on server (with given URL and port)
+	 */
+	protected Tuple<Error, Object> executeCmdWithResultIgnoreCommErr(final String url,
+			final int port, int cmd, Object[] args) {
+		Error err = new Error();
+		Object obj = null;
+
+		try {
+			Socket server = new Socket(url, port);
+			final ObjectOutputStream out = new ObjectOutputStream(
+					server.getOutputStream());
+
+			out.writeInt(cmd);
+			out.flush();
+			for (Object arg : args) {
+				out.writeObject(arg);
+				out.flush();
+			}
+
+			final ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
+			obj = in.readObject();
+			err = (Error) in.readObject();
+
+			server.close();
+
+		} catch (final Exception e) {
+			
+		}
+
+		return new Tuple<Error, Object>(err, obj);
 	}
 }

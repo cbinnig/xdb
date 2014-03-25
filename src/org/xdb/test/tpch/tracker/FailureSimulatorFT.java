@@ -12,7 +12,7 @@ import java.util.Set;
 
 import org.xdb.Config;
 import org.xdb.execute.operators.OperatorDesc;
-import org.xdb.execute.operators.QueryOperatorStatus;
+import org.xdb.execute.operators.EnumOperatorStatus;
 import org.xdb.metadata.Connection;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.tracker.operator.AbstractTrackerOperator;
@@ -93,7 +93,7 @@ public class FailureSimulatorFT extends Thread{
 
 		for (Identifier identifier : failedOpsIds) {
 			OperatorDesc opDesc = currentDeployment.get(identifier); 
-			opDesc.setOperatorStatus(QueryOperatorStatus.ABORTED);
+			opDesc.setOperatorStatus(EnumOperatorStatus.ABORTED);
 		}
 
 	}

@@ -65,6 +65,7 @@ public class ComputeServer extends AbstractServer {
 					final AbstractExecuteOperator op = (AbstractExecuteOperator) in.readObject();
 					logger.log(Level.INFO, "Received operator:" + op.getOperatorId());
 					err = compute.openOperator(op);
+					out.writeObject(op.getStatus());
 					break;
 				case CMD_READY_SIGNAL:
 					final ReadySignal readSignal = (ReadySignal) in.readObject();

@@ -32,7 +32,7 @@ public class DoomDBFailureSimulator extends Thread {
 						.get(failedNodeIndex);
 
 				int mtbf = this.dbClient.getMTBF();
-				System.err.println("Kill " + node2Kill+ " "+mtbf);
+				System.err.println("Kill node " + node2Kill + " and sleep "+mtbf);
 				this.dbClient.killNode(node2Kill);
 
 				try {

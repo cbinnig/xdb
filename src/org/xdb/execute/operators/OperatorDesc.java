@@ -22,14 +22,14 @@ public class OperatorDesc implements Serializable {
 	private ComputeNodeDesc computeNode;  
 	
 	// operator status
-	private QueryOperatorStatus operatorStatus; 
+	private EnumOperatorStatus operatorStatus; 
 	
 	// constructors
 	public OperatorDesc(Identifier execOpId, ComputeNodeDesc computeNode) {
 		super();
 		this.execOpId = execOpId;
 		this.computeNode = computeNode;
-		this.operatorStatus = QueryOperatorStatus.DEPLOYED;
+		this.operatorStatus = EnumOperatorStatus.INIT;
 	}
 
 	// getter and setters
@@ -44,22 +44,19 @@ public class OperatorDesc implements Serializable {
 	/**
 	 * @return the operatorStatus
 	 */
-	public QueryOperatorStatus getOperatorStatus() {
+	public EnumOperatorStatus getOperatorStatus() {
 		return operatorStatus;
 	}
 
 	/**
 	 * @param operatorStatus the operatorStatus to set
 	 */
-	public void setOperatorStatus(QueryOperatorStatus operatorStatus) {
-		this.operatorStatus = operatorStatus;
+	public void setOperatorStatus(EnumOperatorStatus operatorStatus) {
+		if(operatorStatus!=null)
+			this.operatorStatus = operatorStatus;
 	}
 	
 	// methods
-	public boolean isAlive(){
-		return this.operatorStatus.isAlive();
-	}
-	
 	@Override
 	public int hashCode() {
 		return this.execOpId.hashCode();

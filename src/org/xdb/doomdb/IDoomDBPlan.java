@@ -36,14 +36,6 @@ public interface IDoomDBPlan {
 	String getNodeForOperator(String opId);
 	
 	/**
-	 * checks status of operator if it is alive 
-	 * 
-	 * @param opId
-	 * @return
-	 */
-	boolean isAlive(String opId);
-	
-	/**
 	 * Generates file with visualized plan and returns path to file
 	 * 
 	 * @return
