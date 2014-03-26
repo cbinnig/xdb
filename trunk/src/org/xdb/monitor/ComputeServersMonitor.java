@@ -21,8 +21,9 @@ public class ComputeServersMonitor {
 	// Query tracker plan
 	private QueryTrackerPlan qtPlan;
 
+	// Flag if failure was detected in last round
 	private boolean failureDetected = false;
-
+	
 	public ComputeServersMonitor(QueryTrackerPlan qtPlan) {
 		this.computeClient = new ComputeClient();
 		this.qtPlan = qtPlan;

@@ -1,13 +1,14 @@
 package org.xdb.execute.operators;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLSyntaxErrorException;
 import java.util.Vector;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.utils.Identifier;
 
-import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 
 /**
  * MySQL operator executes SQL DML statements on computing nodes using MySQL as
@@ -49,13 +50,16 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 				executeStmts.add(conn.prepareStatement(dml));
 			}
 		} 
-		catch (final CommunicationsException e) {
+		catch (final SQLSyntaxErrorException e) {
 			err = createMySQLError(e);
-			this.status = EnumOperatorStatus.ABORTED;
+			this.status = EnumOperatorStatus.FAILED;
 		}
 		catch (final Exception e) {
 			err = createMySQLError(e);
-			this.status = EnumOperatorStatus.FAILED;
+			if(Config.QUERYTRACKER_MONITOR_ACTIVATED)
+				this.status = EnumOperatorStatus.ABORTED;
+			else 
+				this.status = EnumOperatorStatus.FAILED;
 		}
 		return err;
 	}
@@ -70,14 +74,14 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 			for (final PreparedStatement stmt : executeStmts) {
 				stmt.execute();
 			}
-		} catch (final CommunicationsException e) {
-			err = createMySQLError(e);
-			this.status = EnumOperatorStatus.ABORTED;
-		}
+		} 
 		catch (final Exception e) {
 			err = createMySQLError(e);
-			this.status = EnumOperatorStatus.FAILED;
-		} 
+			if(Config.QUERYTRACKER_MONITOR_ACTIVATED)
+				this.status = EnumOperatorStatus.ABORTED;
+			else 
+				this.status = EnumOperatorStatus.FAILED;
+		}
 
 		return err;
 	}
