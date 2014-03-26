@@ -29,6 +29,8 @@ public class Config implements Serializable {
 	public static int QUERYTRACKER_MONITOR_INTERVAL = 100;
 	public static boolean MASTERTRACKER_MONITOR_ACTIVATED = false;
 	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false;
+	public static int QUERYTRACKER_MONITOR_ATTEMPTS = 10;
+
 
 	// Compute Server
 	public static String COMPUTE_DRIVER_CLASS = "com.mysql.jdbc.Driver";
@@ -204,6 +206,7 @@ public class Config implements Serializable {
 	private static void load() {
 		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
 				"COMPILE_PORT", "MASTERTRACKER_PORT", "QUERYTRACKER_PORT",
+				"QUERYTRACKER_MONITOR_ATTEMPTS",
 				"TEST_NODE_COUNT", "TEST_FT_NUMBER_OF_FAILURES",
 				"TEST_FT_NUMBER_OF_RUNS", "TEST_PARTS_PER_NODE",
 				"TEST_FT_RECORDS_LIMIT" };

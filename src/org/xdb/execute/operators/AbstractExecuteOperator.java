@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.SQLSyntaxErrorException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
@@ -15,8 +16,6 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.utils.Identifier;
-
-import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 
 /**
  * Abstract executable operator implementation with an iterator interface -
@@ -153,14 +152,18 @@ public abstract class AbstractExecuteOperator implements Serializable {
 			}
 
 		} 
-		catch (final CommunicationsException e) {
+		catch (final SQLSyntaxErrorException e) {
 			err = createMySQLError(e);
-			this.status = EnumOperatorStatus.ABORTED;
-		}
-		catch (Exception e) {
-			this.err = createMySQLError(e);
 			this.status = EnumOperatorStatus.FAILED;
 		}
+		catch (final Exception e) {
+			err = createMySQLError(e);
+			if(Config.QUERYTRACKER_MONITOR_ACTIVATED)
+				this.status = EnumOperatorStatus.ABORTED;
+			else 
+				this.status = EnumOperatorStatus.FAILED;
+		}
+		
 
 		if (this.err.isError())
 			return this.err;

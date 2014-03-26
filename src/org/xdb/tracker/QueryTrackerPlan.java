@@ -81,6 +81,9 @@ public class QueryTrackerPlan implements Serializable {
 	private final Map<Identifier, Set<Identifier>> receivedReadySignals = Collections
 			.synchronizedMap(new HashMap<Identifier, Set<Identifier>>());
 	private Boolean isExecuted = false;
+	private int maxAttempts = Config.QUERYTRACKER_MONITOR_ATTEMPTS;
+	private Boolean monitorFailures = Config.QUERYTRACKER_MONITOR_ACTIVATED;
+	
 
 	// helper to measure execution time
 	private final XDBExecuteTimeMeasurement timeMeasure;
@@ -397,11 +400,12 @@ public class QueryTrackerPlan implements Serializable {
 	 * @param currentDeployment
 	 */
 	public Error executePlan() {
-		this.timeMeasure.start(this.getPlanId().toString());
-
+		
 		if (this.err.isError()) {
 			return this.err;
 		}
+
+		this.timeMeasure.start(this.getPlanId().toString());
 
 		// start execution on leave operators
 		for (final Identifier leaveId : leaves) {
@@ -417,8 +421,9 @@ public class QueryTrackerPlan implements Serializable {
 		}
 
 		// wait until plan is executed or error occurred
+		int attempt=0;
 		while (!this.isExecutedInternal() && !this.err.isError()) {
-			if (Config.QUERYTRACKER_MONITOR_ACTIVATED) {
+			if (this.monitorFailures) {
 				try {
 					// Starting the compute servers monitoring.
 					// Lock to prevent operator signaling.
@@ -428,8 +433,20 @@ public class QueryTrackerPlan implements Serializable {
 					// Check if a failure is detected
 					if (computeServersMonitor.hasDetectedFailure()) {
 						logger.log(Level.INFO, "Monitoring detected a failure!");
-						// re-deploy the failed operators
-						redeployAbortedOperators();
+						
+						if (attempt > this.maxAttempts) {
+							String args[] = { "Maximal attempts reached for plan "
+									+ this.getPlanId().toString() };
+							this.err = new Error(EnumError.TRACKER_GENERIC, args);
+							monitoringLock.unlock();
+							break;
+						}
+						else{
+							// re-deploy the failed operators
+							redeployAbortedOperators();
+						}
+						attempt++;
+						System.err.println("Monitor: start attempt "+attempt);
 					}
 
 					// unlock to allow operators signaling.
