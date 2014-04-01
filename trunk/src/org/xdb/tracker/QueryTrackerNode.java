@@ -148,7 +148,7 @@ public class QueryTrackerNode {
 			return new Tuple<Error, QueryTrackerPlan>(err, null);
 		}
 
-		// 2. Generate query tracker plan
+		// 2. generate query tracker plan
 		Tuple<QueryTrackerPlan, Error> qPlanErr = generateQueryTrackerPlan(cplan);
 		QueryTrackerPlan qplan = qPlanErr.getObject1();
 		err = qPlanErr.getObject2();
@@ -156,10 +156,10 @@ public class QueryTrackerNode {
 			return new Tuple<Error, QueryTrackerPlan>(err, null);
 		}
 
-		// 3. Deploy query tracker plan
+		// 3. deploy query tracker plan
 		err = qplan.deployPlan();
 		if (err.isError()) {
-			qplan.cleanPlanOnError();
+			qplan.cleanPlan();
 			return new Tuple<Error, QueryTrackerPlan>(err, null);
 		}
 
@@ -178,14 +178,14 @@ public class QueryTrackerNode {
 		// 4. Execute query tracker plan
 		err = qplan.executePlan();
 		if (err.isError()) {
-			qplan.cleanPlanOnError();
+			qplan.cleanPlan();
 			return err;
 		}
 
 		// 5. Clean query tracker plan
 		err = qplan.cleanPlan();
 		if (err.isError()) {
-			qplan.cleanPlanOnError();
+			qplan.cleanPlan();
 			return err;
 		}
 		return err;
@@ -209,20 +209,26 @@ public class QueryTrackerNode {
 		qplan = qPLanResult.getObject2();
 		if (err.isError()) {
 			if(qplan != null)
-				qplan.cleanPlanOnError();
+				qplan.cleanPlan();
 			return err;
 		}
 
 		// 2. execute prepared plan
 		err = this.executePlanPhase2(qplan);
 		if (err.isError()) {
-			qplan.cleanPlanOnError();
+			qplan.cleanPlan();
 			return err;
 		}
 
 		return err;
 	}
 
+	/**
+	 * Generate DoomDBPlan from compile plan
+	 * 
+	 * @param cplan
+	 * @return
+	 */
 	public Tuple<Error, DoomDBPlan> generateDoomDBQPlan(final CompilePlan cplan) {
 		Error err = new Error();
 		QueryTrackerPlan qplan = null;
@@ -232,14 +238,14 @@ public class QueryTrackerNode {
 		err = qPLanResult.getObject1();
 		qplan = qPLanResult.getObject2();
 		if (err.isError()) {
-			qplan.cleanPlanOnError();
+			qplan.cleanPlan();
 			return new Tuple<Error, DoomDBPlan>(err, new DoomDBPlan());
 		}
 
 		// 2. create DoomDBPlan
 		DoomDBPlan dplan = new DoomDBPlan(cplan.getPlanId(), qplan.getPlanId());
 		dplan.setDeployment(qplan.getCurrentDeployment());
-		qplan.initDoomDBFromQPlan(dplan);
+		qplan.createDoomDBFromQPlan(dplan);
 		return new Tuple<Error, DoomDBPlan>(err, dplan);
 	}
 

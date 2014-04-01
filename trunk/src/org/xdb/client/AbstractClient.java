@@ -156,4 +156,76 @@ public abstract class AbstractClient {
 
 		return new Tuple<Error, Object>(err, obj);
 	}
+	
+	/**
+	 * Execute given command with arguments on server (with given URL and port)
+	 * 
+	 * @param url
+	 * @param port
+	 * @param cmd
+	 * @param args
+	 * @return
+	 */
+	protected Error executeCmdIgnoreCommErr(final String url, final int port, int cmd,
+			Object[] args) {
+		Error err = new Error();
+
+		try {
+			Socket server = new Socket(url, port);
+			final ObjectOutputStream out = new ObjectOutputStream(
+					server.getOutputStream());
+
+			out.writeInt(cmd);
+			out.flush();
+			for (Object arg : args) {
+				out.writeObject(arg);
+				out.flush();
+			}
+
+			final ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
+			err = (Error) in.readObject();
+
+			server.close();
+
+		} catch (final Exception e) {
+			//Ignore communication errors
+		}
+
+		return err;
+	}
+	
+	/**
+	 * Execute given command with arguments on server (with given URL and port)
+	 */
+	protected Tuple<Error, Object> executeCmdWithResultIgnoreCommErr(final String url,
+			final int port, int cmd, Object[] args) {
+		Error err = new Error();
+		Object obj = null;
+
+		try {
+			Socket server = new Socket(url, port);
+			final ObjectOutputStream out = new ObjectOutputStream(
+					server.getOutputStream());
+
+			out.writeInt(cmd);
+			out.flush();
+			for (Object arg : args) {
+				out.writeObject(arg);
+				out.flush();
+			}
+
+			final ObjectInputStream in = new ObjectInputStream(
+					server.getInputStream());
+			obj = in.readObject();
+			err = (Error) in.readObject();
+
+			server.close();
+
+		} catch (final Exception e) {
+			
+		}
+
+		return new Tuple<Error, Object>(err, obj);
+	}
 }

@@ -77,7 +77,7 @@ public class QueryTrackerPlan implements Serializable {
 
 	// execution plan
 	private final Map<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
-	private final Map<AbstractExecuteOperator, OperatorDesc> allExecuteOps = new HashMap<AbstractExecuteOperator, OperatorDesc>();
+	private final Map<AbstractExecuteOperator, OperatorDesc> executeOps = new HashMap<AbstractExecuteOperator, OperatorDesc>();
 	private final Map<Identifier, Set<Identifier>> receivedReadySignals = Collections
 			.synchronizedMap(new HashMap<Identifier, Set<Identifier>>());
 	private Boolean isExecuted = false;
@@ -196,7 +196,11 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	// methods
-	public void initDoomDBFromQPlan(DoomDBPlan dplan) {
+	/**
+	 * Create a DoomDBPlan from QPLan
+	 * @param dplan
+	 */
+	public void createDoomDBFromQPlan(DoomDBPlan dplan) {
 		for (Identifier node : this.trackerOpsOrder) {
 			dplan.addOperator(node.toString());
 		}
@@ -238,22 +242,6 @@ public class QueryTrackerPlan implements Serializable {
 
 		this.sources.put(opId, new HashSet<Identifier>());
 		this.consumers.put(opId, new HashSet<Identifier>());
-	}
-
-	/**
-	 * Reset the query tracker plan for multiple runs purposes clear the
-	 * assigned compute nodes to remove duplicates and clear the current
-	 * deployment of the plan, and reset the timer.
-	 * 
-	 */
-	public void reset() {
-		this.resourceScheduler.clearAssignedComputeNodes();
-		this.currentDeployment.clear();
-
-		Set<Identifier> trackerOpId = trackerOps.keySet();
-		for (Identifier opId : trackerOpId) {
-			this.trackerOps.get(opId).setExecuted(false);
-		}
 	}
 
 	/**
@@ -340,38 +328,13 @@ public class QueryTrackerPlan implements Serializable {
 			return err;
 
 		// close operators which are no root operators
-		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
-				.entrySet()) {
-			final AbstractTrackerOperator trackerOp = trackerOps.get(entry
-					.getKey());
-			if (!trackerOp.isRoot() || Config.COMPUTE_CLEAN_RESULTS) {
-				final OperatorDesc operDesc = entry.getValue();
-				err = computeClient.closeOperator(operDesc);
-				if (err.isError()) {
-					return err;
-				}
-			}
-		}
-		return err;
-	}
-
-	/**
-	 * Closes all operators on error and ignore errors (i.e., all intermediate
-	 * results are dropped)
-	 * 
-	 * @return
-	 */
-	public Error cleanPlanOnError() {
-		if (!Config.COMPUTE_CLEAN_PLAN)
-			return err;
-
-		// close all operators
-		for (final Entry<Identifier, OperatorDesc> entry : currentDeployment
+		for (final Entry<AbstractExecuteOperator, OperatorDesc> entry : this.executeOps
 				.entrySet()) {
 			final OperatorDesc operDesc = entry.getValue();
-			computeClient.closeOperator(operDesc);
+			final AbstractExecuteOperator execOp = entry.getKey();
+			
+			computeClient.closeOperator(operDesc, execOp);
 		}
-
 		return err;
 	}
 
@@ -403,6 +366,7 @@ public class QueryTrackerPlan implements Serializable {
 
 		// wait until plan is executed or error occurred
 		int attempt=0;
+		execLoop:
 		while (!this.isExecutedInternal() && !this.err.isError()) {
 			if (this.monitorFailures) {
 				try {
@@ -420,7 +384,7 @@ public class QueryTrackerPlan implements Serializable {
 									+ this.getPlanId().toString() };
 							this.err = new Error(EnumError.TRACKER_GENERIC, args);
 							monitoringLock.unlock();
-							break;
+							break execLoop;
 						}
 						else{
 							// re-deploy the failed operators
@@ -434,7 +398,8 @@ public class QueryTrackerPlan implements Serializable {
 					monitoringLock.unlock();
 
 					// sleep interval
-					Thread.sleep(monitoringInterval);
+					if(!this.isExecutedInternal())
+						Thread.sleep(monitoringInterval);
 
 				} catch (InterruptedException e) {
 
@@ -488,17 +453,17 @@ public class QueryTrackerPlan implements Serializable {
 	 */
 	public Error deployPlan() {
 		// request compute nodes
-		requestComputeNodes();
+		this.requestComputeNodes();
 		if (err.isError())
 			return this.err;
 
 		// prepare deployment
-		prepareAllOperators();
+		this.assignComputeNodes2AllOperators();
 		if (err.isError())
 			return this.err;
 
 		// distribute plan to compute nodes
-		deployAllOperators();
+		this.deployAllOperators();
 		if (err.isError())
 			return this.err;
 
@@ -517,8 +482,17 @@ public class QueryTrackerPlan implements Serializable {
 	 * 
 	 */
 	private void redeployAbortedOperators() {
-		prepareAbortedOperators();
-		deployAbortedOperators();
+		// assign compute nodes to aborted operators
+		this.assignComputeNodes2AbortedOperators();
+		if(this.err.isError())
+			return;
+		
+		// deploy aborted operators
+		this.deployAbortedOperators();
+		if(this.err.isError())
+			return;
+		
+		// reset monitor
 		this.computeServersMonitor.setFailureDetected(false);
 	}
 
@@ -544,30 +518,29 @@ public class QueryTrackerPlan implements Serializable {
 	}
 
 	/**
-	 * Prepare deployment of all operators by assigning compute nodes
+	 * Assign new compute nodes to all operators
 	 */
-	private void prepareAllOperators() {
+	private void assignComputeNodes2AllOperators() {
 		for (final Identifier opId : this.trackerOpsOrder) {
-			assignComputeNode(opId, EnumOperatorStatus.DEPLOYED);
+			this.err = this.assignComputeNode(opId, EnumOperatorStatus.DEPLOYED);
 			if (err.isError())
 				return;
 		}
 	}
 
 	/**
-	 * Prepare deployment of failed operators by assigning compute nodes
+	 * Assign new compute nodes to aborted operators
 	 */
-	private void prepareAbortedOperators() {
+	private void assignComputeNodes2AbortedOperators() {
 		for (Identifier opId : trackerOpsOrder) {
 			OperatorDesc operator = this.currentDeployment.get(opId);
 
-			// only re-deploy ABORTED operators
-			if (operator.getOperatorStatus() != EnumOperatorStatus.ABORTED)
-				continue;
-
-			assignComputeNode(opId, EnumOperatorStatus.REDEPLOYED);
+			if (operator.getOperatorStatus().equals(EnumOperatorStatus.ABORTED)){
+				this.err = this.assignComputeNode(opId, EnumOperatorStatus.REDEPLOYED);
+				if (this.err.isError())
+					return;
+			}
 		}
-
 	}
 
 	/**
@@ -576,20 +549,22 @@ public class QueryTrackerPlan implements Serializable {
 	 * 
 	 * @param operId
 	 */
-	private void assignComputeNode(final Identifier operId,
+	private Error assignComputeNode(final Identifier operId,
 			EnumOperatorStatus status) {
+		
+		Error err = new Error();
 
 		// identify all compute nodes for operator
 		List<ComputeNodeDesc> allComputeNode = this.resourceScheduler
 				.getAllComputeNodes(operId);
 
 		// pick available compute node
-		ComputeNodeDesc assignedNode = pickAvailableComputeNode(allComputeNode);
+		ComputeNodeDesc assignedNode = this.pickAvailableComputeNode(allComputeNode);
 		if (assignedNode == null) {
 			String args[] = { "No node could be assigned to tracker operator "
 					+ operId.toString() };
-			this.err = new Error(EnumError.TRACKER_GENERIC, args);
-			return;
+			err = new Error(EnumError.TRACKER_GENERIC, args);
+			return err;
 		}
 
 		// generate deployment description from operator
@@ -605,6 +580,7 @@ public class QueryTrackerPlan implements Serializable {
 		logger.log(Level.INFO,
 				"Current Deployment has been updated with the deployment of operator: "
 						+ operId);
+		return err;
 	}
 
 	// Ping the compute nodes and select the first one available.
@@ -677,7 +653,7 @@ public class QueryTrackerPlan implements Serializable {
 				return;
 
 
-			this.allExecuteOps.put(execOp, executeOpDesc);
+			this.executeOps.put(execOp, executeOpDesc);
 		}
 	}
 
@@ -690,6 +666,7 @@ public class QueryTrackerPlan implements Serializable {
 		for (Identifier trackerOpId : this.trackerOpsOrder) {
 			final OperatorDesc executeOpDesc = this.currentDeployment
 					.get(trackerOpId);
+			
 			// only deploy operators with status REDEPLOY
 			if (executeOpDesc.getOperatorStatus() != EnumOperatorStatus.REDEPLOYED)
 				continue;
@@ -742,7 +719,7 @@ public class QueryTrackerPlan implements Serializable {
 							+ "been redeployed on compute node "
 							+ executeOpDesc.getComputeNode().getUrl());
 
-			this.allExecuteOps.put(execOp, executeOpDesc);
+			this.executeOps.put(execOp, executeOpDesc);
 
 			// If the operator is a leave, then send a start signal (execute
 			// it).
@@ -776,7 +753,7 @@ public class QueryTrackerPlan implements Serializable {
 	public Error operatorReady(AbstractExecuteOperator execOp) {
 		Error opErr = new Error();
 
-		// send READY Signal to all consumers
+		// get lock
 		if (Config.QUERYTRACKER_MONITOR_ACTIVATED)
 			monitoringLock.lock();
 

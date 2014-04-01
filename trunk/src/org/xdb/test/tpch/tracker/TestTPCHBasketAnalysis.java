@@ -160,13 +160,13 @@ public class TestTPCHBasketAnalysis extends DistributedTPCHTestCase {
 
     		
     		if (err.isError())
-    			qPlan.cleanPlanOnError();
+    			qPlan.cleanPlan();
     		this.assertNoError(err);
 
     		// execute plan using query tracker
     		err = qPlan.executePlan();
     		if (err.isError())
-    			qPlan.cleanPlanOnError();
+    			qPlan.cleanPlan();
     		this.assertNoError(err);
 
     		final Map<Identifier, OperatorDesc> currentDeployment = qPlan

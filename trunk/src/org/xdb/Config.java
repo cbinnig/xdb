@@ -41,7 +41,6 @@ public class Config implements Serializable {
 	public static final Identifier COMPUTE_NOOP_ID = new Identifier("NOOP");
 	public static int COMPUTE_PORT = 55700;
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
-	public static boolean COMPUTE_CLEAN_RESULTS = true;
 	public static boolean COMPUTE_CLEAN_PLAN = true;
 	public static int COMPUTE_THINKTIME = 1000;
 	public static String COMPUTE_ENGINE = "MEMORY";
@@ -214,7 +213,7 @@ public class Config implements Serializable {
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
 				"TEST_DB_NAME", "COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES" };
 
-		String[] boolProperties = { "COMPUTE_CLEAN_RESULTS",
+		String[] boolProperties = {
 				"COMPUTE_CLEAN_PLAN", "TRACE_PARALLEL_PLAN",
 				"TRACE_COMPILE_PLAN", "TRACE_COMPILE_PLAN_HEADER",
 				"TRACE_COMPILE_PLAN_HEADER_RESULT",

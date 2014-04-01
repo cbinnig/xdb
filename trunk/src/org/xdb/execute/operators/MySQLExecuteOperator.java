@@ -41,27 +41,28 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 	 */
 	protected Error openOperator() {
 
-		executeStmts = new Vector<PreparedStatement>();
+		this.executeStmts = new Vector<PreparedStatement>();
 
 		// compile statements
 		try {
 			for (final String dml : executeSQLs) {
 				// System.out.println(this.getOperatorId()+">"+ dml+";");
-				executeStmts.add(conn.prepareStatement(dml));
+				this.executeStmts.add(conn.prepareStatement(dml));
 			}
 		} 
 		catch (final SQLSyntaxErrorException e) {
-			err = createMySQLError(e);
+			this.err = createMySQLError(e);
 			this.status = EnumOperatorStatus.FAILED;
 		}
 		catch (final Exception e) {
-			err = createMySQLError(e);
+			this.err = createMySQLError(e);
 			if(Config.QUERYTRACKER_MONITOR_ACTIVATED)
 				this.status = EnumOperatorStatus.ABORTED;
 			else 
 				this.status = EnumOperatorStatus.FAILED;
 		}
-		return err;
+		
+		return this.err;
 	}
 
 	@Override
@@ -91,8 +92,8 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 	 * Clear prepared statements 
 	 */
 	protected Error closeOperator() {
-		executeStmts.clear();
-		return err;
+		this.executeStmts = null;
+		return this.err;
 	}
 
 	@Override
@@ -100,7 +101,6 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(super.toString());
-
 		for (String exeSQL : this.executeSQLs) {
 			builder.append(exeSQL.toString());
 			builder.append(AbstractToken.NEWLINE);

@@ -46,13 +46,13 @@ public class TestQueryTracker extends XDBTestCase {
 		// deploy, execute and clean plan
 		org.xdb.error.Error err = qPlan.deployPlan();
 		if(err.isError())
-			qPlan.cleanPlanOnError();
+			qPlan.cleanPlan();
 		this.assertNoError(err);
 		
 		final Map<Identifier, OperatorDesc> currentDeployment = qPlan.getCurrentDeployment();
 		err = qPlan.executePlan();
 		if(err.isError())
-			qPlan.cleanPlanOnError();
+			qPlan.cleanPlan();
 		this.assertNoError(err);
 		
 
@@ -120,13 +120,13 @@ public class TestQueryTracker extends XDBTestCase {
 		// deploy and execute plan
 		org.xdb.error.Error err = qPlan.deployPlan();
 		if(err.isError())
-			qPlan.cleanPlanOnError();
+			qPlan.cleanPlan();
 		this.assertNoError(err);
 		
 		final Map<Identifier, OperatorDesc> currentDeployment = qPlan.getCurrentDeployment();
 		err = qPlan.executePlan();
 		if(err.isError())
-			qPlan.cleanPlanOnError();
+			qPlan.cleanPlan();
 		this.assertNoError(err);
 
 		// read result

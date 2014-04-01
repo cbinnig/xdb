@@ -49,14 +49,15 @@ public class ComputeNode {
 	// Map of operator -> which are ready
 	private final Map<Identifier, Long> executingOperator = Collections
 			.synchronizedMap(new HashMap<Identifier, Long>());;
-
-	private final Lock readySignalsLock = new ReentrantLock();
-
+			
 	// Compute node description (i.e., available threads on node)
 	private final ComputeNodeDesc computeNodeDesc;
 
 	// Clients for communication
 	private final MasterTrackerClient mTrackerClient;
+
+	// Lock for signaling 
+	private final Lock readySignalsLock = new ReentrantLock();
 
 	// Helpers
 	private final Logger logger;
@@ -75,6 +76,11 @@ public class ComputeNode {
 		this.mTrackerClient = new MasterTrackerClient();
 	}
 
+	/**
+	 * Get description of compute node 
+	 * 
+	 * @return
+	 */
 	public ComputeNodeDesc getComputeNode() {
 		return this.computeNodeDesc;
 	}
@@ -184,6 +190,7 @@ public class ComputeNode {
 		final Identifier srcTrackerOpId = (srcExecuteOpId
 				.equals(Config.COMPUTE_NOOP_ID)) ? srcExecuteOpId
 				: srcExecuteOpId.getParentId(1);
+		
 		final Identifier consumerExecuteOpId = signal.getConsumer();
 		final Identifier consumerTrackerOpId = (consumerExecuteOpId
 				.equals(Config.COMPUTE_NOOP_ID)) ? consumerExecuteOpId
@@ -242,11 +249,10 @@ public class ComputeNode {
 		Error err = new Error();
 
 		// execute operator
-		final AbstractExecuteOperator op = operators.get(signal.getConsumer());
+		final AbstractExecuteOperator op = signal.getExecuteOperator();
 		if (op != null) {
 			err = op.close();
 			logger.log(Level.INFO, "Closed operator: " + op.getOperatorId());
-
 			removeOperator(op);
 		}
 
