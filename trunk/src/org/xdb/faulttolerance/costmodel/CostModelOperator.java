@@ -1,15 +1,24 @@
 package org.xdb.faulttolerance.costmodel;
 
-public class Operator { 
+import org.xdb.utils.Identifier;
+
+/**
+ * 
+ * @author Abdallah 
+ *
+ */
+public class CostModelOperator { 
 	
-	private int id; 
+	//private int id; 
+	private Identifier id;
 	private String type;   
 	private boolean isMaterilaized;  
 	private boolean isForcedMaterlialized; 
 	private double opRunTimeEstimate; 
-	private double opMaterializationTimeEstimate; 
+	private double opMaterializationTimeEstimate;  
+	private int degreeOfPartitioning;
 
-	public Operator() {
+	public CostModelOperator() {
 		// TODO Auto-generated constructor stub
 	}
 
@@ -17,7 +26,7 @@ public class Operator {
 	/**
 	 * @return the id
 	 */
-	public int getId() {
+	public Identifier getId() {
 		return id;
 	}
 
@@ -25,7 +34,7 @@ public class Operator {
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(int id) {
+	public void setId(Identifier id) {
 		this.id = id;
 	}
 
@@ -108,6 +117,22 @@ public class Operator {
 	public void setOpMaterializationTimeEstimate(
 			double opMaterializationTimeEstimate) {
 		this.opMaterializationTimeEstimate = opMaterializationTimeEstimate;
+	}
+
+
+	/**
+	 * @return the degreeOfPartitioning
+	 */
+	public int getDegreeOfPartitioning() {
+		return degreeOfPartitioning;
+	}
+
+
+	/**
+	 * @param degreeOfPartitioning the degreeOfPartitioning to set
+	 */
+	public void setDegreeOfPartitioning(int degreeOfPartitioning) {
+		this.degreeOfPartitioning = degreeOfPartitioning;
 	}
 
 }

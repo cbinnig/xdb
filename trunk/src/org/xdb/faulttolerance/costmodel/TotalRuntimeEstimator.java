@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class FailureScenariosGen { 
+import org.xdb.utils.Identifier;
+
+public class TotalRuntimeEstimator { 
 
 	// list of materialization configuration 
 	private List<MaterializedPlan> matPlansList = new ArrayList<MaterializedPlan>();
 
-	public FailureScenariosGen(List<MaterializedPlan> matPlansList) { 
+	public TotalRuntimeEstimator(List<MaterializedPlan> matPlansList) { 
 		this.matPlansList = matPlansList; 
 
 	}
@@ -42,7 +44,7 @@ public class FailureScenariosGen {
 			double averageWastedTime = 0.0; 
 			double runTimeWithoutFailure = 0.0; 
 			double materializationTime = 0.0; 
-			matLevels = materializedPlan.getMateriliazedPlan(); 
+			matLevels = materializedPlan.getmateriliazedPlanLevels(); 
 			for (Level level : matLevels) {
 				runTimeWithoutFailure += level.getLevelRuntimeEstimate(); 
 				materializationTime += level.getMaterializationRuntimeestimate();
@@ -108,25 +110,28 @@ public class FailureScenariosGen {
 			materializedPlan.setRunTime(runTime);	 
 		} 
 		Collections.sort(matPlansList); 
-		
-		for (MaterializedPlan materializedPlan : matPlansList) {  
-
-		     System.out.println(materializedPlan.getFailureProbability());  
-		     //System.out.println(materializedPlan.getRunTime()); 
-
-		}
-
+	
 		// the best mat conf
 		MaterializedPlan materializedPlan = matPlansList.get(0); 
-		List<Level> levels = materializedPlan.getMateriliazedPlan(); 
+		List<Level> levels = materializedPlan.getmateriliazedPlanLevels(); 
 	    System.out.println("These/this operators should be materialized: ");
 		for (Level level : levels) {
 			System.out.println("Op: "+level.getSubQquery().get(level.getSubQquery().size()-1).getId());
 		}
 		//System.out.println("Runtime: "+materializedPlan.getRunTime() +", Re-attempts: "+materializedPlan.getReattempts() + 
 			//	", Average Wasted time: "+materializedPlan.getAverageWastedTime());  
-		
-		
+	} 
+	
+	public List<Identifier> getTheRecommendedMaterializationOpsId (){
+		Collections.sort(matPlansList);  
+		MaterializedPlan materializedPlan = matPlansList.get(0); 
+		List<Level> levels = materializedPlan.getmateriliazedPlanLevels(); 
+	    System.out.println("These/this operators should be materialized: ");
+	    List<Identifier> materializedOpIds = new ArrayList<Identifier>();
+		for (Level level : levels) { 
+			materializedOpIds.add(level.getSubQquery().get(level.getSubQquery().size()-1).getId());
+			System.out.println("Op: "+level.getSubQquery().get(level.getSubQquery().size()-1).getId());
+		} 
+        return materializedOpIds;
 	}
-
 }

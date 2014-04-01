@@ -14,6 +14,7 @@ import org.xdb.client.MasterTrackerClient;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
+import org.xdb.faulttolerance.costmodel.MaterializationOpsSuggester;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.FunSQLCompiler;
 import org.xdb.funsql.compile.analyze.Analyzer;
@@ -76,6 +77,12 @@ public class SelectStmt extends AbstractServerStmt {
 
 	// Compile plan
 	private CompilePlan plan = new CompilePlan();
+	
+	// Fault Tolerance variables 
+	private Map<Identifier, Double> opsEstimatedRuntime = new HashMap<Identifier, Double>(); 
+	private Map<Identifier, Double> intermediadeResultsMatTime = new HashMap<Identifier, Double>();    
+	private int MTBF; 
+	
 
 	// constructors
 	public SelectStmt() {
@@ -736,6 +743,22 @@ public class SelectStmt extends AbstractServerStmt {
 		err = para.parallelize();
 		return err;
 	}
+	
+	@Override
+	public Error applyFaultTolerance() {
+		Error err = new Error();
+		MaterializationOpsSuggester matSuggester = new MaterializationOpsSuggester
+				(this.plan, this.opsEstimatedRuntime, this.intermediadeResultsMatTime, this.MTBF);  
+		if(Config.COMPILE_FT_MODE.equalsIgnoreCase("smart")){
+			err = matSuggester.startSmartMaterilizationFinder();
+		} else if(Config.COMPILE_FT_MODE.equalsIgnoreCase("naive")) {
+			err = matSuggester.startNaiveMaterilizationFinder();
+		} 
+	    
+		this.plan.tracePlan(this.getClass().getName());
+		
+		return err;
+	}
 
 	@Override
 	public Error execute() {
@@ -752,5 +775,48 @@ public class SelectStmt extends AbstractServerStmt {
 		MasterTrackerClient client = new MasterTrackerClient();
 		Tuple<Error, DoomDBPlan> result = client.generateDoomDBPlan(this.plan);
 		return result;
+	}
+
+	/**
+	 * @return the opsEstimatedRuntime
+	 */
+	public Map<Identifier, Double> getOpsEstimatedRuntime() {
+		return opsEstimatedRuntime;
+	}
+
+	/**
+	 * @param opsEstimatedRuntime the opsEstimatedRuntime to set
+	 */
+	public void setOpsEstimatedRuntime(Map<Identifier, Double> opsEstimatedRuntime) {
+		this.opsEstimatedRuntime = opsEstimatedRuntime;
+	}
+
+	/**
+	 * @return the intermediadeResultsMatTime
+	 */
+	public Map<Identifier, Double> getIntermediadeResultsMatTime() {
+		return intermediadeResultsMatTime;
+	}
+
+	/**
+	 * @param intermediadeResultsMatTime the intermediadeResultsMatTime to set
+	 */
+	public void setIntermediadeResultsMatTime(
+			Map<Identifier, Double> intermediadeResultsMatTime) {
+		this.intermediadeResultsMatTime = intermediadeResultsMatTime;
+	}
+
+	/**
+	 * @return the mTBF
+	 */
+	public int getMTBF() {
+		return MTBF;
+	}
+
+	/**
+	 * @param mTBF the mTBF to set
+	 */
+	public void setMTBF(int mTBF) {
+		MTBF = mTBF;
 	}
 }

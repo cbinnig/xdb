@@ -31,7 +31,6 @@ public class Config implements Serializable {
 	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false;
 	public static int QUERYTRACKER_MONITOR_ATTEMPTS = 10;
 
-
 	// Compute Server
 	public static String COMPUTE_DRIVER_CLASS = "com.mysql.jdbc.Driver";
 	public static String COMPUTE_DB_URL = "jdbc:mysql://127.0.0.1/";
@@ -57,6 +56,8 @@ public class Config implements Serializable {
 	public static int COMPILE_PORT = 55500;
 	public static String COMPILE_URL = "127.0.0.1";
 	public static String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
+	
+	public static String COMPILE_FT_MODE = "naive";
 
 	// Optimizer
 	public static BitSet OPTIMIZER_ACTIVE_RULES_FUNCTION = new BitSet();
@@ -111,6 +112,7 @@ public class Config implements Serializable {
 	public static String TEST_DB_NAME = "tpch_s01";
 	public static int TEST_NODE_COUNT = 2;
 	public static int TEST_PARTS_PER_NODE = 1;
+
 
 	// DoomDB
 	public static String DOOMDB_CONFIG_FILE = "./config/doomdb.conf";
@@ -205,7 +207,7 @@ public class Config implements Serializable {
 				"TEST_FT_RECORDS_LIMIT" };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
-				"TEST_DB_NAME", "COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES" };
+				"TEST_DB_NAME", "COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES", "COMPILE_FT_MODE" };
 
 		String[] boolProperties = {
 				"COMPUTE_CLEAN_PLAN", "TRACE_PARALLEL_PLAN",

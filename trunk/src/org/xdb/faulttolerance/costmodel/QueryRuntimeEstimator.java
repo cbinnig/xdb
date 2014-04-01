@@ -84,9 +84,10 @@ public class QueryRuntimeEstimator {
 	 * each materialization configuration  
 	 */
 	public void estimateReattemptsForMaterlialization(){
+		
 		for(int i=0; i<matPlans.size(); i++){
 			MaterializedPlan matPlan =  matPlans.get(i);
-			List<Level> levels = matPlan.getMateriliazedPlan(); 
+			List<Level> levels = matPlan.getmateriliazedPlanLevels(); 
 			BigDecimal querySuccessProbability = new BigDecimal(1.0); 
 			for (Level level : levels) {
 				BigDecimal levelSuccess =  calculateSuccessProbForLevel(level); 
@@ -104,15 +105,18 @@ public class QueryRuntimeEstimator {
 		}
 	} 
 	
-	// Calculate the number of re-attempts required to 
-	// achieve a certain success rate.  
+	/**
+	 * Calculate the number of re-attempts required to 
+	 * achieve a certain success rate.  
+	 * @param querySuccessProbability
+	 * @return
+	 */
 	private int calculateReattempts(BigDecimal querySuccessProbability) {
 		int reattempts = 0; // initial
 		BigDecimal queryFailureProbability = new BigDecimal(1).subtract(querySuccessProbability); 
 		BigDecimal big1 = new BigDecimal(Math.log(1-this.successRate)); 
 		BigDecimal big2 = BigFunctions.ln(queryFailureProbability, 1000); 
-		reattempts = (int) (Math.ceil(big1.divide(big2, MathContext.DECIMAL128).doubleValue()) ) -1;
-		
+		reattempts = (int) (Math.ceil(big1.divide(big2, MathContext.DECIMAL128).doubleValue()) ) -1;	
 		return reattempts;
 	}
 	
@@ -121,7 +125,7 @@ public class QueryRuntimeEstimator {
 	}
 	
     private BigDecimal calculateFailureProbForNode(Level level){
-    	double meatTimeBetweenFailure = level.getNodeClass().getMeanTimeBetweenFailure();
+    	double meatTimeBetweenFailure = level.getMTBF();
     	return new BigDecimal(1).subtract(new BigDecimal(Math.pow(2.87, -1*(level.getLevelRuntimeEstimate()+level.getMaterializationRuntimeestimate())/meatTimeBetweenFailure)));
 	} 
     
@@ -131,7 +135,7 @@ public class QueryRuntimeEstimator {
 	} 
 
     private BigDecimal calculateSuccessProbForLevel(Level level){ 
-    	int numberOfNodePerLevel = level.getNodeClass().getNumberOfNodesPerClass();
+    	int numberOfNodePerLevel = level.getNumberOfPartitions();
 		BigDecimal successProbNode = calculateSuccessProbForNode(level); 
 		return successProbNode.pow(numberOfNodePerLevel);
 		

@@ -4,37 +4,41 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author user
+/** 
+ * Level class
+ * @author Abdallah
  *
  */
 public class Level { 
 	
-	private List<Operator> subQquery = new ArrayList<Operator>(); 
+	private List<CostModelOperator> subQquery = new ArrayList<CostModelOperator>(); 
 	
 	private BigDecimal levelSuccessProbability;   
 	
 	private BigDecimal levelFailureProbability;  
 	
-	private int numberOfNodes;  
+	private int numberOfPartitions;  
 	
 	private NodeClass nodeClass;  
 	
 	private double levelRuntimeEstimate; 
 	
-	private double materializationRuntimeestimate; 
+	private double materializationRuntimeestimate;   
+	
+	private int MTBF;
+	
 
 	/**
 	 * @return the subQquery
 	 */
-	public List<Operator> getSubQquery() {
+	public List<CostModelOperator> getSubQquery() {
 		return subQquery;
 	}
 
 	/**
 	 * @param subQquery the subQquery to set
 	 */
-	public void setSubQquery(List<Operator> subQquery) {
+	public void setSubQquery(List<CostModelOperator> subQquery) {
 		this.subQquery = subQquery;
 	}
 
@@ -70,14 +74,14 @@ public class Level {
 	 * @return the numberOfPartitions
 	 */
 	public int getNumberOfPartitions() {
-		return numberOfNodes;
+		return numberOfPartitions;
 	}
 
 	/**
 	 * @param numberOfPartitions the numberOfPartitions to set
 	 */
-	public void setNumberOfPartitions(int numberOfNodes) {
-		this.numberOfNodes = numberOfNodes;
+	public void setNumberOfPartitions(int numberOfPartitions) {
+		this.numberOfPartitions = numberOfPartitions;
 	}
 
 	/**
@@ -121,6 +125,20 @@ public class Level {
 	public void setMaterializationRuntimeestimate(
 			double materializationRuntimeestimate) {
 		this.materializationRuntimeestimate = materializationRuntimeestimate;
+	}
+
+	/**
+	 * @return the MTBF
+	 */
+	public int getMTBF() {
+		return MTBF;
+	}
+
+	/**
+	 * @param mTTR the mTTR to set
+	 */
+	public void setMTBF(int MTBF) {
+		this.MTBF = MTBF;
 	} 
 
 }

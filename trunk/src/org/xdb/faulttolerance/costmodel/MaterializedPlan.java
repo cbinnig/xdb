@@ -4,6 +4,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/** 
+ * 
+ * @author Abdallah 
+ *
+ */
 public class MaterializedPlan implements Comparable<MaterializedPlan> { 
 	
 	private List<Level> materiliazedPlanLevels = new ArrayList<Level>(); 
@@ -14,10 +19,11 @@ public class MaterializedPlan implements Comparable<MaterializedPlan> {
     private int reattempts;  
     private double runTimeWithoutFailure; 
     private double materializationTime;
-	/**
+	
+    /**
 	 * @return the materiliazedPlan
 	 */
-	public List<Level> getMateriliazedPlan() {
+	public List<Level> getmateriliazedPlanLevels() {
 		return materiliazedPlanLevels;
 	}
 
@@ -114,7 +120,7 @@ public class MaterializedPlan implements Comparable<MaterializedPlan> {
 
 	@Override
 	public int compareTo(MaterializedPlan o) {
-		return (int) (this.getMateriliazedPlan().size() - o.getMateriliazedPlan().size());
+		return (int) (this.getmateriliazedPlanLevels().size() - o.getmateriliazedPlanLevels().size());
 	}
 
 	/**
