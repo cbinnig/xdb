@@ -16,13 +16,13 @@ public class SubQueryEstimator {
  	}
     
 	private double calculateLevelRuntinme(Level level){
-		List<Operator> ops = level.getSubQquery(); 
+		List<CostModelOperator> ops = level.getSubQquery(); 
 		
 		// sum-up all operators runtime in one level
 		// TODO: using a cost model for estimate or 
 		// using the database cost estimator. 
 		double levelRunTime = 0.0;
-		for (Operator op : ops) {
+		for (CostModelOperator op : ops) {
 			levelRunTime += op.getOpRunTimeEstimate();
 		}
 		return levelRunTime;

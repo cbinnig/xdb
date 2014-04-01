@@ -15,7 +15,8 @@ public class FunSQLCompiler {
 	
 	private boolean doOptimize = true;
 	private boolean doParallelize = true;
-	private boolean doSemanticAnalysis = true;
+	private boolean doSemanticAnalysis = true; 
+	private boolean doFaultTolerance = false; 
 	
 	//getters and setters
 	public Error getLastError() {
@@ -66,10 +67,15 @@ public class FunSQLCompiler {
 				this.lastError = statement.parallelize();
 				if (lastError.isError())
 					return null;
+			} 
+		    
+			// find the best materilaizations 
+			if(this.doFaultTolerance){
+				this.lastError = statement.applyFaultTolerance(); 
+				if(lastError.isError()) 
+					return null; 
 			}
-			
-			//TODO: add fault-tolerizer
-			
+					
 			return statement;
 
 		} catch (RecognitionException e) {

@@ -133,4 +133,9 @@ public abstract class AbstractServerStmt {
 		Error lastError = new Error(EnumError.COMPILER_GENERIC, args);
 		return lastError;
 	}
+
+	public Error applyFaultTolerance() {
+		// TODO Auto-generated method stub
+		return new Error();
+	}
 }

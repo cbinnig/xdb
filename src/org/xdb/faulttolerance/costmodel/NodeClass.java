@@ -12,28 +12,28 @@ public enum NodeClass {
 	private int numberOfNodesPerClass; 
 	
 	NodeClass(int numberOfNodesPerClass, int meanTimeBetweenFailure){
-		this.setMeanTimeBetweenFailure(meanTimeBetweenFailure); 
+		//this.setMeanTimeBetweenFailure(meanTimeBetweenFailure); 
 		this.setNumberOfNodesPerClass(numberOfNodesPerClass);
 	}
 
 	/**
 	 * @return the meanTimeBetweenFailure
 	 */
-	public int getMeanTimeBetweenFailure() {
+	public int getMeanTimeBetweenFailure1() {
 		return meanTimeBetweenFailure;
 	}
 
 	/**
 	 * @param meanTimeBetweenFailure the meanTimeBetweenFailure to set
 	 */
-	public void setMeanTimeBetweenFailure(int meanTimeBetweenFailure) {
+	public void setMeanTimeBetweenFailure1(int meanTimeBetweenFailure) {
 		this.meanTimeBetweenFailure = meanTimeBetweenFailure;
 	}
 
 	/**
 	 * @return the numberOfNodesPerClass
 	 */
-	public int getNumberOfNodesPerClass() {
+	public int getNumberOfNodesPerClass1() {
 		return numberOfNodesPerClass;
 	}
 
