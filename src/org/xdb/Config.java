@@ -112,12 +112,6 @@ public class Config implements Serializable {
 	public static int TEST_NODE_COUNT = 2;
 	public static int TEST_PARTS_PER_NODE = 1;
 
-	// Fault-tolerance testing
-	public static int TEST_FT_NUMBER_OF_RUNS = 100;
-	public static int TEST_FT_NUMBER_OF_FAILURES = 1;
-	public static boolean TEST_FT_CHECKPOINTING = false;
-	public static int TEST_FT_RECORDS_LIMIT = 10;
-
 	// DoomDB
 	public static String DOOMDB_CONFIG_FILE = "./config/doomdb.conf";
 	public static int DOOMDB_MTBF = 10; // in s
