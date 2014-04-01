@@ -77,21 +77,18 @@ public class QueryTrackerPlan implements Serializable {
 
 	// execution plan
 	private final Map<Identifier, OperatorDesc> currentDeployment = new HashMap<Identifier, OperatorDesc>();
-	private final Map<Identifier, AbstractExecuteOperator> executeOps = new HashMap<Identifier, AbstractExecuteOperator>();
+	private final Map<AbstractExecuteOperator, OperatorDesc> allExecuteOps = new HashMap<AbstractExecuteOperator, OperatorDesc>();
 	private final Map<Identifier, Set<Identifier>> receivedReadySignals = Collections
 			.synchronizedMap(new HashMap<Identifier, Set<Identifier>>());
 	private Boolean isExecuted = false;
 	private int maxAttempts = Config.QUERYTRACKER_MONITOR_ATTEMPTS;
 	private Boolean monitorFailures = Config.QUERYTRACKER_MONITOR_ACTIVATED;
 	
-
 	// helper to measure execution time
 	private final XDBExecuteTimeMeasurement timeMeasure;
 	private long queryExecutionTime;
 
-	// Reentrant-Lock to manage between monitoring and signaling operators
-	// Stop signaling while monitoring (redeploying) operators, and signaling
-	// once finishing the monitoring.
+	// Reentrant-Lock to manage between monitoring and signaling
 	private final ReentrantLock monitoringLock = new ReentrantLock();
 	private int monitoringInterval = Config.QUERYTRACKER_MONITOR_INTERVAL;
 
@@ -145,8 +142,16 @@ public class QueryTrackerPlan implements Serializable {
 		return Collections.unmodifiableSet(leaves);
 	}
 
-	public Map<Identifier, AbstractTrackerOperator> getOperatorMapping() {
-		return Collections.unmodifiableMap(trackerOps);
+	public Set<Identifier> getRoots() {
+		return Collections.unmodifiableSet(roots);
+	}
+	
+	public void setRoots(Set<Identifier> roots) {
+		this.roots.addAll(roots);
+	}
+
+	public void setLeaves(Set<Identifier> leaves) {
+		this.leaves.addAll(leaves);
 	}
 
 	public void setTrackerOperators(
@@ -170,36 +175,12 @@ public class QueryTrackerPlan implements Serializable {
 		return trackerOps.get(opId);
 	}
 
-	public AbstractExecuteOperator getExecuteOperator(Identifier opId) {
-		return this.executeOps.get(opId);
-	}
-
-	public Set<Identifier> getRoots() {
-		return roots;
-	}
-
-	public void setRoots(Set<Identifier> roots) {
-		this.roots.addAll(roots);
-	}
-
-	public void setLeaves(Set<Identifier> leaves) {
-		this.leaves.addAll(leaves);
-	}
-
 	public Set<Identifier> getSources(Identifier opId) {
 		return this.sources.get(opId);
 	}
 
 	public Set<Identifier> getConsumers(Identifier opId) {
 		return this.consumers.get(opId);
-	}
-
-	public Map<Identifier, Set<Identifier>> getAllSourcesMap() {
-		return this.sources;
-	}
-
-	public Map<Identifier, Set<Identifier>> getAllConsumersMap() {
-		return this.consumers;
 	}
 
 	public long getQueryExecutionTime() {
@@ -696,7 +677,7 @@ public class QueryTrackerPlan implements Serializable {
 				return;
 
 
-			this.executeOps.put(trackerOpId, execOp);
+			this.allExecuteOps.put(execOp, executeOpDesc);
 		}
 	}
 
@@ -761,7 +742,7 @@ public class QueryTrackerPlan implements Serializable {
 							+ "been redeployed on compute node "
 							+ executeOpDesc.getComputeNode().getUrl());
 
-			this.executeOps.put(trackerOpId, execOp);
+			this.allExecuteOps.put(execOp, executeOpDesc);
 
 			// If the operator is a leave, then send a start signal (execute
 			// it).
@@ -790,91 +771,7 @@ public class QueryTrackerPlan implements Serializable {
 		}
 	}
 
-	/**
-	 * 
-	 * @param fileName
-	 * @return
-	 */
-	public Error traceDeployment(String fileName) {
-		fileName += planId;
-		final Error error = new Error();
-		final Graph graph = GraphFactory.newGraph();
-
-		final Map<Identifier, GraphNode> nodes = new HashMap<Identifier, GraphNode>();
-
-		// add nodes to plan
-		for (Identifier opId : this.executeOps.keySet()) {
-			GraphNode node = graph.addNode();
-			AbstractExecuteOperator op = this.executeOps.get(opId);
-			String sql = op.toString();
-			node.getInfo().setCaption(sql);
-			logger.log(Level.INFO, sql);
-			nodes.put(opId, node);
-		}
-
-		// add edges to plan
-		for (Map.Entry<Identifier, Set<Identifier>> entry : this.sources
-				.entrySet()) {
-			Identifier fromId = entry.getKey();
-			GraphNode from = nodes.get(fromId);
-
-			for (Identifier toId : entry.getValue()) {
-				GraphNode to = nodes.get(toId);
-				if (from != null && to != null)
-					graph.addEdge(from, to);
-			}
-		}
-
-		Dotty.dot2Img(graph, fileName);
-		return error;
-	}
-
-	/**
-	 * Generates a visual graph representation of the query tracker plan
-	 */
-	public Error tracePlan(String fileName) {
-		fileName += planId;
-		final Error error = new Error();
-		final Graph graph = GraphFactory.newGraph();
-
-		final HashMap<Identifier, GraphNode> nodes = new HashMap<Identifier, GraphNode>();
-
-		// add nodes to plan
-		for (Identifier opId : this.trackerOps.keySet()) {
-			GraphNode node = graph.addNode();
-			AbstractTrackerOperator op = this.trackerOps.get(opId);
-			String caption = op.toString();
-			if (Config.TRACE_TRACKER_SHORT_CAPTIONS)
-				caption = caption.substring(0,
-						Config.TRACE_TRACKER_SHORT_CAPTIONS_CHARS) + " ... ";
-			caption += " IN " + op.getTrackerOpConnections().toString();
-
-			node.getInfo().setCaption(caption);
-
-			if (Config.TRACE_TRACKER_PLAN_HEADER)
-				node.getInfo().setHeader(op.getOutTables().toString());
-
-			if (Config.TRACE_TRACKER_PLAN_FOOTER)
-				node.getInfo().setFooter(op.getInTables().toString());
-
-			nodes.put(opId, node);
-		}
-
-		// add edges to plan
-		for (Map.Entry<Identifier, Set<Identifier>> entry : this.sources
-				.entrySet()) {
-			Identifier fromId = entry.getKey();
-			GraphNode from = nodes.get(fromId);
-
-			for (Identifier toId : entry.getValue()) {
-				GraphNode to = nodes.get(toId);
-				graph.addEdge(from, to);
-			}
-		}
-
-		Dotty.dot2Img(graph, fileName);
-		return error;
-	}
+	
 
 	public Error operatorReady(AbstractExecuteOperator execOp) {
 		Error opErr = new Error();
@@ -955,11 +852,88 @@ public class QueryTrackerPlan implements Serializable {
 					EnumOperatorStatus.RUNNING);
 		}
 	}
+	
+	/**
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	public Error traceDeployment(String fileName) {
+		fileName += planId;
+		final Error error = new Error();
+		final Graph graph = GraphFactory.newGraph();
+
+		final Map<Identifier, GraphNode> nodes = new HashMap<Identifier, GraphNode>();
+
+		// add nodes to plan
+		for (Identifier opId : this.currentDeployment.keySet()) {
+			GraphNode node = graph.addNode();
+			OperatorDesc operDesc = this.currentDeployment.get(opId);
+			node.getInfo().setCaption(opId.toString()+":"+operDesc.toString());
+			nodes.put(opId, node);
+		}
+
+		// add edges to plan
+		for (Map.Entry<Identifier, Set<Identifier>> entry : this.sources
+				.entrySet()) {
+			Identifier fromId = entry.getKey();
+			GraphNode from = nodes.get(fromId);
+
+			for (Identifier toId : entry.getValue()) {
+				GraphNode to = nodes.get(toId);
+				if (from != null && to != null)
+					graph.addEdge(from, to);
+			}
+		}
+
+		Dotty.dot2Img(graph, fileName);
+		return error;
+	}
 
 	/**
-	 * @return the receivedReadySignals
+	 * Generates a visual graph representation of the query tracker plan
 	 */
-	public Map<Identifier, Set<Identifier>> getReceivedReadySignals() {
-		return receivedReadySignals;
+	public Error tracePlan(String fileName) {
+		fileName += planId;
+		final Error error = new Error();
+		final Graph graph = GraphFactory.newGraph();
+
+		final HashMap<Identifier, GraphNode> nodes = new HashMap<Identifier, GraphNode>();
+
+		// add nodes to plan
+		for (Identifier opId : this.trackerOps.keySet()) {
+			GraphNode node = graph.addNode();
+			AbstractTrackerOperator op = this.trackerOps.get(opId);
+			String caption = op.toString();
+			if (Config.TRACE_TRACKER_SHORT_CAPTIONS)
+				caption = caption.substring(0,
+						Config.TRACE_TRACKER_SHORT_CAPTIONS_CHARS) + " ... ";
+			caption += " IN " + op.getTrackerOpConnections().toString();
+
+			node.getInfo().setCaption(caption);
+
+			if (Config.TRACE_TRACKER_PLAN_HEADER)
+				node.getInfo().setHeader(op.getOutTables().toString());
+
+			if (Config.TRACE_TRACKER_PLAN_FOOTER)
+				node.getInfo().setFooter(op.getInTables().toString());
+
+			nodes.put(opId, node);
+		}
+
+		// add edges to plan
+		for (Map.Entry<Identifier, Set<Identifier>> entry : this.sources
+				.entrySet()) {
+			Identifier fromId = entry.getKey();
+			GraphNode from = nodes.get(fromId);
+
+			for (Identifier toId : entry.getValue()) {
+				GraphNode to = nodes.get(toId);
+				graph.addEdge(from, to);
+			}
+		}
+
+		Dotty.dot2Img(graph, fileName);
+		return error;
 	}
 }
