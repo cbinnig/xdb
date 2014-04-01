@@ -348,42 +348,6 @@ public abstract class DistributedTPCHTestCase extends DistributedXDBTestCase {
 		this.assertNoError(qPlan.cleanPlan());
 	}
 
-	protected Error executeQuery(QueryTrackerPlan qplan, boolean injectFailure,
-			int numFailures, long executionTime) {
-
-		Error err = new Error();
-
-		// Deploy query tracker plan
-		err = qplan.deployPlan();
-		if (err.isError()) {
-			qplan.cleanPlanOnError();
-			return err;
-		}
-
-		// Inject failure(s)
-		if (injectFailure) {
-			FailureSimulatorFT failureSimulatorFT = new FailureSimulatorFT(
-					numFailures, qplan, this.allConnections, executionTime);
-			failureSimulatorFT.start();
-		}
-
-		// Execute query tracker plan
-		err = qplan.executePlan();
-		if (err.isError()) {
-			qplan.cleanPlanOnError();
-			return err;
-		}
-
-		// Clean up
-		err = qplan.cleanPlan();
-		if (err.isError()) {
-			qplan.cleanPlanOnError();
-			return err;
-		}
-
-		return err;
-	}
-
 	/**
 	 * Executes the Query Tracker Plan with multiple outputtables and checks if
 	 * results size is correct

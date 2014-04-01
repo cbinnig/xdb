@@ -66,7 +66,4 @@ public class OperatorDesc implements Serializable {
 	public String toString() {
 		return "(" + this.computeNode + "," + this.execOpId + "," + this.operatorStatus + ")";
 	}
-
-	
-
 }
