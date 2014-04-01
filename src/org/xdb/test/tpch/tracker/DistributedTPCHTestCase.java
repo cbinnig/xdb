@@ -311,13 +311,13 @@ public abstract class DistributedTPCHTestCase extends DistributedXDBTestCase {
 		Error err = qPlan.deployPlan(deployment);
 
 		if (err.isError())
-			qPlan.cleanPlanOnError();
+			qPlan.cleanPlan();
 		this.assertNoError(err);
 
 		// execute plan using query tracker
 		err = qPlan.executePlan();
 		if (err.isError())
-			qPlan.cleanPlanOnError();
+			qPlan.cleanPlan();
 		this.assertNoError(err);
 
 		final Map<Identifier, OperatorDesc> currentDeployment = qPlan
@@ -364,13 +364,13 @@ public abstract class DistributedTPCHTestCase extends DistributedXDBTestCase {
 		Error err = qPlan.deployPlan(deployment);
 
 		if (err.isError())
-			qPlan.cleanPlanOnError();
+			qPlan.cleanPlan();
 		this.assertNoError(err);
 
 		// execute plan using query tracker
 		err = qPlan.executePlan();
 		if (err.isError())
-			qPlan.cleanPlanOnError();
+			qPlan.cleanPlan();
 		this.assertNoError(err);
 
 		final Map<Identifier, OperatorDesc> currentDeployment = qPlan

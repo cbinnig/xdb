@@ -65,16 +65,13 @@ public class QueryTrackerServer extends AbstractServer {
 			try {
 				switch (cmd) {
 				case CMD_STOP_SERVER:
-					logger.log(Level.INFO, "Received CMD_STOP_SERVER");
 					QueryTrackerServer.this.stopServer();
 					break;
 				case CMD_PING_SERVER:
 					logger.log(Level.INFO, "Received CMD_PING_SERVER");
 					break;
 				case CMD_EXECUTE_PLAN:
-					//got new compile plan
 					final CompilePlan cplan = (CompilePlan) in.readObject();
-					
 					err = tracker.executePlan(cplan);
 					break;
 				case CMD_OPERATOR_READY:

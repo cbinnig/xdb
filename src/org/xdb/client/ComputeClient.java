@@ -1,15 +1,11 @@
 package org.xdb.client;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
-import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.operators.EnumOperatorStatus;
+import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
@@ -122,8 +118,8 @@ public class ComputeClient extends AbstractClient {
 	 * @return
 	 */
 	public Error closeOperator(final ComputeNodeDesc url,
-			final Identifier operatorId) {
-		final CloseSignal signal = new CloseSignal(operatorId);
+			final AbstractExecuteOperator execOp) {
+		final CloseSignal signal = new CloseSignal(execOp);
 		Object[] args = { signal };
 		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_CLOSE_SIGNAL, args);
@@ -136,8 +132,8 @@ public class ComputeClient extends AbstractClient {
 	 * @param dest
 	 * @return
 	 */
-	public Error closeOperator(final OperatorDesc dest) {
-		return this.closeOperator(dest.getComputeNode(), dest.getOperatorID());
+	public Error closeOperator(final OperatorDesc dest, final AbstractExecuteOperator execOp) {
+		return this.closeOperator(dest.getComputeNode(), execOp);
 	}
 
 	/**
@@ -193,78 +189,5 @@ public class ComputeClient extends AbstractClient {
         Object[] args = { restartSignal };
 		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_RESTART_SERVER, args);
-	}
-	
-	
-	/**
-	 * Execute given command with arguments on server (with given URL and port)
-	 * 
-	 * @param url
-	 * @param port
-	 * @param cmd
-	 * @param args
-	 * @return
-	 */
-	protected Error executeCmdIgnoreCommErr(final String url, final int port, int cmd,
-			Object[] args) {
-		Error err = new Error();
-
-		try {
-			Socket server = new Socket(url, port);
-			final ObjectOutputStream out = new ObjectOutputStream(
-					server.getOutputStream());
-
-			out.writeInt(cmd);
-			out.flush();
-			for (Object arg : args) {
-				out.writeObject(arg);
-				out.flush();
-			}
-
-			final ObjectInputStream in = new ObjectInputStream(
-					server.getInputStream());
-			err = (Error) in.readObject();
-
-			server.close();
-
-		} catch (final Exception e) {
-			//Ignore communication errors
-		}
-
-		return err;
-	}
-	
-	/**
-	 * Execute given command with arguments on server (with given URL and port)
-	 */
-	protected Tuple<Error, Object> executeCmdWithResultIgnoreCommErr(final String url,
-			final int port, int cmd, Object[] args) {
-		Error err = new Error();
-		Object obj = null;
-
-		try {
-			Socket server = new Socket(url, port);
-			final ObjectOutputStream out = new ObjectOutputStream(
-					server.getOutputStream());
-
-			out.writeInt(cmd);
-			out.flush();
-			for (Object arg : args) {
-				out.writeObject(arg);
-				out.flush();
-			}
-
-			final ObjectInputStream in = new ObjectInputStream(
-					server.getInputStream());
-			obj = in.readObject();
-			err = (Error) in.readObject();
-
-			server.close();
-
-		} catch (final Exception e) {
-			
-		}
-
-		return new Tuple<Error, Object>(err, obj);
 	}
 }

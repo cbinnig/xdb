@@ -3,8 +3,8 @@ package org.xdb.execute.operators;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLSyntaxErrorException;
+import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
@@ -50,15 +50,13 @@ public abstract class AbstractExecuteOperator implements Serializable {
 
 	// DDL statements to create input and output tables
 	protected Vector<String> openSQLs = new Vector<String>();
-	protected transient Vector<PreparedStatement> openStmts;
 
 	// DDL statements to drop input and output tables
 	protected Vector<String> closeSQLs = new Vector<String>();
-	protected transient Vector<PreparedStatement> closeStmts;
 
-	//status
+	// status
 	protected EnumOperatorStatus status = EnumOperatorStatus.INIT;
-	
+
 	// helper
 	protected Error err = new Error();
 	private transient QueryTrackerClient queryTrackerClient;
@@ -70,10 +68,10 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	}
 
 	// getters and setters
-	public EnumOperatorStatus getStatus(){
+	public EnumOperatorStatus getStatus() {
 		return this.status;
 	}
-	
+
 	public Error getLastError() {
 		return this.err;
 	}
@@ -125,11 +123,8 @@ public abstract class AbstractExecuteOperator implements Serializable {
 					this.queryTracker.getUrl());
 		}
 
-		// open connection and compile/execute statements
-		this.openStmts = new Vector<PreparedStatement>();
-		this.closeStmts = new Vector<PreparedStatement>();
+		// open connection and execute open statements
 		try {
-
 			Class.forName(Config.COMPUTE_DRIVER_CLASS);
 			this.conn = DriverManager.getConnection(this.dburl + this.dbname,
 					this.dbuser, this.dbpasswd);
@@ -137,42 +132,29 @@ public abstract class AbstractExecuteOperator implements Serializable {
 			// compile open and close statements
 			for (String ddl : this.openSQLs) {
 				// System.out.println(this.getOperatorId()+">"+ddl+";");
-				this.openStmts.add(this.conn.prepareStatement(ddl));
+				Statement openStmt = conn.createStatement();
+				openStmt.execute(ddl);
 			}
 
-			for (String ddl : this.closeSQLs) {
-				// System.out.println(ddl);
-				this.closeStmts.add(this.conn.prepareStatement(ddl));
-			}
-
-			// execute openStmts
-			for (PreparedStatement stmt : this.openStmts) {
-				// System.out.println("Execute stmt "+ stmt.toString());
-				stmt.execute();
-			}
-
-		} 
-		catch (final SQLSyntaxErrorException e) {
+		} catch (final SQLSyntaxErrorException e) {
 			err = createMySQLError(e);
 			this.status = EnumOperatorStatus.FAILED;
-		}
-		catch (final Exception e) {
-			err = createMySQLError(e);
-			if(Config.QUERYTRACKER_MONITOR_ACTIVATED)
-				this.status = EnumOperatorStatus.ABORTED;
-			else 
-				this.status = EnumOperatorStatus.FAILED;
-		}
-		
-
-		if (this.err.isError())
 			return this.err;
+		} catch (final Exception e) {
+			err = createMySQLError(e);
+			if (Config.QUERYTRACKER_MONITOR_ACTIVATED)
+				this.status = EnumOperatorStatus.ABORTED;
+			else
+				this.status = EnumOperatorStatus.FAILED;
+			return this.err;
+		}
 
 		// call operator specific open method
 		this.err = openOperator();
 		if (this.err.isError())
 			return this.err;
-		
+
+		// set status to deployed
 		this.status = EnumOperatorStatus.DEPLOYED;
 		return this.err;
 	}
@@ -191,11 +173,19 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 */
 	public Error execute() {
 
+		// execute operator 
 		this.status = EnumOperatorStatus.RUNNING;
 		this.err = executeOperator();
-		if(!err.isError())
+		if (!err.isError())
 			this.status = EnumOperatorStatus.FINISHED;
-		
+
+		// close connection
+		try {
+			this.conn.close();
+		} catch (Exception e) {
+			this.err = createMySQLError(e);
+		}
+
 		return this.err;
 	}
 
@@ -215,31 +205,29 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 * Close connection and remove prepared statements
 	 */
 	public Error close() {
-		// execute close statements
+		// open connection and execute close statements
 		try {
-			for (PreparedStatement stmt : this.closeStmts) {
-				stmt.execute();
+			Class.forName(Config.COMPUTE_DRIVER_CLASS);
+			this.conn = DriverManager.getConnection(this.dburl + this.dbname,
+					this.dbuser, this.dbpasswd);
+
+			for (String ddl : this.closeSQLs) {
+				Statement closeStmt = this.conn.createStatement();
+				closeStmt.execute(ddl);
 			}
-		} catch (Exception e) {
+
+		} catch (final Exception e) {
 			this.err = createMySQLError(e);
-			return this.err;
 		}
 
-		// clean up statements
-		this.openStmts.clear();
-		this.closeStmts.clear();
-
 		// call operator specific close method
-		this.err = this.closeOperator();
-		if(this.err.isError())
-			return this.err;
-				
+		this.closeOperator();
+
 		// close connection
 		try {
 			this.conn.close();
 		} catch (Exception e) {
 			this.err = createMySQLError(e);
-			return this.err;
 		}
 
 		return this.err;
@@ -260,8 +248,9 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 * @return Error
 	 */
 	protected Error createMySQLError(Exception e) {
-		//e.printStackTrace();
-		String[] args = { this.getOperatorId()+" > " + e.toString() + "," + e.getCause() };
+		// e.printStackTrace();
+		String[] args = { this.getOperatorId() + " > " + e.toString() + ","
+				+ e.getCause() };
 		Error err = new Error(EnumError.MYSQL_ERROR, args);
 		return err;
 	}

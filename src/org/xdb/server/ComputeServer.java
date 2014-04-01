@@ -74,7 +74,7 @@ public class ComputeServer extends AbstractServer {
 					break;
 				case CMD_CLOSE_SIGNAL:
 					final CloseSignal closeSignal = (CloseSignal) in.readObject();
-					logger.log(Level.INFO, "Received close signal for operator:" + closeSignal.getConsumer());
+					logger.log(Level.INFO, "Received close signal for operator:" + closeSignal.getExecuteOperator().getOperatorId());
 					err = compute.closeOperator(closeSignal);
 					break; 
 				case CMD_KILL_SIGNAL: 

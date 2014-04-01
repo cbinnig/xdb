@@ -71,13 +71,13 @@ public class TestDistributed2ComputeNodes extends DistributedXDBTestCase {
 		// deploy and execute plan
 		Error err = qPlan.deployPlan();
 		if(err.isError())
-			qPlan.cleanPlanOnError();
+			qPlan.cleanPlan();
 		this.assertNoError(err);
 		
 		final Map<Identifier, OperatorDesc> currentDeployment = qPlan.getCurrentDeployment();
 		err = qPlan.executePlan();
 		if(err.isError())
-			qPlan.cleanPlanOnError();
+			qPlan.cleanPlan();
 		this.assertNoError(err);
 
 		// read result
