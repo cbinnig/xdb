@@ -23,7 +23,7 @@ public abstract class AbstractTreeVisitor implements ITreeVisitor {
 	
 	protected AbstractCompileOperator treeRoot = null;
 	private boolean stop = false;
-	private Set<Identifier> visitedOps = new HashSet<Identifier>();
+	protected Set<Identifier> visitedOps = new HashSet<Identifier>();
 	
 	public AbstractTreeVisitor(){
 		this.stop = false;

@@ -13,5 +13,33 @@ public enum EnumOperator implements Serializable {
 	SQL_UNARY,
 	SQL_JOIN,
 	SQL_COMBINED,
-	UNION
+	UNION;
+	
+	public boolean isJoin(){
+		switch(this){
+		case EQUI_JOIN:
+		case SQL_JOIN:
+			return true;
+		default:
+			return false;
+		}
+	}
+	
+	public boolean isSQLJoin(){
+		switch(this){
+		case SQL_JOIN:
+			return true;
+		default:
+			return false;
+		}
+	}
+	
+	public boolean isSelection(){
+		switch(this){
+		case GENERIC_SELECTION:
+			return true;
+		default:
+			return false;
+		}
+	}
 }

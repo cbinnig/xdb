@@ -124,6 +124,7 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public Error visitTableOperator(TableOperator to) {
+		this.resetVisitor();
 		return err;
 	}
 
@@ -162,6 +163,7 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 			this.plan.removeOperator(this.sqlUnaryOp.getOperatorId());
 			this.sqlUnaryOp = null;
 		}
+		this.lastUnaryOp = null;
 	}
 
 	/**

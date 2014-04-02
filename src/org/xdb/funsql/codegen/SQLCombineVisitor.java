@@ -4,7 +4,6 @@ import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractBottomUpTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
-import org.xdb.funsql.compile.operator.EnumOperator;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
@@ -16,9 +15,8 @@ import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
 
 /**
- * This class visits the current plan and combines sqljoin and sqlunary operators to a s
- * sqlcombined operator. This done for the purpose to avoid materialization due to operator
- * calling.
+ * This class visits the current plan and combines SQLJoin and SQLUnary operators to a 
+ * SQLCombined operator. 
  * 
  * @author A.C.Mueller
  *
@@ -90,15 +88,14 @@ public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
 	@Override
 	public Error visitSQLUnary(SQLUnary absOp) {
 		
-		if(this.lastop!=null && this.lastop.getType().equals(EnumOperator.SQL_JOIN)){
-			SQLCombined sqlc = new SQLCombined((SQLJoin)this.lastop);
+		if(this.lastop!=null && this.lastop.getType().isSQLJoin()){
+			SQLCombined sqlc = new SQLCombined(this.plan, (SQLJoin)this.lastop);
 			this.plan.replaceOperator(absOp.getOperatorId(), sqlc);
-
 			sqlc.mergeSQLUnaryParent(absOp);
-		
-			this.plan.removeOperator(this.lastop.getOperatorId());
+
 			
-			this.lastop = sqlc;
+			this.plan.removeOperator(this.lastop.getOperatorId());
+			this.lastop = null;
 		} 
 		return err;
 	}

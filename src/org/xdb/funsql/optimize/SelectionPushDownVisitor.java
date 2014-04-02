@@ -82,6 +82,7 @@ public class SelectionPushDownVisitor extends AbstractTreeVisitor {
 		this.modifiedPlan = false;
 		this.nextChildIdx = 0;
 		this.doWaitNextVisit = true;
+		this.visitedOps.clear();
 	}
 
 	@Override
