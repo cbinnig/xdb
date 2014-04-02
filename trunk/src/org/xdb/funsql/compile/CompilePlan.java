@@ -251,7 +251,19 @@ public class CompilePlan implements Serializable {
 		logger.log(Level.INFO, "Add operator" + op.toString()
 				+ " to compile plan " + this.planId);
 
+		// adjust operator lists
 		this.operators.put(opId, op);
+		
+		if(!opId.equals(op.getOperatorId())){
+			if(this.leaves.contains(op.getOperatorId())){
+				this.leaves.add(opId);
+			}
+			if(this.roots.contains(op.getOperatorId())){
+				this.roots.add(opId);
+			}
+			
+			this.removeOperator(op.getOperatorId());
+		}
 	}
 	
 	/**

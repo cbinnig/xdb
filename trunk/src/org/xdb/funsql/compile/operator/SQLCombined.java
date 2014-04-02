@@ -6,8 +6,10 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.xdb.Config;
+import org.xdb.error.Error;
 import org.xdb.funsql.codegen.ReReNameExpressionVisitor;
 import org.xdb.funsql.codegen.ReReNamePredicateVisitor;
+import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.expression.RenameExpressionCombineVisitor;
 import org.xdb.funsql.compile.analyze.predicate.RenamePredicateCombineVisitor;
 import org.xdb.funsql.compile.expression.AbstractExpression;
@@ -15,18 +17,17 @@ import org.xdb.funsql.compile.predicate.AbstractPredicate;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
+import org.xdb.utils.Identifier;
 import org.xdb.utils.SetUtils;
 import org.xdb.utils.StringTemplate;
 import org.xdb.utils.TokenPair;
-import org.xdb.error.Error;
-import org.xdb.utils.Identifier;
 
 import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
 /**
- * That that combines a SQL Join op and a SQL Unary into one Operator to avoid
- * Table materialization
+ * That that combines a SQL Join and a SQL Unary into one 
+ * SQLCombined operator
  * 
  * @author A.C.mueller
  * 
@@ -44,16 +45,16 @@ public class SQLCombined extends AbstractJoinOperator {
 	private final StringTemplate havingTemplate = new StringTemplate(
 			" HAVING <HAVING>");
 
-	private Error error;
-
+	
 	private SQLJoin copied;
+	private Error error;
 
 	// select clause
 	private Vector<AbstractExpression> selectExpressions = new Vector<AbstractExpression>();
 	private Vector<TokenIdentifier> selectAliases = new Vector<TokenIdentifier>();
 	
 	// where clause
-	private AbstractPredicate wherePred;
+	private Vector<AbstractPredicate> wherePreds = new Vector<AbstractPredicate>();
 
 	// having clause
 	private AbstractPredicate havingPred;
@@ -62,54 +63,70 @@ public class SQLCombined extends AbstractJoinOperator {
 	private Vector<AbstractExpression> groupExpressions = new Vector<AbstractExpression>();
 
 	// constructor
-	public SQLCombined(SQLJoin toCopy) {
+	public SQLCombined(CompilePlan cplan, SQLJoin toCopy) {
 		super(toCopy);
 		this.jointokens = toCopy.jointokens;
 		this.type = EnumOperator.SQL_COMBINED;
 		this.copied = toCopy;
+		
+		// remove selection as children 
+		int childIdx = 0;
+		for(AbstractCompileOperator child: this.children){
+			if(child.getType().isSelection()){
+				GenericSelection gs = (GenericSelection)child;
+				this.children.set(childIdx, gs.getChild());
+				this.wherePreds.add(gs.getPredicate());
+				cplan.replaceOperator(gs.getOperatorId(), gs.getChild());
+			}
+			childIdx++;
+		}
 	}
 
 	// copy-constructor
 	public SQLCombined(SQLCombined toCopy) {
 		super(toCopy);
-
 	}
 
 	public void mergeSQLUnaryParent(SQLUnary sqlU) {
 		// Scenario SQL Join is child and Unary is parent
-
-		this.selectExpressions = sqlU.getSelectExpressions();
-		this.selectAliases = sqlU.getSelectAliases();
-		this.wherePred = sqlU.getWherePred();
+		this.selectExpressions.addAll(sqlU.getSelectExpressions());
+		this.selectAliases.addAll(sqlU.getSelectAliases());
+		
+		if(sqlU.getWherePred()!=null)
+			this.wherePreds.add(sqlU.getWherePred());
+		
 		this.havingPred = sqlU.getHavingPred();
-		this.groupExpressions = sqlU.getGroupExpressions();
+		this.groupExpressions.addAll(sqlU.getGroupExpressions());
 
-		// rebuild expressions
-		renameExpression(this.selectExpressions);
+		// rename expressions
+		this.renameExpression(this.selectExpressions);
+		this.renameExpression(this.groupExpressions);
+		for(AbstractPredicate wherePred: this.wherePreds){
+			this.renamePredicate(wherePred);
+		}
+		this.renamePredicate(this.havingPred);
 
-		renameExpression(this.groupExpressions);
-
-		renamePredicate(this.wherePred);
-
-		renamePredicate(this.havingPred);
-
-		// rebuild Result
+		// build result description
 		this.results = sqlU.results;
+		
+		// connect with parents
+		if (sqlU.getParents().size() == 0) { // Case if root
+			this.clearParents();
+		}
+		else{
+			int idx = -1;
+			for (AbstractCompileOperator absOp : sqlU.parents) {
+				idx = absOp.getChildren().indexOf(sqlU);
+				if (idx == -1)
+					continue;
+				absOp.setChild(idx, this);
+			}
+			this.parents = sqlU.parents;
+		}
+
+		
+		// connect with children
 		int idx = -1;
-		for (AbstractCompileOperator absOp : sqlU.parents) {
-			idx = absOp.getChildren().indexOf(sqlU);
-			if (idx == -1)
-				continue;
-			absOp.setChild(idx, this);
-		}
-		// Case if root
-		if (sqlU.getParents().size() == 0) {
-			this.setParents(new Vector<AbstractCompileOperator>());
-		}
-
-		this.parents = sqlU.parents;
-
-		idx = -1;
 		for (AbstractCompileOperator absOp : this.getChildren()) {
 			idx = absOp.getParents().indexOf(copied);
 			if (idx == -1)
@@ -260,8 +277,20 @@ public class SQLCombined extends AbstractJoinOperator {
 
 	public String getWhereClause() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
-		if (this.wherePred != null) {
-			vars.put("WHERE", this.wherePred.toSqlString());
+		if (this.wherePreds.size()>0) {
+			StringBuilder sqlWhere = new StringBuilder();
+			int whereIdx = 0;
+			for(AbstractPredicate wherePred: this.wherePreds){
+				sqlWhere.append(wherePred.toSqlString());
+				whereIdx++;
+				
+				if(whereIdx!=this.wherePreds.size()){
+					sqlWhere.append(AbstractToken.BLANK);
+					sqlWhere.append(AbstractToken.AND);
+					sqlWhere.append(AbstractToken.BLANK);
+				}
+			}
+			vars.put("WHERE", sqlWhere.toString());
 			return whereTemplate.toString(vars);
 		}
 		return "";
@@ -300,8 +329,8 @@ public class SQLCombined extends AbstractJoinOperator {
 
 		// rename predicates based on already renamed attributes
 		ReReNamePredicateVisitor rPv;
-		if (this.wherePred != null) {
-			rPv = new ReReNamePredicateVisitor(this.wherePred,
+		for(AbstractPredicate wherePred: this.wherePreds){
+			rPv = new ReReNamePredicateVisitor(wherePred,
 					renamedAttributes);
 			e = rPv.visit();
 		}

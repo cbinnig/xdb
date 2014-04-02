@@ -116,7 +116,7 @@ public class CodeGenerator {
 			return err;
 
 		// annotate compile plan with connections
-		err = this.annotateCompilePlan();
+		err = this.annotateConnections();
 		if (err.isError())
 			return err;
 
@@ -169,8 +169,7 @@ public class CodeGenerator {
 						.getCanonicalName()
 						+ "_CODEGEN_PHASE"
 						+ i
-						+ "_"
-						+ splitOp.getOperatorId() + "_CombinedJoins");
+						+ "_1CombinedJoins");
 
 			// get splitOp again since it might have be replaced
 			splitOp = this.compilePlan.getOperator(splitOpId);
@@ -184,8 +183,7 @@ public class CodeGenerator {
 						.getCanonicalName()
 						+ "_CODEGEN_PHASE"
 						+ i
-						+ "_"
-						+ splitOp.getOperatorId() + "_CombinedUnaries");
+						+ "_2CombinedUnaries");
 
 			// get splitOp again since it might have be replaced
 			splitOp = this.compilePlan.getOperator(splitOpId);
@@ -199,14 +197,13 @@ public class CodeGenerator {
 						.getCanonicalName()
 						+ "_CODEGEN_PHASE"
 						+ i
-						+ "_"
-						+ splitOp.getOperatorId() + "_Combined");
+						+ "_3Combined");
 			++i;
 		}
 		return err;
 	}
 
-	private Error annotateCompilePlan() {
+	private Error annotateConnections() {
 		Error err = new Error();
 		ConnectionAnnotationVisitor visitor = new ConnectionAnnotationVisitor();
 		this.compilePlan.applyVisitor(visitor);
