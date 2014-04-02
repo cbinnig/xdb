@@ -1,5 +1,7 @@
 package org.xdb.client;
 
+import java.util.logging.Level;
+
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
@@ -10,7 +12,7 @@ import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
 import org.xdb.execute.signals.RestartSignal;
-import org.xdb.logging.XDBLog;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.server.ComputeServer;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.Tuple;
@@ -30,8 +32,7 @@ public class ComputeClient extends AbstractClient {
 	}
 
 	public ComputeClient(String url, int port) {
-		super(url, port);
-		this.logger = XDBLog.getLogger(this.getClass().getName());
+		super(url, port, EnumXDBComponents.COMPUTE_SERVER);
 	}
 
 	/**
@@ -67,6 +68,9 @@ public class ComputeClient extends AbstractClient {
 	 */
 	public Error executeOperator(final Identifier sourceOpId,
 			final ComputeNodeDesc url, final Identifier destOpId) {
+		
+		this.logger.log(Level.INFO, "Signalling "+destOpId+" from "+ sourceOpId);
+		
 		final ReadySignal signal = new ReadySignal(sourceOpId, destOpId);
 		Object[] args = { signal };
 		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),

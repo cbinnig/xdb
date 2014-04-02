@@ -54,6 +54,8 @@ public class OperatorDesc implements Serializable {
 	public void setOperatorStatus(EnumOperatorStatus operatorStatus) {
 		if(operatorStatus!=null)
 			this.operatorStatus = operatorStatus;
+		
+		//System.err.println("Set "+this.execOpId + " to status "+ this.operatorStatus);
 	}
 	
 	// methods

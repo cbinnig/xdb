@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import org.xdb.error.Error;
 import org.xdb.Config;
 import org.xdb.execute.ComputeNode;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 
 /**
@@ -25,7 +26,7 @@ public class MysqlRunManager {
 	protected Logger logger;
 	
 	public MysqlRunManager() {
-		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.logger = XDBLog.getLogger(EnumXDBComponents.COMPUTE_SERVER);
 	}
 
 	/**

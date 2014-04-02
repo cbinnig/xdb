@@ -14,6 +14,7 @@ import org.xdb.funsql.compile.analyze.operator.AbstractTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.Rename;
 import org.xdb.funsql.compile.operator.TableOperator;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Dotty;
 import org.xdb.utils.Identifier;
@@ -60,7 +61,7 @@ public class CompilePlan implements Serializable {
 	public CompilePlan() {
 
 		this.planId = new Identifier(lastPlanId++);
-		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.logger = XDBLog.getLogger(EnumXDBComponents.COMPILE_SERVER);
 	}
 
 	// getter and setter
@@ -175,7 +176,7 @@ public class CompilePlan implements Serializable {
 	 * Initialize transient attributes after shipping
 	 */
 	public void init() {
-		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.logger = XDBLog.getLogger(EnumXDBComponents.COMPILE_SERVER);
 	}
 
 	/**

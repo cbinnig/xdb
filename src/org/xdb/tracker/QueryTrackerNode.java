@@ -20,6 +20,7 @@ import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.MaterializationAnnotationVisitor;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.Tuple;
@@ -54,7 +55,7 @@ public class QueryTrackerNode {
 		this.computeClient = new ComputeClient();
 		this.description = new QueryTrackerNodeDesc(address);
 		this.masterTrackerClient = new MasterTrackerClient();
-		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.logger = XDBLog.getLogger(EnumXDBComponents.QUERY_TRACKER);
 	}
 
 	// getters and setters

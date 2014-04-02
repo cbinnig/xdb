@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 
 public abstract class AbstractRefWriterVisitor {
@@ -19,7 +20,7 @@ public abstract class AbstractRefWriterVisitor {
 		super();
 		this.outputFileName = outputFileName;
 		this.partitionCount = partitionCount;
-		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.logger = XDBLog.getLogger(EnumXDBComponents.PARTITIONER);
 	}
 
 	private void addHashToFile(int partition, String value) throws IOException {

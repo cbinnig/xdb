@@ -19,6 +19,7 @@ import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.signals.RestartSignal;
 import org.xdb.funsql.compile.CompilePlan;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.tracker.MasterTrackerNode;
 import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.tracker.signals.RegisterSignal;
@@ -135,7 +136,7 @@ public class MasterTrackerServer extends AbstractServer {
 	private final MasterTrackerNode tracker;
 
 	public MasterTrackerServer() {
-		super();
+		super(EnumXDBComponents.MASTER_TRACKER);
 		this.port = Config.MASTERTRACKER_PORT;
 		
 		tracker = new MasterTrackerNode();

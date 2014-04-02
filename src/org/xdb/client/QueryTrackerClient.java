@@ -7,7 +7,7 @@ import org.xdb.doomdb.DoomDBPlanStatus;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.funsql.compile.CompilePlan;
-import org.xdb.logging.XDBLog;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.server.QueryTrackerServer;
 import org.xdb.utils.Tuple;
 
@@ -20,9 +20,7 @@ public class QueryTrackerClient extends AbstractClient {
 
 	// constructors
 	public QueryTrackerClient(final String url) {
-		super(url, Config.QUERYTRACKER_PORT);
-
-		this.logger = XDBLog.getLogger(this.getClass().getName());
+		super(url, Config.QUERYTRACKER_PORT, EnumXDBComponents.QUERY_TRACKER);
 	}
 
 	/**

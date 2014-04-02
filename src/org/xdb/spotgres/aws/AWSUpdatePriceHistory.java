@@ -17,6 +17,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.spotgres.HibernateUtil;
 import org.xdb.spotgres.pojos.NodePrice;
@@ -68,7 +69,7 @@ public class AWSUpdatePriceHistory {
 
 		initHibernate();
 
-		logger = XDBLog.getLogger(this.getClass().getName());
+		logger = XDBLog.getLogger(EnumXDBComponents.SPOTGRES);
 	}
 
 	private void writePrice(SpotPrice spotPrice) {

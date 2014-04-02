@@ -12,7 +12,7 @@ import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.signals.RestartSignal;
 import org.xdb.funsql.compile.CompilePlan;
-import org.xdb.logging.XDBLog;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.server.MasterTrackerServer;
 import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.tracker.signals.RegisterSignal;
@@ -24,8 +24,7 @@ import org.xdb.utils.Tuple;
 public class MasterTrackerClient extends AbstractClient {
 	// constructor
 	public MasterTrackerClient() {
-		super(Config.MASTERTRACKER_URL, Config.MASTERTRACKER_PORT);
-		logger = XDBLog.getLogger(this.getClass().getName());
+		super(Config.MASTERTRACKER_URL, Config.MASTERTRACKER_PORT, EnumXDBComponents.MASTER_TRACKER);
 	}
 
 	/**

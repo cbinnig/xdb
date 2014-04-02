@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.spotgres.optimizer.AvailabilityClusterOptimizer;
 import org.xdb.spotgres.optimizer.MoneyClusterOptimizer;
@@ -49,7 +50,7 @@ public class ClusterConfiguration {
 		toolkit = new ClusterCalculationTools(constraints);
 		sessionFactory = HibernateUtil.configureSessionFactory();
 		session = sessionFactory.getCurrentSession();
-		logger = XDBLog.getLogger(this.getClass().getName());
+		logger = XDBLog.getLogger(EnumXDBComponents.SPOTGRES);
 	}
 
 	public ClusterConstraints getConstraint() {

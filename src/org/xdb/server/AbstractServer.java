@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.logging.XDBLog;
+import org.xdb.logging.EnumXDBComponents;;
 
 /**
  * Abstract server
@@ -36,8 +37,8 @@ public abstract class AbstractServer {
 	protected Error err = new Error();
 
 	// Constructors
-	public AbstractServer() {
-		this.logger = XDBLog.getLogger(this.getClass().getName());
+	public AbstractServer(EnumXDBComponents comp) {
+		this.logger = XDBLog.getLogger(comp);
 	}
 
 	// getters and setters

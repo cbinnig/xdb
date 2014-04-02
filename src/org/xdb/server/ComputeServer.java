@@ -16,6 +16,7 @@ import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
 import org.xdb.execute.signals.RestartSignal;
+import org.xdb.logging.EnumXDBComponents;
 
 /**
  * Server which accepts compute commands and calls handler (separate thread)
@@ -110,7 +111,7 @@ public class ComputeServer extends AbstractServer {
 
 	// constructors
 	public ComputeServer(final int port) throws Exception {
-		super();
+		super(EnumXDBComponents.COMPUTE_SERVER);
 
 		this.port = port;
 		this.compute = new ComputeNode(port);

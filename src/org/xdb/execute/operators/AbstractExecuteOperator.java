@@ -68,6 +68,10 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	}
 
 	// getters and setters
+	public void setStatus(EnumOperatorStatus status){
+		this.status = status;
+	}
+	
 	public EnumOperatorStatus getStatus() {
 		return this.status;
 	}
@@ -89,7 +93,9 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	}
 
 	public void addConsumer(OperatorDesc consumer) {
-		this.consumersTrackerIds.add(consumer.getOperatorID().getParentId(1));
+		Identifier trackerConsumerId = consumer.getOperatorID().getParentId(1);
+		if(trackerConsumerId!=null)
+			this.consumersTrackerIds.add(trackerConsumerId);
 	}
 
 	public Set<Identifier> getConsumerTrackerIds() {
@@ -174,7 +180,6 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	public Error execute() {
 
 		// execute operator 
-		this.status = EnumOperatorStatus.RUNNING;
 		this.err = executeOperator();
 		if (!err.isError())
 			this.status = EnumOperatorStatus.FINISHED;
@@ -213,6 +218,7 @@ public abstract class AbstractExecuteOperator implements Serializable {
 
 			for (String ddl : this.closeSQLs) {
 				Statement closeStmt = this.conn.createStatement();
+				//System.err.println(this.operatorId+">"+ddl);
 				closeStmt.execute(ddl);
 			}
 
