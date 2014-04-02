@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
+import org.xdb.logging.EnumXDBComponents;
+import org.xdb.logging.XDBLog;
 import org.xdb.utils.Tuple;
 
 /**
@@ -31,10 +33,11 @@ public abstract class AbstractClient {
 		super();
 	}
 
-	public AbstractClient(String url, int port) {
+	public AbstractClient(String url, int port, EnumXDBComponents comp) {
 		super();
 		this.port = port;
 		this.url = url;
+		this.logger = XDBLog.getLogger(comp);
 	}
 
 	// getter and setter

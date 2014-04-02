@@ -13,6 +13,7 @@ import org.xdb.Config;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 
 public class Catalog {
@@ -45,7 +46,7 @@ public class Catalog {
 	private static HashMap<Long, Function> functions = new HashMap<Long, Function>();
 	private static HashMap<String, Function> functionsByName = new HashMap<String, Function>();
 
-	private static Logger log = XDBLog.getLogger(Catalog.class.getName());
+	private static Logger log = XDBLog.getLogger(EnumXDBComponents.COMPILE_CATALOG);
 
 	public static synchronized Error delete() {
 		try {

@@ -21,10 +21,10 @@ import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
-
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBExecuteTimeMeasurement;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
@@ -68,7 +68,7 @@ public class ComputeNode {
 		String url = InetAddress.getLocalHost().getHostAddress();
 		this.computeNodeDesc = new ComputeNodeDesc(url, port);
 
-		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.logger = XDBLog.getLogger(EnumXDBComponents.COMPUTE_SERVER);
 		this.timeMeasure = XDBExecuteTimeMeasurement
 				.getXDBExecuteTimeMeasurement("op_runtime");
 

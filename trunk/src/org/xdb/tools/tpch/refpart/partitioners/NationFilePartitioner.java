@@ -2,6 +2,7 @@ package org.xdb.tools.tpch.refpart.partitioners;
 
 import java.util.List;
 
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.tools.tpch.refpart.AbstractFilePartitioner;
 import org.xdb.tools.tpch.refpart.DefRefPart.WORK_MODE;
@@ -11,7 +12,7 @@ public class NationFilePartitioner extends AbstractFilePartitioner {
 	public NationFilePartitioner(int partitionCount, String inputDir, String outputDir, String tempDir, String fileName) {
 		super(WORK_MODE.REPLICATE, partitionCount, inputDir, outputDir, tempDir, fileName, "nation");
 
-		this.logger = XDBLog.getLogger("Nation File Partitioner");
+		this.logger = XDBLog.getLogger(EnumXDBComponents.PARTITIONER);
 		columnCount = 4;
 	}
 

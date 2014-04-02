@@ -13,6 +13,7 @@ import org.xdb.doomdb.DoomDBPlanStatus;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.funsql.compile.CompilePlan;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.tracker.QueryTrackerNode;
 import org.xdb.tracker.QueryTrackerNodeDesc;
 import org.xdb.utils.Tuple;
@@ -29,7 +30,7 @@ public class QueryTrackerServer extends AbstractServer {
 	private final QueryTrackerNode tracker;
 
 	public QueryTrackerServer() throws Exception{
-		super();
+		super(EnumXDBComponents.QUERY_TRACKER);
 
 		port = Config.QUERYTRACKER_PORT;
 		tracker = new QueryTrackerNode();

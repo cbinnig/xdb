@@ -70,7 +70,7 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 	 * Execute prepared DML statements
 	 */
 	protected Error executeOperator() {
-
+		
 		try {
 			for (final PreparedStatement stmt : executeStmts) {
 				stmt.execute();

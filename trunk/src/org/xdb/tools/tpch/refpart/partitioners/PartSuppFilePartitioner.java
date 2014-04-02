@@ -2,6 +2,7 @@ package org.xdb.tools.tpch.refpart.partitioners;
 
 import java.util.List;
 
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.tools.tpch.refpart.AbstractFilePartitioner;
 import org.xdb.tools.tpch.refpart.CombinedPartSuppKey;
@@ -13,7 +14,7 @@ public class PartSuppFilePartitioner extends AbstractFilePartitioner {
 			String fileName) {
 		super(WORK_MODE.FILE, partitionCount, inputDir, outputDir, tempDir, fileName, "partsupp");
 
-		this.logger = XDBLog.getLogger("PartSupp File Partitioner");
+		this.logger = XDBLog.getLogger(EnumXDBComponents.PARTITIONER);
 		columnCount = 5;
 		this.inputHashFile = tempDir + "lineitemPartSupp";
 	}

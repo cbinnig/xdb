@@ -15,6 +15,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.spotgres.HibernateUtil;
 import org.xdb.spotgres.aws.ondemand.AWSOnDemandPriceRoot;
@@ -37,7 +38,7 @@ public class AWSOnDemandPrice {
 	private void initHibernate() {
 		sessionFactory = HibernateUtil.configureSessionFactory();
 		session = sessionFactory.getCurrentSession();
-		logger = XDBLog.getLogger(this.getClass().getName());
+		logger = XDBLog.getLogger(EnumXDBComponents.SPOTGRES);
 	}		
 	
 	private static AWSOnDemandPriceRoot loadOnDemandPrices(String url) throws JsonParseException, JsonMappingException, MalformedURLException, IOException{

@@ -11,6 +11,7 @@ import org.xdb.client.statement.ClientStmt;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompileServerNode;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.metadata.Catalog;
 import org.xdb.utils.Tuple;
 
@@ -81,7 +82,7 @@ public class CompileServer extends AbstractServer {
 	
 	// constructors
 	public CompileServer() {
-		super();
+		super(EnumXDBComponents.COMPILE_SERVER);
 		this.port = Config.COMPILE_PORT;
 		this.compileNode = new CompileServerNode();
 		

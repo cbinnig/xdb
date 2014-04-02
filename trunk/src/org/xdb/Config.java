@@ -81,7 +81,8 @@ public class Config implements Serializable {
 	public static boolean CODEGEN_OPTIMIZE = true;
 
 	// Logging
-	public static String LOG_FILE = "./log/xdb.log";
+	public static Boolean LOGGING_ENABLED = true;
+	public static String LOG_FILE = "./log/xdb_";
 	public static Level LOG_LEVEL = Level.SEVERE;
 	public static boolean LOG_EXECUTION_TIME = false;
 
@@ -209,7 +210,7 @@ public class Config implements Serializable {
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
 				"TEST_DB_NAME", "COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES", "COMPILE_FT_MODE" };
 
-		String[] boolProperties = {
+		String[] boolProperties = { "LOGGING_ENABLED",
 				"COMPUTE_CLEAN_PLAN", "TRACE_PARALLEL_PLAN",
 				"TRACE_COMPILE_PLAN", "TRACE_COMPILE_PLAN_HEADER",
 				"TRACE_COMPILE_PLAN_HEADER_RESULT",

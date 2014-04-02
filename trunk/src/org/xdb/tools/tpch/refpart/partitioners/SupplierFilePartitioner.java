@@ -2,6 +2,7 @@ package org.xdb.tools.tpch.refpart.partitioners;
 
 import java.util.List;
 
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.tools.tpch.refpart.AbstractFilePartitioner;
 import org.xdb.tools.tpch.refpart.DefRefPart.WORK_MODE;
@@ -12,7 +13,7 @@ public class SupplierFilePartitioner extends AbstractFilePartitioner {
 			String fileName) {
 		super(WORK_MODE.FILE, partitionCount, inputDir, outputDir, tempDir, fileName, "supplier");
 
-		this.logger = XDBLog.getLogger("Supplier File Partitioner");
+		this.logger = XDBLog.getLogger(EnumXDBComponents.PARTITIONER);
 		columnCount = 7;
 		this.inputHashFile = tempDir + "lineitemSupp";
 	}

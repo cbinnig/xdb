@@ -17,6 +17,7 @@ import org.xdb.funsql.types.SQLInteger;
 import org.xdb.funsql.types.SQLVarchar;
 import org.xdb.funsql.types.TableType;
 import org.xdb.funsql.types.TupleType;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 
 public abstract class JDBCStore extends AbstractStore {
@@ -37,7 +38,7 @@ public abstract class JDBCStore extends AbstractStore {
 	public JDBCStore(String driver) {
 		super();
 		this.driver = driver;
-		this.logger = XDBLog.getLogger(this.getClass().getName());
+		this.logger = XDBLog.getLogger(EnumXDBComponents.COMPUTE_SERVER);
 	}
 
 	//methods

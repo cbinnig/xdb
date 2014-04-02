@@ -25,6 +25,7 @@ import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.signals.RestartSignal;
 import org.xdb.funsql.compile.CompilePlan;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.ComputeServer;
 import org.xdb.server.QueryTrackerServer;
@@ -107,7 +108,7 @@ public class MasterTrackerNode {
 
 	// constructor
 	public MasterTrackerNode() {
-		logger = XDBLog.getLogger(this.getClass().getName());
+		logger = XDBLog.getLogger(EnumXDBComponents.MASTER_TRACKER);
 	}
 
 	// getters and setters

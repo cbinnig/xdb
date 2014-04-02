@@ -3,7 +3,7 @@ package org.xdb.client;
 import org.xdb.Config;
 import org.xdb.client.statement.ClientStmt;
 import org.xdb.error.Error;
-import org.xdb.logging.XDBLog;
+import org.xdb.logging.EnumXDBComponents;
 import org.xdb.server.CompileServer;
 
 /**
@@ -13,8 +13,7 @@ public class CompileClient extends AbstractClient {
 
 	// constructors
 	public CompileClient() {
-		super(Config.COMPILE_URL, Config.COMPILE_PORT);
-		this.logger = XDBLog.getLogger(this.getClass().getName());
+		super(Config.COMPILE_URL, Config.COMPILE_PORT, EnumXDBComponents.COMPILE_SERVER);
 	}
 
 	/**
