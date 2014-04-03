@@ -393,15 +393,17 @@ public class QueryTrackerPlan implements Serializable {
 							redeployAbortedOperators();
 						}
 						attempt++;
-						System.err.println("Monitor: start attempt " + attempt);
+						logger.log(Level.INFO, "Monitor: start attempt " + attempt);
 					}
 
 					// unlock to allow operators signaling.
 					monitoringLock.unlock();
 
 					// sleep interval
-					if (!this.isExecutedInternal())
+					if (!this.isExecutedInternal()){
+						this.logger.log(Level.INFO, "Monitor sleeping "+monitoringInterval);
 						Thread.sleep(monitoringInterval);
+					}
 
 				} catch (InterruptedException e) {
 
@@ -712,6 +714,8 @@ public class QueryTrackerPlan implements Serializable {
 			this.setOperatorError(opStatus, opErr);
 			executeOpDesc.setOperatorStatus(opStatus);
 
+			logger.log(Level.INFO, "Deployed "+trackerOpId+ "with status "+  opErr.toString());
+			
 			// if repairable error, then stop
 			if (opStatus.isRepairableFailure())
 				continue;

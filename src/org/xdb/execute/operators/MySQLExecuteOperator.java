@@ -76,6 +76,10 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 				stmt.execute();
 			}
 		} 
+		catch (final SQLSyntaxErrorException e) {
+			this.err = createMySQLError(e);
+			this.status = EnumOperatorStatus.FAILED;
+		}
 		catch (final Exception e) {
 			err = createMySQLError(e);
 			if(Config.QUERYTRACKER_MONITOR_ACTIVATED)

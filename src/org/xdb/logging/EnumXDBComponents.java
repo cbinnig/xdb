@@ -1,11 +1,11 @@
 package org.xdb.logging;
 
 public enum EnumXDBComponents {
+	CONFIG,
 	COMPILE_CATALOG,
 	COMPILE_SERVER,
 	MASTER_TRACKER,
 	QUERY_TRACKER,
 	COMPUTE_SERVER,
-	SPOTGRES,
 	PARTITIONER
 }

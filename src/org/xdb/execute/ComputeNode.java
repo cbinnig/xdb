@@ -47,7 +47,7 @@ public class ComputeNode {
 			.synchronizedMap(new HashMap<Identifier, HashSet<Identifier>>());;
 
 	// Map of operator -> which are ready
-	private final Map<Identifier, Long> executingOperator = Collections
+	private final Map<Identifier, Long> executingOperators = Collections
 			.synchronizedMap(new HashMap<Identifier, Long>());;
 			
 	// Compute node description (i.e., available threads on node)
@@ -130,7 +130,7 @@ public class ComputeNode {
 	public synchronized Error shutdown() {
 		Error err = this.killAllOperators();
 		this.operators.clear();
-		this.executingOperator.clear();
+		this.executingOperators.clear();
 		return err;
 	}
 
@@ -142,7 +142,7 @@ public class ComputeNode {
 		Error err = new Error();
 
 		Set<Long> runningThreads = new HashSet<Long>(
-				this.executingOperator.values());
+				this.executingOperators.values());
 		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
 		for (Thread thread : threadSet) {
 			if (thread != null && runningThreads.contains(thread.getId())) {
@@ -231,7 +231,7 @@ public class ComputeNode {
 		// execute operator
 		if (execute) {
 			OperatorExecutor executor = new OperatorExecutor(op);
-			executingOperator.put(op.getOperatorId(), executor.getId());
+			executingOperators.put(op.getOperatorId(), executor.getId());
 			executor.start();
 			return executor.getLastError();
 		}
@@ -297,7 +297,7 @@ public class ComputeNode {
 							+ " with status "+op.getStatus()
 							+ " to Query Tracker "
 							+ queryTrackerClient.getUrl());
-			executingOperator.remove(op.getOperatorId());
+			executingOperators.remove(op.getOperatorId());
 			this.err = queryTrackerClient.operatorReady(op);
 		}
 
@@ -328,13 +328,13 @@ public class ComputeNode {
 
 		final AbstractExecuteOperator op = operators.get(failedExecOpId);
 
-		if (!executingOperator.containsKey(failedExecOpId)) {
+		if (!executingOperators.containsKey(failedExecOpId)) {
 			logger.log(Level.INFO, "Failed Operator " + failedExecOpId
 					+ " has been removed from the execution plan");
 			this.removeOperator(op);
 		} else {
 			Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
-			Long failedOpThreadId = executingOperator.get(failedExecOpId);
+			Long failedOpThreadId = executingOperators.get(failedExecOpId);
 			for (Thread thread : threadSet) {
 				if (thread != null && thread.getId() == failedOpThreadId) {
 					logger.log(Level.INFO, "Failed Operator " + failedExecOpId
@@ -360,7 +360,7 @@ public class ComputeNode {
 	private synchronized void removeOperator(final AbstractExecuteOperator op) {
 		this.operators.remove(op.getOperatorId());
 		this.receivedReadySignals.remove(op.getOperatorId());
-		this.executingOperator.remove(op.getOperatorId());
+		this.executingOperators.remove(op.getOperatorId());
 	}
 
 	/**

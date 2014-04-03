@@ -51,16 +51,14 @@ public class ComputeServer extends AbstractServer {
 
 
 			final int cmd = in.readInt();
-			logger.log(Level.INFO, "ComputeServer: Read command from client:" + cmd);
+			
 			try {
 
 				switch (cmd) {
 				case CMD_STOP_SERVER:
-					logger.log(Level.INFO, "Received CMD_STOP_SERVER");
 					ComputeServer.this.stopServer();
 					break;
 				case CMD_PING_SERVER:
-					//logger.log(Level.INFO, "Received CMD_PING_SERVER");
 					break;
 				case CMD_OPEN_OP:
 					final AbstractExecuteOperator op = (AbstractExecuteOperator) in.readObject();
@@ -119,8 +117,10 @@ public class ComputeServer extends AbstractServer {
     
 	// restart the server for DoomDB/Fault Tolerance 
 	public Error restartComputeServer(RestartSignal restartSignal) {
+		long startTime = System.currentTimeMillis();
+		
 		// stop compute server  
-		this.stopServer();       
+		this.stopServer();
 		
 		// kill all running queries
 		MysqlRunManager sqlManager = new MysqlRunManager();
@@ -128,10 +128,17 @@ public class ComputeServer extends AbstractServer {
 		if(this.err.isError())
 			return this.err;
 		
-		//wait MTTR	
+		long endTime = System.currentTimeMillis();
+		long waitTime = endTime -startTime;
+		
+		//wait MTTR	- waitTime
 		try {
 			long mttr = restartSignal.getTimeToRepair();
-			Thread.sleep(mttr);
+			if(waitTime<mttr){
+				mttr = mttr - waitTime;
+				Thread.sleep(mttr);
+			}
+			
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}  

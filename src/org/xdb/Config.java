@@ -6,7 +6,10 @@ import java.io.Serializable;
 import java.util.BitSet;
 import java.util.Properties;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.xdb.logging.EnumXDBComponents;
+import org.xdb.logging.XDBLog;
 import org.xdb.tracker.scheduler.EnumResourceScheduler;
 import org.xdb.utils.Identifier;
 
@@ -26,7 +29,7 @@ public class Config implements Serializable {
 
 	// Monitoring
 	public static int MASTERTRACKER_MONITOR_INTERVAL = 2000;
-	public static int QUERYTRACKER_MONITOR_INTERVAL = 100;
+	public static int QUERYTRACKER_MONITOR_INTERVAL = 2000;
 	public static boolean MASTERTRACKER_MONITOR_ACTIVATED = false;
 	public static boolean QUERYTRACKER_MONITOR_ACTIVATED = false;
 	public static int QUERYTRACKER_MONITOR_ATTEMPTS = 10;
@@ -122,10 +125,13 @@ public class Config implements Serializable {
 	public static String DOOMDB_NAME = "tpch_s01";
 	public static int DOOMDB_CLUSTER_SIZE = 4; // in s
 	public static String DOOMDB_COMPUTE_NODES = "127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1";
-
+	
+	// Logging
+	private static Logger logger = XDBLog.getLogger(EnumXDBComponents.CONFIG);
+	
 	// Load xdb.conf
 	static {
-		load();
+		loadXDB();
 		loadDoom();
 	}
 
@@ -144,7 +150,6 @@ public class Config implements Serializable {
 			props.setProperty(key, value);
 			props.store(new FileWriter(file), "");
 
-			load();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
@@ -153,10 +158,12 @@ public class Config implements Serializable {
 
 	public static synchronized void write(String key, String value) {
 		write(key, value, CONFIG_FILE);
+		loadXDB();
 	}
 
 	public static synchronized void writeDoom(String key, String value) {
 		write(key, value, DOOMDB_CONFIG_FILE);
+		loadDoom();
 	}
 
 	/**
@@ -194,15 +201,22 @@ public class Config implements Serializable {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
+		
+		logger.log(Level.INFO, ":----------------------------------------:");
+		logger.log(Level.INFO, "  Loading DoomDB configuration:");
+		logger.log(Level.INFO, "  "+props.toString());
+		logger.log(Level.INFO, ":----------------------------------------:");
+		logger.log(Level.INFO, "");
 	}
 
 	/**
 	 * Load user configuration from file and override default values
 	 */
-	private static void load() {
+	private static void loadXDB() {
 		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
 				"COMPILE_PORT", "MASTERTRACKER_PORT", "QUERYTRACKER_PORT",
 				"QUERYTRACKER_MONITOR_ATTEMPTS",
+				"QUERYTRACKER_MONITOR_INTERVAL",
 				"TEST_NODE_COUNT", "TEST_FT_NUMBER_OF_FAILURES",
 				"TEST_FT_NUMBER_OF_RUNS", "TEST_PARTS_PER_NODE",
 				"TEST_FT_RECORDS_LIMIT" };
@@ -292,5 +306,10 @@ public class Config implements Serializable {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
+		logger.log(Level.INFO, ":----------------------------------------:");
+		logger.log(Level.INFO,"   Loading XDB configuration:");
+		logger.log(Level.INFO, "  "+ props.toString());
+		logger.log(Level.INFO,":----------------------------------------:");
+		logger.log(Level.INFO,"");
 	}
 }

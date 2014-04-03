@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.xdb.execute.ComputeNodeDesc;
+import org.xdb.execute.operators.EnumOperatorStatus;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.utils.Dotty;
 import org.xdb.utils.Identifier;
@@ -24,6 +25,8 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 
 	private static final long serialVersionUID = -1963805350351443744L;
 	private static final String TRACE_FILE_NAME = DoomDBPlan.class.getName();
+	private static final String NODE_PREFIX = "Node_";
+	private static Integer LAST_NODE = 1;
 	
 	//plan IDs
 	private DoomDBPlanDesc planDesc = null;
@@ -37,8 +40,9 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	// deployment of operators on compute nodes: opId -> compute node
 	private Map<String, OperatorDesc> deployment = new HashMap<String, OperatorDesc>();
 	
-	// compute nodes used in current deployment
-	private Map<String, ComputeNodeDesc> nodes = new HashMap<String, ComputeNodeDesc>();
+	// compute nodes used in current deployment: name -> desc and desc2name
+	private Map<String, ComputeNodeDesc> nodesName2Desc = new HashMap<String, ComputeNodeDesc>();
+	private Map<ComputeNodeDesc, String> nodesDesc2Name = new HashMap<ComputeNodeDesc, String>();
 	
 	// constructors
 	public DoomDBPlan() {
@@ -78,11 +82,13 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 			return;
 				
 		this.deployment.clear();
-		this.nodes.clear();
+		this.nodesName2Desc.clear();
+		
 		for(Entry<Identifier, OperatorDesc> entry: deployment.entrySet()){
 			OperatorDesc operDesc = entry.getValue();
 			this.deployment.put(entry.getKey().toString(), operDesc);
-			this.nodes.put(operDesc.getComputeNode().toString(), operDesc.getComputeNode());
+			String nodeName = getNodeName(operDesc.getComputeNode());
+			this.nodesName2Desc.put(nodeName, operDesc.getComputeNode());
 		}
 	}
 	
@@ -95,18 +101,18 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	}
 	
 	public ComputeNodeDesc getComputeNode(String compNodeDesc){
-		if(this.nodes.containsKey(compNodeDesc)){
-			return this.nodes.get(compNodeDesc);
+		if(this.nodesName2Desc.containsKey(compNodeDesc)){
+			return this.nodesName2Desc.get(compNodeDesc);
 		}
 		return null;
 	}
 	
 	public Collection<ComputeNodeDesc> getComputeNodes(){
-		return this.nodes.values();
+		return this.nodesName2Desc.values();
 	}
 	
 	public int getComputeNodeCount(){
-		return this.nodes.size();
+		return this.nodesName2Desc.size();
 	}
 	
 	// internal methods
@@ -123,30 +129,38 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		
 	@Override
 	public Collection<String> getNodes(){
-		return this.nodes.keySet();
+		return this.nodesName2Desc.keySet();
 	}
 	
 	@Override
 	public String getNodeForOperator(String opId) {
-		return this.getComputeNodeByOp(opId).toString();
+		return this.getNodeName(this.getComputeNodeByOp(opId));
 	}
 	
 	@Override
 	public String tracePlan() {
 		String fileName = TRACE_FILE_NAME + this.planDesc.getCompilePlanId().toString();
 		final Graph graph = GraphFactory.newGraph();
-
+		
 		final Map<String, GraphNode> dottyNodes = new HashMap<String, GraphNode>();
 
 		// add nodes to plan
 		for (String opId : this.ops) {
 			GraphNode node = graph.addNode();
 			OperatorDesc operDesc = this.deployment.get(opId);
+			String nodeName = this.getNodeName(operDesc.getComputeNode());
+			
 			StringBuilder operText = new StringBuilder(opId);
 			operText.append("\n(");
 			operText.append(operDesc.getOperatorStatus().toString());
+			operText.append(" on ");
+			operText.append(nodeName);
 			operText.append(")");
+			
 			node.getInfo().setCaption(operText.toString());
+			String color = this.getColor(operDesc.getOperatorStatus());
+			node.getInfo().setFillColor(color);
+			
 			dottyNodes.put(opId, node);
 		}
 
@@ -164,4 +178,29 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 
 		return Dotty.dot2Img(graph, fileName);
 	} 
+	
+	private String getNodeName(ComputeNodeDesc nodeDesc){
+		if(!this.nodesDesc2Name.containsKey(nodeDesc)){
+			String nodeName = NODE_PREFIX + LAST_NODE++;
+			this.nodesDesc2Name.put(nodeDesc,nodeName);
+		}
+		return this.nodesDesc2Name.get(nodeDesc);
+	}
+	
+	private String getColor(EnumOperatorStatus status){
+		switch(status){
+		case DEPLOYED:
+		case REDEPLOYED:
+			return "GREY";
+		case ABORTED:
+		case FAILED:
+			return "RED";
+		case RUNNING:
+			return "ORANGE";
+		case FINISHED:
+			return "GREEN";
+		default:
+			return "WHITE";
+		}
+	}
 }
