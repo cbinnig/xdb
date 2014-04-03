@@ -10,16 +10,35 @@ import org.xdb.utils.StringTemplate;
 
 public enum EnumDoomDBSchema {
 	TPCH_2PARTS("TPCH (2 Parts)"),
-	TPCH_4PARTS("TPCH (4 Parts)");
+	TPCH_4PARTS("TPCH (4 Parts)"),
+	TPCH_10PARTS("TPCH (10 Parts)");
 
-	private static String tpchQ5 = "Select n_nationkey, "
-			+ "sum(l_extendedprice * (1-l_discount)) as revenue, "
-			+ "avg(l_extendedprice * (1-l_discount)) as avgrevenue "
-			+ "from customer, orders, lineitem, supplier, nation, region "
-			+ "where c_custkey = o_custkey " + "and l_orderkey = o_orderkey "
-			+ "and l_suppkey = s_suppkey  " + "and n_nationkey = s_nationkey "
-			+ "and r_regionkey = n_regionkey "
-			+ "and s_nationkey = c_nationkey " + "group by n_nationkey;";
+	private static String tpchQ1 = "select	l_returnflag,	"
+			+ "l_linestatus,	"
+			+ "sum(l_quantity) as sum_qty,	"
+			+ "sum(l_extendedprice) as sum_base_price,	"
+			+ "sum(l_extendedprice * (1 - l_discount)) as sum_disc_price,	"
+			+ "sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge,	"
+			+ "avg(l_quantity) as avg_qty,	"
+			+ "avg(l_extendedprice) as avg_price,	"
+			+ "avg(l_discount) as avg_disc,	"
+			+ "count(l_orderkey) as count_order " + "from	lineitem "
+			+ "where l_shipdate <= date '1998-12-01' "
+			+ "group by l_returnflag, l_linestatus";
+	
+	private static String tpchQ5 = "Select n_name, " +
+			"sum(l_extendedprice * (1-l_discount)) as revenue " +
+			"from customer, orders, lineitem, supplier, nation, region " +
+			"where c_custkey = o_custkey " +
+			"and l_orderkey = o_orderkey " +
+			"and l_suppkey = s_suppkey  " +
+			"and s_nationkey = c_nationkey " +
+			"and n_nationkey = s_nationkey " +
+			"and r_regionkey = n_regionkey " +
+			"and r_name = 'ASIA' " +
+			"and o_orderdate > date '1994-01-01' "+
+			"and o_orderdate < date '1995-01-01' "+
+			"group by n_nationkey, n_name;";
 
 	private static String CONNURL = "CONNURL";
 	private static String CONNAME = "CONNAME";
@@ -98,14 +117,6 @@ public enum EnumDoomDBSchema {
 	
 	private static Map<Integer, String> QUERIES = new HashMap<Integer, String>();
 	private static Map<String, String[]> SCHEMAS = new HashMap<String, String[]>();
-
-	private static Vector<String> createTPCH2Parts(){
-		return createTPCHXParts(2);
-	}
-	
-	private static Vector<String> createTPCH4Parts(){
-		return createTPCHXParts(4);
-	}
 	
 	private static Vector<String> createTPCHXParts(int parts){
 		String[] conns = Config.DOOMDB_COMPUTE_NODES.split(",");
@@ -170,12 +181,16 @@ public enum EnumDoomDBSchema {
 	}
 	
 	static {
-		Vector<String> tpch2Parts = createTPCH2Parts();
+		Vector<String> tpch2Parts = createTPCHXParts(2);
 		SCHEMAS.put(TPCH_2PARTS.schemaName, tpch2Parts.toArray(new String[tpch2Parts.size()]));
 		
-		Vector<String> tpch4Parts = createTPCH4Parts();
+		Vector<String> tpch4Parts = createTPCHXParts(4);
 		SCHEMAS.put(TPCH_4PARTS.schemaName, tpch4Parts.toArray(new String[tpch4Parts.size()]));
 		
+		Vector<String> tpch10Parts = createTPCHXParts(10);
+		SCHEMAS.put(TPCH_10PARTS.schemaName, tpch10Parts.toArray(new String[tpch10Parts.size()]));
+		
+		QUERIES.put(1, tpchQ1);
 		QUERIES.put(5, tpchQ5);
 	}
 

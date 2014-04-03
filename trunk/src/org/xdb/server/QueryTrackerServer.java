@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.logging.Level;
-
 import org.xdb.Config;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.doomdb.DoomDBPlanDesc;
@@ -69,7 +67,6 @@ public class QueryTrackerServer extends AbstractServer {
 					QueryTrackerServer.this.stopServer();
 					break;
 				case CMD_PING_SERVER:
-					logger.log(Level.INFO, "Received CMD_PING_SERVER");
 					break;
 				case CMD_EXECUTE_PLAN:
 					final CompilePlan cplan = (CompilePlan) in.readObject();

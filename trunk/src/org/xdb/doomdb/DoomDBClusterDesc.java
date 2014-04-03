@@ -22,4 +22,8 @@ public class DoomDBClusterDesc implements Serializable{
 	public int getStartPort(){
 		return this.startPort;
 	}
+	
+	public int getSize(){
+		return this.numberOfNodes;
+	}
 }

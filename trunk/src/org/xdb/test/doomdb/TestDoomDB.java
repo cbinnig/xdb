@@ -84,14 +84,20 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		System.out.println("--------------------");
 	}
 
-	public void testWith2Parts() throws Exception {
-		this.dClient.setSchema("TPCH (2 Parts)");
+	public void testQ1With10Parts() throws Exception {
+		this.dClient.setSchema("TPCH (10 Parts)");
+		this.dClient.setQuery(1);
+		this.runPlan();
+	}
+	
+	public void testQ5With10Parts() throws Exception {
+		this.dClient.setSchema("TPCH (10 Parts)");
 		this.dClient.setQuery(5);
 		this.runPlan();
 	}
-
-	public void testWith4Parts() throws Exception {
-		this.dClient.setSchema("TPCH (4 Parts)");
+	
+	public void testQ5With2Parts() throws Exception {
+		this.dClient.setSchema("TPCH (2 Parts)");
 		this.dClient.setQuery(5);
 		this.runPlan();
 	}

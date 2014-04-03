@@ -1,9 +1,14 @@
 package org.xdb.monitor;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.xdb.client.ComputeClient;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.operators.EnumOperatorStatus;
+import org.xdb.logging.EnumXDBComponents;
+import org.xdb.logging.XDBLog;
 import org.xdb.tracker.QueryTrackerPlan;
 import org.xdb.utils.Identifier;
 
@@ -24,9 +29,14 @@ public class ComputeServersMonitor {
 	// Flag if failure was detected in last round
 	private boolean failureDetected = false;
 	
+	// logger
+	private transient Logger logger;
+		
 	public ComputeServersMonitor(QueryTrackerPlan qtPlan) {
 		this.computeClient = new ComputeClient();
 		this.qtPlan = qtPlan;
+		
+		this.logger = XDBLog.getLogger(EnumXDBComponents.QUERY_TRACKER);
 	}
 
 	/**
@@ -81,7 +91,7 @@ public class ComputeServersMonitor {
 			case NEGLECTED:
 				continue;
 			case ABORTED:
-				System.err.println("Aborted Operator " + identifier
+				logger.log(Level.INFO, "Aborted Operator " + identifier
 						+ " has been detected");
 				setFailureDetected(true);
 				continue;
@@ -92,7 +102,7 @@ public class ComputeServersMonitor {
 			// ping compute server to see if it is alive
 			err = this.computeClient.pingComputeServer(opDesc.getComputeNode());
 			if (err.isError()) {
-				System.err.println("Operator " + identifier
+				logger.log(Level.INFO, "Operator " + identifier
 						+ " has been detected on killed compute node: "
 						+ opDesc.getComputeNode());
 				// Update the current deployment with the failed operator
