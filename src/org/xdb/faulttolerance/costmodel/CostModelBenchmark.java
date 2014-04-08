@@ -34,8 +34,9 @@ public class CostModelBenchmark {
 	 */
 	public double calculateMysqlInsertIntoTableSpeed(){ 
 		int dataLength = getDataLength(); 
-		System.out.println("Insert Time: "+insertTime +" "); 
+		System.out.println("Insert Time: "+insertTime +" ms"); 
 		System.out.println("Data Size: "+dataLength);  
+		System.out.println(1000*Config.COMPILE_FT_BENCHMARK_ROWS_NUMBER/insertTime +" Tuples/s");
 		return 1000*dataLength/insertTime; 
 	}  
 
@@ -130,7 +131,7 @@ public class CostModelBenchmark {
 			while(rs.next()){
 				dataLength = rs.getInt("Data_length");
 			}
-		} catch (Exception e) {
+		} catch (Exception e) { 
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}  
@@ -142,7 +143,7 @@ public class CostModelBenchmark {
 		CostModelBenchmark benchmark = new CostModelBenchmark(); 
 		benchmark.createSourceAndDestinationTableTable(); 
 		benchmark.insertDataIntoSourceTable(); 
-		benchmark.insertDataIntoDestinationTable();
+		benchmark.insertDataIntoDestinationTable(); 
 		System.out.println(benchmark.calculateMysqlInsertIntoTableSpeed() +"Bytes/S"); 
 	}
 
