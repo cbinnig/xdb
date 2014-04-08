@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.xdb.Config;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
@@ -15,21 +16,52 @@ import org.xdb.error.Error;
 
 public class MaterializationOpsSuggester { 
 	
+	CostModelQueryPlan costModelQueryPlan;
+	
 	// CompilePlan to annotate extra materialization point
 	private CompilePlan compilePlan; 
 	// Hashmap to store the runtime for every operator. 
 	private Map<Identifier, Double> opsEstimatedRuntime = new HashMap<Identifier, Double>(); 
 	
-	private Map<Identifier, Double> intermediadeResultsMatTime = new HashMap<Identifier, Double>();  
+	private Map<Identifier, Double> intermediadeResultsMatTime = new HashMap<Identifier, Double>();   
+	
+	private List<Identifier> recommendedMatOpsIds = new ArrayList<Identifier>();
 	
 	private int MTBF; 
 	
+	private int MTTR; 
+	
 	public MaterializationOpsSuggester(CompilePlan compilePlan, Map<Identifier, Double> opsEstimatedRuntime, 
-			Map<Identifier, Double> intermediadeResultsMatTime, int MTBF ){ 
+			Map<Identifier, Double> intermediadeResultsMatTime, int MTBF, int MTTR){ 
 		this.compilePlan = compilePlan;
 		this.opsEstimatedRuntime = opsEstimatedRuntime; 
 		this.intermediadeResultsMatTime = intermediadeResultsMatTime;  
-		this.MTBF = MTBF;	
+		this.MTBF = MTBF; 
+		this.MTTR = MTTR;
+	} 
+	
+	/**
+	 * 
+	 */
+	public Error startCostModel(){
+		
+		Error err = new Error();
+		
+		if(Config.COMPILE_FT_MODE.equalsIgnoreCase("smart")){
+			err = startSmartMaterilizationFinder();
+		} else if(Config.COMPILE_FT_MODE.equalsIgnoreCase("naive")) {
+			err = startNaiveMaterilizationFinder();
+		} 
+	    
+		return err;
+	} 
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public List<Identifier> getRecommendedMatOpsIds(){
+		return this.recommendedMatOpsIds;
 	}
 
 	/**
@@ -87,7 +119,21 @@ public class MaterializationOpsSuggester {
 	 */
 	public void setMTBF(int MTBF) {
 		this.MTBF = MTBF;
-	} 
+	}  
+	
+	/**
+	 * @return the mTTR
+	 */
+	public int getMTTR() {
+		return MTTR;
+	}
+
+	/**
+	 * @param mTTR the mTTR to set
+	 */
+	public void setMTTR(int mTTR) {
+		MTTR = mTTR;
+	}
 	
 	/**
 	 * 
@@ -100,9 +146,9 @@ public class MaterializationOpsSuggester {
 		CostModelTreePlanVisitor visitor = new CostModelTreePlanVisitor();   
 		err = this.compilePlan.applyVisitor(visitor); 
 		
-		List<AbstractCompileOperator> sortedCompileOps = new ArrayList<AbstractCompileOperator>();  
+		List<AbstractCompileOperator> sortedCompileOps = new ArrayList<AbstractCompileOperator>();
+		sortedCompileOps = visitor.getOps();
 		mapCompileOpsToCostModelOps(sortedCompileOps);
-		visitor.getOps();
 		
 		return err; 
 	} 
@@ -118,7 +164,6 @@ public class MaterializationOpsSuggester {
 			if(abstractCompileOperator.getType() == EnumOperator.TABLE) 
 				continue;
 			abstractCompileOperator.getResult().materialize(true);   
-			System.out.println(abstractCompileOperator.getOperatorId());
 		}
 		
 		return err;
@@ -130,29 +175,55 @@ public class MaterializationOpsSuggester {
 	 */
 	private void mapCompileOpsToCostModelOps(
 			List<AbstractCompileOperator> sortedCompileOps) {
-		List<CostModelOperator> costModelOps = new ArrayList<CostModelOperator>();  
-		for (int i= sortedCompileOps.size() -1; i>=0; i--) {
+		List<CostModelOperator> costModelOps = new ArrayList<CostModelOperator>(); 
+		List<Integer> forcedMaterializedOpsIndexes = new ArrayList<Integer>();  
+		int compileOpsNumber = sortedCompileOps.size();  
+		Map<Identifier, Identifier> mapCostModelOpToCompileOp = new 
+				HashMap<Identifier, Identifier>(); 
+		for (int i= compileOpsNumber -1; i>=0; i--) {
 			AbstractCompileOperator compileOp = sortedCompileOps.get(i); 
 			CostModelOperator costModelOp = new CostModelOperator();
-			costModelOp.setForcedMaterlialized(compileOp.getResult().materialize());
-			costModelOp.setOpMaterializationTimeEstimate(intermediadeResultsMatTime.get(compileOp.getOperatorId())); 
-			costModelOp.setOpRunTimeEstimate(opsEstimatedRuntime.get(compileOp.getOperatorId()));
+			Identifier costModelOpId = compileOp.getOperatorId().getChildId(); 
+			System.out.println(compileOp.getOperatorId());
+			costModelOp.setId(costModelOpId); 
+			mapCostModelOpToCompileOp.put(costModelOpId, compileOp.getOperatorId());
+			// if there are roots or set in advance to be materialized 
+			// then set them as forced materialized 
+			if(compileOp.getResult().materialize() || compileOp.isRoot()){
+				costModelOp.setForcedMaterlialized(true); 
+				costModelOp.setMaterilaized(true);
+				forcedMaterializedOpsIndexes.add(compileOpsNumber -i -1); 
+				System.out.println("Forced Materialized Op:"+ (compileOp.getOperatorId()));
+			} else {
+				costModelOp.setMaterilaized(false);
+			}
+		    
+			costModelOp.setOpMaterializationTimeEstimate(intermediadeResultsMatTime.get(costModelOpId)); 
+			costModelOp.setOpRunTimeEstimate(opsEstimatedRuntime.get(costModelOpId));
 			// Number of nodes the operator executes on 
 			costModelOp.setDegreeOfPartitioning(compileOp.getResult().getPartitionCount()); 
 			costModelOps.add(costModelOp);
 		} 
+
 		// Apply our Cost Model 
-		applyCostModel(costModelOps); 
+		applyCostModel(costModelOps, forcedMaterializedOpsIndexes, mapCostModelOpToCompileOp); 
 		
 	}
-
-	private void applyCostModel(List<CostModelOperator> costModelOps) {
+    
+	/**
+	 * 
+	 * @param costModelOps
+	 * @param forcedMaterializedOpsIndexes 
+	 * @param mapCostModelOpToCompileOp 
+	 */
+	private void applyCostModel(List<CostModelOperator> costModelOps,
+			List<Integer> forcedMaterializedOpsIndexes, Map<Identifier, Identifier> mapCostModelOpToCompileOp) {
 		
 		// Initiate a query plan 
-		CostModelQueryPlan costModelQueryPlan = new CostModelQueryPlan(costModelOps); 
-		costModelQueryPlan.setAllOperators(costModelOps); 
+		this.costModelQueryPlan = new CostModelQueryPlan(costModelOps, 
+				forcedMaterializedOpsIndexes, mapCostModelOpToCompileOp); 
 		// Enumerate Different Materialization Strategy 
-		MaterlizationStrategyEnumerator matEnumerator = new MaterlizationStrategyEnumerator(costModelQueryPlan, this.MTBF);
+		MaterlizationStrategyEnumerator matEnumerator = new MaterlizationStrategyEnumerator(costModelQueryPlan,forcedMaterializedOpsIndexes, this.MTBF);
 		List<MaterializedPlan> materializedPlansList = matEnumerator.enumerateQueryPlan(); 
 		
 		// Calculate the number of re-attempts required to achieve the given success rate c
@@ -169,17 +240,23 @@ public class MaterializationOpsSuggester {
 		totalRuntimeEstimator.calculateAverageWastedTimePerMatConf();
 		totalRuntimeEstimator.calculateRuntTimeForMatConfs(); 
 		
-		List<Identifier> recommendedMatOpsIds = totalRuntimeEstimator.getTheRecommendedMaterializationOpsId(); 
+		recommendedMatOpsIds = totalRuntimeEstimator.getTheRecommendedMaterializationOpsId(); 
 		
 		// uodate the compile plan with new mat ops resulted from the cost model 
-		updateCompilePlanWithNewMat(recommendedMatOpsIds);
+		updateCompilePlanWithNewMat();
 	}
-
-	private void updateCompilePlanWithNewMat(
-			List<Identifier> recommendedMatOpsIds) { 
+    
+	/**
+	 * 
+	 * @param recommendedMatOpsIds
+	 */
+	private void updateCompilePlanWithNewMat() { 
 		
 		for (Identifier identifier : recommendedMatOpsIds) {
-			this.compilePlan.getOperator(identifier).getResult().materialize(true); 
+			this.compilePlan.getOperator(this.costModelQueryPlan.
+					getCostModelOpToCompileOp().get(identifier)).getResult().materialize(true); 
 		}		
-	}	
+	}
+
+	
 }

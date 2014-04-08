@@ -1,6 +1,5 @@
 package org.xdb.faulttolerance.costmodel;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +12,8 @@ public class MaterializedPlan implements Comparable<MaterializedPlan> {
 	
 	private List<Level> materiliazedPlanLevels = new ArrayList<Level>(); 
 	private double runTime; // in case of failure including materialization
-    private BigDecimal successProbability; 
-    private BigDecimal failureProbability;  
+    private double successProbability; 
+    private double failureProbability;  
     private double averageWastedTime; 
     private int reattempts;  
     private double runTimeWithoutFailure; 
@@ -37,28 +36,28 @@ public class MaterializedPlan implements Comparable<MaterializedPlan> {
 	/**
 	 * @return the successProbability
 	 */
-	public BigDecimal getSuccessProbability() {
+	public double getSuccessProbability() {
 		return successProbability;
 	}
 
 	/**
 	 * @param querySuccessProbability the successProbability to set
 	 */
-	public void setSuccessProbability(BigDecimal querySuccessProbability) {
+	public void setSuccessProbability(double querySuccessProbability) {
 		this.successProbability = querySuccessProbability;
 	}
 
 	/**
 	 * @return the failureProbability
 	 */
-	public BigDecimal getFailureProbability() {
+	public double getFailureProbability() {
 		return failureProbability;
 	}
 
 	/**
 	 * @param failureProbability the failureProbability to set
 	 */
-	public void setFailureProbability(BigDecimal failureProbability) {
+	public void setFailureProbability(double failureProbability) {
 		this.failureProbability = failureProbability;
 	}
 
@@ -119,8 +118,8 @@ public class MaterializedPlan implements Comparable<MaterializedPlan> {
 	}
 
 	@Override
-	public int compareTo(MaterializedPlan o) {
-		return (int) (this.getmateriliazedPlanLevels().size() - o.getmateriliazedPlanLevels().size());
+	public int compareTo(MaterializedPlan obj) {
+		return (int) (this.runTime - obj.runTime);
 	}
 
 	/**

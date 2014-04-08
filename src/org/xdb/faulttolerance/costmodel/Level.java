@@ -1,6 +1,5 @@
 package org.xdb.faulttolerance.costmodel;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,9 +12,9 @@ public class Level {
 	
 	private List<CostModelOperator> subQquery = new ArrayList<CostModelOperator>(); 
 	
-	private BigDecimal levelSuccessProbability;   
+	private double levelSuccessProbability;   
 	
-	private BigDecimal levelFailureProbability;  
+	private double levelFailureProbability;  
 	
 	private int numberOfPartitions;  
 	
@@ -45,28 +44,28 @@ public class Level {
 	/**
 	 * @return the levelSuccessProbability
 	 */
-	public BigDecimal getLevelSuccessProbability() {
+	public double getLevelSuccessProbability() {
 		return levelSuccessProbability;
 	}
 
 	/**
 	 * @param levelSuccess the levelSuccessProbability to set
 	 */
-	public void setLevelSuccessProbability(BigDecimal levelSuccess) {
+	public void setLevelSuccessProbability(double levelSuccess) {
 		this.levelSuccessProbability = levelSuccess;
 	}
 
 	/**
 	 * @return the levelFailureProbability
 	 */
-	public BigDecimal getLevelFailureProbability() {
+	public double getLevelFailureProbability() {
 		return levelFailureProbability;
 	}
 
 	/**
 	 * @param levelFailureProbability the levelFailureProbability to set
 	 */
-	public void setLevelFailureProbability(BigDecimal levelFailureProbability) {
+	public void setLevelFailureProbability(double levelFailureProbability) {
 		this.levelFailureProbability = levelFailureProbability;
 	}
 
