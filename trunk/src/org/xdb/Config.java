@@ -61,6 +61,9 @@ public class Config implements Serializable {
 	public static String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
 	
 	public static String COMPILE_FT_MODE = "naive";
+	public static int COMPILE_FT_BENCHMARK_ROWS_NUMBER = 10;
+	public static int COMPILE_FT_BENCHMARK_COLUMNS_NUMBER = 2; 
+
 
 	// Optimizer
 	public static BitSet OPTIMIZER_ACTIVE_RULES_FUNCTION = new BitSet();
@@ -171,7 +174,7 @@ public class Config implements Serializable {
 	 */
 	private static void loadDoom() {
 		String[] intProperties = { "DOOMDB_MTBF", "DOOMDB_MTTR",
-				"DOOMDB_CLUSTER_SIZE" };
+				"DOOMDB_CLUSTER_SIZE"};
 
 		String[] stringProperties = { "DOOMDB_NAME", "DOOMDB_COMPUTE_NODES" };
 
@@ -219,7 +222,7 @@ public class Config implements Serializable {
 				"QUERYTRACKER_MONITOR_INTERVAL",
 				"TEST_NODE_COUNT", "TEST_FT_NUMBER_OF_FAILURES",
 				"TEST_FT_NUMBER_OF_RUNS", "TEST_PARTS_PER_NODE",
-				"TEST_FT_RECORDS_LIMIT" };
+				"TEST_FT_RECORDS_LIMIT", "COMPILE_FT_BENCHMARK_ROWS_NUMBER", "COMPILE_FT_BENCHMARK_COLUMNS_NUMBER"  };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
 				"TEST_DB_NAME", "COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES", "COMPILE_FT_MODE" };

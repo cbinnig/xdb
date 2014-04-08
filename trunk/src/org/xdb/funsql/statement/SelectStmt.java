@@ -81,7 +81,6 @@ public class SelectStmt extends AbstractServerStmt {
 	// Fault Tolerance variables 
 	private Map<Identifier, Double> opsEstimatedRuntime = new HashMap<Identifier, Double>(); 
 	private Map<Identifier, Double> intermediadeResultsMatTime = new HashMap<Identifier, Double>();    
-	private int MTBF; 
 	
 
 	// constructors
@@ -746,16 +745,28 @@ public class SelectStmt extends AbstractServerStmt {
 	
 	@Override
 	public Error applyFaultTolerance() {
-		Error err = new Error();
+		Error err = new Error(); 
+		Identifier id2 = new Identifier("2"); 
+		Identifier id3 = new Identifier("3"); 
+		Identifier id4 = new Identifier("4"); 
+		Identifier id5 = new Identifier("5");  
+		
+		this.opsEstimatedRuntime.put(id2, 44.0); 
+		this.opsEstimatedRuntime.put(id5, 20.889);
+		this.opsEstimatedRuntime.put(id3, 0.119 );
+		this.opsEstimatedRuntime.put(id4, 0.002);
+		
+		this.intermediadeResultsMatTime.put(id2, 77.0); 
+		this.intermediadeResultsMatTime.put(id5, 0.009);
+		this.intermediadeResultsMatTime.put(id3, 0.009);
+		this.intermediadeResultsMatTime.put(id4, 0.009);
+
 		MaterializationOpsSuggester matSuggester = new MaterializationOpsSuggester
-				(this.plan, this.opsEstimatedRuntime, this.intermediadeResultsMatTime, this.MTBF);  
-		if(Config.COMPILE_FT_MODE.equalsIgnoreCase("smart")){
-			err = matSuggester.startSmartMaterilizationFinder();
-		} else if(Config.COMPILE_FT_MODE.equalsIgnoreCase("naive")) {
-			err = matSuggester.startNaiveMaterilizationFinder();
-		} 
+				(this.plan, this.opsEstimatedRuntime, this.intermediadeResultsMatTime, Config.DOOMDB_MTBF, Config.DOOMDB_MTTR);  
 	    
-		this.plan.tracePlan(this.getClass().getName());
+		err = matSuggester.startCostModel();
+		
+		this.plan.tracePlan(this.getClass().getName()+"_MATERIALIZED");
 		
 		return err;
 	}
@@ -804,19 +815,5 @@ public class SelectStmt extends AbstractServerStmt {
 	public void setIntermediadeResultsMatTime(
 			Map<Identifier, Double> intermediadeResultsMatTime) {
 		this.intermediadeResultsMatTime = intermediadeResultsMatTime;
-	}
-
-	/**
-	 * @return the mTBF
-	 */
-	public int getMTBF() {
-		return MTBF;
-	}
-
-	/**
-	 * @param mTBF the mTBF to set
-	 */
-	public void setMTBF(int mTBF) {
-		MTBF = mTBF;
 	}
 }

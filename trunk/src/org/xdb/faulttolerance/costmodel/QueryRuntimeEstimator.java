@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map; 
-import java.math.*;
 
 public class QueryRuntimeEstimator { 
 	
@@ -85,23 +84,37 @@ public class QueryRuntimeEstimator {
 	 */
 	public void estimateReattemptsForMaterlialization(){
 		
+		List<Integer> uselessMatConfList = new ArrayList<Integer>();
+		
 		for(int i=0; i<matPlans.size(); i++){
 			MaterializedPlan matPlan =  matPlans.get(i);
 			List<Level> levels = matPlan.getmateriliazedPlanLevels(); 
-			BigDecimal querySuccessProbability = new BigDecimal(1.0); 
+			//BigDecimal querySuccessProbability = new BigDecimal(1.0);  
+			double querySuccessProbability = 1;
 			for (Level level : levels) {
-				BigDecimal levelSuccess =  calculateSuccessProbForLevel(level); 
+				double levelSuccess =  calculateSuccessProbForLevel(level); 
 				level.setLevelSuccessProbability(levelSuccess);
-				level.setLevelFailureProbability(new BigDecimal(1).subtract(levelSuccess));
-				querySuccessProbability = querySuccessProbability.multiply(levelSuccess, MathContext.DECIMAL128); 
-			}  
+				level.setLevelFailureProbability(1 - levelSuccess);
+				querySuccessProbability = querySuccessProbability*levelSuccess; 
+			} 
+			// if the success rate of the query almost zero 
+			// then neglect the corresponding Mat Cong 
+			if(querySuccessProbability == 0){
+				uselessMatConfList.add(i);
+				continue;
+			}
 			int reattempts = calculateReattempts(querySuccessProbability);
 			this.setReattemptsForDifferentMaterializations(matPlan, reattempts); 
 			// set the number of reattempts, failure probability, and 
 			// success probability for each materialization configuration  
 			matPlan.setReattempts(reattempts); 
 			matPlan.setSuccessProbability(querySuccessProbability); 
-			matPlan.setFailureProbability(new BigDecimal(1).subtract(querySuccessProbability, MathContext.DECIMAL128));
+			matPlan.setFailureProbability(1 - querySuccessProbability);
+		} 
+		
+		// delete all useless mat conf 
+		for (int j=0; j<uselessMatConfList.size(); j++){
+			matPlans.remove(uselessMatConfList.get(j));
 		}
 	} 
 	
@@ -111,33 +124,48 @@ public class QueryRuntimeEstimator {
 	 * @param querySuccessProbability
 	 * @return
 	 */
-	private int calculateReattempts(BigDecimal querySuccessProbability) {
+	private int calculateReattempts(double querySuccessProbability) {
 		int reattempts = 0; // initial
-		BigDecimal queryFailureProbability = new BigDecimal(1).subtract(querySuccessProbability); 
-		BigDecimal big1 = new BigDecimal(Math.log(1-this.successRate)); 
-		BigDecimal big2 = BigFunctions.ln(queryFailureProbability, 1000); 
-		reattempts = (int) (Math.ceil(big1.divide(big2, MathContext.DECIMAL128).doubleValue()) ) -1;	
+		double queryFailureProbability = 1 - querySuccessProbability;
+		double big1 = Math.log10(1-this.successRate); 
+		double big2 = Math.log10(queryFailureProbability); 
+		reattempts = (int) (Math.ceil((big1/big2) -1));	
 		return reattempts;
 	}
 	
-	private BigDecimal calculateSuccessProbForNode(Level level){
-		return new BigDecimal(1).subtract(calculateFailureProbForNode(level));
+	/**
+	 * 
+	 * @param level
+	 * @return
+	 */
+	private double calculateSuccessProbForNode(Level level){
+		return 1 - calculateFailureProbForNode(level);
 	}
 	
-    private BigDecimal calculateFailureProbForNode(Level level){
+	/**
+	 * 
+	 * @param level
+	 * @return
+	 */
+    private double calculateFailureProbForNode(Level level){
     	double meatTimeBetweenFailure = level.getMTBF();
-    	return new BigDecimal(1).subtract(new BigDecimal(Math.pow(2.87, -1*(level.getLevelRuntimeEstimate()+level.getMaterializationRuntimeestimate())/meatTimeBetweenFailure)));
+    	return 1 - Math.pow(Math.E, -1*(level.getLevelRuntimeEstimate()+level.getMaterializationRuntimeestimate())/meatTimeBetweenFailure);
 	} 
     
     @SuppressWarnings("unused")
-	private BigDecimal calculateFailureProbForLevel(Level level){
-		return new BigDecimal(1).subtract(calculateSuccessProbForLevel(level));
+	private double calculateFailureProbForLevel(Level level){
+		return 1 - calculateSuccessProbForLevel(level);
 	} 
-
-    private BigDecimal calculateSuccessProbForLevel(Level level){ 
+    
+    /**
+     * 
+     * @param level
+     * @return
+     */
+    private double calculateSuccessProbForLevel(Level level){ 
     	int numberOfNodePerLevel = level.getNumberOfPartitions();
-		BigDecimal successProbNode = calculateSuccessProbForNode(level); 
-		return successProbNode.pow(numberOfNodePerLevel);
+		double successProbNode = calculateSuccessProbForNode(level); 
+		return Math.pow(successProbNode, numberOfNodePerLevel);
 		
 	}
 

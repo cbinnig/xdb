@@ -46,7 +46,7 @@ public class SubQueryEstimator {
 	 * @return the levelRunTime
 	 */
 	public double getLevelRunTime(Level level) {
-		return calculateLevelRuntinme(level) + calculateLevelMaterializationTime(level);
+		return calculateLevelRuntinme(level);
 	} 
 	
 	public double getMaterializationTime(Level level){

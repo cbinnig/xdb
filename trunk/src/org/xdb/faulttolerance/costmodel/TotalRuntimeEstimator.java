@@ -1,11 +1,11 @@
 package org.xdb.faulttolerance.costmodel;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.xdb.Config;
 import org.xdb.utils.Identifier;
 
 public class TotalRuntimeEstimator { 
@@ -36,56 +36,27 @@ public class TotalRuntimeEstimator {
 	// the average wasted time
 	public void calculateAverageWastedTimePerMatConf() {
 
-		int levelInPlan = 0;  
-		int numberOfFailureScenario = 0; 
-		char[] copyArray;  
+		int numberOfLevelslnMatConf = 0;  
 		List<Level> matLevels = new ArrayList<Level>();
 		for (MaterializedPlan materializedPlan : matPlansList) { 
 			double averageWastedTime = 0.0; 
-			double runTimeWithoutFailure = 0.0; 
+			double runTimeWithoutMaterialization = 0.0; 
 			double materializationTime = 0.0; 
 			matLevels = materializedPlan.getmateriliazedPlanLevels(); 
 			for (Level level : matLevels) {
-				runTimeWithoutFailure += level.getLevelRuntimeEstimate(); 
+				runTimeWithoutMaterialization += level.getLevelRuntimeEstimate(); 
 				materializationTime += level.getMaterializationRuntimeestimate();
 				
-			} 
-			materializedPlan.setRunTimeWithoutFailure(runTimeWithoutFailure);
-			materializedPlan.setMaterializationTime(materializationTime);
-			levelInPlan = matLevels.size();  
-			numberOfFailureScenario = (int) Math.pow(2, levelInPlan);
-			copyArray = new char[levelInPlan];
-			// initialize the array
-			for(int i=0; i<copyArray.length; i++){
-				copyArray[i] = '0';
 			}   
-			// start from one! 0000 is excluded.
-			for(int i=1; i<numberOfFailureScenario; i++){  
-				char[] binaryRep = String.format(Integer.toBinaryString(i)).toCharArray();  
-				System.arraycopy(binaryRep, 0, copyArray, 
-						copyArray.length -binaryRep.length , binaryRep.length);  
-				BigDecimal failureScenarioPrability = new BigDecimal(1.0); 
-				double wastedTime = 0.0; 
-				double dominatorTime = 0.0; 
-				double numinatorTime = 0.0;  
-				double temp = 0.0; 
-				for(int j=0; j<copyArray.length; j++){
-					dominatorTime += matLevels.get(j).getLevelRuntimeEstimate();
-					if(copyArray[j] == '1'){
-						failureScenarioPrability = failureScenarioPrability.multiply(matLevels.get(j).getLevelFailureProbability(), MathContext.DECIMAL128);
-						numinatorTime += matLevels.get(j).getLevelRuntimeEstimate();  
-					} else { 
-						failureScenarioPrability = failureScenarioPrability.multiply(matLevels.get(j).getLevelSuccessProbability(), MathContext.DECIMAL128);
-						temp += Math.pow(numinatorTime, 2);
-						numinatorTime = 0.0;
-					}
-				} 
-				if(copyArray[copyArray.length-1] == '1'){
-					temp += Math.pow(numinatorTime, 2);
-				} 
-				numinatorTime = temp; 
-				wastedTime = 0.5*numinatorTime/dominatorTime; 
-				averageWastedTime += failureScenarioPrability.multiply(new BigDecimal(wastedTime)).longValue();
+			
+			runTimeWithoutMaterialization += matLevels.get(matLevels.size()-1).getMaterializationRuntimeestimate();
+			materializedPlan.setRunTimeWithoutFailure(runTimeWithoutMaterialization + materializationTime);
+			materializedPlan.setMaterializationTime(materializationTime); 
+			numberOfLevelslnMatConf = matLevels.size();  
+		
+			for(int i=0; i<numberOfLevelslnMatConf; i++){   
+				averageWastedTime += 0.5*(matLevels.get(i).getLevelRuntimeEstimate() + matLevels.get(i).getMaterializationRuntimeestimate())*
+						matLevels.get(i).getLevelFailureProbability();	
 			} 
 			materializedPlan.setAverageWastedTime(averageWastedTime);
 		}
@@ -96,37 +67,34 @@ public class TotalRuntimeEstimator {
 		double runTime = 0.0;
 		double T;
 		double W;
-		BigDecimal F;
-		int r;
+		double F;
+		int r; 
 		for (MaterializedPlan materializedPlan : matPlansList) {  
 			T = materializedPlan.getRunTimeWithoutFailure(); 
 			W = materializedPlan.getAverageWastedTime();
 			F = materializedPlan.getFailureProbability(); 
 			r = materializedPlan.getReattempts(); 
-
 			// runtime model  
-			runTime = T + W*(new BigDecimal(1).subtract(F.pow(r+1, MathContext.DECIMAL128), MathContext.DECIMAL128)).doubleValue()/
-					(new BigDecimal(1).subtract(F,MathContext.DECIMAL128)).doubleValue() - W; 
+			runTime = T + W*(1 - Math.pow(F,r+1))/(1-F) - W + r*Config.DOOMDB_MTTR;
+            
+			List<Level> levels = materializedPlan.getmateriliazedPlanLevels(); 
+			System.out.print("Mat Conf -> ");
+			for (Level level : levels) {
+				System.out.print(level.getSubQquery().get(level.getSubQquery().size()-1).getId());  
+				System.out.print(", ");
+			}
+			System.out.println();
+			System.out.println("Total RunTime:"+runTime+" Runtime="+T + ", Avg.Wasted Time="+W+", Attempts="+r);
+            
 			materializedPlan.setRunTime(runTime);	 
 		} 
-		Collections.sort(matPlansList); 
-	
-		// the best mat conf
-		MaterializedPlan materializedPlan = matPlansList.get(0); 
-		List<Level> levels = materializedPlan.getmateriliazedPlanLevels(); 
-	    System.out.println("These/this operators should be materialized: ");
-		for (Level level : levels) {
-			System.out.println("Op: "+level.getSubQquery().get(level.getSubQquery().size()-1).getId());
-		}
-		//System.out.println("Runtime: "+materializedPlan.getRunTime() +", Re-attempts: "+materializedPlan.getReattempts() + 
-			//	", Average Wasted time: "+materializedPlan.getAverageWastedTime());  
 	} 
 	
 	public List<Identifier> getTheRecommendedMaterializationOpsId (){
 		Collections.sort(matPlansList);  
 		MaterializedPlan materializedPlan = matPlansList.get(0); 
 		List<Level> levels = materializedPlan.getmateriliazedPlanLevels(); 
-	    System.out.println("These/this operators should be materialized: ");
+	    System.out.println("Operators should be materialized: ");
 	    List<Identifier> materializedOpIds = new ArrayList<Identifier>();
 		for (Level level : levels) { 
 			materializedOpIds.add(level.getSubQquery().get(level.getSubQquery().size()-1).getId());

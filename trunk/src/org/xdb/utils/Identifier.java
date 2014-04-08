@@ -72,6 +72,17 @@ public class Identifier implements Serializable, Cloneable{
 			parentId.append(this.ids.get(i));
 		}
 		return parentId;
+	} 
+	
+	/**
+	 * Returns ID for the child 
+	 * e.g., 1_2 wil return 2 
+	 * @param id
+	 * @return
+	 */
+	public Identifier getChildId(){
+		String stringId = this.id.toString(); 
+		return new Identifier(stringId.split(SEPARATOR)[1]);
 	}
 	
 	@Override
