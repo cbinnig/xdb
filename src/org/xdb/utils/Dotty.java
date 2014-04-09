@@ -1,5 +1,6 @@
 package org.xdb.utils;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.xdb.Config;
@@ -10,8 +11,8 @@ import com.oy.shared.lm.out.GRAPHtoDOTtoGIF;
 public class Dotty {
 	public static String dot2Img(Graph graph, String fileName){
 		final String path = Config.DOT_TRACE_PATH;
-		final String dotFileName = path + fileName + ".dot";
-		final String gifFileName = path + fileName + ".gif";
+		final String dotFileName = new File(path, fileName + ".dot").getAbsolutePath(); 
+		final String gifFileName =  new File(path, fileName + ".gif").getAbsolutePath();
 		final String exeFileName = Config.DOT_EXE;
 		try {
 			GRAPHtoDOTtoGIF.transform(graph, dotFileName, gifFileName, exeFileName);

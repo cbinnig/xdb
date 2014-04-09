@@ -279,6 +279,33 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 	}
 
 	public void testQ03(){
+		
+		/*
+		 * 
+select
+	l_orderkey,
+	sum(l_extendedprice * (1 - l_discount)) as revenue,
+	o_orderdate,
+	o_shippriority
+from
+	customer,
+	orders,
+	lineitem
+where
+	c_mktsegment = 'BUILDING'
+	and c_custkey = o_custkey
+	and l_orderkey = o_orderkey
+	and o_orderdate < date '1995-03-1'
+	and l_shipdate > date '1995-03-1'
+group by
+	l_orderkey,
+	o_orderdate,
+	o_shippriority
+order by
+	revenue desc,
+	o_orderdate;
+	
+		 */
 		String q3 = "" +
 				"select l_orderkey, " +
 				"sum(l_extendedprice*(1-l_discount)) as revenue, " +
@@ -297,6 +324,47 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 		this.executeStmt(q3);
 	}
 	
+public void testQ05(){
+		
+		/*
+		 * 
+		 * Select 
+n_name,
+sum(l_extendedprice * (1-l_discount)) as revenue,
+from 
+customer,
+orders,
+lineitem,
+supplier,
+nation,
+region
+where c_custkey = o_custkey
+and l_orderkey = o_orderkey
+and l_suppkey = s_suppkey
+and c_nationkey = s_nationkey
+and s_nationkey = n_nationkey
+and r_regionkey = n_regionkey
+and r_name = 'ASIA'
+and o_orderdate > DATE('1994-01-01 00:00:00')
+and o_orderdate < DATE('1995-01-01 00:00:00')
+group by n_nationkey, n_name;
+		 */
+		String q5 = "Select n_name, " +
+					"sum(l_extendedprice * (1-l_discount)) as revenue " +
+					"from region, nation, customer, orders, lineitem, supplier " +
+					"where r_regionkey = n_regionkey " +
+					"and n_nationkey = c_nationkey " +
+					"and c_custkey = o_custkey " +
+					"and l_orderkey = o_orderkey " +
+					"and l_suppkey = s_suppkey  " +
+					"and s_nationkey = c_nationkey " +
+					"and r_name = 'ASIA' " +
+					"and o_orderdate > date '1994-01-01' "+
+					"and o_orderdate < date '1995-01-01' "+
+					"group by n_nationkey, n_name;";
+		this.executeStmt(q5);
+	}
+
 	public void testQ05WithAvg(){
 		
 		/*
