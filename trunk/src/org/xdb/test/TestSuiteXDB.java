@@ -3,6 +3,7 @@ package org.xdb.test;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.xdb.test.costmodel.TestSuiteCostModel;
 import org.xdb.test.doomdb.TestSuiteDoomDB;
 import org.xdb.test.execute.operators.TestSuiteOperators;
 import org.xdb.test.funsql.compile.TestSuiteSQL;
@@ -26,6 +27,7 @@ public class TestSuiteXDB extends TestSuite {
 		suite.addTest(TestSuiteTPCH.suite());
 		suite.addTest(TestSuiteDistributedTPCH.suite());
 		suite.addTest(TestSuiteDoomDB.suite());
+		suite.addTest(TestSuiteCostModel.suite());
 		return suite;
 	}
 }

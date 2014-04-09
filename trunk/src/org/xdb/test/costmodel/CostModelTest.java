@@ -6,19 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.faulttolerance.costmodel.MaterializationOpsSuggester;
 import org.xdb.funsql.compile.CompilePlan;
-
 import org.xdb.funsql.compile.operator.GenericAggregation;
 import org.xdb.funsql.compile.operator.GenericProjection;
 import org.xdb.funsql.compile.operator.GenericSelection;
 import org.xdb.funsql.compile.operator.ResultDesc;
 import org.xdb.funsql.compile.operator.TableOperator;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
+import org.xdb.test.TestCase;
 import org.xdb.utils.Identifier;
 
 /**
@@ -26,7 +24,7 @@ import org.xdb.utils.Identifier;
  * @author Abdallah
  *
  */
-public class CostModelTest {   
+public class CostModelTest extends TestCase{   
     
 	// Compile Plan
 	private CompilePlan cplan = new CompilePlan();  
@@ -34,8 +32,7 @@ public class CostModelTest {
 	private Map<Identifier, Double> opsEstimatedRuntime = new HashMap<Identifier, Double>(); 
 	private Map<Identifier, Double> intermediadeResultsMatTime = new HashMap<Identifier, Double>();    
 
-	@Before 
-	public void buildCompilePlan(){
+	public void setUp(){
 		
 		// Build Compile Plan 
 		TableOperator tableOp = new TableOperator(new TokenIdentifier("L"));  
@@ -79,7 +76,6 @@ public class CostModelTest {
 			 
 	}
 
-	@Test
 	public void testOptimalMatPlan() { 
 		
 		Error err = new Error(); 

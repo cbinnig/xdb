@@ -66,7 +66,7 @@ public class DoomDBClient implements IDoomDBClient {
 	
 	public void killNode(ComputeNodeDesc computeNodeDesc) { 
 		this.killedNodes++;
-		Error err = mClient.restartComputeNode(computeNodeDesc, mttr*1000);
+		Error err = mClient.restartComputeNode(computeNodeDesc, this.mttr*1000);
 		raiseError(err);
 	}
 
@@ -150,7 +150,7 @@ public class DoomDBClient implements IDoomDBClient {
 			this.endTime = System.currentTimeMillis() / 1000;
 			this.runTime = this.endTime - this.startTime;
 			if(this.killedNodes>0)
-				this.mtbf = (int)this.runTime * this.clusterDesc.getSize() / this.killedNodes;
+				this.mtbf = (int)this.runTime * this.getNodeCount() / this.killedNodes;
 			Config.writeDoom("DOOMDB_MTBF", ""+this.mtbf);
 		}
 		return planStatus.isFinished();
