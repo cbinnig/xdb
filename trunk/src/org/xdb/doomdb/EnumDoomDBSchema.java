@@ -12,8 +12,8 @@ import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
 public enum EnumDoomDBSchema {
+	TPCH_1PART("TPCH (1 Part)"),
 	TPCH_2PARTS("TPCH (2 Parts)"),
-	TPCH_4PARTS("TPCH (4 Parts)"),
 	TPCH_10PARTS("TPCH (10 Parts)");
 
 	private static String tpchQ1 = "select	l_returnflag,	"
@@ -249,11 +249,11 @@ public enum EnumDoomDBSchema {
 	}
 	
 	static {
+		Vector<String> tpch1Parts = createTPCHXParts(1);
+		SCHEMAS.put(TPCH_1PART.schemaName, tpch1Parts.toArray(new String[tpch1Parts.size()]));
+		
 		Vector<String> tpch2Parts = createTPCHXParts(2);
 		SCHEMAS.put(TPCH_2PARTS.schemaName, tpch2Parts.toArray(new String[tpch2Parts.size()]));
-		
-		Vector<String> tpch4Parts = createTPCHXParts(4);
-		SCHEMAS.put(TPCH_4PARTS.schemaName, tpch4Parts.toArray(new String[tpch4Parts.size()]));
 		
 		Vector<String> tpch10Parts = createTPCHXParts(10);
 		SCHEMAS.put(TPCH_10PARTS.schemaName, tpch10Parts.toArray(new String[tpch10Parts.size()]));
@@ -275,8 +275,12 @@ public enum EnumDoomDBSchema {
 
 	public int getPartitions() {
 		switch (this) {
+		case TPCH_1PART:
+			return 1;
 		case TPCH_2PARTS:
 			return 2;
+		case TPCH_10PARTS:
+			return 10;
 		default:
 			return 0;
 		}
