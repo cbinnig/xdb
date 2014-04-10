@@ -43,6 +43,9 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 	}
 
 	private void runPlan() {
+		DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(
+				this.dClient);
+		
 		DoomDBPlan dplan = this.dClient.getPlan();
 		dplan.tracePlan();
 
@@ -65,9 +68,6 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		System.out.println("Query Execution: ");
 		System.out.print("\tRunning ");
 		this.dClient.startQuery();
-
-		DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(
-				this.dClient);
 		doomDBFailureSimulator.start();
 
 		while (!this.dClient.isQueryFinished()) {

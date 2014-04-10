@@ -50,10 +50,6 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 				this.executeStmts.add(conn.prepareStatement(dml));
 			}
 		} 
-		catch (final SQLSyntaxErrorException e) {
-			this.err = createMySQLError(e);
-			this.status = EnumOperatorStatus.FAILED;
-		}
 		catch (final Exception e) {
 			this.err = createMySQLError(e);
 			if(Config.QUERYTRACKER_MONITOR_ACTIVATED)

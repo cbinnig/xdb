@@ -34,4 +34,16 @@ public class Tuple<S extends Object, T extends Object> {
 	public void setObject2(T object2) {
 		this.object2 = object2;
 	}
+	
+	@Override
+	public String toString(){
+		StringBuilder value = new StringBuilder();
+		value.append("<");
+		value.append(this.object1.toString());
+		value.append(",");
+		value.append(this.object2.toString());
+		value.append(">");
+		
+		return value.toString();
+	}
 }

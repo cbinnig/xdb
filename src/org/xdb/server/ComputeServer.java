@@ -84,7 +84,7 @@ public class ComputeServer extends AbstractServer {
 				case CMD_RESTART_SERVER: 
 					final RestartSignal restartSignal = (RestartSignal) in.readObject();  
 					logger.log(Level.INFO, "Received restart server signal");
-                    err = ComputeServer.this.restartComputeServer(restartSignal); 
+                    err = ComputeServer.this.killServer(restartSignal); 
                     break;
 				default:
 					err = createCmdError(cmd);
@@ -116,7 +116,7 @@ public class ComputeServer extends AbstractServer {
 	}
     
 	// restart the server for DoomDB/Fault Tolerance 
-	public Error restartComputeServer(RestartSignal restartSignal) {
+	public Error killServer(RestartSignal restartSignal) {
 		long startTime = System.currentTimeMillis();
 		
 		// stop compute server  

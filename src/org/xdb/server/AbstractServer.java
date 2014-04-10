@@ -27,7 +27,7 @@ public abstract class AbstractServer {
 
 	// thread
 	protected ServerThread serverThread = null;
-
+	
 	// network
 	protected ServerSocket serverSocket = null;
 	protected int port = -1;
@@ -45,7 +45,7 @@ public abstract class AbstractServer {
 	public Error getError() {
 		return err;
 	}
-
+	
 	/**
 	 * Starts server thread on local node
 	 */
@@ -112,10 +112,10 @@ public abstract class AbstractServer {
 
 			thread.setRunning();
 
-			while (!thread.isInterrupted()) {
+			while (!thread.isInterrupted() ) {
 				try {
 					Socket clientSocket = this.serverSocket.accept();
-					handle(clientSocket);
+					this.handle(clientSocket);
 				} catch (Exception e) {
 					// Nothing to do
 				}
@@ -123,6 +123,7 @@ public abstract class AbstractServer {
 
 		} catch (Exception e) {
 			this.err = this.createServerError(e);
+			System.err.println("Port:"+this.port);
 		} finally {
 			thread.setNotRunning();
 			this.closeSocket();

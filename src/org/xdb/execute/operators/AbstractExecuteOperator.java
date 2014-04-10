@@ -3,7 +3,6 @@ package org.xdb.execute.operators;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLSyntaxErrorException;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
@@ -136,16 +135,12 @@ public abstract class AbstractExecuteOperator implements Serializable {
 					this.dbuser, this.dbpasswd);
 
 			// compile open and close statements
+			Statement openStmt = conn.createStatement();
 			for (String ddl : this.openSQLs) {
-				// System.out.println(this.getOperatorId()+">"+ddl+";");
-				Statement openStmt = conn.createStatement();
+				//System.out.println(this.getOperatorId()+">"+ddl+";");
 				openStmt.execute(ddl);
 			}
 
-		} catch (final SQLSyntaxErrorException e) {
-			err = createMySQLError(e);
-			this.status = EnumOperatorStatus.FAILED;
-			return this.err;
 		} catch (final Exception e) {
 			err = createMySQLError(e);
 			if (Config.QUERYTRACKER_MONITOR_ACTIVATED)
@@ -216,8 +211,8 @@ public abstract class AbstractExecuteOperator implements Serializable {
 			this.conn = DriverManager.getConnection(this.dburl + this.dbname,
 					this.dbuser, this.dbpasswd);
 
+			Statement closeStmt = this.conn.createStatement();
 			for (String ddl : this.closeSQLs) {
-				Statement closeStmt = this.conn.createStatement();
 				//System.err.println(this.operatorId+">"+ddl);
 				closeStmt.execute(ddl);
 			}
@@ -254,9 +249,8 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 * @return Error
 	 */
 	protected Error createMySQLError(Exception e) {
-		// e.printStackTrace();
-		String[] args = { this.getOperatorId() + " > " + e.toString() + ","
-				+ e.getCause() };
+		//e.printStackTrace();
+		String[] args = { this.getOperatorId() + " > " + e.toString() };
 		Error err = new Error(EnumError.MYSQL_ERROR, args);
 		return err;
 	}
