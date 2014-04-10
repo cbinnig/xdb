@@ -1,6 +1,7 @@
 package org.xdb.funsql.statement;
 
 import org.xdb.doomdb.DoomDBPlan;
+import org.xdb.doomdb.QueryStats;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.utils.Tuple;
@@ -134,7 +135,7 @@ public abstract class AbstractServerStmt {
 		return lastError;
 	}
 
-	public Error applyFaultTolerance() {
+	public Error applyFaultTolerance(QueryStats queryStats) {
 		// TODO Auto-generated method stub
 		return new Error();
 	}

@@ -17,10 +17,13 @@ import org.xdb.funsql.compile.operator.SQLCombined;
 import org.xdb.funsql.compile.operator.SQLJoin;
 import org.xdb.funsql.compile.operator.SQLUnary;
 import org.xdb.funsql.compile.operator.TableOperator;
+import org.xdb.utils.Identifier;
 
 public class CostModelTreePlanVisitor extends AbstractTopDownTreeVisitor { 
 	
-	private List<AbstractCompileOperator> ops = new ArrayList<AbstractCompileOperator>();
+	private List<AbstractCompileOperator> ops = new ArrayList<AbstractCompileOperator>(); 
+	
+	private List<Identifier> nonMatsOps = new ArrayList<Identifier>();
 
 	public CostModelTreePlanVisitor() { 
 		super();
@@ -32,31 +35,36 @@ public class CostModelTreePlanVisitor extends AbstractTopDownTreeVisitor {
 	
 	@Override
 	public Error visitEquiJoin(EquiJoin ej) {
-		this.setOps(ej);
+		if(isOpMaterializable(ej))
+		   this.setOps(ej);
 		return this.visit(ej.getLeftChild());
 	}
 
 	@Override
 	public Error visitSQLJoin(SQLJoin ej) {
-		this.setOps(ej);
+		if(isOpMaterializable(ej))
+		   this.setOps(ej);
 		return getNonTableChildForAnOp(ej);
 	}
 
 	@Override
 	public Error visitGenericSelection(GenericSelection gs) {
-		this.setOps(gs);
+		if(isOpMaterializable(gs))
+		   this.setOps(gs);
 		return this.visit(gs.getChild());
 	}
 
 	@Override
 	public Error visitGenericAggregation(GenericAggregation sa) {
-		this.setOps(sa);
+		if(isOpMaterializable(sa))
+		   this.setOps(sa);
 		return this.visit(sa.getChild());
 	}
 
 	@Override
 	public Error visitGenericProjection(GenericProjection gp) { 
-		this.setOps(gp);
+		if(isOpMaterializable(gp))
+		   this.setOps(gp);
 		return this.visit(gp.getChild());
 	}
 
@@ -68,20 +76,23 @@ public class CostModelTreePlanVisitor extends AbstractTopDownTreeVisitor {
 
 	@Override
 	public Error visitRename(Rename ro) {
-		this.setOps(ro); 
+		if(isOpMaterializable(ro))
+		    this.setOps(ro); 
 		return getNonTableChildForAnOp(ro);  
 	
 	}
 
 	@Override
 	public Error visitSQLUnary(SQLUnary absOp) { 
-		this.setOps(absOp);
+		if(isOpMaterializable(absOp))
+		   this.setOps(absOp);
 		return this.visit(absOp.getChild());
 	}
 
 	@Override
 	public Error visitSQLCombined(SQLCombined absOp) {
-		this.setOps(absOp);
+		if(isOpMaterializable(absOp))
+		   this.setOps(absOp);
 		return getNonTableChildForAnOp(absOp);
 	}
 
@@ -121,6 +132,28 @@ public class CostModelTreePlanVisitor extends AbstractTopDownTreeVisitor {
 			}
 		} 
 		return this.visit(selectedVisitedOp);  
+	} 
+	
+	private boolean isOpMaterializable(AbstractCompileOperator op){
+
+		if(nonMatsOps.contains(op.getOperatorId().getChildId())) 
+		    return false; 
+		else 
+			return true;
+	}
+
+	/**
+	 * @return the nonMatsOps
+	 */
+	public List<Identifier> getNonMatsOps() {
+		return nonMatsOps;
+	}
+
+	/**
+	 * @param nonMatsOps the nonMatsOps to set
+	 */
+	public void setNonMatsOps(List<Identifier> nonMatsOps) {
+		this.nonMatsOps = nonMatsOps;
 	}
 
 }

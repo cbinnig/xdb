@@ -12,6 +12,7 @@ import java.util.Vector;
 import org.xdb.Config;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.doomdb.DoomDBPlan;
+import org.xdb.doomdb.QueryStats;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.faulttolerance.costmodel.MaterializationOpsSuggester;
@@ -744,7 +745,7 @@ public class SelectStmt extends AbstractServerStmt {
 	}
 	
 	@Override
-	public Error applyFaultTolerance() {
+	public Error applyFaultTolerance(QueryStats queryStats) {
 		Error err = new Error(); 
 		Identifier id2 = new Identifier("2"); 
 		Identifier id3 = new Identifier("3"); 
@@ -762,7 +763,8 @@ public class SelectStmt extends AbstractServerStmt {
 		this.intermediadeResultsMatTime.put(id4, 0.009);
 
 		MaterializationOpsSuggester matSuggester = new MaterializationOpsSuggester
-				(this.plan, this.opsEstimatedRuntime, this.intermediadeResultsMatTime, Config.DOOMDB_MTBF, Config.DOOMDB_MTTR);  
+				(this.plan, queryStats.getQueryRuntimesStat(), queryStats.getQueryMattimesStat(), queryStats.getNonMatOps(),
+						Config.DOOMDB_MTBF, Config.DOOMDB_MTTR);  
 	    
 		err = matSuggester.startCostModel();
 		

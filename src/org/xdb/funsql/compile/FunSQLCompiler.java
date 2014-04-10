@@ -4,6 +4,7 @@ import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 
+import org.xdb.doomdb.QueryStats;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.antlr.FunSQLLexer;
@@ -16,8 +17,17 @@ public class FunSQLCompiler {
 	private boolean doOptimize = true;
 	private boolean doParallelize = true;
 	private boolean doSemanticAnalysis = true; 
-	private boolean doFaultTolerance = false; 
+	private boolean doFaultTolerance = false;   
 	
+	private QueryStats queryStats; 
+	
+	public FunSQLCompiler(QueryStats queryStats){
+		this.setQueryStats(queryStats);
+	}
+	
+	public FunSQLCompiler(){
+		
+	}
 	//getters and setters
 	public Error getLastError() {
 		return lastError;
@@ -71,7 +81,7 @@ public class FunSQLCompiler {
 		    
 			// find the best materilaizations 
 			if(this.doFaultTolerance){
-				this.lastError = statement.applyFaultTolerance(); 
+				this.lastError = statement.applyFaultTolerance(queryStats);  
 				if(lastError.isError()) 
 					return null; 
 			}
@@ -97,5 +107,19 @@ public class FunSQLCompiler {
 		String args[] = { msg };
 		Error error = new Error(EnumError.COMPILER_GENERIC, args);
 		return error;
+	}
+
+	/**
+	 * @return the queryStats
+	 */
+	public QueryStats getQueryStats() {
+		return queryStats;
+	}
+
+	/**
+	 * @param queryStats the queryStats to set
+	 */
+	public void setQueryStats(QueryStats queryStats) {
+		this.queryStats = queryStats;
 	}
 }

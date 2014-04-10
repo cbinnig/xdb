@@ -23,21 +23,25 @@ public class MaterializationOpsSuggester {
 	// Hashmap to store the runtime for every operator. 
 	private Map<Identifier, Double> opsEstimatedRuntime = new HashMap<Identifier, Double>(); 
 	
-	private Map<Identifier, Double> intermediadeResultsMatTime = new HashMap<Identifier, Double>();   
+	private Map<Identifier, Double> intermediadeResultsMatTime = new HashMap<Identifier, Double>();    
 	
-	private List<Identifier> recommendedMatOpsIds = new ArrayList<Identifier>();
+	private List<Identifier> nonMaterializableOps = new ArrayList<Identifier>();
+	
+	private List<Identifier> recommendedMatOpsIds = new ArrayList<Identifier>(); 
+	
 	
 	private int MTBF; 
 	
 	private int MTTR; 
 	
 	public MaterializationOpsSuggester(CompilePlan compilePlan, Map<Identifier, Double> opsEstimatedRuntime, 
-			Map<Identifier, Double> intermediadeResultsMatTime, int MTBF, int MTTR){ 
+			Map<Identifier, Double> intermediadeResultsMatTime, List<Identifier> nonMaterializableOs, int MTBF, int MTTR){ 
 		this.compilePlan = compilePlan;
 		this.opsEstimatedRuntime = opsEstimatedRuntime; 
-		this.intermediadeResultsMatTime = intermediadeResultsMatTime;  
+		this.intermediadeResultsMatTime = intermediadeResultsMatTime;   
+		this.setNonMaterializableOps(nonMaterializableOs);
 		this.MTBF = MTBF; 
-		this.MTTR = MTTR;
+		this.MTTR = MTTR; 	
 	} 
 	
 	/**
@@ -143,7 +147,8 @@ public class MaterializationOpsSuggester {
 		Error err = new Error();
 		// Traverse the tree from top to bottom, in the way 
 		// adding the left child operators so will 
-		CostModelTreePlanVisitor visitor = new CostModelTreePlanVisitor();   
+		CostModelTreePlanVisitor visitor = new CostModelTreePlanVisitor();    
+		visitor.setNonMatsOps(this.nonMaterializableOps);
 		err = this.compilePlan.applyVisitor(visitor); 
 		
 		List<AbstractCompileOperator> sortedCompileOps = new ArrayList<AbstractCompileOperator>();
@@ -256,6 +261,20 @@ public class MaterializationOpsSuggester {
 			this.compilePlan.getOperator(this.costModelQueryPlan.
 					getCostModelOpToCompileOp().get(identifier)).getResult().materialize(true); 
 		}		
+	}
+
+	/**
+	 * @return the nonMaterializableOps
+	 */
+	public List<Identifier> getNonMaterializableOps() {
+		return nonMaterializableOps;
+	}
+
+	/**
+	 * @param nonMaterializableOps the nonMaterializableOps to set
+	 */
+	public void setNonMaterializableOps(List<Identifier> nonMaterializableOps) {
+		this.nonMaterializableOps = nonMaterializableOps;
 	}
 
 	

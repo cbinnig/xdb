@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import org.xdb.Config;
 import org.xdb.client.statement.ClientStmt;
 import org.xdb.doomdb.DoomDBPlan;
+import org.xdb.doomdb.QueryWithStats;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompileServerNode;
 import org.xdb.logging.EnumXDBComponents;
@@ -53,9 +54,9 @@ public class CompileServer extends AbstractServer {
 					err = compileNode.compileAndExecuteStmt(execStmt);
 					break;
 				case CMD_DOOMDB_COMPILE:
-					final ClientStmt compileStmt = (ClientStmt)in.readObject();
-					logger.log(Level.INFO, "CompileServer: Received client stmt:" + compileStmt.getStmt());
-					Tuple<Error, DoomDBPlan> result = compileNode.doomDBCompileStmt(compileStmt);
+					final QueryWithStats queryWithStats = (QueryWithStats) in.readObject();  
+					logger.log(Level.INFO, "CompileServer: Received client stmt:" + queryWithStats.getClientStmt().getStmt());
+					Tuple<Error, DoomDBPlan> result = compileNode.doomDBCompileStmt(queryWithStats.getClientStmt(), queryWithStats.getQueryStats());
 					out.writeObject(result.getObject2());
 					err = result.getObject1();
 					break;
