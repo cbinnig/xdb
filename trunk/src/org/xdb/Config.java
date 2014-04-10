@@ -59,11 +59,10 @@ public class Config implements Serializable {
 	public static int COMPILE_PORT = 55500;
 	public static String COMPILE_URL = "127.0.0.1";
 	public static String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
-	
+
 	public static String COMPILE_FT_MODE = "naive";
 	public static int COMPILE_FT_BENCHMARK_ROWS_NUMBER = 10;
-	public static int COMPILE_FT_BENCHMARK_COLUMNS_NUMBER = 2; 
-
+	public static int COMPILE_FT_BENCHMARK_COLUMNS_NUMBER = 2;
 
 	// Optimizer
 	public static BitSet OPTIMIZER_ACTIVE_RULES_FUNCTION = new BitSet();
@@ -120,18 +119,20 @@ public class Config implements Serializable {
 	public static int TEST_NODE_COUNT = 2;
 	public static int TEST_PARTS_PER_NODE = 1;
 
-
 	// DoomDB
 	public static String DOOMDB_CONFIG_FILE = "./config/doomdb.conf";
+	public static boolean DOOMDB_MTBF_UPDATE = false; // in s
 	public static int DOOMDB_MTBF = 10; // in s
+	public static int DOOMDB_MTBF_STDEV = 2; // in s
 	public static int DOOMDB_MTTR = 5; // in s
+	public static int DOOMDB_NUM_FAILUERS = 100; // num of failures
 	public static String DOOMDB_NAME = "tpch_s01";
 	public static int DOOMDB_CLUSTER_SIZE = 4; // in s
 	public static String DOOMDB_COMPUTE_NODES = "127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1";
-	
+
 	// Logging
 	private static Logger logger = XDBLog.getLogger(EnumXDBComponents.CONFIG);
-	
+
 	// Load xdb.conf
 	static {
 		loadXDB();
@@ -173,10 +174,12 @@ public class Config implements Serializable {
 	 * Load user configuration from file and override default values
 	 */
 	private static void loadDoom() {
-		String[] intProperties = { "DOOMDB_MTBF", "DOOMDB_MTTR",
-				"DOOMDB_CLUSTER_SIZE"};
+		String[] intProperties = { "DOOMDB_MTBF", "DOOMDB_MTBF_STDEV",
+				"DOOMDB_MTTR", "DOOMDB_CLUSTER_SIZE", "DOOMDB_NUM_FAILUERS" };
 
 		String[] stringProperties = { "DOOMDB_NAME", "DOOMDB_COMPUTE_NODES" };
+
+		String[] boolProperties = { "DOOMDB_MTBF_LOAD" };
 
 		Properties props;
 		props = new Properties();
@@ -192,6 +195,16 @@ public class Config implements Serializable {
 				}
 			}
 
+			// Boolean
+			for (String boolProperty : boolProperties) {
+				if (props.containsKey(boolProperty)) {
+					Config.class.getField(boolProperty).setBoolean(
+							null,
+							Boolean.parseBoolean(props.get(boolProperty.trim())
+									.toString()));
+				}
+			}
+
 			// String
 			for (String stringProperty : stringProperties) {
 				if (props.containsKey(stringProperty)) {
@@ -204,10 +217,10 @@ public class Config implements Serializable {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
-		
+
 		logger.log(Level.INFO, ":----------------------------------------:");
 		logger.log(Level.INFO, "  Loading DoomDB configuration:");
-		logger.log(Level.INFO, "  "+props.toString());
+		logger.log(Level.INFO, "  " + props.toString());
 		logger.log(Level.INFO, ":----------------------------------------:");
 		logger.log(Level.INFO, "");
 	}
@@ -219,17 +232,19 @@ public class Config implements Serializable {
 		String[] intProperties = { "COMPUTE_MAX_FETCHSIZE", "COMPUTE_PORT",
 				"COMPILE_PORT", "MASTERTRACKER_PORT", "QUERYTRACKER_PORT",
 				"QUERYTRACKER_MONITOR_ATTEMPTS",
-				"QUERYTRACKER_MONITOR_INTERVAL",
-				"TEST_NODE_COUNT", "TEST_FT_NUMBER_OF_FAILURES",
-				"TEST_FT_NUMBER_OF_RUNS", "TEST_PARTS_PER_NODE",
-				"TEST_FT_RECORDS_LIMIT", "COMPILE_FT_BENCHMARK_ROWS_NUMBER", "COMPILE_FT_BENCHMARK_COLUMNS_NUMBER"  };
+				"QUERYTRACKER_MONITOR_INTERVAL", "TEST_NODE_COUNT",
+				"TEST_FT_NUMBER_OF_FAILURES", "TEST_FT_NUMBER_OF_RUNS",
+				"TEST_PARTS_PER_NODE", "TEST_FT_RECORDS_LIMIT",
+				"COMPILE_FT_BENCHMARK_ROWS_NUMBER",
+				"COMPILE_FT_BENCHMARK_COLUMNS_NUMBER" };
 
 		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
-				"TEST_DB_NAME", "COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES", "COMPILE_FT_MODE", "DOT_EXE" };
+				"TEST_DB_NAME", "COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES",
+				"COMPILE_FT_MODE", "DOT_EXE" };
 
-		String[] boolProperties = { "LOGGING_ENABLED",
-				"COMPUTE_CLEAN_PLAN", "TRACE_PARALLEL_PLAN",
-				"TRACE_COMPILE_PLAN", "TRACE_COMPILE_PLAN_HEADER",
+		String[] boolProperties = { "LOGGING_ENABLED", "COMPUTE_CLEAN_PLAN",
+				"TRACE_PARALLEL_PLAN", "TRACE_COMPILE_PLAN",
+				"TRACE_COMPILE_PLAN_HEADER",
 				"TRACE_COMPILE_PLAN_HEADER_RESULT",
 				"TRACE_COMPILE_PLAN_HEADER_RESULT_PARTITIONING",
 				"TRACE_COMPILE_PLAN_HEADER_RESULT_SCHEMA",
@@ -310,9 +325,9 @@ public class Config implements Serializable {
 			throw new RuntimeException(e);
 		}
 		logger.log(Level.INFO, ":----------------------------------------:");
-		logger.log(Level.INFO,"   Loading XDB configuration:");
-		logger.log(Level.INFO, "  "+ props.toString());
-		logger.log(Level.INFO,":----------------------------------------:");
-		logger.log(Level.INFO,"");
+		logger.log(Level.INFO, "   Loading XDB configuration:");
+		logger.log(Level.INFO, "  " + props.toString());
+		logger.log(Level.INFO, ":----------------------------------------:");
+		logger.log(Level.INFO, "");
 	}
 }

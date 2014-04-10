@@ -26,7 +26,9 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	private static final long serialVersionUID = -1963805350351443744L;
 	private static final String TRACE_FILE_NAME = DoomDBPlan.class.getName();
 	private static final String NODE_PREFIX = "Node_";
-	private static Integer LAST_NODE = 1;
+	
+	// node ids
+	private Integer lastNodeId = 1;
 	
 	//plan IDs
 	private DoomDBPlanDesc planDesc = null;
@@ -181,7 +183,7 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	
 	private String getNodeName(ComputeNodeDesc nodeDesc){
 		if(!this.nodesDesc2Name.containsKey(nodeDesc)){
-			String nodeName = NODE_PREFIX + LAST_NODE++;
+			String nodeName = NODE_PREFIX + lastNodeId++;
 			this.nodesDesc2Name.put(nodeDesc,nodeName);
 		}
 		return this.nodesDesc2Name.get(nodeDesc);

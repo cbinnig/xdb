@@ -149,9 +149,10 @@ public class DoomDBClient implements IDoomDBClient {
 		if(planStatus.isFinished()){
 			this.endTime = System.currentTimeMillis() / 1000;
 			this.runTime = this.endTime - this.startTime;
-			if(this.killedNodes>0)
+			if(this.killedNodes>0 && Config.DOOMDB_MTBF_UPDATE){
 				this.mtbf = (int)this.runTime * this.getNodeCount() / this.killedNodes;
-			Config.writeDoom("DOOMDB_MTBF", ""+this.mtbf);
+				Config.writeDoom("DOOMDB_MTBF", ""+this.mtbf);
+			}
 		}
 		return planStatus.isFinished();
 	}

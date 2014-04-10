@@ -19,18 +19,19 @@ import org.xdb.logging.XDBLog;
  * Manager for MySQL database e.g. for killing all running queries
  * 
  * @author cbinnig
- *
+ * 
  */
 public class MysqlRunManager {
 
 	protected Logger logger;
-	
+
 	public MysqlRunManager() {
 		this.logger = XDBLog.getLogger(EnumXDBComponents.COMPUTE_SERVER);
 	}
 
 	/**
 	 * Kill all queries runing in MySQL
+	 * 
 	 * @return
 	 */
 	public Error killAllQueries() {
@@ -45,27 +46,29 @@ public class MysqlRunManager {
 			// get all process IDs
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt
-					.executeQuery("SELECT concat('KILL ',id,';') FROM information_schema.processlist where info is not null and info not like '%processlist%'");
-			
+					.executeQuery("SELECT concat('KILL ',id,';') FROM information_schema.processlist"
+							+ " where info is not null and info not like '%processlist%'");
+
 			Vector<String> killQueries = new Vector<String>();
 			while (rs.next()) {
-				killQueries.add(rs.getString(1));
+				String killCmd = rs.getString(1);
+				//System.err.println(killCmd);
+				killQueries.add(killCmd);
 			}
 			stmt.close();
-			
+
 			// kill all processes
 			Statement killStmt = conn.createStatement();
-			for(String killQuery: killQueries){
+			for (String killQuery : killQueries) {
 				this.logger.log(Level.INFO, killQuery);
 				try {
 					killStmt.execute(killQuery);
-				}
-				catch (Exception e) {
-					//no errors
+				} catch (Exception e) {
+					// no errors
 				}
 			}
 			killStmt.close();
-			
+
 			conn.close();
 
 		} catch (SQLException e) {
