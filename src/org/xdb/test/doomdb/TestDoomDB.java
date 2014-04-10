@@ -101,4 +101,10 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		this.dClient.setQuery(5);
 		this.runPlan();
 	}
+	
+	public void testQ5With1Parts() throws Exception {
+		this.dClient.setSchema("TPCH (1 Part)");
+		this.dClient.setQuery(5);
+		this.runPlan();
+	}
 }
