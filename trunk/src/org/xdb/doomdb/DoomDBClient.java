@@ -1,5 +1,10 @@
 package org.xdb.doomdb;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.xdb.Config;
 import org.xdb.client.CompileClient;
 import org.xdb.client.MasterTrackerClient;
@@ -7,6 +12,7 @@ import org.xdb.client.statement.ClientStmt;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.server.CompileServer;
+import org.xdb.utils.Identifier;
 import org.xdb.utils.Tuple;
 
 /**
@@ -31,7 +37,12 @@ public class DoomDBClient implements IDoomDBClient {
 	private long startTime = 0;
 	private long endTime = 0;
 	private long runTime = 0;
-	private int killedNodes = 0;
+	private int killedNodes = 0; 
+	
+	// query stats 
+    private Map<Identifier, Double> queryRuntimesStat = new HashMap<Identifier, Double>();    
+	private Map<Identifier, Double> queryMattimesStat = new HashMap<Identifier, Double>(); 
+	private List<Identifier> nonMatOps = new ArrayList<Identifier>(); 
 
 	// constructors
 	public DoomDBClient(DoomDBClusterDesc clusterDesc) {
@@ -90,9 +101,18 @@ public class DoomDBClient implements IDoomDBClient {
 			throw new RuntimeException("Provide a schema before!");
 		}
 
-		this.query = this.schema.getQuery(queryNum);
-		ClientStmt clientStmt = new ClientStmt(query);
-		Object[] args = { clientStmt };
+		this.query = this.schema.getQuery(queryNum); 
+		this.queryRuntimesStat = this.schema.getStatsRunTimeMap().get(queryNum);  
+		this.queryMattimesStat = this.schema.getStatsMatTimeMap().get(queryNum); 
+		this.nonMatOps = this.schema.getNonMatOpsMap().get(queryNum);
+		             
+		ClientStmt clientStmt = new ClientStmt(query); 
+		QueryStats queryStats = new QueryStats(this.queryRuntimesStat, this.queryMattimesStat
+				, this.nonMatOps); 
+		QueryWithStats queryWithStats = new QueryWithStats(clientStmt, queryStats);
+		//stats to be added 
+		Object[] args = {queryWithStats};
+		
 		Tuple<Error, Object> result = this.cClient.executeCmdWithResult(CompileServer.CMD_DOOMDB_COMPILE, args);
 		this.raiseError(result.getObject1());
 
@@ -194,5 +214,47 @@ public class DoomDBClient implements IDoomDBClient {
 	@Override
 	public int getMTBF() {
 		return this.mtbf;
+	}
+
+	/**
+	 * @return the queryRuntimesStat
+	 */
+	public Map<Identifier, Double> getQueryRuntimesStat() {
+		return queryRuntimesStat;
+	}
+
+	/**
+	 * @param queryRuntimesStat the queryRuntimesStat to set
+	 */
+	public void setQueryRuntimesStat(Map<Identifier, Double> queryRuntimesStat) {
+		this.queryRuntimesStat = queryRuntimesStat;
+	}
+
+	/**
+	 * @return the queryMattimesStat
+	 */
+	public Map<Identifier, Double> getQueryMattimesStat() {
+		return queryMattimesStat;
+	}
+
+	/**
+	 * @param queryMattimesStat the queryMattimesStat to set
+	 */
+	public void setQueryMattimesStat(Map<Identifier, Double> queryMattimesStat) {
+		this.queryMattimesStat = queryMattimesStat;
+	}
+
+	/**
+	 * @return the nonMatOps
+	 */
+	public List<Identifier> getNonMatOps() {
+		return nonMatOps;
+	}
+
+	/**
+	 * @param nonMatOps the nonMatOps to set
+	 */
+	public void setNonMatOps(List<Identifier> nonMatOps) {
+		this.nonMatOps = nonMatOps;
 	}
 }

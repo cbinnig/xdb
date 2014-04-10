@@ -1,11 +1,14 @@
 package org.xdb.doomdb;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
 import org.xdb.Config;
 import org.xdb.funsql.compile.tokens.AbstractToken;
+import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
 public enum EnumDoomDBSchema {
@@ -29,12 +32,12 @@ public enum EnumDoomDBSchema {
 	private static String tpchQ5 = "Select n_name, " +
 			"sum(l_extendedprice * (1-l_discount)) as revenue " +
 			"from customer, orders, lineitem, supplier, nation, region " +
-			"where c_custkey = o_custkey " +
+			"where r_regionkey = n_regionkey " +
+			"and n_nationkey = c_nationkey " +
+			"and c_custkey = o_custkey " +
 			"and l_orderkey = o_orderkey " +
-			"and l_suppkey = s_suppkey  " +
+			"and l_suppkey = s_suppkey " +
 			"and s_nationkey = c_nationkey " +
-			"and n_nationkey = s_nationkey " +
-			"and r_regionkey = n_regionkey " +
 			"and r_name = 'ASIA' " +
 			"and o_orderdate > date '1994-01-01' "+
 			"and o_orderdate < date '1995-01-01' "+
@@ -116,7 +119,72 @@ public enum EnumDoomDBSchema {
 	};
 	
 	private static Map<Integer, String> QUERIES = new HashMap<Integer, String>();
-	private static Map<String, String[]> SCHEMAS = new HashMap<String, String[]>();
+	private static Map<String, String[]> SCHEMAS = new HashMap<String, String[]>(); 
+	
+	private Map<Identifier, Double> q5RuntimesStat = new HashMap<Identifier, Double>(){
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L; 
+		{  put(new Identifier("13"),0.0); put(new Identifier("3"),0.0); 
+		   put(new Identifier("5"),0.18); put(new Identifier("7"), 0.68); 
+		   put(new Identifier("9"),0.98); put(new Identifier("17"), 0.69); 
+				
+	}};
+	
+	private Map<Identifier, Double> q5MattimesStat = new HashMap<Identifier, Double>(){
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L; 
+		{  put(new Identifier("13"),0.0); put(new Identifier("3"),0.0); 
+		   put(new Identifier("5"),0.27); put(new Identifier("7"), 0.42); 
+		   put(new Identifier("9"),1.67); put(new Identifier("17"), 0.0); 
+	}}; 
+	
+	private List<Identifier> q5NonMaterializableOps = new ArrayList<Identifier>(){
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L; 
+		{
+			add(new Identifier("14")); add(new Identifier("11"));   
+			add(new Identifier("12")); add(new Identifier("18")); 
+			add(new Identifier("16")); 
+		}
+		
+	}; 
+	
+	private Map<Integer, Map<Identifier, Double>> statsRunTimeMap = new HashMap<Integer, Map<Identifier, Double>>(){
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L; 
+		{  
+			put(5, q5RuntimesStat);
+	    }
+	};  
+	
+	private Map<Integer, Map<Identifier, Double>> statsMatTimeMap = new HashMap<Integer, Map<Identifier, Double>>(){
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L; 
+		{  
+			put(5, q5MattimesStat);
+	    }
+	};  
+	
+	private Map<Integer, List<Identifier>> nonMatOpsMap = new HashMap<Integer, List<Identifier>>(){
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L; 
+		{  
+			put(5, q5NonMaterializableOps);
+	    }
+	}; 
 	
 	private static Vector<String> createTPCHXParts(int parts){
 		String[] conns = Config.DOOMDB_COMPUTE_NODES.split(",");
@@ -227,5 +295,89 @@ public enum EnumDoomDBSchema {
 				return schema;
 		}
 		throw new RuntimeException("Schema '" + schemaName + "' not supported!");
+	}
+
+	/**
+	 * @return the q5RuntimesStat
+	 */
+	public Map<Identifier, Double> getQ5RuntimesStat() {
+		return q5RuntimesStat;
+	}
+
+	/**
+	 * @param q5RuntimesStat the q5RuntimesStat to set
+	 */
+	public void setQ5RuntimesStat(Map<Identifier, Double> q5RuntimesStat) {
+		this.q5RuntimesStat = q5RuntimesStat;
+	}
+
+	/**
+	 * @return the q5MattimesStat
+	 */
+	public Map<Identifier, Double> getQ5MattimesStat() {
+		return q5MattimesStat;
+	}
+
+	/**
+	 * @param q5MattimesStat the q5MattimesStat to set
+	 */
+	public void setQ5MattimesStat(Map<Identifier, Double> q5MattimesStat) {
+		this.q5MattimesStat = q5MattimesStat;
+	}
+
+	/**
+	 * @return the q5NonMaterializableOps
+	 */
+	public List<Identifier> getQ5NonMaterializableOps() {
+		return q5NonMaterializableOps;
+	}
+
+	/**
+	 * @param q5NonMaterializableOps the q5NonMaterializableOps to set
+	 */
+	public void setQ5NonMaterializableOps(List<Identifier> q5NonMaterializableOps) {
+		this.q5NonMaterializableOps = q5NonMaterializableOps;
+	}
+
+	/**
+	 * @return the statsRunTimeMap
+	 */
+	public Map<Integer, Map<Identifier, Double>> getStatsRunTimeMap() {
+		return statsRunTimeMap;
+	}
+
+	/**
+	 * @param statsRunTimeMap the statsRunTimeMap to set
+	 */
+	public void setStatsRunTimeMap(Map<Integer, Map<Identifier, Double>> statsRunTimeMap) {
+		this.statsRunTimeMap = statsRunTimeMap;
+	}
+
+	/**
+	 * @return the statsMatTimeMap
+	 */
+	public Map<Integer, Map<Identifier, Double>> getStatsMatTimeMap() {
+		return statsMatTimeMap;
+	}
+
+	/**
+	 * @param statsMatTimeMap the statsMatTimeMap to set
+	 */
+	public void setStatsMatTimeMap(Map<Integer, Map<Identifier, Double>> statsMatTimeMap) {
+		this.statsMatTimeMap = statsMatTimeMap;
+	}
+
+	/**
+	 * @return the nonMatOpsMap
+	 */
+	public Map<Integer, List<Identifier>> getNonMatOpsMap() {
+		return nonMatOpsMap;
+	}
+
+	/**
+	 * @param nonMatOpsMap the nonMatOpsMap to set
+	 */
+	public void setNonMatOpsMap(Map<Integer, List<Identifier>> nonMatOpsMap) {
+		this.nonMatOpsMap = nonMatOpsMap;
 	}
 }

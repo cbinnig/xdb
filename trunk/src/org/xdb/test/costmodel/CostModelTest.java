@@ -92,10 +92,12 @@ public class CostModelTest extends TestCase{
 		this.intermediadeResultsMatTime.put(id2, 77.0); 
 		this.intermediadeResultsMatTime.put(id3, 0.009);
 		this.intermediadeResultsMatTime.put(id4, 0.009);
-		this.intermediadeResultsMatTime.put(id5, 0.009);
-
+		this.intermediadeResultsMatTime.put(id5, 0.009);  
+		
+		List<Identifier> nonMatops = new ArrayList<Identifier>();
+	
 		MaterializationOpsSuggester matSuggester = new MaterializationOpsSuggester
-				(cplan, this.opsEstimatedRuntime, this.intermediadeResultsMatTime, Config.DOOMDB_MTBF, Config.DOOMDB_MTTR);  
+				(cplan, this.opsEstimatedRuntime, this.intermediadeResultsMatTime, nonMatops, Config.DOOMDB_MTBF, Config.DOOMDB_MTTR);  
 	    
 		List<Identifier> expected = new ArrayList<Identifier>();
 		List<Identifier> result = new ArrayList<Identifier>();
