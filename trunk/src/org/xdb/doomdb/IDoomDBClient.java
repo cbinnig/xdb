@@ -29,6 +29,13 @@ public interface IDoomDBClient {
 	String getQuery();
 
 	/**
+	 * gets the estimated Time (in ms) how long the Query will need to finish
+	 * 
+	 * @return length of time in ms
+	 */
+	long getEstimatedTime();
+
+	/**
 	 * Starts execution of the Query
 	 */
 	void startQuery();
