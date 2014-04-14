@@ -117,8 +117,6 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		return this.nodesName2Desc.size();
 	}
 	
-	// internal methods
-	@Override
 	public long getEstimatedTime(){
 		//TODO: change hard coded estimate!!!
 		return this.ops.size() * 250;
