@@ -280,7 +280,8 @@ public class MasterTrackerNode {
 				.get(qTracker);
 
 		Tuple<Error, DoomDBPlanStatus> result = qClient.finishedDoomDBQPlan(dplanDesc);
-
+		System.err.println(result.getObject2().toString());
+		
 		return result;
 	}
 
