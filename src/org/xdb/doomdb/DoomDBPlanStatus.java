@@ -36,4 +36,16 @@ public class DoomDBPlanStatus implements Serializable {
 	public Error getError() {
 		return err;
 	}
+	
+	@Override
+	public String toString(){
+		StringBuilder value = new StringBuilder();
+		value.append("(");
+		value.append(this.isFinished);
+		value.append(", ");
+		value.append(this.deployment.toString());
+		value.append(")");
+		
+		return value.toString();
+	}
 }

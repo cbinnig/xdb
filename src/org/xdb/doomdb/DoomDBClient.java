@@ -77,7 +77,7 @@ public class DoomDBClient implements IDoomDBClient {
 	
 	// interface methods
 	@Override
-	public void setSchema(String schemaName) {
+	public synchronized void setSchema(String schemaName) {
 		EnumDoomDBSchema schema = EnumDoomDBSchema.enumOf(schemaName);
 		Error err = cClient.resetCatalog();
 		this.raiseError(err);
@@ -89,7 +89,7 @@ public class DoomDBClient implements IDoomDBClient {
 	}
 
 	@Override
-	public void setQuery(int queryNum) {
+	public synchronized void setQuery(int queryNum) {
 		if (this.schema == null) {
 			throw new RuntimeException("Provide a schema before!");
 		}
@@ -132,7 +132,7 @@ public class DoomDBClient implements IDoomDBClient {
 	}
 
 	@Override
-	public void startQuery() {
+	public synchronized void startQuery() {
 		if (this.dplan == null) {
 			throw new RuntimeException("Provide a query before!");
 		}
@@ -148,7 +148,7 @@ public class DoomDBClient implements IDoomDBClient {
 	}
 
 	@Override
-	public boolean isQueryFinished() {
+	public synchronized boolean isQueryFinished() {
 		if (this.dplan == null) {
 			throw new RuntimeException("Provide a query before!");
 		}
@@ -164,7 +164,6 @@ public class DoomDBClient implements IDoomDBClient {
 		
 		//set deployment
 		dplan.setDeployment(planStatus.getDeployment());
-		dplan.tracePlan();
 		
 		//measure time if plan has finished
 		if(planStatus.isFinished()){
