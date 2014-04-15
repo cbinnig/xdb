@@ -599,15 +599,28 @@ public class QueryTrackerPlan implements Serializable {
 	// Ping the compute nodes and select the first one available.
 	private ComputeNodeDesc pickAvailableComputeNode(
 			List<ComputeNodeDesc> allComputeNode) {
-
-		while (true) {
+		int attempts = 0;
+		while (attempts<this.maxAttempts) {
 			for (ComputeNodeDesc ComputeNodeDesc : allComputeNode) {
 				Error err = this.computeClient.pingComputeServer(ComputeNodeDesc);
 				if (!err.isError()) {
 					return ComputeNodeDesc;
 				}
 			}
+			
+			if(!Config.QUERYTRACKER_MONITOR_ACTIVATED){
+				return null;
+			}
+			else{
+				try {
+					Thread.sleep(this.monitoringInterval);
+				} catch (InterruptedException e) {
+					
+				}
+			}
+			attempts++;
 		}
+		return null;
 	}
 
 	/**
