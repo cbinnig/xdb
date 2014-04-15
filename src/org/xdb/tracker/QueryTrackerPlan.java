@@ -417,7 +417,7 @@ public class QueryTrackerPlan implements Serializable {
 				}
 			} else {
 				try {
-					Thread.sleep(Config.QUERYTRACKER_MONITOR_INTERVAL);
+					Thread.sleep(monitoringInterval);
 				} catch (InterruptedException e) {
 
 				}
@@ -720,7 +720,7 @@ public class QueryTrackerPlan implements Serializable {
 			EnumOperatorStatus opStatus = result.getObject2();
 			executeOpDesc.setOperatorStatus(opStatus);
 
-			logger.log(Level.INFO, "Deployed " + trackerOpId + "with status "
+			logger.log(Level.INFO, "Deployed " + trackerOpId + " with error "
 					+ opErr.toString());
 
 			// if non-repairable error, then stop
@@ -815,6 +815,7 @@ public class QueryTrackerPlan implements Serializable {
 		else if (execOp.getStatus().isRepairableFailure()){
 			if (Config.QUERYTRACKER_MONITOR_ACTIVATED)
 				monitoringLock.unlock();
+			
 			return opErr;
 		}
 

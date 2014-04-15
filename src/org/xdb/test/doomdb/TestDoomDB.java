@@ -72,14 +72,13 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 
 		while (!this.dClient.isQueryFinished()) {
 			System.out.print(".");
+			this.dClient.tracePlan();
 			
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				// do nothing
 			}
-			
-			this.dClient.tracePlan();
 		}
 		doomDBFailureSimulator.interrupt();
 
