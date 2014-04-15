@@ -9,7 +9,6 @@ import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.execute.operators.EnumOperatorStatus;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.signals.CloseSignal;
-import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
 import org.xdb.execute.signals.RestartSignal;
 import org.xdb.logging.EnumXDBComponents;
@@ -42,20 +41,24 @@ public class ComputeClient extends AbstractClient {
 	 * @param op
 	 * @return
 	 */
-	public Tuple<Error, EnumOperatorStatus> openOperator(final ComputeNodeDesc url,
-			final AbstractExecuteOperator op) {
+	public Tuple<Error, EnumOperatorStatus> openOperator(
+			final ComputeNodeDesc url, final AbstractExecuteOperator op) {
 		Object[] args = { op };
-		Tuple<Error, Object> result =  this.executeCmdWithResultIgnoreCommErr(url.getUrl(), url.getPort(),
-				ComputeServer.CMD_OPEN_OP, args);
-		
-		Tuple<Error, EnumOperatorStatus> resultStatus = new Tuple<Error, EnumOperatorStatus>(result.getObject1(),
-				(EnumOperatorStatus)result.getObject2());
-		
-		//set status due to communication error
-		if(resultStatus.getObject2() == null)
-			resultStatus.setObject2(EnumOperatorStatus.ABORTED);
-		
-		return resultStatus;
+		Tuple<Error, Object> result = this.executeCmdWithResult(url.getUrl(),
+				url.getPort(), ComputeServer.CMD_OPEN_OP, args);
+
+		Object obj2 = result.getObject2();
+		EnumOperatorStatus opStatus = null;
+		if (obj2 == null) {
+			opStatus = EnumOperatorStatus.getRuntimeFailure();
+		}
+		else{
+			opStatus = (EnumOperatorStatus) obj2;
+		}
+
+		return new Tuple<Error, EnumOperatorStatus>(result.getObject1(),
+				opStatus);
+
 	}
 
 	/**
@@ -68,12 +71,13 @@ public class ComputeClient extends AbstractClient {
 	 */
 	public Error executeOperator(final Identifier sourceOpId,
 			final ComputeNodeDesc url, final Identifier destOpId) {
-		
-		this.logger.log(Level.INFO, "Signalling "+destOpId+" from "+ sourceOpId);
-		
+
+		this.logger.log(Level.INFO, "Signalling " + destOpId + " from "
+				+ sourceOpId);
+
 		final ReadySignal signal = new ReadySignal(sourceOpId, destOpId);
 		Object[] args = { signal };
-		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),
+		return this.executeCmd(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_READY_SIGNAL, args);
 	}
 
@@ -136,7 +140,8 @@ public class ComputeClient extends AbstractClient {
 	 * @param dest
 	 * @return
 	 */
-	public Error closeOperator(final OperatorDesc dest, final AbstractExecuteOperator execOp) {
+	public Error closeOperator(final OperatorDesc dest,
+			final AbstractExecuteOperator execOp) {
 		return this.closeOperator(dest.getComputeNode(), execOp);
 	}
 
@@ -149,8 +154,8 @@ public class ComputeClient extends AbstractClient {
 	 */
 	public Error stopComputeServer(final ComputeNodeDesc compNode) {
 		Object[] args = {};
-		return this.executeCmdIgnoreCommErr(compNode.getUrl(), compNode.getPort(),
-				ComputeServer.CMD_STOP_SERVER, args);
+		return this.executeCmdIgnoreCommErr(compNode.getUrl(),
+				compNode.getPort(), ComputeServer.CMD_STOP_SERVER, args);
 	}
 
 	/**
@@ -166,31 +171,17 @@ public class ComputeClient extends AbstractClient {
 	}
 
 	/**
-	 * Kill failed operator.
+	 * Restart Compute Node
 	 * 
 	 * @param url
-	 * @param failedExecOpId
-	 * @return
-	 */
-	public Error killFailedOperator(ComputeNodeDesc url,
-			Identifier failedExecOpId) {
-		final KillSignal killSignal = new KillSignal(failedExecOpId);
-		Object[] args = { killSignal };
-		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),
-				ComputeServer.CMD_KILL_SIGNAL, args);
-	} 
-	
-	/**
-	 * Restart Compute Node  
-	 * 
-	 * @param url
-	 * @param mttr: mean time to repair 
+	 * @param mttr
+	 *            : mean time to repair
 	 * @return
 	 */
 	public Error restartComputeNode(ComputeNodeDesc url, int mttr) {
-		final RestartSignal restartSignal = new RestartSignal(); 
+		final RestartSignal restartSignal = new RestartSignal();
 		restartSignal.setTimeToRepair(mttr);
-        Object[] args = { restartSignal };
+		Object[] args = { restartSignal };
 		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_RESTART_SERVER, args);
 	}

@@ -32,7 +32,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		DoomDBClusterDesc clusterDesc = new DoomDBClusterDesc(
 				Config.DOOMDB_CLUSTER_SIZE);
 		this.dClient = new DoomDBClient(clusterDesc);
-		assertTrue(this.dClient.startDB());
+		this.dClient.startDB();
 	}
 
 	@Override
@@ -72,14 +72,19 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 
 		while (!this.dClient.isQueryFinished()) {
 			System.out.print(".");
+			
 			try {
-				Thread.sleep(500);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// do nothing
 			}
+			
+			this.dClient.tracePlan();
 		}
 		doomDBFailureSimulator.interrupt();
 
+		this.dClient.tracePlan();
+		
 		System.out.println(" Finished!");
 		System.out.println("--------------------");
 	}

@@ -6,7 +6,7 @@ public interface IDoomDBClient {
 	 * Starts DB and results true if possible
 	 * @return
 	 */
-	boolean startDB();
+	void startDB();
 	
 	/**
 	 * Create database schema selected when starting the game

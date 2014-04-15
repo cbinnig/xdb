@@ -103,8 +103,9 @@ public abstract class AbstractServer {
 	protected void executeServer(ServerThread thread) {
 
 		try {
-			this.logger.log(Level.INFO, "Server ("
-					+ this.getClass().getSimpleName() + ") started ... ");
+			String msg = this.getClass().getSimpleName() + " started ... ";
+			this.logger.log(Level.INFO, msg);
+			System.out.println(msg);
 
 			this.serverSocket = new ServerSocket();
 			this.serverSocket.setReuseAddress(true);
@@ -129,8 +130,11 @@ public abstract class AbstractServer {
 			this.closeSocket();
 		}
 
-		this.logger.log(Level.INFO, "Server ("
-				+ this.getClass().getSimpleName() + ") stopped!");
+		String msg = this.getClass().getSimpleName() + " stopped!";
+		
+		this.logger.log(Level.INFO, msg);
+		System.out.println(msg);
+
 	}
 
 	/**

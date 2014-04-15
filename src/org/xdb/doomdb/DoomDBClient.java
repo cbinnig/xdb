@@ -41,21 +41,14 @@ public class DoomDBClient implements IDoomDBClient {
 	public DoomDBClient(DoomDBClusterDesc clusterDesc) {
 		this.clusterDesc = clusterDesc;
 	}
-	
-	@Override
-	public boolean startDB() {
-		this.err = this.mClient.startDoomDBCluster(clusterDesc);
-		if(this.err.isError()){
-			System.err.println(err.toString());
-			return false;
-		}
-		
-		return true;
-	}
 
 	// internal methods
 	private void raiseError(Error err) {
 		this.err = err;
+		
+		if(this.err.isError()){
+			throw new RuntimeException(err.toString());
+		}
 	}
 
 	private Error executeDDLs(String[] schemaDDLs) {
@@ -68,14 +61,27 @@ public class DoomDBClient implements IDoomDBClient {
 		return err;
 	}
 	
-	public void killNode(ComputeNodeDesc computeNodeDesc) { 
+	public synchronized void killNode(ComputeNodeDesc computeNodeDesc) { 
 		this.killedNodes++;
 		Error err = mClient.restartComputeNode(computeNodeDesc, this.mttr*1000);
-		raiseError(err);
+		this.raiseError(err);
+	}
+	
+	public String tracePlan(){
+		if (this.dplan == null) {
+			throw new RuntimeException("Provide a query before!");
+		}
+		
+		return this.dplan.tracePlan();
 	}
 
-	
 	// interface methods
+	@Override
+	public synchronized void startDB() {
+		this.err = this.mClient.startDoomDBCluster(clusterDesc);
+		this.raiseError(err);
+	}
+	
 	@Override
 	public synchronized void setSchema(String schemaName) {
 		EnumDoomDBSchema schema = EnumDoomDBSchema.enumOf(schemaName);
@@ -123,7 +129,7 @@ public class DoomDBClient implements IDoomDBClient {
 	}
 	
 	@Override
-	public long getEstimatedTime() {
+	public synchronized long getEstimatedTime() {
 		if (this.dplan == null) {
 			throw new RuntimeException("Provide a query before!");
 		}
@@ -139,13 +145,30 @@ public class DoomDBClient implements IDoomDBClient {
 
 		this.startTime = System.currentTimeMillis()/1000;
 		
-		new Thread() {
+		Thread runner = new Thread() {
 			public void run() {
 				Error err = mClient.executeDoomDBPlan(dplan.getPlanDesc());
-				raiseError(err);
+				DoomDBClient.this.raiseError(err);
 			}
-		}.start();
+		};
+		
+		runner.start();
+		
+		while(!runner.isAlive()){
+			//Wait
+		}
 	}
+	
+	@Override
+	public void killNode(String node) { 
+		if (this.dplan == null) {
+			throw new RuntimeException("Provide a query before!");
+		}
+		
+		ComputeNodeDesc computeNodeDesc = this.dplan.getComputeNode(node);
+		this.killNode(computeNodeDesc);
+	}
+	
 
 	@Override
 	public synchronized boolean isQueryFinished() {
@@ -186,15 +209,6 @@ public class DoomDBClient implements IDoomDBClient {
 		return this.dplan.getComputeNodeCount();
 	}
 
-	@Override
-	public void killNode(String node) { 
-		if (this.dplan == null) {
-			throw new RuntimeException("Provide a query before!");
-		}
-		
-		ComputeNodeDesc computeNodeDesc = this.dplan.getComputeNode(node);
-		this.killNode(computeNodeDesc);
-	}
 
 	@Override
 	public void setMTTR(int mttr) {

@@ -50,7 +50,7 @@ public enum EnumDoomDBSchema {
 	
 	private static StringTemplate xdbConnDDL = new StringTemplate(
 			"CREATE CONNECTION <" + CONNAME + "> "
-					+ "URL 'jdbc:mysql://<"+CONNURL+">/"+Config.DOOMDB_NAME+"' "
+					+ "URL 'jdbc:mysql://<"+CONNURL+">/"+Config.TEST_DB_NAME+"' "
 					+ "USER '" + Config.COMPUTE_DB_USER + "' " + "PASSWORD '"
 					+ Config.COMPUTE_DB_PASSWD + "' " + "STORE 'XDB';");
 
