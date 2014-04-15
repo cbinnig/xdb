@@ -77,6 +77,8 @@ public class ReferenceGraph {
 		source.addOutEdge(e);
 		target.addInEdge(e);
 		edges.add(e);
+		
+		edgeInfoToEdgeMap.put(e.getNormalizedStringRepresentation(), e);
 		return e;	
 	}
 	
@@ -183,6 +185,25 @@ public class ReferenceGraph {
 		    for(Table t : visited1)
 		    	forest.put(t, visited1);
 		}
+		
+		// print edges in the original graph that are removed in MASP
+		System.out.println("---------------------------------");
+		System.out.println("Removed edges in MAST:");
+		
+		for (Edge e: this.getEdges())
+				if (!MASP.containsEdge(e))
+					System.out.println(e.getNormalizedStringRepresentation());
+		
+		System.out.println();
+		double weightsOfEdgesInMAST = 0;
+		System.out.println("Edges in MAST");
+		for (Edge e: this.getEdges())
+			if (MASP.containsEdge(e)){
+				System.out.println(e.getNormalizedStringRepresentation() + " weight: " + e.getWeight());
+				weightsOfEdgesInMAST += e.getWeight();
+			}
+		System.out.println("weights of edges in MAST: " + weightsOfEdgesInMAST);
+		System.out.println("---------------------------------");
 		return MASP;
 	}
 	
@@ -326,6 +347,7 @@ public class ReferenceGraph {
 		int i=1;
 		for (ReferenceGraph refGraph: finalGraph.getConnectedComponents()){
 			System.out.println("-------- Component " + i + " --------");
+			System.out.println("Queries: " + refGraph.getQueries());
 			System.out.println(refGraph.getPartitioningConfiguration().toString());
 			System.out.println();
 			totalSize += refGraph.getPartitioningConfiguration().getDataSize();
@@ -342,7 +364,7 @@ public class ReferenceGraph {
 	
 	public static Map<Edge, Double> findEdgesRedundancyFactor(ReferenceGraph refGraph, PartitioningMetaData pmd) throws Exception{
 		try{
-			MutualRedundancySizeFinder redFinder = new MutualRedundancySizeFinder(pmd.getNumberOfPartitions(), pmd.getSampleSizeRaio());
+			MutualRedundancySizeFinder redFinder = new MutualRedundancySizeFinder(pmd.getNumberOfPartitions(), pmd.getSampleSizeRaio(), true);
 			Map<Edge, Double> redundancyFactor = new HashMap<Edge, Double>();
 
 			for (Node node: refGraph.getNodes()){

@@ -10,14 +10,16 @@ public class TestDoomDBRunner {
            
             System.out.println("Running test " + numberOfRuns);
             TestDoomDB test = new TestDoomDB();
+            /*
             if(queryNumber ==1 & partsNumber ==10 ){
             	test.testQ1With10Parts();
             } 
-            else if(queryNumber ==5 & partsNumber ==2) {
-            	test.testQ5With2Parts(); 
+            */
+            if(queryNumber == 5 & partsNumber == 1) {
+            	test.testQ5_SF01_1Parts(); 
             } else if (queryNumber ==5 & partsNumber ==10) {
-            	test.testQ5With10Parts();
-            }
+            	test.testQ5_SF01_10Parts();
+            } 
         }
     }
 }
