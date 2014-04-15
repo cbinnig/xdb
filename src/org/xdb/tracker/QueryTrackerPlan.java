@@ -107,7 +107,7 @@ public class QueryTrackerPlan implements Serializable {
 				.createScheduler(this);
 		this.computeServersMonitor = new ComputeServersMonitor(this);
 
-		this.logger = XDBLog.getLogger(EnumXDBComponents.QUERY_TRACKER);
+		this.logger = XDBLog.getLogger(EnumXDBComponents.QUERY_TRACKER_SERVER);
 
 		this.timeMeasure = XDBExecuteTimeMeasurement
 				.getXDBExecuteTimeMeasurement("plan_time");

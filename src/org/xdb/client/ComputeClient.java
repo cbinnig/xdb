@@ -31,7 +31,7 @@ public class ComputeClient extends AbstractClient {
 	}
 
 	public ComputeClient(String url, int port) {
-		super(url, port, EnumXDBComponents.COMPUTE_SERVER);
+		super(url, port, EnumXDBComponents.COMPUTE_CLIENT);
 	}
 
 	/**

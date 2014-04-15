@@ -36,7 +36,7 @@ public class ComputeServersMonitor {
 		this.computeClient = new ComputeClient();
 		this.qtPlan = qtPlan;
 		
-		this.logger = XDBLog.getLogger(EnumXDBComponents.QUERY_TRACKER);
+		this.logger = XDBLog.getLogger(EnumXDBComponents.QUERY_TRACKER_SERVER);
 	}
 
 	/**

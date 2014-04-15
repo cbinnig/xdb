@@ -20,7 +20,7 @@ public class QueryTrackerClient extends AbstractClient {
 
 	// constructors
 	public QueryTrackerClient(final String url) {
-		super(url, Config.QUERYTRACKER_PORT, EnumXDBComponents.QUERY_TRACKER);
+		super(url, Config.QUERYTRACKER_PORT, EnumXDBComponents.QUERY_TRACKER_CLIENT);
 	}
 
 	/**

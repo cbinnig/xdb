@@ -28,7 +28,7 @@ public class QueryTrackerServer extends AbstractServer {
 	private final QueryTrackerNode tracker;
 
 	public QueryTrackerServer() throws Exception{
-		super(EnumXDBComponents.QUERY_TRACKER);
+		super(EnumXDBComponents.QUERY_TRACKER_SERVER);
 
 		port = Config.QUERYTRACKER_PORT;
 		tracker = new QueryTrackerNode();
