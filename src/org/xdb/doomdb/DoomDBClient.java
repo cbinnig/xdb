@@ -6,10 +6,8 @@ import java.util.Map;
 import org.xdb.Config;
 import org.xdb.client.CompileClient;
 import org.xdb.client.MasterTrackerClient;
-import org.xdb.client.statement.ClientStmt;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
-import org.xdb.server.CompileServer;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.Tuple;
 
@@ -114,21 +112,18 @@ public class DoomDBClient implements IDoomDBClient {
 			throw new RuntimeException("Provide a schema before!");
 		}
 
+		if(Config.COMPILE_FT_ACTIVE)
+			this.schema.loadStatFromFile(queryNum);
+		
 		this.query = this.schema.getQuery(queryNum); 
 		
-		Map<Identifier, Double> queryRuntimesStat = this.schema.getStatsRunTimeMap().get(queryNum);  
-		Map<Identifier, Double> queryMattimesStat = this.schema.getStatsMatTimeMap().get(queryNum); 
-		List<Identifier> nonMatOps = this.schema.getNonMatOpsMap().get(queryNum);
+		Map<Identifier, Double> queryRuntimesStat = this.schema.getQueryRunTimesStat(queryNum); 
+		Map<Identifier, Double> queryMattimesStat = this.schema.getQueryMatTimesStat(queryNum); 
+		List<Identifier> nonMatOps = this.schema.getNonMaterializableOps(queryNum);
 		             
-		ClientStmt clientStmt = new ClientStmt(query); 
-		QueryStats queryStats = new QueryStats(queryRuntimesStat, queryMattimesStat, nonMatOps); 
-		QueryWithStats queryWithStats = new QueryWithStats(clientStmt, queryStats);
-		Object[] args = {queryWithStats};
-		
-		Tuple<Error, Object> result = this.cClient.executeCmdWithResult(CompileServer.CMD_DOOMDB_COMPILE, args);
+		Tuple<Error, DoomDBPlan> result = this.cClient.compileDoomStmtWithStats(this.query, queryRuntimesStat, queryMattimesStat, nonMatOps);
 		this.stopOnError(result.getObject1());
-
-		this.dplan = (DoomDBPlan) result.getObject2();
+		this.dplan = result.getObject2();
 		this.dplan.tracePlan();
 	}
 

@@ -121,15 +121,19 @@ public class Runner {
 		ReferenceGraph refGraph = new ReferenceGraph();
 		Table table;
 
+		int dbSize=0;
 		for (int i=0; i<nList.getLength(); i++){
 			if (nList.item(i).getNodeName().equals("table")){
 				element = (Element) nList.item(i);
 				table = new Table(element.getElementsByTagName("name").item(0).getTextContent());
-				table.setTableSize(db.getTableSize(table));
+				int size = db.getTableSize(table);
+				table.setTableSize(size);
+				dbSize += size;
 				//tablesMap.put(table.getTableName(), table);
 				refGraph.addNode(new org.xdb.elasticpartitioning.graph.Node(table));
 			}
 		}
+		System.out.println("DB Size: " + dbSize);
 		return refGraph;
 	}
 
@@ -148,14 +152,13 @@ public class Runner {
 		Table tTable;
 
 
+		int total = 0;
 		for (int i=0; i<nList.getLength(); i++){
 			if (nList.item(i).getNodeName().equals("reference")){
 				element = (Element) nList.item(i);
 				if (element.getElementsByTagName("type").item(0).getTextContent().equals("foreign-key")){
 					String sourceTable = element.getElementsByTagName("source-table").item(0).getTextContent();
 					String targetTable = element.getElementsByTagName("target-table").item(0).getTextContent();
-					System.out.println(sourceTable + " | " + targetTable);
-
 					sTable = refGraph.getNodeWithTableName(sourceTable).getContent();
 					tTable = refGraph.getNodeWithTableName(targetTable).getContent();
 
@@ -178,10 +181,14 @@ public class Runner {
 					org.xdb.elasticpartitioning.graph.Node sourceNode = refGraph.getNodeWithTableName(sourceTable);
 					org.xdb.elasticpartitioning.graph.Node targetNode = refGraph.getNodeWithTableName(targetTable);
 					double weight = w * Math.min(sTable.getTableSize(), tTable.getTableSize());
+					
 					refGraph.addEdge(foreignKey, sourceNode, targetNode, weight);
+					total += weight;
+					System.out.println(sTable + " -> " + tTable + " weight: " + weight);
 				}
 			}
 		}
+		System.out.println("Total weight: " + total);
 	}
 
 	private void loadQueriesFromXML(Document doc, ReferenceGraph refGraph) throws Exception {
@@ -231,11 +238,9 @@ public class Runner {
 			long elapsedTime;
 			long t1, t2;
 			// First, read the XML file, and make the reference graph
-			t1 = System.nanoTime();
 			ReferenceGraph refGraph = runner.loadXMLConfig(schema_file);
-			t2 = System.nanoTime();
-			elapsedTime = (t2-t1)/1000000;
-			runner.dbTime += elapsedTime;
+			t1 = System.nanoTime();
+			
 			
 			Map<Edge, Double> redundancyFactor = ReferenceGraph.findEdgesRedundancyFactor(refGraph, runner.partitioningMetaData);
 			ReferenceGraph.setRedundancyFactor(redundancyFactor);
@@ -253,12 +258,8 @@ public class Runner {
 
 			else{
 				// Then, make the MASP
-				t1 = System.nanoTime();
 				ReferenceGraph MASP = refGraph.findMASP();
-				t2 = System.nanoTime();
-				elapsedTime = (t2-t1)/1000000;
-				runner.calculationTime += elapsedTime;
-
+				
 
 				System.out.println(MASP);
 				System.out.println();
@@ -267,21 +268,22 @@ public class Runner {
 				System.out.println("Redundancy factors:");
 
 				// printing the redundancyFactor
-				t1 = System.nanoTime();
 				for (Edge e : redundancyFactor.keySet())
 					System.out.println(e + " : " + redundancyFactor.get(e));
 				PartitioningConfiguration optimalConfig = MASP.findOptimalConfigurationInAConnectedComponent();
 				System.out.println();
+				
 				System.out.println("Optimal partitioning configuration");
 				System.out.println(optimalConfig.toString());
-				t2 = System.nanoTime();
-				elapsedTime = (t2-t1)/1000000;
-				runner.calculationTime += elapsedTime;
-
+				
 				System.out.println("Time spent on DB/file operations(ms): " + runner.dbTime);
 				System.out.println("Time spent on algorithm calculations(ms): " + runner.calculationTime);
 
 			}
+			t2 = System.nanoTime();
+			elapsedTime = (t2-t1)/1000000;
+			//runner.dbTime += elapsedTime;
+			System.out.println("TIME: " + elapsedTime);
 
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -4,7 +4,7 @@
 		<password>xroot</password>
 		<server>localhost</server>
 		<port>3306</port>
-		<dbname>tpch_s001</dbname>
+		<dbname>tpch_s1</dbname>
 		<null-symbol>NULL</null-symbol>
 	</database-config>
 	<partitioning-config>

@@ -60,6 +60,7 @@ public class Config implements Serializable {
 	public static String COMPILE_URL = "127.0.0.1";
 	public static String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
 
+	public static boolean COMPILE_FT_ACTIVE = true;
 	public static String COMPILE_FT_MODE = "naive";
 	public static int COMPILE_FT_BENCHMARK_ROWS_NUMBER = 10;
 	public static int COMPILE_FT_BENCHMARK_COLUMNS_NUMBER = 2;
@@ -253,7 +254,8 @@ public class Config implements Serializable {
 				"TRACE_EXECUTE_PLAN", "TRACE_CODEGEN_PLAN",
 				"LOG_EXECUTION_TIME", "CODEGEN_OPTIMIZE", "TEST_RUN_LOCAL",
 				"QUERYTRACKER_MONITOR_ACTIVATED",
-				"MASTERTRACKER_MONITOR_ACTIVATED", "TEST_FT_CHECKPOINTING" };
+				"MASTERTRACKER_MONITOR_ACTIVATED", "TEST_FT_CHECKPOINTING",
+				"COMPILE_FT_ACTIVE"};
 
 		Properties props;
 		props = new Properties();
