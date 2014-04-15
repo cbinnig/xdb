@@ -108,7 +108,7 @@ public class MasterTrackerNode {
 
 	// constructor
 	public MasterTrackerNode() {
-		logger = XDBLog.getLogger(EnumXDBComponents.MASTER_TRACKER);
+		logger = XDBLog.getLogger(EnumXDBComponents.MASTER_TRACKER_SERVER);
 	}
 
 	// getters and setters

@@ -36,6 +36,8 @@ public class DoomDBClient implements IDoomDBClient {
 	private long endTime = 0;
 	private long runTime = 0;
 	private int killedNodes = 0; 
+	private boolean queryRunning = false;
+	private boolean clusterRunning = false;
 	
 	// constructors
 	public DoomDBClient(DoomDBClusterDesc clusterDesc) {
@@ -43,10 +45,11 @@ public class DoomDBClient implements IDoomDBClient {
 	}
 
 	// internal methods
-	private void raiseError(Error err) {
+	private void stopOnError(Error err) {
 		this.err = err;
 		
 		if(this.err.isError()){
+			this.queryRunning = false;
 			throw new RuntimeException(err.toString());
 		}
 	}
@@ -61,12 +64,6 @@ public class DoomDBClient implements IDoomDBClient {
 		return err;
 	}
 	
-	public synchronized void killNode(ComputeNodeDesc computeNodeDesc) { 
-		this.killedNodes++;
-		Error err = mClient.restartComputeNode(computeNodeDesc, this.mttr*1000);
-		this.raiseError(err);
-	}
-	
 	public String tracePlan(){
 		if (this.dplan == null) {
 			throw new RuntimeException("Provide a query before!");
@@ -74,29 +71,46 @@ public class DoomDBClient implements IDoomDBClient {
 		
 		return this.dplan.tracePlan();
 	}
+	
+	public synchronized void killNode(ComputeNodeDesc computeNodeDesc) { 
+		this.killedNodes++;
+		mClient.restartComputeNode(computeNodeDesc, this.mttr*1000);
+	}
 
 	// interface methods
 	@Override
 	public synchronized void startDB() {
+		if(this.clusterRunning){
+			throw new RuntimeException("DB is running already!");
+		}
+		
 		this.err = this.mClient.startDoomDBCluster(clusterDesc);
-		this.raiseError(err);
+		this.stopOnError(err);
+		this.clusterRunning = true;
 	}
 	
 	@Override
 	public synchronized void setSchema(String schemaName) {
+		if(this.queryRunning){
+			throw new RuntimeException("Query is running already!");
+		}
+		
 		EnumDoomDBSchema schema = EnumDoomDBSchema.enumOf(schemaName);
 		Error err = cClient.resetCatalog();
-		this.raiseError(err);
+		this.stopOnError(err);
 
 		err = this.executeDDLs(schema.getDDL());
-		this.raiseError(err);
+		this.stopOnError(err);
 
 		this.schema = schema;
 	}
 
 	@Override
 	public synchronized void setQuery(int queryNum) {
-		if (this.schema == null) {
+		if(this.queryRunning){
+			throw new RuntimeException("Query is running already!");
+		}
+		else if (this.schema == null) {
 			throw new RuntimeException("Provide a schema before!");
 		}
 
@@ -112,7 +126,7 @@ public class DoomDBClient implements IDoomDBClient {
 		Object[] args = {queryWithStats};
 		
 		Tuple<Error, Object> result = this.cClient.executeCmdWithResult(CompileServer.CMD_DOOMDB_COMPILE, args);
-		this.raiseError(result.getObject1());
+		this.stopOnError(result.getObject1());
 
 		this.dplan = (DoomDBPlan) result.getObject2();
 		this.dplan.tracePlan();
@@ -139,16 +153,20 @@ public class DoomDBClient implements IDoomDBClient {
 
 	@Override
 	public synchronized void startQuery() {
-		if (this.dplan == null) {
+		if(this.queryRunning){
+			throw new RuntimeException("Query is running already!");
+		}
+		else if (this.dplan == null) {
 			throw new RuntimeException("Provide a query before!");
 		}
-
+		
+		this.queryRunning = true;
 		this.startTime = System.currentTimeMillis()/1000;
 		
 		Thread runner = new Thread() {
 			public void run() {
 				Error err = mClient.executeDoomDBPlan(dplan.getPlanDesc());
-				DoomDBClient.this.raiseError(err);
+				DoomDBClient.this.stopOnError(err);
 			}
 		};
 		
@@ -157,6 +175,7 @@ public class DoomDBClient implements IDoomDBClient {
 		while(!runner.isAlive()){
 			//Wait
 		}
+		
 	}
 	
 	@Override
@@ -179,11 +198,9 @@ public class DoomDBClient implements IDoomDBClient {
 		//get doom plan status and stop if execution error occurred
 		Tuple<Error, DoomDBPlanStatus> result = mClient.isDoomDBPlanFinished(dplan
 				.getPlanDesc());
-		this.raiseError(result.getObject1());
+		this.stopOnError(result.getObject1());
 		DoomDBPlanStatus planStatus =  result.getObject2();
-		if(planStatus.getError().isError()){
-			throw new RuntimeException(planStatus.getError().toString());
-		}
+		this.stopOnError(planStatus.getError());
 		
 		//set deployment
 		dplan.setDeployment(planStatus.getDeployment());
@@ -192,6 +209,8 @@ public class DoomDBClient implements IDoomDBClient {
 		if(planStatus.isFinished()){
 			this.endTime = System.currentTimeMillis() / 1000;
 			this.runTime = this.endTime - this.startTime;
+			this.queryRunning = false;
+			
 			if(this.killedNodes>0 && Config.DOOMDB_MTBF_UPDATE){
 				this.mtbf = (int)this.runTime * this.getNodeCount() / this.killedNodes;
 				Config.writeDoom("DOOMDB_MTBF", ""+this.mtbf);

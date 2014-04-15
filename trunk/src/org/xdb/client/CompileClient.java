@@ -13,7 +13,7 @@ public class CompileClient extends AbstractClient {
 
 	// constructors
 	public CompileClient() {
-		super(Config.COMPILE_URL, Config.COMPILE_PORT, EnumXDBComponents.COMPILE_SERVER);
+		super(Config.COMPILE_URL, Config.COMPILE_PORT, EnumXDBComponents.COMPILE_CLIENT);
 	}
 
 	/**

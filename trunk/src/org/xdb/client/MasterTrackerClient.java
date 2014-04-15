@@ -24,7 +24,7 @@ import org.xdb.utils.Tuple;
 public class MasterTrackerClient extends AbstractClient {
 	// constructor
 	public MasterTrackerClient() {
-		super(Config.MASTERTRACKER_URL, Config.MASTERTRACKER_PORT, EnumXDBComponents.MASTER_TRACKER);
+		super(Config.MASTERTRACKER_URL, Config.MASTERTRACKER_PORT, EnumXDBComponents.MASTER_TRACKER_CLIENT);
 	}
 
 	/**

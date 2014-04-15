@@ -55,7 +55,7 @@ public class QueryTrackerNode {
 		this.computeClient = new ComputeClient();
 		this.description = new QueryTrackerNodeDesc(address);
 		this.masterTrackerClient = new MasterTrackerClient();
-		this.logger = XDBLog.getLogger(EnumXDBComponents.QUERY_TRACKER);
+		this.logger = XDBLog.getLogger(EnumXDBComponents.QUERY_TRACKER_SERVER);
 	}
 
 	// getters and setters

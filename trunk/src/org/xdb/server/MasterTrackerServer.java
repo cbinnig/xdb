@@ -136,7 +136,7 @@ public class MasterTrackerServer extends AbstractServer {
 	private final MasterTrackerNode tracker;
 
 	public MasterTrackerServer() {
-		super(EnumXDBComponents.MASTER_TRACKER);
+		super(EnumXDBComponents.MASTER_TRACKER_SERVER);
 		this.port = Config.MASTERTRACKER_PORT;
 		
 		tracker = new MasterTrackerNode();
