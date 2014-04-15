@@ -176,7 +176,7 @@ public class Config implements Serializable {
 		String[] intProperties = { "DOOMDB_MTBF", "DOOMDB_MTBF_STDEV",
 				"DOOMDB_MTTR", "DOOMDB_CLUSTER_SIZE", "DOOMDB_NUM_FAILUERS" };
 
-		String[] stringProperties = { "DOOMDB_NAME", "DOOMDB_COMPUTE_NODES" };
+		String[] stringProperties = { "DOOMDB_COMPUTE_NODES" };
 
 		String[] boolProperties = { "DOOMDB_MTBF_LOAD" };
 
