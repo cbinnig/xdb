@@ -25,10 +25,6 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 
 	private static final long serialVersionUID = -1963805350351443744L;
 	private static final String TRACE_FILE_NAME = DoomDBPlan.class.getName();
-	private static final String NODE_PREFIX = "Node_";
-	
-	// node ids
-	private Integer lastNodeId = 1;
 	
 	//plan IDs
 	private DoomDBPlanDesc planDesc = null;
@@ -145,23 +141,24 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		final Map<String, GraphNode> dottyNodes = new HashMap<String, GraphNode>();
 
 		// add nodes to plan
-		for (String opId : this.ops) {
+		for (String op : this.ops) {
 			GraphNode node = graph.addNode();
-			OperatorDesc operDesc = this.deployment.get(opId);
+			
+			OperatorDesc operDesc = this.deployment.get(op);
 			String nodeName = this.getNodeName(operDesc.getComputeNode());
 			
-			StringBuilder operText = new StringBuilder(opId);
-			operText.append("\n(");
+			StringBuilder operText = new StringBuilder("Operator ");
+			operText.append(op);
+			operText.append("\n");
 			operText.append(operDesc.getOperatorStatus().toString());
 			operText.append(" on ");
 			operText.append(nodeName);
-			operText.append(")");
 			
 			node.getInfo().setCaption(operText.toString());
 			String color = this.getColor(operDesc.getOperatorStatus());
 			node.getInfo().setFillColor(color);
 			
-			dottyNodes.put(opId, node);
+			dottyNodes.put(op, node);
 		}
 
 		// add edges to plan
@@ -181,7 +178,7 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	
 	private String getNodeName(ComputeNodeDesc nodeDesc){
 		if(!this.nodesDesc2Name.containsKey(nodeDesc)){
-			String nodeName = NODE_PREFIX + lastNodeId++;
+			String nodeName = nodeDesc.toString();
 			this.nodesDesc2Name.put(nodeDesc,nodeName);
 		}
 		return this.nodesDesc2Name.get(nodeDesc);

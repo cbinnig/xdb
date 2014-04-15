@@ -126,7 +126,6 @@ public class Config implements Serializable {
 	public static int DOOMDB_MTBF_STDEV = 2; // in s
 	public static int DOOMDB_MTTR = 5; // in s
 	public static int DOOMDB_NUM_FAILUERS = 100; // num of failures
-	public static String DOOMDB_NAME = "tpch_s01";
 	public static int DOOMDB_CLUSTER_SIZE = 4; // in s
 	public static String DOOMDB_COMPUTE_NODES = "127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1";
 

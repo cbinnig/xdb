@@ -1,10 +1,8 @@
 package org.xdb.execute.operators;
 
 import java.sql.PreparedStatement;
-import java.sql.SQLSyntaxErrorException;
 import java.util.Vector;
 
-import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.utils.Identifier;
@@ -52,10 +50,7 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 		} 
 		catch (final Exception e) {
 			this.err = createMySQLError(e);
-			if(Config.QUERYTRACKER_MONITOR_ACTIVATED)
-				this.status = EnumOperatorStatus.ABORTED;
-			else 
-				this.status = EnumOperatorStatus.FAILED;
+			this.status = EnumOperatorStatus.getRuntimeFailure();
 		}
 		
 		return this.err;
@@ -72,16 +67,9 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 				stmt.execute();
 			}
 		} 
-		catch (final SQLSyntaxErrorException e) {
-			this.err = createMySQLError(e);
-			this.status = EnumOperatorStatus.FAILED;
-		}
 		catch (final Exception e) {
-			err = createMySQLError(e);
-			if(Config.QUERYTRACKER_MONITOR_ACTIVATED)
-				this.status = EnumOperatorStatus.ABORTED;
-			else 
-				this.status = EnumOperatorStatus.FAILED;
+			this.err = createMySQLError(e);
+			this.status = EnumOperatorStatus.getRuntimeFailure();
 		}
 
 		return err;

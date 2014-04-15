@@ -142,11 +142,9 @@ public abstract class AbstractExecuteOperator implements Serializable {
 			}
 
 		} catch (final Exception e) {
-			err = createMySQLError(e);
-			if (Config.QUERYTRACKER_MONITOR_ACTIVATED)
-				this.status = EnumOperatorStatus.ABORTED;
-			else
-				this.status = EnumOperatorStatus.FAILED;
+			this.err = createMySQLError(e);
+			this.status = EnumOperatorStatus.getRuntimeFailure();
+			
 			return this.err;
 		}
 

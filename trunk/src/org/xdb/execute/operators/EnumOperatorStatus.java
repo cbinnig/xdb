@@ -3,6 +3,8 @@
  */
 package org.xdb.execute.operators;
 
+import org.xdb.Config;
+
 /**
  * @author Abdallah
  * 
@@ -33,6 +35,12 @@ public enum EnumOperatorStatus {
 		default:
 			return false;
 		}
-
+	}
+	
+	public static EnumOperatorStatus getRuntimeFailure(){
+		if(Config.QUERYTRACKER_MONITOR_ACTIVATED)
+			return EnumOperatorStatus.ABORTED;
+		else 
+			return EnumOperatorStatus.FAILED;
 	}
 }

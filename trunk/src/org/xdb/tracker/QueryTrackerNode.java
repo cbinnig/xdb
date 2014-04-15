@@ -284,8 +284,10 @@ public class QueryTrackerNode {
 			err = new Error(EnumError.TRACKER_GENERIC, args);
 			return new Tuple<Error, DoomDBPlanStatus>(err, new DoomDBPlanStatus(false, null, err));
 		}
+		
 		QueryTrackerPlan qplan = this.qPlans.get(dplanDesc.getQtrackerPlanId());
 		DoomDBPlanStatus planStatus = qplan.getDoomDBPlanStatus();
+		
 		return new Tuple<Error, DoomDBPlanStatus>(err, planStatus);
 	}
 

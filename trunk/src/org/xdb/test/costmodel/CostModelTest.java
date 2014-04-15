@@ -97,7 +97,7 @@ public class CostModelTest extends TestCase{
 		List<Identifier> nonMatops = new ArrayList<Identifier>();
 	
 		MaterializationOpsSuggester matSuggester = new MaterializationOpsSuggester
-				(cplan, this.opsEstimatedRuntime, this.intermediadeResultsMatTime, nonMatops, Config.DOOMDB_MTBF, Config.DOOMDB_MTTR);  
+				(cplan, this.opsEstimatedRuntime, this.intermediadeResultsMatTime, nonMatops, 20, 2);  
 	    
 		List<Identifier> expected = new ArrayList<Identifier>();
 		List<Identifier> result = new ArrayList<Identifier>();
