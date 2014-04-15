@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
-import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.faulttolerance.costmodel.MaterializationOpsSuggester;
 import org.xdb.funsql.compile.CompilePlan;
