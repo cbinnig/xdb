@@ -181,6 +181,15 @@ public class DoomDBClient implements IDoomDBClient {
 		this.killNode(computeNodeDesc);
 	}
 	
+	@Override
+	public boolean nodeAlive(String nodeDesc) {
+		if (this.dplan == null) {
+			throw new RuntimeException("Provide a query before!");
+		}
+		
+		return this.dplan.nodeAlive(nodeDesc);
+	}
+	
 
 	@Override
 	public synchronized boolean isQueryFinished() {

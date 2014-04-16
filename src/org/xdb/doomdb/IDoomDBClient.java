@@ -69,6 +69,13 @@ public interface IDoomDBClient {
 
 	
 	/**
+	 * is node alive
+	 * @param nodeDesc
+	 * @return
+	 */
+	boolean nodeAlive(String nodeDesc);
+	
+	/**
 	 * sets MTTR = mean time to repair a compute node in s
 	 * @param time
 	 */

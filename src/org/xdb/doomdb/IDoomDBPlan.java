@@ -19,6 +19,13 @@ public interface IDoomDBPlan {
 	 * @return
 	 */
 	Collection<String> getNodes();
+	
+	/**
+	 * is node alive
+	 * @param nodeDesc
+	 * @return
+	 */
+	boolean nodeAlive(String nodeDesc);
 
 	/**
 	 * Get the compute node executing an operator

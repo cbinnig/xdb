@@ -88,8 +88,6 @@ public class ComputeServersMonitor {
 			switch (opDesc.getOperatorStatus()){
 			case FAILED:
 			case FINISHED:
-			case NEGLECTED:
-				continue;
 			case ABORTED:
 				logger.log(Level.INFO, "Aborted Operator " + identifier
 						+ " has been detected");

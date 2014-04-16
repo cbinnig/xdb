@@ -49,6 +49,9 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	private Map<String, ComputeNodeDesc> nodesName2Desc = new HashMap<String, ComputeNodeDesc>();
 	private Map<ComputeNodeDesc, String> nodesDesc2Name = new HashMap<ComputeNodeDesc, String>();
 
+	// compute nodes status
+	private Map<String, EnumOperatorStatus> nodesName2Status = new HashMap<String, EnumOperatorStatus>();
+	
 	/** compile plan info **/
 
 	// materialized operators of cost model
@@ -102,12 +105,14 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 
 		this.deployment.clear();
 		this.nodesName2Desc.clear();
+		this.nodesName2Status.clear();
 
 		for (Entry<Identifier, OperatorDesc> entry : deployment.entrySet()) {
 			OperatorDesc operDesc = entry.getValue();
 			this.deployment.put(entry.getKey().toString(), operDesc);
 			String nodeName = getNodeName(operDesc.getComputeNode());
 			this.nodesName2Desc.put(nodeName, operDesc.getComputeNode());
+			this.nodesName2Status.put(nodeName, operDesc.getOperatorStatus());
 		}
 	}
 
@@ -246,5 +251,13 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		default:
 			return "WHITE";
 		}
+	}
+
+	@Override
+	public boolean nodeAlive(String nodeDesc) {
+		if(this.nodesName2Status.containsKey(nodeDesc)){
+			return this.nodesName2Status.get(nodeDesc).isAlive();
+		}
+		return false;
 	}
 }
