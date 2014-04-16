@@ -166,7 +166,8 @@ public class MaterializationOpsSuggester {
 		Error err = new Error();
 		Collection<AbstractCompileOperator> ops = this.compilePlan.getOperators();  
 		for (AbstractCompileOperator abstractCompileOperator : ops) {
-			if(abstractCompileOperator.getType() == EnumOperator.TABLE) 
+			if(abstractCompileOperator.getType() == EnumOperator.TABLE
+					|| nonMaterializableOps.contains(abstractCompileOperator.getOperatorId())) 
 				continue;
 			abstractCompileOperator.getResult().materialize(true);   
 		}
