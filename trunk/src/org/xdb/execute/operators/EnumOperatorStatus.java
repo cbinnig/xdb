@@ -16,8 +16,7 @@ public enum EnumOperatorStatus {
 	RUNNING, // Operator is executing
 	FINISHED, // Operator is finished
 	ABORTED, // Operator is failed and can not recovered
-	FAILED, // Operator is failed and can not be recovered
-	NEGLECTED; // Operator is failed but it does not affect the query execution.
+	FAILED; // Operator is failed and can not be recovered
 	
 	public boolean isRepairableFailure() {
 		switch (this) {
@@ -34,6 +33,17 @@ public enum EnumOperatorStatus {
 			return true;
 		default:
 			return false;
+		}
+	}
+	
+	
+	public boolean isAlive() {
+		switch (this) {
+		case FAILED:
+		case ABORTED:
+			return false;
+		default:
+			return true;
 		}
 	}
 	
