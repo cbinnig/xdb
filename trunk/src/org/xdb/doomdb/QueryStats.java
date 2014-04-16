@@ -21,6 +21,10 @@ public class QueryStats implements Serializable {
 	
 	private List<Identifier> nonMatOps = new ArrayList<Identifier>(); 
 	
+	public QueryStats(){
+		
+	}
+	
     public QueryStats(Map<Identifier, Double> queryRuntimesStat, 
     		Map<Identifier, Double> queryMattimesStat, List<Identifier> nonMatOps){
     	this.setQueryRuntimesStat(queryRuntimesStat); 

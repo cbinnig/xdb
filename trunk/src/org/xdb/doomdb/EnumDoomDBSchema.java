@@ -120,7 +120,7 @@ public enum EnumDoomDBSchema {
 	private Map<Integer, Map<Identifier, Double>> runTimeMap = new HashMap<Integer, Map<Identifier, Double>>();
 	private Map<Integer, Map<Identifier, Double>> matTimeMap = new HashMap<Integer, Map<Identifier, Double>>();
 
-	public void loadStatFromFile(int queryID) {
+	private void loadStatFromFile(int queryID) {
 
 		String runtimeFileName = "./stat/q" + Integer.toString(queryID) + "_"
 				+ this.schemaName + "_runtimes.conf";
@@ -308,10 +308,16 @@ public enum EnumDoomDBSchema {
 	}
 
 	public Map<Identifier, Double> getQueryRunTimesStat(int queryId) {
+		if(!runTimeMap.containsKey(queryId)){
+			this.loadStatFromFile(queryId);
+		}
 		return runTimeMap.get(queryId);
 	}
 
 	public Map<Identifier, Double> getQueryMatTimesStat(int queryId) {
+		if(!matTimeMap.containsKey(queryId)){
+			this.loadStatFromFile(queryId);
+		}
 		return matTimeMap.get(queryId);
 	}
 

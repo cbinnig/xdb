@@ -54,10 +54,16 @@ public class DoomDBFailureSimulator extends Thread {
 			NormalDistribution dist = new NormalDistribution(mean, stdev);
 
 			for (int j = 0; j < Config.DOOMDB_NUM_FAILUERS; ++j) {
-				Long mtbf = (long) dist.sample() * 1000;
 				
+				// next MTBF for node i
+				long mtbf = (long) dist.sample() * 1000;
+				
+				// first failure can happen any time
+				if(j==0)
+					mtbf = (long)(mtbf * Math.random());
+				
+				// calculate time stamp from MTBF
 				Long timestamp = mtbf;
-
 				if (j > 0) {
 					timestamp += mtbfList.get(j - 1);
 				}

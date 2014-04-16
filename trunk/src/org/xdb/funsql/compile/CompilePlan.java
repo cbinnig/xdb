@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,19 +43,15 @@ public class CompilePlan implements Serializable {
 
 	// plan info
 	private HashMap<Identifier, AbstractCompileOperator> operators = new HashMap<Identifier, AbstractCompileOperator>();
-
 	private Vector<Identifier> roots = new Vector<Identifier>();
 	private HashSet<Identifier> leaves = new HashSet<Identifier>();
-
+	private List<Identifier> matOpsIds =  new Vector<Identifier>();
+	
 	// logger
 	private transient Logger logger;
 
 	// last error
 	private Error err = new Error();
-
-	// only set if the plan is a copied plan; Mapping from old to new Operator
-	private Map<AbstractCompileOperator, AbstractCompileOperator> oldOptoNewOpMap;
-	private Vector<Identifier> copyVistorRoots = new Vector<Identifier>();
 
 	// constructor
 	public CompilePlan() {
@@ -85,7 +81,7 @@ public class CompilePlan implements Serializable {
 		return roots.get(0);
 	}
 
-	public Collection<AbstractCompileOperator> getRootsCollection() {
+	public Collection<AbstractCompileOperator> getRootOps() {
 		Vector<AbstractCompileOperator> rootOps = new Vector<AbstractCompileOperator>(
 				this.roots.size());
 		for (Identifier rootId : this.roots) {
@@ -94,25 +90,7 @@ public class CompilePlan implements Serializable {
 		return rootOps;
 	}
 
-	public Collection<AbstractCompileOperator> getCopyRootsCollection() {
-		Vector<AbstractCompileOperator> rootOps = new Vector<AbstractCompileOperator>(
-				this.getCopyVistorRoots().size());
-		for (Identifier rootId : this.copyVistorRoots) {
-			rootOps.add(this.operators.get(rootId));
-		}
-		return rootOps;
-	}
-
-	public void setRootsCollection(Collection<AbstractCompileOperator> roots) {
-		this.roots.clear();
-
-		for (AbstractCompileOperator abstractCompileOperator : roots) {
-			this.roots.add(abstractCompileOperator.getOperatorId());
-		}
-
-	}
-
-	public AbstractCompileOperator getRoot(int i) {
+	public AbstractCompileOperator getRootOp(int i) {
 		return this.operators.get(this.roots.get(i));
 	}
 
@@ -161,13 +139,14 @@ public class CompilePlan implements Serializable {
 	public Vector<Identifier> getRoots() {
 		return roots;
 	}
-
-	public Map<AbstractCompileOperator, AbstractCompileOperator> getOldOptoNewOpMap() {
-		return oldOptoNewOpMap;
+	
+	public List<Identifier> getMatOps(){
+		return this.matOpsIds;
 	}
-
-	public Vector<Identifier> getCopyVistorRoots() {
-		return copyVistorRoots;
+	
+	public void setMatOps(List<Identifier> matOpsIds){
+		this.matOpsIds.clear();
+		this.matOpsIds.addAll(matOpsIds);
 	}
 
 	// methods

@@ -42,7 +42,7 @@ public class Parallelizer {
 	private Error repartitionOps() {
 		Error err = new Error();
 		for (AbstractCompileOperator root : this.compilePlan
-				.getRootsCollection()) {
+				.getRootOps()) {
 			CreatePartitionDescVisitor repartVisitor = new CreatePartitionDescVisitor(this.compilePlan,
 					root);
 			err = repartVisitor.visit();

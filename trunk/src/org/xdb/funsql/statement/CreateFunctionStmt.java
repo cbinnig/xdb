@@ -224,7 +224,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 				// add plan to compiled plans and build table from result
 				this.compilePlans.put(ta.getVar().hashKey(), stmt.getPlan());
 				Table tableType = this.buildTableType(ta.getVar(), stmt
-						.getPlan().getRoot(0).getResult());
+						.getPlan().getRootOp(0).getResult());
 				this.varSymbols.put(ta.hashKey(), tableType);
 
 				// function call
@@ -249,7 +249,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 				FunctionCall fc = new FunctionCall(tfc.getFun(), tfc
 						.getOutVars().size());
 				for (int i = 0; i < plan.getRoots().size(); i++) {
-					AbstractCompileOperator op = plan.getRoot(i);
+					AbstractCompileOperator op = plan.getRootOp(i);
 					fc.addResult(op.getResult());
 				}
 
@@ -257,7 +257,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 				int o = 0;
 				for (TokenVariable otv : tfc.getOutVars()) {
 					this.compilePlans.put(otv.hashKey(), plan);
-					Table tableType = this.buildTableType(otv, plan.getRoot(o)
+					Table tableType = this.buildTableType(otv, plan.getRootOp(o)
 							.getResult());
 					o++;
 					this.varSymbols.put(otv.hashKey(), tableType);
@@ -279,13 +279,13 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 				CompilePlan varPlan = this.compilePlans.get(varKey);
 				if (this.callSymbols.containsKey(varKey)) {
 					FunctionCall fc = callSymbols.get(varKey);
-					fc.addParent(varPlan.getRoot(0));
+					fc.addParent(varPlan.getRootOp(0));
 					varPlan.addOperator(fc, false);// ID of fc = ID of original
 													// plan
 					stmtPlan.replaceVariable(varKey, fc);
 					// adds FunctionCall to tree
 				} else
-					stmtPlan.replaceVariable(varKey, varPlan.getRoot(0));
+					stmtPlan.replaceVariable(varKey, varPlan.getRootOp(0));
 			}
 
 			// add stmtPlan to functionPlan
@@ -308,7 +308,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 					TokenVariable uVar = tfc.getInVars().get(i);// Parameter
 																// beim Aufruf
 					CompilePlan varPlan = this.compilePlans.get(uVar.hashKey());
-					callPlan.replaceVariable(cVar.hashKey(), varPlan.getRoot(0));
+					callPlan.replaceVariable(cVar.hashKey(), varPlan.getRootOp(0));
 					i++;
 				}
 			}

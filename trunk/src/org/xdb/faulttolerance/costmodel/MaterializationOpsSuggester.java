@@ -256,10 +256,10 @@ public class MaterializationOpsSuggester {
 	 * @param recommendedMatOpsIds
 	 */
 	private void updateCompilePlanWithNewMat() { 
-		
+		this.compilePlan.setMatOps(recommendedMatOpsIds);
 		for (Identifier identifier : recommendedMatOpsIds) {
-			this.compilePlan.getOperator(this.costModelQueryPlan.
-					getCostModelOpToCompileOp().get(identifier)).getResult().materialize(true); 
+			Identifier compileOpId = this.costModelQueryPlan.getCostModelOpToCompileOp().get(identifier);
+			this.compilePlan.getOperator(compileOpId).getResult().materialize(true); 
 		}		
 	}
 

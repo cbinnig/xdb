@@ -52,7 +52,7 @@ public class CompileClient extends AbstractClient {
 				CompileServer.CMD_DOOMDB_COMPILE, args);
 
 		DoomDBPlan plan = (DoomDBPlan) result.getObject2();
-		plan.setQueryRuntimesStat(queryRuntimesStat);
+		plan.setQueryStats(queryRuntimesStat, queryMattimesStat);
 		return new Tuple<Error, DoomDBPlan>(result.getObject1(), plan);
 	}
 

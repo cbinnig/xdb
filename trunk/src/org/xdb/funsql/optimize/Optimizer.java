@@ -71,7 +71,7 @@ public class Optimizer {
 
 		SelectionPushDownVisitor pushDownVisitor = new SelectionPushDownVisitor(compilePlan);
 		for (AbstractCompileOperator root : this.compilePlan
-				.getRootsCollection()) {
+				.getRootOps()) {
 			boolean modified = true;
 
 			while (modified) {
@@ -97,7 +97,7 @@ public class Optimizer {
 		SelectionCombineVisitor combineVisitor = new SelectionCombineVisitor();
 		
 		for (AbstractCompileOperator root : this.compilePlan
-				.getRootsCollection()) {
+				.getRootOps()) {
 			
 			combineVisitor.reset(root);
 			err = combineVisitor.visit();

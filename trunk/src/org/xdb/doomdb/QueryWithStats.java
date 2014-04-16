@@ -6,10 +6,8 @@ import org.xdb.client.statement.ClientStmt;
 
 public class QueryWithStats implements Serializable{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;  
+	private static final long serialVersionUID = 5151290500147768991L;
+	
 	// clientStmt 
 	private ClientStmt clientStmt;  
     // queryStmt 
