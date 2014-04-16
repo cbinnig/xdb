@@ -18,7 +18,7 @@ public enum EnumDoomDBSchema {
 	TPCH_SF01_2PARTS("TPCH_SF01_2P", "tpch_s01"),
 	TPCH_SF01_10PARTS("TPCH_SF01_10P", "tpch_s01"),
 	TPCH_SF10_10PARTS("TPCH_SF10_10P", "tpch_s01"),	// TODO: database name should be fixed
-	TPCH_SF100_10PARTS("TPCH_SF100_10P", "tpch_s01");	// TODO: database name should be fixed
+	TPCH_SF100_10PARTS("TPCH_SF100_10P", "tpch_s1");	// TODO: database name should be fixed
 	
 	private static String tpchQ1 = "select	l_returnflag,	"
 			+ "l_linestatus,	"
@@ -275,6 +275,10 @@ public enum EnumDoomDBSchema {
 		this.dbName = dbName;
 	}
 
+	public String getSchemaName(){
+		return this.schemaName;
+	}
+	
 	public String[] getDDL() {
 		return SCHEMAS.get(schemaName);
 	}

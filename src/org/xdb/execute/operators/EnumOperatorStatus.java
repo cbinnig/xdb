@@ -6,6 +6,8 @@ package org.xdb.execute.operators;
 import org.xdb.Config;
 
 /**
+ * Operator status for executing in XDB
+ * 
  * @author Abdallah
  * 
  */
@@ -18,6 +20,10 @@ public enum EnumOperatorStatus {
 	ABORTED, // Operator is failed and can not recovered
 	FAILED; // Operator is failed and can not be recovered
 	
+	/**
+	 * returns true if operator has a repairable failure
+	 * @return
+	 */
 	public boolean isRepairableFailure() {
 		switch (this) {
 		case ABORTED:
@@ -27,6 +33,10 @@ public enum EnumOperatorStatus {
 		}
 	}
 	
+	/**
+	 * returns true if operator has a non-repairable failure
+	 * @return
+	 */
 	public boolean isNonRepairableFailure() {
 		switch (this) {
 		case FAILED:
@@ -36,7 +46,10 @@ public enum EnumOperatorStatus {
 		}
 	}
 	
-	
+	/**
+	 * returns true if operator is alive
+	 * @return
+	 */
 	public boolean isAlive() {
 		switch (this) {
 		case FAILED:
@@ -47,10 +60,36 @@ public enum EnumOperatorStatus {
 		}
 	}
 	
+	/**
+	 * returns status, which should be used for indicating runtime failures during execution
+	 * @return
+	 */
 	public static EnumOperatorStatus getRuntimeFailure(){
 		if(Config.QUERYTRACKER_MONITOR_ACTIVATED)
 			return EnumOperatorStatus.ABORTED;
 		else 
 			return EnumOperatorStatus.FAILED;
+	}
+	
+	/**
+	 * Returns color code for status
+	 * 
+	 * @return
+	 */
+	public String getColor() {
+		switch (this) {
+		case DEPLOYED:
+		case REDEPLOYED:
+			return "GREY";
+		case ABORTED:
+		case FAILED:
+			return "RED";
+		case RUNNING:
+			return "ORANGE";
+		case FINISHED:
+			return "GREEN";
+		default:
+			return "WHITE";
+		}
 	}
 }

@@ -3,6 +3,11 @@ package org.xdb.doomdb;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * INterface for DoomDB Plan
+ * @author cbinnig
+ *
+ */
 public interface IDoomDBPlan {
 	
 	/**

@@ -136,6 +136,19 @@ public class MasterTrackerClient extends AbstractClient {
 				MasterTrackerServer.CMD_DOOMDB_EXECUTE_PLAN, args);
 		return err;
 	}
+	
+	/**
+	 * Stop query tracker plan for DoomDBPlan
+	 * 
+	 * @param dplanDesc
+	 * @return
+	 */
+	public Error stopDoomDBPlan(final DoomDBPlanDesc dplanDesc) {
+		Object[] args = { dplanDesc };
+		Error err = this.executeCmd(
+				MasterTrackerServer.CMD_DOOMDB_STOP_PLAN, args);
+		return err;
+	}
 
 	/**
 	 * Checks if query tracker plan for DoomDBPlan is finished

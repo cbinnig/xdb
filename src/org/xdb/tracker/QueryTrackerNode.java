@@ -269,6 +269,27 @@ public class QueryTrackerNode {
 		err = this.executePlanPhase2(qplan);
 		return err;
 	}
+	
+	
+	/**
+	 * Execute a prepared query tracker plan for a given DoomDBPlan
+	 * 
+	 * @param dplanDesc
+	 * @return
+	 */
+	public Error stopDoomDBQPlan(DoomDBPlanDesc dplanDesc) {
+		Error err = new Error();
+		if (!this.qPlans.containsKey(dplanDesc.getQtrackerPlanId())) {
+			String[] args = { "Plan with id " + dplanDesc.getQtrackerPlanId()
+					+ " not found in " + this.qPlans.keySet() };
+			this.logger.log(Level.SEVERE, args[0]);
+			return new Error(EnumError.TRACKER_GENERIC, args);
+		}
+		QueryTrackerPlan qplan = this.qPlans.get(dplanDesc.getQtrackerPlanId());
+		qplan.stopPlan();
+		
+		return err;
+	}
 
 	/**
 	 * Check if a query tracker plan for a given DoomDBPlan has finished running
