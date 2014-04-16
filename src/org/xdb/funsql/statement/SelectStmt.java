@@ -78,11 +78,6 @@ public class SelectStmt extends AbstractServerStmt {
 
 	// Compile plan
 	private CompilePlan plan = new CompilePlan();
-	
-	// Fault Tolerance variables 
-	private Map<Identifier, Double> opsEstimatedRuntime = new HashMap<Identifier, Double>(); 
-	private Map<Identifier, Double> intermediadeResultsMatTime = new HashMap<Identifier, Double>();    
-	
 
 	// constructors
 	public SelectStmt() {
@@ -746,7 +741,8 @@ public class SelectStmt extends AbstractServerStmt {
 	
 	@Override
 	public Error applyFaultTolerance(QueryStats queryStats) {
-		Error err = new Error(); 
+		Error err = new Error();
+		/*
 		Identifier id2 = new Identifier("2"); 
 		Identifier id3 = new Identifier("3"); 
 		Identifier id4 = new Identifier("4"); 
@@ -760,8 +756,9 @@ public class SelectStmt extends AbstractServerStmt {
 		this.intermediadeResultsMatTime.put(id2, 77.0); 
 		this.intermediadeResultsMatTime.put(id5, 0.009);
 		this.intermediadeResultsMatTime.put(id3, 0.009);
-		this.intermediadeResultsMatTime.put(id4, 0.009);
-
+		this.intermediadeResultsMatTime.put(id4, 0.009);+/
+		 */
+		
 		MaterializationOpsSuggester matSuggester = new MaterializationOpsSuggester
 				(this.plan, queryStats.getQueryRuntimesStat(), queryStats.getQueryMattimesStat(), queryStats.getNonMatOps(),
 						Config.DOOMDB_MTBF, Config.DOOMDB_MTTR);  
@@ -788,34 +785,5 @@ public class SelectStmt extends AbstractServerStmt {
 		MasterTrackerClient client = new MasterTrackerClient();
 		Tuple<Error, DoomDBPlan> result = client.generateDoomDBPlan(this.plan);
 		return result;
-	}
-
-	/**
-	 * @return the opsEstimatedRuntime
-	 */
-	public Map<Identifier, Double> getOpsEstimatedRuntime() {
-		return opsEstimatedRuntime;
-	}
-
-	/**
-	 * @param opsEstimatedRuntime the opsEstimatedRuntime to set
-	 */
-	public void setOpsEstimatedRuntime(Map<Identifier, Double> opsEstimatedRuntime) {
-		this.opsEstimatedRuntime = opsEstimatedRuntime;
-	}
-
-	/**
-	 * @return the intermediadeResultsMatTime
-	 */
-	public Map<Identifier, Double> getIntermediadeResultsMatTime() {
-		return intermediadeResultsMatTime;
-	}
-
-	/**
-	 * @param intermediadeResultsMatTime the intermediadeResultsMatTime to set
-	 */
-	public void setIntermediadeResultsMatTime(
-			Map<Identifier, Double> intermediadeResultsMatTime) {
-		this.intermediadeResultsMatTime = intermediadeResultsMatTime;
 	}
 }

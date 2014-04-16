@@ -65,7 +65,7 @@ public class TestOptimizeLargeSQL extends XDBTestCase {
 
 		//extend plan to have two root operators
 		GenericProjection proj = (GenericProjection) selectStmt.getPlan()
-				.getRoot(0);
+				.getRootOp(0);
 
 		GenericSelection sel1 = (GenericSelection) proj.getChild();
 		GenericSelection sel2 = (GenericSelection) sel1.getChild();

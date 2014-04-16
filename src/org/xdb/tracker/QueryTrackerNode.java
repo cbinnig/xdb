@@ -246,6 +246,7 @@ public class QueryTrackerNode {
 		// 2. create DoomDBPlan
 		DoomDBPlan dplan = new DoomDBPlan(cplan.getPlanId(), qplan.getPlanId());
 		dplan.setDeployment(qplan.getCurrentDeployment());
+		dplan.setMatCompileOps(cplan.getMatOps());
 		qplan.createDoomDBFromQPlan(dplan);
 		return new Tuple<Error, DoomDBPlan>(err, dplan);
 	}

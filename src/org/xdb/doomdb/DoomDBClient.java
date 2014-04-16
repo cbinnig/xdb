@@ -112,9 +112,6 @@ public class DoomDBClient implements IDoomDBClient {
 			throw new RuntimeException("Provide a schema before!");
 		}
 
-		if(Config.COMPILE_FT_ACTIVE)
-			this.schema.loadStatFromFile(queryNum);
-		
 		this.query = this.schema.getQuery(queryNum); 
 		
 		Map<Identifier, Double> queryRuntimesStat = this.schema.getQueryRunTimesStat(queryNum); 
@@ -123,6 +120,7 @@ public class DoomDBClient implements IDoomDBClient {
 		             
 		Tuple<Error, DoomDBPlan> result = this.cClient.compileDoomStmtWithStats(this.query, queryRuntimesStat, queryMattimesStat, nonMatOps);
 		this.stopOnError(result.getObject1());
+		
 		this.dplan = result.getObject2();
 		this.dplan.tracePlan();
 	}

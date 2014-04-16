@@ -3,7 +3,6 @@ package org.xdb.funsql.compile;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
-import org.xdb.Config;
 import org.xdb.doomdb.QueryStats;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
@@ -17,17 +16,18 @@ public class FunSQLCompiler {
 	private boolean doOptimize = true;
 	private boolean doParallelize = true;
 	private boolean doSemanticAnalysis = true; 
-	private boolean doFaultTolerance = Config.COMPILE_FT_ACTIVE;   
+	private boolean doFaultTolerance = false;   
 	
 	private QueryStats queryStats; 
 	
+	public FunSQLCompiler(){
+		this.queryStats = new QueryStats();
+	}
+
 	public FunSQLCompiler(QueryStats queryStats){
 		this.setQueryStats(queryStats);
 	}
 	
-	public FunSQLCompiler(){
-		
-	}
 	//getters and setters
 	public Error getLastError() {
 		return lastError;

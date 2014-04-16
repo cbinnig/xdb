@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -20,19 +21,25 @@ import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphFactory;
 import com.oy.shared.lm.graph.GraphNode;
 
-
+/**
+ * Plan info which is shipped to DoomDB client
+ * 
+ * @author cbinnig
+ * 
+ */
 public class DoomDBPlan implements Serializable, IDoomDBPlan {
 
 	private static final long serialVersionUID = -1963805350351443744L;
 	private static final String TRACE_FILE_NAME = DoomDBPlan.class.getName();
 
-	//plan IDs
+	// plan IDs
 	private DoomDBPlanDesc planDesc = null;
 
-	//operators
+	/** execution plan info **/
+	// operators
 	private Set<String> ops = new HashSet<String>();
 
-	//dependencies between operators: from -> [to]
+	// dependencies between operators: from -> [to]
 	private Map<String, List<String>> dependencies = new HashMap<String, List<String>>();
 
 	// deployment of operators on compute nodes: opId -> compute node
@@ -42,8 +49,14 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	private Map<String, ComputeNodeDesc> nodesName2Desc = new HashMap<String, ComputeNodeDesc>();
 	private Map<ComputeNodeDesc, String> nodesDesc2Name = new HashMap<ComputeNodeDesc, String>();
 
+	/** compile plan info **/
+
+	// materialized operators of cost model
+	private List<Identifier> matCompileOpsIds = new Vector<Identifier>();
+
 	// Runtime of each operator in the plan
-	Map<Identifier, Double> queryRuntimesStat;
+	private Map<Identifier, Double> queryRuntimesStat = new HashMap<Identifier, Double>();
+	private Map<Identifier, Double> queryMattimesStat = new HashMap<Identifier, Double>();
 
 	// constructors
 	public DoomDBPlan() {
@@ -54,7 +67,12 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	}
 
 	// getters and setters
-	public DoomDBPlanDesc getPlanDesc(){
+	public void setMatCompileOps(List<Identifier> matOpsIds) {
+		this.matCompileOpsIds.clear();
+		this.matCompileOpsIds.addAll(matOpsIds);
+	}
+
+	public DoomDBPlanDesc getPlanDesc() {
 		return this.planDesc;
 	}
 
@@ -78,14 +96,14 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		return this.dependencies.get(from);
 	}
 
-	public void setDeployment(Map<Identifier, OperatorDesc> deployment){
-		if(deployment==null)
+	public void setDeployment(Map<Identifier, OperatorDesc> deployment) {
+		if (deployment == null)
 			return;
 
 		this.deployment.clear();
 		this.nodesName2Desc.clear();
 
-		for(Entry<Identifier, OperatorDesc> entry: deployment.entrySet()){
+		for (Entry<Identifier, OperatorDesc> entry : deployment.entrySet()) {
 			OperatorDesc operDesc = entry.getValue();
 			this.deployment.put(entry.getKey().toString(), operDesc);
 			String nodeName = getNodeName(operDesc.getComputeNode());
@@ -93,42 +111,55 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		}
 	}
 
-	public ComputeNodeDesc getComputeNodeByOp(String opIdString){
+	public ComputeNodeDesc getComputeNodeByOp(String opIdString) {
 		Identifier opId = new Identifier(opIdString);
-		if(this.deployment.containsKey(opId)){
+		if (this.deployment.containsKey(opId)) {
 			return this.deployment.get(opId).getComputeNode();
 		}
 		return null;
 	}
 
-	public ComputeNodeDesc getComputeNode(String compNodeDesc){
-		if(this.nodesName2Desc.containsKey(compNodeDesc)){
+	public ComputeNodeDesc getComputeNode(String compNodeDesc) {
+		if (this.nodesName2Desc.containsKey(compNodeDesc)) {
 			return this.nodesName2Desc.get(compNodeDesc);
 		}
 		return null;
 	}
 
-	public Collection<ComputeNodeDesc> getComputeNodes(){
+	public Collection<ComputeNodeDesc> getComputeNodes() {
 		return this.nodesName2Desc.values();
 	}
 
-	public int getComputeNodeCount(){
+	public int getComputeNodeCount() {
 		return this.nodesName2Desc.size();
 	}
 
-	public void setQueryRuntimesStat(Map<Identifier, Double> queryRuntimesStat) {
-		this.queryRuntimesStat = queryRuntimesStat;
+	public void setQueryStats(Map<Identifier, Double> queryRuntimesStat,
+			Map<Identifier, Double> queryMattimesStat) {
+		this.queryRuntimesStat.clear();
+		if (queryRuntimesStat != null) {
+			this.queryRuntimesStat.putAll(queryRuntimesStat);
+		}
+
+		this.queryMattimesStat.clear();
+		if (queryMattimesStat != null) {
+			this.queryMattimesStat.putAll(queryMattimesStat);
+		}
 	}
 
-	public long getEstimatedTime(){
+	// methods
+	public long getEstimatedTime() {
 		long runtime = 0;
-		
-		// if Config.COMPILE_FT_ACTIVE is set to false, then we don't have stats for queries
+
+		// if Config.COMPILE_FT_ACTIVE is set to false, then we don't have stats
+		// for queries
 		// in this case, 0 is returned as the output of this function
-		if (this.queryRuntimesStat != null){
-			for (Identifier id: this.queryRuntimesStat.keySet()){
-				runtime += queryRuntimesStat.get(id);
-			}
+		for (Identifier id : this.queryRuntimesStat.keySet()) {
+			runtime += this.queryRuntimesStat.get(id) * 1000;
+		}
+
+		for (Identifier id : this.matCompileOpsIds) {
+			runtime += this.queryMattimesStat.get(id) * 1000;
 		}
 		return runtime;
 	}
@@ -139,7 +170,7 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	}
 
 	@Override
-	public Collection<String> getNodes(){
+	public Collection<String> getNodes() {
 		return this.nodesName2Desc.keySet();
 	}
 
@@ -150,7 +181,8 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 
 	@Override
 	public String tracePlan() {
-		String fileName = TRACE_FILE_NAME + this.planDesc.getCompilePlanId().toString();
+		String fileName = TRACE_FILE_NAME
+				+ this.planDesc.getCompilePlanId().toString();
 		final Graph graph = GraphFactory.newGraph();
 
 		final Map<String, GraphNode> dottyNodes = new HashMap<String, GraphNode>();
@@ -189,18 +221,18 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		}
 
 		return Dotty.dot2Img(graph, fileName);
-	} 
+	}
 
-	private String getNodeName(ComputeNodeDesc nodeDesc){
-		if(!this.nodesDesc2Name.containsKey(nodeDesc)){
+	private String getNodeName(ComputeNodeDesc nodeDesc) {
+		if (!this.nodesDesc2Name.containsKey(nodeDesc)) {
 			String nodeName = nodeDesc.toString();
-			this.nodesDesc2Name.put(nodeDesc,nodeName);
+			this.nodesDesc2Name.put(nodeDesc, nodeName);
 		}
 		return this.nodesDesc2Name.get(nodeDesc);
 	}
 
-	private String getColor(EnumOperatorStatus status){
-		switch(status){
+	private String getColor(EnumOperatorStatus status) {
+		switch (status) {
 		case DEPLOYED:
 		case REDEPLOYED:
 			return "GREY";

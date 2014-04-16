@@ -218,7 +218,7 @@ public class CodeGenerator {
 		Error err = new Error();
 		ReRenameAttributesVisitor renameVisitor;
 		for (AbstractCompileOperator root : this.compilePlan
-				.getRootsCollection()) {
+				.getRootOps()) {
 			renameVisitor = new ReRenameAttributesVisitor(root);
 			err = renameVisitor.visit();
 
@@ -643,7 +643,7 @@ public class CodeGenerator {
 	private List<Identifier> extractSplitOps() {
 		SplitPlanVisitor splitVisitor = new SplitPlanVisitor();
 		for (AbstractCompileOperator root : this.compilePlan
-				.getRootsCollection()) {
+				.getRootOps()) {
 			splitVisitor.reset(root);
 			splitVisitor.visit();
 		}
