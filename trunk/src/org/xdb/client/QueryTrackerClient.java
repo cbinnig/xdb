@@ -45,6 +45,18 @@ public class QueryTrackerClient extends AbstractClient {
 		return this
 				.executeCmd(QueryTrackerServer.CMD_DOOMDB_EXECUTE_PLAN, args);
 	}
+	
+	/**
+	 * Stop query tracker plan for given DoomDBPlan
+	 * 
+	 * @param dplanDesc
+	 * @return
+	 */
+	public Error stopDoomDBQPlan(final DoomDBPlanDesc dplanDesc) {
+		Object[] args = { dplanDesc };
+		return this
+				.executeCmd(QueryTrackerServer.CMD_DOOMDB_STOP_PLAN, args);
+	}
 
 	/**
 	 * Executes query tracker plan for given DoomDBPlan

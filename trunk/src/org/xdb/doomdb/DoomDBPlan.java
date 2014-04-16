@@ -7,12 +7,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Vector;
 
 import org.xdb.execute.ComputeNodeDesc;
-import org.xdb.execute.operators.EnumOperatorStatus;
 import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.utils.Dotty;
 import org.xdb.utils.Identifier;
@@ -46,11 +45,11 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	private Map<String, OperatorDesc> deployment = new HashMap<String, OperatorDesc>();
 
 	// compute nodes used in current deployment: name -> desc and desc2name
-	private Map<String, ComputeNodeDesc> nodesName2Desc = new HashMap<String, ComputeNodeDesc>();
-	private Map<ComputeNodeDesc, String> nodesDesc2Name = new HashMap<ComputeNodeDesc, String>();
+	private Map<String, ComputeNodeDesc> nodeName2Desc = new HashMap<String, ComputeNodeDesc>();
+	private Map<ComputeNodeDesc, String> nodeDesc2Name = new HashMap<ComputeNodeDesc, String>();
 
-	// compute nodes status
-	private Map<String, EnumOperatorStatus> nodesName2Status = new HashMap<String, EnumOperatorStatus>();
+	// compute nodes status: name -> status
+	private Map<String, Boolean> nodeName2Status = new HashMap<String, Boolean>();
 	
 	/** compile plan info **/
 
@@ -104,15 +103,15 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 			return;
 
 		this.deployment.clear();
-		this.nodesName2Desc.clear();
-		this.nodesName2Status.clear();
+		this.nodeName2Desc.clear();
+		this.nodeName2Status.clear();
 
 		for (Entry<Identifier, OperatorDesc> entry : deployment.entrySet()) {
 			OperatorDesc operDesc = entry.getValue();
 			this.deployment.put(entry.getKey().toString(), operDesc);
 			String nodeName = getNodeName(operDesc.getComputeNode());
-			this.nodesName2Desc.put(nodeName, operDesc.getComputeNode());
-			this.nodesName2Status.put(nodeName, operDesc.getOperatorStatus());
+			this.nodeName2Desc.put(nodeName, operDesc.getComputeNode());
+			this.nodeName2Status.put(nodeName, operDesc.getOperatorStatus().isAlive());
 		}
 	}
 
@@ -125,18 +124,18 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	}
 
 	public ComputeNodeDesc getComputeNode(String compNodeDesc) {
-		if (this.nodesName2Desc.containsKey(compNodeDesc)) {
-			return this.nodesName2Desc.get(compNodeDesc);
+		if (this.nodeName2Desc.containsKey(compNodeDesc)) {
+			return this.nodeName2Desc.get(compNodeDesc);
 		}
 		return null;
 	}
 
 	public Collection<ComputeNodeDesc> getComputeNodes() {
-		return this.nodesName2Desc.values();
+		return this.nodeName2Desc.values();
 	}
 
 	public int getComputeNodeCount() {
-		return this.nodesName2Desc.size();
+		return this.nodeName2Desc.size();
 	}
 
 	public void setQueryStats(Map<Identifier, Double> queryRuntimesStat,
@@ -152,7 +151,20 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		}
 	}
 
+	private String getNodeName(ComputeNodeDesc nodeDesc) {
+		if (!this.nodeDesc2Name.containsKey(nodeDesc)) {
+			String nodeName = nodeDesc.toString();
+			this.nodeDesc2Name.put(nodeDesc, nodeName);
+		}
+		return this.nodeDesc2Name.get(nodeDesc);
+	}
+	
 	// methods
+	
+	/**
+	 * Returns estimated runtime for query
+	 * @return
+	 */
 	public long getEstimatedTime() {
 		long runtime = 0;
 
@@ -176,12 +188,28 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 
 	@Override
 	public Collection<String> getNodes() {
-		return this.nodesName2Desc.keySet();
+		return this.nodeName2Desc.keySet();
 	}
 
 	@Override
 	public String getNodeForOperator(String opId) {
 		return this.getNodeName(this.getComputeNodeByOp(opId));
+	}
+	
+	@Override
+	public boolean nodeAlive(String nodeDesc) {
+		if(this.nodeName2Status.containsKey(nodeDesc)){
+			return this.nodeName2Status.get(nodeDesc);
+		}
+		return false;
+	}
+	
+	public void killNode(String nodeDesc) {
+		this.nodeName2Status.put(nodeDesc, false);
+	}
+	
+	public void killNode(ComputeNodeDesc nodeDesc) {
+		this.nodeName2Status.put(this.getNodeName(nodeDesc), false);
 	}
 
 	@Override
@@ -207,7 +235,7 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 			operText.append(nodeName);
 
 			node.getInfo().setCaption(operText.toString());
-			String color = this.getColor(operDesc.getOperatorStatus());
+			String color = operDesc.getOperatorStatus().getColor();
 			node.getInfo().setFillColor(color);
 
 			dottyNodes.put(op, node);
@@ -226,38 +254,5 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 		}
 
 		return Dotty.dot2Img(graph, fileName);
-	}
-
-	private String getNodeName(ComputeNodeDesc nodeDesc) {
-		if (!this.nodesDesc2Name.containsKey(nodeDesc)) {
-			String nodeName = nodeDesc.toString();
-			this.nodesDesc2Name.put(nodeDesc, nodeName);
-		}
-		return this.nodesDesc2Name.get(nodeDesc);
-	}
-
-	private String getColor(EnumOperatorStatus status) {
-		switch (status) {
-		case DEPLOYED:
-		case REDEPLOYED:
-			return "GREY";
-		case ABORTED:
-		case FAILED:
-			return "RED";
-		case RUNNING:
-			return "ORANGE";
-		case FINISHED:
-			return "GREEN";
-		default:
-			return "WHITE";
-		}
-	}
-
-	@Override
-	public boolean nodeAlive(String nodeDesc) {
-		if(this.nodesName2Status.containsKey(nodeDesc)){
-			return this.nodesName2Status.get(nodeDesc).isAlive();
-		}
-		return false;
 	}
 }

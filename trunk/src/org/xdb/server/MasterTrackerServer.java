@@ -106,6 +106,10 @@ public class MasterTrackerServer extends AbstractServer {
 					out.writeObject(result2.getObject2());
 					err = result2.getObject1();
 					break;
+				case CMD_DOOMDB_STOP_PLAN:
+					final DoomDBPlanDesc dPlanDesc3 = (DoomDBPlanDesc)in.readObject();
+					err = tracker.stopDoomDBQPlan(dPlanDesc3);
+					break;
 				
 				}
 			} catch (final Exception e) {
@@ -127,8 +131,9 @@ public class MasterTrackerServer extends AbstractServer {
 	public static final int CMD_DOOMDB_GENERATE_PLAN = 101;
 	public static final int CMD_DOOMDB_EXECUTE_PLAN = 102;
 	public static final int CMD_DOOMDB_FINISHED_PLAN = 103; 
-	public static final int CMD_DOOMDB_KILL_NODE = 104;
-
+	public static final int CMD_DOOMDB_STOP_PLAN = 104;
+	public static final int CMD_DOOMDB_KILL_NODE = 105;
+	
 	// Compile Server
 	private final CompileServer compileServer = new CompileServer();
 	

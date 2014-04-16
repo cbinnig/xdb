@@ -70,9 +70,14 @@ public class DoomDBClient implements IDoomDBClient {
 		return this.dplan.tracePlan();
 	}
 	
-	public synchronized void killNode(ComputeNodeDesc computeNodeDesc) { 
+	/**
+	 * Kills node
+	 * @param nodeDesc
+	 */
+	public synchronized void killNode(ComputeNodeDesc nodeDesc) { 
+		this.dplan.killNode(nodeDesc);
 		this.killedNodes++;
-		mClient.restartComputeNode(computeNodeDesc, this.mttr*1000);
+		mClient.restartComputeNode(nodeDesc, this.mttr*1000);
 	}
 
 	// interface methods
@@ -158,6 +163,14 @@ public class DoomDBClient implements IDoomDBClient {
 		
 		Thread runner = new Thread() {
 			public void run() {
+				// add shutdown hook
+				/*Runtime.getRuntime().addShutdownHook(new Thread() {
+					@Override
+					public void run() {
+						stopQuery();
+					}
+				});*/
+				
 				Error err = mClient.executeDoomDBPlan(dplan.getPlanDesc());
 				DoomDBClient.this.stopOnError(err);
 			}
@@ -172,12 +185,32 @@ public class DoomDBClient implements IDoomDBClient {
 	}
 	
 	@Override
-	public void killNode(String node) { 
+	public synchronized void stopQuery() {
+		if(!this.queryRunning){
+			throw new RuntimeException("Query is not running!");
+		}
+		else if (this.dplan == null) {
+			throw new RuntimeException("Provide a query before!");
+		}
+		
+		System.err.println("Force stopping query!!!");
+		
+		// stop query
+		this.mClient.stopDoomDBPlan(this.dplan.getPlanDesc());
+		
+		// restart compute nodes
+		for(String nodeDesc: this.dplan.getNodes()){
+			this.killNode(nodeDesc);
+		}
+	}
+	
+	@Override
+	public void killNode(String nodeDesc) { 
 		if (this.dplan == null) {
 			throw new RuntimeException("Provide a query before!");
 		}
 		
-		ComputeNodeDesc computeNodeDesc = this.dplan.getComputeNode(node);
+		ComputeNodeDesc computeNodeDesc = this.dplan.getComputeNode(nodeDesc);
 		this.killNode(computeNodeDesc);
 	}
 	

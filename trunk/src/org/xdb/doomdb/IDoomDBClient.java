@@ -1,5 +1,11 @@
 package org.xdb.doomdb;
 
+/**
+ * Interface for DoomDB Client
+ * 
+ * @author cbinnig
+ *
+ */
 public interface IDoomDBClient {
 
 	/**
@@ -39,6 +45,11 @@ public interface IDoomDBClient {
 	 * Starts execution of the Query
 	 */
 	void startQuery();
+	
+	/**
+	 * Stops execution of the Query
+	 */
+	void stopQuery();
 	
 	/**
 	 * returns true if the Query is finished.

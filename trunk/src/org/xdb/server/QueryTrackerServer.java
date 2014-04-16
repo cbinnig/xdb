@@ -24,6 +24,7 @@ public class QueryTrackerServer extends AbstractServer {
 	public static final int CMD_DOOMDB_GENERATE_PLAN = 100;
 	public static final int CMD_DOOMDB_EXECUTE_PLAN = 101;
 	public static final int CMD_DOOMDB_FINISHED_PLAN = 102;
+	public static final int CMD_DOOMDB_STOP_PLAN = 103;
 	
 	private final QueryTrackerNode tracker;
 
@@ -93,6 +94,11 @@ public class QueryTrackerServer extends AbstractServer {
 					Tuple<Error, DoomDBPlanStatus> result2 = tracker.finishedDoomDBQPlan(dplanDesc2);
 					out.writeObject(result2.getObject2());
 					err = result2.getObject1();
+					break;
+				case CMD_DOOMDB_STOP_PLAN:
+					//got new compile plan
+					final DoomDBPlanDesc dplanDesc3 = (DoomDBPlanDesc) in.readObject();
+					err = tracker.stopDoomDBQPlan(dplanDesc3);
 					break;
 				}
 				out.writeObject(err);

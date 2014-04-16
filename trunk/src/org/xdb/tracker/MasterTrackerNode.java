@@ -258,6 +258,32 @@ public class MasterTrackerNode {
 
 		return err;
 	}
+	
+	
+	/**
+	 * Stop query tracker plan for given DoomDBPlan
+	 * 
+	 * @param dplanDesc
+	 * @return
+	 */
+	public Error stopDoomDBQPlan(DoomDBPlanDesc dplanDesc) {
+		Error err = new Error();
+
+		if (!this.planAssignment.containsKey(dplanDesc.getCompilePlanId())) {
+			String[] args = { "MasterTracker: No query tracker available!" };
+			err = new Error(EnumError.TRACKER_GENERIC, args);
+			return err;
+		}
+
+		QueryTrackerNodeDesc qTracker = this.planAssignment.get(dplanDesc
+				.getCompilePlanId());
+		final QueryTrackerClient qClient = this.queryTrackerClients
+				.get(qTracker);
+
+		err = qClient.stopDoomDBQPlan(dplanDesc);
+
+		return err;
+	}
 
 	/**
 	 * Executes query tracker plan for given DoomDBPlan

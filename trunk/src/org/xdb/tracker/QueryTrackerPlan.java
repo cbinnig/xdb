@@ -321,6 +321,16 @@ public class QueryTrackerPlan implements Serializable {
 		}
 		return true;
 	}
+	
+	
+	/**
+	 * Stops the execution and monitoring of the plan
+	 */
+	public void stopPlan() {
+		String args[] = {"Query execution interrupted!"};
+		Error err = new Error(EnumError.TRACKER_GENERIC, args);
+		this.setError(err);
+	}
 
 	/**
 	 * Closes all operators in the plan. Result tables are kept if configuration
