@@ -113,18 +113,18 @@ public class QueryTrackerPlan implements Serializable {
 				.getXDBExecuteTimeMeasurement("plan_time");
 	}
 	
-	private synchronized void setError(Error err){
+	private void setError(Error err){
 		if(!err.isError())
 			return;
 		
 		this.err = err;
 	}
 	
-	private synchronized boolean hasError(){
+	private boolean hasError(){
 		return this.err.isError();
 	}
 	
-	private synchronized Error getError(){
+	private Error getError(){
 		return this.err;
 	}
 
@@ -134,11 +134,11 @@ public class QueryTrackerPlan implements Serializable {
 		return planStatus;
 	}
 
-	public synchronized void setExecuted() {
+	public void setExecuted() {
 		this.isExecuted = true;
 	}
 
-	public synchronized boolean isExecuted() {
+	public boolean isExecuted() {
 		return isExecuted;
 	}
 
@@ -583,7 +583,10 @@ public class QueryTrackerPlan implements Serializable {
 		// pick available compute node
 		ComputeNodeDesc assignedNode = this
 				.pickAvailableComputeNode(allComputeNode);
-		if (assignedNode == null) {
+		if (assignedNode == null && Config.QUERYTRACKER_MONITOR_ACTIVATED) {
+			return err;
+		}
+		else if (assignedNode == null){
 			String args[] = { "No node could be assigned to tracker operator "
 					+ operId.toString() };
 			err = new Error(EnumError.TRACKER_GENERIC, args);
@@ -609,26 +612,11 @@ public class QueryTrackerPlan implements Serializable {
 	// Ping the compute nodes and select the first one available.
 	private ComputeNodeDesc pickAvailableComputeNode(
 			List<ComputeNodeDesc> allComputeNode) {
-		int attempts = 0;
-		while (attempts<this.maxAttempts) {
-			for (ComputeNodeDesc ComputeNodeDesc : allComputeNode) {
-				Error err = this.computeClient.pingComputeServer(ComputeNodeDesc);
-				if (!err.isError()) {
-					return ComputeNodeDesc;
-				}
+		for (ComputeNodeDesc ComputeNodeDesc : allComputeNode) {
+			Error err = this.computeClient.pingComputeServer(ComputeNodeDesc);
+			if (!err.isError()) {
+				return ComputeNodeDesc;
 			}
-			
-			if(!Config.QUERYTRACKER_MONITOR_ACTIVATED){
-				return null;
-			}
-			else{
-				try {
-					Thread.sleep(this.monitoringInterval);
-				} catch (InterruptedException e) {
-					
-				}
-			}
-			attempts++;
 		}
 		return null;
 	}

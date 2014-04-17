@@ -14,14 +14,19 @@ public class Error implements Serializable {
 
 	private EnumError type = EnumError.NO_ERROR;
 	private String[] args = null;
-
+	private String msg = null;
+	
 	// constructors
 	public Error() {
+		this.msg = EnumError.toString(type, args);
 	}
 
 	public Error(EnumError type, String[] args) {
 		this.type = type;
 		this.args = args;
+		this.msg = EnumError.toString(type, args);
+		
+		//System.err.println(msg);
 	}
 
 	// methods
@@ -30,7 +35,7 @@ public class Error implements Serializable {
 	}
 
 	public String toString() {
-		return EnumError.toString(type, args);
+		return this.msg;
 	}
 
 	@Override

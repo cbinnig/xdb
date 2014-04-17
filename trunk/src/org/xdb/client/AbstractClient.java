@@ -52,7 +52,7 @@ public abstract class AbstractClient {
 	 * @return
 	 */
 	protected Error createClientError(String url, Exception e) {
-		String[] args = { "Could not connect to server " + url + ": "
+		String[] args = { this.getClass().getName()+" could not connect to server " + url + ": "
 				+ e.toString() };
 		Error err = new Error(EnumError.CLIENT_ERROR, args);
 		logger.log(Level.SEVERE, err.toString());

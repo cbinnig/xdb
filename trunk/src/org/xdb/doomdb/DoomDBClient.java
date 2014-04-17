@@ -9,6 +9,7 @@ import org.xdb.client.MasterTrackerClient;
 import org.xdb.error.Error;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.utils.Identifier;
+import org.xdb.utils.ThreadWithArgs;
 import org.xdb.utils.Tuple;
 
 /**
@@ -74,10 +75,21 @@ public class DoomDBClient implements IDoomDBClient {
 	 * Kills node
 	 * @param nodeDesc
 	 */
-	public synchronized void killNode(ComputeNodeDesc nodeDesc) { 
+	public void killNode(ComputeNodeDesc nodeDesc) { 
 		this.dplan.killNode(nodeDesc);
 		this.killedNodes++;
-		mClient.restartComputeNode(nodeDesc, this.mttr*1000);
+		
+		Object[] args = {nodeDesc};
+		ThreadWithArgs runner = new ThreadWithArgs(args) {
+			public void run() {
+				//System.out.println("DoomDBClient: killNode started!");
+				ComputeNodeDesc nodeDesc = (ComputeNodeDesc) this.args[0];
+				mClient.restartComputeNode(nodeDesc, DoomDBClient.this.mttr*1000);
+				//System.out.println("DoomDBClient: killNode stopped!");
+			}
+		};
+		
+		runner.start();
 	}
 
 	// interface methods
@@ -171,17 +183,22 @@ public class DoomDBClient implements IDoomDBClient {
 					}
 				});*/
 				
+				//System.out.println("DoomDBClient: startQuery started!");
 				Error err = mClient.executeDoomDBPlan(dplan.getPlanDesc());
 				DoomDBClient.this.stopOnError(err);
+				//System.out.println("DoomDBClient: startQuery stopped!");
 			}
 		};
 		
 		runner.start();
 		
 		while(!runner.isAlive()){
-			//Wait
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				
+			}
 		}
-		
 	}
 	
 	@Override

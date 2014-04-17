@@ -28,6 +28,7 @@ import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.server.ComputeServer;
+import org.xdb.server.MasterTrackerServer;
 import org.xdb.server.QueryTrackerServer;
 import org.xdb.utils.Identifier;
 import org.xdb.utils.Tuple;
@@ -71,6 +72,9 @@ public class MasterTrackerNode {
 	private final Map<Identifier, QueryTrackerNodeDesc> planAssignment = new HashMap<Identifier, QueryTrackerNodeDesc>();
 
 	/** Helper **/
+	// server
+	private MasterTrackerServer server;
+	
 	// logger
 	private final Logger logger;
 
@@ -80,13 +84,15 @@ public class MasterTrackerNode {
 	private class ComputeNodeMonitor extends Thread {
 		@Override
 		public void run() {
-			while (true) {
+			//System.out.println("MasterTrackerServer: ComputeNodeMonitor started!");
+			while (server.isRunning()) {
 				MasterTrackerNode.this.pingComputeNodes();
 				try {
 					Thread.sleep(Config.MASTERTRACKER_MONITOR_INTERVAL);
 				} catch (Exception e) {
 				}
 			}
+			//System.out.println("MasterTrackerServer: ComputeNodeMonitor stopped!");
 		}
 	}
 
@@ -94,21 +100,24 @@ public class MasterTrackerNode {
 	private class QueryTrackerMonitor extends Thread {
 		@Override
 		public void run() {
-			while (true) {
+			//System.out.println("MasterTrackerServer: QueryTrackerMonitor started!");
+			while (server.isRunning()) {
 				MasterTrackerNode.this.pingQueryTracker();
 				try {
 					Thread.sleep(Config.MASTERTRACKER_MONITOR_INTERVAL);
 				} catch (Exception e) {
 				}
 			}
+			//System.out.println("MasterTrackerServer: QueryTrackerMonitor stopped!");
 		}
 	}
 
 	/** Master Tracker **/
 
 	// constructor
-	public MasterTrackerNode() {
-		logger = XDBLog.getLogger(EnumXDBComponents.MASTER_TRACKER_SERVER);
+	public MasterTrackerNode(MasterTrackerServer server) {
+		this.logger = XDBLog.getLogger(EnumXDBComponents.MASTER_TRACKER_SERVER);
+		this.server = server;
 	}
 
 	// getters and setters

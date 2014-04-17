@@ -336,6 +336,7 @@ public class QueryTrackerNode {
 	 * @return
 	 */
 	public Error operatorReady(final AbstractExecuteOperator execOp) {
+		//System.out.println("Start operatorReady "+execOp.getOperatorId());
 		Identifier execOpId = execOp.getOperatorId();
 		Identifier planId = execOpId.getParentId(0);
 		QueryTrackerPlan qPlan = this.qPlans.get(planId);
@@ -345,6 +346,8 @@ public class QueryTrackerNode {
 			this.logger.log(Level.SEVERE, args[0]);
 			return new Error(EnumError.TRACKER_GENERIC, args);
 		}
-		return qPlan.operatorReady(execOp);
+		Error err =  qPlan.operatorReady(execOp);
+		//System.out.println("Stop operatorReady "+execOp.getOperatorId());
+		return err;
 	}
 }

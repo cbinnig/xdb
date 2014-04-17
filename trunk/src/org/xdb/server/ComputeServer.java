@@ -170,17 +170,20 @@ public class ComputeServer extends AbstractServer {
 	}
 	
 	@Override
-	public synchronized void startServer(){
-		super.startServer();
+	public synchronized Error  startServer(){
+		this.err = super.startServer();
+		if(this.err.isError())
+			return err;
 		
 		this.err = this.compute.startup(false);
+		return this.err;
 	}
 	
 	@Override
 	public synchronized void stopServer(){
 		super.stopServer();
 		
-		this.err = this.compute.shutdown();
+		this.compute.shutdown();
 	}
 	
 	/**

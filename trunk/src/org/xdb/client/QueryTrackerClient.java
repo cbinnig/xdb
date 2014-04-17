@@ -96,7 +96,8 @@ public class QueryTrackerClient extends AbstractClient {
 	 */
 	public Error operatorReady(final AbstractExecuteOperator op) {
 		Object[] args = { op };
-		return this.executeCmd(QueryTrackerServer.CMD_OPERATOR_READY, args);
+		Error err =  this.executeCmd(QueryTrackerServer.CMD_OPERATOR_READY, args);
+		return err;
 	}
 
 	/**

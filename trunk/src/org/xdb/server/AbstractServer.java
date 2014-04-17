@@ -10,7 +10,9 @@ import java.util.logging.Logger;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.logging.XDBLog;
-import org.xdb.logging.EnumXDBComponents;;
+import org.xdb.logging.EnumXDBComponents;
+
+;
 
 /**
  * Abstract server
@@ -20,14 +22,14 @@ import org.xdb.logging.EnumXDBComponents;;
  */
 public abstract class AbstractServer {
 
-	// CMDs 
+	// CMDs
 	public static final int CMD_RESTART_SERVER = -3;
 	public static final int CMD_STOP_SERVER = -2;
 	public static final int CMD_PING_SERVER = -1;
 
 	// thread
 	protected ServerThread serverThread = null;
-	
+
 	// network
 	protected ServerSocket serverSocket = null;
 	protected int port = -1;
@@ -45,13 +47,19 @@ public abstract class AbstractServer {
 	public Error getError() {
 		return err;
 	}
-	
+
+	public boolean isRunning() {
+		if (this.serverThread != null)
+			return this.serverThread.isRunning();
+		return false;
+	}
+
 	/**
 	 * Starts server thread on local node
 	 */
-	public synchronized void startServer() {
+	public synchronized Error startServer() {
 		if (this.err.isError())
-			return;
+			return this.err;
 
 		// add shutdown hook
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -67,40 +75,52 @@ public abstract class AbstractServer {
 		// wait until thread is started
 		while (!serverThread.isRunning()) {
 			try {
+				if (this.err.isError())
+					return this.err;
+
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
 			}
 		}
+
+		return this.err;
 	}
 
 	/**
 	 * Stops server thread if running
 	 */
 	public synchronized void stopServer() {
-		if (serverThread != null && !serverThread.isInterrupted()) {
-
+		if (serverThread != null && serverThread.isRunning()) {
+			
 			serverThread.interrupt();
 
-			// wait until thread is stopped
-			while (!serverThread.isAlive()) {
+			System.out.print("Stopping "+this.getClass().getSimpleName());
+			while(!serverThread.isInterrupted()){
+				System.out.print(".");
 				try {
-					Thread.sleep(10);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 				}
 			}
+			System.out.println(".");
+			
+			// close socket
+			this.closeSocket();
 
-			// Close socket
-			serverThread.closeSocket();
+			// set status
+			serverThread.setNotRunning();
 
-			// Set server = null
-			serverThread = null;
+			//output message
+			String msg = this.getClass().getSimpleName() + " stopped! ";
+			this.logger.log(Level.INFO, msg);
+			System.out.println(msg);
 		}
 	}
 
 	/**
 	 * Execute server and handle incoming connections
 	 */
-	protected void executeServer(ServerThread thread) {
+	protected void executeServer() {
 
 		try {
 			String msg = this.getClass().getSimpleName() + " started ... ";
@@ -111,9 +131,9 @@ public abstract class AbstractServer {
 			this.serverSocket.setReuseAddress(true);
 			this.serverSocket.bind(new InetSocketAddress(this.port));
 
-			thread.setRunning();
+			serverThread.setRunning();
 
-			while (!thread.isInterrupted() ) {
+			while (!serverThread.isInterrupted()) {
 				try {
 					Socket clientSocket = this.serverSocket.accept();
 					this.handle(clientSocket);
@@ -122,25 +142,15 @@ public abstract class AbstractServer {
 				}
 			}
 
-		} catch (Exception e) {
+		} catch (IOException e) {
 			this.err = this.createServerError(e);
-			System.err.println("Port:"+this.port);
-		} finally {
-			thread.setNotRunning();
-			this.closeSocket();
 		}
-
-		String msg = this.getClass().getSimpleName() + " stopped!";
-		
-		this.logger.log(Level.INFO, msg);
-		System.out.println(msg);
-
 	}
 
 	/**
 	 * Closes server socket
 	 */
-	protected synchronized void closeSocket() {
+	protected void closeSocket() {
 		if (this.serverSocket != null) {
 			try {
 				this.serverSocket.close();
@@ -165,8 +175,6 @@ public abstract class AbstractServer {
 	 * @return Error
 	 */
 	protected Error createServerError(Exception e) {
-		e.printStackTrace();
-
 		String[] args = { e.toString() };
 		Error err = new Error(EnumError.SERVER_ERROR, args);
 		logger.log(Level.SEVERE, err.toString());
