@@ -102,8 +102,8 @@ public class CompileServer extends AbstractServer {
 	}
 
 	@Override
-	public synchronized void startServer(){
-		super.startServer();
+	public synchronized Error startServer(){
+		return super.startServer();
 	}
 	
 	@Override

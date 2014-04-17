@@ -10,13 +10,7 @@ public class ServerThread extends Thread {
 	
 	@Override
 	public void run() {
-		try {
-			this.server.executeServer(this);
-		} catch (Exception ex) {
-			
-		} finally {
-			running = false;
-		}
+		this.server.executeServer();
 	}
 
 	//getters and setters

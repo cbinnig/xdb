@@ -144,8 +144,7 @@ public class MasterTrackerServer extends AbstractServer {
 		super(EnumXDBComponents.MASTER_TRACKER_SERVER);
 		this.port = Config.MASTERTRACKER_PORT;
 		
-		tracker = new MasterTrackerNode();
-		tracker.startup();
+		tracker = new MasterTrackerNode(this);
 	}
 
 	@Override
@@ -164,10 +163,15 @@ public class MasterTrackerServer extends AbstractServer {
 
 	//methods
 	@Override
-	public synchronized void startServer(){
-		super.startServer();
+	public synchronized Error startServer(){
+		this.err = super.startServer();
+		if(this.err.isError())
+			return this.err;
 		
-		this.compileServer.startServer();
+		tracker.startup();
+		
+		this.err = this.compileServer.startServer();
+		return this.err;
 	}
 	
 	@Override

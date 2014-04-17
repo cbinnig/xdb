@@ -127,35 +127,30 @@ public class ComputeNode {
 	 * Shut down compute node and kill all operators
 	 * @return
 	 */
-	public synchronized Error shutdown() {
-		Error err = this.killAllOperators();
+	public synchronized void shutdown() {
+		this.killAllOperators();
 		this.operators.clear();
 		this.executingOperators.clear();
-		return err;
 	}
 
 	/**
 	 * Kill all threads running an operator
 	 * @return
 	 */
-	private Error killAllOperators() {
-		Error err = new Error();
-
-		Set<Long> runningThreads = new HashSet<Long>(
+	private void killAllOperators() {
+				Set<Long> runningThreads = new HashSet<Long>(
 				this.executingOperators.values());
 		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
 		for (Thread thread : threadSet) {
 			if (thread != null && runningThreads.contains(thread.getId())) {
 				thread.interrupt();
 				//System.err.println("Killing thread "+thread.getId());
-				while (!thread.isAlive()) {
-					// do nothing
+				while (!thread.isInterrupted()) {
+					// wait
 				}
 				//System.err.println("Killed thread "+thread.getId());
 			}
 		}
-
-		return err;
 	}
 
 	/**
@@ -233,7 +228,7 @@ public class ComputeNode {
 			OperatorExecutor executor = new OperatorExecutor(op);
 			executingOperators.put(op.getOperatorId(), executor.getId());
 			executor.start();
-			return executor.getLastError();
+			return executor.getError();
 		}
 
 		return err;
@@ -274,7 +269,7 @@ public class ComputeNode {
 			this.op = op;
 		}
 
-		public Error getLastError() {
+		public Error getError() {
 			return this.err;
 		}
 
@@ -303,13 +298,16 @@ public class ComputeNode {
 
 		@Override
 		public void run() {
+			//System.out.println("Start op "+op.getOperatorId());
 			try{
 				this.executeOperator(op);
 			}
 			catch(Exception e){
-				//ignore other exceptions
+				//ignore exceptions
 				//e.printStackTrace();
 			}
+			//System.out.println("Stop op "+op.getOperatorId());
+			
 		}
 	}
 

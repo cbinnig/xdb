@@ -3,6 +3,7 @@ package org.xdb.doomdb;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,7 +50,8 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 	private Map<ComputeNodeDesc, String> nodeDesc2Name = new HashMap<ComputeNodeDesc, String>();
 
 	// compute nodes status: name -> status
-	private Map<String, Boolean> nodeName2Status = new HashMap<String, Boolean>();
+	private Map<String, Boolean> nodeName2Status = Collections
+			.synchronizedMap(new HashMap<String, Boolean>());
 	
 	/** compile plan info **/
 

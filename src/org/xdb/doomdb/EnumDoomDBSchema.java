@@ -163,11 +163,10 @@ public enum EnumDoomDBSchema {
 				mattimes.put(new Identifier(Integer.parseInt(opId)),
 						Double.parseDouble(props.getProperty(opId).trim()));
 			}
-			int queryId = 5;
-
-			opMaterializabilityMap.put(queryId, materializability);
-			runTimeMap.put(queryId, runtimes);
-			matTimeMap.put(queryId, mattimes);
+			
+			opMaterializabilityMap.put(queryID, materializability);
+			runTimeMap.put(queryID, runtimes);
+			matTimeMap.put(queryID, mattimes);
 
 		} catch (Exception e) {
 			e.printStackTrace();

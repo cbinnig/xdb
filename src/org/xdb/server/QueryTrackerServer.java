@@ -76,6 +76,7 @@ public class QueryTrackerServer extends AbstractServer {
 				case CMD_OPERATOR_READY:
 					final AbstractExecuteOperator op = (AbstractExecuteOperator) in.readObject();
 					err = tracker.operatorReady(op);
+					break;
 				case CMD_DOOMDB_GENERATE_PLAN:
 					final CompilePlan cplan2 = (CompilePlan) in.readObject();
 					Tuple<Error, DoomDBPlan> result = tracker.generateDoomDBQPlan(cplan2);
@@ -118,10 +119,13 @@ public class QueryTrackerServer extends AbstractServer {
 	}
 	
 	@Override
-	public synchronized void startServer(){
-		super.startServer();
+	public synchronized Error startServer(){
+		this.err = super.startServer();
+		if(this.err.isError())
+			return this.err;
 		
 		this.err = this.tracker.startup();
+		return this.err;
 	}
 	
 	/**
