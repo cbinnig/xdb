@@ -110,22 +110,23 @@ public class QueryTrackerNode {
 	 */
 	public Tuple<QueryTrackerPlan, Error> generateQueryTrackerPlan(
 			final CompilePlan compilePlan) {
+		// generate QTPLan from CPlan
 		Error err = new Error();
 		CodeGenerator codeGen = new CodeGenerator(compilePlan);
 		err = codeGen.generate();
-		if (err.isError())
+		if (err.isError()){
 			return new Tuple<QueryTrackerPlan, Error>(null, err);
-
+		}
+		
+		// assign QT to QTPlan
 		QueryTrackerPlan qplan = codeGen.getQueryTrackerPlan();
-
-		// trace query tracker plan
+		qplan.assignTracker(this);
+		
+		// trace QTPLan
 		if (Config.TRACE_TRACKER_PLAN) {
 			qplan.tracePlan(qplan.getClass().getCanonicalName()
 					+ "QUERY_TRACKER");
 		}
-
-		// assign query tracker to query tracker plan
-		qplan.assignTracker(this);
 
 		return new Tuple<QueryTrackerPlan, Error>(qplan, err);
 	}
@@ -136,7 +137,7 @@ public class QueryTrackerNode {
 	 * @param cplan
 	 * @return
 	 */
-	private Tuple<Error, QueryTrackerPlan> executePlanPhase1(
+	private Tuple<Error, QueryTrackerPlan> prepareQTPlan(
 			final CompilePlan cplan) {
 		// initialize compile plan: get logger back
 		cplan.init();
@@ -159,11 +160,6 @@ public class QueryTrackerNode {
 
 		// 3. deploy query tracker plan
 		err = qplan.deployPlan();
-		if (err.isError()) {
-			qplan.cleanPlan();
-			return new Tuple<Error, QueryTrackerPlan>(err, null);
-		}
-
 		return new Tuple<Error, QueryTrackerPlan>(err, qplan);
 	}
 
@@ -173,22 +169,11 @@ public class QueryTrackerNode {
 	 * @param qplan
 	 * @return
 	 */
-	private Error executePlanPhase2(QueryTrackerPlan qplan) {
+	private Error executeQTPlan(QueryTrackerPlan qplan) {
 		Error err = new Error();
 
-		// 4. Execute query tracker plan
+		// 1. Execute query tracker plan
 		err = qplan.executePlan();
-		if (err.isError()) {
-			qplan.cleanPlan();
-			return err;
-		}
-
-		// 5. Clean query tracker plan
-		err = qplan.cleanPlan();
-		if (err.isError()) {
-			qplan.cleanPlan();
-			return err;
-		}
 		return err;
 	}
 
@@ -204,23 +189,22 @@ public class QueryTrackerNode {
 		Error err = new Error();
 		QueryTrackerPlan qplan = null;
 
-		// 1. prepare execution
-		Tuple<Error, QueryTrackerPlan> qPLanResult = executePlanPhase1(cplan);
+		// 1. prepare query tracker plan
+		Tuple<Error, QueryTrackerPlan> qPLanResult = this.prepareQTPlan(cplan);
 		err = qPLanResult.getObject1();
 		qplan = qPLanResult.getObject2();
-		if (err.isError()) {
-			if(qplan != null)
-				qplan.cleanPlan();
+		if(qplan == null){
 			return err;
 		}
-
-		// 2. execute prepared plan
-		err = this.executePlanPhase2(qplan);
-		if (err.isError()) {
+		else if (err.isError()) {
 			qplan.cleanPlan();
 			return err;
 		}
 
+		// 2. execute prepared plan
+		err = this.executeQTPlan(qplan);
+		qplan.cleanPlan();
+		
 		return err;
 	}
 
@@ -230,12 +214,12 @@ public class QueryTrackerNode {
 	 * @param cplan
 	 * @return
 	 */
-	public Tuple<Error, DoomDBPlan> generateDoomDBQPlan(final CompilePlan cplan) {
+	public Tuple<Error, DoomDBPlan> generateDoomDBQTPlan(final CompilePlan cplan) {
 		Error err = new Error();
 		QueryTrackerPlan qplan = null;
 
-		// 1. prepare execution
-		Tuple<Error, QueryTrackerPlan> qPLanResult = this.executePlanPhase1(cplan);
+		// 1. prepare QTracker plan
+		Tuple<Error, QueryTrackerPlan> qPLanResult = this.prepareQTPlan(cplan);
 		err = qPLanResult.getObject1();
 		qplan = qPLanResult.getObject2();
 		if (err.isError()) {
@@ -248,6 +232,7 @@ public class QueryTrackerNode {
 		dplan.setDeployment(qplan.getCurrentDeployment());
 		dplan.setMatCompileOps(cplan.getMatOps());
 		qplan.createDoomDBFromQPlan(dplan);
+		
 		return new Tuple<Error, DoomDBPlan>(err, dplan);
 	}
 
@@ -257,8 +242,10 @@ public class QueryTrackerNode {
 	 * @param dplanDesc
 	 * @return
 	 */
-	public Error executeDoomDBQPlan(DoomDBPlanDesc dplanDesc) {
+	public Error executeDoomDBQTPlan(DoomDBPlanDesc dplanDesc) {
 		Error err = new Error();
+		
+		// 1. get QTracker plan for DoomDB plan
 		if (!this.qPlans.containsKey(dplanDesc.getQtrackerPlanId())) {
 			String[] args = { "Plan with id " + dplanDesc.getQtrackerPlanId()
 					+ " not found in " + this.qPlans.keySet() };
@@ -266,7 +253,10 @@ public class QueryTrackerNode {
 			return new Error(EnumError.TRACKER_GENERIC, args);
 		}
 		QueryTrackerPlan qplan = this.qPlans.get(dplanDesc.getQtrackerPlanId());
-		err = this.executePlanPhase2(qplan);
+		
+		// 2. execute prepared QTracker plan
+		err = this.executeQTPlan(qplan);
+		qplan.cleanPlan();
 		return err;
 	}
 	

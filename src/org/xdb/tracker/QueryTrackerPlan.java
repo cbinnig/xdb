@@ -112,19 +112,19 @@ public class QueryTrackerPlan implements Serializable {
 		this.timeMeasure = XDBExecuteTimeMeasurement
 				.getXDBExecuteTimeMeasurement("plan_time");
 	}
-	
-	private void setError(Error err){
-		if(!err.isError())
+
+	private void setError(Error err) {
+		if (!err.isError())
 			return;
-		
+
 		this.err = err;
 	}
-	
-	private boolean hasError(){
+
+	private boolean hasError() {
 		return this.err.isError();
 	}
-	
-	private Error getError(){
+
+	private Error getError() {
 		return this.err;
 	}
 
@@ -321,13 +321,12 @@ public class QueryTrackerPlan implements Serializable {
 		}
 		return true;
 	}
-	
-	
+
 	/**
 	 * Stops the execution and monitoring of the plan
 	 */
 	public void stopPlan() {
-		String args[] = {"Query execution interrupted!"};
+		String args[] = { "Query execution interrupted!" };
 		Error err = new Error(EnumError.TRACKER_GENERIC, args);
 		this.setError(err);
 	}
@@ -339,17 +338,19 @@ public class QueryTrackerPlan implements Serializable {
 	 * 
 	 */
 	public Error cleanPlan() {
-		if (!Config.COMPUTE_CLEAN_PLAN)
-			return this.getError();
-
-		// close operators which are no root operators
-		for (final Entry<AbstractExecuteOperator, OperatorDesc> entry : this.executeOps
-				.entrySet()) {
-			final OperatorDesc operDesc = entry.getValue();
-			final AbstractExecuteOperator execOp = entry.getKey();
-
-			computeClient.closeOperator(operDesc, execOp);
+		if (Config.COMPUTE_CLEAN_PLAN) {
+			// close operators which are no root operators
+			for (final Entry<AbstractExecuteOperator, OperatorDesc> entry : this.executeOps
+					.entrySet()) {
+				final AbstractExecuteOperator execOp = entry.getKey();
+				final OperatorDesc operDesc = entry.getValue();
+				computeClient.closeOperator(operDesc, execOp);
+			}
 		}
+
+		// set status to executed after cleaning
+		this.setExecuted();
+
 		return this.getError();
 	}
 
@@ -437,8 +438,6 @@ public class QueryTrackerPlan implements Serializable {
 		this.timeMeasure.stop(this.getPlanId().toString());
 		this.setQueryExecutionTime(this.timeMeasure.getExecutionTime(this
 				.getPlanId().toString()));
-
-		this.setExecuted();
 
 		return this.getError();
 	}
@@ -541,8 +540,8 @@ public class QueryTrackerPlan implements Serializable {
 	 */
 	private void assignComputeNodes2AllOperators() {
 		for (final Identifier opId : this.trackerOpsOrder) {
-			this.setError(this
-					.assignComputeNode(opId, EnumOperatorStatus.DEPLOYED));
+			this.setError(this.assignComputeNode(opId,
+					EnumOperatorStatus.DEPLOYED));
 			if (this.hasError())
 				return;
 		}
@@ -558,7 +557,7 @@ public class QueryTrackerPlan implements Serializable {
 			if (operator.getOperatorStatus().isRepairableFailure()) {
 				this.setError(this.assignComputeNode(opId,
 						EnumOperatorStatus.REDEPLOYED));
-				
+
 				if (this.hasError())
 					return;
 			}
@@ -585,8 +584,7 @@ public class QueryTrackerPlan implements Serializable {
 				.pickAvailableComputeNode(allComputeNode);
 		if (assignedNode == null && Config.QUERYTRACKER_MONITOR_ACTIVATED) {
 			return err;
-		}
-		else if (assignedNode == null){
+		} else if (assignedNode == null) {
 			String args[] = { "No node could be assigned to tracker operator "
 					+ operId.toString() };
 			err = new Error(EnumError.TRACKER_GENERIC, args);
@@ -753,10 +751,10 @@ public class QueryTrackerPlan implements Serializable {
 			// if the operator is a leave, then send a start signal
 			if (this.leaves.contains(trackerOpId)) {
 				opErr = computeClient.executeOperator(executeOpDesc);
-				if(opErr.isError()){
-					executeOpDesc.setOperatorStatus(EnumOperatorStatus.getRuntimeFailure());
-				}
-				else{
+				if (opErr.isError()) {
+					executeOpDesc.setOperatorStatus(EnumOperatorStatus
+							.getRuntimeFailure());
+				} else {
 					this.storeReadySignals(Config.COMPUTE_NOOP_ID, trackerOpId);
 				}
 			}
@@ -771,12 +769,12 @@ public class QueryTrackerPlan implements Serializable {
 							EnumOperatorStatus.FINISHED)) {
 						opErr = computeClient.executeOperator(
 								sourceOpDesc.getOperatorID(), executeOpDesc);
-						if(opErr.isError()){
-							executeOpDesc.setOperatorStatus(EnumOperatorStatus.getRuntimeFailure());
-						}
-						else{
+						if (opErr.isError()) {
+							executeOpDesc.setOperatorStatus(EnumOperatorStatus
+									.getRuntimeFailure());
+						} else {
 							this.storeReadySignals(sourceTrackerId, trackerOpId);
-						}	
+						}
 					}
 				}
 			}
@@ -818,15 +816,14 @@ public class QueryTrackerPlan implements Serializable {
 		if (execOp.getStatus().isNonRepairableFailure()) {
 			opErr = execOp.getLastError();
 			this.setError(opErr);
-			
+
 			if (Config.QUERYTRACKER_MONITOR_ACTIVATED)
 				monitoringLock.unlock();
 			return opErr;
-		}
-		else if (execOp.getStatus().isRepairableFailure()){
+		} else if (execOp.getStatus().isRepairableFailure()) {
 			if (Config.QUERYTRACKER_MONITOR_ACTIVATED)
 				monitoringLock.unlock();
-			
+
 			return opErr;
 		}
 

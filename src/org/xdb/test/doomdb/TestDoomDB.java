@@ -66,10 +66,10 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 
 		// execute plan w failures
 		System.out.println("Query Execution: ");
-		System.out.print("\tRunning ");
 		this.dClient.startQuery();
 		doomDBFailureSimulator.start();
 
+		//int i=0;
 		while (!this.dClient.isQueryFinished()) {
 			System.out.print(".");
 			this.dClient.tracePlan();
@@ -79,6 +79,10 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 			} catch (InterruptedException e) {
 				// do nothing
 			}
+			//i++;
+			
+			//if(i==4)
+			//	this.dClient.stopQuery();
 		}
 		doomDBFailureSimulator.interrupt();
 
