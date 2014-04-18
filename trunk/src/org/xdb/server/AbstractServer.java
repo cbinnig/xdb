@@ -69,19 +69,27 @@ public abstract class AbstractServer {
 			}
 		});
 
+		System.out.print(this.getClass().getSimpleName() + " ...");
+
 		serverThread = new ServerThread(this);
 		serverThread.start();
 
 		// wait until thread is started
 		while (!serverThread.isRunning()) {
+			System.out.print(".");
+			
 			try {
 				if (this.err.isError())
 					return this.err;
-
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
 			}
 		}
+		
+		String msg = this.getClass().getSimpleName() + " ... started";
+		this.logger.log(Level.INFO, msg);
+		
+		System.out.println(" started!");
 
 		return this.err;
 	}
@@ -94,15 +102,14 @@ public abstract class AbstractServer {
 			
 			serverThread.interrupt();
 
-			System.out.print("Stopping "+this.getClass().getSimpleName());
+			System.out.print(this.getClass().getSimpleName() + " ...");
 			while(!serverThread.isInterrupted()){
 				System.out.print(".");
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(10);
 				} catch (InterruptedException e) {
 				}
 			}
-			System.out.println(".");
 			
 			// close socket
 			this.closeSocket();
@@ -111,9 +118,9 @@ public abstract class AbstractServer {
 			serverThread.setNotRunning();
 
 			//output message
-			String msg = this.getClass().getSimpleName() + " stopped! ";
+			String msg = this.getClass().getSimpleName() + " stopped!";
 			this.logger.log(Level.INFO, msg);
-			System.out.println(msg);
+			System.out.println(" stopped!");
 		}
 	}
 
@@ -123,10 +130,6 @@ public abstract class AbstractServer {
 	protected void executeServer() {
 
 		try {
-			String msg = this.getClass().getSimpleName() + " started ... ";
-			this.logger.log(Level.INFO, msg);
-			System.out.println(msg);
-
 			this.serverSocket = new ServerSocket();
 			this.serverSocket.setReuseAddress(true);
 			this.serverSocket.bind(new InetSocketAddress(this.port));

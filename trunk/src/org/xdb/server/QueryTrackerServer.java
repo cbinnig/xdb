@@ -79,14 +79,14 @@ public class QueryTrackerServer extends AbstractServer {
 					break;
 				case CMD_DOOMDB_GENERATE_PLAN:
 					final CompilePlan cplan2 = (CompilePlan) in.readObject();
-					Tuple<Error, DoomDBPlan> result = tracker.generateDoomDBQPlan(cplan2);
+					Tuple<Error, DoomDBPlan> result = tracker.generateDoomDBQTPlan(cplan2);
 					out.writeObject(result.getObject2());
 					err = result.getObject1();
 					break;
 				case CMD_DOOMDB_EXECUTE_PLAN:
 					//got new compile plan
 					final DoomDBPlanDesc dplanDesc = (DoomDBPlanDesc) in.readObject();
-					err = tracker.executeDoomDBQPlan(dplanDesc);
+					err = tracker.executeDoomDBQTPlan(dplanDesc);
 					break;
 				case CMD_DOOMDB_FINISHED_PLAN:
 					//got new compile plan

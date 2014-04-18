@@ -175,14 +175,6 @@ public class DoomDBClient implements IDoomDBClient {
 		
 		Thread runner = new Thread() {
 			public void run() {
-				// add shutdown hook
-				/*Runtime.getRuntime().addShutdownHook(new Thread() {
-					@Override
-					public void run() {
-						stopQuery();
-					}
-				});*/
-				
 				//System.out.println("DoomDBClient: startQuery started!");
 				Error err = mClient.executeDoomDBPlan(dplan.getPlanDesc());
 				DoomDBClient.this.stopOnError(err);
@@ -203,11 +195,9 @@ public class DoomDBClient implements IDoomDBClient {
 	
 	@Override
 	public synchronized void stopQuery() {
-		if(!this.queryRunning){
-			throw new RuntimeException("Query is not running!");
-		}
-		else if (this.dplan == null) {
-			throw new RuntimeException("Provide a query before!");
+		// check if query is running
+		if(!this.queryRunning || this.dplan == null) {
+			return;
 		}
 		
 		System.err.println("Force stopping query!!!");
