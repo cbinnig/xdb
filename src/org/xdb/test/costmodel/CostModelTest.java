@@ -2,9 +2,11 @@ package org.xdb.test.costmodel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.faulttolerance.costmodel.MaterializationOpsSuggester;
 import org.xdb.funsql.compile.CompilePlan;
@@ -70,7 +72,7 @@ public class CostModelTest extends TestCase{
 		projOpResultDesc.setPartitionCount(1);  
 		projOp.setResult(projOpResultDesc); 
 		
-		this.cplan.tracePlan(this.getClass().getName()+"_Compiled");
+		//this.cplan.tracePlan(this.getClass().getName()+"_Compiled");
 			 
 	}
 
@@ -91,8 +93,10 @@ public class CostModelTest extends TestCase{
 		this.intermediadeResultsMatTime.put(id3, 0.009);
 		this.intermediadeResultsMatTime.put(id4, 0.009);
 		this.intermediadeResultsMatTime.put(id5, 0.009);  
-		
-		List<Identifier> nonMatops = new ArrayList<Identifier>();
+		 
+		// Adding one non materializable operator.
+		List<Identifier> nonMatops = new ArrayList<Identifier>(); 
+		nonMatops.add(id4);
 	
 		MaterializationOpsSuggester matSuggester = new MaterializationOpsSuggester
 				(cplan, this.opsEstimatedRuntime, this.intermediadeResultsMatTime, nonMatops, 20, 2);  
@@ -100,17 +104,21 @@ public class CostModelTest extends TestCase{
 		List<Identifier> expected = new ArrayList<Identifier>();
 		List<Identifier> result = new ArrayList<Identifier>();
 
-		expected.add(new Identifier("3"));  
-		expected.add(new Identifier("5"));
+		if(Config.COMPILE_FT_MODE.equalsIgnoreCase("naive")){
+			expected.add(new Identifier("2"));
+			expected.add(new Identifier("3"));  
+			expected.add(new Identifier("5")); 
+		} else if(Config.COMPILE_FT_MODE.equalsIgnoreCase("smart")) {
+			expected.add(new Identifier("5"));  
+			expected.add(new Identifier("3"));  
+		} else { 
+			assertFalse("Unknown materialization mode: "+Config.COMPILE_FT_MODE, true);
+		}
 	
 		err = matSuggester.startCostModel();   
 		if(!err.isError()){
 			result = matSuggester.getRecommendedMatOpsIds();
-			//Assert.assertEquals(expected, result);
-			System.out.println(result);
-		}
-		
-
+			assertEquals(new HashSet<Identifier>(expected), new HashSet<Identifier>(result));
+		}		
 	}  
-
 }

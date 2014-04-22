@@ -167,9 +167,10 @@ public class MaterializationOpsSuggester {
 		Collection<AbstractCompileOperator> ops = this.compilePlan.getOperators();  
 		for (AbstractCompileOperator abstractCompileOperator : ops) {
 			if(abstractCompileOperator.getType() == EnumOperator.TABLE
-					|| nonMaterializableOps.contains(abstractCompileOperator.getOperatorId())) 
+					|| nonMaterializableOps.contains(abstractCompileOperator.getOperatorId().getChildId())) 
 				continue;
-			abstractCompileOperator.getResult().materialize(true);   
+			abstractCompileOperator.getResult().materialize(true);    
+			this.recommendedMatOpsIds.add(abstractCompileOperator.getOperatorId().getChildId());
 		}
 		
 		return err;
