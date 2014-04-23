@@ -14,11 +14,11 @@ import org.xdb.utils.Identifier;
 import org.xdb.utils.StringTemplate;
 
 public enum EnumDoomDBSchema {
-	TPCH_SF01_1PART("TPCH_SF01_1P", "tpch_s01"),
-	TPCH_SF01_2PARTS("TPCH_SF01_2P", "tpch_s01"),
-	TPCH_SF01_10PARTS("TPCH_SF01_10P", "tpch_s01"),
-	TPCH_SF10_10PARTS("TPCH_SF10_10P", "tpch_s01"),	// TODO: database name should be fixed
-	TPCH_SF100_10PARTS("TPCH_SF100_10P", "tpch_s01");	// TODO: database name should be fixed
+	TPCH_SF01_1PART("TPCH_SF01_1P", Config.DOOMDB_TPCH_S01),
+	TPCH_SF01_2PARTS("TPCH_SF01_2P", Config.DOOMDB_TPCH_S01),
+	TPCH_SF01_10PARTS("TPCH_SF01_10P", Config.DOOMDB_TPCH_S01),
+	TPCH_SF10_10PARTS("TPCH_SF10_10P", Config.DOOMDB_TPCH_S10),	
+	TPCH_SF100_10PARTS("TPCH_SF100_10P", Config.DOOMDB_TPCH_S100);	
 	
 	private static String tpchQ1 = "select	l_returnflag,	"
 			+ "l_linestatus,	"

@@ -3,34 +3,28 @@ package org.xdb.execute.signals;
 import java.io.Serializable;
 
 import org.xdb.execute.ComputeNodeDesc;
-import org.xdb.utils.Identifier;
 
+/**
+ * Signal  which is send to compute node in order 
+ * to simulate a node failure by a restart 
+ * 
+ * @author cbinnig
+ *
+ */
 public class RestartSignal implements Serializable { 
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -547700923322945569L;
 	
-	private Identifier failedExecOpId;  
-	
+	// description of compute node to restart
 	private ComputeNodeDesc computeNodeDecs;
 	
+	// time until node restarts after repair 
 	private int timeToRepair; 
 	
-
-	/**
-	 * @return the failedExecOpId
-	 */
-	public Identifier getFailedExecOpId() {
-		return failedExecOpId;
-	}
-
-	/**
-	 * @param failedExecOpId the failedExecOpId to set
-	 */
-	public void setFailedExecOpId(Identifier failedExecOpId) {
-		this.failedExecOpId = failedExecOpId;
+	public RestartSignal(ComputeNodeDesc computeNodeDecs, int timeToRepair) {
+		super();
+		this.computeNodeDecs = computeNodeDecs;
+		this.timeToRepair = timeToRepair;
 	}
 
 	/**
@@ -41,25 +35,9 @@ public class RestartSignal implements Serializable {
 	}
 
 	/**
-	 * @param meantimeBetweenFailure the meantimeBetweenFailure to set
-	 */
-	public void setTimeToRepair(int timeToRepair) {
-		this.timeToRepair = timeToRepair;
-	}
-
-	/**
 	 * @return the computeNodeDecs
 	 */
 	public ComputeNodeDesc getComputeNodeDecs() {
 		return computeNodeDecs;
 	}
-
-	/**
-	 * @param computeNodeDecs the computeNodeDecs to set
-	 */
-	public void setComputeNodeDecs(ComputeNodeDesc computeNodeDecs) {
-		this.computeNodeDecs = computeNodeDecs;
-	} 
-	
-
 }

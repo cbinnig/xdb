@@ -7,18 +7,24 @@ import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.server.MasterTrackerServer;
 
 /**
- * Test case with partitioned TPC-H schema
+ * Test case of query execution with simulated failures
+ * with partitioned TPC-H schema
  * 
  * @author cbinnig
  * 
  */
 public class TestDoomDB extends org.xdb.test.TestCase {
+	private boolean qtMonitorActivated = false;
+	private boolean mtMonitorActivated = false;
+	
 	private DoomDBClient dClient;
 	private MasterTrackerServer mTrackerServer;
 
 	@Override
 	public void setUp() {
 		// Activate monitors
+		this.qtMonitorActivated = Config.MASTERTRACKER_MONITOR_ACTIVATED;
+		this.mtMonitorActivated = Config.QUERYTRACKER_MONITOR_ACTIVATED;
 		Config.MASTERTRACKER_MONITOR_ACTIVATED = true;
 		Config.QUERYTRACKER_MONITOR_ACTIVATED = true;
 
@@ -40,6 +46,10 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		if (Config.TEST_RUN_LOCAL) {
 			this.mTrackerServer.stopServer();
 		}
+		
+		// set configuration flags back to initial values
+		Config.MASTERTRACKER_MONITOR_ACTIVATED = this.mtMonitorActivated;
+		Config.QUERYTRACKER_MONITOR_ACTIVATED = this.qtMonitorActivated;
 	}
 
 	private void runPlan() {
@@ -71,8 +81,13 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 
 		//int i=0;
 		while (!this.dClient.isQueryFinished()) {
-			System.out.print(".");
+			//System.out.print(".");
 			this.dClient.tracePlan();
+			
+			for(String nodeDesc: dplan.getNodes()){
+				boolean nodeAlive = this.dClient.nodeAlive(nodeDesc);
+				System.out.println(nodeDesc +" alive: "+nodeAlive); 
+			}
 			
 			try {
 				Thread.sleep(500);
@@ -127,5 +142,4 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		this.dClient.setQuery(5);
 		this.runPlan();
 	}
-	
 }

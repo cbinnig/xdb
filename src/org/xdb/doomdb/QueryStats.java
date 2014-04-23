@@ -10,15 +10,11 @@ import org.xdb.utils.Identifier;
 
 public class QueryStats implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;  
+	
+	private static final long serialVersionUID = -1889447598280403462L;
 	
 	private Map<Identifier, Double> queryRuntimesStat = new HashMap<Identifier, Double>(); 
-	
 	private Map<Identifier, Double> queryMattimesStat = new HashMap<Identifier, Double>(); 
-	
 	private List<Identifier> nonMatOps = new ArrayList<Identifier>(); 
 	
 	public QueryStats(){

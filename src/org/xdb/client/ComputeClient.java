@@ -179,8 +179,7 @@ public class ComputeClient extends AbstractClient {
 	 * @return
 	 */
 	public Error restartComputeNode(ComputeNodeDesc url, int mttr) {
-		final RestartSignal restartSignal = new RestartSignal();
-		restartSignal.setTimeToRepair(mttr);
+		final RestartSignal restartSignal = new RestartSignal(url, mttr);
 		Object[] args = { restartSignal };
 		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_RESTART_SERVER, args);
