@@ -123,13 +123,17 @@ public class Config implements Serializable {
 	// DoomDB
 	public static String DOOMDB_CONFIG_FILE = "./config/doomdb.conf";
 	public static boolean DOOMDB_MTBF_UPDATE = false; // in s
-	public static int DOOMDB_MTBF = 10; // in s
+	public static int DOOMDB_MTBF = 20; // in s
 	public static int DOOMDB_MTBF_STDEV = 2; // in s
 	public static int DOOMDB_MTTR = 5; // in s
 	public static int DOOMDB_NUM_FAILUERS = 100; // num of failures
-	public static int DOOMDB_CLUSTER_SIZE = 4; // in s
-	public static String DOOMDB_COMPUTE_NODES = "127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1";
-
+	public static int DOOMDB_CLUSTER_SIZE = 2; // in s
+	public static String DOOMDB_COMPUTE_NODES = "127.0.0.1,locahost";
+	public static String DOOMDB_TPCH_S01 = "tpch_s01";
+	public static String DOOMDB_TPCH_S1 = "tpch_s1";
+	public static String DOOMDB_TPCH_S10 = "tpch_s10";
+	public static String DOOMDB_TPCH_S100 = "tpch_s100";
+	
 	// Logging
 	private static Logger logger = XDBLog.getLogger(EnumXDBComponents.CONFIG);
 
@@ -177,7 +181,8 @@ public class Config implements Serializable {
 		String[] intProperties = { "DOOMDB_MTBF", "DOOMDB_MTBF_STDEV",
 				"DOOMDB_MTTR", "DOOMDB_CLUSTER_SIZE", "DOOMDB_NUM_FAILUERS" };
 
-		String[] stringProperties = { "DOOMDB_COMPUTE_NODES" };
+		String[] stringProperties = { "DOOMDB_COMPUTE_NODES", "DOOMDB_TPCH_S01",
+				"DOOMDB_TPCH_S1","DOOMDB_TPCH_S10","DOOMDB_TPCH_S100"};
 
 		String[] boolProperties = { "DOOMDB_MTBF_LOAD" };
 

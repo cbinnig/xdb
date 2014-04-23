@@ -9,10 +9,13 @@ import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.statement.AbstractServerStmt;
 
+/**
+ * Implements an XDB test case 
+ * 
+ * @author cbinnig
+ *
+ */
 public abstract class TestCase extends junit.framework.TestCase {
-
-	protected static final String CREATE_TABLE_DDL = "CREATE TABLE ";
-	protected static final String DROP_TABLE_DDL = "DROP TABLE ";
 
 	/**
 	 * Asserts if error occurred
@@ -83,20 +86,20 @@ public abstract class TestCase extends junit.framework.TestCase {
 	}
 
 	/**
-	 * Executes statement on local node
+	 * Executes statement on local node without returning a result
 	 * @param query
 	 */
-	protected void executeComputeStatement(String query) {
-		this.executeComputeQuery(Config.COMPUTE_DB_URL
+	protected void executeComputeStmt(String query) {
+		this.executeComputeStmt(Config.COMPUTE_DB_URL
 				+ Config.COMPUTE_DB_NAME, query);
 	}
 	
 	/**
-	 * Executes statement  on a given node
+	 * Executes statement on a given node without returning a result
 	 * @param dburl
 	 * @param query
 	 */
-	protected void executeComputeStatement(String dburl, String query) {
+	protected void executeComputeStmt(String dburl, String query) {
 		try {
 			Class.forName(Config.COMPUTE_DRIVER_CLASS);
 			Connection conn = DriverManager.getConnection(dburl,

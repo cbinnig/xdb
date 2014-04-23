@@ -168,10 +168,8 @@ public class MasterTrackerClient extends AbstractClient {
 	}
 
 	public Error restartComputeNode(ComputeNodeDesc computeNodeDesc, int mttr) {
-		final RestartSignal restartSignal = new RestartSignal(); 
-		restartSignal.setTimeToRepair(mttr); 
-		restartSignal.setComputeNodeDecs(computeNodeDesc);
-        Object[] args = { restartSignal };
+		final RestartSignal restartSignal = new RestartSignal(computeNodeDesc, mttr); 
+		Object[] args = { restartSignal };
 		return this.executeCmd(
 				MasterTrackerServer.CMD_DOOMDB_KILL_NODE, args);
 	}
