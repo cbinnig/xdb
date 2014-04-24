@@ -1,10 +1,6 @@
 #summary How to setup the DHBW clusters.
 
-= Introduction =
-
-Erfan: can you put this somewhere on a WIKI. Maybe google code?
-
-----------
+= How to setup the DHBW clusters =
 
 Config for your local machine:
 
