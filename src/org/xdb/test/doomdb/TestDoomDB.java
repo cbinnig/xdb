@@ -81,13 +81,13 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 
 		//int i=0;
 		while (!this.dClient.isQueryFinished()) {
-			//System.out.print(".");
+			System.out.print(".");
 			this.dClient.tracePlan();
 			
-			for(String nodeDesc: dplan.getNodes()){
+			/*for(String nodeDesc: dplan.getNodes()){
 				boolean nodeAlive = this.dClient.nodeAlive(nodeDesc);
 				System.out.println(nodeDesc +" alive: "+nodeAlive); 
-			}
+			}*/
 			
 			try {
 				Thread.sleep(500);
