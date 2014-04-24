@@ -24,6 +24,7 @@ public class Config implements Serializable {
 	private static final long serialVersionUID = -3628108255115350359L;
 
 	// General
+	public static String PLATTFORM = "MAC";
 	public static String LOCALHOST = "127.0.0.1";
 	public static String CONFIG_FILE = "./config/xdb.conf";
 
@@ -243,7 +244,7 @@ public class Config implements Serializable {
 				"COMPILE_FT_BENCHMARK_ROWS_NUMBER",
 				"COMPILE_FT_BENCHMARK_COLUMNS_NUMBER" };
 
-		String[] stringProperties = { "COMPILE_URL", "MASTERTRACKER_URL",
+		String[] stringProperties = { "PLATTFORM", "COMPILE_URL", "MASTERTRACKER_URL",
 				"TEST_DB_NAME", "COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES",
 				"COMPILE_FT_MODE", "DOT_EXE" };
 
