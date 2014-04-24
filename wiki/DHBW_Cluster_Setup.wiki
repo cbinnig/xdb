@@ -16,7 +16,7 @@ append at the end of /etc/hosts<br />
 141.72.16.243   blade09<br />
 141.72.16.244   blade10<br />
 
-/etc/clusters <br />
+and create a new file at /etc/clusters with the following content:<br />
 dhbwCluster1 141.72.16.226 141.72.16.229  141.72.16.233 141.72.16.236 141.72.16.235 141.72.16.238 141.72.16.239 141.72.16.241 141.72.16.243 141.72.16.244
 
 Please do not forget to install csshX on your machines for administrating the machines
