@@ -1,0 +1,39 @@
+#summary How to setup the DHBW clusters.
+#labels cluster-setup
+
+= Introduction =
+
+Erfan: can you put this somewhere on a WIKI. Maybe google code?
+
+----------
+
+Config for your local machine:
+
+/etc/hosts
+141.72.16.226   blade01 -> master
+141.72.16.229   blade02
+141.72.16.233   blade03
+141.72.16.236   blade04
+141.72.16.235   blade05
+141.72.16.238   blade06
+141.72.16.239   blade07
+141.72.16.241   blade08
+141.72.16.243   blade09
+141.72.16.244   blade10
+
+/etc/clusters
+dhbwCluster1 141.72.16.226 141.72.16.229  141.72.16.233 141.72.16.236 141.72.16.235 141.72.16.238 141.72.16.239 141.72.16.241 141.72.16.243 141.72.16.244
+
+Please do not forget to install csshX on your machines for administrating the machines
+
+----------
+
+Cluster info:
+user/pwd: wi***** (for the sake of security, the last 5 characters of user/pwd is hidden)
+xdb is installed in ~/xdb/
+mysql is installed on /var and has approx. 63GB storage left
+stefan will provide an iscsci which we need to attach
+
+The best way to copy xdb.jar ist to scp a new jar to the master and then use csshX to copy it via scp to all other machines
+on you local machine: scp lib/xdb.jar wiadmin@141.72.16.226:~/xdb/lib
+on the cluster machines simultanously via csshX: scp 141.72.16.226:~/xdb/lib/xdb.jar ./lib/
