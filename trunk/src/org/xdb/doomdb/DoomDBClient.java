@@ -206,9 +206,12 @@ public class DoomDBClient implements IDoomDBClient {
 		this.mClient.stopDoomDBPlan(this.dplan.getPlanDesc());
 		
 		// restart compute nodes
+		int mttr = this.getMTTR();
+		this.setMTTR(0);
 		for(String nodeDesc: this.dplan.getNodes()){
 			this.killNode(nodeDesc);
 		}
+		this.setMTTR(mttr);
 	}
 	
 	@Override
