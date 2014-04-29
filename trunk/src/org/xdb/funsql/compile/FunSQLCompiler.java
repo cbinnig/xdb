@@ -16,7 +16,7 @@ public class FunSQLCompiler {
 	private boolean doOptimize = true;
 	private boolean doParallelize = true;
 	private boolean doSemanticAnalysis = true; 
-	private boolean doFaultTolerance = false;   
+	private boolean doFaultTolerance = true;   
 	
 	private QueryStats queryStats; 
 	

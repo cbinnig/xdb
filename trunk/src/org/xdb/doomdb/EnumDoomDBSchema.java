@@ -17,6 +17,8 @@ public enum EnumDoomDBSchema {
 	TPCH_SF01_1PART("TPCH_SF01_1P", Config.DOOMDB_TPCH_S01),
 	TPCH_SF01_2PARTS("TPCH_SF01_2P", Config.DOOMDB_TPCH_S01),
 	TPCH_SF01_10PARTS("TPCH_SF01_10P", Config.DOOMDB_TPCH_S01),
+	TPCH_SF1_1PART("TPCH_SF1_1P", Config.DOOMDB_TPCH_S1),
+	TPCH_SF1_10PARTS("TPCH_SF1_10P", Config.DOOMDB_TPCH_S1),
 	TPCH_SF10_10PARTS("TPCH_SF10_10P", Config.DOOMDB_TPCH_S10),	
 	TPCH_SF100_10PARTS("TPCH_SF100_10P", Config.DOOMDB_TPCH_S100);	
 	
@@ -251,6 +253,15 @@ public enum EnumDoomDBSchema {
 		Vector<String> tpch_sf01_10parts = createTPCHXParts(10, TPCH_SF01_10PARTS);
 		SCHEMAS.put(TPCH_SF01_10PARTS.schemaName,
 				tpch_sf01_10parts.toArray(new String[tpch_sf01_10parts.size()]));
+		
+		Vector<String> tpch_sf1_1parts = createTPCHXParts(1, TPCH_SF1_1PART);
+		SCHEMAS.put(TPCH_SF1_1PART.schemaName,
+				tpch_sf1_1parts.toArray(new String[tpch_sf1_1parts.size()]));
+		
+		Vector<String> tpch_sf1_10parts = createTPCHXParts(10, TPCH_SF1_10PARTS);
+		SCHEMAS.put(TPCH_SF1_10PARTS.schemaName,
+				tpch_sf1_10parts.toArray(new String[tpch_sf1_10parts.size()]));
+		
 		
 		Vector<String> tpch_sf10_10parts = createTPCHXParts(10, TPCH_SF10_10PARTS);
 		SCHEMAS.put(TPCH_SF10_10PARTS.schemaName,
