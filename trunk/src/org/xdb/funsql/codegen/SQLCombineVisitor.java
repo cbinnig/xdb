@@ -90,12 +90,12 @@ public class SQLCombineVisitor extends AbstractBottomUpTreeVisitor{
 		
 		if(this.lastop!=null && this.lastop.getType().isSQLJoin()){
 			SQLCombined sqlc = new SQLCombined(this.plan, (SQLJoin)this.lastop);
-			this.plan.replaceOperator(absOp.getOperatorId(), sqlc);
 			sqlc.mergeSQLUnaryParent(absOp);
-
 			
+			this.plan.replaceOperator(absOp.getOperatorId(), sqlc);
 			this.plan.removeOperator(this.lastop.getOperatorId());
-			this.lastop = null;
+			
+			this.lastop = sqlc;
 		} 
 		return err;
 	}

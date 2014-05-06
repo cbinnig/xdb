@@ -765,7 +765,8 @@ public class SelectStmt extends AbstractServerStmt {
 	    
 		err = matSuggester.startCostModel();
 		
-		this.plan.tracePlan(this.getClass().getName()+"_MATERIALIZED");
+		if(Config.TRACE_PARALLEL_PLAN)
+			this.plan.tracePlan(this.plan.getClass().getName()+"_MATERIALIZED");
 		
 		return err;
 	}

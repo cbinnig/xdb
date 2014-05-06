@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.xdb.funsql.compile.operator.EnumAggregation;
+import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.funsql.compile.tokens.TokenAttribute;
 import org.xdb.funsql.compile.tokens.TokenIdentifier;
 import org.xdb.funsql.compile.tokens.TokenStar;
@@ -17,7 +18,7 @@ public class AggregationExpression extends AbstractExpression {
 	private static final long serialVersionUID = -2944669612051753256L;
 	private EnumAggregation agg = EnumAggregation.NO_AGG;
 	private AbstractExpression expr;
-	
+	private boolean distinct = false;
 	
 	public AggregationExpression(AggregationExpression toCopy){
 		this();
@@ -33,6 +34,10 @@ public class AggregationExpression extends AbstractExpression {
 	}
 	
 	//getters and setters
+	public void setDistinct(){
+		this.distinct = true;
+	}
+	
 	public EnumAggregation getAggregation() {
 		return agg;
 	}
@@ -91,13 +96,19 @@ public class AggregationExpression extends AbstractExpression {
 	
 	@Override
 	public String toSqlString() {
-		String sqlValue = this.expr.toSqlString();
+		StringBuilder sqlValue = new StringBuilder();
+		if(this.distinct){
+			sqlValue.append(AbstractToken.DISTINCT);
+			sqlValue.append(AbstractToken.BLANK);
+		}
+		sqlValue.append(this.expr.toSqlString());
+		
 		if(this.agg == EnumAggregation.NO_AGG){
-			return sqlValue;
+			return sqlValue.toString();
 		}
 		
 		HashMap<String, String> vars = new HashMap<String, String>();
-		vars.put(StringTemplate.KEY_EXP, sqlValue);
+		vars.put(StringTemplate.KEY_EXP, sqlValue.toString());
 		return this.agg.getSqlTemplate().toString(vars);
 	}
 

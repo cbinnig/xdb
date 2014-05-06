@@ -428,7 +428,7 @@ public class QueryTrackerPlan implements Serializable {
 				}
 			} else {
 				try {
-					Thread.sleep(monitoringInterval);
+					Thread.sleep(100);
 				} catch (InterruptedException e) {
 
 				}

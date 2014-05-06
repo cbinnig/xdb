@@ -147,7 +147,6 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 		return err;
 	}
 
-
 	@Override
 	public Error visitSQLCombined(SQLCombined absOp) {
 		this.resetVisitor();
@@ -184,7 +183,7 @@ public class SQLUnaryCombineVisitor extends AbstractBottomUpTreeVisitor {
 
 	@Override
 	public void stop(){
-		if (this.sqlUnaryOp.countOperators() > 1) {
+		if (this.sqlUnaryOp.countOperators() >= 1) {
 			this.paste(this.lastUnaryOp);
 		}
 		

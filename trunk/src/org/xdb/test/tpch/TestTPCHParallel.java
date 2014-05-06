@@ -324,7 +324,51 @@ order by
 		this.executeStmt(q3);
 	}
 	
-public void testQ05(){
+	public void testQ04(){
+/*
+
+select
+	o_orderpriority,
+	count(*) as order_count
+from
+	orders
+where
+	o_orderdate >= date ':1'
+	and o_orderdate < date ':1' + interval '3' month
+	and exists (
+		select
+			*
+		from
+			lineitem
+		where
+			l_orderkey = o_orderkey
+			and l_commitdate < l_receiptdate
+	)
+group by
+	o_orderpriority
+order by
+	o_orderpriority;
+ * 
+ */
+		
+		//TODO: count(DISTINCT)
+		String q4 = "select "+
+			"	o_orderpriority, "+
+			"	count(DISTINCT o_orderkey) as order_count "+
+			"from "+
+			"	lineitem, orders "+
+			" where "+
+			"	l_orderkey = o_orderkey "+
+			"	and o_orderdate >= date '1996-01-01' "+
+			"	and o_orderdate < date '1996-04-01' "+
+			"	and l_commitdate < l_receiptdate "+
+			"group by "+
+			"	o_orderpriority; ";
+		
+		this.executeStmt(q4);
+	}
+	
+	public void testQ05(){
 		
 		/*
 		 * 

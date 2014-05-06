@@ -65,7 +65,10 @@ public class SQLUnary extends AbstractUnaryOperator {
 	// other info
 	private Map<TokenIdentifier, AbstractExpression> replaceExprMap = new HashMap<TokenIdentifier, AbstractExpression>();
 	private int countOps = 0;
-	private boolean addedLastOp = true; // flag if last operator was added
+	private boolean addedSelection = false;
+	private boolean addedProjection = false;
+	private boolean addedAggregation = false;
+	
 
 	public SQLUnary(AbstractCompileOperator child) {
 		super(child);
@@ -76,6 +79,8 @@ public class SQLUnary extends AbstractUnaryOperator {
 		for (TokenAttribute att : child.getResult().getAttributes()) {
 			SimpleExpression expr = new SimpleExpression(att);
 			this.replaceExprMap.put(att.getName(), expr);
+			this.selectAliases.add(att.getName());
+			this.selectExpressions.add(expr);
 		}
 	}
 
@@ -88,12 +93,233 @@ public class SQLUnary extends AbstractUnaryOperator {
 	public SQLUnary(SQLUnary toCopy) {
 		super(toCopy);
 	}
+	
+	// getters and setters
+	public Vector<TokenIdentifier> getSelectAliases() {
+		return selectAliases;
+	}
+
+	public Vector<AbstractExpression> getAggExpressions() {
+		return aggExpressions;
+	}
+
+	public AbstractPredicate getWherePred() {
+		return wherePred;
+	}
+
+	public AbstractPredicate getHavingPred() {
+		return havingPred;
+	}
+
+	public Vector<AbstractExpression> getGroupExpressions() {
+		return groupExpressions;
+	}
+
+	public void setGroupExpressions(Vector<AbstractExpression> groupExpressions) {
+		this.groupExpressions = groupExpressions;
+	}
+
+	public Map<TokenIdentifier, AbstractExpression> getReplaceExprMap() {
+		return replaceExprMap;
+	}
+	
+	public Vector<AbstractExpression> getSelectExpressions() {
+		if (this.selectExpressions.size() > 0){
+			return selectExpressions;
+		}
+		else {
+			Vector<AbstractExpression> selExprs = new Vector<AbstractExpression>(
+					this.aggExpressions);
+			selExprs.addAll(this.groupExpressions);
+			return selExprs;
+		}
+	}
 
 	public int countOperators() {
 		return this.countOps;
 	}
 
 	// methods
+	/**
+	 * Adds a selection operator to the combined operator
+	 * 
+	 * @param op
+	 */
+	public boolean addSelection(GenericSelection op) {
+		if (this.addedSelection) {
+			return false;
+		}
+		this.addedSelection = true;
+		this.countOps++;
+
+		// change where info
+		if (this.wherePred != null || this.aggExpressions.size() > 0) {
+			AbstractPredicate havingPred2 = op.getPredicate();
+			this.havingPred = havingPred2
+					.replaceExpressions(this.replaceExprMap);
+		} else {
+			AbstractPredicate wherePred2 = op.getPredicate();
+			this.wherePred = wherePred2.replaceExpressions(this.replaceExprMap);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Adds a projection to the combined operator
+	 * 
+	 * @param op
+	 */
+	public boolean addProjection(GenericProjection op) {
+		if (this.addedProjection) {
+			return false;
+		}
+		this.addedProjection = true;
+		this.countOps++;
+
+		// add select attributes
+		int i = 0;
+		this.selectExpressions.clear();
+		this.selectAliases.clear();
+		Map<TokenIdentifier, AbstractExpression> newReplaceMap = new HashMap<TokenIdentifier, AbstractExpression>();
+		for (TokenAttribute att : op.getResult().getAttributes()) {
+			this.selectAliases.add(att.getName());
+			AbstractExpression newExpr = op.getExpression(i).replaceAttribtues(
+					this.replaceExprMap);
+			this.selectExpressions.add(newExpr);
+			newReplaceMap.put(att.getName(), newExpr);
+			i++;
+		}
+
+		// exchange replace map
+		this.replaceExprMap = newReplaceMap;
+		
+		return true;
+	}
+
+	/**
+	 * Adds a rename operator to the combined operator
+	 * 
+	 * @param op
+	 */
+	public boolean addRename(Rename op) {
+		this.countOps++;
+
+		// add select info
+		int i = 0;
+		this.selectAliases.clear();
+		Map<TokenIdentifier, AbstractExpression> newReplaceMap = new HashMap<TokenIdentifier, AbstractExpression>();
+		for (TokenAttribute att : op.getResult().getAttributes()) {
+			TokenIdentifier oldAliasName = op.getChild().getResult()
+					.getAttribute(i).getName();
+			this.selectAliases.add(att.getName());
+			newReplaceMap.put(att.getName(),
+					this.replaceExprMap.get(oldAliasName));
+			i++;
+		}
+
+		// exchange replace map
+		this.replaceExprMap = newReplaceMap;
+
+		return true;
+	}
+
+	/**
+	 * Adds an aggregation to the combined operator
+	 * 
+	 * @param op
+	 */
+	public boolean addAggregation(GenericAggregation op) {
+
+		if (this.addedAggregation) {
+			return false;
+		}
+		this.addedAggregation = true;
+		this.countOps++;
+
+		// add aggregation info
+		int i = 0;
+		this.selectAliases.clear();
+		this.selectExpressions.clear();
+		Map<TokenIdentifier, AbstractExpression> newReplaceMap = new HashMap<TokenIdentifier, AbstractExpression>();
+		while (i < op.getAggregationExpressions().size()) {
+			TokenAttribute att = op.getResult().getAttribute(i);
+			this.selectAliases.add(att.getName());
+			AbstractExpression newExpr = op.getAggregationExpression(i)
+					.replaceAttribtues(this.replaceExprMap);
+			this.aggExpressions.add(newExpr);
+			newReplaceMap.put(att.getName(), newExpr);
+			i++;
+		}
+
+		// add grouping info
+		int j = 0;
+		while (j < op.getGroupExpressions().size()) {
+			TokenAttribute att = op.getResult().getAttribute(i);
+			this.selectAliases.add(att.getName());
+			AbstractExpression newExpr = op.getGroupExpression(j)
+					.replaceAttribtues(this.replaceExprMap);
+			this.groupExpressions.add(newExpr);
+			newReplaceMap.put(att.getName(), newExpr);
+			i++;
+			j++;
+		}
+
+		// exchange replace map
+		this.replaceExprMap = newReplaceMap;
+
+		return true;
+	}
+
+	@Override
+	public void renameTableOfAttributes(String oldChildId, String newChildId) {
+		// Nothing to do
+	}
+
+	@Override
+	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
+		// Nothing to do
+	}
+
+	@Override
+	public boolean renameAttributes(Map<String, String> renamedAttributes,
+			Vector<String> renamedOps) {
+		boolean renamed = super.renameAttributes(renamedAttributes, renamedOps);
+		
+		for (AbstractExpression expr : this.aggExpressions) {
+			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(
+					expr, renamedAttributes);
+			renameVisitor.visit();
+		}
+		for (AbstractExpression expr : this.groupExpressions) {
+			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(
+					expr, renamedAttributes);
+			renameVisitor.visit();
+		}
+
+		for (AbstractExpression expr : this.selectExpressions) {
+			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(
+					expr, renamedAttributes);
+			renameVisitor.visit();
+		}
+
+		// rename predicates based on already renamed attributes
+		ReReNamePredicateVisitor rPv;
+		if (this.wherePred != null) {
+			rPv = new ReReNamePredicateVisitor(this.wherePred,
+					renamedAttributes);
+			rPv.visit();
+		}
+
+		if (this.havingPred != null) {
+			rPv = new ReReNamePredicateVisitor(this.havingPred,
+					renamedAttributes);
+			rPv.visit();
+		}
+
+		return renamed;
+	}
+	
 	@Override
 	public String toSqlString() {
 		// check for missing info
@@ -135,7 +361,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 		return sqlStmt.toString();
 	}
 
-	public String getHavingClause() {
+	private String getHavingClause() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
 		if (this.havingPred != null) {
 			vars.put("HAVING", this.havingPred.toSqlString());
@@ -144,7 +370,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 		return "";
 	}
 
-	public String getWhereClause() {
+	private String getWhereClause() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
 		if (this.wherePred != null) {
 			vars.put("WHERE", this.wherePred.toSqlString());
@@ -153,7 +379,7 @@ public class SQLUnary extends AbstractUnaryOperator {
 		return "";
 	}
 
-	public String getGroupByClause() {
+	private String getGroupByClause() {
 		final HashMap<String, String> vars = new HashMap<String, String>();
 		if (this.groupExpressions.size() > 0) {
 			final Vector<String> groupExprVec = new Vector<String>(
@@ -165,228 +391,6 @@ public class SQLUnary extends AbstractUnaryOperator {
 			return (groupTemplate.toString(vars));
 		}
 		return "";
-	}
-
-	/**
-	 * Adds a selection operator to the combined operator
-	 * 
-	 * @param op
-	 */
-	public boolean addSelection(GenericSelection op) {
-		if (this.selectExpressions.size() > 0 || this.havingPred != null) {
-			this.addedLastOp = false;
-			return this.addedLastOp;
-		}
-		this.countOps++;
-
-		// change where info
-		if (this.wherePred != null || this.aggExpressions.size() > 0) {
-			AbstractPredicate havingPred2 = op.getPredicate();
-			this.havingPred = havingPred2
-					.replaceExpressions(this.replaceExprMap);
-		} else {
-			AbstractPredicate wherePred2 = op.getPredicate();
-			this.wherePred = wherePred2.replaceExpressions(this.replaceExprMap);
-		}
-
-		return this.addedLastOp;
-	}
-
-	/**
-	 * Adds a projection to the combined operator
-	 * 
-	 * @param op
-	 */
-	public boolean addProjection(GenericProjection op) {
-		if (this.selectExpressions.size() > 0) {
-			this.addedLastOp = false;
-			return this.addedLastOp;
-		}
-		this.countOps++;
-
-		// add select info
-		int i = 0;
-		this.selectAliases.clear();
-		Map<TokenIdentifier, AbstractExpression> newReplaceMap = new HashMap<TokenIdentifier, AbstractExpression>();
-		for (TokenAttribute att : op.getResult().getAttributes()) {
-			this.selectAliases.add(att.getName());
-			AbstractExpression newExpr = op.getExpression(i).replaceAttribtues(
-					this.replaceExprMap);
-			this.selectExpressions.add(newExpr);
-			newReplaceMap.put(att.getName(), newExpr);
-			i++;
-		}
-
-		// exchange replace map
-		this.replaceExprMap = newReplaceMap;
-
-		return this.addedLastOp;
-	}
-
-	/**
-	 * Adds a rename operator to the combined operator
-	 * 
-	 * @param op
-	 */
-	public boolean addRename(Rename op) {
-		this.countOps++;
-
-		// add select info
-		int i = 0;
-		this.selectAliases.clear();
-		Map<TokenIdentifier, AbstractExpression> newReplaceMap = new HashMap<TokenIdentifier, AbstractExpression>();
-		for (TokenAttribute att : op.getResult().getAttributes()) {
-			TokenIdentifier oldAliasName = op.getChild().getResult()
-					.getAttribute(i).getName();
-			this.selectAliases.add(att.getName());
-			newReplaceMap.put(att.getName(),
-					this.replaceExprMap.get(oldAliasName));
-			i++;
-		}
-
-		// exchange replace map
-		this.replaceExprMap = newReplaceMap;
-
-		return this.addedLastOp;
-	}
-
-	/**
-	 * Adds an aggregation to the combined operator
-	 * 
-	 * @param op
-	 */
-	public boolean addAggregation(GenericAggregation op) {
-
-		if (this.aggExpressions.size() > 0 || this.havingPred != null) {
-			this.addedLastOp = false;
-			return this.addedLastOp;
-		}
-		this.countOps++;
-
-		// add aggregation info
-		int i = 0;
-		this.selectAliases.clear();
-		Map<TokenIdentifier, AbstractExpression> newReplaceMap = new HashMap<TokenIdentifier, AbstractExpression>();
-		while (i < op.getAggregationExpressions().size()) {
-			TokenAttribute att = op.getResult().getAttribute(i);
-			this.selectAliases.add(att.getName());
-			AbstractExpression newExpr = op.getAggregationExpression(i)
-					.replaceAttribtues(this.replaceExprMap);
-			this.aggExpressions.add(newExpr);
-			newReplaceMap.put(att.getName(), newExpr);
-			i++;
-		}
-
-		// add grouping info
-		int j = 0;
-		while (j < op.getGroupExpressions().size()) {
-			TokenAttribute att = op.getResult().getAttribute(i);
-			this.selectAliases.add(att.getName());
-			AbstractExpression newExpr = op.getGroupExpression(j)
-					.replaceAttribtues(this.replaceExprMap);
-			this.groupExpressions.add(newExpr);
-			newReplaceMap.put(att.getName(), newExpr);
-			i++;
-			j++;
-		}
-
-		// exchange replace map
-		this.replaceExprMap = newReplaceMap;
-
-		return this.addedLastOp;
-	}
-
-	@Override
-	public void renameTableOfAttributes(String oldChildId, String newChildId) {
-		// Nothing to do
-	}
-
-	@Override
-	public void renameForPushDown(Collection<TokenAttribute> selAtts) {
-		// Nothing to do
-	}
-
-	@Override
-	public boolean renameAttributes(Map<String, String> renamedAttributes,
-			Vector<String> renamedOps) {
-		boolean renamed = super.renameAttributes(renamedAttributes, renamedOps);
-		@SuppressWarnings("unused")
-		Error e = null;
-		for (AbstractExpression expr : this.aggExpressions) {
-			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(
-					expr, renamedAttributes);
-			e = renameVisitor.visit();
-			// TODO Error handling
-		}
-		for (AbstractExpression expr : this.groupExpressions) {
-			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(
-					expr, renamedAttributes);
-			e = renameVisitor.visit();
-			// TODO Error handling
-		}
-
-		for (AbstractExpression expr : this.selectExpressions) {
-			ReReNameExpressionVisitor renameVisitor = new ReReNameExpressionVisitor(
-					expr, renamedAttributes);
-			e = renameVisitor.visit();
-			// TODO Error handling
-		}
-
-		// rename predicates based on already renamed attributes
-		ReReNamePredicateVisitor rPv;
-		if (this.wherePred != null) {
-			rPv = new ReReNamePredicateVisitor(this.wherePred,
-					renamedAttributes);
-			rPv.visit();
-		}
-
-		if (this.havingPred != null) {
-			rPv = new ReReNamePredicateVisitor(this.havingPred,
-					renamedAttributes);
-			rPv.visit();
-		}
-
-		return renamed;
-	}
-
-	// getters and setters
-	public Vector<AbstractExpression> getSelectExpressions() {
-		if (this.selectExpressions.size() > 0)
-			return selectExpressions;
-		else {
-			Vector<AbstractExpression> selExprs = new Vector<AbstractExpression>(
-					this.aggExpressions);
-			selExprs.addAll(this.groupExpressions);
-			return selExprs;
-		}
-	}
-
-	public Vector<TokenIdentifier> getSelectAliases() {
-		return selectAliases;
-	}
-
-	public Vector<AbstractExpression> getAggExpressions() {
-		return aggExpressions;
-	}
-
-	public AbstractPredicate getWherePred() {
-		return wherePred;
-	}
-
-	public AbstractPredicate getHavingPred() {
-		return havingPred;
-	}
-
-	public Vector<AbstractExpression> getGroupExpressions() {
-		return groupExpressions;
-	}
-
-	public void setGroupExpressions(Vector<AbstractExpression> groupExpressions) {
-		this.groupExpressions = groupExpressions;
-	}
-
-	public Map<TokenIdentifier, AbstractExpression> getReplaceExprMap() {
-		return replaceExprMap;
 	}
 
 	@Override

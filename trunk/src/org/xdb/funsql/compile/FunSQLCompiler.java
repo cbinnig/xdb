@@ -3,6 +3,7 @@ package org.xdb.funsql.compile;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
+import org.xdb.Config;
 import org.xdb.doomdb.QueryStats;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
@@ -16,7 +17,7 @@ public class FunSQLCompiler {
 	private boolean doOptimize = true;
 	private boolean doParallelize = true;
 	private boolean doSemanticAnalysis = true; 
-	private boolean doFaultTolerance = true;   
+	private boolean doFaultTolerance = Config.COMPILE_FT_ACTIVE;   
 	
 	private QueryStats queryStats; 
 	

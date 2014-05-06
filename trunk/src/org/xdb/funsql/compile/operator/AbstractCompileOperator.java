@@ -42,6 +42,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 		this.parents = new Vector<AbstractCompileOperator>(toCopy.parents);
 		this.type = toCopy.type;
 		this.wishedConnections = new Vector<List<Connection>>(toCopy.wishedConnections);
+		this.operatorId = toCopy.operatorId.clone();
 		
 		this.results = new Vector<ResultDesc>();		
 		for (ResultDesc rd : toCopy.results) {
