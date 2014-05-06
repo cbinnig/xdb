@@ -29,6 +29,9 @@ public class GenericAggregation extends AbstractUnaryOperator {
 
 	private final StringTemplate sqlTemplate = new StringTemplate(
 			"SELECT <RESULT> FROM <<OP1>> AS <OP1>" + " GROUP BY <GROUP_ATTRS>");
+	
+	private final StringTemplate sqlTemplateWOGroupBy = new StringTemplate(
+			"SELECT <RESULT> FROM <<OP1>> AS <OP1>");
 
 	// constructors
 	public GenericAggregation(AbstractCompileOperator child) {
@@ -153,10 +156,20 @@ public class GenericAggregation extends AbstractUnaryOperator {
 			groupExprVec.add(exp.toSqlString());
 		}
 
-		vars.put("RESULT", SetUtils.buildAliasString(aggrExprVec, aggrAliases)
-				+ "," + SetUtils.buildAliasString(groupExprVec, grpAliases));
-
-		return sqlTemplate.toString(vars);
+		StringBuilder resultString =  new StringBuilder(SetUtils.buildAliasString(aggrExprVec, aggrAliases));
+		
+		if(groupExprs.size()>0){
+			resultString.append(AbstractToken.COMMA);
+			resultString.append(AbstractToken.BLANK);
+			resultString.append(SetUtils.buildAliasString(groupExprVec, grpAliases));
+			vars.put("RESULT", resultString.toString());
+			
+			return this.sqlTemplate.toString(vars);
+		}
+		else{
+			vars.put("RESULT", resultString.toString());
+			return this.sqlTemplateWOGroupBy.toString(vars);
+		}
 	}
 
 	@Override

@@ -15,7 +15,6 @@ public abstract class AbstractExpression extends AbstractToken implements Clonea
 	protected boolean isNegated = false;
 	protected EnumExprType type;
 	
-	
 	 public AbstractExpression deepCopy() {
          if (this instanceof SimpleExpression) {
              return new SimpleExpression( (SimpleExpression)this);

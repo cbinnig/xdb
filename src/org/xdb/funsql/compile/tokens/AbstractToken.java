@@ -36,6 +36,7 @@ public abstract class AbstractToken implements Serializable{
 	public static final String MINUS = "-";
 	public static final String MULT = "*";
 	public static final String DIV = "/";
+	public static final String DISTINCT = "DISTINCT";
 	
 	public static final String QUOTE = "'";
 	public static final String SINGLE_QUOTE = "'";

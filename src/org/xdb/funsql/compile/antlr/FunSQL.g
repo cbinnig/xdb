@@ -852,6 +852,11 @@ aggregationExpression returns [AggregationExpression expression]
 			$expression.setAggregation($agg1.text.toUpperCase());
 		}
 		LPAREN 
+		(
+		KEYWORD_DISTINCT{
+			$expression.setDistinct();
+		}
+		)?
 		expr1=abstractExpression {
 			$expression.setExpression($expr1.expression);
 		}

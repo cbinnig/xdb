@@ -26,7 +26,7 @@ import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
 /**
- * That that combines a SQL Join and a SQL Unary into one 
+ * Operator that combines a SQL Join and a SQL Unary into one 
  * SQLCombined operator
  * 
  * @author A.C.mueller
@@ -45,7 +45,6 @@ public class SQLCombined extends AbstractJoinOperator {
 	private final StringTemplate havingTemplate = new StringTemplate(
 			" HAVING <HAVING>");
 
-	
 	private SQLJoin copied;
 	private Error error;
 
@@ -87,6 +86,10 @@ public class SQLCombined extends AbstractJoinOperator {
 		super(toCopy);
 	}
 
+	/**
+	 * Merges unary operator into SQLCombined
+	 * @param sqlU
+	 */
 	public void mergeSQLUnaryParent(SQLUnary sqlU) {
 		// Scenario SQL Join is child and Unary is parent
 		this.selectExpressions.addAll(sqlU.getSelectExpressions());

@@ -25,7 +25,7 @@ import com.oy.shared.lm.graph.GraphNode;
 
 public class TableOperator extends AbstractCompileOperator {
 	private static final long serialVersionUID = 997138204723229392L;
-	public static final String TABLE_PREFIX = "_";
+	//public static final String TABLE_PREFIX = "_";
 	public static final String PART_PREFIX = "_P";
 	
 	private final StringTemplate sqlTemplate = new StringTemplate("<<OP1>>");
@@ -162,7 +162,8 @@ public class TableOperator extends AbstractCompileOperator {
 	@Override
 	public String toSqlString() {
 		Map<String, String> vars = new HashMap<String, String>();
-		final String opDummy = TABLE_PREFIX + getOperatorId().toString();
+		//final String opDummy = TABLE_PREFIX + getOperatorId().toString();
+		final String opDummy = getOperatorId().toString();
 		vars.put("OP1", opDummy);
 		return sqlTemplate.toString(vars);
 	}

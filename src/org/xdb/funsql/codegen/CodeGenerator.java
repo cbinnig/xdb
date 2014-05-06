@@ -39,7 +39,7 @@ public class CodeGenerator {
 	private static final String PART1 = "PART1";
 	public static final String OUT_PREFIX = "OUT";
 	public static final String PART_PREFIX = "P";
-	public static final String TABLE_PREFIX = "_";
+	//public static final String TABLE_PREFIX = "_";
 
 	// compile plan
 	private CompilePlan compilePlan;
@@ -298,6 +298,7 @@ public class CodeGenerator {
 	 */
 	private void addTrackerOutputDDL(MySQLTrackerOperator trackerOp,
 			AbstractCompileOperator compileOp, int partNum) {
+		
 		Identifier outTableId = this.genOutputTableName(compileOp);
 		String outTableName = outTableId.toString();
 
@@ -362,9 +363,9 @@ public class CodeGenerator {
 			args.put(SQL1, inAttsDDL);
 
 			// if input is a table -> use a different name
-			if (inputCompileOp.isTable()) {
-				inTableName = TABLE_PREFIX + inTableName;
-			}
+			//if (inputCompileOp.isTable()) {
+			//	inTableName = TABLE_PREFIX + inTableName;
+			//}
 
 			// if input is has more than one partition
 			if (inputResult.repartition()) {
@@ -461,8 +462,17 @@ public class CodeGenerator {
 					// create one input table
 					Identifier inTableRemoteId = this
 							.genOutputTableName(inputCompileOp);
-					Identifier inTrackerOpId = this.compileOp2trackerOp.get(
+					
+					Identifier inTrackerOpId = null;
+					if (inputCompileOp.getResult().getPartitionCount() > 1) {
+						inTrackerOpId = this.compileOp2trackerOp.get(
 							inputCompileOp.getOperatorId()).get(partNum);
+					}
+					else{
+						inTrackerOpId = this.compileOp2trackerOp.get(
+								inputCompileOp.getOperatorId()).get(0);
+					}
+					
 					TableDesc tableDesc = new TableDesc(
 							inTableRemoteId.toString(), inTrackerOpId);
 					trackerOp.addInTableFederated(inTableName, tableDesc);
