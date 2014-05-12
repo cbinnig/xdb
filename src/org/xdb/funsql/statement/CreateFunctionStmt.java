@@ -217,7 +217,10 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 				TokenAssignment ta = (TokenAssignment) tfp;
 				SelectStmt stmt = ta.getSelStmt();
 				stmt.addVarSymbols(this.varSymbols);
-				e = stmt.compile();
+				
+				e = stmt.compile(this.functionPlan.getPlanId(), this.functionPlan.getLastOpId());
+				this.functionPlan.setLastOpId(stmt.getPlan().getLastOpId());
+				
 				if (e.isError())
 					return e;
 
@@ -325,7 +328,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		this.fCache.addPlan(this.function.hashKey(), this.functionPlan);
 		if (!this.inParameters.isEmpty())
 			this.fCache.addInVars(this.function.hashKey(), this.inParameters);
-
+		
 		return e;
 	}
 

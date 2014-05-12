@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,9 +44,9 @@ public class CompilePlan implements Serializable {
 	private Integer lastOpId = 1;
 
 	// plan info
-	private HashMap<Identifier, AbstractCompileOperator> operators = new HashMap<Identifier, AbstractCompileOperator>();
+	private Map<Identifier, AbstractCompileOperator> operators = new HashMap<Identifier, AbstractCompileOperator>();
 	private Vector<Identifier> roots = new Vector<Identifier>();
-	private HashSet<Identifier> leaves = new HashSet<Identifier>();
+	private Set<Identifier> leaves = new HashSet<Identifier>();
 	private List<Identifier> matOpsIds =  new Vector<Identifier>();
 	
 	// logger
@@ -55,12 +57,23 @@ public class CompilePlan implements Serializable {
 
 	// constructor
 	public CompilePlan() {
-
 		this.planId = new Identifier(lastPlanId++);
 		this.logger = XDBLog.getLogger(EnumXDBComponents.COMPILE_SERVER);
 	}
 
 	// getter and setter
+	public void setLastOpId(int lastOpId){
+		this.lastOpId = lastOpId;
+	}
+	
+	public int getLastOpId(){
+		return this.lastOpId;
+	}
+	
+	public void setPlanId(Identifier planId) {
+		this.planId = planId;
+	}
+	
 	public Identifier getPlanId() {
 		return this.planId;
 	}
@@ -119,7 +132,7 @@ public class CompilePlan implements Serializable {
 		this.lastOpId = lastOpId;
 	}
 
-	public HashSet<Identifier> getLeaves() {
+	public Set<Identifier> getLeaves() {
 		return leaves;
 	}
 
