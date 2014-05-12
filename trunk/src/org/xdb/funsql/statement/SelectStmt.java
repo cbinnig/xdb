@@ -173,13 +173,20 @@ public class SelectStmt extends AbstractServerStmt {
 			return err;
 
 		// 4. create canonical plan
-		err = this.canonicalTransalation(this.plan);
+		err = this.canonicalTransalation();
 
 		// 5. analyze plan
 		Analyzer analyzer = new Analyzer(this.plan, this.attTypes);
 		analyzer.analyze();
 
 		return err;
+	}
+	
+	public Error compile(Identifier planId, int lastOpId) {
+		this.plan.setPlanId(planId);
+		this.plan.setLastOpId(lastOpId);
+		
+		return this.compile();
 	}
 
 	/**
@@ -201,7 +208,7 @@ public class SelectStmt extends AbstractServerStmt {
 	 * @param plan
 	 * @return
 	 */
-	private Error canonicalTransalation(CompilePlan plan) {
+	private Error canonicalTransalation() {
 		Error err = new Error();
 
 		// from clause -> joins over tables
