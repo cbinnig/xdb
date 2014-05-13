@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Vector;
 
 import org.xdb.Config;
+import org.xdb.client.MasterTrackerClient;
+import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
@@ -28,6 +30,7 @@ import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Function;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
+import org.xdb.utils.Tuple;
 
 public class CreateFunctionStmt extends AbstractServerStmt {
 
@@ -440,5 +443,12 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	public void addFunctionCall(TokenFunctionCall tfc) {
 		this.tcalls.add(tfc);
 		this.parts.add(tfc);
+	}
+	
+	@Override
+	public Tuple<Error, DoomDBPlan> generateDoomDBQPlan() {
+		MasterTrackerClient client = new MasterTrackerClient();
+		Tuple<Error, DoomDBPlan> result = client.generateDoomDBPlan(this.functionPlan);
+		return result;
 	}
 }

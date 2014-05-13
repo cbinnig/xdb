@@ -77,7 +77,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		// execute plan w failures
 		System.out.println("Query Execution: ");
 		this.dClient.startQuery();
-		doomDBFailureSimulator.start();
+		//doomDBFailureSimulator.start();
 
 		//int i=0;
 		while (!this.dClient.isQueryFinished()) {
@@ -113,9 +113,27 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		this.runPlan();
 	}
 	
+	public void testQ1_SF10_10Parts() throws Exception {
+		this.dClient.setSchema("TPCH_SF10_10P");
+		this.dClient.setQuery(1);
+		this.runPlan();
+	}
+	
+	public void testQ2_SF01_10Parts() throws Exception {
+		this.dClient.setSchema("TPCH_SF01_10P");
+		this.dClient.setQuery(2);
+		this.runPlan();
+	}
+	
 	public void testQ5_SF01_10Parts() throws Exception {
 		this.dClient.setSchema("TPCH_SF01_10P");
 		this.dClient.setQuery(5);
+		this.runPlan();
+	}
+	
+	public void testQ3_SF10_10Parts() throws Exception {
+		this.dClient.setSchema("TPCH_SF10_10P");
+		this.dClient.setQuery(3);
 		this.runPlan();
 	}
 	
