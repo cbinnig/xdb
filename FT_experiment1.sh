@@ -2,8 +2,8 @@
 
 xdb=".";
 sf=01;
-partitions=1;
-maxIteration=1;
+partitions=10;
+maxIteration=10;
 declare -a queries=(5);
 
 queryIterator=0;
@@ -16,7 +16,7 @@ while [[ $queryIterator -lt ${#queries[*]} ]]; do
 	schema+="_";
 	schema+="$partitions";
 	schema+="P";
-	echo $schema;
+	echo "Schema: $schema";
 	echo "Execution Query: $query";
 	while [[ $iteration -le $maxIteration ]]; do
 	

@@ -34,7 +34,68 @@ public enum EnumDoomDBSchema {
 			+ "count(l_orderkey) as count_order " + "from	lineitem "
 			+ "where l_shipdate <= date '1998-12-01' "
 			+ "group by l_returnflag, l_linestatus";
+	
+	private static String tpchQ2 = "CREATE FUNCTION q2( OUT o1 TABLE) \n" +
+			"BEGIN \n" +
+			"  :t1 = " +
+			"		select" + 
+			"			min(ps_supplycost) as min_supplycost, " +
+			"			ps_partkey"+ 
+			"		from " + 
+			"			nation," + 
+			"			region," + 
+			"			supplier," + 
+			"			partsupp" + 
+			"		where " + 
+			"			r_regionkey = n_regionkey" + 
+			"			and s_nationkey = n_nationkey" + 
+			"			and s_suppkey = ps_suppkey" + 
+			"			and r_name = 'EUROPE'" +
+			"		group by" +
+			"			ps_partkey;" +
+			"\n"+
+			"	:o1 = select" + 
+			"			s_acctbal," + 
+			"			s_name," + 
+			"			n_name," + 
+			"			p_partkey," + 
+			"			p_mfgr," + 
+			"			s_address," + 
+			"			s_phone," + 
+			"			s_comment " + 
+			"		from " + 
+			"			region," +
+			"			nation," + 
+			"			supplier," + 
+			"			partsupp as ps," + 
+			"			part," + 
+			"			:t1 as temp1 " + 
+			"		where" + 
+			"			r_regionkey = n_regionkey" + 
+			"			and n_nationkey = s_nationkey" + 
+			"			and s_suppkey = ps.ps_suppkey" + //TODO: Problem when removing ps
+			"			and ps.ps_partkey = p_partkey" + 
+			"			and ps.ps_partkey=temp1.ps_partkey" +
+			"			and temp1.min_supplycost = ps.ps_supplycost" + 
+			"			and p_size = 15" + 
+			"			and p_type like '%BRASS'" + 
+			"			and r_name = 'EUROPE';"+ 
+			"END;";
 
+	private static String tpchQ3 = "select l_orderkey, " +
+			"sum(l_extendedprice*(1-l_discount)) as revenue, " +
+			"o_orderdate, " +
+			"o_shippriority " +
+			"from customer, " +
+			"orders, " +
+			"lineitem " +
+			"where c_mktsegment = 'BUILDING' and " +
+			"c_custkey = o_custkey and " +
+			"l_orderkey = o_orderkey and " +
+			"o_orderdate < date '1995-03-15' and " +
+			"l_shipdate > date '1995-03-15' " +
+			"group by l_orderkey, o_orderdate, o_shippriority";
+	
 	private static String tpchQ5 = "Select n_name, "
 			+ "sum(l_extendedprice * (1-l_discount)) as revenue "
 			+ "from customer, orders, lineitem, supplier, nation, region "
@@ -113,7 +174,29 @@ public enum EnumDoomDBSchema {
 					+ "S_PHONE VARCHAR, "
 					+ "S_ACCTBAL DECIMAL, "
 					+ "S_COMMENT VARCHAR"
-					+ ") PARTIONED BY RREF ( S_SUPPKEY REFERENCES LINEITEM.L_SUPPKEY )" };
+					+ ") PARTIONED BY RREF ( S_SUPPKEY REFERENCES LINEITEM.L_SUPPKEY )",
+			
+			"CREATE TABLE PARTSUPP ( " +
+					"	PS_PARTKEY     INTEGER, " +
+					"	PS_SUPPKEY     INTEGER, " +
+					"	PS_AVAILQTY    INTEGER, " +
+					"	PS_SUPPLYCOST  DECIMAL, " +
+					"	PS_COMMENT     VARCHAR " +
+					") PARTIONED BY RREF ( PS_SUPPKEY REFERENCES SUPPLIER.S_SUPPKEY )",
+					
+			"CREATE TABLE PART  ( " +
+					"P_PARTKEY     INTEGER," +
+					"P_NAME        VARCHAR, " +
+					"P_MFGR        VARCHAR, " +
+					"P_BRAND       VARCHAR, " +
+					"P_TYPE        VARCHAR, " +
+					"P_SIZE        INTEGER, " +
+					"P_CONTAINER   VARCHAR, " +
+					"P_RETAILPRICE DECIMAL, " +
+					"P_COMMENT     VARCHAR" +
+					") PARTIONED BY RREF ( P_PARTKEY REFERENCES PARTSUPP.PS_PARTKEY )",
+							
+	};
 
 	private static Map<Integer, String> QUERIES = new HashMap<Integer, String>();
 	private static Map<String, String[]> SCHEMAS = new HashMap<String, String[]>();
@@ -274,6 +357,8 @@ public enum EnumDoomDBSchema {
 
 
 		QUERIES.put(1, tpchQ1);
+		QUERIES.put(2, tpchQ2);
+		QUERIES.put(3, tpchQ3);
 		QUERIES.put(5, tpchQ5);
 	}
 
