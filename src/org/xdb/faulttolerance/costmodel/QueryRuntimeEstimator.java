@@ -20,6 +20,9 @@ public class QueryRuntimeEstimator {
 	QueryRuntimeEstimator(List<MaterializedPlan> matPlans, double successRate){
 		this.setMatPlans(matPlans);
 		this.setSuccessRate(successRate);
+	} 
+	
+	QueryRuntimeEstimator(){
 	}
 	/**
 	 * @return the runtimesForDifferentMaterializations
@@ -138,7 +141,7 @@ public class QueryRuntimeEstimator {
 	 * @param level
 	 * @return
 	 */
-	private double calculateSuccessProbForNode(Level level){
+	public double calculateSuccessProbForNode(Level level){
 		return 1 - calculateFailureProbForNode(level);
 	}
 	
@@ -147,13 +150,13 @@ public class QueryRuntimeEstimator {
 	 * @param level
 	 * @return
 	 */
-    private double calculateFailureProbForNode(Level level){
+	public double calculateFailureProbForNode(Level level){
     	double meatTimeBetweenFailure = level.getMTBF();
     	return 1 - Math.pow(Math.E, -1*(level.getLevelRuntimeEstimate()+level.getMaterializationRuntimeestimate())/meatTimeBetweenFailure);
 	} 
     
     @SuppressWarnings("unused")
-	private double calculateFailureProbForLevel(Level level){
+    private double calculateFailureProbForLevel(Level level){
 		return 1 - calculateSuccessProbForLevel(level);
 	} 
     
@@ -162,9 +165,9 @@ public class QueryRuntimeEstimator {
      * @param level
      * @return
      */
-    private double calculateSuccessProbForLevel(Level level){ 
+    public double calculateSuccessProbForLevel(Level level){ 
     	int numberOfNodePerLevel = level.getNumberOfPartitions();
-		double successProbNode = calculateSuccessProbForNode(level); 
+    	double successProbNode = calculateSuccessProbForNode(level); 
 		return Math.pow(successProbNode, numberOfNodePerLevel);
 		
 	}

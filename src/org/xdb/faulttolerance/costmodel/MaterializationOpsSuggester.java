@@ -228,7 +228,7 @@ public class MaterializationOpsSuggester {
 		
 		// Initiate a query plan 
 		this.costModelQueryPlan = new CostModelQueryPlan(costModelOps, 
-				forcedMaterializedOpsIndexes, mapCostModelOpToCompileOp); 
+				forcedMaterializedOpsIndexes, mapCostModelOpToCompileOp, null); 
 		// Enumerate Different Materialization Strategy 
 		MaterlizationStrategyEnumerator matEnumerator = new MaterlizationStrategyEnumerator(costModelQueryPlan,forcedMaterializedOpsIndexes, this.MTBF);
 		List<MaterializedPlan> materializedPlansList = matEnumerator.enumerateQueryPlan(); 

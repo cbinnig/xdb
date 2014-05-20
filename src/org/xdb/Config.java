@@ -65,6 +65,8 @@ public class Config implements Serializable {
 	public static String COMPILE_FT_MODE = "naive";
 	public static int COMPILE_FT_BENCHMARK_ROWS_NUMBER = 10;
 	public static int COMPILE_FT_BENCHMARK_COLUMNS_NUMBER = 2;
+	public static double COMPILE_FT_PIPELINE_CNST = 0.95; 
+	public static double COMPILE_FT_MERGING_SMALLOPS_THRESHOLD = 0.98;
 
 	// Optimizer
 	public static BitSet OPTIMIZER_ACTIVE_RULES_FUNCTION = new BitSet();
