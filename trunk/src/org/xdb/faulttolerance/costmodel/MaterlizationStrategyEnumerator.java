@@ -1,6 +1,7 @@
 package org.xdb.faulttolerance.costmodel;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 /**
@@ -22,6 +23,15 @@ public class MaterlizationStrategyEnumerator {
 		this.costModelQueryPlan = costModelQueryPlan;
 		this.setForcedMaterializedOpsIndexes(forcedMaterializedOpsIndexes);
 		this.setMTBF(MTBF);
+	} 
+	
+	MaterlizationStrategyEnumerator(CostModelQueryPlan costModelQueryPlan, List<Integer> forcedMaterializedOpsIndexes){
+		this.costModelQueryPlan = costModelQueryPlan;
+		this.setForcedMaterializedOpsIndexes(forcedMaterializedOpsIndexes);
+	} 
+	
+	MaterlizationStrategyEnumerator(int MTBF){
+		this.MTBF = MTBF;
 	}
 
 	/**
@@ -94,7 +104,9 @@ public class MaterlizationStrategyEnumerator {
 	private void resetOperators(List<CostModelOperator> allOperator) {
 		for (CostModelOperator operator : allOperator) {
 			if(!operator.isForcedMaterlialized())
-				operator.setMaterilaized(false);
+				operator.setMaterilaized(false); 
+			else 
+				operator.setMaterilaized(true); 
 		}		
 	}
 
@@ -105,7 +117,7 @@ public class MaterlizationStrategyEnumerator {
 	 * @param allOperator
 	 * @return
 	 */
-	private MaterializedPlan buildMaterliazedPlan(List<CostModelOperator> allOperator) {
+	public MaterializedPlan buildMaterliazedPlan(List<CostModelOperator> allOperator) {
 		List<Integer> materialzationIndecis = new ArrayList<Integer>();  
 		SubQueryEstimator levelEstimator = new SubQueryEstimator(); 
 		int lastMaterializationIndex = 0; 
@@ -122,7 +134,9 @@ public class MaterlizationStrategyEnumerator {
 				level.setMaterializationRuntimeestimate(levelEstimator.getMaterializationTime(level));
 				lastMaterializationIndex = i+1;
 				matPlan.setMateriliazedPlanLevels(level);
-			} 
+			} else {
+				System.out.println("Non Materialized Object");
+			}
 		} 
 		// deploy the materialized plan  
 		deployMaterializedPlan(matPlan); 
@@ -156,6 +170,46 @@ public class MaterlizationStrategyEnumerator {
 	public void setForcedMaterializedOpsIndexes(
 			List<Integer> forcedMaterializedOpsIndexes) {
 		this.forcedMaterializedOpsIndexes = forcedMaterializedOpsIndexes;
+	} 
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public List<BitSet> enumerateBushyTree(){
+		List<CostModelOperator> allOperator = this.costModelQueryPlan.getAllOperators();    
+		//for (CostModelOperator costModelOperator : allOperator) {
+		//	System.out.print(costModelOperator.getId() +" ");
+		//}
+		List<BitSet> allPossibleMatConfs = new ArrayList<BitSet>();
+		int numberOfOps = allOperator.size(); 
+		int numberOfMaterializationScenarios = (int) Math.pow(2, numberOfOps); 
+        boolean forcedMaterializedDetected = false;
+		for(int i=0; i<numberOfMaterializationScenarios; i++){ 
+			BitSet matConfBitSet = new BitSet();
+			for(int j=0; j<forcedMaterializedOpsIndexes.size(); j++){
+				Double level = Math.pow(2.0, forcedMaterializedOpsIndexes.get(j));
+				if((level.intValue()&i) == 0){
+					forcedMaterializedDetected = true;
+					break;
+				}
+			} 
+			if(forcedMaterializedDetected) {
+				forcedMaterializedDetected = false; 
+				continue;
+			}
+			char[] binaryRep = String.format(Integer.toBinaryString(i)).toCharArray();  
+			for (int j = 0; j<binaryRep.length ; j++){
+				if(binaryRep[j] == '1') {
+					//CostModelOperator op = allOperator.get(allOperator.size() -1 - j);
+					//op.setMaterilaized(true);  
+					matConfBitSet.set(binaryRep.length - j -1);
+				}
+			}
+			allPossibleMatConfs.add(matConfBitSet);
+			//resetOperators(allOperator);
+		}  
+		return allPossibleMatConfs;
 	}
 
 }
