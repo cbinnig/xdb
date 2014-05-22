@@ -11,7 +11,13 @@ import org.xdb.utils.Identifier;
 public class TotalRuntimeEstimator { 
 
 	// list of materialization configuration 
-	private List<MaterializedPlan> matPlansList = new ArrayList<MaterializedPlan>();
+	private List<MaterializedPlan> matPlansList = new ArrayList<MaterializedPlan>(); 
+    
+	// 
+	private double totalRunTime; 
+	
+	// 
+	private double runTime; 
 
 	public TotalRuntimeEstimator(List<MaterializedPlan> matPlansList) { 
 		this.matPlansList = matPlansList; 
@@ -49,7 +55,7 @@ public class TotalRuntimeEstimator {
 				
 			}   
 			
-			runTimeWithoutMaterialization += matLevels.get(matLevels.size()-1).getMaterializationRuntimeestimate();
+			//runTimeWithoutMaterialization += matLevels.get(matLevels.size()-1).getMaterializationRuntimeestimate();
 			materializedPlan.setRunTimeWithoutFailure(runTimeWithoutMaterialization + materializationTime);
 			materializedPlan.setMaterializationTime(materializationTime); 
 			numberOfLevelslnMatConf = matLevels.size();  
@@ -101,5 +107,33 @@ public class TotalRuntimeEstimator {
 			System.out.println("Op: "+level.getSubQquery().get(level.getSubQquery().size()-1).getId());
 		} 
         return materializedOpIds;
+	}
+
+	/**
+	 * @return the totalRunTime
+	 */
+	public double getTotalRunTime() {
+		return totalRunTime;
+	}
+
+	/**
+	 * @param totalRunTime the totalRunTime to set
+	 */
+	public void setTotalRunTime(double totalRunTime) {
+		this.totalRunTime = totalRunTime;
+	}
+
+	/**
+	 * @return the runTime
+	 */
+	public double getRunTime() {
+		return runTime;
+	}
+
+	/**
+	 * @param runTime the runTime to set
+	 */
+	public void setRunTime(double runTime) {
+		this.runTime = runTime;
 	}
 }
