@@ -120,7 +120,8 @@ public class MaterlizationStrategyEnumerator {
 	public MaterializedPlan buildMaterliazedPlan(List<CostModelOperator> allOperator) {
 		List<Integer> materialzationIndecis = new ArrayList<Integer>();  
 		SubQueryEstimator levelEstimator = new SubQueryEstimator(); 
-		int lastMaterializationIndex = 0; 
+		int lastMaterializationIndex = 0;  
+		double runTimeWithoutFailure = 0.0;
 		MaterializedPlan matPlan = new MaterializedPlan();
 		for (int i=0; i<allOperator.size(); i++) { 
 			CostModelOperator op = allOperator.get(i); 
@@ -131,13 +132,13 @@ public class MaterlizationStrategyEnumerator {
 						subList(lastMaterializationIndex, i+1)); 
 				// set the runtime including the materialization cost.
 				level.setLevelRuntimeEstimate(levelEstimator.getLevelRunTime(level)); 
-				level.setMaterializationRuntimeestimate(levelEstimator.getMaterializationTime(level));
+				level.setMaterializationRuntimeestimate(levelEstimator.getMaterializationTime(level)); 
+				runTimeWithoutFailure += levelEstimator.getLevelRunTime(level) + levelEstimator.getMaterializationTime(level);
 				lastMaterializationIndex = i+1;
 				matPlan.setMateriliazedPlanLevels(level);
-			} else {
-				System.out.println("Non Materialized Object");
-			}
+			} 
 		} 
+		matPlan.setRunTimeWithoutFailure(runTimeWithoutFailure);
 		// deploy the materialized plan  
 		deployMaterializedPlan(matPlan); 
 		return matPlan;

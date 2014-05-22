@@ -79,7 +79,7 @@ public class CostModelTest extends TestCase{
 		//this.cplan.tracePlan(this.getClass().getName()+"_Compiled");
 			 
 	}
-    /*
+    
 	public void testOptimalMatPlan() { 
 		
 		Error err = new Error(); 
@@ -126,7 +126,7 @@ public class CostModelTest extends TestCase{
 			assertEquals(new HashSet<Identifier>(expected), new HashSet<Identifier>(result));
 		}		
 	} 
-	*/
+	
 	public void testBushyTreePlan(){  
 		
 		CompilePlan bushyPlan = new CompilePlan();   

@@ -11,7 +11,7 @@ import org.xdb.utils.Identifier;
  * @author Abdallah 
  *
  */
-public class CostModelOperator { 
+public class CostModelOperator implements Comparable<CostModelOperator> { 
 	
 	//private int id; 
 	private Identifier id;
@@ -213,6 +213,17 @@ public class CostModelOperator {
 	public void addChild(CostModelOperator child) {
 		this.children.add(child);
 		
+	}
+
+	@Override
+	public int compareTo(CostModelOperator op) {
+		double totalOpRunTime = this.getOpMaterializationTimeEstimate() + this.getOpRunTimeEstimate(); 
+		double totalOpRunTimeCompareTo = op.getOpMaterializationTimeEstimate() + op.getOpRunTimeEstimate();
+		if(totalOpRunTime > totalOpRunTimeCompareTo)
+		    return 1; 
+		else if (totalOpRunTime < totalOpRunTimeCompareTo) 
+			return -1; 
+		else return 0;
 	}
 
 }
