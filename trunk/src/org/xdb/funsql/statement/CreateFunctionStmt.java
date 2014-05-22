@@ -7,8 +7,10 @@ import java.util.Vector;
 import org.xdb.Config;
 import org.xdb.client.MasterTrackerClient;
 import org.xdb.doomdb.DoomDBPlan;
+import org.xdb.doomdb.QueryStats;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
+import org.xdb.faulttolerance.costmodel.MaterializationOpsSuggester;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.FunctionCache;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
@@ -443,6 +445,38 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	public void addFunctionCall(TokenFunctionCall tfc) {
 		this.tcalls.add(tfc);
 		this.parts.add(tfc);
+	}
+	
+	@Override
+	public Error applyFaultTolerance(QueryStats queryStats) {
+		Error err = new Error();
+		/*
+		Identifier id2 = new Identifier("2"); 
+		Identifier id3 = new Identifier("3"); 
+		Identifier id4 = new Identifier("4"); 
+		Identifier id5 = new Identifier("5");  
+		
+		this.opsEstimatedRuntime.put(id2, 44.0); 
+		this.opsEstimatedRuntime.put(id5, 20.889);
+		this.opsEstimatedRuntime.put(id3, 0.119 );
+		this.opsEstimatedRuntime.put(id4, 0.002);
+		
+		this.intermediadeResultsMatTime.put(id2, 77.0); 
+		this.intermediadeResultsMatTime.put(id5, 0.009);
+		this.intermediadeResultsMatTime.put(id3, 0.009);
+		this.intermediadeResultsMatTime.put(id4, 0.009);+/
+		 */
+		
+		MaterializationOpsSuggester matSuggester = new MaterializationOpsSuggester
+				(this.functionPlan, queryStats.getQueryRuntimesStat(), queryStats.getQueryMattimesStat(), queryStats.getNonMatOps(),
+						Config.DOOMDB_MTBF, Config.DOOMDB_MTTR);  
+	    
+		err = matSuggester.startCostModel();
+		
+		if(Config.TRACE_PARALLEL_PLAN)
+			this.functionPlan.tracePlan(this.functionPlan.getClass().getName()+"_MATERIALIZED");
+		
+		return err;
 	}
 	
 	@Override
