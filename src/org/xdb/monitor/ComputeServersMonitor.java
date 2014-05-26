@@ -91,6 +91,8 @@ public class ComputeServersMonitor {
 						+ " has been detected");
 				this.setFailureDetected(true);
 				continue;
+			case FINISHED:
+				continue;
 			default:
 				break;	
 			}
