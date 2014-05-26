@@ -378,19 +378,6 @@ public enum EnumDoomDBSchema {
 		return SCHEMAS.get(schemaName);
 	}
 
-	public int getPartitions() {
-		switch (this) {
-		case TPCH_SF01_1PART:
-			return 1;
-		case TPCH_SF01_2PARTS:
-			return 2;
-		case TPCH_SF01_10PARTS:
-			return 10;
-		default:
-			return 0;
-		}
-	}
-
 	public String getQuery(int i) {
 		if (QUERIES.containsKey(i))
 			return QUERIES.get(i);

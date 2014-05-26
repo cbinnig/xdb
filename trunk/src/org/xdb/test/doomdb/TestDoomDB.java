@@ -107,6 +107,12 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		System.out.println("--------------------");
 	}
 
+	public void testQ1_SF1_10Parts() throws Exception {
+		this.dClient.setSchema("TPCH_SF1_10P");
+		this.dClient.setQuery(1);
+		this.runPlan();
+	}
+	
 	public void testQ1_SF01_10Parts() throws Exception {
 		this.dClient.setSchema("TPCH_SF01_10P");
 		this.dClient.setQuery(1);
@@ -152,6 +158,12 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 	public void testQ3_SF100_10Parts() throws Exception {
 		this.dClient.setSchema("TPCH_SF100_10P");
 		this.dClient.setQuery(3);
+		this.runPlan();
+	}
+	
+	public void testQ5_SF1_10Parts() throws Exception {
+		this.dClient.setSchema("TPCH_SF1_10P");
+		this.dClient.setQuery(5);
 		this.runPlan();
 	}
 	
