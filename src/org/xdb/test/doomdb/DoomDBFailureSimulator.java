@@ -1,5 +1,7 @@
 package org.xdb.test.doomdb;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Vector;
@@ -133,7 +135,11 @@ public class DoomDBFailureSimulator extends Thread {
 					break killLoop;
 				}
 
-				System.err.println("Kill node " + node2Kill );
+				SimpleDateFormat sdfDate = new SimpleDateFormat("HH:mm:ss");
+			    Date now = new java.util.Date();
+			    String strDate = sdfDate.format(now);
+			    
+				System.err.println("Kill node " + node2Kill + " [" + strDate + "]");
 				
 				this.dbClient.killNode(node2Kill);
 

@@ -77,7 +77,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		// execute plan w failures
 		System.out.println("Query Execution: ");
 		this.dClient.startQuery();
-		//doomDBFailureSimulator.start();
+		doomDBFailureSimulator.start();
 
 		//int i=0;
 		while (!this.dClient.isQueryFinished()) {
