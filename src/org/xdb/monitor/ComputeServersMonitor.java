@@ -86,12 +86,10 @@ public class ComputeServersMonitor {
 
 			// do not ping in this cases
 			switch (opDesc.getOperatorStatus()){
-			case FAILED:
-			case FINISHED:
 			case ABORTED:
 				logger.log(Level.INFO, "Aborted Operator " + identifier
 						+ " has been detected");
-				setFailureDetected(true);
+				this.setFailureDetected(true);
 				continue;
 			default:
 				break;	
@@ -105,7 +103,7 @@ public class ComputeServersMonitor {
 						+ opDesc.getComputeNode());
 				// Update the current deployment with the failed operator
 				opDesc.setOperatorStatus(EnumOperatorStatus.ABORTED);
-				setFailureDetected(true);
+				this.setFailureDetected(true);
 			}
 
 		}

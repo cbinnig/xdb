@@ -395,6 +395,7 @@ public class QueryTrackerPlan implements Serializable {
 
 					// Check if a failure is detected
 					if (computeServersMonitor.hasDetectedFailure()) {
+						
 						logger.log(Level.INFO, "Monitoring detected a failure!");
 
 						if (attempt >= this.maxAttempts) {
