@@ -1,9 +1,11 @@
 package org.xdb.tracker;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -409,6 +411,11 @@ public class QueryTrackerPlan implements Serializable {
 						attempt++;
 						logger.log(Level.INFO, "Monitor: start attempt "
 								+ attempt);
+						
+						SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+					    Date now = new Date();
+					    String strDate = sdfDate.format(now);
+						System.out.println("Monitor: start attempt " + attempt + " [" + strDate + "]");
 					}
 
 					// unlock to allow operators signaling.
@@ -753,7 +760,7 @@ public class QueryTrackerPlan implements Serializable {
 				opErr = computeClient.executeOperator(executeOpDesc);
 				if (opErr.isError()) {
 					executeOpDesc.setOperatorStatus(EnumOperatorStatus
-							.getRuntimeFailure());
+							.getRuntimeFailure());				
 				} else {
 					this.storeReadySignals(Config.COMPUTE_NOOP_ID, trackerOpId);
 				}

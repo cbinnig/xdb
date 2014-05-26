@@ -144,7 +144,6 @@ public abstract class AbstractExecuteOperator implements Serializable {
 		} catch (final Exception e) {
 			this.err = createMySQLError(e);
 			this.status = EnumOperatorStatus.getRuntimeFailure();
-			
 			return this.err;
 		}
 

@@ -1,9 +1,9 @@
 #!/bin/bash
 
 xdb=".";
-sf=01;
+sf=10;
 partitions=10;
-maxIteration=10;
+maxIteration=1;
 declare -a queries=(5);
 
 queryIterator=0;
