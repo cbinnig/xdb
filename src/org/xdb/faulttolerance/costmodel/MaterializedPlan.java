@@ -15,7 +15,7 @@ public class MaterializedPlan implements Comparable<MaterializedPlan> {
     private double successProbability; 
     private double failureProbability;  
     private double averageWastedTime; 
-    private int reattempts;  
+    private long reattempts;  
     private double runTimeWithoutFailure; 
     private double materializationTime;
 	
@@ -78,14 +78,14 @@ public class MaterializedPlan implements Comparable<MaterializedPlan> {
 	/**
 	 * @return the reattempts
 	 */
-	public int getReattempts() {
+	public long getReattempts() {
 		return reattempts;
 	}
 
 	/**
 	 * @param reattempts the reattempts to set
 	 */
-	public void setReattempts(int reattempts) {
+	public void setReattempts(long reattempts) {
 		this.reattempts = reattempts;
 	}
 

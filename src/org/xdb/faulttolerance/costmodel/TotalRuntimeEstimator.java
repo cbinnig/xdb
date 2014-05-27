@@ -52,10 +52,10 @@ public class TotalRuntimeEstimator {
 			for (Level level : matLevels) {
 				runTimeWithoutMaterialization += level.getLevelRuntimeEstimate(); 
 				materializationTime += level.getMaterializationRuntimeestimate();
-				
+				level.setAverageWastedTime(0.5*(level.getLevelRuntimeEstimate() + level.getMaterializationRuntimeestimate())*level.getLevelFailureProbability());
 			}   
 			
-			//runTimeWithoutMaterialization += matLevels.get(matLevels.size()-1).getMaterializationRuntimeestimate();
+			runTimeWithoutMaterialization += matLevels.get(matLevels.size()-1).getMaterializationRuntimeestimate();
 			materializedPlan.setRunTimeWithoutFailure(runTimeWithoutMaterialization + materializationTime);
 			materializedPlan.setMaterializationTime(materializationTime); 
 			numberOfLevelslnMatConf = matLevels.size();  
@@ -69,28 +69,36 @@ public class TotalRuntimeEstimator {
 	} 
 
 	public void calculateRuntTimeForMatConfs(){
-
+     
 		double runTime = 0.0;
+		double levelRunTime = 0.0;
 		double T;
 		double W;
 		double F;
-		int r; 
+		long r; 
+		long totalR = 0; 
+		double totalWastedTime = 0.0;
 		for (MaterializedPlan materializedPlan : matPlansList) {  
-			T = materializedPlan.getRunTimeWithoutFailure(); 
-			W = materializedPlan.getAverageWastedTime();
-			F = materializedPlan.getFailureProbability(); 
-			r = materializedPlan.getReattempts(); 
-			// runtime model  
-			runTime = T + W*(1 - Math.pow(F,r+1))/(1-F) - W + r*Config.DOOMDB_MTTR;
-            
+			// For each mat conf we will apply the cost model level by level 
 			List<Level> levels = materializedPlan.getmateriliazedPlanLevels(); 
 			System.out.print("Mat Conf -> ");
+			totalR = 0;
+			totalWastedTime = 0; 
+			runTime = 0;
 			for (Level level : levels) {
+				T = level.getLevelRuntimeEstimate() + level.getMaterializationRuntimeestimate();  
+				W = level.getAverageWastedTime(); 
+				F = level.getLevelFailureProbability(); 
+				r = level.getNumberOfAttemptsPerLevel();
+				levelRunTime = T + W*(1 - Math.pow(F,r+1))/(1-F) - W + r*Config.DOOMDB_MTTR; 
+				runTime += levelRunTime; 
+				totalR += r; 
+				totalWastedTime += W;
 				System.out.print(level.getSubQquery().get(level.getSubQquery().size()-1).getId());  
 				System.out.print(", ");
 			}
 			System.out.println();
-			System.out.println("Total RunTime:"+runTime+" Runtime="+T + ", Avg.Wasted Time="+W+", Attempts="+r);
+			System.out.println("Total RunTime:"+runTime+" Runtime="+materializedPlan.getRunTimeWithoutFailure() + ", Avg.Wasted Time="+totalWastedTime+", Attempts="+totalR);
             
 			materializedPlan.setRunTime(runTime);	 
 		} 

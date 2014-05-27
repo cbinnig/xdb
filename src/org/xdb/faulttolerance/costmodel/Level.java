@@ -24,7 +24,11 @@ public class Level {
 	
 	private double materializationRuntimeestimate;   
 	
-	private int MTBF;
+	private int MTBF; 
+	
+	private long numberOfAttemptsPerLevel; 
+	
+	private double averageWastedTime;
 	
 
 	/**
@@ -138,6 +142,34 @@ public class Level {
 	 */
 	public void setMTBF(int MTBF) {
 		this.MTBF = MTBF;
+	}
+
+	/**
+	 * @return the numberOfAttemptsPerLevel
+	 */
+	public long getNumberOfAttemptsPerLevel() {
+		return numberOfAttemptsPerLevel;
+	}
+
+	/**
+	 * @param numberOfAttemptsPerLevel the numberOfAttemptsPerLevel to set
+	 */
+	public void setNumberOfAttemptsPerLevel(long numberOfAttemptsPerLevel) {
+		this.numberOfAttemptsPerLevel = numberOfAttemptsPerLevel;
+	}
+
+	/**
+	 * @return the averageWastedTime
+	 */
+	public double getAverageWastedTime() {
+		return averageWastedTime;
+	}
+
+	/**
+	 * @param averageWastedTime the averageWastedTime to set
+	 */
+	public void setAverageWastedTime(double averageWastedTime) {
+		this.averageWastedTime = averageWastedTime;
 	} 
 
 }
