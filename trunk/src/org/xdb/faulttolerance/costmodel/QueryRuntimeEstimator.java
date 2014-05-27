@@ -7,8 +7,8 @@ import java.util.Map;
 
 public class QueryRuntimeEstimator { 
 	
-	private Map<MaterializedPlan, Integer> reattemptsForDifferentMaterializations
-	= new HashMap<MaterializedPlan, Integer>(); 
+	private Map<MaterializedPlan, Long> reattemptsForDifferentMaterializations
+	= new HashMap<MaterializedPlan, Long>(); 
 	
 	private Map<MaterializedPlan, Double> runtimesForDifferentMaterializations
 	= new HashMap<MaterializedPlan, Double>(); 
@@ -42,14 +42,14 @@ public class QueryRuntimeEstimator {
 	/**
 	 * @return the reattemptsForDifferentMaterializations
 	 */
-	public Map<MaterializedPlan, Integer> getReattemptsForDifferentMaterializations() {
+	public Map<MaterializedPlan, Long> getReattemptsForDifferentMaterializations() {
 		return reattemptsForDifferentMaterializations;
 	}
 
 	/**
 	 * @param reattemptsForDifferentMaterializations the reattemptsForDifferentMaterializations to set
 	 */
-	public void setReattemptsForDifferentMaterializations(MaterializedPlan matPlan, Integer reattempt){
+	public void setReattemptsForDifferentMaterializations(MaterializedPlan matPlan, Long reattempt){
 		this.reattemptsForDifferentMaterializations.put(matPlan, reattempt);
 	}
 
@@ -97,8 +97,11 @@ public class QueryRuntimeEstimator {
 			for (Level level : levels) {
 				double levelSuccess =  calculateSuccessProbForLevel(level); 
 				level.setLevelSuccessProbability(levelSuccess);
-				level.setLevelFailureProbability(1 - levelSuccess);
-				querySuccessProbability = querySuccessProbability*levelSuccess; 
+				level.setLevelFailureProbability(1 - levelSuccess); 
+				// calculate the the number of attempts for a level 
+				long levelAttempts = calculateReattempts(levelSuccess, levels.size());
+				level.setNumberOfAttemptsPerLevel(levelAttempts);
+				querySuccessProbability = querySuccessProbability*levelSuccess;  
 			} 
 			// if the success rate of the query almost zero 
 			// then neglect the corresponding Mat Cong 
@@ -106,7 +109,8 @@ public class QueryRuntimeEstimator {
 				uselessMatConfList.add(i);
 				continue;
 			}
-			int reattempts = calculateReattempts(querySuccessProbability);
+			// Can be neglected later!! (Calculate the attempts for levels individually)
+			long reattempts = calculateReattempts(querySuccessProbability, levels.size());
 			this.setReattemptsForDifferentMaterializations(matPlan, reattempts); 
 			// set the number of reattempts, failure probability, and 
 			// success probability for each materialization configuration  
@@ -127,12 +131,13 @@ public class QueryRuntimeEstimator {
 	 * @param querySuccessProbability
 	 * @return
 	 */
-	private int calculateReattempts(double querySuccessProbability) {
-		int reattempts = 0; // initial
-		double queryFailureProbability = 1 - querySuccessProbability;
-		double big1 = Math.log10(1-this.successRate); 
+	private long calculateReattempts(double querySuccessProbability, int levels) {
+		long reattempts = 0; // initial
+		double queryFailureProbability = 1 - querySuccessProbability; 
+		System.out.println("The success rate for a level in a plan from "+levels +": "+Math.pow(Math.E, Math.log(this.successRate)/levels));
+		double big1 = Math.log10(1-Math.pow(Math.E, Math.log(this.successRate)/levels)); 
 		double big2 = Math.log10(queryFailureProbability); 
-		reattempts = (int) (Math.ceil((big1/big2) -1));	
+		reattempts = (long) (Math.ceil((big1/big2) -1));	
 		return reattempts;
 	}
 	

@@ -55,11 +55,28 @@ public class MaterializationOpsSuggester {
 			err = startSmartMaterilizationFinder();
 		} else if(Config.COMPILE_FT_MODE.equalsIgnoreCase("naive")) {
 			err = startNaiveMaterilizationFinder();
-		} 
+		} else if(Config.COMPILE_FT_MODE.equalsIgnoreCase("bushy")){
+			err = startBushyMaterializationFinder();
+		}
 	    
 		return err;
 	} 
 	
+	private Error startBushyMaterializationFinder() {
+		Error err = new Error(); 
+		BushyCPlanMatEnumerator bushyTreeEnumerator = new BushyCPlanMatEnumerator();
+		List<Identifier> nonMaterializableOps; 
+		nonMaterializableOps = new ArrayList<Identifier>(); 
+		bushyTreeEnumerator.setNonMatOps(nonMaterializableOps); 
+		bushyTreeEnumerator.setOpsEstimatedRuntime(opsEstimatedRuntime);
+		bushyTreeEnumerator.setIntermediadeResultsMatTime(intermediadeResultsMatTime);
+		bushyTreeEnumerator.setCompilePlan(this.compilePlan); 
+		bushyTreeEnumerator.enumerateCompilePlan(); 
+		this.recommendedMatOpsIds = bushyTreeEnumerator.getRecommendedMatOpIds(); 
+		updateCompilePlanWithNewMat();
+		return err;
+	}
+
 	/**
 	 * 
 	 * @return

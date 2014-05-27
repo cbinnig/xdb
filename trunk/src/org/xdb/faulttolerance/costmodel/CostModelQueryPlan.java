@@ -200,8 +200,8 @@ public class CostModelQueryPlan {
 	/**
 	 * @param costModelOpToCompileOp the costModelOpToCompileOp to set
 	 */
-	public void setCostModelOpToCompileOp(Identifier costModelOpId, Identifier compileOpId) {
-		this.costModelOpToCompileOp.put(costModelOpId, compileOpId);
+	public void setCostModelOpToCompileOp(Map<Identifier, Identifier> costModelOpToCompileOp) {
+		this.costModelOpToCompileOp = costModelOpToCompileOp;
 	}
 
 	/**
@@ -410,7 +410,7 @@ public class CostModelQueryPlan {
 	/**
 	 * 
 	 */
-	public void findBestMatConf() {
+	public List<Identifier> findBestMatConf() {
 		// label the ops with the materialization flag 
 		List<BitSet> matConfs = this.allMaterializationConf;  
 		int matConfNum=0;
@@ -436,9 +436,19 @@ public class CostModelQueryPlan {
 			analyzeSingleMatConf(copyPlan, matConfNum);
 			matConfNum++;
 		}  
-
+  
 		System.out.println("Best Plan: "+BEST_PLAN_NUMBER + " with Runtime: "+BEST_PLAN_RUNTIME);
-
+        
+		// 
+		List<Identifier> recommendedMatOpIds = new ArrayList<Identifier>();
+		BitSet bestPlanAsBitSet = matConfs.get(BEST_PLAN_NUMBER); 
+		for (int i=0; i<this.allOperators.size(); i++) {
+				if(bestPlanAsBitSet.get(i)){  
+					recommendedMatOpIds.add(this.allOperators.get(i).getId());
+				}
+		} 
+		
+		return recommendedMatOpIds;
 	} 
 
 	private void mergeNonMatOps(CostModelQueryPlan copyPlan) {

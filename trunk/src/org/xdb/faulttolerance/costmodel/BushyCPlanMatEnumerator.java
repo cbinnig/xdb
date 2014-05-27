@@ -30,7 +30,8 @@ public class BushyCPlanMatEnumerator {
 	private List<Identifier> nonMaterializableOps = new ArrayList<Identifier>();
 	//
 	private List<Identifier> forcedMat = new ArrayList<Identifier>(); 
-
+    // 
+	private List<Identifier> recommendedMatOpIds = new ArrayList<Identifier>();
 	/**
 	 * @return the compilePlan
 	 */
@@ -104,7 +105,7 @@ public class BushyCPlanMatEnumerator {
 		costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_ThirdRule_");  
 		// 4- Forth Pruning rule: path Comparisons 
 		costModelQPlan.enumerate(); 
-		costModelQPlan.findBestMatConf();
+		setRecommendedMatOpIds(costModelQPlan.findBestMatConf());
 		return err;
 	} 
 	
@@ -165,20 +166,26 @@ public class BushyCPlanMatEnumerator {
 		HashMap<Identifier, CostModelOperator> allCostModelOps = new HashMap<Identifier, CostModelOperator>();   
 		List<CostModelOperator> allOpsAsList = new ArrayList<CostModelOperator>();
 		Collection<AbstractCompileOperator> allOps = this.compilePlan.getOperators();  
+		Map<Identifier, Identifier> costModelOpToCompileOp = new HashMap<Identifier, Identifier>(); 
+		
 		for (AbstractCompileOperator op : allOps) {
 			if(op.getType() != EnumOperator.TABLE){
 				CostModelOperator costModelOperator = new CostModelOperator();  
 				costModelOperator.setId(op.getOperatorId().getChildId()); 
 				costModelOperator.setType(op.getType().toString()); 
+				System.out.println(costModelOperator.getId());
 				costModelOperator.setOpRunTimeEstimate(this.opsEstimatedRuntime.get(costModelOperator.getId())); 
 				costModelOperator.setOpMaterializationTimeEstimate(this.intermediadeResultsMatTime.get(costModelOperator.getId()));
-				costModelOperator.setDegreeOfPartitioning(op.getResult().getPartitionCount());
+				costModelOperator.setDegreeOfPartitioning(op.getResult().getPartitionCount()); 
+				costModelOpToCompileOp.put(op.getOperatorId().getChildId(), op.getOperatorId());
 				allCostModelOps.put(op.getOperatorId().getChildId(), costModelOperator);
-				allOpsAsList.add(costModelOperator);
+				allOpsAsList.add(costModelOperator); 
 			}
 		}   
 		cModelQPlan.setOperators(allCostModelOps);
 		cModelQPlan.setAllOperators(allOpsAsList);
+		cModelQPlan.setCostModelOpToCompileOp(costModelOpToCompileOp);
+		
 		// Add Children to each operator  
 		for (AbstractCompileOperator op : allOps) { 
 			if(op.getType() != EnumOperator.TABLE){
@@ -236,6 +243,20 @@ public class BushyCPlanMatEnumerator {
 	public void setIntermediadeResultsMatTime(
 			Map<Identifier, Double> intermediadeResultsMatTime) {
 		this.intermediadeResultsMatTime = intermediadeResultsMatTime;
+	}
+
+	/**
+	 * @return the recommendedMatOpIds
+	 */
+	public List<Identifier> getRecommendedMatOpIds() {
+		return recommendedMatOpIds;
+	}
+
+	/**
+	 * @param recommendedMatOpIds the recommendedMatOpIds to set
+	 */
+	public void setRecommendedMatOpIds(List<Identifier> recommendedMatOpIds) {
+		this.recommendedMatOpIds = recommendedMatOpIds;
 	} 
 	
 }
