@@ -304,7 +304,7 @@ public class CodeGenerator {
 
 		Map<String, String> args = new HashMap<String, String>();
 		ResultDesc outputResult = compileOp.getResult();
-		String outAttsDDL = outputResult.getAttsDDL();
+		String outAttsDDL = outputResult.getAttsDDL(true);
 		args.put(SQL1, outAttsDDL);
 		args.put(TAB1, outTableName);
 		outAttsDDL = this.sqlInOutDDLTemplate.toString(args);
@@ -359,7 +359,7 @@ public class CodeGenerator {
 			/** Create input table DDL **/
 			Identifier inTableId = this.genInputTableName(inputCompileOp);
 			String inTableName = inTableId.toString();
-			String inAttsDDL = inputResult.getAttsDDL();
+			String inAttsDDL = inputResult.getAttsDDL(false);
 			args.put(SQL1, inAttsDDL);
 
 			// if input is a table -> use a different name

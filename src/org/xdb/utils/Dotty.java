@@ -24,13 +24,14 @@ public class Dotty {
 			// do nothing
 		}
 
-		if (Config.PLATTFORM.equals("MAC")) {
+		if (Config.PLATTFORM.equalsIgnoreCase("MAC")) {
 			final String cmd = exeFileName+" -Tgif "+dotFileName+" -o "+gifFileName;
 			try {
 				Process p = Runtime.getRuntime().exec(cmd);
 				p.waitFor();
 			} catch (Exception e) {
 				// do nothing
+				e.printStackTrace();
 			}
 		}
 
