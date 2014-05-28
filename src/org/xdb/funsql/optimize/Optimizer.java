@@ -94,7 +94,7 @@ public class Optimizer {
 	 */
 	private Error combineSelections() {
 		Error err = new Error();
-		SelectionCombineVisitor combineVisitor = new SelectionCombineVisitor();
+		SelectionCombineVisitor combineVisitor = new SelectionCombineVisitor(compilePlan);
 		
 		for (AbstractCompileOperator root : this.compilePlan
 				.getRootOps()) {
