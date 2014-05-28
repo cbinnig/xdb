@@ -2,7 +2,9 @@ package org.xdb.funsql.compile.operator;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.xdb.Config;
@@ -19,6 +21,21 @@ import org.xdb.funsql.types.EnumSimpleType;
  */
 public class ResultDesc implements Serializable, Cloneable {
 	private static final long serialVersionUID = 8819533773334264233L;
+
+	// primary key fix
+	private static Set<String> PKS = new HashSet<String>();
+	static {
+		PKS.add("L_ORDERKEY");
+		PKS.add("L_LINENUMBER");
+		PKS.add("O_ORDERKEY");
+		PKS.add("C_CUSTKEY");
+		PKS.add("S_SUPPKEY");
+		PKS.add("PS_SUPPKEY");
+		PKS.add("PS_PARTKEY");
+		PKS.add("P_PARTKEY");
+		PKS.add("N_NATIONKEY");
+		PKS.add("R_REGIONKEY");
+	}
 
 	// attribute
 	private Vector<TokenAttribute> attributes;// attributes
@@ -49,13 +66,13 @@ public class ResultDesc implements Serializable, Cloneable {
 		for (EnumSimpleType type : rDesc.types) {
 			this.types.add(type);
 		}
-		
-		//other attributes
+
+		// other attributes
 		this.materialize(rDesc.materialize);
 		this.repartition = rDesc.repartition;
 		this.partitionCnt = rDesc.partitionCnt;
-		
-		if(this.repartition)
+
+		if (this.repartition)
 			this.rePartDesc = new PartitionDesc(rDesc.rePartDesc);
 	}
 
@@ -149,16 +166,10 @@ public class ResultDesc implements Serializable, Cloneable {
 		return exprTypes;
 	}
 
-	public String toSqlString() {
-		StringBuffer sqlBuffer = new StringBuffer();
-		sqlBuffer.append(this.getAttsDDL());
-		sqlBuffer.append(AbstractToken.BLANK);
-		sqlBuffer.append(this.getRepartDDL());
-		return sqlBuffer.toString();
-	}
-
-	public String getAttsDDL() {
+	public String getAttsDDL(boolean withPk) {
 		StringBuffer tableBuffer = new StringBuffer(AbstractToken.LBRACE);
+
+		// add attribute names and types
 		for (int i = 0; i < getNumAttributes(); ++i) {
 			if (i > 0) {
 				tableBuffer.append(AbstractToken.COMMA);
@@ -169,6 +180,33 @@ public class ResultDesc implements Serializable, Cloneable {
 			tableBuffer.append(AbstractToken.BLANK);
 			tableBuffer.append(getType(i));
 		}
+
+		// add primary keys
+		if (withPk) {
+			int i = 0;
+			StringBuffer pkBuffer = new StringBuffer(AbstractToken.COMMA);
+			pkBuffer.append(AbstractToken.BLANK);
+			pkBuffer.append(AbstractToken.PRIMARY_KEY);
+			pkBuffer.append(AbstractToken.LBRACE);
+
+			for (TokenAttribute tAtt : this.attributes) {
+				if (PKS.contains(tAtt.getName().toSqlString())) {
+					if (i > 0) {
+						pkBuffer.append(AbstractToken.COMMA);
+						pkBuffer.append(AbstractToken.BLANK);
+					}
+					pkBuffer.append(tAtt.getName().toSqlString());
+					i++;
+				}
+			}
+			pkBuffer.append(AbstractToken.RBRACE);
+			
+			if (i > 0) {
+				tableBuffer.append(pkBuffer.toString());
+			}
+		}
+
+		tableBuffer.append(AbstractToken.BLANK);
 		tableBuffer.append(AbstractToken.RBRACE);
 
 		return tableBuffer.toString();
@@ -184,7 +222,7 @@ public class ResultDesc implements Serializable, Cloneable {
 	@Override
 	public String toString() {
 		StringBuffer value = new StringBuffer();
-		value.append("Materlialization: "+this.materialize );
+		value.append("Materlialization: " + this.materialize);
 		value.append(AbstractToken.NEWLINE);
 		if (Config.TRACE_COMPILE_PLAN_HEADER_RESULT_SCHEMA) {
 			value.append("Attributes: ");
@@ -224,8 +262,8 @@ public class ResultDesc implements Serializable, Cloneable {
 	public int size() {
 		return this.attributes.size();
 	}
-	
-	public boolean renameAttributes(Map<String, String> renamedAttributes){
+
+	public boolean renameAttributes(Map<String, String> renamedAttributes) {
 		boolean renamed = false;
 		for (TokenAttribute tA : this.attributes) {
 			if (renamedAttributes.containsKey(tA.getName().getValue())) {
@@ -233,8 +271,8 @@ public class ResultDesc implements Serializable, Cloneable {
 					renamed = true;
 			}
 		}
-		
-		if(this.repartition){
+
+		if (this.repartition) {
 			this.rePartDesc.renameAttributes(renamedAttributes);
 		}
 		return renamed;

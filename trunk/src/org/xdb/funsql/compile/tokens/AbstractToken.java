@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public abstract class AbstractToken implements Serializable{
 	private static final long serialVersionUID = -5919010803270387112L;
+	public static final String PRIMARY_KEY = "PRIMARY KEY";
 	
 	public static final String NULL = "NULL";
 	public static final String DATE = "DATE";
