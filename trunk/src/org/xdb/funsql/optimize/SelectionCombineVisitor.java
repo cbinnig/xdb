@@ -2,6 +2,7 @@ package org.xdb.funsql.optimize;
 
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
+import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.analyze.operator.AbstractTopDownTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.funsql.compile.operator.EnumOperator;
@@ -21,13 +22,16 @@ import org.xdb.funsql.compile.tokens.TokenAttribute;
 
 public class SelectionCombineVisitor extends AbstractTopDownTreeVisitor {
 	private AbstractCompileOperator lastOp = null;
+	private CompilePlan plan;
 	
-	public SelectionCombineVisitor() {
+	public SelectionCombineVisitor(CompilePlan plan) {
 		super();
+		this.plan = plan;
 	}
 	
-	public SelectionCombineVisitor(AbstractCompileOperator root) {
+	public SelectionCombineVisitor(AbstractCompileOperator root, CompilePlan plan) {
 		super(root);
+		this.plan = plan;
 	}
 
 	@Override
@@ -45,6 +49,7 @@ public class SelectionCombineVisitor extends AbstractTopDownTreeVisitor {
 			//cut last selection
 			GenericSelection lastSel = (GenericSelection)this.lastOp;
 			lastSel.cut();
+			plan.removeOperator(lastSel.getOperatorId());
 			
 			//create new conjunctive predicate
 			AbstractPredicate selPred = gs.getPredicate();
