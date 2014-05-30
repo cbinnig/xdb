@@ -105,7 +105,8 @@ public class BushyCPlanMatEnumerator {
 		costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_ThirdRule_");  
 		// 4- Forth Pruning rule: path Comparisons 
 		costModelQPlan.enumerate(); 
-		setRecommendedMatOpIds(costModelQPlan.findBestMatConf());
+		costModelQPlan.findBestMatConf();
+		//setRecommendedMatOpIds(costModelQPlan.findBestMatConf());
 		return err;
 	} 
 	
@@ -167,24 +168,34 @@ public class BushyCPlanMatEnumerator {
 		List<CostModelOperator> allOpsAsList = new ArrayList<CostModelOperator>();
 		Collection<AbstractCompileOperator> allOps = this.compilePlan.getOperators();  
 		Map<Identifier, Identifier> costModelOpToCompileOp = new HashMap<Identifier, Identifier>(); 
-		
+		List<Integer> forcedMaterializedOpsIndexes = new ArrayList<Integer>();
+		int compileOpIndex = 0;
 		for (AbstractCompileOperator op : allOps) {
 			if(op.getType() != EnumOperator.TABLE){
 				CostModelOperator costModelOperator = new CostModelOperator();  
 				costModelOperator.setId(op.getOperatorId().getChildId()); 
 				costModelOperator.setType(op.getType().toString()); 
-				System.out.println(costModelOperator.getId());
 				costModelOperator.setOpRunTimeEstimate(this.opsEstimatedRuntime.get(costModelOperator.getId())); 
 				costModelOperator.setOpMaterializationTimeEstimate(this.intermediadeResultsMatTime.get(costModelOperator.getId()));
 				costModelOperator.setDegreeOfPartitioning(op.getResult().getPartitionCount()); 
-				costModelOpToCompileOp.put(op.getOperatorId().getChildId(), op.getOperatorId());
+				costModelOpToCompileOp.put(op.getOperatorId().getChildId(), op.getOperatorId()); 
+				if(op.getResult().materialize() || op.isRoot()){
+					costModelOperator.setForcedMaterlialized(true); 
+					costModelOperator.setMaterilaized(true);
+					forcedMaterializedOpsIndexes.add(compileOpIndex); 
+					System.out.println("Forced Materialized Op:"+ (op.getOperatorId()));
+				} else {
+					costModelOperator.setMaterilaized(false);
+				}
 				allCostModelOps.put(op.getOperatorId().getChildId(), costModelOperator);
 				allOpsAsList.add(costModelOperator); 
-			}
+			} 
+			compileOpIndex++;
 		}   
 		cModelQPlan.setOperators(allCostModelOps);
 		cModelQPlan.setAllOperators(allOpsAsList);
 		cModelQPlan.setCostModelOpToCompileOp(costModelOpToCompileOp);
+		cModelQPlan.setForcedMaterializedOpsIndexes(forcedMaterializedOpsIndexes);
 		
 		// Add Children to each operator  
 		for (AbstractCompileOperator op : allOps) { 

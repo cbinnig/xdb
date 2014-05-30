@@ -133,7 +133,7 @@ public class MaterlizationStrategyEnumerator {
 				// set the runtime including the materialization cost.
 				level.setLevelRuntimeEstimate(levelEstimator.getLevelRunTime(level)); 
 				level.setMaterializationRuntimeestimate(levelEstimator.getMaterializationTime(level)); 
-				runTimeWithoutFailure += levelEstimator.getLevelRunTime(level) + levelEstimator.getMaterializationTime(level);
+				runTimeWithoutFailure += (levelEstimator.getLevelRunTime(level) + levelEstimator.getMaterializationTime(level));
 				lastMaterializationIndex = i+1;
 				matPlan.setMateriliazedPlanLevels(level);
 			} 
