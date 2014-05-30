@@ -17,6 +17,7 @@ import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
 import org.xdb.execute.signals.RestartSignal;
 import org.xdb.logging.EnumXDBComponents;
+import org.xdb.utils.Identifier;
 
 /**
  * Server which accepts compute commands and calls handler (separate thread)
@@ -59,6 +60,10 @@ public class ComputeServer extends AbstractServer {
 					ComputeServer.this.stopServer();
 					break;
 				case CMD_PING_SERVER:
+					break;
+				case CMD_PING_OPERATOR:
+					final Identifier opID = (Identifier) in.readObject();
+					err = compute.pingOperator(opID);
 					break;
 				case CMD_OPEN_OP:
 					final AbstractExecuteOperator op = (AbstractExecuteOperator) in.readObject();

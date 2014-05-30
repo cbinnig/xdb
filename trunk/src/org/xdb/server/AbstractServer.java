@@ -26,6 +26,8 @@ public abstract class AbstractServer {
 	public static final int CMD_RESTART_SERVER = -3;
 	public static final int CMD_STOP_SERVER = -2;
 	public static final int CMD_PING_SERVER = -1;
+	public static final int CMD_PING_OPERATOR = -4;
+	
 
 	// thread
 	protected ServerThread serverThread = null;

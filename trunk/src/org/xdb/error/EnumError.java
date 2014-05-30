@@ -11,6 +11,7 @@ public enum EnumError {
 	SERVER_ERROR,
 	CLIENT_ERROR,
 	COMPUTE_CMD_INVALID,
+	COMPUTE_OPERATOR_NOT_AVAILABLE,
 	CATALOG_NOT_AVAILABLE,
 	CATALOG_OBJECT_ALREADY_EXISTS,
 	CATALOG_OBJECT_NOT_EXISTS,
@@ -60,6 +61,9 @@ public enum EnumError {
 			break;
 		case COMPUTE_CMD_INVALID:
 			msg =  "Compute cmd not valid: \"<arg0>\"";
+			break;
+		case COMPUTE_OPERATOR_NOT_AVAILABLE:
+			msg = "Compute operator \"<arg0>\" not available";
 			break;
 		case COMPILER_UNDEFINED_ERROR:
 			msg =  "Compiler: Undefined error (\"<arg0>\")";
