@@ -42,6 +42,7 @@ public class Config implements Serializable {
 	public static String COMPUTE_DB_USER = "xroot";
 	public static String COMPUTE_DB_PASSWD = "xroot";
 	public static final Identifier COMPUTE_NOOP_ID = new Identifier("NOOP");
+
 	public static int COMPUTE_PORT = 55700;
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
 	public static boolean COMPUTE_CLEAN_PLAN = true;
@@ -124,10 +125,11 @@ public class Config implements Serializable {
 	public static int TEST_PARTS_PER_NODE = 1;
 
 	// DoomDB
+	public static boolean ACTIVATE_FAILURE_SIMULATOR = false;
 	public static String DOOMDB_CONFIG_FILE = "./config/doomdb.conf";
 	public static boolean DOOMDB_MTBF_UPDATE = false; // in s
 	public static int DOOMDB_MTBF = 20; // in s
-	public static int DOOMDB_MTBF_STDEV = 2; // in s
+	public static double DOOMDB_MTBF_STDEV = 2; // in s
 	public static int DOOMDB_MTTR = 5; // in s
 	public static int DOOMDB_NUM_FAILUERS = 100; // num of failures
 	public static int DOOMDB_CLUSTER_SIZE = 2; // in s
@@ -181,13 +183,15 @@ public class Config implements Serializable {
 	 * Load user configuration from file and override default values
 	 */
 	private static void loadDoom() {
-		String[] intProperties = { "DOOMDB_MTBF", "DOOMDB_MTBF_STDEV",
+		String[] intProperties = { "DOOMDB_MTBF",
 				"DOOMDB_MTTR", "DOOMDB_CLUSTER_SIZE", "DOOMDB_NUM_FAILUERS" };
 
 		String[] stringProperties = { "DOOMDB_COMPUTE_NODES", "DOOMDB_TPCH_S01",
 				"DOOMDB_TPCH_S1","DOOMDB_TPCH_S10","DOOMDB_TPCH_S100"};
 
-		String[] boolProperties = { "DOOMDB_MTBF_LOAD" };
+		String[] boolProperties = { "DOOMDB_MTBF_LOAD" , "ACTIVATE_FAILURE_SIMULATOR"};
+		
+		String[] doubleProperties = {"DOOMDB_MTBF_STDEV"};
 
 		Properties props;
 		props = new Properties();
@@ -220,6 +224,19 @@ public class Config implements Serializable {
 							props.getProperty(stringProperty.trim()));
 				}
 			}
+			
+			// Double
+			props.load(new FileReader(DOOMDB_CONFIG_FILE));
+			for (String doubleProperty : doubleProperties) {
+				if (props.containsKey(doubleProperty)) {
+						Config.class.getField(doubleProperty).setDouble(
+							null,
+							Double.parseDouble(props.get(doubleProperty.trim())
+								.toString().trim()));
+				}
+			}
+			
+			
 
 		} catch (Exception e) {
 			e.printStackTrace();

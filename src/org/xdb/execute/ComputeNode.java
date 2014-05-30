@@ -194,6 +194,7 @@ public class ComputeNode {
 		// Get signaled operator
 		AbstractExecuteOperator op = null;
 		if (!operators.containsKey(consumerExecuteOpId)) {
+			this.logger.log(Level.SEVERE, "Operator " + consumerExecuteOpId + " not found for execution." );
 			return err;
 		}
 
@@ -371,6 +372,15 @@ public class ComputeNode {
 	public static Error createMySQLError(Exception e) {
 		String[] args = { e.toString() + "," + e.getCause() };
 		Error err = new Error(EnumError.MYSQL_ERROR, args);
+		return err;
+	}
+	
+	public Error pingOperator(Identifier opID){
+		Error err = new Error();
+		if (!operators.containsKey(opID)){
+			String[] args = {opID.toString()};
+			err = new Error(EnumError.COMPUTE_OPERATOR_NOT_AVAILABLE, args);
+		}
 		return err;
 	}
 

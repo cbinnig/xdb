@@ -169,6 +169,13 @@ public class ComputeClient extends AbstractClient {
 		return this.executeCmd(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_PING_SERVER, args);
 	}
+	
+	public Error pingOperator(ComputeNodeDesc url, Identifier operatorID) {
+		Object[] args = {operatorID};
+		return this.executeCmd(url.getUrl(), url.getPort(),
+				ComputeServer.CMD_PING_OPERATOR, args);
+		
+	}
 
 	/**
 	 * Restart Compute Node
@@ -184,4 +191,6 @@ public class ComputeClient extends AbstractClient {
 		return this.executeCmdIgnoreCommErr(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_RESTART_SERVER, args);
 	}
+
+	
 }

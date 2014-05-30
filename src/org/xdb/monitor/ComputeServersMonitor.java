@@ -98,7 +98,8 @@ public class ComputeServersMonitor {
 			}
 			
 			// ping compute server to see if it is alive
-			err = this.computeClient.pingComputeServer(opDesc.getComputeNode());
+			//err = this.computeClient.pingComputeServer(opDesc.getComputeNode());
+			err = this.computeClient.pingOperator(opDesc.getComputeNode(), opDesc.getOperatorID());
 			if (err.isError()) {
 				logger.log(Level.INFO, "Operator " + identifier
 						+ " has been detected on killed compute node: "

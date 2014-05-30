@@ -53,9 +53,6 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 	}
 
 	private void runPlan() {
-		DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(
-				this.dClient);
-		
 		DoomDBPlan dplan = this.dClient.getPlan();
 		dplan.tracePlan();
 
@@ -77,8 +74,12 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		// execute plan w failures
 		System.out.println("Query Execution: ");
 		this.dClient.startQuery();
-		doomDBFailureSimulator.start();
-
+		
+		// start the failure simulator
+		DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(this.dClient);
+		if (Config.ACTIVATE_FAILURE_SIMULATOR)
+			doomDBFailureSimulator.start();
+		
 		//int i=0;
 		while (!this.dClient.isQueryFinished()) {
 			System.out.print(".");
@@ -99,7 +100,10 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 			//if(i==4)
 			//	this.dClient.stopQuery();
 		}
-		doomDBFailureSimulator.interrupt();
+		
+		// terminate the failure simulator
+		if (Config.ACTIVATE_FAILURE_SIMULATOR)
+			doomDBFailureSimulator.interrupt();
 
 		this.dClient.tracePlan();
 		
@@ -163,18 +167,6 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 	
 	public void testQ5_SF1_10Parts() throws Exception {
 		this.dClient.setSchema("TPCH_SF1_10P");
-		this.dClient.setQuery(5);
-		this.runPlan();
-	}
-	
-	public void testQ5_SF01_1Parts() throws Exception {
-		this.dClient.setSchema("TPCH_SF01_1P");
-		this.dClient.setQuery(5);
-		this.runPlan();
-	}
-	
-	public void testQ5_SF01_2Parts() throws Exception {
-		this.dClient.setSchema("TPCH_SF01_2P");
 		this.dClient.setQuery(5);
 		this.runPlan();
 	}
