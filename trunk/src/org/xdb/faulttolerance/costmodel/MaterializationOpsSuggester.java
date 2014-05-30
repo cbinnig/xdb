@@ -208,7 +208,6 @@ public class MaterializationOpsSuggester {
 			AbstractCompileOperator compileOp = sortedCompileOps.get(i); 
 			CostModelOperator costModelOp = new CostModelOperator();
 			Identifier costModelOpId = compileOp.getOperatorId().getChildId(); 
-			System.out.println(compileOp.getOperatorId());
 			costModelOp.setId(costModelOpId); 
 			mapCostModelOpToCompileOp.put(costModelOpId, compileOp.getOperatorId());
 			// if there are roots or set in advance to be materialized 

@@ -336,25 +336,29 @@ public class CostModelTest extends TestCase{
 		EquiJoin joinOp6 = new EquiJoin(joinOp5, selectOp7, attributeRA, attributeRB);
 		bushyPlan.addOperator(joinOp6, false); 
 		ResultDesc joinOp6ResultDesc = new ResultDesc(1); 
-		joinOp6ResultDesc.setPartitionCount(1);   
+		joinOp6ResultDesc.setPartitionCount(1);
+		//joinOp6ResultDesc.materialize(true);
 		joinOp6.setResult(joinOp6ResultDesc);
 		
 		GenericProjection proj1 = new GenericProjection(joinOp6); 
 		bushyPlan.addOperator(proj1, false); 
 		ResultDesc proj1ResultDesc = new ResultDesc(1); 
-		proj1ResultDesc.setPartitionCount(1);   
+		proj1ResultDesc.setPartitionCount(1);  
+		//proj1ResultDesc.materialize(true);
 		proj1.setResult(proj1ResultDesc);
 		
 		GenericAggregation agg1 = new GenericAggregation(proj1); 
 		bushyPlan.addOperator(agg1, false);
 		ResultDesc agg1ResultDesc = new ResultDesc(1); 
 		agg1ResultDesc.setPartitionCount(1);   
+		//agg1ResultDesc.materialize(true);
 		agg1.setResult(agg1ResultDesc);
 		
 		GenericProjection proj2 = new GenericProjection(agg1); 
 		bushyPlan.addOperator(proj2, false);
 		ResultDesc proj2ResultDesc = new ResultDesc(1); 
 		proj2ResultDesc.setPartitionCount(1);   
+		proj2ResultDesc.materialize(false);
 		proj2.setResult(proj2ResultDesc);
 		
 		GenericAggregation proj3 = new GenericAggregation(proj2); 
@@ -380,7 +384,48 @@ public class CostModelTest extends TestCase{
 		bushyTreeEnumerator.setCompilePlan(bushyPlan); 
 		
 		bushyTreeEnumerator.enumerateCompilePlan(); 
+	
+	} 
+	/*
+	public void testMultiJoinOrders(){
 		
-
+		CompilePlan bushyPlan = new CompilePlan();   
+		
+		TokenAttribute attributeRA = new TokenAttribute("a");
+		TokenAttribute attributeRB = new TokenAttribute("b");				
+		
+		EquiJoin joinOp1 = new EquiJoin();
+		bushyPlan.addOperator(joinOp1, false);  
+		//ResultDesc joinOp1ResultDesc = new ResultDesc(1); 
+		//joinOp1ResultDesc.setPartitionCount(1);   
+		//joinOp1.setResult(joinOp1ResultDesc); 
+		
+		EquiJoin joinOp2 = new EquiJoin();
+		bushyPlan.addOperator(joinOp2, false);  
+		//joinOp2ResultDesc.setPartitionCount(1);   
+		//joinOp2.setResult(joinOp2ResultDesc);
+		
+		EquiJoin joinOp3 = new EquiJoin();
+		bushyPlan.addOperator(joinOp3, false);  
+		//ResultDesc joinOp3ResultDesc = new ResultDesc(1); 
+		//joinOp3ResultDesc.setPartitionCount(1);   
+		//joinOp3.setResult(joinOp3ResultDesc);
+		
+		EquiJoin joinOp4 = new EquiJoin();
+		bushyPlan.addOperator(joinOp4, false);  
+		//ResultDesc joinOp4ResultDesc = new ResultDesc(1); 
+		//joinOp4ResultDesc.setPartitionCount(1);   
+		//joinOp4.setResult(joinOp4ResultDesc);
+		
+		EquiJoin joinOp5 = new EquiJoin();
+		//bushyPlan.addOperator(joinOp5, false);  
+		//ResultDesc joinOp5ResultDesc = new ResultDesc(1); 
+		//joinOp5ResultDesc.setPartitionCount(1);   
+		//joinOp5.setResult(joinOp4ResultDesc); 
+		
+		MultiJoinOrdersPlansGenerator obj = new MultiJoinOrdersPlansGenerator(bushyPlan);
+		obj.generateNodesPreorderTraversalSequence();
+		
 	}
+	*/
 }

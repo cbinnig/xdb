@@ -51,10 +51,7 @@ public class CostModelQueryPlan {
 	private List<CostModelOperator> dominantPath = new ArrayList<CostModelOperator>(); 
 
 	private int matConfNumber;
-
-
 	private List<BitSet> allMaterializationConf = new ArrayList<BitSet>(); 
-
 	private List<List<Identifier>> paths = new ArrayList<List<Identifier>>();
 
 
@@ -236,7 +233,9 @@ public class CostModelQueryPlan {
 
 
 	/**
-	 * 
+	 * This function used in the pruning rule 2: 
+	 * removing the ops has high materialization 
+	 * time.  
 	 * 
 	 */
 	public void mergeOpsForRunTimes(){
@@ -248,7 +247,9 @@ public class CostModelQueryPlan {
 		}
 	}
 	/**
-	 * bottom up visitor 
+	 * bottom up visitor  
+	 * Visit the nodes bottom up, check the merge 
+	 * condition at every node
 	 * @param rootId
 	 */
 	private void visitOperatorBottomUp(CostModelOperator op) {
@@ -264,7 +265,8 @@ public class CostModelQueryPlan {
 			if(checkMergeConditions(op)){
 				Vector<CostModelOperator> ops = op.getChildren(); 
 				for (CostModelOperator child : ops) {
-					this.nonMatOps.add(child.getId());
+					if(!child.isForcedMaterlialized())
+					    this.nonMatOps.add(child.getId());
 				} 
 			}
 		}
@@ -272,7 +274,8 @@ public class CostModelQueryPlan {
 	}
 
 	/**
-	 * 
+	 * At every node check the merge condition 
+	 * for pruning the ops have very high materialization time.
 	 * @param op (the parent operator)
 	 * @return
 	 */
@@ -281,7 +284,9 @@ public class CostModelQueryPlan {
 		Vector<CostModelOperator> opChilds = op.getChildren(); 
 		double mergedOpsRunTime = 0.0; 
 		double mergedOpTotalTime = 0.0;
-		for (CostModelOperator child : opChilds) {
+		for (CostModelOperator child : opChilds) { 
+			if(child.isForcedMaterlialized())
+				continue;
 			mergedOpsRunTime += child.getOpRunTimeEstimate();
 		} 
 		mergedOpsRunTime = (mergedOpsRunTime + op.getOpRunTimeEstimate()) *Config.COMPILE_FT_PIPELINE_CNST;
@@ -289,7 +294,7 @@ public class CostModelQueryPlan {
 		// compare the merged op run time with all individual paths 
 		Vector<CostModelOperator> children = op.getChildren(); 
 		for (CostModelOperator child : children) {
-			if(mergedOpTotalTime > (child.getOpMaterializationTimeEstimate() + child.getOpRunTimeEstimate())){
+			if(mergedOpTotalTime > (child.getOpMaterializationTimeEstimate() + child.getOpRunTimeEstimate()) || child.isForcedMaterlialized()){
 				isMergingSatisfied = false; 
 				break;
 			}
@@ -304,7 +309,8 @@ public class CostModelQueryPlan {
 	} 
 
 	/**
-	 * 
+	 * Applying the third rule, merge the small 
+	 * ops which have very high success rate.
 	 */
 	public void mergeForSmallOperator(){
 		this.nonMatOps.clear();
@@ -321,17 +327,24 @@ public class CostModelQueryPlan {
 	}
 
 	/**
-	 * 
+	 * Top Down Visitior: used for merging small 
+	 * ops, we start from the root down until 
+	 * we find "fork" or another forced materialized
+	 * op, and then we start the merging process again.
 	 * @param op
 	 */
 	private void visitOperatorTopDown(CostModelOperator op, Level mergeOps ) {
-		boolean clearFlag;
+		// it is set to true when the current merging operation finishes 
+		// or when we want to start new merging process.
+		boolean clearFlag; 
 		mergedOpSuccessProb = calculateMergedOpSuccessProb(mergeOps);
 		if(mergedOpSuccessProb < Config.COMPILE_FT_MERGING_SMALLOPS_THRESHOLD 
-				|| op.getChildren().size() > 1){
+				|| op.getChildren().size() > 1 || op.isForcedMaterlialized()){
 			clearFlag = true;              			
 		} else { 
-			// set the new merged small op to the non materialized list 
+			// add the small ops (that will be merged in on op) to the non materialized list 
+			// in order to remove them from the plan, after updating 
+			// the runtime of the merged op 
 			mergeSmallOps(mergeOps);	
 			clearFlag = false;
 		}
@@ -344,14 +357,14 @@ public class CostModelQueryPlan {
 			}
 			smallMergedOp.add(child);  
 			level.setSubQquery(smallMergedOp); 
-			// TODO read the partitions number from the op
 			level.setNumberOfPartitions(op.getDegreeOfPartitioning());
 			visitOperatorTopDown(child, level);
 		}		
 	}
 
 	/**
-	 * 
+	 * Merged the small ops in one op, it is the first 
+	 * in the list (the top op in the level)
 	 * @param mergeOps
 	 */
 	private void mergeSmallOps(Level mergeOps) {
@@ -360,7 +373,13 @@ public class CostModelQueryPlan {
 			Identifier smallOpId = smallOp.getId(); 
 			double smallOpRT = smallOp.getOpRunTimeEstimate(); 
 			CostModelOperator mergedOp = mergeOps.getSubQquery().get(0); // the first op in the level 
-			double mergedOpRunTime = mergeOps.getSubQquery().get(0).getOpRunTimeEstimate() + smallOpRT; 
+			double mergedOpRunTime;
+			if(!mergedOp.isMerged()){
+				mergedOpRunTime = (mergedOp.getOpRunTimeEstimate() + smallOpRT)*Config.COMPILE_FT_PIPELINE_CNST;  
+				mergedOp.setMerged(true);
+			} else { 
+				mergedOpRunTime = mergedOp.getOpRunTimeEstimate() + smallOpRT*Config.COMPILE_FT_PIPELINE_CNST;
+			}
 			// update nonMatOp list 
 			this.nonMatOps.add(smallOpId); 
 			this.getOperator(mergedOp.getId()).setOpRunTimeEstimate(mergedOpRunTime);
@@ -368,7 +387,8 @@ public class CostModelQueryPlan {
 	}
 
 	/**
-	 * 
+	 * Calculate the success probability for a set of small merged ops 
+	 * to check in the merging process if they exceed a given threshold  
 	 * @param op
 	 * @param mergeCandidateOp
 	 */
@@ -379,7 +399,6 @@ public class CostModelQueryPlan {
 		return mergedSuccessProbability;
 
 	}
-
 
 	/**
 	 * @return the smallMergedOp
@@ -398,11 +417,13 @@ public class CostModelQueryPlan {
 	/**
 	 * 
 	 */
-	public void enumerate() { 
-		List<Integer> forcedMaterializedOps = new ArrayList<Integer>(); 
-		forcedMaterializedOps.add(3);
-		forcedMaterializedOps.add(4); 
-		MaterlizationStrategyEnumerator enumerator = new MaterlizationStrategyEnumerator(this, forcedMaterializedOps);
+	public void enumerate() {   
+		List<Integer> forcedMaterializedIndexes = new ArrayList<Integer>();
+		for(int i=0; i<this.allOperators.size(); i++){
+		     if(this.allOperators.get(i).isForcedMaterlialized())
+		    	 forcedMaterializedIndexes.add(i);
+		}
+		MaterlizationStrategyEnumerator enumerator = new MaterlizationStrategyEnumerator(this, forcedMaterializedIndexes );
 		this.allMaterializationConf = enumerator.enumerateBushyTree(); 
 		System.out.println("The number of Possible Configuration: "+allMaterializationConf.size());		
 	}
@@ -428,7 +449,7 @@ public class CostModelQueryPlan {
 			} 
 			System.out.println("Mat Conf "+matConfNum);
 			// merge nonmat ops to their parents without removal 
-			mergeNonMatOps(copyPlan); 
+			mergeNonMatOpsForEnumeratedPlan(copyPlan); 
 			// remove the ops that will not be materialized
 			removeNonMatOps(copyPlan);
 			copyPlan.tracePlan("Mat Conf_"+matConfNum+"_");
@@ -450,40 +471,58 @@ public class CostModelQueryPlan {
 		
 		return recommendedMatOpIds;
 	} 
+	
+	/**
+	 * merg nonmat ops, comes from the eumeration of different mat cond 
+	 * @param copyPlan
+	 */
+	private void mergeNonMatOpsForEnumeratedPlan(CostModelQueryPlan copyPlan) {
+		
+		for (Identifier rootId : copyPlan.roots) {
+			CostModelOperator op = copyPlan.operators.get(rootId);
+			visitOperatorBottomUpForEnumeratedPlan(op);
+		}
+		
+	}
+	
+	/**
+	 * bottom up visitor  
+	 * Visit the nodes bottom up, check the merge 
+	 * condition at every node
+	 * @param rootId
+	 */
+	private void visitOperatorBottomUpForEnumeratedPlan(CostModelOperator op) {
+		// Get the operator children 
+		Vector<CostModelOperator> children = op.getChildren();
+		for (CostModelOperator childOperator : children) {
+			// calculate the total runtime for a PATH connects 
+			// a parent with a child 
+			//storePathRuntime(op, childOperator);
+			visitOperatorBottomUpForEnumeratedPlan(childOperator);
+		}
 
-	private void mergeNonMatOps(CostModelQueryPlan copyPlan) {
-		BitSet checkedNonMatOps= new BitSet(this.nonMatOps.size());
-		for(int i=0; i<this.nonMatOps.size(); i++){
-			if(checkedNonMatOps.get(i))
-				continue;
-			checkedNonMatOps.set(i);
-			CostModelOperator op = copyPlan.operators.get(this.nonMatOps.get(i));
-			if(copyPlan.roots.contains(op.getId()))
-				continue;
-			CostModelOperator opParent = op.getParents().get(0); 
-			double runTime = op.getOpRunTimeEstimate();
-			// Check for other non mat ops having the same parents 
-			for(int j=0; j<this.nonMatOps.size(); j++){
-				if(checkedNonMatOps.get(j)){
-					continue;
+		if(this.nonMatOps.contains(op.getId())){
+			// update the parent run time such that it collapse 
+			// in one op 
+			List<CostModelOperator> parents = op.getParents(); 
+			for (CostModelOperator parent : parents) {
+				// if the parent is also include another op (one sibling) then we 
+				// add the new op runtime multiplied by the constant to the current 
+				// merged runtime, otherwise we add them together and then we 
+				// multiplied them by that constant. 
+				if(parent.isMerged()){
+					parent.setOpRunTimeEstimate(parent.getOpRunTimeEstimate() + op.getOpRunTimeEstimate()*Config.COMPILE_FT_PIPELINE_CNST);
+				} else {
+					parent.setMerged(true); 
+					parent.setOpRunTimeEstimate((parent.getOpRunTimeEstimate() + op.getOpRunTimeEstimate())*Config.COMPILE_FT_PIPELINE_CNST);
 				}
-				else { 
-					CostModelOperator siblingOp = copyPlan.operators.get(this.nonMatOps.get(j));
-					CostModelOperator siblingParent = siblingOp.getParents().get(0); 
-					if(opParent == siblingParent){
-						checkedNonMatOps.set(j);
-						runTime += siblingOp.getOpRunTimeEstimate();
-					}
-				}
-			} 
-			// Set the parent the merged runtime 
-			opParent.setOpRunTimeEstimate((opParent.getOpRunTimeEstimate() + runTime)*Config.COMPILE_FT_PIPELINE_CNST);	
+			}
 		}
 
 	}
 
 	/**
-	 * 
+	 * remove ops from a plan due to merging process 
 	 */
 	public Error removeNonMatOps(CostModelQueryPlan copyPlan){
 		Error err = new Error();
@@ -524,13 +563,14 @@ public class CostModelQueryPlan {
 			// the best plan found at this point. Then neglect the whole 
 			// conf. 
 			if(matPlan.getRunTimeWithoutFailure() >= BEST_PLAN_RUNTIME && matConfNum != 0) {
+				System.out.println("Mat Conf: "+matConfNum +" is neglected! from runtime comparsion");
 				negelctPlan = true;
 				break;
 			} 
 			// Applying the seconf path pruning rule (collapsed Ops Comparsion)
 			if(compareCollapsedOps(pathOps) && matConfNum != 0){
 				negelctPlan = true; 
-				System.out.println("Mat Conf: "+matConfNum +" is neglected!");
+				System.out.println("Mat Conf: "+matConfNum +" is neglected! from paths comparison");
 				break;
 			}
 
@@ -569,7 +609,12 @@ public class CostModelQueryPlan {
 		}
 
 	}
-
+    
+	/**
+	 * 
+	 * @param pathOps
+	 * @return
+	 */
 	private boolean compareCollapsedOps(List<CostModelOperator> pathOps) {
 
 		boolean neglectPlan = true;
@@ -586,7 +631,14 @@ public class CostModelQueryPlan {
 
 		return neglectPlan; 
 	}
-
+    
+	/**
+	 * Find all paths from roots to leaves in a bushy tree, 
+	 * and store them in a list  
+	 * @param copyPlan
+	 * @param rootId
+	 * @param path
+	 */
 	private void findPaths(CostModelQueryPlan copyPlan, Identifier rootId, ArrayList<Identifier> path) {
 
 		path.add(rootId);

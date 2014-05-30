@@ -56,7 +56,7 @@ public class TotalRuntimeEstimator {
 			}   
 			
 			runTimeWithoutMaterialization += matLevels.get(matLevels.size()-1).getMaterializationRuntimeestimate();
-			materializedPlan.setRunTimeWithoutFailure(runTimeWithoutMaterialization + materializationTime);
+			//materializedPlan.setRunTimeWithoutFailure(runTimeWithoutMaterialization + materializationTime);
 			materializedPlan.setMaterializationTime(materializationTime); 
 			numberOfLevelslnMatConf = matLevels.size();  
 		
@@ -77,23 +77,26 @@ public class TotalRuntimeEstimator {
 		double F;
 		long r; 
 		long totalR = 0; 
-		double totalWastedTime = 0.0;
+		double totalWastedTime = 0.0; 
+		double totalRunTimeWF = 0.0;
 		for (MaterializedPlan materializedPlan : matPlansList) {  
 			// For each mat conf we will apply the cost model level by level 
 			List<Level> levels = materializedPlan.getmateriliazedPlanLevels(); 
 			System.out.print("Mat Conf -> ");
 			totalR = 0;
-			totalWastedTime = 0; 
-			runTime = 0;
+			totalWastedTime = 0.0; 
+			runTime = 0.0; 
+			totalRunTimeWF = 0.0;
 			for (Level level : levels) {
 				T = level.getLevelRuntimeEstimate() + level.getMaterializationRuntimeestimate();  
 				W = level.getAverageWastedTime(); 
 				F = level.getLevelFailureProbability(); 
-				r = level.getNumberOfAttemptsPerLevel();
-				levelRunTime = T + W*(1 - Math.pow(F,r+1))/(1-F) - W + r*Config.DOOMDB_MTTR; 
+				r = level.getNumberOfAttemptsPerLevel(); 
+				levelRunTime = T + (W*((1 - Math.pow(F,r+1))/(1-F) - W)) + r*Config.DOOMDB_MTTR;   
 				runTime += levelRunTime; 
 				totalR += r; 
-				totalWastedTime += W;
+				totalWastedTime += W; 
+				totalRunTimeWF += T;
 				System.out.print(level.getSubQquery().get(level.getSubQquery().size()-1).getId());  
 				System.out.print(", ");
 			}

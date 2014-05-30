@@ -17,7 +17,8 @@ public class CostModelOperator implements Comparable<CostModelOperator> {
 	private Identifier id;
 	private String type;   
 	private boolean isMaterilaized;  
-	private boolean isForcedMaterlialized; 
+	private boolean isForcedMaterlialized;  
+	private boolean isMerged;
 	private double opRunTimeEstimate; 
 	private double opMaterializationTimeEstimate;  
 	private int degreeOfPartitioning; 
@@ -224,6 +225,20 @@ public class CostModelOperator implements Comparable<CostModelOperator> {
 		else if (totalOpRunTime < totalOpRunTimeCompareTo) 
 			return -1; 
 		else return 0;
+	}
+
+	/**
+	 * @return the isMerged
+	 */
+	public boolean isMerged() {
+		return isMerged;
+	}
+
+	/**
+	 * @param isMerged the isMerged to set
+	 */
+	public void setMerged(boolean isMerged) {
+		this.isMerged = isMerged;
 	}
 
 }

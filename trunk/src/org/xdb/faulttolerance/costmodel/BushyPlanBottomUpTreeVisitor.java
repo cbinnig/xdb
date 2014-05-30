@@ -157,7 +157,6 @@ public class BushyPlanBottomUpTreeVisitor extends AbstractBottomUpTreeVisitor {
 			// add the parent to the child 
 			for (CostModelOperator child : cModelOp.getChildren() ) 
 				child.addParent(parent);
-			
 			costModelQueryPlan.removeOperator(op.getOperatorId().getChildId());
 		}
 		
