@@ -304,7 +304,7 @@ public class CodeGenerator {
 
 		Map<String, String> args = new HashMap<String, String>();
 		ResultDesc outputResult = compileOp.getResult();
-		String outAttsDDL = outputResult.getAttsDDL(true);
+		String outAttsDDL = outputResult.getAttsDDL(Config.COMPUTE_INTERMEDIATE_KEYS);
 		args.put(SQL1, outAttsDDL);
 		args.put(TAB1, outTableName);
 		outAttsDDL = this.sqlInOutDDLTemplate.toString(args);
