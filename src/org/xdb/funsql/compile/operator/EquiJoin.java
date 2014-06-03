@@ -34,7 +34,9 @@ public class EquiJoin extends AbstractBinaryOperator {
 		this.rightTokenAttribute = rightTokenAttribute;
 		this.type = EnumOperator.EQUI_JOIN;
 	}
-
+    
+	public EquiJoin(){
+	}
 	// copy-constructor
 	public EquiJoin(EquiJoin ej) {
 		super(ej);

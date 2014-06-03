@@ -54,6 +54,10 @@ public abstract class AbstractCompileOperator implements Serializable {
 
 	public AbstractCompileOperator(int resultNumber) {
 		this.results = new Vector<ResultDesc>(resultNumber);
+	} 
+	
+	public AbstractCompileOperator(){
+		
 	}
 
 	// getters and setters
