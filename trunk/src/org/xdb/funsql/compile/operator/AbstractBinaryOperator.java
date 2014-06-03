@@ -30,6 +30,10 @@ public abstract class AbstractBinaryOperator extends AbstractCompileOperator imp
 		rightChild.addParent(this);
 	}
 	
+	public AbstractBinaryOperator(){
+		
+	}
+	
 	/** Copy Constructor
 	 * @param toCopy
 	 */
