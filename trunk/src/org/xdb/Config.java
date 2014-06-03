@@ -46,6 +46,7 @@ public class Config implements Serializable {
 	public static int COMPUTE_PORT = 55700;
 	public static int COMPUTE_MAX_FETCHSIZE = Integer.MAX_VALUE;
 	public static boolean COMPUTE_CLEAN_PLAN = true;
+	public static boolean COMPUTE_INTERMEDIATE_KEYS = true;
 	public static int COMPUTE_THINKTIME = 1000;
 	public static String COMPUTE_ENGINE = "MEMORY";
 
@@ -280,7 +281,7 @@ public class Config implements Serializable {
 				"LOG_EXECUTION_TIME", "CODEGEN_OPTIMIZE", "TEST_RUN_LOCAL",
 				"QUERYTRACKER_MONITOR_ACTIVATED",
 				"MASTERTRACKER_MONITOR_ACTIVATED", "TEST_FT_CHECKPOINTING",
-				"COMPILE_FT_ACTIVE"};
+				"COMPILE_FT_ACTIVE", "COMPUTE_INTERMEDIATE_KEYS"};
 
 		Properties props;
 		props = new Properties();
