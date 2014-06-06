@@ -131,6 +131,7 @@ public class ComputeNode {
 		this.killAllOperators();
 		this.operators.clear();
 		this.executingOperators.clear();
+		this.receivedReadySignals.clear();
 	}
 
 	/**
