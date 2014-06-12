@@ -207,12 +207,11 @@ public enum EnumDoomDBSchema {
 
 	private void loadStatFromFile(int queryID) {
 
-		String runtimeFileName = "./stat/q" + Integer.toString(queryID) + "_"
+		String runtimeFileName = "./stat/" + Config.TEST_CLUSTER + "/q" + Integer.toString(queryID) + "_"
 				+ this.schemaName + "_runtimes.conf";
-		String mattimeFileName = "./stat/q" + Integer.toString(queryID) + "_"
+		String mattimeFileName = "./stat/" + Config.TEST_CLUSTER + "/q" + Integer.toString(queryID) + "_"
 				+ this.schemaName + "_mattimes.conf";
-		String materializabilityFileName = "./stat/q"
-				+ Integer.toString(queryID) + "_" + this.schemaName
+		String materializabilityFileName = "./stat/" + Config.TEST_CLUSTER + "/q" + Integer.toString(queryID) + "_" + this.schemaName
 				+ "_materializability.conf";
 
 		Properties props;

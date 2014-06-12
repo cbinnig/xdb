@@ -123,6 +123,7 @@ public class Config implements Serializable {
 	public static boolean TEST_RUN_LOCAL = true;
 	public static String TEST_DB_NAME = "tpch_s01";
 	public static int TEST_NODE_COUNT = 2;
+	public static String TEST_CLUSTER = "dhbw";
 	public static int TEST_PARTS_PER_NODE = 1;
 
 	// DoomDB
@@ -265,7 +266,7 @@ public class Config implements Serializable {
 				"COMPILE_FT_BENCHMARK_COLUMNS_NUMBER" };
 
 		String[] stringProperties = { "PLATTFORM", "COMPILE_URL", "MASTERTRACKER_URL",
-				"TEST_DB_NAME", "COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES",
+				"TEST_DB_NAME", "TEST_CLUSTER", "COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES",
 				"COMPILE_FT_MODE", "DOT_EXE" };
 
 		String[] boolProperties = { "LOGGING_ENABLED", "COMPUTE_CLEAN_PLAN",
