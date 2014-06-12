@@ -1,3 +1,5 @@
+#summary The TPCH partitioning scheme used for SIGMOD demo and fault-tolerance paper
+
 = Introduction =
 The TPCH partitioning scheme used for SIGMOD demo and fault-tolerance paper (10 partitions).
 
