@@ -19,7 +19,6 @@ import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
-import org.xdb.funsql.compile.analyze.operator.MaterializationAnnotationVisitor;
 import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
@@ -143,14 +142,7 @@ public class QueryTrackerNode {
 		cplan.init();
 		Error err = new Error();
 
-		// 1. annotate compile plan with materialize flags
-		MaterializationAnnotationVisitor visitor = new MaterializationAnnotationVisitor();
-		err = cplan.applyVisitor(visitor);
-		if (err.isError()) {
-			return new Tuple<Error, QueryTrackerPlan>(err, null);
-		}
-
-		// 2. generate query tracker plan
+		// 1. generate query tracker plan
 		Tuple<QueryTrackerPlan, Error> qPlanErr = generateQueryTrackerPlan(cplan);
 		QueryTrackerPlan qplan = qPlanErr.getObject1();
 		err = qPlanErr.getObject2();
@@ -158,7 +150,7 @@ public class QueryTrackerNode {
 			return new Tuple<Error, QueryTrackerPlan>(err, null);
 		}
 
-		// 3. deploy query tracker plan
+		// 2. deploy query tracker plan
 		err = qplan.deployPlan();
 		return new Tuple<Error, QueryTrackerPlan>(err, qplan);
 	}
