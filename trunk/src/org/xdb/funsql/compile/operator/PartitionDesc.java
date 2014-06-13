@@ -36,9 +36,6 @@ public class PartitionDesc implements Serializable {
 	}
 
 	public PartitionDesc(PartitionDesc toCopy) {
-		if(toCopy==null)
-			System.out.println("STOP");
-		
 		for (TokenAttribute partAtt : toCopy.partAttributes) {
 			TokenAttribute newPartAtt = new TokenAttribute(partAtt);
 			this.partAttributes.add(newPartAtt);
@@ -84,7 +81,7 @@ public class PartitionDesc implements Serializable {
 	}
 
 	// methods
-	public boolean isCompatible(PartitionDesc partDesc) {
+	public boolean isJoinCompatible(PartitionDesc partDesc) {
 		// true if one input is not partitioned
 		if (partDesc.partType.isNotPartitioned()
 				|| this.partType.isNotPartitioned())
@@ -114,7 +111,18 @@ public class PartitionDesc implements Serializable {
 		return true;
 	}
 
-	public boolean isCompatible(TokenAttribute partAtt) {
+	public boolean isGroupByCompatible(TokenAttribute partAtt) {
+		if (!this.partType.isHash())
+			return false;
+		
+		if (this.partAttributes.size() > 0
+				&& !this.partAttributes.get(0).equals(partAtt))
+			return false;
+
+		return true;
+	}
+	
+	public boolean isJoinCompatible(TokenAttribute partAtt) {
 		if (this.partAttributes.size() > 0
 				&& !this.partAttributes.get(0).equals(partAtt))
 			return false;

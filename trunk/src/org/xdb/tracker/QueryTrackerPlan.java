@@ -935,7 +935,7 @@ public class QueryTrackerPlan implements Serializable {
 			GraphNode node = graph.addNode();
 			AbstractTrackerOperator op = this.trackerOps.get(opId);
 			String caption = op.toString();
-			if (Config.TRACE_TRACKER_SHORT_CAPTIONS)
+			if (Config.TRACE_TRACKER_SHORT_CAPTIONS && caption.length() > Config.TRACE_TRACKER_SHORT_CAPTIONS_CHARS)
 				caption = caption.substring(0,
 						Config.TRACE_TRACKER_SHORT_CAPTIONS_CHARS) + " ... ";
 			caption += " IN " + op.getTrackerOpConnections().toString();

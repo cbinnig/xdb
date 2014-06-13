@@ -74,9 +74,8 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 			"C_ACCTBAL     DECIMAL  , " +
 			"C_MKTSEGMENT  VARCHAR, " +
 			"C_COMMENT     VARCHAR" +
-			") PARTIONED BY RREF ( C_CUSTKEY REFERENCES ORDERS.O_CUSTKEY )",
-			
-
+			") PARTIONED BY RREF ( C_CUSTKEY REFERENCES ORDERS.O_CUSTKEY )",		
+					
 			"CREATE TABLE SUPPLIER ( " +
 			"S_SUPPKEY INTEGER, " +
 			"S_NAME VARCHAR, " +
@@ -86,7 +85,7 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 			"S_ACCTBAL DECIMAL, " +
 			"S_COMMENT VARCHAR" +
 			") PARTIONED BY RREF ( S_SUPPKEY REFERENCES LINEITEM.L_SUPPKEY )",
-			
+				
 			"CREATE TABLE PARTSUPP ( " +
 			"	PS_PARTKEY     INTEGER, " +
 			"	PS_SUPPKEY     INTEGER, " +
