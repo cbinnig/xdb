@@ -9,7 +9,7 @@ Make sure the extension of table names is .dat (and not .tbl)
 
 
 = Partitioning commands =
-./dataPartitioner.sh -c 31 -f lineitem.dat -fp -k 0,3 -m hashing -n 10 -t int
+./dataPartitioner.sh -c 31 -f lineitem.dat -fp -k 0 -m hashing -n 10 -t int
 
 ./dataPartitioner.sh -c 31 -f orders.dat -fp -k 0 -m reference -n 10 -rf lineitem -rk 0 -t int
 
