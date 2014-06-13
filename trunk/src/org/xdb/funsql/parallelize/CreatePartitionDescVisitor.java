@@ -58,6 +58,12 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 	private Identifier internalAlias = new Identifier("_ALIAS_PARALLEL");
 
 	// constructor
+	public CreatePartitionDescVisitor(CompilePlan cPlan) {
+		super();
+		
+		this.cPlan = cPlan;
+	}
+	
 	public CreatePartitionDescVisitor(CompilePlan cPlan,
 			AbstractCompileOperator root) {
 		super(root);

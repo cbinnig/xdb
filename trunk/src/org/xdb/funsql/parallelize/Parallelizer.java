@@ -3,7 +3,7 @@ package org.xdb.funsql.parallelize;
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
-import org.xdb.funsql.compile.operator.AbstractCompileOperator;
+import org.xdb.funsql.compile.analyze.operator.MaterializationAnnotationVisitor;
 
 /**
  * Creates a parallelized plan from a compile plan
@@ -24,9 +24,16 @@ public class Parallelizer {
 
 	public Error parallelize() {
 		Error err = new Error();
-
-		// repartition
-		err = repartitionOps();
+		
+		// add materialization info
+		MaterializationAnnotationVisitor visitor = new MaterializationAnnotationVisitor();
+		err = compilePlan.applyVisitor(visitor);
+		if (err.isError())
+			return err;
+				
+		// add repartition info
+		CreatePartitionDescVisitor repartVisitor = new CreatePartitionDescVisitor(this.compilePlan);
+		err = compilePlan.applyVisitor(repartVisitor);
 		if (err.isError())
 			return err;
 		
@@ -36,20 +43,6 @@ public class Parallelizer {
 					.getCanonicalName() + "_PARALLELIZED");
 		}
 
-		return err;
-	}
-
-	private Error repartitionOps() {
-		Error err = new Error();
-		for (AbstractCompileOperator root : this.compilePlan
-				.getRootOps()) {
-			CreatePartitionDescVisitor repartVisitor = new CreatePartitionDescVisitor(this.compilePlan,
-					root);
-			err = repartVisitor.visit();
-
-			if (err.isError())
-				return err;
-		}
 		return err;
 	}
 }
