@@ -92,7 +92,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		PartitionDesc childPartDesc = childPartDescs.iterator().next();
 		int preAggPartCnt = childPartDesc.getPartitionCount();
 
-		boolean doRepartition = !this.isPartDescCompatible(childPartDescs,
+		boolean doRepartition = !this.isPartDescGroupByCompatible(childPartDescs,
 				groupExprs) && (preAggPartCnt > 1);
 
 		if (doRepartition) {
@@ -178,10 +178,10 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		
 		// check if one input must be re-partitioned
 		boolean doRepartition = true;
-		if ((this.isPartDescCompatible(leftPartDescs,
-				ej.getLeftTokenAttribute()) || this.isPartDescCompatible(
+		if ((this.isPartDescJoinCompatible(leftPartDescs,
+				ej.getLeftTokenAttribute()) || this.isPartDescJoinCompatible(
 				rightPartDescs, ej.getRightTokenAttribute()))
-				&& this.isPartDescCompatible(leftPartDescs, rightPartDescs)) {
+				&& this.isPartDescJoinCompatible(leftPartDescs, rightPartDescs)) {
 			doRepartition = false;
 		}
 		if (rightPartCnt == 1) {
@@ -393,7 +393,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 	 * @param groupExprs
 	 * @return
 	 */
-	private boolean isPartDescCompatible(Set<PartitionDesc> partDescs,
+	private boolean isPartDescGroupByCompatible(Set<PartitionDesc> partDescs,
 			Collection<AbstractExpression> groupExprs) {
 		// if no grouping is needed
 		if (groupExprs.size() == 0)
@@ -408,7 +408,7 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 		// attribute
 		TokenAttribute groupAtt = groupExpr.getAttribute();
 		for (PartitionDesc partDesc : partDescs) {
-			if (partDesc.isCompatible(groupAtt))
+			if (partDesc.isGroupByCompatible(groupAtt))
 				return true;
 		}
 
@@ -423,10 +423,10 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 	 * @param joinAtt
 	 * @return
 	 */
-	private boolean isPartDescCompatible(Set<PartitionDesc> partDescs,
+	private boolean isPartDescJoinCompatible(Set<PartitionDesc> partDescs,
 			TokenAttribute joinAtt) {
 		for (PartitionDesc partDesc : partDescs) {
-			if (partDesc.isCompatible(joinAtt))
+			if (partDesc.isJoinCompatible(joinAtt))
 				return true;
 		}
 
@@ -441,11 +441,11 @@ public class CreatePartitionDescVisitor extends AbstractBottomUpTreeVisitor {
 	 * @param rPartDescs
 	 * @return
 	 */
-	private boolean isPartDescCompatible(Set<PartitionDesc> lPartDescs,
+	private boolean isPartDescJoinCompatible(Set<PartitionDesc> lPartDescs,
 			Set<PartitionDesc> rPartDescs) {
 		for (PartitionDesc lPartDesc : lPartDescs) {
 			for (PartitionDesc rPartDesc : rPartDescs) {
-				if (lPartDesc.isCompatible(rPartDesc))
+				if (lPartDesc.isJoinCompatible(rPartDesc))
 					return true;
 			}
 		}
