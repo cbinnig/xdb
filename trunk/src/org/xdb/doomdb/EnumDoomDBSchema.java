@@ -20,6 +20,7 @@ public enum EnumDoomDBSchema {
 	TPCH_SF1_1PART("TPCH_SF1_1P", Config.DOOMDB_TPCH_S1),
 	TPCH_SF1_10PARTS("TPCH_SF1_10P", Config.DOOMDB_TPCH_S1),
 	TPCH_SF10_10PARTS("TPCH_SF10_10P", Config.DOOMDB_TPCH_S10),	
+	TPCH_SF50_10PARTS("TPCH_SF50_10P", Config.DOOMDB_TPCH_S50),	
 	TPCH_SF100_10PARTS("TPCH_SF100_10P", Config.DOOMDB_TPCH_S100);	
 	
 	private static String tpchQ1 = "select	l_returnflag,	"
@@ -128,7 +129,7 @@ public enum EnumDoomDBSchema {
 					+ "L_COMMITDATE  		DATE," + "L_RECEIPTDATE 		DATE,"
 					+ "L_SHIPINSTRUCT 	VARCHAR," + "L_SHIPMODE     	VARCHAR,"
 					+ "L_COMMENT      	VARCHAR"
-					+ ") PARTIONED BY HASH ( L_ORDERKEY ) ( " + "<" + HASHCONNS
+					+ ") PARTIONED BY HASH ( L_ORDERKEY, L_LINENUMBER ) ( " + "<" + HASHCONNS
 					+ ">);") };
 
 	private static StringTemplate[] tpchREPDDLs = {
@@ -348,6 +349,10 @@ public enum EnumDoomDBSchema {
 		Vector<String> tpch_sf10_10parts = createTPCHXParts(10, TPCH_SF10_10PARTS);
 		SCHEMAS.put(TPCH_SF10_10PARTS.schemaName,
 				tpch_sf10_10parts.toArray(new String[tpch_sf10_10parts.size()]));
+		
+		Vector<String> tpch_sf50_10parts = createTPCHXParts(10, TPCH_SF50_10PARTS);
+		SCHEMAS.put(TPCH_SF50_10PARTS.schemaName,
+				tpch_sf50_10parts.toArray(new String[tpch_sf50_10parts.size()]));
 
 		
 		Vector<String> tpch_sf100_10parts = createTPCHXParts(10, TPCH_SF100_10PARTS);

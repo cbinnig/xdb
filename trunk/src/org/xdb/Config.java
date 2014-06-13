@@ -139,6 +139,7 @@ public class Config implements Serializable {
 	public static String DOOMDB_TPCH_S01 = "tpch_s01";
 	public static String DOOMDB_TPCH_S1 = "tpch_s1";
 	public static String DOOMDB_TPCH_S10 = "tpch_s10";
+	public static String DOOMDB_TPCH_S50 = "tpch_s50";
 	public static String DOOMDB_TPCH_S100 = "tpch_s100";
 	
 	// Logging

@@ -129,6 +129,13 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		this.runPlan();
 	}
 	
+	
+	public void testQ1_SF50_10Parts() throws Exception {
+		this.dClient.setSchema("TPCH_SF50_10P");
+		this.dClient.setQuery(1);
+		this.runPlan();
+	}
+	
 	public void testQ1_SF100_10Parts() throws Exception {
 		this.dClient.setSchema("TPCH_SF100_10P");
 		this.dClient.setQuery(1);
@@ -147,6 +154,12 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		this.runPlan();
 	}
 	
+	public void testQ2_SF50_10Parts() throws Exception {
+		this.dClient.setSchema("TPCH_SF50_10P");
+		this.dClient.setQuery(2);
+		this.runPlan();
+	}
+	
 	public void testQ2_SF100_10Parts() throws Exception {
 		this.dClient.setSchema("TPCH_SF100_10P");
 		this.dClient.setQuery(2);
@@ -155,6 +168,12 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 	
 	public void testQ3_SF10_10Parts() throws Exception {
 		this.dClient.setSchema("TPCH_SF10_10P");
+		this.dClient.setQuery(3);
+		this.runPlan();
+	}
+	
+	public void testQ3_SF50_10Parts() throws Exception {
+		this.dClient.setSchema("TPCH_SF50_10P");
 		this.dClient.setQuery(3);
 		this.runPlan();
 	}
@@ -179,6 +198,12 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 	
 	public void testQ5_SF10_10Parts() throws Exception {
 		this.dClient.setSchema("TPCH_SF10_10P");
+		this.dClient.setQuery(5);
+		this.runPlan();
+	}
+	
+	public void testQ5_SF50_10Parts() throws Exception {
+		this.dClient.setSchema("TPCH_SF50_10P");
 		this.dClient.setQuery(5);
 		this.runPlan();
 	}
