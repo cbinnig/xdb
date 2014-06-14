@@ -243,7 +243,7 @@ public class TestTPCHParallel extends DistributedXDBTestCase {
 						"		group by" +
 						"			ps_partkey;" +
 						"\n"+
-						"	:o1 = select" + 
+						"	:o1 = select " + 
 						"			s_acctbal," + 
 						"			s_name," + 
 						"			n_name," + 
