@@ -190,7 +190,7 @@ public class Config implements Serializable {
 				"DOOMDB_MTTR", "DOOMDB_CLUSTER_SIZE", "DOOMDB_NUM_FAILUERS" };
 
 		String[] stringProperties = { "DOOMDB_COMPUTE_NODES", "DOOMDB_TPCH_S01",
-				"DOOMDB_TPCH_S1","DOOMDB_TPCH_S10","DOOMDB_TPCH_S100"};
+				"DOOMDB_TPCH_S1","DOOMDB_TPCH_S10","DOOMDB_TPCH_S50","DOOMDB_TPCH_S100"};
 
 		String[] boolProperties = { "DOOMDB_MTBF_LOAD" , "ACTIVATE_FAILURE_SIMULATOR"};
 		
