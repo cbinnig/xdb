@@ -92,7 +92,10 @@ public class TotalRuntimeEstimator {
 				W = level.getAverageWastedTime(); 
 				F = level.getLevelFailureProbability(); 
 				r = level.getNumberOfAttemptsPerLevel(); 
-				levelRunTime = T + (W*((1 - Math.pow(F,r+1))/(1-F) - W)) + r*Config.DOOMDB_MTTR;   
+				if(r < 0){
+					r = Long.MAX_VALUE;
+				} 
+				levelRunTime = T + (W*(1 - Math.pow(F,r+1))/(1-F) - W) + r*Config.DOOMDB_MTTR; 
 				runTime += levelRunTime; 
 				totalR += r; 
 				totalWastedTime += W; 
