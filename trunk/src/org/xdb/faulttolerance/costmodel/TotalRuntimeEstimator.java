@@ -3,6 +3,7 @@ package org.xdb.faulttolerance.costmodel;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.xdb.Config;
@@ -12,12 +13,13 @@ public class TotalRuntimeEstimator {
 
 	// list of materialization configuration 
 	private List<MaterializedPlan> matPlansList = new ArrayList<MaterializedPlan>(); 
-    
 	// 
 	private double totalRunTime; 
-	
 	// 
-	private double runTime; 
+	private double runTime;  
+	// 
+	private boolean isAllMatConfNan;
+	
 
 	public TotalRuntimeEstimator(List<MaterializedPlan> matPlansList) { 
 		this.matPlansList = matPlansList; 
@@ -78,7 +80,8 @@ public class TotalRuntimeEstimator {
 		long r; 
 		long totalR = 0; 
 		double totalWastedTime = 0.0; 
-		double totalRunTimeWF = 0.0;
+		int nANMatConf = 0;
+		isAllMatConfNan = false;
 		for (MaterializedPlan materializedPlan : matPlansList) {  
 			// For each mat conf we will apply the cost model level by level 
 			List<Level> levels = materializedPlan.getmateriliazedPlanLevels(); 
@@ -86,7 +89,6 @@ public class TotalRuntimeEstimator {
 			totalR = 0;
 			totalWastedTime = 0.0; 
 			runTime = 0.0; 
-			totalRunTimeWF = 0.0;
 			for (Level level : levels) {
 				T = level.getLevelRuntimeEstimate() + level.getMaterializationRuntimeestimate();  
 				W = level.getAverageWastedTime(); 
@@ -99,19 +101,43 @@ public class TotalRuntimeEstimator {
 				runTime += levelRunTime; 
 				totalR += r; 
 				totalWastedTime += W; 
-				totalRunTimeWF += T;
 				System.out.print(level.getSubQquery().get(level.getSubQquery().size()-1).getId());  
 				System.out.print(", ");
+			} 
+			if(Double.isNaN(runTime)){
+				nANMatConf++;
+				runTime = Double.MAX_VALUE;
 			}
 			System.out.println();
 			System.out.println("Total RunTime:"+runTime+" Runtime="+materializedPlan.getRunTimeWithoutFailure() + ", Avg.Wasted Time="+totalWastedTime+", Attempts="+totalR);
             
 			materializedPlan.setRunTime(runTime);	 
 		} 
+		if(nANMatConf == matPlansList.size()){ 
+			System.out.println("All mat conf have NaN runtime");
+			isAllMatConfNan = true;
+		}
 	} 
 	
+	/**
+	 * sort the materialization configurations, pick the one with the minimal 
+	 * total runtime as a best conf, or return the plan with the full materialization 
+	 * in case of having very small MTBF
+	 * @return
+	 */
 	public List<Identifier> getTheRecommendedMaterializationOpsId (){
-		Collections.sort(matPlansList);  
+		if(isAllMatConfNan) {
+			Comparator<MaterializedPlan> levelsComparator = new Comparator<MaterializedPlan>() {
+
+				@Override
+				public int compare(MaterializedPlan obj1, MaterializedPlan obj2) {
+					return (int) (obj2.getmateriliazedPlanLevels().size() - obj1.getmateriliazedPlanLevels().size());
+				}
+			};
+			Collections.sort(matPlansList, levelsComparator); 
+		} else {
+			Collections.sort(matPlansList);   
+		}
 		MaterializedPlan materializedPlan = matPlansList.get(0); 
 		List<Level> levels = materializedPlan.getmateriliazedPlanLevels(); 
 	    System.out.println("Operators should be materialized: ");

@@ -93,15 +93,10 @@ public class QueryRuntimeEstimator {
 			skipMatConf = false;
 			MaterializedPlan matPlan =  matPlans.get(i);
 			List<Level> levels = matPlan.getmateriliazedPlanLevels(); 
-			//BigDecimal querySuccessProbability = new BigDecimal(1.0);  
 			double querySuccessProbability = 1;
 			for (Level level : levels) {
 				double levelSuccess =  calculateSuccessProbForLevel(level); 
 				level.setLevelSuccessProbability(levelSuccess); 
-				if((1 - levelSuccess) == 1){
-					skipMatConf = true; 
-					break;
-				}
 				level.setLevelFailureProbability(1 - levelSuccess); 
 				// calculate the the number of attempts for a level 
 				long levelAttempts = calculateReattempts(levelSuccess, levels.size());
@@ -110,7 +105,7 @@ public class QueryRuntimeEstimator {
 			} 
 			// if the success rate of the query almost zero 
 			// then neglect the corresponding Mat Cong 
-			if(querySuccessProbability == 0 || skipMatConf){
+			if(querySuccessProbability == 0){
 				System.out.println("A conf is skipped has zero success rate for at least one level!");
 				uselessMatConfList.add(i);
 				continue;
@@ -143,7 +138,6 @@ public class QueryRuntimeEstimator {
 		double big1 = Math.log10(1-Math.pow(Math.E, Math.log(this.successRate)/levels)); 
 		double big2 = Math.log10(queryFailureProbability); 
 		reattempts = (long) (Math.ceil((big1/big2) -1));	
-		System.out.println(reattempts + " For level with a success rate "+querySuccessProbability);
 		return reattempts;
 	}
 	
@@ -177,10 +171,9 @@ public class QueryRuntimeEstimator {
      * @return
      */
     public double calculateSuccessProbForLevel(Level level){ 
-    	int numberOfNodePerLevel = level.getNumberOfPartitions();
+    	int numberOfNodePerLevel = level.getNumberOfPartitions(); 
     	double successProbNode = calculateSuccessProbForNode(level); 
-		return Math.pow(successProbNode, numberOfNodePerLevel);
-		
+		return Math.pow(successProbNode, numberOfNodePerLevel);	
 	}
 
 }
