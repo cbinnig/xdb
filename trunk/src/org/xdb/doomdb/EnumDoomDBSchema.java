@@ -107,6 +107,37 @@ public enum EnumDoomDBSchema {
 			+ "and o_orderdate > date '1994-01-01' "
 			+ "and o_orderdate < date '1995-01-01' "
 			+ "group by n_nationkey, n_name;";
+	
+	
+	private static String tpchQ10  = "select "+
+			"c_custkey, "+
+			"c_name, "+
+			"sum(l_extendedprice * (1 - l_discount)) as revenue, "+
+			"c_acctbal, "+
+			"n_name, "+
+			"c_address, "+
+			"c_phone, "+
+			"c_comment " +
+		"from "+
+			"customer, "+
+			"orders, "+
+			"lineitem, "+
+			"nation " +
+		"where "+
+			"c_custkey = o_custkey "+
+			"and l_orderkey = o_orderkey "+
+			"and o_orderdate >= date '1994-01-01' "+
+			"and o_orderdate < date '1994-04-01' "+
+			"and l_returnflag = 'R' "+
+			"and c_nationkey = n_nationkey " +
+		"group by "+
+			"c_custkey, " +
+			"c_name, "+
+			"c_acctbal, "+
+			"c_phone, "+
+			"n_name, "+
+			"c_address, "+
+			"c_comment;" ;
 
 	private static String CONNURL = "CONNURL";
 	private static String CONNAME = "CONNAME";
@@ -364,6 +395,7 @@ public enum EnumDoomDBSchema {
 		QUERIES.put(2, tpchQ2);
 		QUERIES.put(3, tpchQ3);
 		QUERIES.put(5, tpchQ5);
+		QUERIES.put(10, tpchQ10);
 	}
 
 	private String schemaName;
