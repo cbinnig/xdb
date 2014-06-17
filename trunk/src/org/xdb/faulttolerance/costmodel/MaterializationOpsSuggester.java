@@ -65,14 +65,13 @@ public class MaterializationOpsSuggester {
 	private Error startBushyMaterializationFinder() {
 		Error err = new Error(); 
 		BushyCPlanMatEnumerator bushyTreeEnumerator = new BushyCPlanMatEnumerator();
-		List<Identifier> nonMaterializableOps; 
-		nonMaterializableOps = new ArrayList<Identifier>(); 
-		bushyTreeEnumerator.setNonMatOps(nonMaterializableOps); 
+		bushyTreeEnumerator.setNonMatOps(this.nonMaterializableOps); 
 		bushyTreeEnumerator.setOpsEstimatedRuntime(opsEstimatedRuntime);
 		bushyTreeEnumerator.setIntermediadeResultsMatTime(intermediadeResultsMatTime);
 		bushyTreeEnumerator.setCompilePlan(this.compilePlan); 
-		bushyTreeEnumerator.enumerateCompilePlan(); 
-		this.recommendedMatOpsIds = bushyTreeEnumerator.getRecommendedMatOpIds(); 
+		bushyTreeEnumerator.enumerateCompilePlan();   
+		this.costModelQueryPlan = bushyTreeEnumerator.getCostModelQueryPlan();
+		this.recommendedMatOpsIds = bushyTreeEnumerator.getRecommendedMatOpIds();  
 		updateCompilePlanWithNewMat();
 		return err;
 	}

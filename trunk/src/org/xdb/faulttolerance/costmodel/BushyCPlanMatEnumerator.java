@@ -44,6 +44,10 @@ public class BushyCPlanMatEnumerator {
 	 */
 	public void setCompilePlan(CompilePlan compilePlan) {
 		this.compilePlan = compilePlan;
+	} 
+	
+	public CostModelQueryPlan getCostModelQueryPlan(){
+		return this.costModelQPlan;
 	}
 
 	/**
@@ -80,8 +84,7 @@ public class BushyCPlanMatEnumerator {
 	 */
 	public Error enumerateCompilePlan(){ 
 
-		Error err;
-
+		Error err = new Error();
 		costModelQPlan = constructCModelQPlan(); 
 		costModelQPlan.tracePlan("Cost_Model_Query_Plan_Original_");  
 		System.out.println("1- Remove non mat ops from the statistics file!");
@@ -105,8 +108,8 @@ public class BushyCPlanMatEnumerator {
 		costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_ThirdRule_");  
 		// 4- Forth Pruning rule: path Comparisons 
 		costModelQPlan.enumerate(); 
-		costModelQPlan.findBestMatConf();
-		//setRecommendedMatOpIds(costModelQPlan.findBestMatConf());
+		//costModelQPlan.findBestMatConf();
+		setRecommendedMatOpIds(costModelQPlan.findBestMatConf());
 		return err;
 	} 
 	
@@ -117,6 +120,7 @@ public class BushyCPlanMatEnumerator {
 	public Error removeNonMatOps(){
 		Error err = new Error();
 		BushyPlanBottomUpTreeVisitor visitor = new BushyPlanBottomUpTreeVisitor();    
+		System.out.println(this.nonMaterializableOps);
 		visitor.setNonMatsOps(this.nonMaterializableOps);
 		visitor.setCostModelQueryPlan(costModelQPlan);
 		// applying the visitor will remove the non mat ops 
@@ -175,8 +179,13 @@ public class BushyCPlanMatEnumerator {
 				CostModelOperator costModelOperator = new CostModelOperator();  
 				costModelOperator.setId(op.getOperatorId().getChildId()); 
 				costModelOperator.setType(op.getType().toString()); 
-				costModelOperator.setOpRunTimeEstimate(this.opsEstimatedRuntime.get(costModelOperator.getId())); 
-				costModelOperator.setOpMaterializationTimeEstimate(this.intermediadeResultsMatTime.get(costModelOperator.getId()));
+				if(this.opsEstimatedRuntime.get(costModelOperator.getId()) == null){
+					costModelOperator.setOpRunTimeEstimate(0);
+					costModelOperator.setOpMaterializationTimeEstimate(0);
+				} else {
+					costModelOperator.setOpRunTimeEstimate(this.opsEstimatedRuntime.get(costModelOperator.getId())); 
+					costModelOperator.setOpMaterializationTimeEstimate(this.intermediadeResultsMatTime.get(costModelOperator.getId()));
+				}
 				costModelOperator.setDegreeOfPartitioning(op.getResult().getPartitionCount()); 
 				costModelOpToCompileOp.put(op.getOperatorId().getChildId(), op.getOperatorId()); 
 				if(op.getResult().materialize() || op.isRoot()){
