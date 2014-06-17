@@ -160,7 +160,7 @@ public class MaterializationOpsSuggester {
 	 * 
 	 * @return
 	 */
-	public Error startSmartMaterilizationFinder(){
+	private Error startSmartMaterilizationFinder(){
 		Error err = new Error();
 		// Traverse the tree from top to bottom, in the way 
 		// adding the left child operators so will 
@@ -179,7 +179,7 @@ public class MaterializationOpsSuggester {
 	 * 
 	 * @return
 	 */
-	public Error startNaiveMaterilizationFinder() {
+	private Error startNaiveMaterilizationFinder() {
 		Error err = new Error();
 		Collection<AbstractCompileOperator> ops = this.compilePlan.getOperators();  
 		for (AbstractCompileOperator abstractCompileOperator : ops) {
@@ -190,8 +190,10 @@ public class MaterializationOpsSuggester {
 			this.recommendedMatOpsIds.add(abstractCompileOperator.getOperatorId().getChildId());
 		}
 		
+		this.compilePlan.setMatOps(recommendedMatOpsIds);
 		return err;
 	}
+	
 	/**
 	 * Convert the AbstractComileOperator (XDB Format) to CostModel 
 	 * Operator (XDB cost model Format) 

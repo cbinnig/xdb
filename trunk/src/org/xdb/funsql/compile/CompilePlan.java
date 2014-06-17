@@ -163,7 +163,6 @@ public class CompilePlan implements Serializable {
 	}
 
 	// methods
-
 	/**
 	 * Initialize transient attributes after shipping
 	 */
@@ -297,5 +296,24 @@ public class CompilePlan implements Serializable {
 
 		Dotty.dot2Img(graph, fileName);
 		return error;
+	}
+	
+	/**
+	 * Generates a visual graph representation of the compile plan
+	 */
+	public String tracePlanReturnFile(String fileName) {
+		fileName += this.planId;
+		Graph graph = GraphFactory.newGraph();
+
+		HashMap<Identifier, GraphNode> nodes = new HashMap<Identifier, GraphNode>();
+		for (Identifier root : this.roots) {
+			GraphNode node = graph.addNode();
+			AbstractCompileOperator rootOp = this.operators.get(root);
+			node.getInfo().setCaption(rootOp.getType().toString());
+			nodes.put(root, node);
+			rootOp.traceOperator(graph, nodes);
+		}
+
+		return Dotty.dot2Img(graph, fileName);
 	}
 }

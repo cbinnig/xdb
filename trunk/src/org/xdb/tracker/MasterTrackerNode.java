@@ -67,6 +67,7 @@ public class MasterTrackerNode {
 	/** Compile plan information **/
 	// map: planId -> running CompilePlan
 	private final Map<Identifier, CompilePlan> runningPlans = new HashMap<Identifier, CompilePlan>();
+	private CompilePlan lastCompilePlan = null;
 
 	// map: plan ID -> URL of assigned query tracker
 	private final Map<Identifier, QueryTrackerNodeDesc> planAssignment = new HashMap<Identifier, QueryTrackerNodeDesc>();
@@ -121,7 +122,6 @@ public class MasterTrackerNode {
 	}
 
 	// getters and setters
-
 	public int getRunningPlans() {
 		return runningPlans.size();
 	}
@@ -136,6 +136,10 @@ public class MasterTrackerNode {
 
 	public Collection<QueryTrackerClient> getQueryTrackerClients() {
 		return this.queryTrackerClients.values();
+	}
+	
+	public CompilePlan getLastPlan(){
+		return this.lastCompilePlan;
 	}
 
 	// methods
@@ -348,6 +352,7 @@ public class MasterTrackerNode {
 		Error err = new Error();
 
 		// add plan to monitored plans
+		this.lastCompilePlan = plan;
 		this.runningPlans.put(plan.getPlanId(), plan);
 		this.planAssignment.put(plan.getPlanId(), tracker);
 
@@ -418,6 +423,7 @@ public class MasterTrackerNode {
 		Error err = new Error();
 
 		// add plan to monitored plans
+		this.lastCompilePlan = plan;
 		this.runningPlans.put(plan.getPlanId(), plan);
 		this.planAssignment.put(plan.getPlanId(), tracker);
 

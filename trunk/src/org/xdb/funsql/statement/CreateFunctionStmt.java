@@ -177,6 +177,8 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 	// methods
 	@Override
 	public Error compile() {
+		System.out.println("Compiling: "+this.getStmtString());
+		
 		Error e = new Error();
 		TokenSchema tSchema = this.tFun.getSchema();
 		Schema schema = Catalog.getSchema(tSchema.hashKey());
