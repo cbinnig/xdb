@@ -111,7 +111,7 @@ public class DoomDBFailureSimulator extends Thread {
 		long lastTimestamp = 0;
 		for(Tuple<Integer, Long> timestamp: globalTimestamps){
 			long mtbf =  timestamp.getObject2()-lastTimestamp;
-			mtbf+=Config.DOOMDB_MTTR;
+			mtbf+=this.dbClient.getMTTR();
 			lastTimestamp = timestamp.getObject2();
 			timestamp.setObject2(mtbf);
 			this.globalMTBFs.add(timestamp);

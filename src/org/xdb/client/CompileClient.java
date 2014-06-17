@@ -40,10 +40,12 @@ public class CompileClient extends AbstractClient {
 	public Tuple<Error, DoomDBPlan> compileDoomStmtWithStats(String stmt,
 			Map<Identifier, Double> queryRuntimesStat,
 			Map<Identifier, Double> queryMattimesStat,
-			List<Identifier> nonMatOps) {
+			List<Identifier> nonMatOps, 
+			int mtbf,
+			int mttr) {
 		ClientStmt clientStmt = new ClientStmt(stmt);
 		QueryStats queryStats = new QueryStats(queryRuntimesStat,
-				queryMattimesStat, nonMatOps);
+				queryMattimesStat, nonMatOps,  mtbf, mttr);
 		QueryWithStats queryWithStats = new QueryWithStats(clientStmt,
 				queryStats);
 		Object[] args = { queryWithStats };

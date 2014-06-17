@@ -16,18 +16,30 @@ public class QueryStats implements Serializable {
 	private Map<Identifier, Double> queryRuntimesStat = new HashMap<Identifier, Double>(); 
 	private Map<Identifier, Double> queryMattimesStat = new HashMap<Identifier, Double>(); 
 	private List<Identifier> nonMatOps = new ArrayList<Identifier>(); 
+	private int mtbf = 0;
+	private int mttr = 0;
 	
 	public QueryStats(){
 		
 	}
 	
     public QueryStats(Map<Identifier, Double> queryRuntimesStat, 
-    		Map<Identifier, Double> queryMattimesStat, List<Identifier> nonMatOps){
+    		Map<Identifier, Double> queryMattimesStat, List<Identifier> nonMatOps, int mtbf, int mttr){
     	this.setQueryRuntimesStat(queryRuntimesStat); 
     	this.setQueryMattimesStat(queryMattimesStat); 
     	this.setNonMatOps(nonMatOps); 
+    	this.mtbf = mtbf;
+    	this.mttr = mttr;
     }
 
+    public int getMTBF(){
+    	return this.mtbf;
+    }
+    
+    public int getMTTR(){
+    	return this.mttr;
+    }
+    
 	/**
 	 * @return the queryRuntimesStat
 	 */

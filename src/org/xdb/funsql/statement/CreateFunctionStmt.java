@@ -471,7 +471,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		
 		MaterializationOpsSuggester matSuggester = new MaterializationOpsSuggester
 				(this.functionPlan, queryStats.getQueryRuntimesStat(), queryStats.getQueryMattimesStat(), queryStats.getNonMatOps(),
-						Config.DOOMDB_MTBF, Config.DOOMDB_MTTR);  
+						queryStats.getMTBF(), queryStats.getMTBF());  
 	    
 		err = matSuggester.startCostModel();
 		

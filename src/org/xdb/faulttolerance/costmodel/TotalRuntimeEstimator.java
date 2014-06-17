@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.xdb.Config;
 import org.xdb.utils.Identifier;
 
 public class TotalRuntimeEstimator { 
@@ -19,11 +18,11 @@ public class TotalRuntimeEstimator {
 	private double runTime;  
 	// 
 	private boolean isAllMatConfNan;
-	
+	private int mttr = 0;
 
-	public TotalRuntimeEstimator(List<MaterializedPlan> matPlansList) { 
+	public TotalRuntimeEstimator(List<MaterializedPlan> matPlansList, int mttr) { 
 		this.matPlansList = matPlansList; 
-
+		this.mttr = mttr;
 	}
 
 	/**
@@ -97,7 +96,7 @@ public class TotalRuntimeEstimator {
 				if(r < 0){
 					r = Long.MAX_VALUE;
 				} 
-				levelRunTime = T + (W*(1 - Math.pow(F,r+1))/(1-F) - W) + r*Config.DOOMDB_MTTR; 
+				levelRunTime = T + (W*(1 - Math.pow(F,r+1))/(1-F) - W) + r*this.mttr; 
 				runTime += levelRunTime; 
 				totalR += r; 
 				totalWastedTime += W; 
