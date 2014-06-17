@@ -48,16 +48,16 @@ public class TotalRuntimeEstimator {
 		List<Level> matLevels = new ArrayList<Level>();
 		for (MaterializedPlan materializedPlan : matPlansList) { 
 			double averageWastedTime = 0.0; 
-			double runTimeWithoutMaterialization = 0.0; 
+			//double runTimeWithoutMaterialization = 0.0; 
 			double materializationTime = 0.0; 
 			matLevels = materializedPlan.getmateriliazedPlanLevels(); 
 			for (Level level : matLevels) {
-				runTimeWithoutMaterialization += level.getLevelRuntimeEstimate(); 
+				//runTimeWithoutMaterialization += level.getLevelRuntimeEstimate(); 
 				materializationTime += level.getMaterializationRuntimeestimate();
 				level.setAverageWastedTime(0.5*(level.getLevelRuntimeEstimate() + level.getMaterializationRuntimeestimate())*level.getLevelFailureProbability());
 			}   
 			
-			runTimeWithoutMaterialization += matLevels.get(matLevels.size()-1).getMaterializationRuntimeestimate();
+			//runTimeWithoutMaterialization += matLevels.get(matLevels.size()-1).getMaterializationRuntimeestimate();
 			//materializedPlan.setRunTimeWithoutFailure(runTimeWithoutMaterialization + materializationTime);
 			materializedPlan.setMaterializationTime(materializationTime); 
 			numberOfLevelslnMatConf = matLevels.size();  

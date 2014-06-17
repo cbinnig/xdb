@@ -88,9 +88,7 @@ public class QueryRuntimeEstimator {
 	public void estimateReattemptsForMaterlialization(){
 		
 		List<Integer> uselessMatConfList = new ArrayList<Integer>();
-		boolean skipMatConf = false;
 		for(int i=0; i<matPlans.size(); i++){
-			skipMatConf = false;
 			MaterializedPlan matPlan =  matPlans.get(i);
 			List<Level> levels = matPlan.getmateriliazedPlanLevels(); 
 			double querySuccessProbability = 1;

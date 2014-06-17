@@ -156,6 +156,8 @@ public class SelectStmt extends AbstractServerStmt {
 
 	@Override
 	public Error compile() {
+		System.out.println("Compiling: "+this.getStmtString());
+		
 		Error err = new Error();
 		// 1. Check tables and create table symbols
 		err = checkTables();

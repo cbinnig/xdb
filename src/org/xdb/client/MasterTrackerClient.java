@@ -167,10 +167,33 @@ public class MasterTrackerClient extends AbstractClient {
 				(DoomDBPlanStatus) result.getObject2());
 	}
 
+	/**
+	 * Restarts compute Node
+	 * 
+	 * @param computeNodeDesc
+	 * @param mttr
+	 * @return
+	 */
 	public Error restartComputeNode(ComputeNodeDesc computeNodeDesc, int mttr) {
 		final RestartSignal restartSignal = new RestartSignal(computeNodeDesc, mttr); 
 		Object[] args = { restartSignal };
 		return this.executeCmd(
 				MasterTrackerServer.CMD_DOOMDB_KILL_NODE, args);
+	}
+	
+	/**
+	 * Get last executed compile plan
+	 * @return
+	 */
+	public CompilePlan getLastCompilePlan(){
+		Object[] args = {};
+		Tuple<Error, Object> result = this.executeCmdWithResult(
+				MasterTrackerServer.CMD_DOOMDB_GET_LAST_PLAN, args);
+		
+		Object obj = result.getObject2();
+		if(obj==null){
+			return null;
+		}
+		return (CompilePlan) obj;
 	}
 }
