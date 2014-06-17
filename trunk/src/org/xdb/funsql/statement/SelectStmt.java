@@ -751,26 +751,10 @@ public class SelectStmt extends AbstractServerStmt {
 	@Override
 	public Error applyFaultTolerance(QueryStats queryStats) {
 		Error err = new Error();
-		/*
-		Identifier id2 = new Identifier("2"); 
-		Identifier id3 = new Identifier("3"); 
-		Identifier id4 = new Identifier("4"); 
-		Identifier id5 = new Identifier("5");  
-		
-		this.opsEstimatedRuntime.put(id2, 44.0); 
-		this.opsEstimatedRuntime.put(id5, 20.889);
-		this.opsEstimatedRuntime.put(id3, 0.119 );
-		this.opsEstimatedRuntime.put(id4, 0.002);
-		
-		this.intermediadeResultsMatTime.put(id2, 77.0); 
-		this.intermediadeResultsMatTime.put(id5, 0.009);
-		this.intermediadeResultsMatTime.put(id3, 0.009);
-		this.intermediadeResultsMatTime.put(id4, 0.009);+/
-		 */
 		
 		MaterializationOpsSuggester matSuggester = new MaterializationOpsSuggester
 				(this.plan, queryStats.getQueryRuntimesStat(), queryStats.getQueryMattimesStat(), queryStats.getNonMatOps(),
-						Config.DOOMDB_MTBF, Config.DOOMDB_MTTR);  
+						queryStats.getMTBF(), queryStats.getMTTR());  
 	    
 		err = matSuggester.startCostModel();
 		

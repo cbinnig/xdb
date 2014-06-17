@@ -16,7 +16,7 @@ import org.xdb.error.Error;
 
 public class MaterializationOpsSuggester { 
 	
-	CostModelQueryPlan costModelQueryPlan;
+	private CostModelQueryPlan costModelQueryPlan;
 	
 	// CompilePlan to annotate extra materialization point
 	private CompilePlan compilePlan; 
@@ -50,6 +50,8 @@ public class MaterializationOpsSuggester {
 	public Error startCostModel(){
 		
 		Error err = new Error();
+		System.out.println("MTBF: "+this.MTBF);
+		System.out.println("MTTR: "+this.MTTR);
 		
 		if(Config.COMPILE_FT_MODE.equalsIgnoreCase("smart")){
 			err = startSmartMaterilizationFinder();
@@ -126,34 +128,6 @@ public class MaterializationOpsSuggester {
 			Map<Identifier, Double> intermediadeResultsMatTime) {
 		this.intermediadeResultsMatTime = intermediadeResultsMatTime;
 	} 
-
-	/**
-	 * @return the MTBF
-	 */
-	public int getMTBF() {
-		return MTBF;
-	}
-
-	/**
-	 * @param MTBF the MTBF to set
-	 */
-	public void setMTBF(int MTBF) {
-		this.MTBF = MTBF;
-	}  
-	
-	/**
-	 * @return the mTTR
-	 */
-	public int getMTTR() {
-		return MTTR;
-	}
-
-	/**
-	 * @param mTTR the mTTR to set
-	 */
-	public void setMTTR(int mTTR) {
-		MTTR = mTTR;
-	}
 	
 	/**
 	 * 
@@ -245,7 +219,7 @@ public class MaterializationOpsSuggester {
 		
 		// Initiate a query plan 
 		this.costModelQueryPlan = new CostModelQueryPlan(costModelOps, 
-				forcedMaterializedOpsIndexes, mapCostModelOpToCompileOp, null); 
+				forcedMaterializedOpsIndexes, mapCostModelOpToCompileOp, null, this.MTBF, this.MTTR); 
 		// Enumerate Different Materialization Strategy 
 		MaterlizationStrategyEnumerator matEnumerator = new MaterlizationStrategyEnumerator(costModelQueryPlan,forcedMaterializedOpsIndexes, this.MTBF);
 		List<MaterializedPlan> materializedPlansList = matEnumerator.enumerateQueryPlan(); 
@@ -260,7 +234,7 @@ public class MaterializationOpsSuggester {
 		// Each materialization configuration produces number of 
 		// failure scenarions depends on how many level the mat 
 		// configuration has. More levels more failure scenarions! 
-		TotalRuntimeEstimator totalRuntimeEstimator = new TotalRuntimeEstimator(queryRuntimeEstimator.getMatPlans());
+		TotalRuntimeEstimator totalRuntimeEstimator = new TotalRuntimeEstimator(queryRuntimeEstimator.getMatPlans(), this.MTTR);
 		totalRuntimeEstimator.calculateAverageWastedTimePerMatConf();
 		totalRuntimeEstimator.calculateRuntTimeForMatConfs(); 
 		

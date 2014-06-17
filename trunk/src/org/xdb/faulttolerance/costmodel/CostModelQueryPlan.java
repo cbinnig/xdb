@@ -53,19 +53,25 @@ public class CostModelQueryPlan {
 	private int matConfNumber;
 	private List<BitSet> allMaterializationConf = new ArrayList<BitSet>(); 
 	private List<List<Identifier>> paths = new ArrayList<List<Identifier>>();
-
+	private int mtbf = 0;
+	private int mttr = 0;
 
 	// Constructor
 	public CostModelQueryPlan(List<CostModelOperator> allOperators,
-			List<Integer> forcedMaterializedOpsIndexes, Map<Identifier, Identifier> costModelOpToCompileOp, List<Identifier> nonMatOps) {
+			List<Integer> forcedMaterializedOpsIndexes, Map<Identifier, Identifier> costModelOpToCompileOp, List<Identifier> nonMatOps, int mtbf, int mttr) {
 		this.allOperators = allOperators; 
 		this.forcedMaterializedOpsIndexes = forcedMaterializedOpsIndexes; 
 		this.costModelOpToCompileOp = costModelOpToCompileOp;
+		this.mtbf = mtbf;
+		this.mttr = mttr;
 	}  
 
 	public CostModelQueryPlan copyPlan(){
 
 		CostModelQueryPlan costModelPlan = new CostModelQueryPlan();
+		costModelPlan.mtbf = this.mtbf;
+		costModelPlan.mttr = this.mttr;
+		
 		costModelPlan.planId  = this.planId; 
 		CompilePlan compilePlan = new CompilePlan();
 		costModelPlan.setCplan(compilePlan);
@@ -544,7 +550,7 @@ public class CostModelQueryPlan {
 		for(int i=0; i<paths.size();i++){
 			System.out.println(paths.get(i));
 			// Apply our cost model to each path to get the total runtime 
-			MaterlizationStrategyEnumerator costModelApplier = new MaterlizationStrategyEnumerator(Config.DOOMDB_MTBF);
+			MaterlizationStrategyEnumerator costModelApplier = new MaterlizationStrategyEnumerator(this.mtbf);
 			// Build the list of ops from the list of id 
 			List<Identifier> pathOpsIds = paths.get(i);
 			List<CostModelOperator> pathOps = new ArrayList<CostModelOperator>();
@@ -584,7 +590,7 @@ public class CostModelQueryPlan {
 			// Each materialization configuration produces number of 
 			// failure scenarions depends on how many level the mat 
 			// configuration has. More levels more failure scenarions! 
-			TotalRuntimeEstimator totalRuntimeEstimator = new TotalRuntimeEstimator(queryRuntimeEstimator.getMatPlans());
+			TotalRuntimeEstimator totalRuntimeEstimator = new TotalRuntimeEstimator(queryRuntimeEstimator.getMatPlans(), this.mttr);
 			totalRuntimeEstimator.calculateAverageWastedTimePerMatConf();
 			totalRuntimeEstimator.calculateRuntTimeForMatConfs();  
 			if(matPlan.getRunTime() > copyPlan.dominantPathRuntime) {

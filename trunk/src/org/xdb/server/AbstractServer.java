@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -88,10 +90,11 @@ public abstract class AbstractServer {
 			}
 		}
 		
+		
 		String msg = this.getClass().getSimpleName() + " ... started";
 		this.logger.log(Level.INFO, msg);
 		
-		System.out.println(" started!");
+		System.out.println(" started! [" + getTimestamp() + "]");
 
 		return this.err;
 	}
@@ -122,7 +125,7 @@ public abstract class AbstractServer {
 			//output message
 			String msg = this.getClass().getSimpleName() + " stopped!";
 			this.logger.log(Level.INFO, msg);
-			System.out.println(" stopped!");
+			System.out.println(" stopped! [" + getTimestamp() + "]");
 		}
 	}
 
@@ -197,5 +200,12 @@ public abstract class AbstractServer {
 		Error err = new Error(EnumError.COMPUTE_CMD_INVALID, args);
 		logger.log(Level.SEVERE, err.toString());
 		return err;
+	}
+	
+	private String getTimestamp(){
+		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+	    Date now = new Date();
+	    String strDate = sdfDate.format(now);
+		return strDate;
 	}
 }

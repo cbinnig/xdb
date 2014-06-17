@@ -135,7 +135,7 @@ public class DoomDBClient implements IDoomDBClient {
 		Map<Identifier, Double> queryMattimesStat = this.schema.getQueryMatTimesStat(queryNum); 
 		List<Identifier> nonMatOps = this.schema.getNonMaterializableOps(queryNum);
 		             
-		Tuple<Error, DoomDBPlan> result = this.cClient.compileDoomStmtWithStats(this.query, queryRuntimesStat, queryMattimesStat, nonMatOps);
+		Tuple<Error, DoomDBPlan> result = this.cClient.compileDoomStmtWithStats(this.query, queryRuntimesStat, queryMattimesStat, nonMatOps, this.mtbf, this.mttr);
 		this.stopOnError(result.getObject1());
 		
 		this.dplan = result.getObject2();
