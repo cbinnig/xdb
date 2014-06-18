@@ -16,8 +16,9 @@ import org.xdb.utils.Identifier;
  * 
  */
 public class MySQLExecuteOperator extends AbstractExecuteOperator {
-	private static final long serialVersionUID = -6945734207336600373L;
-
+	
+	private static final long serialVersionUID = -3032433813365119895L;
+	
 	// DML statements for execution
 	protected Vector<String> executeSQLs = new Vector<String>();
 	private transient Vector<PreparedStatement> executeStmts;

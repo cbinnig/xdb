@@ -1,12 +1,12 @@
 package org.xdb.monitor;
 
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.xdb.client.ComputeClient;
-import org.xdb.error.Error;
-import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.execute.operators.EnumOperatorStatus;
+import org.xdb.execute.operators.OperatorDesc;
 import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.tracker.QueryTrackerPlan;
@@ -77,14 +77,13 @@ public class ComputeServersMonitor {
 	 */
 	public void monitorAllOperators() {
 
-		Error err = new Error();
-		for (Identifier identifier : this.qtPlan.getCurrentDeployment()
-				.keySet()) {
+		Map<Identifier, OperatorDesc> deployment = this.qtPlan.getCurrentDeployment();
+		
+		for (Identifier identifier : deployment.keySet()) {
 
-			OperatorDesc opDesc = this.qtPlan.getCurrentDeployment().get(
-					identifier);
+			OperatorDesc opDesc = deployment.get(identifier);
 
-			// do not ping in this cases
+			// do not ping if operator is aborted or finished
 			switch (opDesc.getOperatorStatus()){
 			case ABORTED:
 				logger.log(Level.INFO, "Aborted Operator " + identifier
@@ -97,15 +96,13 @@ public class ComputeServersMonitor {
 				break;	
 			}
 			
-			// ping compute server to see if it is alive
-			//err = this.computeClient.pingComputeServer(opDesc.getComputeNode());
-			err = this.computeClient.pingOperator(opDesc.getComputeNode(), opDesc.getOperatorID());
-			if (err.isError()) {
+			// ping operators to get their status
+			EnumOperatorStatus opStatus = this.computeClient.pingOperator(opDesc.getComputeNode(), opDesc.getOperatorID());
+			opDesc.setOperatorStatus(opStatus);
+			if (opStatus.isFailure()) {
 				logger.log(Level.INFO, "Operator " + identifier
 						+ " has been detected on killed compute node: "
 						+ opDesc.getComputeNode());
-				// Update the current deployment with the failed operator
-				opDesc.setOperatorStatus(EnumOperatorStatus.ABORTED);
 				this.setFailureDetected(true);
 			}
 

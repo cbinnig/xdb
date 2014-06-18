@@ -73,9 +73,6 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	// flag for root operator
 	protected boolean isRoot = false;
 
-	// flag if operator was executed
-	private boolean isExecuted = false;
-
 	// Error handling
 	protected Error err = new Error();
 
@@ -85,14 +82,6 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	}
 
 	// getters and setters
-	public boolean isExecuted() {
-		return isExecuted;
-	}
-
-	public void setExecuted(boolean isExecuted) {
-		this.isExecuted = isExecuted;
-	}
-
 	public void setIsRoot(boolean isRoot) {
 		this.isRoot = isRoot;
 	}
