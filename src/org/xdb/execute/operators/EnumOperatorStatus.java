@@ -20,12 +20,23 @@ public enum EnumOperatorStatus {
 	ABORTED, // Operator is failed and can not recovered
 	FAILED; // Operator is failed and can not be recovered
 	
-	/**
-	 * returns true if operator has a repairable failure
-	 * @return
-	 */
 	public boolean isRepairableFailure() {
 		switch (this) {
+		case ABORTED:
+			return true;
+		default:
+			return false;
+		}
+	}
+	
+	/**
+	 * returns true if operator has a failure
+	 * @return
+	 */
+	public boolean isFailure() {
+		switch (this) {
+		case FAILED:
+			return true;
 		case ABORTED:
 			return true;
 		default:
@@ -57,6 +68,15 @@ public enum EnumOperatorStatus {
 			return false;
 		default:
 			return true;
+		}
+	}
+	
+	public boolean isFinished() {
+		switch (this) {
+		case FINISHED:
+			return true;
+		default:
+			return false;
 		}
 	}
 	

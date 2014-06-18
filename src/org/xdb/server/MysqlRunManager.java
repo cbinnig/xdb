@@ -47,7 +47,7 @@ public class MysqlRunManager {
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt
 					.executeQuery("SELECT concat('KILL ',id,';') FROM information_schema.processlist"
-							+ " where info is not null and info not like '%processlist%'");
+							+ " where db='xdb_tmp';");
 
 			Vector<String> killQueries = new Vector<String>();
 			while (rs.next()) {

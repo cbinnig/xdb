@@ -12,6 +12,7 @@ import org.xdb.error.Error;
 import org.xdb.execute.ComputeNode;
 import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
+import org.xdb.execute.operators.EnumOperatorStatus;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
@@ -63,7 +64,8 @@ public class ComputeServer extends AbstractServer {
 					break;
 				case CMD_PING_OPERATOR:
 					final Identifier opID = (Identifier) in.readObject();
-					err = compute.pingOperator(opID);
+					EnumOperatorStatus opStatus = compute.pingOperator(opID);
+					out.writeObject(opStatus);
 					break;
 				case CMD_OPEN_OP:
 					final AbstractExecuteOperator op = (AbstractExecuteOperator) in.readObject();

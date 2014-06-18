@@ -44,17 +44,16 @@ public class ComputeClient extends AbstractClient {
 	public Tuple<Error, EnumOperatorStatus> openOperator(
 			final ComputeNodeDesc url, final AbstractExecuteOperator op) {
 		Object[] args = { op };
+		
 		Tuple<Error, Object> result = this.executeCmdWithResult(url.getUrl(),
 				url.getPort(), ComputeServer.CMD_OPEN_OP, args);
-
+		
 		Object obj2 = result.getObject2();
 		EnumOperatorStatus opStatus = null;
-		if (obj2 == null) {
+		if (obj2 == null) 
 			opStatus = EnumOperatorStatus.getRuntimeFailure();
-		}
-		else{
+		else
 			opStatus = (EnumOperatorStatus) obj2;
-		}
 
 		return new Tuple<Error, EnumOperatorStatus>(result.getObject1(),
 				opStatus);
@@ -170,11 +169,20 @@ public class ComputeClient extends AbstractClient {
 				ComputeServer.CMD_PING_SERVER, args);
 	}
 	
-	public Error pingOperator(ComputeNodeDesc url, Identifier operatorID) {
+	/**
+	 * Get operator status
+	 * @param url
+	 * @param operatorID
+	 * @return
+	 */
+	public EnumOperatorStatus pingOperator(ComputeNodeDesc url, Identifier operatorID) {
 		Object[] args = {operatorID};
-		return this.executeCmd(url.getUrl(), url.getPort(),
+		Tuple<Error, Object> result =  this.executeCmdWithResult(url.getUrl(), url.getPort(),
 				ComputeServer.CMD_PING_OPERATOR, args);
-		
+		if(result.getObject2()!=null)
+			return (EnumOperatorStatus)result.getObject2();
+		else
+			return EnumOperatorStatus.getRuntimeFailure();
 	}
 
 	/**

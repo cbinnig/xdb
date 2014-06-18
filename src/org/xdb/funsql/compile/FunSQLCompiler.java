@@ -19,14 +19,13 @@ public class FunSQLCompiler {
 	private boolean doSemanticAnalysis = true; 
 	private boolean doFaultTolerance = Config.COMPILE_FT_ACTIVE;   
 	
-	private QueryStats queryStats; 
-	
-	public FunSQLCompiler(){
-		this.queryStats = new QueryStats();
-	}
+	private QueryStats queryStats = null; 
 
+	public FunSQLCompiler(){
+	}
+	
 	public FunSQLCompiler(QueryStats queryStats){
-		this.setQueryStats(queryStats);
+		this.queryStats = queryStats;
 	}
 	
 	//getters and setters
@@ -81,7 +80,7 @@ public class FunSQLCompiler {
 			} 
 		    
 			// find the best materilaizations 
-			if(this.doFaultTolerance){
+			if(this.doFaultTolerance && queryStats!=null){
 				this.lastError = statement.applyFaultTolerance(queryStats);  
 				if(lastError.isError()) 
 					return null; 
@@ -108,19 +107,5 @@ public class FunSQLCompiler {
 		String args[] = { msg };
 		Error error = new Error(EnumError.COMPILER_GENERIC, args);
 		return error;
-	}
-
-	/**
-	 * @return the queryStats
-	 */
-	public QueryStats getQueryStats() {
-		return queryStats;
-	}
-
-	/**
-	 * @param queryStats the queryStats to set
-	 */
-	public void setQueryStats(QueryStats queryStats) {
-		this.queryStats = queryStats;
 	}
 }

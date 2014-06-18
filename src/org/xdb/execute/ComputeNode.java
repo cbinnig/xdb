@@ -21,6 +21,7 @@ import org.xdb.client.QueryTrackerClient;
 import org.xdb.error.EnumError;
 import org.xdb.error.Error;
 import org.xdb.execute.operators.AbstractExecuteOperator;
+import org.xdb.execute.operators.EnumOperatorStatus;
 import org.xdb.execute.signals.CloseSignal;
 import org.xdb.execute.signals.KillSignal;
 import org.xdb.execute.signals.ReadySignal;
@@ -131,6 +132,7 @@ public class ComputeNode {
 		this.killAllOperators();
 		this.operators.clear();
 		this.executingOperators.clear();
+		this.receivedReadySignals.clear();
 	}
 
 	/**
@@ -375,13 +377,17 @@ public class ComputeNode {
 		return err;
 	}
 	
-	public Error pingOperator(Identifier opID){
-		Error err = new Error();
+	/**
+	 * Get Operator status
+	 * @param opID
+	 * @return
+	 */
+	public EnumOperatorStatus pingOperator(Identifier opID){
 		if (!operators.containsKey(opID)){
-			String[] args = {opID.toString()};
-			err = new Error(EnumError.COMPUTE_OPERATOR_NOT_AVAILABLE, args);
+			return EnumOperatorStatus.getRuntimeFailure();
 		}
-		return err;
+		
+		return operators.get(opID).getStatus();
 	}
 
 }

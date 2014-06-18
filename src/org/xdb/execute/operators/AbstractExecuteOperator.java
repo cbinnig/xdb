@@ -24,13 +24,15 @@ import org.xdb.utils.Identifier;
  * @author cbinnig
  */
 public abstract class AbstractExecuteOperator implements Serializable {
-	private static final long serialVersionUID = -3874534068048724293L;
+	
+	private static final long serialVersionUID = -3896677758698111894L;
 
 	// connection to compute DB
 	protected transient Connection conn;
 
-	// query tracker URL
+	// query tracker 
 	protected QueryTrackerNodeDesc queryTracker;
+	private transient QueryTrackerClient queryTrackerClient;
 
 	// database parameters
 	protected String dburl = Config.COMPUTE_DB_URL;
@@ -58,8 +60,7 @@ public abstract class AbstractExecuteOperator implements Serializable {
 
 	// helper
 	protected Error err = new Error();
-	private transient QueryTrackerClient queryTrackerClient;
-
+	
 	// constructors
 	public AbstractExecuteOperator(Identifier nodeId) {
 		super();
@@ -170,7 +171,8 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 * @return
 	 */
 	public Error execute() {
-
+		this.status = EnumOperatorStatus.RUNNING;
+		
 		// execute operator 
 		this.err = executeOperator();
 		if (!err.isError())
