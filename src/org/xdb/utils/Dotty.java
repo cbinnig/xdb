@@ -1,40 +1,52 @@
-package org.xdb.utils;
 
-import java.io.File;
-import java.io.IOException;
+			
+					package org.xdb.utils;
 
-import org.xdb.Config;
+			import java.io.File;
+import java.io.FileOutputStream;
+
+			import org.xdb.Config;
 
 import com.oy.shared.lm.graph.Graph;
-import com.oy.shared.lm.out.GRAPHtoDOTtoGIF;
+import com.oy.shared.lm.out.GRAPHtoDOT;
 
-public class Dotty {
-	public static String dot2Img(Graph graph, String fileName) {
-		final String path = Config.DOT_TRACE_PATH;
-		final String dotFileName = new File(path, fileName + ".dot")
-				.getAbsolutePath();
-		final String gifFileName = new File(path, fileName + ".gif")
-				.getAbsolutePath();
-		final String exeFileName = Config.DOT_EXE;
+			public class Dotty {
+				/**
+				 * Renders dot graph as GIF image
+				 * @param graph
+				 * @param fileName
+				 * @return
+				 */
+				public static String dot2Img(Graph graph, String fileName) {
+					return dot2Img(graph, fileName, "gif");
+				}
 
-		try {
-			GRAPHtoDOTtoGIF.transform(graph, dotFileName, gifFileName,
-					exeFileName);
-		} catch (final IOException e) {
-			// do nothing
-		}
+				/**
+				 * Renders dot graph as image of given Type
+				 * @param graph
+				 * @param fileName
+				 * @param imgType
+				 * @return
+				 */
+				public static String dot2Img(Graph graph, String fileName, String imgType) {
+					final String path = Config.DOT_TRACE_PATH;
+					final String dotFileName = new File(path, fileName + ".dot")
+							.getAbsolutePath();
+					final String gifFileName = new File(path, fileName + "."+imgType)
+							.getAbsolutePath();
+					final String exeFileName = Config.DOT_EXE;
 
-		if (Config.PLATTFORM.equalsIgnoreCase("MAC")) {
-			final String cmd = exeFileName+" -Tgif "+dotFileName+" -o "+gifFileName;
-			try {
-				Process p = Runtime.getRuntime().exec(cmd);
-				p.waitFor();
-			} catch (Exception e) {
-				// do nothing
-				e.printStackTrace();
+					final String cmd = exeFileName + " -T"+imgType+ " " + dotFileName + " -o "
+							+ gifFileName;
+					try {
+						GRAPHtoDOT.transform(graph, new FileOutputStream(dotFileName));
+						Process p = Runtime.getRuntime().exec(cmd);
+						p.waitFor();
+					} catch (Exception e) {
+						// do nothing
+						e.printStackTrace();
+					}
+
+					return gifFileName;
+				}
 			}
-		}
-
-		return gifFileName;
-	}
-}
