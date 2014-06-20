@@ -255,6 +255,6 @@ public class DoomDBPlan implements Serializable, IDoomDBPlan {
 			}
 		}
 
-		return Dotty.dot2Img(graph, fileName);
+		return Dotty.dot2Img(graph, fileName, "png");
 	}
 }
