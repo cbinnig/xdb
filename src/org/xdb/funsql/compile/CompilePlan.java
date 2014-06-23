@@ -314,6 +314,6 @@ public class CompilePlan implements Serializable {
 			rootOp.traceOperator(graph, nodes);
 		}
 
-		return Dotty.dot2Img(graph, fileName);
+		return Dotty.dot2Img(graph, fileName, "png");
 	}
 }
