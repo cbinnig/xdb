@@ -288,8 +288,8 @@ public class CompilePlan implements Serializable {
 		HashMap<Identifier, GraphNode> nodes = new HashMap<Identifier, GraphNode>();
 		for (Identifier root : this.roots) {
 			GraphNode node = graph.addNode();
-			AbstractCompileOperator rootOp = this.operators.get(root);
-			node.getInfo().setCaption(rootOp.getType().toString());
+			AbstractCompileOperator rootOp = this.operators.get(root); 
+			node.getInfo().setCaption("E");
 			nodes.put(root, node);
 			rootOp.traceOperator(graph, nodes);
 		}

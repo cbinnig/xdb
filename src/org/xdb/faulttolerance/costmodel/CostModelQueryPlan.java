@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-
 import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
@@ -38,21 +37,24 @@ public class CostModelQueryPlan {
 	private Map<Identifier, Identifier> costModelOpToCompileOp = new HashMap<Identifier, Identifier>(); 
 	private List<Identifier> nonMatOps = new ArrayList<Identifier>();  
 
-	private List<CostModelOperator> smallMergedOp = new ArrayList<CostModelOperator>(); 
+	private List<CostModelOperator> smallMergedOp = new ArrayList<CostModelOperator>();
+	private double mergedOpRuntime;
 	private double mergedOpSuccessProb; 
 
 	private double dominantPathRuntime; 
 	private int dominatPathIndex;  
 
-	public static double BEST_PLAN_RUNTIME; 
-	public static int BEST_PLAN_NUMBER; 
+	public double BEST_PLAN_RUNTIME; 
+	public int BEST_PLAN_NUMBER; 
 	// Store the dominant best n-level plan 
-	public static List<CostModelOperator> BEST_N_LEVEL_PLAN = new ArrayList<CostModelOperator>(); 
+	public List<CostModelOperator> BEST_N_LEVEL_PLAN = new ArrayList<CostModelOperator>(); 
 	private List<CostModelOperator> dominantPath = new ArrayList<CostModelOperator>(); 
 
 	private int matConfNumber;
 	private List<BitSet> allMaterializationConf = new ArrayList<BitSet>(); 
-	private List<List<Identifier>> paths = new ArrayList<List<Identifier>>();
+	private List<List<Identifier>> paths = new ArrayList<List<Identifier>>(); 
+	
+    public int NEGLECTED_CONFS_NUMBER; 
 	private int mtbf = 0;
 	private int mttr = 0;
 
@@ -65,7 +67,7 @@ public class CostModelQueryPlan {
 		this.mtbf = mtbf;
 		this.mttr = mttr;
 	}  
-
+   
 	public CostModelQueryPlan copyPlan(){
 
 		CostModelQueryPlan costModelPlan = new CostModelQueryPlan();
@@ -116,7 +118,6 @@ public class CostModelQueryPlan {
 			for (CostModelOperator costModelOperator : opriginalChildren) {
 				costModelOp.addChild(copiedOps.get(costModelOperator.getId()));
 			}
-
 		}
 
 		costModelPlan.setRoots(copiedRoots);
@@ -326,6 +327,9 @@ public class CostModelQueryPlan {
 			List<CostModelOperator> mergedOp = new ArrayList<CostModelOperator>(); 
 			mergedOp.add(op); 
 			level.setSubQquery(mergedOp); 
+			level.setLevelRuntimeEstimate(op.getOpRunTimeEstimate());
+			level.setMaterializationRuntimeestimate(op.getOpMaterializationTimeEstimate()); 
+			level.setMTBF(Config.DOOMDB_MTBF);
 			// TODO read the partitions number from the op
 			level.setNumberOfPartitions(op.getDegreeOfPartitioning());
 			visitOperatorTopDown(op, level);
@@ -342,12 +346,12 @@ public class CostModelQueryPlan {
 	private void visitOperatorTopDown(CostModelOperator op, Level mergeOps ) {
 		// it is set to true when the current merging operation finishes 
 		// or when we want to start new merging process.
-		boolean clearFlag; 
-		mergedOpSuccessProb = calculateMergedOpSuccessProb(mergeOps);
+		boolean clearFlag = true; 
+		mergedOpSuccessProb = calculateMergedOpSuccessProb(mergeOps);  
 		if(mergedOpSuccessProb < Config.COMPILE_FT_MERGING_SMALLOPS_THRESHOLD 
-				|| op.getChildren().size() > 1 || op.isForcedMaterlialized()){
+				|| op.getChildren().size() > 1 || op.isForcedMaterlialized()){ 
 			clearFlag = true;              			
-		} else { 
+		} else if(mergedOpSuccessProb >= Config.COMPILE_FT_MERGING_SMALLOPS_THRESHOLD) { 
 			// add the small ops (that will be merged in on op) to the non materialized list 
 			// in order to remove them from the plan, after updating 
 			// the runtime of the merged op 
@@ -360,9 +364,14 @@ public class CostModelQueryPlan {
 			Level level = new Level();
 			if(clearFlag) { 
 				smallMergedOp.clear();
+				mergedOpRuntime = 0;
 			}
 			smallMergedOp.add(child);  
-			level.setSubQquery(smallMergedOp); 
+			level.setSubQquery(smallMergedOp);
+			mergedOpRuntime += child.getOpRunTimeEstimate();
+			level.setMaterializationRuntimeestimate(child.getOpMaterializationTimeEstimate());
+			level.setLevelRuntimeEstimate(mergedOpRuntime);
+			level.setMTBF(Config.DOOMDB_MTBF);
 			level.setNumberOfPartitions(op.getDegreeOfPartitioning());
 			visitOperatorTopDown(child, level);
 		}		
@@ -458,13 +467,14 @@ public class CostModelQueryPlan {
 			mergeNonMatOpsForEnumeratedPlan(copyPlan); 
 			// remove the ops that will not be materialized
 			removeNonMatOps(copyPlan);
-			copyPlan.tracePlan("Mat Conf_"+matConfNum+"_");
+			//copyPlan.tracePlan("Mat Conf_"+matConfNum+"_");
 			// Analyze Each Mat Conf 
-			analyzeSingleMatConf(copyPlan, matConfNum);
+			analyzeSingleMatConf(copyPlan, matConfNum); 
+			//NEGLECTED_CONFS_NUMBER = 0;
 			matConfNum++;
 		}  
   
-		System.out.println("Best Plan: "+BEST_PLAN_NUMBER + " with Runtime: "+BEST_PLAN_RUNTIME);
+		//System.out.println("Best Plan: "+BEST_PLAN_NUMBER + " with Runtime: "+BEST_PLAN_RUNTIME);
         
 		// 
 		List<Identifier> recommendedMatOpIds = new ArrayList<Identifier>();
@@ -483,12 +493,10 @@ public class CostModelQueryPlan {
 	 * @param copyPlan
 	 */
 	private void mergeNonMatOpsForEnumeratedPlan(CostModelQueryPlan copyPlan) {
-		
 		for (Identifier rootId : copyPlan.roots) {
 			CostModelOperator op = copyPlan.operators.get(rootId);
 			visitOperatorBottomUpForEnumeratedPlan(op);
-		}
-		
+		}	
 	}
 	
 	/**
@@ -539,7 +547,12 @@ public class CostModelQueryPlan {
 		err = this.cplan.applyVisitor(visitor);  
 		return err;
 	}
-
+    
+	/**
+	 * 
+	 * @param copyPlan
+	 * @param matConfNum
+	 */
 	private void analyzeSingleMatConf(CostModelQueryPlan copyPlan, int matConfNum) {
 		// Visit the paths 
 		boolean negelctPlan = false;
@@ -559,7 +572,8 @@ public class CostModelQueryPlan {
 				op.setMaterilaized(true);
 				pathOps.add(op);
 			}
-			Collections.sort(pathOps);
+			Collections.sort(pathOps);  
+			
 			MaterializedPlan matPlan = costModelApplier.buildMaterliazedPlan(pathOps); 
 			List<MaterializedPlan> materializedPlansList = new ArrayList<MaterializedPlan>();
 			materializedPlansList.add(matPlan); 
@@ -568,18 +582,19 @@ public class CostModelQueryPlan {
 			// is greater than the runtime of the dominant path (for)
 			// the best plan found at this point. Then neglect the whole 
 			// conf. 
-			if(matPlan.getRunTimeWithoutFailure() >= BEST_PLAN_RUNTIME && matConfNum != 0) {
-				System.out.println("Mat Conf: "+matConfNum +" is neglected! from runtime comparsion");
+			if(matPlan.getRunTimeWithoutFailure() >= BEST_PLAN_RUNTIME && BEST_N_LEVEL_PLAN.size()>0) {
+				System.out.println("Mat Conf: "+matConfNum +" is neglected! from runtime comparsion"); 
+				NEGLECTED_CONFS_NUMBER++;
 				negelctPlan = true;
 				break;
 			} 
 			// Applying the seconf path pruning rule (collapsed Ops Comparsion)
-			if(compareCollapsedOps(pathOps) && matConfNum != 0){
+			if(compareCollapsedOps(pathOps) && BEST_N_LEVEL_PLAN.size()>0 ){
 				negelctPlan = true; 
 				System.out.println("Mat Conf: "+matConfNum +" is neglected! from paths comparison");
+				NEGLECTED_CONFS_NUMBER++;
 				break;
 			}
-
 			// Calculate the number of re-attempts required to achieve the given success rate c
 			// For each materialization configuration. 
 			QueryRuntimeEstimator queryRuntimeEstimator =  new QueryRuntimeEstimator(materializedPlansList, 0.99);
@@ -598,10 +613,8 @@ public class CostModelQueryPlan {
 				copyPlan.setDominantPath(pathOps);
 				copyPlan.setMatConfNumber(matConfNum);
 			}
-
 		}  
-
-		if(matConfNum == 0 && !negelctPlan) {
+		if(BEST_N_LEVEL_PLAN.size() == 0 && !negelctPlan) {
 			BEST_PLAN_RUNTIME = copyPlan.dominantPathRuntime;   
 			BEST_PLAN_NUMBER = copyPlan.matConfNumber; 
 			BEST_N_LEVEL_PLAN = copyPlan.dominantPath;
@@ -613,7 +626,6 @@ public class CostModelQueryPlan {
 				BEST_N_LEVEL_PLAN = copyPlan.dominantPath;
 			}
 		}
-
 	}
     
 	/**
@@ -623,18 +635,20 @@ public class CostModelQueryPlan {
 	 */
 	private boolean compareCollapsedOps(List<CostModelOperator> pathOps) {
 
-		boolean neglectPlan = true;
+		boolean neglectPlan = false;
 		if(pathOps.size() < BEST_N_LEVEL_PLAN.size()) 
-			return !neglectPlan;
+			return neglectPlan;
 		else {
 			for(int i=0; i<BEST_N_LEVEL_PLAN.size(); i++){
-				if((pathOps.get(i).getOpMaterializationTimeEstimate() + pathOps.get(i).getOpRunTimeEstimate()) <= 
-						BEST_N_LEVEL_PLAN.get(i).getOpMaterializationTimeEstimate() + BEST_N_LEVEL_PLAN.get(i).getOpRunTimeEstimate()) { 
+				if((pathOps.get(i).getOpMaterializationTimeEstimate() + pathOps.get(i).getOpRunTimeEstimate()) >= 
+						BEST_N_LEVEL_PLAN.get(i).getOpMaterializationTimeEstimate() + BEST_N_LEVEL_PLAN.get(i).getOpRunTimeEstimate()) {  
+					neglectPlan = true; 
+				} else {
 					neglectPlan = false;
+					break;
 				}
 			}
 		}
-
 		return neglectPlan; 
 	}
     
@@ -661,7 +675,6 @@ public class CostModelQueryPlan {
 			paths.add(pathIds);
 		} 
 		path.remove(rootId);
-
 	}
 
 	/**

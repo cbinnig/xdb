@@ -30,6 +30,7 @@ public abstract class AbstractCompileOperator implements Serializable {
     // unique operator id
 	protected Identifier operatorId;
 
+
 	// constructors
 	/**
 	 * Copy Constructor
@@ -364,7 +365,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 		return false;
 	}
 
-	@Override
+	@Override  
 	public String toString() {
 		StringBuffer value = new StringBuffer();
 		value.append("(");

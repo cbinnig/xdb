@@ -10,6 +10,7 @@ import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.faulttolerance.costmodel.BushyCPlanMatEnumerator;
 import org.xdb.faulttolerance.costmodel.MaterializationOpsSuggester;
+import org.xdb.faulttolerance.costmodel.MultiJoinOrdersPlansGenerator;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.EquiJoin;
 import org.xdb.funsql.compile.operator.GenericAggregation;
@@ -386,13 +387,13 @@ public class CostModelTest extends TestCase{
 		bushyTreeEnumerator.enumerateCompilePlan(); 
 	
 	} 
-	/*
+	
 	public void testMultiJoinOrders(){
 		
 		CompilePlan bushyPlan = new CompilePlan();   
 		
-		TokenAttribute attributeRA = new TokenAttribute("a");
-		TokenAttribute attributeRB = new TokenAttribute("b");				
+		//TokenAttribute attributeRA = new TokenAttribute("a");
+		//TokenAttribute attributeRB = new TokenAttribute("b");				
 		
 		EquiJoin joinOp1 = new EquiJoin();
 		bushyPlan.addOperator(joinOp1, false);  
@@ -417,15 +418,15 @@ public class CostModelTest extends TestCase{
 		//joinOp4ResultDesc.setPartitionCount(1);   
 		//joinOp4.setResult(joinOp4ResultDesc);
 		
-		EquiJoin joinOp5 = new EquiJoin();
+		//EquiJoin joinOp5 = new EquiJoin();
 		//bushyPlan.addOperator(joinOp5, false);  
 		//ResultDesc joinOp5ResultDesc = new ResultDesc(1); 
 		//joinOp5ResultDesc.setPartitionCount(1);   
 		//joinOp5.setResult(joinOp4ResultDesc); 
 		
-		MultiJoinOrdersPlansGenerator obj = new MultiJoinOrdersPlansGenerator(bushyPlan);
+		MultiJoinOrdersPlansGenerator obj = new MultiJoinOrdersPlansGenerator();
 		obj.generateNodesPreorderTraversalSequence();
 		
 	}
-	*/
+	
 }

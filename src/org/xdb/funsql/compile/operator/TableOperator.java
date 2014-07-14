@@ -64,6 +64,10 @@ public class TableOperator extends AbstractCompileOperator {
 
 	public String getTableAlias() {
 		return tableAlias.getValue();
+	} 
+	
+	public void setTableAlias(String tableName ){
+		this.tableAlias.setValue(tableName);
 	}
 
 	public TokenIdentifier getTableAliasToken() {
