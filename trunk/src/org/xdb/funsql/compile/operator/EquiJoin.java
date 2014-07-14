@@ -21,7 +21,17 @@ public class EquiJoin extends AbstractBinaryOperator {
 	private static final long serialVersionUID = -7557353401586940253L;
 
 	private TokenAttribute leftTokenAttribute;
-	private TokenAttribute rightTokenAttribute;
+	private TokenAttribute rightTokenAttribute; 
+	
+	private boolean isNullOp; 
+    public EquiJoin leftChildOp; 
+    public EquiJoin rightChildOp;  
+    
+    public TableOperator leftTableOp; 
+    public TableOperator rightTableOp;  
+    
+    private String tableNamesFromJoinOperation; 
+    private int intermediateResultCardinality; 
 
 	// constructors
 	public EquiJoin(AbstractCompileOperator leftChild,
@@ -35,8 +45,10 @@ public class EquiJoin extends AbstractBinaryOperator {
 		this.type = EnumOperator.EQUI_JOIN;
 	}
     
-	public EquiJoin(){
+	public EquiJoin(){  
+		this.type = EnumOperator.EQUI_JOIN;
 	}
+	
 	// copy-constructor
 	public EquiJoin(EquiJoin ej) {
 		super(ej);
@@ -44,6 +56,7 @@ public class EquiJoin extends AbstractBinaryOperator {
 		this.rightTokenAttribute = ej.rightTokenAttribute.clone();
 		this.type = EnumOperator.EQUI_JOIN;
 	}
+	
 
 	// getters and setters
 	public TokenAttribute getLeftTokenAttribute() {
@@ -173,6 +186,58 @@ public class EquiJoin extends AbstractBinaryOperator {
 			getRightTokenAttribute().setName(newName);
 		}
 		return super.renameAttributes(renamedAttributes, renamedOps);
+	}
+
+	public void addLeftChildren(AbstractCompileOperator lefChildJoin) {
+		this.children.add(0, lefChildJoin);
+		
+	}
+	
+	public void addRightChildren(EquiJoin rightChildJoin) {
+		this.children.add(1, rightChildJoin);
+		
+	}
+
+	public boolean isNullOp() {
+		return isNullOp;
+	}
+
+	public void setNullOp(boolean isNullOp) {
+		this.isNullOp = isNullOp;
+	}
+
+	public EquiJoin getLeftChildOp() {
+		return leftChildOp;
+	}
+
+	public void setLeftChildOp(EquiJoin leftChildOp) {
+		this.leftChildOp = leftChildOp;
+	}
+
+	public EquiJoin getRightChildOp() {
+		return rightChildOp;
+	}
+
+	public void setRightChildOp(EquiJoin rightChildOp) {
+		this.rightChildOp = rightChildOp;
+	}
+
+	public String getTableNamesFromJoinOperation() {
+		return tableNamesFromJoinOperation;
+	}
+
+	public void setTableNamesFromJoinOperation(
+			String tableNamesFromJoinOperation) {
+		this.tableNamesFromJoinOperation = tableNamesFromJoinOperation;
+	}
+
+	public int getIntermediateResultCardinality() {
+		return intermediateResultCardinality;
+	}
+
+	public void setIntermediateResultCardinality(
+			int intermediateResultCardinality) {
+		this.intermediateResultCardinality = intermediateResultCardinality;
 	}
 
 }

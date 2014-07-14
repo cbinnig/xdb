@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector; 
 
-
+import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.CompilePlan;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
@@ -31,7 +31,19 @@ public class BushyCPlanMatEnumerator {
 	//
 	private List<Identifier> forcedMat = new ArrayList<Identifier>(); 
     // 
-	private List<Identifier> recommendedMatOpIds = new ArrayList<Identifier>();
+	private List<Identifier> recommendedMatOpIds = new ArrayList<Identifier>();  
+	
+	public int TOTAL_CONFS_NUMBER;
+	
+	public int NEGLECTED_PLAN_COUNTER_FIRST_RULE;  
+	
+	public int NEGLECTED_PLAN_COUNTER_SECOND_RULE; 
+	
+	public int NEGLECTED_PLAN_COUNTER_THIRD_RULE; 
+	
+	public double BEST_PATH_RUNTIME; 
+	
+	public static List<CostModelOperator> BEST_PATH = new ArrayList<CostModelOperator>();
 	/**
 	 * @return the compilePlan
 	 */
@@ -85,31 +97,40 @@ public class BushyCPlanMatEnumerator {
 	public Error enumerateCompilePlan(){ 
 
 		Error err = new Error();
+		
 		costModelQPlan = constructCModelQPlan(); 
-		costModelQPlan.tracePlan("Cost_Model_Query_Plan_Original_");  
+		costModelQPlan.BEST_PLAN_RUNTIME = BEST_PATH_RUNTIME; 
+		costModelQPlan.BEST_N_LEVEL_PLAN = BEST_PATH;
+		//costModelQPlan.tracePlan("Cost_Model_Query_Plan_Original_");  
 		System.out.println("1- Remove non mat ops from the statistics file!");
 		// 1- First pruning rule: removing the non mat ops (those resulted from comparing the pysical vs compile plans) 
-		err = removeNonMatOps();
+		err = removeNonMatOps(); 
+		TOTAL_CONFS_NUMBER += Math.pow(2, costModelQPlan.getAllOperators().size());
         // trace plan 
-		costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_FirstRule_");  
+		//costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_FirstRule_");  
 		System.out.println("2- Remove non mat from the bottom up merging");
 		// 2- Second Pruning Rule: removing the non mat ops (those resulted from the comparing run-times of paths) 
 		costModelQPlan.mergeOpsForRunTimes();  
 		this.nonMaterializableOps = costModelQPlan.getNonMatOps();
 		if(!this.nonMaterializableOps.isEmpty())
 		   err = removeNonMatOps();
-		costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_SecondRule_");  
+		NEGLECTED_PLAN_COUNTER_FIRST_RULE += (Math.pow(2, costModelQPlan.getAllOperators().size()) - Math.pow(2, (costModelQPlan.getAllOperators().size() - this.nonMaterializableOps.size())));
+		//costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_SecondRule_");  
 		System.out.println("3- Remove Small Ops");
 		// 3- Third Pruning Rule: removing small operators 
 		costModelQPlan.mergeForSmallOperator(); 
 		this.nonMaterializableOps = costModelQPlan.getNonMatOps();
 		if(!this.nonMaterializableOps.isEmpty())
 		   err = removeNonMatOps(); 
-		costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_ThirdRule_");  
+		NEGLECTED_PLAN_COUNTER_SECOND_RULE += (Math.pow(2, costModelQPlan.getAllOperators().size()) - Math.pow(2, costModelQPlan.getAllOperators().size() - this.nonMaterializableOps.size()));
+		//costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_ThirdRule_");  
 		// 4- Forth Pruning rule: path Comparisons 
 		costModelQPlan.enumerate(); 
 		//costModelQPlan.findBestMatConf();
 		setRecommendedMatOpIds(costModelQPlan.findBestMatConf());
+		NEGLECTED_PLAN_COUNTER_THIRD_RULE += costModelQPlan.NEGLECTED_CONFS_NUMBER;
+		BEST_PATH = costModelQPlan.BEST_N_LEVEL_PLAN; 
+		BEST_PATH_RUNTIME = costModelQPlan.BEST_PLAN_RUNTIME;
 		return err;
 	} 
 	
@@ -166,7 +187,7 @@ public class BushyCPlanMatEnumerator {
 			}
 		}
 		cModelQPlan.setLeaves(leaves);  
-		
+
 		// Convert all Abstract Compile Ops to Cost Model Ops. 
 		HashMap<Identifier, CostModelOperator> allCostModelOps = new HashMap<Identifier, CostModelOperator>();   
 		List<CostModelOperator> allOpsAsList = new ArrayList<CostModelOperator>();
@@ -174,7 +195,7 @@ public class BushyCPlanMatEnumerator {
 		Map<Identifier, Identifier> costModelOpToCompileOp = new HashMap<Identifier, Identifier>(); 
 		List<Integer> forcedMaterializedOpsIndexes = new ArrayList<Integer>();
 		int compileOpIndex = 0;
-		for (AbstractCompileOperator op : allOps) {
+		for (AbstractCompileOperator op : allOps) { 
 			if(op.getType() != EnumOperator.TABLE){
 				CostModelOperator costModelOperator = new CostModelOperator();  
 				costModelOperator.setId(op.getOperatorId().getChildId()); 
@@ -186,13 +207,12 @@ public class BushyCPlanMatEnumerator {
 					costModelOperator.setOpRunTimeEstimate(this.opsEstimatedRuntime.get(costModelOperator.getId())); 
 					costModelOperator.setOpMaterializationTimeEstimate(this.intermediadeResultsMatTime.get(costModelOperator.getId()));
 				}
-				costModelOperator.setDegreeOfPartitioning(op.getResult().getPartitionCount()); 
+				costModelOperator.setDegreeOfPartitioning(Config.DOOMDB_CLUSTER_SIZE); 
 				costModelOpToCompileOp.put(op.getOperatorId().getChildId(), op.getOperatorId()); 
 				if(op.getResult().materialize() || op.isRoot()){
 					costModelOperator.setForcedMaterlialized(true); 
 					costModelOperator.setMaterilaized(true);
 					forcedMaterializedOpsIndexes.add(compileOpIndex); 
-					System.out.println("Forced Materialized Op:"+ (op.getOperatorId()));
 				} else {
 					costModelOperator.setMaterilaized(false);
 				}
@@ -205,7 +225,7 @@ public class BushyCPlanMatEnumerator {
 		cModelQPlan.setAllOperators(allOpsAsList);
 		cModelQPlan.setCostModelOpToCompileOp(costModelOpToCompileOp);
 		cModelQPlan.setForcedMaterializedOpsIndexes(forcedMaterializedOpsIndexes);
-		
+
 		// Add Children to each operator  
 		for (AbstractCompileOperator op : allOps) { 
 			if(op.getType() != EnumOperator.TABLE){
@@ -219,7 +239,6 @@ public class BushyCPlanMatEnumerator {
 				allCostModelOps.get(op.getOperatorId().getChildId()).setChildren(cModelOpChildren); 
 			} 
 		}
-		
 		// Add Parents 
 		for (AbstractCompileOperator op : allOps) {  
 			if(op.getType() != EnumOperator.TABLE){
@@ -232,7 +251,6 @@ public class BushyCPlanMatEnumerator {
 				allCostModelOps.get(op.getOperatorId().getChildId()).setParents(cModelOpParents);
 			}
 		} 
-
 		return cModelQPlan;
 	}
 

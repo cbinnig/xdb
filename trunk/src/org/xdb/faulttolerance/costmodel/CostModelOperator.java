@@ -220,9 +220,9 @@ public class CostModelOperator implements Comparable<CostModelOperator> {
 	public int compareTo(CostModelOperator op) {
 		double totalOpRunTime = this.getOpMaterializationTimeEstimate() + this.getOpRunTimeEstimate(); 
 		double totalOpRunTimeCompareTo = op.getOpMaterializationTimeEstimate() + op.getOpRunTimeEstimate();
-		if(totalOpRunTime > totalOpRunTimeCompareTo)
+		if(totalOpRunTime < totalOpRunTimeCompareTo)
 		    return 1; 
-		else if (totalOpRunTime < totalOpRunTimeCompareTo) 
+		else if (totalOpRunTime > totalOpRunTimeCompareTo) 
 			return -1; 
 		else return 0;
 	}

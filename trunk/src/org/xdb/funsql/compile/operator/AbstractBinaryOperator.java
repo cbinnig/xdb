@@ -11,13 +11,13 @@ import com.oy.shared.lm.graph.Graph;
 import com.oy.shared.lm.graph.GraphNode;
 
 
-public abstract class AbstractBinaryOperator extends AbstractCompileOperator implements Cloneable{
+public abstract class AbstractBinaryOperator extends AbstractCompileOperator {
 
 	private static final long serialVersionUID = -7213914407896295638L;
 	
 	//attributes
 	protected int leftInputNumber=0;
-	protected int rightInputNumber=0;
+	protected int rightInputNumber=0; 
 	
 	//constructors
 	public AbstractBinaryOperator(AbstractCompileOperator leftChild, AbstractCompileOperator rightChild) {
@@ -31,7 +31,7 @@ public abstract class AbstractBinaryOperator extends AbstractCompileOperator imp
 	}
 	
 	public AbstractBinaryOperator(){
-		
+		super(1);
 	}
 	
 	/** Copy Constructor
@@ -57,7 +57,8 @@ public abstract class AbstractBinaryOperator extends AbstractCompileOperator imp
 	}
 
 	public void setLeftChild(AbstractCompileOperator leftChild) {
-		this.children.set(0,leftChild);;
+		this.children.set(0,leftChild);
+
 	}
 
 	public AbstractCompileOperator getRightChild() {
@@ -65,7 +66,7 @@ public abstract class AbstractBinaryOperator extends AbstractCompileOperator imp
 	}
 
 	public void setRightChild(AbstractCompileOperator rightChild) {
-		this.children.set(1,rightChild);;
+		this.children.set(1,rightChild);
 	}
 
 	public int getLeftInputNumber() {
@@ -95,9 +96,8 @@ public abstract class AbstractBinaryOperator extends AbstractCompileOperator imp
 	@Override
 	public Error traceOperator(Graph g, Map<Identifier,GraphNode> nodes){
 		Error err = super.traceOperator(g, nodes);
-		
 		//edges and children
-		GraphNode node = nodes.get(this.operatorId);
+		GraphNode node = nodes.get(this.operatorId); 
 		AbstractCompileOperator leftChildOp = this.children.get(0);
 		AbstractCompileOperator rightChildOp = this.children.get(1);
 		

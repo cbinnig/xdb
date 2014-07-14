@@ -15,7 +15,9 @@ public class QueryRuntimeEstimator {
 	
 	private List<MaterializedPlan> matPlans = new ArrayList<MaterializedPlan>(); 
 	
-	private double successRate;
+	private double successRate; 
+	
+	private long reattempts;
 	
 	QueryRuntimeEstimator(List<MaterializedPlan> matPlans, double successRate){
 		this.setMatPlans(matPlans);
@@ -97,8 +99,11 @@ public class QueryRuntimeEstimator {
 				level.setLevelSuccessProbability(levelSuccess); 
 				level.setLevelFailureProbability(1 - levelSuccess); 
 				// calculate the the number of attempts for a level 
-				long levelAttempts = calculateReattempts(levelSuccess, levels.size());
-				level.setNumberOfAttemptsPerLevel(levelAttempts);
+				//long levelAttempts = calculateReattempts(levelSuccess, levels.size()); 
+				this.reattempts =0;
+				long levelAtteptsRecursively = calculateReattemptsRecursively(levelSuccess, 
+					Math.pow(Math.E,Math.log(this.successRate)/levels.size()), level, level.getNumberOfPartitions()); 
+				level.setNumberOfAttemptsPerLevel(levelAtteptsRecursively);
 				querySuccessProbability = querySuccessProbability*levelSuccess;  
 			} 
 			// if the success rate of the query almost zero 
@@ -134,11 +139,34 @@ public class QueryRuntimeEstimator {
 		long reattempts = 0; // initial
 		double queryFailureProbability = 1 - querySuccessProbability; 
 		double big1 = Math.log10(1-Math.pow(Math.E, Math.log(this.successRate)/levels)); 
-		double big2 = Math.log10(queryFailureProbability); 
+		double big2 = Math.log10(queryFailureProbability);  
+		//reattempts = calculateReattemptsRecursively(querySuccessProbability, Math.pow(Math.E, Math.log(this.successRate)/levels));
 		reattempts = (long) (Math.ceil((big1/big2) -1));	
 		return reattempts;
-	}
+	}  
 	
+	/**
+	 * Calculate the number of reattempts per level 
+	 * recursively based on the increasing success rate 
+	 * after each attempt 
+	 * 
+	 * @param querySuccessProbability
+	 * @param levelSuccessProbability
+	 * @param level 
+	 * @return
+	 */
+	private long calculateReattemptsRecursively(double querySuccessProbability, 
+			double levelSuccessProbability, Level level, double nodeNumber) {	
+		if(querySuccessProbability < levelSuccessProbability && this.reattempts < 5000) {
+			this.reattempts++; 
+			nodeNumber = nodeNumber - querySuccessProbability*nodeNumber; 
+			QueryRuntimeEstimator obj = new QueryRuntimeEstimator();  
+			querySuccessProbability = obj.calculateSuccessProbForLevelNnodes(level,nodeNumber);  
+			calculateReattemptsRecursively(querySuccessProbability, levelSuccessProbability, level, nodeNumber);
+		} 
+		return this.reattempts;
+	}
+
 	/**
 	 * 
 	 * @param level
@@ -170,8 +198,19 @@ public class QueryRuntimeEstimator {
      */
     public double calculateSuccessProbForLevel(Level level){ 
     	int numberOfNodePerLevel = level.getNumberOfPartitions(); 
-    	double successProbNode = calculateSuccessProbForNode(level); 
+    	double successProbNode = calculateSuccessProbForNode(level);  
 		return Math.pow(successProbNode, numberOfNodePerLevel);	
+	} 
+    
+    /**
+     * 
+     * @param level
+     * @return
+     */
+    public double calculateSuccessProbForLevelNnodes(Level level, double succeedNodesNumber){ 
+    	double successProbNode = calculateSuccessProbForNode(level);  
+		return Math.pow(successProbNode, succeedNodesNumber);	
 	}
+
 
 }

@@ -25,6 +25,10 @@ public class TokenIdentifier extends AbstractToken implements Cloneable{
 	//getter and setter
 	public String getValue() {
 		return value;
+	} 
+	
+	public void setValue(String value){
+		this.value = value;
 	}
 
 	//helper methods
