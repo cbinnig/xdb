@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map; 
 
+import org.xdb.Config;
+
 public class QueryRuntimeEstimator { 
 	
 	private Map<MaterializedPlan, Long> reattemptsForDifferentMaterializations
@@ -95,14 +97,17 @@ public class QueryRuntimeEstimator {
 			List<Level> levels = matPlan.getmateriliazedPlanLevels(); 
 			double querySuccessProbability = 1;
 			for (Level level : levels) {
-				double levelSuccess =  calculateSuccessProbForLevel(level); 
+				double levelSuccess =  calculateSuccessProbForLevel(level);  
+				System.out.println(levelSuccess);
 				level.setLevelSuccessProbability(levelSuccess); 
 				level.setLevelFailureProbability(1 - levelSuccess); 
 				// calculate the the number of attempts for a level 
 				//long levelAttempts = calculateReattempts(levelSuccess, levels.size()); 
-				this.reattempts =0;
+				this.reattempts =0; 
 				long levelAtteptsRecursively = calculateReattemptsRecursively(levelSuccess, 
-					Math.pow(Math.E,Math.log(this.successRate)/levels.size()), level, level.getNumberOfPartitions()); 
+					Math.pow(Math.E,Math.log(this.successRate)/levels.size()), level, level.getNumberOfPartitions());  
+				System.out.println(levelAtteptsRecursively);
+
 				level.setNumberOfAttemptsPerLevel(levelAtteptsRecursively);
 				querySuccessProbability = querySuccessProbability*levelSuccess;  
 			} 
@@ -182,7 +187,8 @@ public class QueryRuntimeEstimator {
 	 * @return
 	 */
 	public double calculateFailureProbForNode(Level level){
-    	double meatTimeBetweenFailure = level.getMTBF();
+    	double meatTimeBetweenFailure = level.getMTBF(); 
+    	meatTimeBetweenFailure = Config.DOOMDB_MTBF;
     	return 1 - Math.pow(Math.E, -1*(level.getLevelRuntimeEstimate()+level.getMaterializationRuntimeestimate())/meatTimeBetweenFailure);
 	} 
     
@@ -198,7 +204,7 @@ public class QueryRuntimeEstimator {
      */
     public double calculateSuccessProbForLevel(Level level){ 
     	int numberOfNodePerLevel = level.getNumberOfPartitions(); 
-    	double successProbNode = calculateSuccessProbForNode(level);  
+    	double successProbNode = calculateSuccessProbForNode(level);   
 		return Math.pow(successProbNode, numberOfNodePerLevel);	
 	} 
     
