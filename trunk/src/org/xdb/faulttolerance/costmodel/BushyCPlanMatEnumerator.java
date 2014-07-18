@@ -101,13 +101,13 @@ public class BushyCPlanMatEnumerator {
 		costModelQPlan = constructCModelQPlan(); 
 		costModelQPlan.BEST_PLAN_RUNTIME = BEST_PATH_RUNTIME; 
 		costModelQPlan.BEST_N_LEVEL_PLAN = BEST_PATH;
-		//costModelQPlan.tracePlan("Cost_Model_Query_Plan_Original_");  
+		costModelQPlan.tracePlan("Cost_Model_Query_Plan_Original_");  
 		System.out.println("1- Remove non mat ops from the statistics file!");
 		// 1- First pruning rule: removing the non mat ops (those resulted from comparing the pysical vs compile plans) 
 		err = removeNonMatOps(); 
 		TOTAL_CONFS_NUMBER += Math.pow(2, costModelQPlan.getAllOperators().size());
         // trace plan 
-		//costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_FirstRule_");  
+		costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_FirstRule_");  
 		System.out.println("2- Remove non mat from the bottom up merging");
 		// 2- Second Pruning Rule: removing the non mat ops (those resulted from the comparing run-times of paths) 
 		costModelQPlan.mergeOpsForRunTimes();  
@@ -115,7 +115,7 @@ public class BushyCPlanMatEnumerator {
 		if(!this.nonMaterializableOps.isEmpty())
 		   err = removeNonMatOps();
 		NEGLECTED_PLAN_COUNTER_FIRST_RULE += (Math.pow(2, costModelQPlan.getAllOperators().size()) - Math.pow(2, (costModelQPlan.getAllOperators().size() - this.nonMaterializableOps.size())));
-		//costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_SecondRule_");  
+		costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_SecondRule_");  
 		System.out.println("3- Remove Small Ops");
 		// 3- Third Pruning Rule: removing small operators 
 		costModelQPlan.mergeForSmallOperator(); 
@@ -123,11 +123,12 @@ public class BushyCPlanMatEnumerator {
 		if(!this.nonMaterializableOps.isEmpty())
 		   err = removeNonMatOps(); 
 		NEGLECTED_PLAN_COUNTER_SECOND_RULE += (Math.pow(2, costModelQPlan.getAllOperators().size()) - Math.pow(2, costModelQPlan.getAllOperators().size() - this.nonMaterializableOps.size()));
-		//costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_ThirdRule_");  
+		costModelQPlan.tracePlan("Cost_Model_Query_Plan_Prunned_ThirdRule_");  
 		// 4- Forth Pruning rule: path Comparisons 
 		costModelQPlan.enumerate(); 
 		//costModelQPlan.findBestMatConf();
-		setRecommendedMatOpIds(costModelQPlan.findBestMatConf());
+		setRecommendedMatOpIds(costModelQPlan.findBestMatConf()); 
+		System.out.println(costModelQPlan.findBestMatConf() + " should be materialized");
 		NEGLECTED_PLAN_COUNTER_THIRD_RULE += costModelQPlan.NEGLECTED_CONFS_NUMBER;
 		BEST_PATH = costModelQPlan.BEST_N_LEVEL_PLAN; 
 		BEST_PATH_RUNTIME = costModelQPlan.BEST_PLAN_RUNTIME;
