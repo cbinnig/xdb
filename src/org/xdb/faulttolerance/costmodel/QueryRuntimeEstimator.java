@@ -98,7 +98,6 @@ public class QueryRuntimeEstimator {
 			double querySuccessProbability = 1;
 			for (Level level : levels) {
 				double levelSuccess =  calculateSuccessProbForLevel(level);  
-				System.out.println(levelSuccess);
 				level.setLevelSuccessProbability(levelSuccess); 
 				level.setLevelFailureProbability(1 - levelSuccess); 
 				// calculate the the number of attempts for a level 
@@ -106,7 +105,6 @@ public class QueryRuntimeEstimator {
 				this.reattempts =0; 
 				long levelAtteptsRecursively = calculateReattemptsRecursively(levelSuccess, 
 					Math.pow(Math.E,Math.log(this.successRate)/levels.size()), level, level.getNumberOfPartitions());  
-				System.out.println(levelAtteptsRecursively);
 
 				level.setNumberOfAttemptsPerLevel(levelAtteptsRecursively);
 				querySuccessProbability = querySuccessProbability*levelSuccess;  
