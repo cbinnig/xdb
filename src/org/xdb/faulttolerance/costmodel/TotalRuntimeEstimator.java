@@ -79,7 +79,8 @@ public class TotalRuntimeEstimator {
 		long r; 
 		long totalR = 0; 
 		double totalWastedTime = 0.0; 
-		int nANMatConf = 0;
+		double runTimeWF;
+		int nANMatConf = 0; 
 		isAllMatConfNan = false;
 		for (MaterializedPlan materializedPlan : matPlansList) {  
 			// For each mat conf we will apply the cost model level by level 
@@ -88,8 +89,10 @@ public class TotalRuntimeEstimator {
 			totalR = 0;
 			totalWastedTime = 0.0; 
 			runTime = 0.0; 
-			for (Level level : levels) {
+			runTimeWF = 0.0;
+			for (Level level : levels) { 
 				T = level.getLevelRuntimeEstimate() + level.getMaterializationRuntimeestimate();  
+				runTimeWF +=T;
 				W = level.getAverageWastedTime(); 
 				F = level.getLevelFailureProbability(); 
 				r = level.getNumberOfAttemptsPerLevel(); 
@@ -108,7 +111,7 @@ public class TotalRuntimeEstimator {
 				runTime = Double.MAX_VALUE;
 			}
 			System.out.println();
-			System.out.println("Total RunTime:"+runTime+" Runtime="+materializedPlan.getRunTimeWithoutFailure() + ", Avg.Wasted Time="+totalWastedTime+", Attempts="+totalR);
+			System.out.println("Total RunTime:"+runTime+" Runtime="+runTimeWF + ", Avg.Wasted Time="+totalWastedTime+", Attempts="+totalR);
             
 			materializedPlan.setRunTime(runTime);	 
 		} 
