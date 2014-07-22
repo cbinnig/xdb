@@ -65,7 +65,7 @@ public class MaterializationOpsSuggester {
 	
 	private Error startBushyMaterializationFinder() {
 		Error err = new Error(); 
-		BushyCPlanMatEnumerator bushyTreeEnumerator = new BushyCPlanMatEnumerator(this.mtbf);
+		BushyCPlanMatEnumerator bushyTreeEnumerator = new BushyCPlanMatEnumerator(this.mtbf, this.mttr);
 		bushyTreeEnumerator.setNonMatOps(this.nonMaterializableOps); 
 		bushyTreeEnumerator.setOpsEstimatedRuntime(opsEstimatedRuntime);
 		bushyTreeEnumerator.setIntermediadeResultsMatTime(intermediadeResultsMatTime);

@@ -69,7 +69,7 @@ public class Config implements Serializable {
 	public static int COMPILE_FT_BENCHMARK_ROWS_NUMBER = 10;
 	public static int COMPILE_FT_BENCHMARK_COLUMNS_NUMBER = 2;
 	public static double COMPILE_FT_PIPELINE_CNST = 1.0;
-	public static double COMPILE_FT_MERGING_SMALLOPS_THRESHOLD = 0.70;
+	public static double COMPILE_FT_MERGING_SMALLOPS_THRESHOLD = 0.98;
 	public static final int COMPILE_FT_MAT_SPEED_CONST = 20;
 	public static final int COMPILE_FT_MAT_TO_PROCESSING_SPEED_RATIO = 7;
 

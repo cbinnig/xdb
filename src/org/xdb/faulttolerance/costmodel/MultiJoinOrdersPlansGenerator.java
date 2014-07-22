@@ -52,7 +52,7 @@ public class MultiJoinOrdersPlansGenerator {
 	private Map<Identifier, Double> opsRunTimes = new HashMap<Identifier, Double>();  
 	private Map<Identifier, Double> opsMatTimes = new HashMap<Identifier, Double>(); 
 	
-	public BushyCPlanMatEnumerator bushyCPlanMatEnumerator = new BushyCPlanMatEnumerator(Config.DOOMDB_MTBF); 
+	public BushyCPlanMatEnumerator bushyCPlanMatEnumerator = new BushyCPlanMatEnumerator(Config.DOOMDB_MTBF, Config.DOOMDB_MTTR); 
 	public static MultiJoinOrdersPlansGenerator obj = new MultiJoinOrdersPlansGenerator(); 
 	public List<Stat> statObjList = new ArrayList<Stat>();
 
