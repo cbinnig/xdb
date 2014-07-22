@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
+import org.xdb.Config;
+
 /**
  * 
  * @author Abdallah
@@ -130,7 +132,7 @@ public class MaterlizationStrategyEnumerator {
 				Level level = new Level(); 
 				level.setSubQquery(allOperator.subList(lastMaterializationIndex, i+1)); 
 				// set the runtime including the materialization cost.
-				level.setLevelRuntimeEstimate(levelEstimator.getLevelRunTime(level)); 
+				level.setLevelRuntimeEstimate(levelEstimator.getLevelRunTime(level)*Config.COMPILE_FT_PIPELINE_CNST); 
 				level.setMaterializationRuntimeestimate(levelEstimator.getMaterializationTime(level));  
 				runTimeWithoutFailure += (levelEstimator.getLevelRunTime(level) + levelEstimator.getMaterializationTime(level));
 				lastMaterializationIndex = i+1;
