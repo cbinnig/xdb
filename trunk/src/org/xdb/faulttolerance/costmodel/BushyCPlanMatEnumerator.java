@@ -44,10 +44,13 @@ public class BushyCPlanMatEnumerator {
 
 	public static List<CostModelOperator> BEST_PATH = new ArrayList<CostModelOperator>();
 
-	private int mtbf;
+	private int mtbf; 
 	
-	public BushyCPlanMatEnumerator(int mtbf){
-		this.mtbf = mtbf;
+	private int mttr;
+	
+	public BushyCPlanMatEnumerator(int mtbf, int mttr){
+		this.mtbf = mtbf; 
+		this.mttr = mttr;
 	}
 	
 	/**
@@ -106,7 +109,7 @@ public class BushyCPlanMatEnumerator {
 	public Error enumerateCompilePlan() {
 		Error err = new Error();
 
-		costModelQPlan = constructCModelQPlan();
+		costModelQPlan = constructCModelQPlan(); 
 		costModelQPlan.BEST_PLAN_RUNTIME = BEST_PATH_RUNTIME;
 		costModelQPlan.BEST_N_LEVEL_PLAN = BEST_PATH;
 		costModelQPlan.tracePlan("Cost_Model_Query_Plan_Original_");
@@ -183,7 +186,7 @@ public class BushyCPlanMatEnumerator {
 	 */
 	private CostModelQueryPlan constructCModelQPlan() {
 
-		CostModelQueryPlan cModelQPlan = new CostModelQueryPlan(this.mtbf);
+		CostModelQueryPlan cModelQPlan = new CostModelQueryPlan(this.mtbf, this.mttr);
 
 		cModelQPlan.setCplan(this.compilePlan);
 		cModelQPlan.planId = this.compilePlan.getPlanId();
@@ -341,6 +344,14 @@ public class BushyCPlanMatEnumerator {
 	 */
 	public void setRecommendedMatOpIds(List<Identifier> recommendedMatOpIds) {
 		this.recommendedMatOpIds = recommendedMatOpIds;
+	}
+
+	public int getMttr() {
+		return mttr;
+	}
+
+	public void setMttr(int mttr) {
+		this.mttr = mttr;
 	}
 
 }

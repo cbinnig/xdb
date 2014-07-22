@@ -67,12 +67,12 @@ public class CostModelQueryPlan {
 		this.forcedMaterializedOpsIndexes = forcedMaterializedOpsIndexes;
 		this.costModelOpToCompileOp = costModelOpToCompileOp;
 		this.mtbf = mtbf;
-		this.mttr = mttr;
+		this.mttr = mttr; 
 	}
 
 	public CostModelQueryPlan copyPlan() {
 
-		CostModelQueryPlan costModelPlan = new CostModelQueryPlan(this.mtbf);
+		CostModelQueryPlan costModelPlan = new CostModelQueryPlan(this.mtbf, this.mttr);
 		costModelPlan.mtbf = this.mtbf;
 		costModelPlan.mttr = this.mttr;
 
@@ -133,8 +133,9 @@ public class CostModelQueryPlan {
 
 	}
 
-	public CostModelQueryPlan(int mtbf) {
-		this.mtbf = mtbf;
+	public CostModelQueryPlan(int mtbf, int mttr) {
+		this.mtbf = mtbf; 
+		this.mttr = mttr;
 	}
 
 	public void setNonMatOps(List<Identifier> nonMatOps) {
@@ -341,7 +342,7 @@ public class CostModelQueryPlan {
 			Level level = new Level();
 			List<CostModelOperator> mergedOp = new ArrayList<CostModelOperator>();
 			mergedOp.add(op);
-			level.setSubQquery(mergedOp);
+			level.setSubQquery(mergedOp); 
 			level.setLevelRuntimeEstimate(op.getOpRunTimeEstimate());
 			level.setMaterializationRuntimeestimate(op
 					.getOpMaterializationTimeEstimate());

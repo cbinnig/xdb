@@ -124,15 +124,14 @@ public class MaterlizationStrategyEnumerator {
 		double runTimeWithoutFailure = 0.0;
 		MaterializedPlan matPlan = new MaterializedPlan();
 		for (int i=0; i<allOperator.size(); i++) { 
-			CostModelOperator op = allOperator.get(i); 
+			CostModelOperator op = allOperator.get(i);  
 			if(op.isMaterilaized() || i == allOperator.size() -1){ 
 				materialzationIndecis.add(i); 
 				Level level = new Level(); 
-				level.setSubQquery(allOperator.
-						subList(lastMaterializationIndex, i+1)); 
+				level.setSubQquery(allOperator.subList(lastMaterializationIndex, i+1)); 
 				// set the runtime including the materialization cost.
 				level.setLevelRuntimeEstimate(levelEstimator.getLevelRunTime(level)); 
-				level.setMaterializationRuntimeestimate(levelEstimator.getMaterializationTime(level)); 
+				level.setMaterializationRuntimeestimate(levelEstimator.getMaterializationTime(level));  
 				runTimeWithoutFailure += (levelEstimator.getLevelRunTime(level) + levelEstimator.getMaterializationTime(level));
 				lastMaterializationIndex = i+1;
 				matPlan.setMateriliazedPlanLevels(level);
