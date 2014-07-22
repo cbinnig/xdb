@@ -17,7 +17,7 @@ public class MaterlizationStrategyEnumerator {
 
 	private List<Integer> forcedMaterializedOpsIndexes = new ArrayList<Integer>();
 
-	private int MTBF;
+	private int mtbf;
 
 	MaterlizationStrategyEnumerator(CostModelQueryPlan costModelQueryPlan, List<Integer> forcedMaterializedOpsIndexes, int MTBF) {
 		this.costModelQueryPlan = costModelQueryPlan;
@@ -31,7 +31,7 @@ public class MaterlizationStrategyEnumerator {
 	} 
 	
 	MaterlizationStrategyEnumerator(int MTBF){
-		this.MTBF = MTBF;
+		this.mtbf = MTBF;
 	}
 
 	/**
@@ -52,14 +52,14 @@ public class MaterlizationStrategyEnumerator {
 	 * @return the MTBF
 	 */
 	public int getMTBF() {
-		return MTBF;
+		return mtbf;
 	}
 
 	/**
 	 * @param MTBF the MTBF to set
 	 */
 	public void setMTBF(int MTBF) {
-		this.MTBF = MTBF;
+		this.mtbf = MTBF;
 	}
 
 	/**
@@ -153,8 +153,6 @@ public class MaterlizationStrategyEnumerator {
 			Level l = matPlanLevels.get(i); 
 			// Getting the number of partitions from the last operator 
 			l.setNumberOfPartitions(l.getSubQquery().get(l.getSubQquery().size() -1).getDegreeOfPartitioning());  
-			l.setMTBF(this.MTBF);
-
 		}		
 	}
 

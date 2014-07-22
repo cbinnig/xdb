@@ -46,7 +46,8 @@ public class DoomDBFailureSimulator extends Thread {
 	private void initMTBFs() {
 		double mean = (double) this.dbClient.getMTBF();
 		double stdev = Config.DOOMDB_MTBF_STDEV;
-
+		System.out.println("Init failure simulator with mtbf="+mean+"!");
+		
 		// generate failure time stamps per node
 		Vector<Queue<Long>> timestampsPerNode = new Vector<Queue<Long>>(
 				this.nodeDescs.size());
@@ -120,7 +121,7 @@ public class DoomDBFailureSimulator extends Thread {
 
 	@Override
 	public void run() {
-
+		System.out.println("Starting failure simulator!");
 		// Sleep specified time depends on the runtime of a query.
 		try {
 			killLoop: for (Tuple<Integer, Long> mtbfTuple : this.globalMTBFs) {

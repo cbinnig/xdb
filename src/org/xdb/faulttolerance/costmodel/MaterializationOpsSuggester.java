@@ -30,9 +30,8 @@ public class MaterializationOpsSuggester {
 	private List<Identifier> recommendedMatOpsIds = new ArrayList<Identifier>(); 
 	
 	
-	private int MTBF; 
-	
-	private int MTTR; 
+	private int mtbf;
+	private int mttr; 
 	
 	public MaterializationOpsSuggester(CompilePlan compilePlan, Map<Identifier, Double> opsEstimatedRuntime, 
 			Map<Identifier, Double> intermediadeResultsMatTime, List<Identifier> nonMaterializableOs, int MTBF, int MTTR){ 
@@ -40,8 +39,8 @@ public class MaterializationOpsSuggester {
 		this.opsEstimatedRuntime = opsEstimatedRuntime; 
 		this.intermediadeResultsMatTime = intermediadeResultsMatTime;   
 		this.setNonMaterializableOps(nonMaterializableOs);
-		this.MTBF = MTBF; 
-		this.MTTR = MTTR; 	
+		this.mtbf = MTBF; 
+		this.mttr = MTTR; 	
 	} 
 	
 	/**
@@ -50,8 +49,8 @@ public class MaterializationOpsSuggester {
 	public Error startCostModel(){
 		
 		Error err = new Error();
-		System.out.println("MTBF: "+this.MTBF);
-		System.out.println("MTTR: "+this.MTTR);
+		System.out.println("MTBF: "+this.mtbf);
+		System.out.println("MTTR: "+this.mttr);
 		
 		if(Config.COMPILE_FT_MODE.equalsIgnoreCase("smart")){
 			err = startSmartMaterilizationFinder();
@@ -66,7 +65,7 @@ public class MaterializationOpsSuggester {
 	
 	private Error startBushyMaterializationFinder() {
 		Error err = new Error(); 
-		BushyCPlanMatEnumerator bushyTreeEnumerator = new BushyCPlanMatEnumerator();
+		BushyCPlanMatEnumerator bushyTreeEnumerator = new BushyCPlanMatEnumerator(this.mtbf);
 		bushyTreeEnumerator.setNonMatOps(this.nonMaterializableOps); 
 		bushyTreeEnumerator.setOpsEstimatedRuntime(opsEstimatedRuntime);
 		bushyTreeEnumerator.setIntermediadeResultsMatTime(intermediadeResultsMatTime);
@@ -219,14 +218,14 @@ public class MaterializationOpsSuggester {
 		
 		// Initiate a query plan 
 		this.costModelQueryPlan = new CostModelQueryPlan(costModelOps, 
-				forcedMaterializedOpsIndexes, mapCostModelOpToCompileOp, null, this.MTBF, this.MTTR); 
+				forcedMaterializedOpsIndexes, mapCostModelOpToCompileOp, null, this.mtbf, this.mttr); 
 		// Enumerate Different Materialization Strategy 
-		MaterlizationStrategyEnumerator matEnumerator = new MaterlizationStrategyEnumerator(costModelQueryPlan,forcedMaterializedOpsIndexes, this.MTBF);
+		MaterlizationStrategyEnumerator matEnumerator = new MaterlizationStrategyEnumerator(costModelQueryPlan,forcedMaterializedOpsIndexes, this.mtbf);
 		List<MaterializedPlan> materializedPlansList = matEnumerator.enumerateQueryPlan(); 
 		
 		// Calculate the number of re-attempts required to achieve the given success rate c
 		// For each materialization configuration. 
-		QueryRuntimeEstimator queryRuntimeEstimator =  new QueryRuntimeEstimator(materializedPlansList, 0.99);
+		QueryRuntimeEstimator queryRuntimeEstimator =  new QueryRuntimeEstimator(materializedPlansList, 0.99, this.mtbf);
 		queryRuntimeEstimator.estimateReattemptsForMaterlialization();  
 		// Map<MaterializedPlan, Integer> reattemptsMatConfMap = queryRuntimeEstimator.getReattemptsForDifferentMaterializations();
 		
@@ -234,7 +233,7 @@ public class MaterializationOpsSuggester {
 		// Each materialization configuration produces number of 
 		// failure scenarions depends on how many level the mat 
 		// configuration has. More levels more failure scenarions! 
-		TotalRuntimeEstimator totalRuntimeEstimator = new TotalRuntimeEstimator(queryRuntimeEstimator.getMatPlans(), this.MTTR);
+		TotalRuntimeEstimator totalRuntimeEstimator = new TotalRuntimeEstimator(queryRuntimeEstimator.getMatPlans(), this.mttr);
 		totalRuntimeEstimator.calculateAverageWastedTimePerMatConf();
 		totalRuntimeEstimator.calculateRuntTimeForMatConfs(); 
 		

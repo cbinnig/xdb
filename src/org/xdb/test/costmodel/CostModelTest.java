@@ -370,7 +370,7 @@ public class CostModelTest extends TestCase{
 		
 		bushyPlan.tracePlan("Bushy_Tree_Plan_");
 		
-		BushyCPlanMatEnumerator bushyTreeEnumerator = new BushyCPlanMatEnumerator();
+		BushyCPlanMatEnumerator bushyTreeEnumerator = new BushyCPlanMatEnumerator(Config.DOOMDB_MTBF);
 		List<Identifier> nonMaterializableOps; 
 		nonMaterializableOps = new ArrayList<Identifier>(); 
 		

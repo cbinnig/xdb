@@ -24,8 +24,6 @@ public class Level {
 	
 	private double materializationRuntimeestimate;   
 	
-	private int MTBF; 
-	
 	private long numberOfAttemptsPerLevel; 
 	
 	private double averageWastedTime;
@@ -128,20 +126,6 @@ public class Level {
 	public void setMaterializationRuntimeestimate(
 			double materializationRuntimeestimate) {
 		this.materializationRuntimeestimate = materializationRuntimeestimate;
-	}
-
-	/**
-	 * @return the MTBF
-	 */
-	public int getMTBF() {
-		return MTBF;
-	}
-
-	/**
-	 * @param mTTR the mTTR to set
-	 */
-	public void setMTBF(int MTBF) {
-		this.MTBF = MTBF;
 	}
 
 	/**

@@ -3,9 +3,7 @@ package org.xdb.faulttolerance.costmodel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map; 
-
-import org.xdb.Config;
+import java.util.Map;
 
 public class QueryRuntimeEstimator { 
 	
@@ -21,12 +19,16 @@ public class QueryRuntimeEstimator {
 	
 	private long reattempts;
 	
-	QueryRuntimeEstimator(List<MaterializedPlan> matPlans, double successRate){
+	private int mtbf;
+	
+	public QueryRuntimeEstimator(List<MaterializedPlan> matPlans, double successRate, int mtbf){
 		this.setMatPlans(matPlans);
 		this.setSuccessRate(successRate);
+		this.mtbf = mtbf;
 	} 
 	
-	QueryRuntimeEstimator(){
+	public QueryRuntimeEstimator(int mtbf){
+		this.mtbf = mtbf;
 	}
 	/**
 	 * @return the runtimesForDifferentMaterializations
@@ -163,7 +165,7 @@ public class QueryRuntimeEstimator {
 		if(querySuccessProbability < levelSuccessProbability && this.reattempts < 5000) {
 			this.reattempts++; 
 			nodeNumber = nodeNumber - querySuccessProbability*nodeNumber; 
-			QueryRuntimeEstimator obj = new QueryRuntimeEstimator();  
+			QueryRuntimeEstimator obj = new QueryRuntimeEstimator(this.mtbf);  
 			querySuccessProbability = obj.calculateSuccessProbForLevelNnodes(level,nodeNumber);  
 			calculateReattemptsRecursively(querySuccessProbability, levelSuccessProbability, level, nodeNumber);
 		} 
@@ -185,9 +187,7 @@ public class QueryRuntimeEstimator {
 	 * @return
 	 */
 	public double calculateFailureProbForNode(Level level){
-    	double meatTimeBetweenFailure = level.getMTBF(); 
-    	meatTimeBetweenFailure = Config.DOOMDB_MTBF;
-    	return 1 - Math.pow(Math.E, -1*(level.getLevelRuntimeEstimate()+level.getMaterializationRuntimeestimate())/meatTimeBetweenFailure);
+    	return 1 - Math.pow(Math.E, -1*(level.getLevelRuntimeEstimate()+level.getMaterializationRuntimeestimate())/mtbf);
 	} 
     
     @SuppressWarnings("unused")
