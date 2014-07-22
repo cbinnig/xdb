@@ -64,14 +64,14 @@ public class Config implements Serializable {
 	public static String COMPILE_DEFAULT_SCHEMA = "PUBLIC";
 
 	public static boolean COMPILE_FT_ACTIVE = true;
+	public static boolean COMPILE_FT_PRUNING = true;
 	public static String COMPILE_FT_MODE = "naive";
 	public static int COMPILE_FT_BENCHMARK_ROWS_NUMBER = 10;
 	public static int COMPILE_FT_BENCHMARK_COLUMNS_NUMBER = 2;
-	public static double COMPILE_FT_PIPELINE_CNST = 1.0; 
-	public static double COMPILE_FT_MERGING_SMALLOPS_THRESHOLD = 0.70; 
-	public static final int COMPILE_FT_MAT_SPEED_CONST = 20; 
+	public static double COMPILE_FT_PIPELINE_CNST = 1.0;
+	public static double COMPILE_FT_MERGING_SMALLOPS_THRESHOLD = 0.70;
+	public static final int COMPILE_FT_MAT_SPEED_CONST = 20;
 	public static final int COMPILE_FT_MAT_TO_PROCESSING_SPEED_RATIO = 7;
-
 
 	// Optimizer
 	public static BitSet OPTIMIZER_ACTIVE_RULES_FUNCTION = new BitSet();
@@ -144,7 +144,7 @@ public class Config implements Serializable {
 	public static String DOOMDB_TPCH_S10 = "tpch_s10";
 	public static String DOOMDB_TPCH_S50 = "tpch_s50";
 	public static String DOOMDB_TPCH_S100 = "tpch_s100";
-	
+
 	// Logging
 	private static Logger logger = XDBLog.getLogger(EnumXDBComponents.CONFIG);
 
@@ -189,21 +189,25 @@ public class Config implements Serializable {
 	 * Load user configuration from file and override default values
 	 */
 	private static void loadDoom() {
-		String[] intProperties = { "DOOMDB_MTBF",
-				"DOOMDB_MTTR", "DOOMDB_CLUSTER_SIZE", "DOOMDB_NUM_FAILUERS" };
+		String[] intProperties = { "DOOMDB_MTBF", "DOOMDB_MTTR",
+				"DOOMDB_CLUSTER_SIZE", "DOOMDB_NUM_FAILUERS" };
 
-		String[] stringProperties = { "DOOMDB_COMPUTE_NODES", "DOOMDB_TPCH_S01",
-				"DOOMDB_TPCH_S1","DOOMDB_TPCH_S10","DOOMDB_TPCH_S50","DOOMDB_TPCH_S100"};
+		String[] stringProperties = { "DOOMDB_COMPUTE_NODES",
+				"DOOMDB_TPCH_S01", "DOOMDB_TPCH_S1", "DOOMDB_TPCH_S10",
+				"DOOMDB_TPCH_S50", "DOOMDB_TPCH_S100" };
 
-		String[] boolProperties = { "DOOMDB_MTBF_LOAD" , "ACTIVATE_FAILURE_SIMULATOR"};
-		
-		String[] doubleProperties = {"DOOMDB_MTBF_STDEV"};
+		String[] boolProperties = { "DOOMDB_MTBF_LOAD",
+				"ACTIVATE_FAILURE_SIMULATOR" };
+
+		String[] doubleProperties = { "DOOMDB_MTBF_STDEV" };
 
 		Properties props;
 		props = new Properties();
 		try {
 			// Integer
 			props.load(new FileReader(DOOMDB_CONFIG_FILE));
+			logger.log(Level.INFO, props.toString());
+			
 			for (String intProperty : intProperties) {
 				if (props.containsKey(intProperty)) {
 					Config.class.getField(intProperty).setInt(
@@ -230,19 +234,17 @@ public class Config implements Serializable {
 							props.getProperty(stringProperty.trim()));
 				}
 			}
-			
+
 			// Double
 			props.load(new FileReader(DOOMDB_CONFIG_FILE));
 			for (String doubleProperty : doubleProperties) {
 				if (props.containsKey(doubleProperty)) {
-						Config.class.getField(doubleProperty).setDouble(
+					Config.class.getField(doubleProperty).setDouble(
 							null,
 							Double.parseDouble(props.get(doubleProperty.trim())
-								.toString().trim()));
+									.toString().trim()));
 				}
 			}
-			
-			
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -269,9 +271,12 @@ public class Config implements Serializable {
 				"COMPILE_FT_BENCHMARK_ROWS_NUMBER",
 				"COMPILE_FT_BENCHMARK_COLUMNS_NUMBER" };
 
-		String[] stringProperties = { "PLATTFORM", "COMPILE_URL", "MASTERTRACKER_URL",
-				"TEST_DB_NAME", "TEST_CLUSTER", "COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES",
-				"COMPILE_FT_MODE", "DOT_EXE" };
+		String[] doubleProperties = { "COMPILE_FT_PIPELINE_CNST" };
+
+		String[] stringProperties = { "PLATTFORM", "COMPILE_URL",
+				"MASTERTRACKER_URL", "TEST_DB_NAME", "TEST_CLUSTER",
+				"COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES", "COMPILE_FT_MODE",
+				"DOT_EXE" };
 
 		String[] boolProperties = { "LOGGING_ENABLED", "COMPUTE_CLEAN_PLAN",
 				"TRACE_PARALLEL_PLAN", "TRACE_COMPILE_PLAN",
@@ -286,18 +291,30 @@ public class Config implements Serializable {
 				"LOG_EXECUTION_TIME", "CODEGEN_OPTIMIZE", "TEST_RUN_LOCAL",
 				"QUERYTRACKER_MONITOR_ACTIVATED",
 				"MASTERTRACKER_MONITOR_ACTIVATED", "TEST_FT_CHECKPOINTING",
-				"COMPILE_FT_ACTIVE", "COMPUTE_INTERMEDIATE_KEYS"};
+				"COMPILE_FT_ACTIVE", "COMPILE_FT_PRUNING", "COMPUTE_INTERMEDIATE_KEYS" };
 
 		Properties props;
 		props = new Properties();
 		try {
 			// Integer
 			props.load(new FileReader(CONFIG_FILE));
+			logger.log(Level.INFO, props.toString());
+			
 			for (String intProperty : intProperties) {
 				if (props.containsKey(intProperty)) {
 					Config.class.getField(intProperty).setInt(
 							null,
 							Integer.parseInt(props.get(intProperty.trim())
+									.toString().trim()));
+				}
+			}
+
+			// Double
+			for (String doubleProperty : doubleProperties) {
+				if (props.containsKey(doubleProperty)) {
+					Config.class.getField(doubleProperty).setDouble(
+							null,
+							Double.parseDouble(props.get(doubleProperty.trim())
 									.toString().trim()));
 				}
 			}
