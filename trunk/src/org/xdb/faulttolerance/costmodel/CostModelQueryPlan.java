@@ -309,8 +309,8 @@ public class CostModelQueryPlan {
 				continue;
 			mergedOpsRunTime += child.getOpRunTimeEstimate();
 		}
-		mergedOpsRunTime = (mergedOpsRunTime + op.getOpRunTimeEstimate())
-				* Config.COMPILE_FT_PIPELINE_CNST;
+		mergedOpsRunTime = (mergedOpsRunTime + op.getOpRunTimeEstimate());
+		
 		mergedOpTotalTime = mergedOpsRunTime
 				+ op.getOpMaterializationTimeEstimate();
 		// compare the merged op run time with all individual paths
@@ -414,12 +414,10 @@ public class CostModelQueryPlan {
 																			// level
 			double mergedOpRunTime;
 			if (!mergedOp.isMerged()) {
-				mergedOpRunTime = (mergedOp.getOpRunTimeEstimate() + smallOpRT)
-						* Config.COMPILE_FT_PIPELINE_CNST;
+				mergedOpRunTime = (mergedOp.getOpRunTimeEstimate() + smallOpRT);
 				mergedOp.setMerged(true);
 			} else {
-				mergedOpRunTime = mergedOp.getOpRunTimeEstimate() + smallOpRT
-						* Config.COMPILE_FT_PIPELINE_CNST;
+				mergedOpRunTime = mergedOp.getOpRunTimeEstimate() + smallOpRT;
 			}
 			// update nonMatOp list
 			this.nonMatOps.add(smallOpId);
@@ -565,13 +563,11 @@ public class CostModelQueryPlan {
 				// multiplied them by that constant.
 				if (parent.isMerged()) {
 					parent.setOpRunTimeEstimate(parent.getOpRunTimeEstimate()
-							+ op.getOpRunTimeEstimate()
-							* Config.COMPILE_FT_PIPELINE_CNST);
+							+ op.getOpRunTimeEstimate());
 				} else {
 					parent.setMerged(true);
 					parent.setOpRunTimeEstimate((parent.getOpRunTimeEstimate() + op
-							.getOpRunTimeEstimate())
-							* Config.COMPILE_FT_PIPELINE_CNST);
+							.getOpRunTimeEstimate()));
 				}
 			}
 		}
