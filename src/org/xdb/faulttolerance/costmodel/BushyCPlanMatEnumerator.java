@@ -42,7 +42,7 @@ public class BushyCPlanMatEnumerator {
 
 	public double BEST_PATH_RUNTIME;
 
-	public static List<CostModelOperator> BEST_PATH = new ArrayList<CostModelOperator>();
+	public List<CostModelOperator> BEST_PATH = new ArrayList<CostModelOperator>();
 
 	private int mtbf; 
 	
