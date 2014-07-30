@@ -225,7 +225,7 @@ public class MaterializationOpsSuggester {
 		
 		// Calculate the number of re-attempts required to achieve the given success rate c
 		// For each materialization configuration. 
-		QueryRuntimeEstimator queryRuntimeEstimator =  new QueryRuntimeEstimator(materializedPlansList, 0.99, this.mtbf);
+		QueryRuntimeEstimator queryRuntimeEstimator =  new QueryRuntimeEstimator(materializedPlansList, Config.COMPILE_FT_SUCPROB, this.mtbf);
 		queryRuntimeEstimator.estimateReattemptsForMaterlialization();  
 		// Map<MaterializedPlan, Integer> reattemptsMatConfMap = queryRuntimeEstimator.getReattemptsForDifferentMaterializations();
 		

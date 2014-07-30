@@ -66,6 +66,7 @@ public class Config implements Serializable {
 	public static boolean COMPILE_FT_ACTIVE = true;
 	public static boolean COMPILE_FT_PRUNING = true;
 	public static String COMPILE_FT_MODE = "naive";
+	public static double COMPILE_FT_SUCPROB = 0.90;
 	public static int COMPILE_FT_BENCHMARK_ROWS_NUMBER = 10;
 	public static int COMPILE_FT_BENCHMARK_COLUMNS_NUMBER = 2;
 	public static double COMPILE_FT_PIPELINE_CNST = 1.0;
@@ -271,7 +272,7 @@ public class Config implements Serializable {
 				"COMPILE_FT_BENCHMARK_ROWS_NUMBER",
 				"COMPILE_FT_BENCHMARK_COLUMNS_NUMBER" };
 
-		String[] doubleProperties = { "COMPILE_FT_PIPELINE_CNST" };
+		String[] doubleProperties = { "COMPILE_FT_PIPELINE_CNST", "COMPILE_FT_SUCPROB" };
 
 		String[] stringProperties = { "PLATTFORM", "COMPILE_URL",
 				"MASTERTRACKER_URL", "TEST_DB_NAME", "TEST_CLUSTER",
