@@ -649,7 +649,7 @@ public class CostModelQueryPlan {
 			// success rate c
 			// For each materialization configuration.
 			QueryRuntimeEstimator queryRuntimeEstimator = new QueryRuntimeEstimator(
-					materializedPlansList, 0.99, this.mtbf);
+					materializedPlansList, Config.COMPILE_FT_SUCPROB, this.mtbf);
 			queryRuntimeEstimator.estimateReattemptsForMaterlialization();
 			queryRuntimeEstimator.getReattemptsForDifferentMaterializations();
 
