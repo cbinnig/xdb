@@ -504,7 +504,7 @@ public class CostModelQueryPlan {
 			// Analyze Each Mat Conf
 			analyzeSingleMatConf(copyPlan, matConfNum);
 			// NEGLECTED_CONFS_NUMBER = 0;
-			matConfNum++;
+			matConfNum++; 
 		}
 
 		// System.out.println("Best Plan: "+BEST_PLAN_NUMBER +

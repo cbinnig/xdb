@@ -385,6 +385,20 @@ public class CostModelTest extends TestCase{
 		bushyTreeEnumerator.setCompilePlan(bushyPlan); 
 		
 		bushyTreeEnumerator.enumerateCompilePlan(); 
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		BushyCPlanMatEnumerator bushyTreeEnumeratorTest = new BushyCPlanMatEnumerator(Config.DOOMDB_MTBF, Config.DOOMDB_MTTR); 
+		bushyTreeEnumeratorTest.setNonMatOps(nonMaterializableOps); 
+		bushyTreeEnumeratorTest.setOpsEstimatedRuntime(opsEstimatedRuntime);
+		bushyTreeEnumeratorTest.setIntermediadeResultsMatTime(intermediadeResultsMatTime);
+		bushyTreeEnumeratorTest.setCompilePlan(bushyPlan);
+		
+		bushyTreeEnumeratorTest.enumerateCompilePlan(); 
+
 	
 	} 
 	

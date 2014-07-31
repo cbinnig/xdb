@@ -77,8 +77,9 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		
 		// start the failure simulator
 		DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(this.dClient);
-		if (Config.ACTIVATE_FAILURE_SIMULATOR)
+		if (Config.ACTIVATE_FAILURE_SIMULATOR) {
 			doomDBFailureSimulator.start();
+		}
 		
 		//int i=0;
 		while (!this.dClient.isQueryFinished()) {
@@ -230,7 +231,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 	public void testQ10_SF10_10Parts() throws Exception {
 		this.dClient.setSchema("TPCH_SF10_10P");
 		this.dClient.setQuery(10);
-		this.runPlan();
+		this.runPlan(); 
 	}
 	
 	public void testQ10_SF50_10Parts() throws Exception {

@@ -78,6 +78,9 @@ public class SelectStmt extends AbstractServerStmt {
 
 	// Compile plan
 	private CompilePlan plan = new CompilePlan();
+	
+	// 
+	private QueryStats queryStats; 
 
 	// constructors
 	public SelectStmt() {
@@ -179,8 +182,9 @@ public class SelectStmt extends AbstractServerStmt {
 
 		// 5. analyze plan
 		Analyzer analyzer = new Analyzer(this.plan, this.attTypes);
-		analyzer.analyze();
-
+		analyzer.analyze();  
+		// 6. set the runtime and mat time for each compile op 
+		this.plan.setQueryStats(queryStats);
 		return err;
 	}
 	
@@ -767,6 +771,10 @@ public class SelectStmt extends AbstractServerStmt {
 	@Override
 	public Error execute() {
 		MasterTrackerClient client = new MasterTrackerClient();
+		Collection<AbstractCompileOperator> ops = this.plan.getOperators(); 
+		for (AbstractCompileOperator abstractCompileOperator : ops) {
+			System.out.println(abstractCompileOperator.getRuntime());
+		}
 		Error err = client.executePlan(this.plan);
 		if (err.isError())
 			return err;
@@ -779,5 +787,13 @@ public class SelectStmt extends AbstractServerStmt {
 		MasterTrackerClient client = new MasterTrackerClient();
 		Tuple<Error, DoomDBPlan> result = client.generateDoomDBPlan(this.plan);
 		return result;
+	}
+
+	public QueryStats getQueryStats() {
+		return queryStats;
+	}
+
+	public void setQueryStats(QueryStats queryStats) {
+		this.queryStats = queryStats;
 	}
 }

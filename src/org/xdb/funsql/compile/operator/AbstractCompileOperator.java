@@ -29,7 +29,11 @@ public abstract class AbstractCompileOperator implements Serializable {
 	
     // unique operator id
 	protected Identifier operatorId;
-
+     
+	// runtime 
+	protected double runtime; 
+	// materialiation time 
+	protected double mattime; 
 
 	// constructors
 	/**
@@ -174,7 +178,7 @@ public abstract class AbstractCompileOperator implements Serializable {
 	public void setParents(Vector<AbstractCompileOperator> parents) {
 		this.parents = parents;
 	}
-
+    
 	public void setParent(AbstractCompileOperator parent) {
 		this.parents.clear();
 		this.parents.add(parent);
@@ -210,8 +214,23 @@ public abstract class AbstractCompileOperator implements Serializable {
 	
 	public boolean isAggregation(){
 		return this.type.equals(EnumOperator.GENERIC_AGGREGATION);
+	} 
+	
+	public double getRuntime(){
+		return this.runtime;
 	}
 	
+	public void setRuntime(double runtime) {
+		this.runtime = runtime; 
+	} 
+	
+	public double getMattime(){
+		return this.mattime;
+	} 
+	
+	public void setMattime(double mattime){
+		this.mattime = mattime; 
+	}
 	// methods
 
 	/**
@@ -371,7 +390,9 @@ public abstract class AbstractCompileOperator implements Serializable {
 		value.append("(");
 		value.append(this.operatorId);
 		value.append(":");
-		value.append(this.type);
+		value.append(this.type); 
+		value.append(":");
+		value.append(this.runtime);
 		value.append(")");
 		return value.toString();
 	}

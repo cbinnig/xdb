@@ -2,11 +2,13 @@ package org.xdb.funsql.codegen;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import org.xdb.Config;
 import org.xdb.error.EnumError;
@@ -73,7 +75,8 @@ public class CodeGenerator {
 
 	private final StringTemplate sqlViewTemplate = new StringTemplate("<<"
 			+ VIEW1 + ">> AS <" + SQL1 + ">");
-
+   
+	private double trackerOpRuntime;
 	// constructor
 	public CodeGenerator(CompilePlan compilePlan) {
 		super();
@@ -106,15 +109,18 @@ public class CodeGenerator {
 	 */
 	public Error generate() {
 		Error err = new Error();
-
+	
 		// split compile plan into sub-plans
 		this.splitOpIds = extractSplitOps();
-
-		// optimize plan for code generation
-		err = this.optimize();
-		if (err.isError())
-			return err;
-
+		
+		if(!Config.SIMULATION_MODE){
+			// optimize plan for code generation
+			err = this.optimize();
+			if (err.isError())
+				return err; 
+		}
+		
+		
 		// annotate compile plan with connections
 		err = this.annotateConnections();
 		if (err.isError())
@@ -124,12 +130,15 @@ public class CodeGenerator {
 		err = this.rename();
 		if (err.isError())
 			return err;
-
+				
+		// update Compile Ops runtim
+		err = this.updateCompileOpsRuntime();
+		
 		// trace compile plan before generating a tracker plan
 		if (Config.TRACE_CODEGEN_PLAN) {
 			this.compilePlan.tracePlan(compilePlan.getClass()
 					.getCanonicalName() + "_CODEGEN");
-		}
+		} 
 
 		// generate a tracker operators
 		err = this.genTrackerPlan();
@@ -139,10 +148,39 @@ public class CodeGenerator {
 		return err;
 	}
 
+	private Error updateCompileOpsRuntime() {
+		Error err = new Error();
+		Collection<Identifier> roots = this.compilePlan.getRootIds(); 
+		for (Identifier root : roots) {
+			AbstractCompileOperator rootOp = this.compilePlan.getOperator(root);
+			updateRuntime(rootOp);
+		}
+		return err;
+	}
+
+	private void updateRuntime(AbstractCompileOperator rootOp) {
+		// TODO Auto-generated method stub 
+		Vector<AbstractCompileOperator> childrenOps = rootOp.getChildren(); 
+		for (AbstractCompileOperator child : childrenOps) {
+			updateRuntime(child);
+		} 
+		
+		if(this.splitOpIds.contains(rootOp.getOperatorId())){
+			rootOp.setRuntime((trackerOpRuntime + 
+					this.compilePlan.getQueryStats().getQueryRuntimesStat().get(rootOp.getOperatorId().getChildId())*Config.COMPILE_FT_PIPELINE_CNST)); 
+			rootOp.setMattime(this.compilePlan.getQueryStats().getQueryMattimesStat().get(rootOp.getOperatorId().getChildId())); 
+			trackerOpRuntime = 0;
+		} else { 
+			if(this.compilePlan.getQueryStats().getQueryRuntimesStat().containsKey(rootOp.getOperatorId().getChildId()))
+			     trackerOpRuntime += this.compilePlan.getQueryStats().getQueryRuntimesStat().get(rootOp.getOperatorId().getChildId()); 
+		}
+	}
+
 	/**
 	 * Optimize compile plan for MySQL code generation
 	 */
 	private Error optimize() {
+		
 		Error err = new Error();
 		if (!Config.CODEGEN_OPTIMIZE)
 			return err;
@@ -153,6 +191,7 @@ public class CodeGenerator {
 				this.compilePlan);
 		SQLCombineVisitor sqlCombineVisitor = new SQLCombineVisitor(
 				this.compilePlan);
+		
 
 		int i = 1;
 		for (Identifier splitOpId : this.splitOpIds) {
@@ -163,7 +202,7 @@ public class CodeGenerator {
 			err = joinCombineVisitor.visit();
 			if (err.isError())
 				return err;
-
+	       
 			if (Config.TRACE_CODEGEN_PLAN)
 				this.compilePlan.tracePlan(compilePlan.getClass()
 						.getCanonicalName()
@@ -233,11 +272,11 @@ public class CodeGenerator {
 	 */
 	private Error genTrackerPlan() {
 		Error err = new Error();
-
+       
 		// for each sub-plan generate a tracker operator
 		for (Identifier splitOpId : this.splitOpIds) {
 			AbstractCompileOperator splitCompileOp = this.compilePlan
-					.getOperator(splitOpId);
+					.getOperator(splitOpId);  
 			AbstractTrackerOperator trackerOp = null;
 			try {
 				ResultDesc splitResult = splitCompileOp.getResult();
@@ -346,16 +385,16 @@ public class CodeGenerator {
 	 */
 	private void addTrackerInputDDL(MySQLTrackerOperator trackerOp,
 			AbstractCompileOperator compileOp, int partNum) {
-
 		Map<String, String> args = new HashMap<String, String>();
 		Set<AbstractCompileOperator> inputCompileOps = this
-				.getInputOps(compileOp);
-
+				.getInputOps(compileOp); 
+	     
+		trackerOp.setRunime(compileOp.getRuntime()); 
+		trackerOp.setMattime(compileOp.getMattime());
 		// for each input operator create input DDL
-		for (AbstractCompileOperator inputCompileOp : inputCompileOps) {
+		for (AbstractCompileOperator inputCompileOp : inputCompileOps) { 
 			// generate input DDL
 			ResultDesc inputResult = inputCompileOp.getResult();
-
 			/** Create input table DDL **/
 			Identifier inTableId = this.genInputTableName(inputCompileOp);
 			String inTableName = inTableId.toString();
@@ -480,7 +519,8 @@ public class CodeGenerator {
 							trackerOp.getOperatorId());
 				}
 			}
-		}
+		} 
+
 	}
 
 	/**
@@ -494,6 +534,7 @@ public class CodeGenerator {
 	private AbstractTrackerOperator genTrackerOp(
 			AbstractCompileOperator compileOp, int partNum)
 			throws URISyntaxException {
+	    
 		// generate a new MySQL operator
 		MySQLTrackerOperator trackerOp = new MySQLTrackerOperator();
 		this.qtPlan.addOperator(trackerOp);
@@ -505,8 +546,8 @@ public class CodeGenerator {
 		this.addTrackerOutputDDL(trackerOp, compileOp, partNum);
 
 		// add DDL statements for input tables
-		this.addTrackerInputDDL(trackerOp, compileOp, partNum);
-
+		this.addTrackerInputDDL(trackerOp, compileOp, partNum); 
+		
 		// add connections to tracker operator
 		List<Connection> trackerOpConnections = compileOp
 				.getWishedConnections(partNum);

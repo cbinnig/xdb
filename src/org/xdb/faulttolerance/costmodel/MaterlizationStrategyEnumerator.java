@@ -131,7 +131,7 @@ public class MaterlizationStrategyEnumerator {
 				materialzationIndecis.add(i); 
 				Level level = new Level(); 
 				level.setSubQquery(allOperator.subList(lastMaterializationIndex, i+1)); 
-				// set the runtime including the materialization cost.
+				// set the runtime including the materialization cost. 
 				level.setLevelRuntimeEstimate(levelEstimator.getLevelRunTime(level)*Config.COMPILE_FT_PIPELINE_CNST); 
 				level.setMaterializationRuntimeestimate(levelEstimator.getMaterializationTime(level));  
 				runTimeWithoutFailure += (levelEstimator.getLevelRunTime(level) + levelEstimator.getMaterializationTime(level));

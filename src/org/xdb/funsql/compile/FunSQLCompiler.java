@@ -60,6 +60,7 @@ public class FunSQLCompiler {
 			
 			//compile (including semantic analysis if requested)
 			statement.doSemanticAnalysis(this.doSemanticAnalysis);
+			statement.setQueryStats(queryStats); 
 			
 			this.lastError = statement.compile();
 			if (lastError.isError())

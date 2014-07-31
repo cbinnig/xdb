@@ -61,7 +61,7 @@ public class Experiment1 {
 		System.out.println("Query Execution: ");
 		System.out.print("\tRunning ");
 		this.dClient.startQuery();
-		doomDBFailureSimulator.start();
+		//doomDBFailureSimulator.start();
 
 		while (!this.dClient.isQueryFinished()) {
 			System.out.print(".");

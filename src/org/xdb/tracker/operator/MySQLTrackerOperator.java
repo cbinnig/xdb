@@ -53,7 +53,7 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-
+        builder.append("Runtime: "+this.runtime +": Mattime: "+this.mattime);
 		builder.append(this.getOperatorId());
 		builder.append(":");
 		builder.append(AbstractToken.NEWLINE);
@@ -61,7 +61,6 @@ public class MySQLTrackerOperator extends AbstractTrackerOperator {
 			builder.append(exeSQL.toString());
 			builder.append(AbstractToken.NEWLINE);
 		}
-
 		return builder.toString();
 	}
 }

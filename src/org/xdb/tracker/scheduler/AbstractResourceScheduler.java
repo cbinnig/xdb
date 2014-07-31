@@ -44,7 +44,8 @@ public abstract class AbstractResourceScheduler {
 			return new SimpleResourceScheduler(plan);
 		case WISHLIST_AWARE:
 			return new WishlistAwareScheduler(plan);
-
+		case SIMULATION:
+			return new SimulationResourceScheduler(plan);
 		}
 		return new SimpleResourceScheduler(plan);
 	}

@@ -26,7 +26,8 @@ public class Config implements Serializable {
 	// General
 	public static String PLATTFORM = "MAC";
 	public static String LOCALHOST = "127.0.0.1";
-	public static String CONFIG_FILE = "./config/xdb.conf";
+	public static String CONFIG_FILE = "./config/xdb.conf"; 
+	public static boolean SIMULATION_MODE = false;
 
 	// Monitoring
 	public static int MASTERTRACKER_MONITOR_INTERVAL = 2000;
@@ -73,6 +74,7 @@ public class Config implements Serializable {
 	public static double COMPILE_FT_MERGING_SMALLOPS_THRESHOLD = 0.98;
 	public static final int COMPILE_FT_MAT_SPEED_CONST = 20;
 	public static final int COMPILE_FT_MAT_TO_PROCESSING_SPEED_RATIO = 7;
+
 
 	// Optimizer
 	public static BitSet OPTIMIZER_ACTIVE_RULES_FUNCTION = new BitSet();
@@ -132,6 +134,7 @@ public class Config implements Serializable {
 
 	// DoomDB
 	public static boolean ACTIVATE_FAILURE_SIMULATOR = false;
+	public static final double Error = 0;
 	public static String DOOMDB_CONFIG_FILE = "./config/doomdb.conf";
 	public static boolean DOOMDB_MTBF_UPDATE = false; // in s
 	public static int DOOMDB_MTBF = 20; // in s
@@ -191,7 +194,7 @@ public class Config implements Serializable {
 	 */
 	private static void loadDoom() {
 		String[] intProperties = { "DOOMDB_MTBF", "DOOMDB_MTTR",
-				"DOOMDB_CLUSTER_SIZE", "DOOMDB_NUM_FAILUERS" };
+				"DOOMDB_CLUSTER_SIZE", "DOOMDB_NUM_FAILUERS", "Error" };
 
 		String[] stringProperties = { "DOOMDB_COMPUTE_NODES",
 				"DOOMDB_TPCH_S01", "DOOMDB_TPCH_S1", "DOOMDB_TPCH_S10",
@@ -292,7 +295,7 @@ public class Config implements Serializable {
 				"LOG_EXECUTION_TIME", "CODEGEN_OPTIMIZE", "TEST_RUN_LOCAL",
 				"QUERYTRACKER_MONITOR_ACTIVATED",
 				"MASTERTRACKER_MONITOR_ACTIVATED", "TEST_FT_CHECKPOINTING",
-				"COMPILE_FT_ACTIVE", "COMPILE_FT_PRUNING", "COMPUTE_INTERMEDIATE_KEYS" };
+				"COMPILE_FT_ACTIVE", "COMPILE_FT_PRUNING", "COMPUTE_INTERMEDIATE_KEYS", "SIMULATION_MODE" };
 
 		Properties props;
 		props = new Properties();
