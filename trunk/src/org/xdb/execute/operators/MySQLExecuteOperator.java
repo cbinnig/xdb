@@ -3,6 +3,7 @@ package org.xdb.execute.operators;
 import java.sql.PreparedStatement;
 import java.util.Vector;
 
+import org.xdb.Config;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.tokens.AbstractToken;
 import org.xdb.utils.Identifier;
@@ -62,17 +63,27 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 	 * Execute prepared DML statements
 	 */
 	protected Error executeOperator() {
-		
-		try {
-			for (final PreparedStatement stmt : executeStmts) {
-				stmt.execute();
-			}
-		} 
-		catch (final Exception e) {
-			this.err = createMySQLError(e);
-			this.status = EnumOperatorStatus.getRuntimeFailure();
-		}
 
+		if(Config.SIMULATION_MODE) {
+			try {
+				System.out.println("Simulate Execution for "+this.operatorId +" Runtime: "+this.runtime +" Matitme: "+this.mattime); 	
+				Thread.sleep((long) ((this.runtime + this.mattime)*1000));
+			} catch (Exception e1) {
+				System.err.println("MySql Execution Simulator for "+this.operatorId+" has been interrupted!");
+				this.err = createMySQLError(e1);
+				this.status = EnumOperatorStatus.getRuntimeFailure();
+			} 
+		} else {
+			try {
+				for (final PreparedStatement stmt : executeStmts) {
+					stmt.execute();
+				}
+			} 
+			catch (final Exception e) {
+				this.err = createMySQLError(e);
+				this.status = EnumOperatorStatus.getRuntimeFailure();
+			}
+		}
 		return err;
 	}
 
@@ -87,8 +98,7 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-
+		StringBuilder builder = new StringBuilder(); 
 		builder.append(super.toString());
 		for (String exeSQL : this.executeSQLs) {
 			builder.append(exeSQL.toString());

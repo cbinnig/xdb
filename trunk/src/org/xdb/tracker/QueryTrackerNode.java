@@ -1,6 +1,7 @@
 package org.xdb.tracker;
 
 import java.net.InetAddress;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +20,7 @@ import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
+import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
@@ -110,7 +112,8 @@ public class QueryTrackerNode {
 	public Tuple<QueryTrackerPlan, Error> generateQueryTrackerPlan(
 			final CompilePlan compilePlan) {
 		// generate QTPLan from CPlan
-		Error err = new Error();
+		Error err = new Error(); 
+	
 		CodeGenerator codeGen = new CodeGenerator(compilePlan);
 		err = codeGen.generate();
 		if (err.isError()){
@@ -209,7 +212,7 @@ public class QueryTrackerNode {
 	public Tuple<Error, DoomDBPlan> generateDoomDBQTPlan(final CompilePlan cplan) {
 		Error err = new Error();
 		QueryTrackerPlan qplan = null;
-
+   
 		// 1. prepare QTracker plan
 		Tuple<Error, QueryTrackerPlan> qPLanResult = this.prepareQTPlan(cplan);
 		err = qPLanResult.getObject1();

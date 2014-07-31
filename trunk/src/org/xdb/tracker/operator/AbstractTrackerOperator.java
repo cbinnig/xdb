@@ -27,7 +27,11 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	protected static final String CREATE_TABLE_DDL = "CREATE TABLE IF NOT EXISTS ";
 	protected static final String DROP_TABLE_DDL = "DROP TABLE IF EXISTS ";
 	protected static final String CREATE_VIEW_DDL = "CREATE VIEW ";
-	protected static final String DROP_VIEW_DDL = "DROP VIEW ";
+	protected static final String DROP_VIEW_DDL = "DROP VIEW "; 
+	
+	protected double mattime; 
+	
+	protected double runtime;
 
 	private static final String OUTPUT_TABLE_DDL = " ENGINE="+Config.COMPUTE_ENGINE;
 
@@ -80,7 +84,23 @@ public abstract class AbstractTrackerOperator implements Serializable {
 	public AbstractTrackerOperator() {
 		super();
 	}
-
+	
+	public void setMattime(double mattime){
+		this.mattime = mattime;
+	}
+    
+	public void setRunime(double runtime){
+		this.runtime = runtime;
+	} 
+	
+	public double getMattime(){
+		return this.mattime;
+	} 
+	
+	public double getRuntime(){
+		return this.runtime;
+	}
+	
 	// getters and setters
 	public void setIsRoot(boolean isRoot) {
 		this.isRoot = isRoot;

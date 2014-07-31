@@ -59,7 +59,11 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	protected EnumOperatorStatus status = EnumOperatorStatus.INIT;
 
 	// helper
-	protected Error err = new Error();
+	protected Error err = new Error(); 
+	
+	protected double runtime; 
+	
+	protected double mattime; 
 	
 	// constructors
 	public AbstractExecuteOperator(Identifier nodeId) {
@@ -75,7 +79,8 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	public EnumOperatorStatus getStatus() {
 		return this.status;
 	}
-
+	
+	
 	public Error getLastError() {
 		return this.err;
 	}
@@ -164,7 +169,23 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	 * @return
 	 */
 	protected abstract Error openOperator();
-
+    
+	public void setMattime(double mattime){
+		this.mattime = mattime;
+	}
+    
+	public void setRunime(double runtime){
+		this.runtime = runtime;
+	} 
+	
+	public double getMattime(){
+		return this.mattime;
+	} 
+	
+	public double getRuntime(){
+		return this.runtime;
+	}
+	
 	/**
 	 * Execute operator
 	 * 
@@ -257,8 +278,7 @@ public abstract class AbstractExecuteOperator implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-
-		builder.append(this.getClass().getCanonicalName());
+        builder.append(this.getClass().getCanonicalName());
 		builder.append(AbstractToken.NEWLINE);
 
 		for (String openSQL : this.openSQLs) {

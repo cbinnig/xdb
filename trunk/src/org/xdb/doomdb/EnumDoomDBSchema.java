@@ -268,7 +268,7 @@ public enum EnumDoomDBSchema {
 			for (Object key : props.keySet()) {
 				String opId = key.toString();
 				runtimes.put(new Identifier(Integer.parseInt(opId)),
-						Double.parseDouble(props.getProperty(opId).trim()));
+						Double.parseDouble(props.getProperty(opId).trim()) + Config.Error*Double.parseDouble(props.getProperty(opId).trim()));
 			}
 
 			// Reading the materialization time of the operators
@@ -277,7 +277,7 @@ public enum EnumDoomDBSchema {
 			for (Object key : props.keySet()) {
 				String opId = key.toString();
 				mattimes.put(new Identifier(Integer.parseInt(opId)),
-						Double.parseDouble(props.getProperty(opId).trim()));
+						Double.parseDouble(props.getProperty(opId).trim()) + Config.Error*Double.parseDouble(props.getProperty(opId).trim()));
 			}
 			
 			opMaterializabilityMap.put(queryID, materializability);

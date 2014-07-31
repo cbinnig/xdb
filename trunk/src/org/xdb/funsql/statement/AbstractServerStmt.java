@@ -17,7 +17,8 @@ public abstract class AbstractServerStmt {
 	protected EnumStatement statementType;
 	protected String stmtString;
 	protected boolean doSemanticAnalysis = true;
-
+    protected QueryStats queryStats; 
+    
 	// getter and setters
 	public void doSemanticAnalysis(boolean doSemanticAnalysis) {
 		this.doSemanticAnalysis = doSemanticAnalysis;
@@ -37,6 +38,14 @@ public abstract class AbstractServerStmt {
 
 	public void setType(EnumStatement type) {
 		this.statementType = type;
+	} 
+	
+	public void setQueryStats(QueryStats queryStats){
+		this.queryStats = queryStats;
+	} 
+	
+	public QueryStats getQueryStats(){
+		return this.queryStats;
 	}
 
 	// methods

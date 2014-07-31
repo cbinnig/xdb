@@ -1,5 +1,6 @@
 package org.xdb.funsql.statement;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Vector;
@@ -32,6 +33,7 @@ import org.xdb.metadata.EnumDatabaseObject;
 import org.xdb.metadata.Function;
 import org.xdb.metadata.Schema;
 import org.xdb.metadata.Table;
+import org.xdb.utils.Identifier;
 import org.xdb.utils.Tuple;
 
 public class CreateFunctionStmt extends AbstractServerStmt {
@@ -224,7 +226,7 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 				TokenAssignment ta = (TokenAssignment) tfp;
 				SelectStmt stmt = ta.getSelStmt();
 				stmt.addVarSymbols(this.varSymbols);
-				
+				stmt.setQueryStats(this.queryStats);
 				e = stmt.compile(this.functionPlan.getPlanId(), this.functionPlan.getLastOpId());
 				this.functionPlan.setLastOpId(stmt.getPlan().getLastOpId());
 				
@@ -334,7 +336,19 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 
 		this.fCache.addPlan(this.function.hashKey(), this.functionPlan);
 		if (!this.inParameters.isEmpty())
-			this.fCache.addInVars(this.function.hashKey(), this.inParameters);
+			this.fCache.addInVars(this.function.hashKey(), this.inParameters); 
+		
+		// set the runtime and mat time for each compile op 
+		Collection<AbstractCompileOperator> allOps = this.functionPlan.getOperators(); 
+		for (AbstractCompileOperator abstractCompileOperator : allOps) {
+			Identifier opId = abstractCompileOperator.getOperatorId();
+			if(this.queryStats.getQueryRuntimesStat().containsKey(opId.getChildId())) {
+				abstractCompileOperator.setRuntime(this.queryStats.getQueryRuntimesStat().get(opId.getChildId()));  
+				abstractCompileOperator.setMattime(this.queryStats.getQueryMattimesStat().get(opId.getChildId()));
+			}
+		}
+		
+		this.functionPlan.setQueryStats(queryStats);
 		
 		return e;
 	}

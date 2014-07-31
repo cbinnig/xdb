@@ -11,6 +11,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.xdb.doomdb.QueryStats;
 import org.xdb.error.Error;
 import org.xdb.funsql.compile.analyze.operator.AbstractTreeVisitor;
 import org.xdb.funsql.compile.operator.AbstractCompileOperator;
@@ -49,6 +50,7 @@ public class CompilePlan implements Serializable {
 	private Set<Identifier> leaves = new HashSet<Identifier>();
 	private List<Identifier> matOpsIds =  new Vector<Identifier>();
 	
+	private QueryStats queryStats;
 	// logger
 	private transient Logger logger;
 
@@ -315,5 +317,13 @@ public class CompilePlan implements Serializable {
 		}
 
 		return Dotty.dot2Img(graph, fileName, "png");
+	}
+
+	public QueryStats getQueryStats() {
+		return queryStats;
+	}
+
+	public void setQueryStats(QueryStats queryStats) {
+		this.queryStats = queryStats;
 	}
 }

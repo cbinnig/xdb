@@ -62,8 +62,10 @@ public class DoomDBFailureSimulator extends Thread {
 				long mtbf = (long) dist.sample() * 1000;
 				
 				// first failure can happen any time
-				if(j==0)
-					mtbf = (long)(mtbf * Math.random());
+				if(j==0) {
+					mtbf = (long)(mtbf * Math.random());   
+					System.out.println("First MTBF: "+mtbf);
+				}
 				
 				// calculate time stamp from MTBF
 				Long timestamp = mtbf;

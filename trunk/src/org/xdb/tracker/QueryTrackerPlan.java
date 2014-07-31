@@ -383,7 +383,6 @@ public class QueryTrackerPlan implements Serializable {
 
 					// Check if a failure is detected
 					if (computeServersMonitor.hasDetectedFailure()) {
-						
 						logger.log(Level.INFO, "Monitoring detected a failure!");
 
 						if (attempt >= this.maxAttempts) {
@@ -663,7 +662,10 @@ public class QueryTrackerPlan implements Serializable {
 				.get(trackerOpId);
 
 		final AbstractExecuteOperator execOp = trackerOp.genDeployOperator(
-				executeOpDesc, currentDeployment);
+				executeOpDesc, currentDeployment); 
+		// for simulation purposes
+		execOp.setRunime(trackerOp.getRuntime()); 
+		execOp.setMattime(trackerOp.getMattime());
 		
 		for (final Identifier consumerId : consumers.get(trackerOpId)) {
 			final OperatorDesc consumerDesc = currentDeployment
