@@ -30,7 +30,7 @@ public class DoomDBClient implements IDoomDBClient {
 	
 	//time in seconds
 	private int mttr = Config.DOOMDB_MTTR;
-	private int mtbf = Config.DOOMDB_MTBF;
+	private int mtbf = (int) Config.SPOTGRES_MTBF/1000;
 	private long startTime = 0;
 	private long endTime = 0;
 	private long runTime = 0;
@@ -85,6 +85,27 @@ public class DoomDBClient implements IDoomDBClient {
 				//System.out.println("DoomDBClient: killNode started!");
 				ComputeNodeDesc nodeDesc = (ComputeNodeDesc) this.args[0];
 				mClient.restartComputeNode(nodeDesc, DoomDBClient.this.mttr*1000);
+				//System.out.println("DoomDBClient: killNode stopped!");
+			}
+		};
+		
+		runner.start();
+	} 
+	
+	/**
+	 * Kills node
+	 * @param nodeDesc
+	 */
+	public void killNodeSpotInstance(ComputeNodeDesc nodeDesc, final int mttr) { 
+		this.dplan.killNode(nodeDesc);
+		this.killedNodes++;
+		
+		Object[] args = {nodeDesc};
+		ThreadWithArgs runner = new ThreadWithArgs(args) {
+			public void run() {
+				//System.out.println("DoomDBClient: killNode started!");
+				ComputeNodeDesc nodeDesc = (ComputeNodeDesc) this.args[0];
+				mClient.restartComputeNode(nodeDesc, mttr);
 				//System.out.println("DoomDBClient: killNode stopped!");
 			}
 		};

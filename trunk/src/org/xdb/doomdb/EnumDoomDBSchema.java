@@ -266,18 +266,18 @@ public enum EnumDoomDBSchema {
 			props.clear();
 			props.load(new FileReader(runtimeFileName));
 			for (Object key : props.keySet()) {
-				String opId = key.toString();
+				String opId = key.toString(); 
 				runtimes.put(new Identifier(Integer.parseInt(opId)),
-						Double.parseDouble(props.getProperty(opId).trim()) + Config.Error*Double.parseDouble(props.getProperty(opId).trim()));
+						Double.parseDouble(props.getProperty(opId).trim()) + Config.DOOMDB_ERROR*Double.parseDouble(props.getProperty(opId).trim()));
 			}
 
 			// Reading the materialization time of the operators
 			props.clear();
 			props.load(new FileReader(mattimeFileName));
 			for (Object key : props.keySet()) {
-				String opId = key.toString();
+				String opId = key.toString(); 
 				mattimes.put(new Identifier(Integer.parseInt(opId)),
-						Double.parseDouble(props.getProperty(opId).trim()) + Config.Error*Double.parseDouble(props.getProperty(opId).trim()));
+						Double.parseDouble(props.getProperty(opId).trim()) + Config.DOOMDB_ERROR*Double.parseDouble(props.getProperty(opId).trim()));
 			}
 			
 			opMaterializabilityMap.put(queryID, materializability);

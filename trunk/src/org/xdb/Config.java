@@ -134,10 +134,11 @@ public class Config implements Serializable {
 
 	// DoomDB
 	public static boolean ACTIVATE_FAILURE_SIMULATOR = false;
-	public static final double Error = 0;
+	public static double DOOMDB_ERROR = 0;
 	public static String DOOMDB_CONFIG_FILE = "./config/doomdb.conf";
 	public static boolean DOOMDB_MTBF_UPDATE = false; // in s
-	public static int DOOMDB_MTBF = 20; // in s
+	public static int DOOMDB_MTBF = 20; // in s 
+	public static double SPOTGRES_MTBF = 0.0;
 	public static double DOOMDB_MTBF_STDEV = 2; // in s
 	public static int DOOMDB_MTTR = 5; // in s
 	public static int DOOMDB_NUM_FAILUERS = 100; // num of failures
@@ -147,7 +148,8 @@ public class Config implements Serializable {
 	public static String DOOMDB_TPCH_S1 = "tpch_s1";
 	public static String DOOMDB_TPCH_S10 = "tpch_s10";
 	public static String DOOMDB_TPCH_S50 = "tpch_s50";
-	public static String DOOMDB_TPCH_S100 = "tpch_s100";
+	public static String DOOMDB_TPCH_S100 = "tpch_s100"; 
+	public static int DIVERSITY = 3;
 
 	// Logging
 	private static Logger logger = XDBLog.getLogger(EnumXDBComponents.CONFIG);
@@ -194,7 +196,7 @@ public class Config implements Serializable {
 	 */
 	private static void loadDoom() {
 		String[] intProperties = { "DOOMDB_MTBF", "DOOMDB_MTTR",
-				"DOOMDB_CLUSTER_SIZE", "DOOMDB_NUM_FAILUERS", "Error" };
+				"DOOMDB_CLUSTER_SIZE", "DOOMDB_NUM_FAILUERS", "DIVERSITY"};
 
 		String[] stringProperties = { "DOOMDB_COMPUTE_NODES",
 				"DOOMDB_TPCH_S01", "DOOMDB_TPCH_S1", "DOOMDB_TPCH_S10",
@@ -203,7 +205,7 @@ public class Config implements Serializable {
 		String[] boolProperties = { "DOOMDB_MTBF_LOAD",
 				"ACTIVATE_FAILURE_SIMULATOR" };
 
-		String[] doubleProperties = { "DOOMDB_MTBF_STDEV" };
+		String[] doubleProperties = { "DOOMDB_MTBF_STDEV", "DOOMDB_ERROR", "SPOTGRES_MTBF"};
 
 		Properties props;
 		props = new Properties();

@@ -338,18 +338,19 @@ public class CreateFunctionStmt extends AbstractServerStmt {
 		if (!this.inParameters.isEmpty())
 			this.fCache.addInVars(this.function.hashKey(), this.inParameters); 
 		
-		// set the runtime and mat time for each compile op 
-		Collection<AbstractCompileOperator> allOps = this.functionPlan.getOperators(); 
-		for (AbstractCompileOperator abstractCompileOperator : allOps) {
-			Identifier opId = abstractCompileOperator.getOperatorId();
-			if(this.queryStats.getQueryRuntimesStat().containsKey(opId.getChildId())) {
-				abstractCompileOperator.setRuntime(this.queryStats.getQueryRuntimesStat().get(opId.getChildId()));  
-				abstractCompileOperator.setMattime(this.queryStats.getQueryMattimesStat().get(opId.getChildId()));
+		if(Config.SIMULATION_MODE) {
+			// set the runtime and mat time for each compile op 
+			Collection<AbstractCompileOperator> allOps = this.functionPlan.getOperators(); 
+			for (AbstractCompileOperator abstractCompileOperator : allOps) {
+				Identifier opId = abstractCompileOperator.getOperatorId();
+				if(this.queryStats.getQueryRuntimesStat().containsKey(opId.getChildId())) {
+					abstractCompileOperator.setRuntime(this.queryStats.getQueryRuntimesStat().get(opId.getChildId()));  
+					abstractCompileOperator.setMattime(this.queryStats.getQueryMattimesStat().get(opId.getChildId()));
+				}
 			}
+
+			this.functionPlan.setQueryStats(queryStats);
 		}
-		
-		this.functionPlan.setQueryStats(queryStats);
-		
 		return e;
 	}
 
