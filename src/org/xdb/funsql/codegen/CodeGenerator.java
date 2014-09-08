@@ -131,8 +131,9 @@ public class CodeGenerator {
 		if (err.isError())
 			return err;
 				
-		// update Compile Ops runtim
-		err = this.updateCompileOpsRuntime();
+		// update Compile Ops runtim 
+		if(Config.SIMULATION_MODE)
+		    err = this.updateCompileOpsRuntime();
 		
 		// trace compile plan before generating a tracker plan
 		if (Config.TRACE_CODEGEN_PLAN) {

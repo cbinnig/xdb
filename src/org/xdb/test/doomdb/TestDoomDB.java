@@ -1,10 +1,18 @@
 package org.xdb.test.doomdb;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.xdb.Config;
 import org.xdb.doomdb.DoomDBClient;
 import org.xdb.doomdb.DoomDBClusterDesc;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.server.MasterTrackerServer;
+import org.xdb.test.spotgres.NodeTrace;
+import org.xdb.test.spotgres.SpotgresFailureSimulator;
+
 
 /**
  * Test case of query execution with simulated failures
@@ -75,6 +83,15 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		System.out.println("Query Execution: ");
 		this.dClient.startQuery();
 		
+		// Load the trace file to hand it to the simulator. 
+		List<NodeTrace> nodesTraceList; 
+		nodesTraceList = loadNodesTrace();
+		/*
+		SpotgresFailureSimulator spotgresFailureSimulator = new SpotgresFailureSimulator(this.dClient, nodesTraceList);
+		if(Config.ACTIVATE_FAILURE_SIMULATOR){
+			spotgresFailureSimulator.start();
+		}
+		*/
 		// start the failure simulator
 		DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(this.dClient);
 		if (Config.ACTIVATE_FAILURE_SIMULATOR) {
@@ -144,7 +161,42 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		this.runPlan();
 	}*/
 	
-	
+	/**
+	 * Read the trace file of the spot instances 
+	 * to use later in the spotgres failure 
+	 * simulator 
+	 * 
+	 */
+	private List<NodeTrace> loadNodesTrace() {
+		String traceFileName = "./postgres/trace.csv";  
+		String line = ""; 
+		String splitBy = ","; 
+		List<NodeTrace> nodeTraceList = new ArrayList<NodeTrace>();
+		try{  
+			int lineCounter = 0;
+			BufferedReader br = new BufferedReader(new FileReader(traceFileName));  
+			while ((line = br.readLine()) != null) {     
+				// Read MTBF, the first line int the csv file 
+				if(lineCounter == 0){
+				 	Config.DOOMDB_MTBF = Integer.parseInt(line.trim()); 
+				 	lineCounter++; 
+				 	continue;
+				} 
+				NodeTrace nodeTrace = new NodeTrace();
+				String[] csvFileValues  = line.split(splitBy);   
+				nodeTrace.setNodeId(Integer.parseInt(csvFileValues[0].trim())); 
+				nodeTrace.setFailureTime((int) Long.parseLong(csvFileValues[1].trim()));
+				boolean nodeStatus = csvFileValues[2].trim().equalsIgnoreCase("S")? true:false; 
+				nodeTrace.setNodeStatus(nodeStatus);
+				nodeTraceList.add(nodeTrace);
+			}  
+			br.close();
+		} catch(Exception e){ 
+           
+		}     
+		return nodeTraceList; 
+	}
+
 	/** Query 2 **/
 	public void testQ2_SF10_10Parts() throws Exception {
 		this.dClient.setSchema("TPCH_SF10_10P");
