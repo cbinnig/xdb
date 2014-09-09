@@ -296,7 +296,7 @@ public class DataPartitioner {
 				continue; 
 			}
 			BufferedReader br = new BufferedReader(new FileReader(directory
-					+ "/" + referenceFile + "_p" + i + ".dat"));
+					+ "/" + referenceFile + "_p" + i + ".tbl"));
 			String refLine = "";
 			int counter = 0;
 			while ((refLine = br.readLine()) != null) {
