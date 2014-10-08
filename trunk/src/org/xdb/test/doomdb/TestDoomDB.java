@@ -11,7 +11,6 @@ import org.xdb.doomdb.DoomDBClusterDesc;
 import org.xdb.doomdb.DoomDBPlan;
 import org.xdb.server.MasterTrackerServer;
 import org.xdb.test.spotgres.NodeTrace;
-import org.xdb.test.spotgres.SpotgresFailureSimulator;
 
 
 /**
@@ -47,6 +46,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 				Config.DOOMDB_CLUSTER_SIZE);
 		this.dClient = new DoomDBClient(clusterDesc);
 		this.dClient.startDB();
+		this.dClient.setMTBF(Config.DOOMDB_MTBF);
 	}
 
 	@Override
@@ -83,15 +83,16 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		System.out.println("Query Execution: ");
 		this.dClient.startQuery();
 		
+		/*
 		// Load the trace file to hand it to the simulator. 
 		List<NodeTrace> nodesTraceList; 
 		nodesTraceList = loadNodesTrace();
-		/*
 		SpotgresFailureSimulator spotgresFailureSimulator = new SpotgresFailureSimulator(this.dClient, nodesTraceList);
 		if(Config.ACTIVATE_FAILURE_SIMULATOR){
 			spotgresFailureSimulator.start();
 		}
 		*/
+		
 		// start the failure simulator
 		DoomDBFailureSimulator doomDBFailureSimulator = new DoomDBFailureSimulator(this.dClient);
 		if (Config.ACTIVATE_FAILURE_SIMULATOR) {
@@ -167,6 +168,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 	 * simulator 
 	 * 
 	 */
+	@SuppressWarnings("unused")
 	private List<NodeTrace> loadNodesTrace() {
 		String traceFileName = "./postgres/trace.csv";  
 		String line = ""; 

@@ -1,0 +1,1 @@
+ssh wiadmin@$1

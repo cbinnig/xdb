@@ -1,7 +1,6 @@
 package org.xdb.tracker;
 
 import java.net.InetAddress;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +19,6 @@ import org.xdb.execute.ComputeNodeDesc;
 import org.xdb.execute.operators.AbstractExecuteOperator;
 import org.xdb.funsql.codegen.CodeGenerator;
 import org.xdb.funsql.compile.CompilePlan;
-import org.xdb.funsql.compile.operator.AbstractCompileOperator;
 import org.xdb.logging.EnumXDBComponents;
 import org.xdb.logging.XDBLog;
 import org.xdb.utils.Identifier;
