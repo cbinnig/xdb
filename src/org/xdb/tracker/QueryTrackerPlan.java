@@ -393,7 +393,7 @@ public class QueryTrackerPlan implements Serializable {
 							monitoringLock.unlock();
 							break execLoop;
 						} else {
-							// re-deploy the failed operators
+							// re-deploy the failed operators 
 							redeployAbortedOperators();
 						}
 						attempt++;
@@ -497,8 +497,9 @@ public class QueryTrackerPlan implements Serializable {
 	private void redeployAbortedOperators() {
 		// assign compute nodes to aborted operators
 		this.assignComputeNodes2AbortedOperators();
-		if (this.hasError())
+		if (this.hasError()) { 
 			return;
+		}
 
 		// deploy aborted operators
 		this.deployAbortedOperators();
@@ -550,11 +551,12 @@ public class QueryTrackerPlan implements Serializable {
 			OperatorDesc operator = this.currentDeployment.get(opId);
 
 			if (operator.getOperatorStatus().isRepairableFailure()) {
+			 
 				this.setError(this.assignComputeNode(opId,
-						EnumOperatorStatus.REDEPLOYED));
-
-				if (this.hasError())
-					return;
+						EnumOperatorStatus.REDEPLOYED));  
+				if (this.hasError()) { 
+					return; 
+				}
 			}
 		}
 	}
@@ -577,7 +579,7 @@ public class QueryTrackerPlan implements Serializable {
 		// pick available compute node
 		ComputeNodeDesc assignedNode = this
 				.pickAvailableComputeNode(allComputeNode);
-		if (assignedNode == null && this.monitorFailures) {
+		if (assignedNode == null && this.monitorFailures) { 
 			return err;
 		} else if (assignedNode == null) {
 			String args[] = { "No node could be assigned to tracker operator "
@@ -692,8 +694,9 @@ public class QueryTrackerPlan implements Serializable {
 
 			// only deploy operators with status REDEPLOY
 			if (!executeOpDesc.getOperatorStatus().equals(
-					EnumOperatorStatus.REDEPLOYED))
+					EnumOperatorStatus.REDEPLOYED)) { 
 				continue;
+			}
 			
 			// create executable operator
 			final AbstractExecuteOperator execOp = this.genDeployOperator(trackerOpId);

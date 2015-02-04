@@ -24,7 +24,7 @@ public class Level {
 	
 	private double materializationRuntimeestimate;   
 	
-	private long numberOfAttemptsPerLevel; 
+	private double numberOfAttemptsPerLevel; 
 	
 	private double averageWastedTime;
 	
@@ -131,15 +131,15 @@ public class Level {
 	/**
 	 * @return the numberOfAttemptsPerLevel
 	 */
-	public long getNumberOfAttemptsPerLevel() {
+	public double getNumberOfAttemptsPerLevel() {
 		return numberOfAttemptsPerLevel;
 	}
 
 	/**
-	 * @param numberOfAttemptsPerLevel the numberOfAttemptsPerLevel to set
+	 * @param levelAttempts the numberOfAttemptsPerLevel to set
 	 */
-	public void setNumberOfAttemptsPerLevel(long numberOfAttemptsPerLevel) {
-		this.numberOfAttemptsPerLevel = numberOfAttemptsPerLevel;
+	public void setNumberOfAttemptsPerLevel(double levelAttempts) {
+		this.numberOfAttemptsPerLevel = levelAttempts;
 	}
 
 	/**

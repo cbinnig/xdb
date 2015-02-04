@@ -1,12 +1,14 @@
 package org.xdb.test.doomdb;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Vector;
 
-import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.xdb.Config;
 import org.xdb.doomdb.DoomDBClient;
 import org.xdb.execute.ComputeNodeDesc;
@@ -27,7 +29,8 @@ public class DoomDBFailureSimulator extends Thread {
 	private Vector<ComputeNodeDesc> nodeDescs = new Vector<ComputeNodeDesc>();
 	
 	// list <nodeIdx, MTBF> for killing
-	private Queue<Tuple<Integer, Long>> globalMTBFs = new LinkedList<Tuple<Integer, Long>>();
+	private Queue<Tuple<Integer, Long>> globalMTBFs = new LinkedList<Tuple<Integer, Long>>(); 
+	
 
 	// constructor
 	public DoomDBFailureSimulator(DoomDBClient dClient) {
@@ -50,12 +53,38 @@ public class DoomDBFailureSimulator extends Thread {
 		
 		// generate failure time stamps per node
 		Vector<Queue<Long>> timestampsPerNode = new Vector<Queue<Long>>(
-				this.nodeDescs.size());
+				this.nodeDescs.size()); 
+	
+		// if trace from previous test is activated 
+		// then read the timestamps from the the trace file 
+		if(Config.TRACE_FAILURE_SIMULATOR) { 
+			try {  
+				// open the file to read
+				@SuppressWarnings("resource")
+				BufferedReader br = new BufferedReader(new FileReader("./stat/mtbf/mtbf_"+mean+"_"+Config.RUN_NUMBER+".trace"));  
+				System.out.println("Read MTBF trace from mtbf_"+mean+"_"+Config.RUN_NUMBER+".trace");
+				String line = "";    
+				while ((line = br.readLine()) != null) {    
+					LinkedList<Long> mtbfList = new LinkedList<Long>();
+					line = line.substring(0, line.length()-1);
+					String[] timeStampsList = line.split(","); 
+					for (String timeStamp : timeStampsList) {
+						mtbfList.add(Long.parseLong(timeStamp));
+					} 
+					timestampsPerNode.add(mtbfList);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}  
+		} 
 		for (int i = 0; i < this.nodeDescs.size(); ++i) {
+			if(Config.TRACE_FAILURE_SIMULATOR) 
+				break;
+
 			LinkedList<Long> mtbfList = new LinkedList<Long>();
 			timestampsPerNode.add(mtbfList);
-			NormalDistribution dist = new NormalDistribution(mean, stdev);
-
+			ExponentialDistribution dist = new ExponentialDistribution(mean, stdev);
+			
 			for (int j = 0; j < Config.DOOMDB_NUM_FAILUERS; ++j) {
 				
 				// next MTBF for node i
@@ -71,10 +100,10 @@ public class DoomDBFailureSimulator extends Thread {
 				Long timestamp = mtbf;
 				if (j > 0) {
 					timestamp += mtbfList.get(j - 1);
-				}
-
+				} 
+	
 				mtbfList.add(timestamp);
-			}
+			} 
 		}
 
 		// merge sort time stamps
@@ -137,14 +166,26 @@ public class DoomDBFailureSimulator extends Thread {
 				} catch (InterruptedException e) {
 					break killLoop;
 				}
-
 				SimpleDateFormat sdfDate = new SimpleDateFormat("HH:mm:ss");
 			    Date now = new java.util.Date();
 			    String strDate = sdfDate.format(now);
 			    
 				System.err.println("Kill node " + node2Kill + " [" + strDate + "]");
 				
-				this.dbClient.killNode(node2Kill);
+				this.dbClient.killNode(node2Kill);  
+				//if the compile mode is coarse grained => kill the remaining nodes
+                if(Config.NAIVE_STRATEGY_MODE.equalsIgnoreCase("COARSE")) {
+                	for(int i=0; i<this.nodeDescs.size(); i++){
+                		if(i == failedNodeIndex) 
+                			continue;
+                		now = new java.util.Date(); 
+                		strDate = sdfDate.format(now); 
+                		ComputeNodeDesc newNode2Kill = this.nodeDescs.get(i); 
+        				System.err.println("Kill another node " + newNode2Kill + " [" + strDate + "]");
+        				this.dbClient.killNode(newNode2Kill); 
+        				Thread.sleep(1000);
+                	}
+                }
 
 				if (this.dbClient.isQueryFinished())
 					break killLoop;

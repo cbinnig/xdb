@@ -65,7 +65,7 @@ public class SimulationResourceScheduler extends AbstractResourceScheduler {
 	@Override
 	public List<ComputeNodeDesc> getAllComputeNodes(Identifier opId) {
 		List<ComputeNodeDesc> operNodes = new ArrayList<ComputeNodeDesc>(10);
-		operNodes.add(this.getComputeNode(opId));
+		operNodes.add(this.getComputeNode(opId)); 
 		return operNodes;
 	}
 

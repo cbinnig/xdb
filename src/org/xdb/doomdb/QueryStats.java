@@ -15,7 +15,8 @@ public class QueryStats implements Serializable {
 	
 	private Map<Identifier, Double> queryRuntimesStat = new HashMap<Identifier, Double>(); 
 	private Map<Identifier, Double> queryMattimesStat = new HashMap<Identifier, Double>(); 
-	private List<Identifier> nonMatOps = new ArrayList<Identifier>(); 
+	private List<Identifier> nonMatOps = new ArrayList<Identifier>();  
+	private List<Identifier> forcedMatirializedOps = new ArrayList<Identifier>();
 	private int mtbf = 0;
 	private int mttr = 0;
 	
@@ -24,10 +25,10 @@ public class QueryStats implements Serializable {
 	}
 	
     public QueryStats(Map<Identifier, Double> queryRuntimesStat, 
-    		Map<Identifier, Double> queryMattimesStat, List<Identifier> nonMatOps, int mtbf, int mttr){
+    		Map<Identifier, Double> queryMattimesStat, List<Identifier> nonMatOps,  int mtbf, int mttr){
     	this.setQueryRuntimesStat(queryRuntimesStat); 
     	this.setQueryMattimesStat(queryMattimesStat); 
-    	this.setNonMatOps(nonMatOps); 
+    	this.setNonMatOps(nonMatOps);  
     	this.mtbf = mtbf;
     	this.mttr = mttr;
     }
@@ -80,6 +81,14 @@ public class QueryStats implements Serializable {
 	 */
 	public void setNonMatOps(List<Identifier> nonMatOps) {
 		this.nonMatOps = nonMatOps;
+	}
+
+	public List<Identifier> getForcedMatirializedOps() {
+		return forcedMatirializedOps;
+	}
+
+	public void setForcedMatirializedOps(List<Identifier> forcedMatirializedOps) {
+		this.forcedMatirializedOps = forcedMatirializedOps;
 	}
 	
 
