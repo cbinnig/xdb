@@ -152,7 +152,7 @@ public class Config implements Serializable {
 	public static String DOOMDB_TPCH_S50 = "tpch_s50";
 	public static String DOOMDB_TPCH_S100 = "tpch_s100"; 
 	public static int DIVERSITY = 3; 
-	public static String MTBFS_LIST = "43200.4320,432,86,65,43"; 
+	public static String MTBFS_LIST = "43200,4320,432,86,65,43"; 
 	public static int NUMBER_OF_NODES = 10; 
 	public static int NUMBER_OF_RUNS = 10; 
 	public static int RUN_NUMBER = 1; 
