@@ -167,7 +167,6 @@ public class CodeGenerator {
 		} 
 		
 		if(this.splitOpIds.contains(rootOp.getOperatorId())){
-			System.out.println(rootOp.getOperatorId()+" "+rootOp.getChildren()+" "+rootOp.getType()); 
 			
 			rootOp.setRuntime((trackerOpRuntime + 
 					this.compilePlan.getQueryStats().getQueryRuntimesStat().get(rootOp.getOperatorId().getChildId())*Config.COMPILE_FT_PIPELINE_CNST)); 
