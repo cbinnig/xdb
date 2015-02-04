@@ -45,7 +45,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		DoomDBClusterDesc clusterDesc = new DoomDBClusterDesc(
 				Config.DOOMDB_CLUSTER_SIZE);
 		this.dClient = new DoomDBClient(clusterDesc);
-		this.dClient.startDB();
+		this.dClient.startDB(); 
 		this.dClient.setMTBF(Config.DOOMDB_MTBF);
 	}
 
@@ -130,7 +130,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		System.out.println("--------------------");
 	}
 
-	/*
+	
 	public void testQ1_SF1_10Parts() throws Exception {
 		this.dClient.setSchema("TPCH_SF1_10P");
 		this.dClient.setQuery(1);
@@ -160,7 +160,7 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 		this.dClient.setSchema("TPCH_SF100_10P");
 		this.dClient.setQuery(1);
 		this.runPlan();
-	}*/
+	}
 	
 	/**
 	 * Read the trace file of the spot instances 
@@ -258,7 +258,13 @@ public class TestDoomDB extends org.xdb.test.TestCase {
 	public void testQ5_SF50_10Parts() throws Exception {
 		this.dClient.setSchema("TPCH_SF50_10P");
 		this.dClient.setQuery(5);
-		this.runPlan();
+		this.runPlan(); 
+		
+		/*
+		 * java
+		 *  -cp ~/XDB/XDB/lib/xdb.jar:path/to/junit-4.8.2.jar org.xdb.test.doomdb.SingleJUnitTestRunner 
+		 * org.xdb.test.doomdb.TestDoomDB#testQ5_SF10_10Parts
+		 */
 	}
 	
 	/*

@@ -27,7 +27,7 @@ public class Config implements Serializable {
 	public static String PLATTFORM = "MAC";
 	public static String LOCALHOST = "127.0.0.1";
 	public static String CONFIG_FILE = "./config/xdb.conf"; 
-	public static boolean SIMULATION_MODE = false;
+	public static boolean SIMULATION_MODE = true;
 
 	// Monitoring
 	public static int MASTERTRACKER_MONITOR_INTERVAL = 2000;
@@ -130,7 +130,9 @@ public class Config implements Serializable {
 	public static String TEST_DB_NAME = "tpch_s01";
 	public static int TEST_NODE_COUNT = 2;
 	public static String TEST_CLUSTER = "dhbw";
-	public static int TEST_PARTS_PER_NODE = 1;
+	public static int TEST_PARTS_PER_NODE = 1; 
+	public static boolean TRACE_FAILURE_SIMULATOR = false;
+	public static String NAIVE_STRATEGY_MODE = "fine";
 
 	// DoomDB
 	public static boolean ACTIVATE_FAILURE_SIMULATOR = false;
@@ -149,7 +151,15 @@ public class Config implements Serializable {
 	public static String DOOMDB_TPCH_S10 = "tpch_s10";
 	public static String DOOMDB_TPCH_S50 = "tpch_s50";
 	public static String DOOMDB_TPCH_S100 = "tpch_s100"; 
-	public static int DIVERSITY = 3;
+	public static int DIVERSITY = 3; 
+	public static String MTBFS_LIST = "43200.4320,432,86,65,43"; 
+	public static int NUMBER_OF_NODES = 10; 
+	public static int NUMBER_OF_RUNS = 10; 
+	public static int RUN_NUMBER = 1; 
+	public static String ROBUSTNESS_TEST = "mtbf";
+	public static double IO_FACTOR = 1; 
+	public static double MTBF_FACTOR = 1; 
+	public static double SELECTIVITY_FACTOR = 1;
 
 	// Logging
 	private static Logger logger = XDBLog.getLogger(EnumXDBComponents.CONFIG);
@@ -196,16 +206,16 @@ public class Config implements Serializable {
 	 */
 	private static void loadDoom() {
 		String[] intProperties = { "DOOMDB_MTBF", "DOOMDB_MTTR",
-				"DOOMDB_CLUSTER_SIZE", "DOOMDB_NUM_FAILUERS", "DIVERSITY"};
+				"DOOMDB_CLUSTER_SIZE", "DOOMDB_NUM_FAILUERS", "DIVERSITY", "NUMBER_OF_RUNS", "NUMBER_OF_NODES", "RUN_NUMBER"};
 
 		String[] stringProperties = { "DOOMDB_COMPUTE_NODES",
 				"DOOMDB_TPCH_S01", "DOOMDB_TPCH_S1", "DOOMDB_TPCH_S10",
-				"DOOMDB_TPCH_S50", "DOOMDB_TPCH_S100" };
+				"DOOMDB_TPCH_S50", "DOOMDB_TPCH_S100", "MTBFS_LIST", "ROBUSTNESS_TEST"};
 
 		String[] boolProperties = { "DOOMDB_MTBF_LOAD",
 				"ACTIVATE_FAILURE_SIMULATOR" };
 
-		String[] doubleProperties = { "DOOMDB_MTBF_STDEV", "DOOMDB_ERROR", "SPOTGRES_MTBF"};
+		String[] doubleProperties = { "DOOMDB_MTBF_STDEV", "DOOMDB_ERROR", "SPOTGRES_MTBF", "IO_FACTOR", "MTBF_FACTOR", "SELECTIVITY_FACTOR"};
 
 		Properties props;
 		props = new Properties();
@@ -282,7 +292,7 @@ public class Config implements Serializable {
 		String[] stringProperties = { "PLATTFORM", "COMPILE_URL",
 				"MASTERTRACKER_URL", "TEST_DB_NAME", "TEST_CLUSTER",
 				"COMPUTE_ENGINE", "SHOOTED_COMPUTE_NODES", "COMPILE_FT_MODE",
-				"DOT_EXE" };
+				"DOT_EXE", "NAIVE_STRATEGY_MODE" };
 
 		String[] boolProperties = { "LOGGING_ENABLED", "COMPUTE_CLEAN_PLAN",
 				"TRACE_PARALLEL_PLAN", "TRACE_COMPILE_PLAN",
@@ -297,7 +307,7 @@ public class Config implements Serializable {
 				"LOG_EXECUTION_TIME", "CODEGEN_OPTIMIZE", "TEST_RUN_LOCAL",
 				"QUERYTRACKER_MONITOR_ACTIVATED",
 				"MASTERTRACKER_MONITOR_ACTIVATED", "TEST_FT_CHECKPOINTING",
-				"COMPILE_FT_ACTIVE", "COMPILE_FT_PRUNING", "COMPUTE_INTERMEDIATE_KEYS", "SIMULATION_MODE" };
+				"COMPILE_FT_ACTIVE", "COMPILE_FT_PRUNING", "COMPUTE_INTERMEDIATE_KEYS", "SIMULATION_MODE", "TRACE_FAILURE_SIMULATOR" };
 
 		Properties props;
 		props = new Properties();

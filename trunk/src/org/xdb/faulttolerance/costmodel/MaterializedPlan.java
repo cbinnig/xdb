@@ -119,7 +119,7 @@ public class MaterializedPlan implements Comparable<MaterializedPlan> {
 
 	@Override
 	public int compareTo(MaterializedPlan obj) {
-		return (int) (this.runTime - obj.runTime);
+		return (this.runTime - obj.runTime)>0?1:-1;
 	}
 
 	/**

@@ -1,5 +1,7 @@
 package org.xdb.faulttolerance.costmodel;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,7 +27,9 @@ public class MaterializationOpsSuggester {
 	
 	private Map<Identifier, Double> intermediadeResultsMatTime = new HashMap<Identifier, Double>();    
 	
-	private List<Identifier> nonMaterializableOps = new ArrayList<Identifier>();
+	private List<Identifier> nonMaterializableOps = new ArrayList<Identifier>(); 
+	
+	private List<Identifier> forcedMaterializedOps = new ArrayList<Identifier>();
 	
 	private List<Identifier> recommendedMatOpsIds = new ArrayList<Identifier>(); 
 	
@@ -54,15 +58,78 @@ public class MaterializationOpsSuggester {
 		
 		if(Config.COMPILE_FT_MODE.equalsIgnoreCase("smart")){
 			err = startSmartMaterilizationFinder();
+		} else if(Config.COMPILE_FT_MODE.equalsIgnoreCase("heuristic")){
+			err = startHeuristicMaterializationFinder();
 		} else if(Config.COMPILE_FT_MODE.equalsIgnoreCase("naive")) {
 			err = startNaiveMaterilizationFinder();
 		} else if(Config.COMPILE_FT_MODE.equalsIgnoreCase("bushy")){
 			err = startBushyMaterializationFinder();
+		} else if(Config.COMPILE_FT_MODE.equalsIgnoreCase("forced")) {
+			err = startForcingMaterializationFinder();
 		}
 	    
 		return err;
 	} 
 	
+	/**
+	 * This function is implemented for experemntial purposes. 
+	 * For accuracy experement to measure the runtime of 
+	 * different plans to see how accurate the estimated 
+	 * runtime time we got from the cost model to the 
+	 * the actual runtime we got from running actually 
+	 * those plans. 
+	 * @return
+	 */
+	private Error startForcingMaterializationFinder() {
+		Error err = new Error(); 
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader("./stat/dhbw/forced.conf"));  
+			String id = null;
+			while ((id = reader.readLine()) != null) {  
+				Identifier opId = new Identifier(id.trim());
+				forcedMaterializedOps.add(opId);
+			}
+			reader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		// Materialize the plan with the forced materialized op 
+		
+		Collection<AbstractCompileOperator> ops = this.compilePlan.getOperators();  
+		for (AbstractCompileOperator abstractCompileOperator : ops) { 
+			Identifier opId = abstractCompileOperator.getOperatorId().getChildId();
+			if(abstractCompileOperator.getType() == EnumOperator.TABLE
+					|| nonMaterializableOps.contains(opId)) 
+				continue;  
+			else {
+				if(forcedMaterializedOps.contains(opId)) {
+					abstractCompileOperator.getResult().materialize(true);    
+					this.recommendedMatOpsIds.add(abstractCompileOperator.getOperatorId().getChildId());
+				}
+			}			
+		}	
+		this.compilePlan.setMatOps(recommendedMatOpsIds);
+		
+		return err;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private Error startHeuristicMaterializationFinder() {
+		Error err = new Error(); 
+		HeurisicMaterialization heurisicMaterialization = new HeurisicMaterialization(); 
+		heurisicMaterialization.setCompilePlan(compilePlan);
+		heurisicMaterialization.setIntermediadeResultsMatTime(intermediadeResultsMatTime); 
+		heurisicMaterialization.setOpsEstimatedRuntime(opsEstimatedRuntime); 
+		heurisicMaterialization.setNonMaterializableOps(nonMaterializableOps); 
+		heurisicMaterialization.materializePlan();  
+		System.out.println("Heurisitc Called!!!!");
+		this.compilePlan.tracePlan("Materialized Plan");
+		return err;
+	}
+
 	private Error startBushyMaterializationFinder() {
 		Error err = new Error(); 
 		BushyCPlanMatEnumerator bushyTreeEnumerator = new BushyCPlanMatEnumerator(this.mtbf, this.mttr);
@@ -73,7 +140,7 @@ public class MaterializationOpsSuggester {
 		bushyTreeEnumerator.enumerateCompilePlan();   
 		this.costModelQueryPlan = bushyTreeEnumerator.getCostModelQueryPlan();
 		this.recommendedMatOpsIds = bushyTreeEnumerator.getRecommendedMatOpIds();  
-		updateCompilePlanWithNewMat();
+		updateCompilePlanWithNewMat(); 
 		return err;
 	}
 
@@ -267,6 +334,14 @@ public class MaterializationOpsSuggester {
 	 */
 	public void setNonMaterializableOps(List<Identifier> nonMaterializableOps) {
 		this.nonMaterializableOps = nonMaterializableOps;
+	}
+
+	public List<Identifier> getForcedMaterializedOps() {
+		return forcedMaterializedOps;
+	}
+
+	public void setForcedMaterializedOps(List<Identifier> forcedMaterializedOps) {
+		this.forcedMaterializedOps = forcedMaterializedOps;
 	}
 
 	

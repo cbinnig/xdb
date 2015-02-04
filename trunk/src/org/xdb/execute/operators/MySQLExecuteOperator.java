@@ -63,7 +63,6 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 	 * Execute prepared DML statements
 	 */
 	protected Error executeOperator() {
-
 		if(Config.SIMULATION_MODE) {
 			try {
 				System.out.println("Simulate Execution for "+this.operatorId +" Runtime: "+this.runtime +" Matitme: "+this.mattime); 	
@@ -73,7 +72,7 @@ public class MySQLExecuteOperator extends AbstractExecuteOperator {
 				this.err = createMySQLError(e1);
 				this.status = EnumOperatorStatus.getRuntimeFailure();
 			} 
-		} else {
+		} else { 
 			try {
 				for (final PreparedStatement stmt : executeStmts) {
 					stmt.execute();

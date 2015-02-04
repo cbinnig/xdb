@@ -3,7 +3,6 @@ package org.xdb.faulttolerance.costmodel;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.xdb.utils.Identifier;
@@ -17,6 +16,7 @@ public class TotalRuntimeEstimator {
 	// 
 	private double runTime;  
 	// 
+	@SuppressWarnings("unused")
 	private boolean isAllMatConfNan;
 	private int mttr = 0;
 
@@ -76,7 +76,7 @@ public class TotalRuntimeEstimator {
 		double T;
 		double W;
 		double F;
-		long r; 
+		double r; 
 		long totalR = 0; 
 		double totalWastedTime = 0.0; 
 		double runTimeWF;
@@ -85,7 +85,7 @@ public class TotalRuntimeEstimator {
 		for (MaterializedPlan materializedPlan : matPlansList) {  
 			// For each mat conf we will apply the cost model level by level 
 			List<Level> levels = materializedPlan.getmateriliazedPlanLevels(); 
-			System.out.print("Mat Conf -> ");
+			//System.out.print("Mat Conf -> ");
 			totalR = 0;
 			totalWastedTime = 0.0; 
 			runTime = 0.0; 
@@ -99,19 +99,20 @@ public class TotalRuntimeEstimator {
 				if(r < 0){
 					r = Long.MAX_VALUE;
 				} 
-				levelRunTime = T + (W*(1 - Math.pow(F,r+1))/(1-F) - W) + r*this.mttr; 
+				//levelRunTime = T + (W*(1 - Math.pow(F,r+1))/(1-F) - W) + r*this.mttr;  
+				levelRunTime = T + r*W + r*this.mttr;
 				runTime += levelRunTime; 
 				totalR += r; 
 				totalWastedTime += W; 
-				System.out.print(level.getSubQquery().get(level.getSubQquery().size()-1).getId());  
-				System.out.print(", ");
+				//System.out.print(level.getSubQquery().get(level.getSubQquery().size()-1).getId());  
+				//System.out.print(", ");
 			} 
 			if(Double.isNaN(runTime)){
 				nANMatConf++;
 				runTime = Double.MAX_VALUE;
 			}
-			System.out.println();
-			System.out.println("Total RunTime:"+runTime+" Runtime="+runTimeWF + ", Avg.Wasted Time="+totalWastedTime+", Attempts="+totalR);
+			//System.out.println();
+			//System.out.println("Total RunTime:"+runTime+" Runtime="+runTimeWF + ", Avg.Wasted Time="+totalWastedTime+", Attempts="+totalR);
             
 			materializedPlan.setRunTime(runTime);	 
 		} 
@@ -128,6 +129,7 @@ public class TotalRuntimeEstimator {
 	 * @return
 	 */
 	public List<Identifier> getTheRecommendedMaterializationOpsId (){
+		/*
 		if(isAllMatConfNan) {
 			Comparator<MaterializedPlan> levelsComparator = new Comparator<MaterializedPlan>() {
 
@@ -139,7 +141,9 @@ public class TotalRuntimeEstimator {
 			Collections.sort(matPlansList, levelsComparator); 
 		} else {
 			Collections.sort(matPlansList);   
-		}
+		}*/
+		
+		Collections.sort(matPlansList);   
 		MaterializedPlan materializedPlan = matPlansList.get(0); 
 		List<Level> levels = materializedPlan.getmateriliazedPlanLevels(); 
 	    System.out.println("Operators should be materialized: ");
@@ -147,7 +151,19 @@ public class TotalRuntimeEstimator {
 		for (Level level : levels) { 
 			materializedOpIds.add(level.getSubQquery().get(level.getSubQquery().size()-1).getId());
 			System.out.println("Op: "+level.getSubQquery().get(level.getSubQquery().size()-1).getId());
-		} 
+		}  
+		
+		System.out.println("Ranked Plans list from the best to worst->");
+		for(int i=0; i < matPlansList.size(); i++){
+			MaterializedPlan plan = matPlansList.get(i); 
+			List<Level> planLevels = plan.getmateriliazedPlanLevels(); 
+			System.out.println("Mat Conf "+(i+1) +":");
+			for (Level level : planLevels) {
+				System.out.print(level.getSubQquery().get(level.getSubQquery().size()-1).getId());  
+				System.out.print(", ");
+			} 
+			System.out.println("Total Runtime: "+plan.getRunTime());
+		}
         return materializedOpIds;
 	}
 

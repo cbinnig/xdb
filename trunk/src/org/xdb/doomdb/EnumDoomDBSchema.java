@@ -244,15 +244,22 @@ public enum EnumDoomDBSchema {
 		String mattimeFileName = "./stat/" + Config.TEST_CLUSTER + "/q" + Integer.toString(queryID) + "_"
 				+ this.schemaName + "_mattimes.conf";
 		String materializabilityFileName = "./stat/" + Config.TEST_CLUSTER + "/q" + Integer.toString(queryID) + "_" + this.schemaName
-				+ "_materializability.conf";
-
+				+ "_materializability.conf"; 
+		
 		Properties props;
 		props = new Properties();
 
 		Map<Identifier, Boolean> materializability = new HashMap<Identifier, Boolean>();
 		Map<Identifier, Double> runtimes = new HashMap<Identifier, Double>();
 		Map<Identifier, Double> mattimes = new HashMap<Identifier, Double>();
-
+        double runtimeFactor = 1; 
+        double mattimeFactor = 1; 
+        if(Config.ROBUSTNESS_TEST.equalsIgnoreCase("sel")) {
+        	runtimeFactor = Config.SELECTIVITY_FACTOR;
+        	mattimeFactor = Config.SELECTIVITY_FACTOR;
+        } else if(Config.ROBUSTNESS_TEST.equalsIgnoreCase("io")){
+        	mattimeFactor = Config.IO_FACTOR;
+        }
 		try {
 			// Reading the materializability of the operators
 			props.load(new FileReader(materializabilityFileName));
@@ -268,7 +275,7 @@ public enum EnumDoomDBSchema {
 			for (Object key : props.keySet()) {
 				String opId = key.toString(); 
 				runtimes.put(new Identifier(Integer.parseInt(opId)),
-						Double.parseDouble(props.getProperty(opId).trim()) + Config.DOOMDB_ERROR*Double.parseDouble(props.getProperty(opId).trim()));
+						Double.parseDouble(props.getProperty(opId).trim())*runtimeFactor);
 			}
 
 			// Reading the materialization time of the operators
@@ -277,8 +284,10 @@ public enum EnumDoomDBSchema {
 			for (Object key : props.keySet()) {
 				String opId = key.toString(); 
 				mattimes.put(new Identifier(Integer.parseInt(opId)),
-						Double.parseDouble(props.getProperty(opId).trim()) + Config.DOOMDB_ERROR*Double.parseDouble(props.getProperty(opId).trim()));
-			}
+						Double.parseDouble(props.getProperty(opId).trim())*mattimeFactor);
+			} 
+			
+			
 			
 			opMaterializabilityMap.put(queryID, materializability);
 			runTimeMap.put(queryID, runtimes);

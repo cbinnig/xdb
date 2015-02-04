@@ -132,8 +132,11 @@ public class ComputeServer extends AbstractServer {
 		// kill all running queries
 		MysqlRunManager sqlManager = new MysqlRunManager();
 		this.err = sqlManager.killAllQueries();
-		if(this.err.isError())
-			return this.err;
+		if(this.err.isError())  { 
+			System.out.println("Error in killing the query!");
+			return this.err; 
+		}
+		System.out.println("killing all queries passed");
 		
 		long endTime = System.currentTimeMillis();
 		long waitTime = endTime -startTime;
@@ -149,9 +152,10 @@ public class ComputeServer extends AbstractServer {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}  
-		
+		System.out.println("Ready to start the server");
 		//restart compute server
-		this.restartServer();
+		this.restartServer(); 
+		System.out.println("server is restardted "+this.err);
 		
 		return this.err;
 	}
