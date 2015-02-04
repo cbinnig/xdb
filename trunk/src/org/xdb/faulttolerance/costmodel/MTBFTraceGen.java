@@ -34,7 +34,7 @@ public class MTBFTraceGen {
 	// initialize globalMTBFs
 	private void initMTBFs() {
         String mtbfsList = Config.MTBFS_LIST; 
-		double stdev = Config.DOOMDB_MTBF_STDEV;
+		//double stdev = Config.DOOMDB_MTBF_STDEV;
         // convert to array list 
         String[] mtbfs = mtbfsList.split(","); 
         List<Double> mtbfsListTest = new ArrayList<Double>(); 
@@ -73,10 +73,10 @@ public class MTBFTraceGen {
         				long mtbf = (long) dist.sample() * 1000;
 
         				// first failure can happen any time
-        				if(z==0) {
-        					mtbf = (long)(mtbf * Math.random());   
-        					System.out.println("First MTBF: "+mtbf);
-        				}
+        				//if(z==0) {
+        				//	mtbf = (long)(mtbf * Math.random());   
+        				//	System.out.println("First MTBF: "+mtbf);
+        				//}
 
         				// calculate time stamp from MTBF
         				Long timestamp = mtbf;
@@ -111,7 +111,5 @@ public class MTBFTraceGen {
 	public static void main(String[] args) {
 		MTBFTraceGen mTBFTraceGen = new MTBFTraceGen();
 		mTBFTraceGen.initMTBFs();
-        
 	}
-
 }
