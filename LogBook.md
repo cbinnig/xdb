@@ -1,0 +1,1 @@
+24.04.2014 - 18:59: -Erfan- TPCH data with sf=10 is created and loaded into the DHBW clusters (and their databases).
