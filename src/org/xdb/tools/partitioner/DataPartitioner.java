@@ -7,8 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
+//import java.time.Duration;
+//import java.time.Instant;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -173,7 +173,7 @@ public class DataPartitioner {
 	 */
 	private void partitionDataByHashing(String fileName, String indices, int numberOfPartitions, boolean isIntHashing)
 			throws Exception {
-		Instant start = Instant.now();
+		//Instant start = Instant.now();
 		
 		// Return the indices in an array format	166			// Return the indices in an array format
 		Integer[] partitionIndices = Utils.getKeyIndicesFromString(indices.trim());
@@ -224,9 +224,9 @@ public class DataPartitioner {
 		br.close();
 		
 		
-		Instant end = Instant.now();
-		long durationInMillis = Duration.between(start, end).toMillis();
-		System.out.println("Hash partitioning took: "+durationInMillis+ "ms");
+		//Instant end = Instant.now();
+		//long durationInMillis = Duration.between(start, end).toMillis();
+		//System.out.println("Hash partitioning took: "+durationInMillis+ "ms");
 		System.out.println("Hash partitioning done!");
 	}
 
@@ -286,8 +286,8 @@ public class DataPartitioner {
 			String referenceFile, String referenceIndices,
 			int numberOfReferencePartitions, int chunkSize, boolean isReversed) throws Exception {
 
-		Instant start = Instant.now();
-		long readInMillis = 0;
+		//Instant start = Instant.now();
+		//long readInMillis = 0;
 		
 		System.out.println("Reference indices: " + referenceIndices );
 		String directory = Utils.getFileDirectory(file);
@@ -308,7 +308,7 @@ public class DataPartitioner {
 				continue; 
 			}
 			
-			Instant startRead = Instant.now();
+			//Instant startRead = Instant.now();
 			
 			BufferedReader br = new BufferedReader(new FileReader(directory
 					+ "/" + referenceFile + "_p" + i + ".tbl"));
@@ -331,8 +331,8 @@ public class DataPartitioner {
 
 			}
 			
-			Instant endRead = Instant.now();
-			readInMillis += Duration.between(startRead, endRead).toMillis();
+			//Instant endRead = Instant.now();
+			//readInMillis += Duration.between(startRead, endRead).toMillis();
 			
 			writePartition(file, partitionsIndicesList, i, isReversed);
 			referenceKeys.clear();
@@ -346,9 +346,9 @@ public class DataPartitioner {
 			writeNonReferencedLines(file, numberOfReferencePartitions); 
 		}
 		
-		Instant end = Instant.now();
-		long durationInMillis = Duration.between(start, end).toMillis() - readInMillis;
-		System.out.println("Reference partitioning took: "+durationInMillis+ "ms (excluding reading time of "+readInMillis+"ms)");
+		//Instant end = Instant.now();
+		//long durationInMillis = Duration.between(start, end).toMillis() - readInMillis;
+		//System.out.println("Reference partitioning took: "+durationInMillis+ "ms (excluding reading time of "+readInMillis+"ms)");
 		
 		System.out.println("Reference partitioning done!");
 
